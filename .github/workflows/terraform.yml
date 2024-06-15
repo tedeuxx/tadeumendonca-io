@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - '.github/**'
       - 'terraform/**'
       - 'src/**'
   pull_request:
     branches:
       - main
     paths:
+      - '.github/**'
       - 'terraform/**'
       - 'src/**'
 
