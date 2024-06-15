@@ -1,23 +1,3 @@
-data "aws_iam_policy_document" "profile_policy" {
-  statement {
-    sid    = "PublicReadGetObject"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
-    }
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.app_domain_profile}/*"
-    ]
-  }
-}
-
 resource "aws_s3_bucket" "profile" {
   bucket = var.app_domain_profile
   force_destroy = true
@@ -40,26 +20,6 @@ resource "aws_s3_bucket_object" "profile_content" {
     AppURL = "https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530"
   })
   content_type  = "text/html"
-}
-
-data "aws_iam_policy_document" "wpp_policy" {
-  statement {
-    sid    = "PublicReadGetObject"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
-    }
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.app_domain_wpp}/*"
-    ]
-  }
 }
 
 resource "aws_s3_bucket" "wpp" {
@@ -86,25 +46,6 @@ resource "aws_s3_bucket_object" "wpp_content" {
   content_type  = "text/html"
 }
 
-data "aws_iam_policy_document" "insta_policy" {
-  statement {
-    sid    = "PublicReadGetObject"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
-    }
-
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.app_domain_insta}/*"
-    ]
-  }
-}
 resource "aws_s3_bucket" "insta" {
   bucket = var.app_domain_insta
   force_destroy = true
