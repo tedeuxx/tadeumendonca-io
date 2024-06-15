@@ -83,7 +83,7 @@ data "template_file" "index_profile" {
 resource "aws_s3_bucket_object" "profile_content" {
   depends_on      = [aws_s3_bucket.profile]
   bucket = var.app_domain_profile
-  key    = each.value
+  key    = "index.html"
   content = data.template_file.index_profile.rendered
   content_type  = "text/html"
 }
