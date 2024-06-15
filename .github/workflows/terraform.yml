@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: terraform
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -33,14 +31,14 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: ls -l && terraform plan -var-file=./env/main.tfvars
+        run: cd terraform && terraform plan -var-file=./env/main.tfvars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: ls -l && terraform apply -auto-approve -var-file=./env/main.tfvars
+        run: cd terraform && terraform apply -auto-approve -var-file=./env/main.tfvars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
