@@ -72,13 +72,20 @@ resource "aws_s3_bucket" "profile" {
   }
 }
 
+data "template_file" "index_profile" {
+  template = file("${path.module}/../src/index.tpl")
+  vars = {
+    AppName   = "LinkedIn"
+    AppURL = "https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530"
+  }
+}
+
 resource "aws_s3_bucket_object" "profile_content" {
   depends_on      = [aws_s3_bucket.profile]
   for_each = fileset("../src/profile", "**/*")
   bucket = var.app_domain_profile
   key    = each.value
-  source = "../src/profile/${each.value}"
-  etag   = filemd5("../src/profile/${each.value}")
+  content = data.template_file.index_profile.rendered
   content_type  = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
 }
 
