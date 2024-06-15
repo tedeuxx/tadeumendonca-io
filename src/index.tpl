@@ -33,8 +33,8 @@
     </script>
     <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
-    <title>Luiz Tadeu Mendonça | {{.AppName}}</title>
-    <meta http-equiv="refresh" content="1; URL='{{.AppURL}}'" />
+    <title>Luiz Tadeu Mendonça | ${AppName}</title>
+    <meta http-equiv="refresh" content="1; URL='${AppURL}'" />
 </head>
 
 <body>
