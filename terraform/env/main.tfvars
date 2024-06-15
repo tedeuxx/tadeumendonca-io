@@ -1,7 +1,4 @@
-aws_region                      = "us-east-1"
-aws_profile                     = "personal"
 app_name                        = "tadeumendonca.io"
-app_env                         = "PRD"
 app_domain_root                 = "tadeumendonca.io"
 app_domain_www                  = "www.tadeumendonca.io"
 app_domain_code                 = "code.tadeumendonca.io"

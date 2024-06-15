@@ -47,10 +47,6 @@ resource "aws_cloudfront_distribution" "root" {
         default_ttl            = 3600
         max_ttl                = 86400
     }
-    tags = {
-        App         = var.app_name
-        Environment = var.app_env
-    }
 }
 
 resource "aws_cloudfront_distribution" "code" {
@@ -99,10 +95,6 @@ resource "aws_cloudfront_distribution" "code" {
         default_ttl            = 3600
         max_ttl                = 86400
     }
-    tags = {
-        App         = var.app_name
-        Environment = var.app_env
-    }
 }
 
 resource "aws_cloudfront_distribution" "profile" {
@@ -147,10 +139,6 @@ resource "aws_cloudfront_distribution" "profile" {
         min_ttl                = 0
         default_ttl            = 3600
         max_ttl                = 86400
-    }
-    tags = {
-        App         = var.app_name
-        Environment = var.app_env
     }
 }
 
@@ -197,10 +185,6 @@ resource "aws_cloudfront_distribution" "wpp" {
         default_ttl            = 3600
         max_ttl                = 86400
     }
-    tags = {
-        App         = var.app_name
-        Environment = var.app_env
-    }
 }
 
 resource "aws_cloudfront_distribution" "insta" {
@@ -245,9 +229,5 @@ resource "aws_cloudfront_distribution" "insta" {
         min_ttl                = 0
         default_ttl            = 3600
         max_ttl                = 86400
-    }
-    tags = {
-        App         = var.app_name
-        Environment = var.app_env
     }
 }

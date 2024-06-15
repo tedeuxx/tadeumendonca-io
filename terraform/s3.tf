@@ -70,11 +70,6 @@ resource "aws_s3_bucket" "profile" {
     index_document = "index.html"
     error_document = "error.html"
   }
-
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }
 
 resource "aws_s3_bucket_object" "profile_content" {
@@ -85,10 +80,6 @@ resource "aws_s3_bucket_object" "profile_content" {
   source = "../src/profile/${each.value}"
   etag   = filemd5("../src/profile/${each.value}")
   content_type  = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }
 
 resource "aws_s3_bucket" "wpp" {
@@ -101,11 +92,6 @@ resource "aws_s3_bucket" "wpp" {
     index_document = "index.html"
     error_document = "error.html"
   }
-
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }
 
 resource "aws_s3_bucket_object" "wpp_content" {
@@ -116,10 +102,6 @@ resource "aws_s3_bucket_object" "wpp_content" {
   source = "../src/wpp/${each.value}"
   etag   = filemd5("../src/wpp/${each.value}")
   content_type  = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }
 
 resource "aws_s3_bucket" "insta" {
@@ -132,11 +114,6 @@ resource "aws_s3_bucket" "insta" {
     index_document = "index.html"
     error_document = "error.html"
   }
-
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }
 
 resource "aws_s3_bucket_object" "insta_content" {
@@ -147,8 +124,4 @@ resource "aws_s3_bucket_object" "insta_content" {
   source = "../src/insta/${each.value}"
   etag   = filemd5("../src/insta/${each.value}")
   content_type  = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
-  tags = {
-      App         = var.app_name
-      Environment = var.app_env
-  }
 }

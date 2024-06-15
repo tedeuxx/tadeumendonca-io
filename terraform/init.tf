@@ -10,11 +10,14 @@ terraform {
     bucket      = "tadeumen-terraform-backend"
     key         = "tadeumendonca-terraform-backend"
     region      = "us-east-1"
-    profile     = "personal"
   }
 }
 
 # Configure the AWS Provider
 provider "aws" {
-  region = var.aws_region
+  default_tags {
+    tags = {
+      App = var.app_name 
+    }
+  }
 }
