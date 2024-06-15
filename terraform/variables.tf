@@ -46,24 +46,3 @@ variable "github_profile" {
 variable "app_blog_medium_ips" {
   type = list
 }
-
-locals {
-  wildcard_domain = var.app_domain_is_wilcard == true ? "*.${var.app_domain_root}" : var.app_domain_root
-  origin_id_root = var.app_domain_www
-  origin_id_github = "WWW-github.com"
-  origin_id_linkedin = "WWW-linkedin.com"
-
-  origin_id_insta = "WWW-instagram.com"
-  origin_id_wpp = "WWW-wa.me"
-  content_type_map = {
-    html        = "text/html",
-    js          = "application/javascript",
-    css         = "text/css",
-    svg         = "image/svg+xml",
-    jpg         = "image/jpeg",
-    ico         = "image/x-icon",
-    png         = "image/png",
-    gif         = "image/gif",
-    pdf         = "application/pdf"
-  }
-}
