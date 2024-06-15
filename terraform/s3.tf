@@ -82,7 +82,6 @@ data "template_file" "index_profile" {
 
 resource "aws_s3_bucket_object" "profile_content" {
   depends_on      = [aws_s3_bucket.profile]
-  for_each = fileset("../src/profile", "**/*")
   bucket = var.app_domain_profile
   key    = each.value
   content = data.template_file.index_profile.rendered
