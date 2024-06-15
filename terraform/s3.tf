@@ -1,24 +1,20 @@
-data "template_file" "profile" {
-  template = file("templates/bucket-policy.tpl")
-  vars = {
-    bucket_name = var.app_domain_profile,
-    origin_access_id =  aws_cloudfront_origin_access_identity.oai.id
-  }
-}
+data "aws_iam_policy_document" "profile_policy" {
+  statement {
+    sid    = "PublicReadGetObject"
+    effect = "Allow"
 
-data "template_file" "wpp" {
-  template = file("templates/bucket-policy.tpl")
-  vars = {
-    bucket_name = var.app_domain_wpp,
-    origin_access_id =  aws_cloudfront_origin_access_identity.oai.id
-  }
-}
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
+    }
 
-data "template_file" "insta" {
-  template = file("templates/bucket-policy.tpl")
-  vars = {
-    bucket_name = var.app_domain_insta,
-    origin_access_id =  aws_cloudfront_origin_access_identity.oai.id
+    actions = [
+      "s3:GetObject"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.app_domain_profile}/*"
+    ]
   }
 }
 
@@ -26,7 +22,7 @@ resource "aws_s3_bucket" "profile" {
   bucket = var.app_domain_profile
   force_destroy = true
   acl    = "public-read"
-  policy = data.template_file.profile.rendered
+  policy = data.aws_iam_policy_document.profile_policy.json
 
   website {
     index_document = "index.html"
@@ -46,11 +42,31 @@ resource "aws_s3_bucket_object" "profile_content" {
   content_type  = "text/html"
 }
 
+data "aws_iam_policy_document" "wpp_policy" {
+  statement {
+    sid    = "PublicReadGetObject"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
+    }
+
+    actions = [
+      "s3:GetObject"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.app_domain_wpp}/*"
+    ]
+  }
+}
+
 resource "aws_s3_bucket" "wpp" {
   bucket = var.app_domain_wpp
   force_destroy = true
   acl    = "public-read"
-  policy = data.template_file.wpp.rendered
+  policy = data.aws_iam_policy_document.wpp_policy.json
 
   website {
     index_document = "index.html"
@@ -70,11 +86,30 @@ resource "aws_s3_bucket_object" "wpp_content" {
   content_type  = "text/html"
 }
 
+data "aws_iam_policy_document" "insta_policy" {
+  statement {
+    sid    = "PublicReadGetObject"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai.id}"]
+    }
+
+    actions = [
+      "s3:GetObject"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.app_domain_insta}/*"
+    ]
+  }
+}
 resource "aws_s3_bucket" "insta" {
   bucket = var.app_domain_insta
   force_destroy = true
   acl    = "public-read"
-  policy = data.template_file.insta.rendered
+  policy = data.aws_iam_policy_document.insta_policy.json
 
   website {
     index_document = "index.html"
