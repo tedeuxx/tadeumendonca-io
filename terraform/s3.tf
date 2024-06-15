@@ -35,8 +35,8 @@ resource "aws_s3_bucket" "wpp" {
 }
 
 resource "aws_s3_bucket_object" "wpp_content" {
-  depends_on      = [aws_s3_bucket.profile]
-  bucket = var.app_domain_profile
+  depends_on      = [aws_s3_bucket.wpp]
+  bucket = var.app_domain_wpp
   key    = "index.html"
   content = templatefile("${path.module}/../src/index.tpl",
   {
@@ -59,8 +59,8 @@ resource "aws_s3_bucket" "insta" {
 }
 
 resource "aws_s3_bucket_object" "insta_content" {
-  depends_on      = [aws_s3_bucket.profile]
-  bucket = var.app_domain_profile
+  depends_on      = [aws_s3_bucket.insta]
+  bucket = var.app_domain_insta
   key    = "index.html"
   content = templatefile("${path.module}/../src/index.tpl",
   {
