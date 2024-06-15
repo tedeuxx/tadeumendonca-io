@@ -6,11 +6,7 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket      = "tadeumen-terraform-backend"
-    key         = "tadeumendonca-terraform-backend"
-    region      = "us-east-1"
-  }
+  backend "s3" {}
 }
 
 # Configure the AWS Provider
