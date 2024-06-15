@@ -3,7 +3,7 @@ AWS Infrastructure Management for Personal Domain
 
 ## Overview
 
-This project is designed to manage the AWS infrastructure related to my personal domain using Terraform. It serves as a showcase for my skills as a Cloud Application Architect, allowing me to demonstrate the practical applications of my everyday work in a professional and personal context.
+This project is designed to manage the AWS infrastructure related to my personal domain using Terraform. It serves as a showcase for my skills as a Senior Cloud Application Architect working at Amazon Web Services Professional Services since Jan/2021, allowing me to demonstrate the practical applications of my everyday work in a professional and personal context.
 
 ## Purpose
 
