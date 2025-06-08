@@ -1,5 +1,4 @@
-name: Terraform CI/CD
-
+name: tadeumendonca.io
 on:
   workflow_dispatch:
     inputs:
