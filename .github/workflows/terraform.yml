@@ -56,14 +56,14 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || github.event_name == 'push' }}
-        run: terraform apply -var-file=./env/main.tfvars
+        run: terraform apply -auto-approve -var-file=./env/main.tfvars
         working-directory: terraform
         env:
           TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
 
       - name: Terraform Destroy
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' }}
-        run: terraform destroy -var-file=./env/main.tfvars
+        run: terraform destroy -auto-approve -var-file=./env/main.tfvars
         working-directory: terraform
         env:
           TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
