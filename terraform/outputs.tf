@@ -1,3 +1,6 @@
+############################
+# AWS
+############################
 output "aws_vpc_id" {
   description = "AWS VPC ID"
   value       = local.aws_vpc_id
@@ -18,7 +21,10 @@ output "aws_availability_zones" {
   value       = local.aws_availability_zones
 }
 
-output "aws_workload_name" {
+############################
+# Customer Resource Tags
+############################
+output "customer_workload_name" {
   description = "Workload Name"
   value = local.aws_workload_name
 }

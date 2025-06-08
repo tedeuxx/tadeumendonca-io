@@ -4,5 +4,5 @@ locals {
   aws_account_id         = data.aws_caller_identity.current.account_id
   aws_availability_zones = data.aws_availability_zones.azs.names
   aws_vpc_id             = module.vpc.vpc_id
-  aws_workload_name      = var.customer_workload_name
+  customer_workload_name = var.customer_workload_name
 }
