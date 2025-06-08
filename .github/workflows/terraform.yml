@@ -1,6 +1,16 @@
 name: Terraform CI/CD
 
 on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
   push:
     branches:
       - main
@@ -37,9 +47,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      # - name: Terraform Format Check
-      #   run: terraform fmt -check
-      #   working-directory: terraform
+      - name: Terraform Format Check
+        run: terraform fmt -check
+        working-directory: terraform
 
       - name: Terraform Validate
         run: terraform validate
@@ -54,11 +64,19 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.event.inputs.action == 'apply' }}
         run: terraform apply -auto-approve -var-file=./env/main.tfvars
         working-directory: terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-  
+          
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: terraform destroy -auto-approve -var-file=./env/main.tfvars
+        working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
