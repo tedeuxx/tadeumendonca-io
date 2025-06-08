@@ -4,8 +4,8 @@ terraform {
       source  = "hashicorp/aws"
     }
   }
-  backend "remote" {
-    hostname     = "app.terraform.io"
+  cloud {
+    hostname     = "app.terraform.io" 
     organization = "tadeumendonca" 
     workspaces { 
       name = "tadeumendonca-io" 
