@@ -40,10 +40,8 @@ jobs:
           terraform_version: 1.0.11
 
       - name: Terraform Login
-        run: terraform login -token=${{ secrets.TFC_TOKEN }}
-        env:
-          TF_LOG: DEBUG
-
+        run: terraform login
+        
       - name: Initialize Terraform
         run: terraform init
         working-directory: terraform
