@@ -51,12 +51,12 @@ jobs:
 
       - name: Terraform validate
         id: validate
-        run: terraform validate -no-color
+        run: terraform validate
         working-directory: terraform
 
       - name: Terraform plan
         id: plan
-        run: terraform plan -no-color -var-file=./env/main.tfvars
+        run: terraform plan -var-file=./env/main.tfvars
         working-directory: terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
