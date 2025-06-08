@@ -17,3 +17,8 @@ output "aws_availability_zones" {
   description = "AWS Region Availability Zone Names"
   value       = local.aws_availability_zones
 }
+
+output "aws_workload_name" {
+  description = "Workload Name"
+  value = local.aws_workload_name
+}
