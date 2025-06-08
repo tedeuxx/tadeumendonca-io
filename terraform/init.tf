@@ -6,7 +6,14 @@ terraform {
     }
   }
 
-  backend "s3" {}
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "tadeumendonca"
+
+    workspaces {
+      name = "github"
+    }
+  }
 }
 
 # Configure the AWS Provider
