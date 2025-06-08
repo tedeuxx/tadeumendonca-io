@@ -7,7 +7,7 @@ terraform {
   cloud { 
     organization = "tadeumendonca" 
     workspaces { 
-      name = "github" 
+      name = "tadeumendonca-io" 
     } 
   } 
 }
