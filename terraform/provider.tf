@@ -1,5 +1,6 @@
 # Configure the AWS Provider
 provider "aws" {
+  region = var.aws_region
   default_tags {
     tags = {
       customer_workload_name        = var.customer_workload_name
