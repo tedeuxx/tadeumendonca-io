@@ -36,12 +36,10 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.0.11
 
       - name: Terraform Login
-        run: terraform login
-        
+        run: terraform login -token=${{ secrets.TFC_TOKEN }}
+
       - name: Initialize Terraform
         run: terraform init
         working-directory: terraform
