@@ -37,7 +37,7 @@ jobs:
         uses: hashicorp/setup-terraform@v1
 
       - name: Terraform Login
-        run: terraform login -token=${{ secrets.TFC_TOKEN }} app.terraform.io
+        run: terraform login app.terraform.io
 
       - name: Initialize Terraform
         run: terraform init
