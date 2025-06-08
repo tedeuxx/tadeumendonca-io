@@ -46,11 +46,11 @@ variable "customer_workload_sponsor" {
 }
 
 variable "customer_workload_environment" {
-  description = "AWS Resource Tag - Entorno del Workload"
+  description = "AWS Resource Tag - Workload Environment"
   type        = string
   nullable    = false
   validation {
-    condition     = contains(["Main"], var.customer_workload_environment)
-    error_message = "valid environments are: Main"
+    condition     = contains(["main"], var.customer_workload_environment)
+    error_message = "valid environments are: main"
   }
 }
