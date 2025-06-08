@@ -7,7 +7,7 @@ module "vpc" {
   version                = "5.19.0"
   name                   = var.vpc_name
   cidr                   = var.vpc_cidr
-  azs                    = local.azs
+  azs                    = local.aws_availability_zones
   private_subnets        = var.vpc_private_subnets
   public_subnets         = var.vpc_public_subnets
   enable_nat_gateway     = true
