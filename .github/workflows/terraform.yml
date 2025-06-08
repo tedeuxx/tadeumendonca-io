@@ -38,6 +38,8 @@ jobs:
 
       - name: Terraform Login
         run: terraform login app.terraform.io
+        env:
+          TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
 
       - name: Initialize Terraform
         run: terraform init
