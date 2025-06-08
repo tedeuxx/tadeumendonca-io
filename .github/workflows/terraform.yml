@@ -42,16 +42,19 @@ jobs:
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
+        working-directory: terraform
 
-      - name: Terraform Init
+      - name: Terraform int
         id: init
         run: terraform init
+        working-directory: terraform
 
-      - name: Terraform Validate
+      - name: Terraform validate
         id: validate
         run: terraform validate -no-color
+        working-directory: terraform
 
-      - name: Terraform Plan
+      - name: Terraform plan
         id: plan
         run: terraform plan -no-color -var-file=./env/main.tfvars
         working-directory: terraform
@@ -59,7 +62,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Terraform Apply
+      - name: Terraform apply
         if: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') || github.event_name == 'push' }}
         run: terraform apply -auto-approve -var-file=./env/main.tfvars
         working-directory: terraform
@@ -67,7 +70,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Terraform Destroy
+      - name: Terraform destroy
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' }}
         run: terraform destroy -auto-approve -var-file=./env/main.tfvars
         working-directory: terraform
