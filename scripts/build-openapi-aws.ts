@@ -55,12 +55,20 @@ const corsOptions = {
   },
 };
 
-// /health is a plain Hono route (not an app.openapi route), so it isn't in the generated document —
-// add it so the gateway routes it to the BFF too.
+// Plain Hono routes (not app.openapi) aren't in the generated document — add them so the gateway
+// routes them to the BFF too. Path params use the {param} form API Gateway expects.
 doc.paths = doc.paths ?? {};
-if (!doc.paths['/health']) {
-  doc.paths['/health'] = { get: { responses: { '200': { description: 'OK' } } } };
-}
+const pathParam = (name: string) => ({ name, in: 'path', required: true, schema: { type: 'string' } });
+const ensure = (path: string, def: unknown) => {
+  if (!doc.paths[path]) doc.paths[path] = def;
+};
+ensure('/health', { get: { responses: { '200': { description: 'OK' } } } });
+ensure('/og-meta/{type}/{slug}', {
+  get: { parameters: [pathParam('type'), pathParam('slug')], responses: { '200': { description: 'OG meta' } } },
+});
+ensure('/prerender/{type}/{slug}', {
+  get: { parameters: [pathParam('type'), pathParam('slug')], responses: { '200': { description: 'Prerendered HTML' } } },
+});
 
 for (const pathItem of Object.values(doc.paths) as any[]) {
   for (const method of Object.keys(pathItem)) {
