@@ -47,7 +47,7 @@ export function profileMeta(profile: Profile): MetaInput {
   return {
     title: `${profile.name} — ${profile.headline}`,
     description: profile.summary ?? profile.headline,
-    image_url: `${config.spaOrigin}/og/profile/me.png`,
+    image_url: `${config.apiOrigin}/og/profile/me.png`,
     url: `${config.spaOrigin}/`,
   };
 }

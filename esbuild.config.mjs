@@ -15,6 +15,9 @@ await build({
   format: 'esm',
   minify: true,
   sourcemap: false,
+  // The og-image module imports the resvg wasm + Inter woff fonts; embed them as Uint8Array so the
+  // bundle stays a single self-contained file (no runtime file reads, no native binary to ship).
+  loader: { '.wasm': 'binary', '.woff': 'binary' },
   // ESM output needs these shims for any CJS deps that reference __dirname/require.
   banner: {
     js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",

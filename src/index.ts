@@ -10,6 +10,7 @@ import { errorHandler } from './shared/middleware/error';
 import { config } from './shared/config';
 import { registerProfile } from './modules/profile/routes';
 import { registerPrerender } from './modules/prerender/routes';
+import { registerOgImage } from './modules/og-image/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -23,6 +24,7 @@ app.get('/health', (c) => c.json({ status: 'ok', service: config.serviceName }))
 
 registerProfile(app);
 registerPrerender(app);
+registerOgImage(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {

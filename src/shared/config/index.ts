@@ -11,4 +11,7 @@ export const config = {
   // Exact SPA origin per env — the BFF echoes Access-Control-Allow-Origin on 2xx responses
   // (the gateway OpenAPI owns the OPTIONS preflight + error CORS — /infrastructure/api-gateway).
   spaOrigin: environment === 'production' ? 'https://tadeumendonca.io' : 'https://staging.tadeumendonca.io',
+  // API origin (this BFF's public host) — og:image URLs point here so the first scrape triggers
+  // on-demand generation; the og-image route then 302s to spaOrigin/og/* (CloudFront → S3 CDN).
+  apiOrigin: environment === 'production' ? 'https://api.tadeumendonca.io' : 'https://api.staging.tadeumendonca.io',
 } as const;
