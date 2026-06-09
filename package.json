@@ -19,16 +19,20 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.10.0",
     "@aws-sdk/client-dynamodb": "^3.670.0",
+    "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/lib-dynamodb": "^3.670.0",
+    "@fontsource/inter": "^5.2.8",
     "@hono/zod-openapi": "^0.18.0",
+    "@resvg/resvg-wasm": "^2.6.2",
     "hono": "^4.6.0",
     "markdown-it": "^14.1.0",
+    "satori": "^0.12.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
-    "@types/markdown-it": "^14.1.2",
     "@types/aws-lambda": "^8.10.145",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.8.0",
     "@vitest/coverage-v8": "^2.1.0",
     "esbuild": "^0.24.0",

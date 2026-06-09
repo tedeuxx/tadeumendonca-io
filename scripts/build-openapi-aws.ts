@@ -69,6 +69,9 @@ ensure('/og-meta/{type}/{slug}', {
 ensure('/prerender/{type}/{slug}', {
   get: { parameters: [pathParam('type'), pathParam('slug')], responses: { '200': { description: 'Prerendered HTML' } } },
 });
+ensure('/og/{type}/{filename}', {
+  get: { parameters: [pathParam('type'), pathParam('filename')], responses: { '302': { description: 'Redirect to the cached OG image (CDN)' } } },
+});
 
 for (const pathItem of Object.values(doc.paths) as any[]) {
   for (const method of Object.keys(pathItem)) {
