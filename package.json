@@ -26,6 +26,7 @@
     "@resvg/resvg-wasm": "^2.6.2",
     "hono": "^4.6.0",
     "markdown-it": "^14.1.0",
+    "nanoid": "^5.1.11",
     "satori": "^0.12.2",
     "zod": "^3.23.8"
   },

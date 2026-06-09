@@ -11,6 +11,7 @@ import { config } from './shared/config';
 import { registerProfile } from './modules/profile/routes';
 import { registerPrerender } from './modules/prerender/routes';
 import { registerOgImage } from './modules/og-image/routes';
+import { registerPosts } from './modules/posts/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -22,9 +23,19 @@ app.onError(errorHandler);
 // Liveness — also the API GW seed route (/infrastructure/api-gateway).
 app.get('/health', (c) => c.json({ status: 'ok', service: config.serviceName }));
 
+// Bearer security scheme referenced by protected routes (security: [{ CognitoAuth: [] }]). The neutral
+// doc carries a plain apiKey scheme; the AWS overlay (build-openapi-aws) replaces it with the Cognito
+// User Pools authorizer (x-amazon-apigateway-authorizer) at deploy (/backend/openapi).
+app.openAPIRegistry.registerComponent('securitySchemes', 'CognitoAuth', {
+  type: 'apiKey',
+  name: 'Authorization',
+  in: 'header',
+});
+
 registerProfile(app);
 registerPrerender(app);
 registerOgImage(app);
+registerPosts(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {
