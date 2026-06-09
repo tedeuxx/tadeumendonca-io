@@ -6,6 +6,7 @@
 import type { BffApp } from '../../shared/types/app';
 import { getProfile } from '../profile/repository';
 import { getPost } from '../posts/repository';
+import { getBySlug } from '../articles/repository';
 import { objectExists, putImage } from '../../shared/s3/client';
 import { config } from '../../shared/config';
 import { NotFoundError } from '../../shared/errors/http-errors';
@@ -25,6 +26,11 @@ async function render(type: string, slug: string): Promise<Uint8Array> {
     const post = await getPost(slug);
     if (!post || !post.published) throw new NotFoundError('post not found');
     return gen.generatePostImage(post);
+  }
+  if (type === 'articles') {
+    const article = await getBySlug(slug);
+    if (!article || !article.published) throw new NotFoundError('article not found');
+    return gen.generateArticleImage(article);
   }
   throw new NotFoundError(`no og image for type ${type}`);
 }

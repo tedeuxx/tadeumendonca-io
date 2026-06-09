@@ -3,7 +3,7 @@
 // reference its URL. Public base URL = the SPA origin (config.spaOrigin).
 import MarkdownIt from 'markdown-it';
 import { config } from '../config';
-import type { Profile, Post } from '../types/entities';
+import type { Profile, Post, Article } from '../types/entities';
 
 const md = new MarkdownIt({ html: false, linkify: true });
 
@@ -120,5 +120,37 @@ ${md.render(post.body)}
   return htmlDoc({ ...meta, ogType: 'article', jsonLd: postJsonLd(post), body });
 }
 
-// markdown→HTML helper for article bodies (Phase 3) — kept here so the dep stays isolated.
+// --- articles (long-form) ---
+export function articleMeta(article: Article): MetaInput {
+  return {
+    title: article.title,
+    description: article.excerpt ?? plainSnippet(article.body),
+    image_url: `${config.apiOrigin}/og/articles/${article.slug}.png`,
+    url: `${config.spaOrigin}/articles/${article.slug}`,
+  };
+}
+
+export function articleJsonLd(article: Article): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    articleSection: article.tag,
+    datePublished: article.created_at,
+    dateModified: article.updated_at ?? article.created_at,
+    url: `${config.spaOrigin}/articles/${article.slug}`,
+  };
+}
+
+export function articleHtml(article: Article): string {
+  const meta = articleMeta(article);
+  const body = `<article>
+<h1>${escapeHtml(article.title)}</h1>
+<p>${escapeHtml(article.tag)} · <time datetime="${article.created_at}">${escapeHtml(article.created_at.slice(0, 10))}</time></p>
+${md.render(article.body)}
+</article>`;
+  return htmlDoc({ ...meta, ogType: 'article', jsonLd: articleJsonLd(article), body });
+}
+
+// markdown→HTML helper — kept here so the dep stays isolated. Reused by article rendering.
 export const renderMarkdown = (markdown: string): string => md.render(markdown);

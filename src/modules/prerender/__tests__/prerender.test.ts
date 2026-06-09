@@ -46,7 +46,7 @@ describe('prerender — og-meta', () => {
   });
 
   it('404s for an unsupported type', async () => {
-    const res = await app.request('/og-meta/articles/whatever');
+    const res = await app.request('/og-meta/unknown/whatever');
     expect(res.status).toBe(404);
   });
 
@@ -87,7 +87,7 @@ describe('prerender — full HTML', () => {
   });
 
   it('404s for an unsupported type', async () => {
-    const res = await app.request('/prerender/articles/x');
+    const res = await app.request('/prerender/unknown/x');
     expect(res.status).toBe(404);
   });
 });

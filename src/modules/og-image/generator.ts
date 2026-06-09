@@ -11,7 +11,7 @@ import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm';
 import interRegular from '@fontsource/inter/files/inter-latin-400-normal.woff';
 import interBold from '@fontsource/inter/files/inter-latin-700-normal.woff';
-import type { Profile, Post } from '../../shared/types/entities';
+import type { Profile, Post, Article } from '../../shared/types/entities';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -95,5 +95,29 @@ async function toPng(node: any): Promise<Uint8Array> {
   return new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng();
 }
 
+// Article share card — title hero + category/date footer.
+function articleCardNode(article: Article): any {
+  return el(
+    'div',
+    {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      padding: '90px',
+      backgroundColor: '#0f172a',
+      color: '#f8fafc',
+      fontFamily: 'Inter',
+    },
+    [
+      el('div', { display: 'flex', fontSize: '26px', color: '#38bdf8', marginBottom: '24px', textTransform: 'uppercase' }, article.tag),
+      el('div', { fontSize: '64px', fontWeight: 700, lineHeight: 1.15 }, article.title),
+      el('div', { display: 'flex', fontSize: '28px', marginTop: '40px', color: '#94a3b8' }, article.created_at.slice(0, 10)),
+    ],
+  );
+}
+
 export const generateOgImage = (profile: Profile): Promise<Uint8Array> => toPng(card(profile));
 export const generatePostImage = (post: Post): Promise<Uint8Array> => toPng(postCardNode(post));
+export const generateArticleImage = (article: Article): Promise<Uint8Array> => toPng(articleCardNode(article));

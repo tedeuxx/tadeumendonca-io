@@ -4,14 +4,15 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 // generator (its .wasm/.woff binary imports can't load under vitest — see vitest.config exclude).
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 const { objectExists, putImage } = vi.hoisted(() => ({ objectExists: vi.fn(), putImage: vi.fn() }));
-const { generateOgImage, generatePostImage } = vi.hoisted(() => ({
+const { generateOgImage, generatePostImage, generateArticleImage } = vi.hoisted(() => ({
   generateOgImage: vi.fn(async () => new Uint8Array([0x89, 0x50])),
   generatePostImage: vi.fn(async () => new Uint8Array([0x89, 0x50])),
+  generateArticleImage: vi.fn(async () => new Uint8Array([0x89, 0x50])),
 }));
 
 vi.mock('../../../shared/db/client', () => ({ ddb: { send } }));
 vi.mock('../../../shared/s3/client', () => ({ objectExists, putImage }));
-vi.mock('../generator', () => ({ generateOgImage, generatePostImage }));
+vi.mock('../generator', () => ({ generateOgImage, generatePostImage, generateArticleImage }));
 
 import { app } from '../../../index';
 
@@ -67,7 +68,7 @@ describe('GET /og/{type}/{slug}.png', () => {
 
   it('404s for an unsupported type', async () => {
     objectExists.mockResolvedValueOnce(false);
-    const res = await app.request('/og/articles/x.png');
+    const res = await app.request('/og/unknown/x.png');
     expect(res.status).toBe(404);
     expect(putImage).not.toHaveBeenCalled();
   });
