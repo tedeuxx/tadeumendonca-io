@@ -10,7 +10,9 @@ import SideNavigation from '@cloudscape-design/components/side-navigation';
 import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
 import { PostPage } from './pages/PostPage';
+import { ComposePage } from './pages/ComposePage';
 import { CallbackPage } from './pages/CallbackPage';
+import { RequireAuth } from './auth/RequireAuth';
 import { useAuth } from './auth/authStore';
 
 const queryClient = new QueryClient({
@@ -75,6 +77,14 @@ function Shell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/posts/:postId" element={<PostPage />} />
+            <Route
+              path="/compose"
+              element={
+                <RequireAuth admin>
+                  <ComposePage />
+                </RequireAuth>
+              }
+            />
             <Route path="/callback" element={<CallbackPage />} />
           </Routes>
         }

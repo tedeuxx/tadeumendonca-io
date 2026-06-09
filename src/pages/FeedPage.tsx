@@ -9,13 +9,14 @@ import Alert from '@cloudscape-design/components/alert';
 import Button from '@cloudscape-design/components/button';
 import { useFeed } from '../hooks/useFeed';
 import { PostCard } from '../components/PostCard';
+import { SubscribeButton } from '../components/SubscribeButton';
 
 export function FeedPage() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
   const posts = data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
-    <ContentLayout header={<Header variant="h1">Feed</Header>}>
+    <ContentLayout header={<Header variant="h1" actions={<SubscribeButton />}>Feed</Header>}>
       {isLoading && (
         <Box textAlign="center" padding="xxl">
           <Spinner size="large" />
