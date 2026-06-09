@@ -11,6 +11,9 @@ import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
 import { PostPage } from './pages/PostPage';
 import { ComposePage } from './pages/ComposePage';
+import { ArticlesPage } from './pages/ArticlesPage';
+import { ArticlePage } from './pages/ArticlePage';
+import { ComposeArticlePage } from './pages/ComposeArticlePage';
 import { CallbackPage } from './pages/CallbackPage';
 import { RequireAuth } from './auth/RequireAuth';
 import { useAuth } from './auth/authStore';
@@ -68,7 +71,13 @@ function Shell() {
             items={[
               { type: 'link', text: 'CV', href: '/' },
               { type: 'link', text: 'Feed', href: '/feed' },
-              ...(isAdmin ? [{ type: 'link' as const, text: 'New post', href: '/compose' }] : []),
+              { type: 'link', text: 'Articles', href: '/articles' },
+              ...(isAdmin
+                ? [
+                    { type: 'link' as const, text: 'New post', href: '/compose' },
+                    { type: 'link' as const, text: 'New article', href: '/compose-article' },
+                  ]
+                : []),
             ]}
           />
         }
@@ -77,11 +86,21 @@ function Shell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/posts/:postId" element={<PostPage />} />
+            <Route path="/articles" element={<ArticlesPage />} />
+            <Route path="/articles/:slug" element={<ArticlePage />} />
             <Route
               path="/compose"
               element={
                 <RequireAuth admin>
                   <ComposePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/compose-article"
+              element={
+                <RequireAuth admin>
+                  <ComposeArticlePage />
                 </RequireAuth>
               }
             />

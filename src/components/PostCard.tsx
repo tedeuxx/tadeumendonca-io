@@ -1,7 +1,7 @@
 // A single feed post card (/frontend/design-system). Title links to the post detail; shows date +
 // tags + the markdown body. Reused by the feed list and the detail page.
 import { Link as RouterLink } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from './Markdown';
 import Container from '@cloudscape-design/components/container';
 import Header from '@cloudscape-design/components/header';
 import SpaceBetween from '@cloudscape-design/components/space-between';
@@ -38,7 +38,7 @@ export function PostCard({ post, linkTitle = true }: { post: Post; linkTitle?: b
           </SpaceBetween>
         )}
         <Box variant="p">
-          <ReactMarkdown>{post.body}</ReactMarkdown>
+          <Markdown>{post.body}</Markdown>
         </Box>
       </SpaceBetween>
     </Container>
