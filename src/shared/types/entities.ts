@@ -55,3 +55,15 @@ export interface Post {
   created_at: string; // ISO-8601
   updated_at?: string;
 }
+
+// Newsletter subscription (Phase 2). Hash key = email. The `by-status` GSI (status, email) lists
+// active subscribers for the notification fan-out; `by-cognito` finds a user's subscription by sub.
+export type SubscriptionStatus = 'active' | 'unsubscribed';
+
+export interface Subscription {
+  email: string; // hash key
+  status: SubscriptionStatus;
+  cognito_sub: string; // the authenticated subscriber
+  created_at: string;
+  updated_at?: string;
+}

@@ -2,6 +2,8 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 vi.mock('../../../shared/db/client', () => ({ ddb: { send } }));
+// Isolate posts from the notification fan-out (its own suite covers it).
+vi.mock('../../notifications/notify', () => ({ notifyPostPublished: vi.fn() }));
 
 import { app } from '../../../index';
 

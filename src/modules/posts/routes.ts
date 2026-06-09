@@ -8,6 +8,7 @@ import type { BffApp } from '../../shared/types/app';
 import { FEED_PK, type Post } from '../../shared/types/entities';
 import { listPublished, getPost, createPost, savePost, deletePost } from './repository';
 import { requireGroup } from '../../shared/auth/authorize';
+import { notifyPostPublished } from '../notifications/notify';
 import { NotFoundError } from '../../shared/errors/http-errors';
 
 const ADMIN = 'admin';
@@ -121,6 +122,7 @@ export function registerPosts(app: BffApp): void {
         ...(input.published ? { gsi_pk: FEED_PK } : {}), // sparse feed index
       };
       await createPost(post);
+      if (post.published) await notifyPostPublished(post); // fan-out is fail-open
       return c.json(toApi(post), 201);
     },
   );
@@ -156,6 +158,7 @@ export function registerPosts(app: BffApp): void {
         gsi_pk: input.published ? FEED_PK : undefined, // removeUndefinedValues drops it → sparse
       };
       await savePost(updated);
+      if (!existing.published && updated.published) await notifyPostPublished(updated); // notify on draft→published
       return c.json(toApi(updated), 200);
     },
   );
