@@ -60,11 +60,17 @@ jobs:
             echo "bucket=$(ssm /$ENV_NAME/frontend/s3-bucket-name)"
             echo "distribution_id=$(ssm /$ENV_NAME/frontend/cloudfront-distribution-id)"
             echo "api_base_url=$(ssm /$ENV_NAME/api/gateway-url)"
+            echo "cognito_pool_id=$(ssm /$ENV_NAME/auth/cognito-user-pool-id)"
+            echo "cognito_client_id=$(ssm /$ENV_NAME/auth/cognito-client-id)"
+            echo "cognito_domain=$(ssm /$ENV_NAME/auth/cognito-domain)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Build (Vite — env injected)
         env:
           VITE_API_BASE_URL: ${{ steps.cfg.outputs.api_base_url }}
+          VITE_COGNITO_USER_POOL_ID: ${{ steps.cfg.outputs.cognito_pool_id }}
+          VITE_COGNITO_CLIENT_ID: ${{ steps.cfg.outputs.cognito_client_id }}
+          VITE_COGNITO_DOMAIN: ${{ steps.cfg.outputs.cognito_domain }}
         run: npm run build
 
       - name: Publish to S3 (split cache headers)
