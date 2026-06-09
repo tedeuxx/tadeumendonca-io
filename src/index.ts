@@ -13,6 +13,7 @@ import { registerPrerender } from './modules/prerender/routes';
 import { registerOgImage } from './modules/og-image/routes';
 import { registerPosts } from './modules/posts/routes';
 import { registerSubscriptions } from './modules/subscriptions/routes';
+import { registerArticles } from './modules/articles/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -38,6 +39,7 @@ registerPrerender(app);
 registerOgImage(app);
 registerPosts(app);
 registerSubscriptions(app);
+registerArticles(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {

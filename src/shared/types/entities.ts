@@ -67,3 +67,20 @@ export interface Subscription {
   created_at: string;
   updated_at?: string;
 }
+
+// Long-form article (Phase 3). Hash key = article_id (opaque). `by-slug` GSI routes the public URL
+// (/articles/<slug>); `by-tag` GSI (tag, created_at) lists a category newest-first. `tag` is the single
+// indexed category; drafts are filtered out by `published` (not a sparse index, since slug must resolve
+// for previews). No "list all" GSI — that path Scans (articles are low-volume; see repository).
+export interface Article {
+  article_id: string; // opaque nanoid
+  slug: string; // human-readable, unique (by-slug GSI)
+  tag: string; // primary category (by-tag GSI hash)
+  title: string;
+  body: string; // markdown (long-form)
+  excerpt?: string;
+  published: boolean;
+  author_sub?: string;
+  created_at: string;
+  updated_at?: string;
+}

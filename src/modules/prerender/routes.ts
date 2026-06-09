@@ -5,12 +5,13 @@
 import type { BffApp } from '../../shared/types/app';
 import { getProfile } from '../profile/repository';
 import { getPost } from '../posts/repository';
-import { profileMeta, profileHtml, postMeta, postHtml } from '../../shared/render';
+import { getBySlug } from '../articles/repository';
+import { profileMeta, profileHtml, postMeta, postHtml, articleMeta, articleHtml } from '../../shared/render';
 import { NotFoundError } from '../../shared/errors/http-errors';
 
 const CACHE = 'public, max-age=300';
 
-// Resolve (type, slug) → { meta, html }, or throw NotFound. Posts must be published to be exposed.
+// Resolve (type, slug) → { meta, html }, or throw NotFound. Posts/articles must be published to be exposed.
 async function resolve(type: string, slug: string): Promise<{ meta: object; html: string }> {
   if (type === 'profile') {
     const profile = await getProfile();
@@ -21,6 +22,11 @@ async function resolve(type: string, slug: string): Promise<{ meta: object; html
     const post = await getPost(slug);
     if (!post || !post.published) throw new NotFoundError('post not found');
     return { meta: postMeta(post), html: postHtml(post) };
+  }
+  if (type === 'articles') {
+    const article = await getBySlug(slug);
+    if (!article || !article.published) throw new NotFoundError('article not found');
+    return { meta: articleMeta(article), html: articleHtml(article) };
   }
   throw new NotFoundError(`no bot rendering for type ${type}`);
 }
