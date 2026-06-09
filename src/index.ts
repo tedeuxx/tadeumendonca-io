@@ -1,0 +1,31 @@
+// The BFF — one OpenAPIHono app, routes at root, + the aws-lambda adapter (one handler). Domain
+// modules register their routes here (/backend/framework-hono, /backend/bff). Auth is external (the
+// API GW Cognito authorizer); this app reads claims, never validates tokens.
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { handle } from 'hono/aws-lambda';
+import { cors } from 'hono/cors';
+import type { LambdaBindings } from './shared/types/app';
+import { loggerContext } from './shared/middleware/logger';
+import { errorHandler } from './shared/middleware/error';
+import { config } from './shared/config';
+import { registerProfile } from './modules/profile/routes';
+
+export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
+
+// Success-path CORS header (the gateway OpenAPI owns OPTIONS preflight + error CORS).
+app.use('*', cors({ origin: config.spaOrigin, allowHeaders: ['authorization', 'content-type'] }));
+app.use('*', loggerContext());
+app.onError(errorHandler);
+
+// Liveness — also the API GW seed route (/infrastructure/api-gateway).
+app.get('/health', (c) => c.json({ status: 'ok', service: config.serviceName }));
+
+registerProfile(app);
+
+// OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
+app.doc('/openapi.json', {
+  openapi: '3.0.1',
+  info: { title: 'tadeumendonca-api', version: process.env.API_VERSION ?? '0.0.0' },
+});
+
+export const handler = handle(app);
