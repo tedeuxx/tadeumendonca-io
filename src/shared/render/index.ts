@@ -3,7 +3,7 @@
 // reference its URL. Public base URL = the SPA origin (config.spaOrigin).
 import MarkdownIt from 'markdown-it';
 import { config } from '../config';
-import type { Profile } from '../types/entities';
+import type { Profile, Post } from '../types/entities';
 
 const md = new MarkdownIt({ html: false, linkify: true });
 
@@ -17,8 +17,8 @@ interface MetaInput {
   url: string;
 }
 
-export function htmlDoc(input: MetaInput & { jsonLd: object; body: string }): string {
-  const { title, description, url, image_url, jsonLd, body } = input;
+export function htmlDoc(input: MetaInput & { jsonLd: object; body: string; ogType?: string }): string {
+  const { title, description, url, image_url, jsonLd, body, ogType = 'website' } = input;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -27,7 +27,7 @@ export function htmlDoc(input: MetaInput & { jsonLd: object; body: string }): st
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
 <link rel="canonical" href="${url}" />
-<meta property="og:type" content="website" />
+<meta property="og:type" content="${ogType}" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:url" content="${url}" />
@@ -79,6 +79,45 @@ ${experience ? `<h2>Experience</h2><ul>${experience}</ul>` : ''}
 ${skills ? `<h2>Skills</h2><ul>${skills}</ul>` : ''}
 </article>`;
   return htmlDoc({ ...meta, jsonLd: personJsonLd(profile), body });
+}
+
+// --- posts (feed) ---
+const plainSnippet = (markdown: string, max = 160): string => {
+  const text = markdown.replace(/[#*_`>[\]()~]/g, '').replace(/\s+/g, ' ').trim();
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+};
+
+export function postMeta(post: Post): MetaInput {
+  return {
+    title: post.title,
+    description: plainSnippet(post.body),
+    image_url: `${config.apiOrigin}/og/posts/${post.post_id}.png`,
+    url: `${config.spaOrigin}/posts/${post.post_id}`,
+  };
+}
+
+export function postJsonLd(post: Post): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    datePublished: post.created_at,
+    dateModified: post.updated_at ?? post.created_at,
+    keywords: post.tags?.join(', '),
+    url: `${config.spaOrigin}/posts/${post.post_id}`,
+  };
+}
+
+export function postHtml(post: Post): string {
+  const meta = postMeta(post);
+  const tags = post.tags?.length ? `<p>${post.tags.map((t) => `#${escapeHtml(t)}`).join(' ')}</p>` : '';
+  const body = `<article>
+<h1>${escapeHtml(post.title)}</h1>
+<time datetime="${post.created_at}">${escapeHtml(post.created_at.slice(0, 10))}</time>
+${tags}
+${md.render(post.body)}
+</article>`;
+  return htmlDoc({ ...meta, ogType: 'article', jsonLd: postJsonLd(post), body });
 }
 
 // markdown→HTML helper for article bodies (Phase 3) — kept here so the dep stays isolated.

@@ -29,8 +29,24 @@ describe('prerender — og-meta', () => {
     expect(body.image_url).toMatch(/\/og\/profile\/me\.png$/);
   });
 
+  it('returns JSON meta for a published post', async () => {
+    send.mockResolvedValueOnce({ Item: { post_id: 'p1', title: 'My Post', body: '# Hi\n\nbody text', published: true, tags: ['aws'], created_at: '2026-06-01T00:00:00.000Z' } });
+    const res = await app.request('/og-meta/posts/p1');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { title: string; image_url: string; url: string };
+    expect(body.title).toBe('My Post');
+    expect(body.image_url).toMatch(/\/og\/posts\/p1\.png$/);
+    expect(body.url).toMatch(/\/posts\/p1$/);
+  });
+
+  it('404s a draft post', async () => {
+    send.mockResolvedValueOnce({ Item: { post_id: 'p1', title: 'X', body: 'b', published: false, created_at: 'x' } });
+    const res = await app.request('/og-meta/posts/p1');
+    expect(res.status).toBe(404);
+  });
+
   it('404s for an unsupported type', async () => {
-    const res = await app.request('/og-meta/posts/whatever');
+    const res = await app.request('/og-meta/articles/whatever');
     expect(res.status).toBe(404);
   });
 
@@ -52,6 +68,16 @@ describe('prerender — full HTML', () => {
     expect(html).toContain('application/ld+json');
     expect(html).toContain('"@type":"Person"');
     expect(html).toContain('Experience');
+  });
+
+  it('returns indexable HTML with BlogPosting JSON-LD for a published post', async () => {
+    send.mockResolvedValueOnce({ Item: { post_id: 'p1', title: 'My Post', body: '# Hi\n\nbody', published: true, created_at: '2026-06-01T00:00:00.000Z' } });
+    const res = await app.request('/prerender/posts/p1');
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain('My Post');
+    expect(html).toContain('"@type":"BlogPosting"');
+    expect(html).toContain('og:type" content="article"');
   });
 
   it('404s when the profile is absent', async () => {

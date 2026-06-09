@@ -11,7 +11,7 @@ import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm';
 import interRegular from '@fontsource/inter/files/inter-latin-400-normal.woff';
 import interBold from '@fontsource/inter/files/inter-latin-700-normal.woff';
-import type { Profile } from '../../shared/types/entities';
+import type { Profile, Post } from '../../shared/types/entities';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -54,8 +54,36 @@ function card(profile: Profile): any {
   );
 }
 
-export async function generateOgImage(profile: Profile): Promise<Uint8Array> {
-  const svg = await satori(card(profile), {
+// Post share card — the title is the hero; the date + tags sit below the accent bar.
+function postCardNode(post: Post): any {
+  const tags = (post.tags ?? []).slice(0, 4).map((t) => `#${t}`).join('  ');
+  return el(
+    'div',
+    {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      padding: '90px',
+      backgroundColor: '#0f172a',
+      color: '#f8fafc',
+      fontFamily: 'Inter',
+    },
+    [
+      el('div', { display: 'flex', width: '120px', height: '10px', backgroundColor: '#38bdf8', marginBottom: '48px' }, ''),
+      el('div', { fontSize: '64px', fontWeight: 700, lineHeight: 1.15 }, post.title),
+      el(
+        'div',
+        { display: 'flex', fontSize: '28px', marginTop: '40px', color: '#94a3b8' },
+        tags ? `${post.created_at.slice(0, 10)}   ${tags}` : post.created_at.slice(0, 10),
+      ),
+    ],
+  );
+}
+
+async function toPng(node: any): Promise<Uint8Array> {
+  const svg = await satori(node, {
     width: WIDTH,
     height: HEIGHT,
     fonts: [
@@ -64,6 +92,8 @@ export async function generateOgImage(profile: Profile): Promise<Uint8Array> {
     ],
   });
   await ensureWasm();
-  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } });
-  return resvg.render().asPng();
+  return new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng();
 }
+
+export const generateOgImage = (profile: Profile): Promise<Uint8Array> => toPng(card(profile));
+export const generatePostImage = (post: Post): Promise<Uint8Array> => toPng(postCardNode(post));
