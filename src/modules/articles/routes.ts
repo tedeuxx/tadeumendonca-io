@@ -12,8 +12,18 @@ import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
 const ADMIN = 'admin';
 const SECURED = [{ CognitoAuth: [] }];
 
-const slugify = (s: string): string =>
-  s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+// Regex-free slug: lowercase + NFKD, map any non-[a-z0-9] to '-', then collapse/trim dashes via
+// split/filter/join (avoids regex-DoS hotspots and is strictly linear). Capped at 80 chars.
+function slugify(s: string): string {
+  const lowered = s.toLowerCase().normalize('NFKD');
+  let out = '';
+  for (const ch of lowered) {
+    const code = ch.codePointAt(0) ?? 0;
+    if (code >= 0x300 && code <= 0x36f) continue; // drop NFKD combining accents (é → e, not a dash)
+    out += (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') ? ch : '-';
+  }
+  return out.split('-').filter(Boolean).join('-').slice(0, 80);
+}
 
 const ArticleSchema = z
   .object({
