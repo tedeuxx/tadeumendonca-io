@@ -30,6 +30,7 @@ export default defineConfig({
         '**/shared/config/**', // trivial env accessor (defaults only)
         '**/shared/db/client.ts', // SDK client construction (mocked at the boundary)
         '**/shared/s3/client.ts', // SDK client construction (mocked at the boundary)
+        '**/shared/ses/client.ts', // SDK client construction (mocked at the boundary)
         '**/modules/og-image/generator.ts', // satori + resvg-wasm; .wasm/.woff are esbuild binary-loader imports not loadable under vitest — validated by the build smoke test + live deploy
         '**/shared/types/**', // type-only, no runtime code
       ],
