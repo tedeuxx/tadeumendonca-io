@@ -66,6 +66,7 @@ jobs:
             echo "bff_name=$(ssm /$ENV_NAME/api/bff-function-name)"
             echo "api_id=$(ssm /$ENV_NAME/api/gateway-id)"
             echo "account=$(aws sts get-caller-identity --query Account --output text)"
+            echo "cognito_pool_id=$(ssm /$ENV_NAME/auth/cognito-user-pool-id)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Deploy BFF code (update-function-code)
@@ -81,6 +82,7 @@ jobs:
       - name: Republish REST API contract (put-rest-api + deploy)
         env:
           INVOKE_ARN_BFF: arn:aws:apigateway:${{ env.AWS_REGION }}:lambda:path/2015-03-31/functions/arn:aws:lambda:${{ env.AWS_REGION }}:${{ steps.cfg.outputs.account }}:function:${{ steps.cfg.outputs.bff_name }}/invocations
+          COGNITO_USER_POOL_ARN: arn:aws:cognito-idp:${{ env.AWS_REGION }}:${{ steps.cfg.outputs.account }}:userpool/${{ steps.cfg.outputs.cognito_pool_id }}
           API_VERSION: ${{ github.sha }}
           OPENAPI_OUT: openapi.aws.json
         run: |

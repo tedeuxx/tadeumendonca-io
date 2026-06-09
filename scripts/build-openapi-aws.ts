@@ -13,8 +13,10 @@ const invokeArn = process.env.INVOKE_ARN_BFF;
 const spaOrigin = process.env.SPA_ORIGIN ?? 'https://staging.tadeumendonca.io';
 const version = process.env.API_VERSION ?? '0.0.0';
 const out = process.env.OPENAPI_OUT ?? 'openapi.aws.json';
+const cognitoArn = process.env.COGNITO_USER_POOL_ARN; // provider for the REST Cognito authorizer
 
 if (!invokeArn) throw new Error('INVOKE_ARN_BFF is required (the BFF Lambda proxy integration URI)');
+if (!cognitoArn) throw new Error('COGNITO_USER_POOL_ARN is required (the Cognito authorizer provider ARN)');
 
 const doc: any = app.getOpenAPI31Document({
   openapi: '3.0.1',
@@ -80,6 +82,21 @@ for (const pathItem of Object.values(doc.paths) as any[]) {
   }
   pathItem.options = corsOptions; // gateway-owned preflight
 }
+
+// Replace the neutral apiKey scheme with the Cognito User Pools authorizer. Protected operations
+// already carry `security: [{ CognitoAuth: [] }]` (from their createRoute) — the gateway enforces a
+// valid pool token before the request reaches the BFF; group-level authz is done in the BFF.
+doc.components = doc.components ?? {};
+doc.components.securitySchemes = {
+  ...(doc.components.securitySchemes ?? {}),
+  CognitoAuth: {
+    type: 'apiKey',
+    name: 'Authorization',
+    in: 'header',
+    'x-amazon-apigateway-authtype': 'cognito_user_pools',
+    'x-amazon-apigateway-authorizer': { type: 'cognito_user_pools', providerARNs: [cognitoArn] },
+  },
+};
 
 doc['x-amazon-apigateway-gateway-responses'] = {
   DEFAULT_4XX: {

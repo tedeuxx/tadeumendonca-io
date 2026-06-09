@@ -38,3 +38,20 @@ export interface Profile {
   metadata: Record<string, string>; // links (github, linkedin, …)
   updated_at?: string;
 }
+
+// Feed post (Phase 2). The `by-created` GSI is SPARSE: gsi_pk = "POST" is set ONLY when published,
+// so the public feed query (gsi_pk = "POST", created_at desc) returns published posts only — drafts
+// carry no gsi_pk and never appear in the index (/backend/dynamodb).
+export const FEED_PK = 'POST';
+
+export interface Post {
+  post_id: string; // opaque nanoid (never sequential)
+  gsi_pk?: typeof FEED_PK; // present iff published — sparse feed index
+  title: string;
+  body: string; // markdown
+  tags?: string[];
+  published: boolean;
+  author_sub?: string; // Cognito sub of the admin author
+  created_at: string; // ISO-8601
+  updated_at?: string;
+}
