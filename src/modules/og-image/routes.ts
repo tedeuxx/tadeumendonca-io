@@ -15,8 +15,10 @@ export function registerOgImage(app: BffApp): void {
     const slug = filename.replace(/\.png$/, '');
     if (type !== 'profile') throw new NotFoundError(`no og image for type ${type}`); // Phase 1: profile only
 
-    const key = `${type}/${slug}.png`;
-    if (!(await objectExists(key))) {
+    // S3 key = the full public path under /og (CloudFront's /og/* behavior forwards the URI verbatim
+    // to the bucket — it does NOT strip the matched prefix), so the object must live at og/<type>/<slug>.png.
+    const path = `og/${type}/${slug}.png`;
+    if (!(await objectExists(path))) {
       const profile = await getProfile();
       if (!profile) throw new NotFoundError('profile not found');
       // Lazy-import the generator: it statically imports the resvg .wasm + Inter .woff (embedded by
@@ -24,9 +26,9 @@ export function registerOgImage(app: BffApp): void {
       // module's top-level imports means tooling that just loads the app (the OpenAPI build script
       // under tsx, vitest) never has to resolve those binary assets — only a live /og request does.
       const { generateOgImage } = await import('./generator');
-      await putImage(key, await generateOgImage(profile));
+      await putImage(path, await generateOgImage(profile));
     }
     // Deliver via the CDN (CloudFront /og/* → S3), not through the API.
-    return c.redirect(`${config.spaOrigin}/og/${key}`, 302);
+    return c.redirect(`${config.spaOrigin}/${path}`, 302);
   });
 }

@@ -41,7 +41,7 @@ describe('GET /og/{type}/{slug}.png', () => {
     const res = await app.request('/og/profile/me.png');
     expect(res.status).toBe(302);
     expect(generateOgImage).toHaveBeenCalledOnce();
-    expect(putImage).toHaveBeenCalledWith('profile/me.png', expect.any(Uint8Array));
+    expect(putImage).toHaveBeenCalledWith('og/profile/me.png', expect.any(Uint8Array));
   });
 
   it('404s for an unsupported type', async () => {
