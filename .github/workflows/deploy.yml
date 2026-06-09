@@ -1,0 +1,84 @@
+name: deploy
+
+# Build the SPA (Vite, env injected at build time) and publish: S3 sync with split cache headers
+# (immutable hashed assets vs no-cache index.html) + CloudFront invalidation (/workflow/github-actions).
+# develop → staging (auto); main → production (Environment-gated). AWS via OIDC.
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "src/**"
+      - "index.html"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - ".github/workflows/deploy.yml"
+
+permissions:
+  id-token: write # OIDC → AWS
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    env:
+      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve config from SSM
+        id: cfg
+        run: |
+          ssm() { aws ssm get-parameter --name "$1" --query 'Parameter.Value' --output text; }
+          {
+            echo "bucket=$(ssm /$ENV_NAME/frontend/s3-bucket-name)"
+            echo "distribution_id=$(ssm /$ENV_NAME/frontend/cloudfront-distribution-id)"
+            echo "api_base_url=$(ssm /$ENV_NAME/api/gateway-url)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build (Vite — env injected)
+        env:
+          VITE_API_BASE_URL: ${{ steps.cfg.outputs.api_base_url }}
+        run: npm run build
+
+      - name: Publish to S3 (split cache headers)
+        run: |
+          # Hashed assets are immutable; index.html must never cache so it references fresh hashes.
+          aws s3 sync dist/ "s3://${{ steps.cfg.outputs.bucket }}/" \
+            --delete --exclude index.html \
+            --cache-control "public,max-age=31536000,immutable"
+          aws s3 cp dist/index.html "s3://${{ steps.cfg.outputs.bucket }}/index.html" \
+            --cache-control "no-cache,no-store,must-revalidate"
+
+      - name: CloudFront invalidation
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ steps.cfg.outputs.distribution_id }}" \
+            --paths "/*" >/dev/null
+          echo "deployed fed to $ENV_NAME"
