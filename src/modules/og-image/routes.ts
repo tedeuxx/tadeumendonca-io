@@ -5,7 +5,6 @@
 // og:image URLs point here (config.apiOrigin) so the first scrape populates S3 on demand.
 import type { BffApp } from '../../shared/types/app';
 import { getProfile } from '../profile/repository';
-import { generateOgImage } from './generator';
 import { objectExists, putImage } from '../../shared/s3/client';
 import { config } from '../../shared/config';
 import { NotFoundError } from '../../shared/errors/http-errors';
@@ -20,6 +19,11 @@ export function registerOgImage(app: BffApp): void {
     if (!(await objectExists(key))) {
       const profile = await getProfile();
       if (!profile) throw new NotFoundError('profile not found');
+      // Lazy-import the generator: it statically imports the resvg .wasm + Inter .woff (embedded by
+      // esbuild's binary loader at build, inlined into this single bundle). Keeping it out of the
+      // module's top-level imports means tooling that just loads the app (the OpenAPI build script
+      // under tsx, vitest) never has to resolve those binary assets — only a live /og request does.
+      const { generateOgImage } = await import('./generator');
       await putImage(key, await generateOgImage(profile));
     }
     // Deliver via the CDN (CloudFront /og/* → S3), not through the API.
