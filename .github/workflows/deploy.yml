@@ -93,13 +93,11 @@ jobs:
             --body "fileb://openapi.aws.json" >/dev/null
           # put-rest-api is "synchronous" but the resource graph settles asynchronously — an immediate
           # create-deployment can snapshot BEFORE newly-added routes register, so the live stage serves
-          # 403 "Missing Authentication Token" for the new paths. Settle, then deploy twice (idempotent)
-          # to guarantee the snapshot includes them.
-          sleep 12
+          # 403 "Missing Authentication Token" for the new paths. Settle first, then a SINGLE deployment
+          # (create-deployment is aggressively rate-limited account-wide — back-to-back calls trip
+          # TooManyRequestsException, so do exactly one).
+          sleep 15
           aws apigateway create-deployment \
             --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
             --stage-name live --description "$API_VERSION" >/dev/null
-          aws apigateway create-deployment \
-            --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
-            --stage-name live --description "$API_VERSION (resnapshot)" >/dev/null
           echo "deployed BFF + contract to $ENV_NAME"
