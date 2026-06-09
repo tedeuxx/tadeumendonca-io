@@ -1,0 +1,95 @@
+name: deploy
+
+# Deploy the BFF (Pattern B: code only) + republish the REST API contract.
+# develop → staging (auto); main → production (gated by the production Environment).
+# AWS via OIDC (role from the AWS_OIDC_ROLE_ARN secret, set once from SSM /{env}/iam/github-actions-api-role-arn).
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "esbuild.config.mjs"
+      - ".github/workflows/deploy.yml"
+
+permissions:
+  id-token: write # OIDC → AWS
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    # Skip the version-bump commit (it doesn't change code).
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    env:
+      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      SPA_ORIGIN: ${{ github.ref == 'refs/heads/main' && 'https://tadeumendonca.io' || 'https://staging.tadeumendonca.io' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (esbuild → dist/index.mjs)
+        run: npm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve config from SSM
+        id: cfg
+        run: |
+          ssm() { aws ssm get-parameter --name "$1" --query 'Parameter.Value' --output text; }
+          {
+            echo "artifacts_bucket=$(ssm /$ENV_NAME/storage/artifacts-bucket-name)"
+            echo "bff_name=$(ssm /$ENV_NAME/api/bff-function-name)"
+            echo "api_id=$(ssm /$ENV_NAME/api/gateway-id)"
+            echo "account=$(aws sts get-caller-identity --query Account --output text)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Deploy BFF code (update-function-code)
+        run: |
+          ( cd dist && zip -q -r ../bff.zip . )
+          aws s3 cp bff.zip "s3://${{ steps.cfg.outputs.artifacts_bucket }}/bff/latest.zip"
+          aws lambda update-function-code \
+            --function-name "${{ steps.cfg.outputs.bff_name }}" \
+            --s3-bucket "${{ steps.cfg.outputs.artifacts_bucket }}" \
+            --s3-key bff/latest.zip >/dev/null
+          aws lambda wait function-updated --function-name "${{ steps.cfg.outputs.bff_name }}"
+
+      - name: Republish REST API contract (put-rest-api + deploy)
+        env:
+          INVOKE_ARN_BFF: arn:aws:apigateway:${{ env.AWS_REGION }}:lambda:path/2015-03-31/functions/arn:aws:lambda:${{ env.AWS_REGION }}:${{ steps.cfg.outputs.account }}:function:${{ steps.cfg.outputs.bff_name }}/invocations
+          API_VERSION: ${{ github.sha }}
+          OPENAPI_OUT: openapi.aws.json
+        run: |
+          npx tsx scripts/build-openapi-aws.ts
+          aws apigateway put-rest-api \
+            --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
+            --mode overwrite \
+            --body "fileb://openapi.aws.json" >/dev/null
+          aws apigateway create-deployment \
+            --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
+            --stage-name live >/dev/null
+          echo "deployed BFF + contract to $ENV_NAME"
