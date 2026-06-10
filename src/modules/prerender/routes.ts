@@ -6,6 +6,7 @@ import type { BffApp } from '../../shared/types/app';
 import { getProfile } from '../profile/repository';
 import { getPost } from '../posts/repository';
 import { getBySlug } from '../articles/repository';
+import { resolveCode } from '../shortlinks/repository';
 import { profileMeta, profileHtml, postMeta, postHtml, articleMeta, articleHtml } from '../../shared/render';
 import { NotFoundError } from '../../shared/errors/http-errors';
 
@@ -20,6 +21,14 @@ async function resolve(type: string, slug: string): Promise<{ meta: object; html
   }
   if (type === 'posts') {
     const post = await getPost(slug);
+    if (!post || !post.published) throw new NotFoundError('post not found');
+    return { meta: postMeta(post), html: postHtml(post) };
+  }
+  // /p/<code> short share URL → resolve the code to its post, then render it like a post.
+  if (type === 'p') {
+    const link = await resolveCode(slug);
+    if (!link) throw new NotFoundError('short link not found');
+    const post = await getPost(link.target_id);
     if (!post || !post.published) throw new NotFoundError('post not found');
     return { meta: postMeta(post), html: postHtml(post) };
   }

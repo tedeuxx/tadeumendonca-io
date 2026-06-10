@@ -17,4 +17,10 @@ export const TABLES = {
   get audits() {
     return process.env.AUDITS_TABLE_NAME ?? '';
   },
+  get comments() {
+    return process.env.COMMENTS_TABLE_NAME ?? '';
+  },
+  get shortlinks() {
+    return process.env.SHORTLINKS_TABLE_NAME ?? '';
+  },
 };

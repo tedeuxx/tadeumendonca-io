@@ -75,26 +75,29 @@ describe('POST /posts (admin write)', () => {
   });
 
   it('creates with a generated id + sparse gsi_pk when admin + published', async () => {
-    send.mockResolvedValueOnce({}); // PutCommand
+    send.mockResolvedValueOnce({}).mockResolvedValueOnce({}); // shortlink Put + post Put
     const res = await app.request('/posts', { method: 'POST', headers, body }, claims('admin'));
     expect(res.status).toBe(201);
-    const created = (await res.json()) as { post_id: string; published: boolean };
+    const created = (await res.json()) as { post_id: string; published: boolean; short_code: string };
     expect(created.post_id).toBeTruthy();
     expect(created.published).toBe(true);
-    const put = send.mock.calls[0][0].input;
+    expect(created.short_code).toBeTruthy(); // share code generated
+    // calls[0] = shortlink Put, calls[1] = post Put (createShortLink runs before createPost).
+    const put = send.mock.calls[1][0].input;
     expect(put.Item.gsi_pk).toBe('POST'); // published → indexed
     expect(put.Item.author_sub).toBe('u-1');
+    expect(put.Item.reaction_counts).toEqual({}); // initialized so reaction ADDs never fail
   });
 
   it('omits gsi_pk for a draft (published:false)', async () => {
-    send.mockResolvedValueOnce({});
+    send.mockResolvedValueOnce({}).mockResolvedValueOnce({});
     const res = await app.request(
       '/posts',
       { method: 'POST', headers, body: JSON.stringify({ title: 'D', body: 'b', published: false }) },
       claims('admin'),
     );
     expect(res.status).toBe(201);
-    expect(send.mock.calls[0][0].input.Item.gsi_pk).toBeUndefined();
+    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBeUndefined();
   });
 });
 
