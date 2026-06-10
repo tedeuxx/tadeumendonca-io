@@ -41,7 +41,7 @@ export const useAuth = create<AuthState>((set) => ({
     }
   },
 
-  signIn: () => signInWithRedirect(), // → Cognito hosted UI (PKCE)
+  signIn: () => signInWithRedirect({ provider: 'Google' }), // social-only → straight to Google (PKCE)
 
   signOut: async () => {
     await signOut();
