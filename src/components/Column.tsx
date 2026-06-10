@@ -17,7 +17,7 @@ export function ColumnHeader({
 }) {
   const navigate = useNavigate();
   return (
-    <div className="z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur lg:sticky lg:top-0">
+    <div className="z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:sticky md:top-0">
       {back && (
         <button
           onClick={() => navigate(-1)}
