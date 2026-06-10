@@ -39,7 +39,7 @@ describe('FeedPage', () => {
   it('shows an error state', () => {
     useFeed.mockReturnValue({ data: undefined, isLoading: false, isError: true, hasNextPage: false });
     renderFeed();
-    expect(screen.getByText("Couldn't load the feed")).toBeInTheDocument();
+    expect(screen.getByText(/Couldn't load the feed/)).toBeInTheDocument();
   });
 
   it('shows a Load more button and fetches the next page on click', () => {

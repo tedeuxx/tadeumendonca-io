@@ -1,61 +1,68 @@
-// Presentational CV — renders a Profile with the Cloudscape design system (/frontend/design-system).
-// Pure component (data comes from the page), so it's trivially testable.
-import Container from '@cloudscape-design/components/container';
-import Header from '@cloudscape-design/components/header';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import ColumnLayout from '@cloudscape-design/components/column-layout';
-import Box from '@cloudscape-design/components/box';
-import Badge from '@cloudscape-design/components/badge';
-import Link from '@cloudscape-design/components/link';
+// Presentational CV (/frontend/design-system) — X-style profile: a cover strip + overlapping avatar,
+// identity block, then Experience / Education / Certifications / Skills sections. Pure component
+// (data comes from the page), so it's trivially testable.
+import { type ReactNode } from 'react';
+import { MapPin, ExternalLink, Briefcase, GraduationCap, Award, Sparkles } from 'lucide-react';
 import type { Profile } from '../types/profile';
 
-function dateRange(start: string, end: string | null): string {
-  return `${start} – ${end ?? 'Present'}`;
+const dateRange = (start: string, end: string | null) => `${start} – ${end ?? 'Present'}`;
+
+function Section({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <section className="border-t border-border px-4 py-5">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
+        <span className="text-primary">{icon}</span>
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
 }
 
 export function ProfileView({ profile }: { profile: Profile }) {
   return (
-    <SpaceBetween size="l">
-      <Container
-        header={
-          <Header variant="h1" description={profile.headline}>
-            {profile.name}
-          </Header>
-        }
-      >
-        <SpaceBetween size="s">
-          {profile.summary && <Box variant="p">{profile.summary}</Box>}
+    <div>
+      {/* Cover + avatar */}
+      <div className="h-28 bg-gradient-to-r from-primary/30 via-primary/15 to-transparent" />
+      <div className="px-4">
+        <div className="-mt-10 flex items-end justify-between">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary text-3xl font-bold text-primary-foreground">
+            {profile.name[0]?.toUpperCase()}
+          </div>
+        </div>
+        <div className="mt-3">
+          <h1 className="text-2xl font-bold leading-tight">{profile.name}</h1>
+          <p className="text-muted-foreground">{profile.headline}</p>
+        </div>
+        {profile.summary && <p className="mt-3 text-[15px] leading-relaxed text-foreground/90">{profile.summary}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           {profile.location && (
-            <Box color="text-body-secondary" fontSize="body-s">
-              {profile.location}
-            </Box>
+            <span className="flex items-center gap-1">
+              <MapPin size={15} /> {profile.location}
+            </span>
           )}
-          {Object.keys(profile.metadata).length > 0 && (
-            <SpaceBetween size="xs" direction="horizontal">
-              {Object.entries(profile.metadata).map(([key, url]) => (
-                <Link key={key} href={url} external>
-                  {key}
-                </Link>
-              ))}
-            </SpaceBetween>
-          )}
-        </SpaceBetween>
-      </Container>
+          {Object.entries(profile.metadata).map(([key, url]) => (
+            <a key={key} href={url} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-medium text-primary hover:underline">
+              <ExternalLink size={15} /> {key}
+            </a>
+          ))}
+        </div>
+        <div className="h-4" />
+      </div>
 
       {profile.experience.length > 0 && (
-        <Container header={<Header variant="h2">Experience</Header>}>
-          <SpaceBetween size="m">
+        <Section icon={<Briefcase size={18} />} title="Experience">
+          <div className="space-y-5">
             {profile.experience.map((item, i) => (
-              <div key={i}>
-                <Box variant="h4">
-                  {item.title} · {item.company}
-                </Box>
-                <Box color="text-body-secondary" fontSize="body-s">
-                  {dateRange(item.start_date, item.end_date)}
-                </Box>
-                {item.description && <Box variant="p">{item.description}</Box>}
+              <div key={i} className="relative border-l-2 border-border pl-4">
+                <div className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-primary" />
+                <div className="font-semibold">
+                  {item.title} · <span className="text-muted-foreground">{item.company}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">{dateRange(item.start_date, item.end_date)}</div>
+                {item.description && <p className="mt-1 text-[15px] leading-relaxed text-foreground/90">{item.description}</p>}
                 {item.highlights && item.highlights.length > 0 && (
-                  <ul>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-foreground/90">
                     {item.highlights.map((h, j) => (
                       <li key={j}>{h}</li>
                     ))}
@@ -63,63 +70,66 @@ export function ProfileView({ profile }: { profile: Profile }) {
                 )}
               </div>
             ))}
-          </SpaceBetween>
-        </Container>
+          </div>
+        </Section>
       )}
 
       {profile.education.length > 0 && (
-        <Container header={<Header variant="h2">Education</Header>}>
-          <SpaceBetween size="m">
+        <Section icon={<GraduationCap size={18} />} title="Education">
+          <div className="space-y-4">
             {profile.education.map((item, i) => (
               <div key={i}>
-                <Box variant="h4">
+                <div className="font-semibold">
                   {item.degree}
-                  {item.field ? `, ${item.field}` : ''} · {item.institution}
-                </Box>
-                <Box color="text-body-secondary" fontSize="body-s">
-                  {dateRange(item.start_date, item.end_date)}
-                </Box>
+                  {item.field ? `, ${item.field}` : ''} · <span className="text-muted-foreground">{item.institution}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">{dateRange(item.start_date, item.end_date)}</div>
               </div>
             ))}
-          </SpaceBetween>
-        </Container>
+          </div>
+        </Section>
       )}
 
       {profile.certifications.length > 0 && (
-        <Container header={<Header variant="h2">Certifications</Header>}>
-          <SpaceBetween size="s">
+        <Section icon={<Award size={18} />} title="Certifications">
+          <ul className="space-y-2 text-[15px]">
             {profile.certifications.map((item, i) => (
-              <Box key={i}>
+              <li key={i}>
                 {item.credential_url ? (
-                  <Link href={item.credential_url} external>
+                  <a href={item.credential_url} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">
                     {item.name}
-                  </Link>
+                  </a>
                 ) : (
-                  item.name
-                )}{' '}
-                · {item.issuer} ({item.issued_date})
-              </Box>
+                  <span className="font-semibold">{item.name}</span>
+                )}
+                <span className="text-muted-foreground">
+                  {' '}
+                  · {item.issuer} ({item.issued_date})
+                </span>
+              </li>
             ))}
-          </SpaceBetween>
-        </Container>
+          </ul>
+        </Section>
       )}
 
       {Object.keys(profile.skills).length > 0 && (
-        <Container header={<Header variant="h2">Skills</Header>}>
-          <ColumnLayout columns={2} borders="horizontal">
+        <Section icon={<Sparkles size={18} />} title="Skills">
+          <div className="grid gap-4 sm:grid-cols-2">
             {Object.entries(profile.skills).map(([category, list]) => (
               <div key={category}>
-                <Box variant="h4">{category}</Box>
-                <SpaceBetween size="xxs" direction="horizontal">
+                <div className="mb-2 text-sm font-semibold text-muted-foreground">{category}</div>
+                <div className="flex flex-wrap gap-2">
                   {list.map((skill) => (
-                    <Badge key={skill}>{skill}</Badge>
+                    <span key={skill} className="rounded-full bg-muted px-2.5 py-0.5 text-sm text-foreground">
+                      {skill}
+                    </span>
                   ))}
-                </SpaceBetween>
+                </div>
               </div>
             ))}
-          </ColumnLayout>
-        </Container>
+          </div>
+        </Section>
       )}
-    </SpaceBetween>
+    </div>
   );
 }

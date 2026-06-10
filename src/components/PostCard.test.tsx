@@ -25,8 +25,8 @@ describe('PostCard', () => {
     renderCard(post);
     const link = screen.getByRole('link', { name: 'Hello world' });
     expect(link).toHaveAttribute('href', '/posts/p1');
-    expect(screen.getByText('aws')).toBeInTheDocument();
-    expect(screen.getByText('serverless')).toBeInTheDocument();
+    expect(screen.getByText('#aws')).toBeInTheDocument();
+    expect(screen.getByText('#serverless')).toBeInTheDocument();
     expect(screen.getByText('markdown')).toBeInTheDocument(); // bold rendered from markdown
   });
 

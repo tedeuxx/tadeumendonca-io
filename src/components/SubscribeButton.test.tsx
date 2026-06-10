@@ -25,7 +25,7 @@ describe('SubscribeButton', () => {
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn() });
     useSubscribe.mockReturnValue({ mutate, isPending: false, isSuccess: false });
     render(<SubscribeButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Subscribe to new posts' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
     expect(mutate).toHaveBeenCalledWith('a@b.io');
   });
 

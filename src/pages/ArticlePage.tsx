@@ -1,14 +1,9 @@
 // Article detail (/frontend/ux-states, /frontend/markdown). Public; the URL (/articles/:slug) is what
 // og:image deep-links + notification links point at. Markdown body with syntax highlighting.
-import { useParams } from 'react-router-dom';
-import ContentLayout from '@cloudscape-design/components/content-layout';
-import Header from '@cloudscape-design/components/header';
-import Box from '@cloudscape-design/components/box';
-import Spinner from '@cloudscape-design/components/spinner';
-import Alert from '@cloudscape-design/components/alert';
-import Badge from '@cloudscape-design/components/badge';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import { useArticle } from '../hooks/useArticles';
 import { Markdown } from '../components/Markdown';
+import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -16,36 +11,27 @@ export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading, isError } = useArticle(slug ?? '');
 
-  if (isLoading) {
-    return (
-      <Box textAlign="center" padding="xxl">
-        <Spinner size="large" />
-      </Box>
-    );
-  }
-  if (isError || !article) {
-    return (
-      <ContentLayout>
-        <Alert type="error" header="Article not found">
-          This article doesn’t exist or isn’t published.
-        </Alert>
-      </ContentLayout>
-    );
-  }
   return (
-    <ContentLayout
-      header={
-        <Header variant="h1" description={`${fmtDate(article.created_at)} · ${article.tag}`}>
-          {article.title}
-        </Header>
-      }
-    >
-      <Box padding={{ bottom: 'm' }}>
-        <Badge color="blue">{article.tag}</Badge>
-      </Box>
-      <Box variant="p">
-        <Markdown>{article.body}</Markdown>
-      </Box>
-    </ContentLayout>
+    <div>
+      <ColumnHeader title="Article" back />
+      {isLoading && <CenterLoader />}
+      {(isError || (!isLoading && !article)) && <Notice>This article doesn&apos;t exist or isn&apos;t published.</Notice>}
+
+      {article && (
+        <article className="px-4 py-5">
+          <h1 className="text-3xl font-bold leading-tight">{article.title}</h1>
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <time dateTime={article.created_at}>{fmtDate(article.created_at)}</time>
+            <span>·</span>
+            <RouterLink to={`/articles?tag=${article.tag}`} className="font-medium text-primary hover:underline">
+              #{article.tag}
+            </RouterLink>
+          </div>
+          <div className="mt-5 text-[17px] leading-relaxed text-foreground/90">
+            <Markdown>{article.body}</Markdown>
+          </div>
+        </article>
+      )}
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HomePage } from './HomePage';
 import type { Profile } from '../types/profile';
@@ -22,7 +23,9 @@ function renderHome() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={qc}>
-      <HomePage />
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -34,7 +37,7 @@ describe('HomePage', () => {
     let resolve: (p: Profile) => void = () => {};
     apiFetch.mockReturnValueOnce(new Promise<Profile>((r) => (resolve = r)));
     renderHome();
-    expect(screen.getByText(/Loading profile/)).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
     resolve(sample);
     expect(await screen.findByText('Tadeu Mendonça')).toBeInTheDocument();
   });
@@ -42,6 +45,6 @@ describe('HomePage', () => {
   it('shows an error state on failure', async () => {
     apiFetch.mockRejectedValueOnce({ error: { code: 'request_failed' } });
     renderHome();
-    await waitFor(() => expect(screen.getByText('Could not load the profile')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Could not load the profile/)).toBeInTheDocument());
   });
 });

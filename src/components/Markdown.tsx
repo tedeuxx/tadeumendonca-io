@@ -6,5 +6,9 @@ import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 
 export function Markdown({ children }: { children: string }) {
-  return <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{children}</ReactMarkdown>;
+  return (
+    <div className="markdown">
+      <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{children}</ReactMarkdown>
+    </div>
+  );
 }

@@ -1,17 +1,9 @@
 // Articles list (/frontend/ux-states, /frontend/pagination). Lists published articles newest-first with
 // an optional tag filter (?tag= in the URL) + cursor "load more". Explicit loading/empty/error states.
 import { useSearchParams, Link as RouterLink } from 'react-router-dom';
-import ContentLayout from '@cloudscape-design/components/content-layout';
-import Header from '@cloudscape-design/components/header';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import Box from '@cloudscape-design/components/box';
-import Spinner from '@cloudscape-design/components/spinner';
-import Alert from '@cloudscape-design/components/alert';
-import Button from '@cloudscape-design/components/button';
-import Container from '@cloudscape-design/components/container';
-import Link from '@cloudscape-design/components/link';
-import Badge from '@cloudscape-design/components/badge';
+import { Loader2 } from 'lucide-react';
 import { useArticles } from '../hooks/useArticles';
+import { ColumnHeader, CenterLoader, Notice, Empty } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -22,58 +14,51 @@ export function ArticlesPage() {
   const articles = data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
-    <ContentLayout
-      header={
-        <Header variant="h1" description={tag ? `Tag: ${tag}` : undefined} actions={tag ? <Button onClick={() => setParams({})}>Clear filter</Button> : undefined}>
-          Articles
-        </Header>
-      }
-    >
-      {isLoading && (
-        <Box textAlign="center" padding="xxl">
-          <Spinner size="large" />
-        </Box>
-      )}
-      {isError && (
-        <Alert type="error" header="Couldn't load articles">
-          Please try again later.
-        </Alert>
-      )}
-      {!isLoading && !isError && articles.length === 0 && (
-        <Box textAlign="center" color="text-status-inactive" padding="xxl">
-          No articles yet.
-        </Box>
-      )}
-      <SpaceBetween size="l">
-        {articles.map((a) => (
-          <Container
-            key={a.article_id}
-            header={
-              <Header variant="h2" description={`${fmtDate(a.created_at)} · ${a.tag}`}>
-                <Link fontSize="heading-m">
-                  <RouterLink to={`/articles/${a.slug}`}>{a.title}</RouterLink>
-                </Link>
-              </Header>
-            }
+    <div>
+      <ColumnHeader
+        title="Articles"
+        description={tag ? `Tag: ${tag}` : undefined}
+        actions={
+          tag ? (
+            <button onClick={() => setParams({})} className="rounded-full border border-border px-3.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+              Clear filter
+            </button>
+          ) : undefined
+        }
+      />
+
+      {isLoading && <CenterLoader />}
+      {isError && <Notice>Couldn&apos;t load articles. Please try again later.</Notice>}
+      {!isLoading && !isError && articles.length === 0 && <Empty>No articles yet.</Empty>}
+
+      {articles.map((a) => (
+        <article key={a.article_id} className="border-b border-border px-4 py-4 transition-colors hover:bg-muted/40">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <time dateTime={a.created_at}>{fmtDate(a.created_at)}</time>
+            <span>·</span>
+            <button onClick={() => setParams({ tag: a.tag })} className="font-medium text-primary hover:underline">
+              #{a.tag}
+            </button>
+          </div>
+          <RouterLink to={`/articles/${a.slug}`} className="mt-0.5 block text-lg font-bold leading-snug text-foreground hover:text-primary">
+            {a.title}
+          </RouterLink>
+          {a.excerpt && <p className="mt-1 text-[15px] leading-relaxed text-foreground/80">{a.excerpt}</p>}
+        </article>
+      ))}
+
+      {hasNextPage && (
+        <div className="flex justify-center p-4">
+          <button
+            onClick={() => void fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
           >
-            <SpaceBetween size="s">
-              {a.excerpt && <Box variant="p">{a.excerpt}</Box>}
-              <Box>
-                <Link onFollow={() => setParams({ tag: a.tag })}>
-                  <Badge color="blue">{a.tag}</Badge>
-                </Link>
-              </Box>
-            </SpaceBetween>
-          </Container>
-        ))}
-        {hasNextPage && (
-          <Box textAlign="center">
-            <Button onClick={() => void fetchNextPage()} loading={isFetchingNextPage}>
-              Load more
-            </Button>
-          </Box>
-        )}
-      </SpaceBetween>
-    </ContentLayout>
+            {isFetchingNextPage && <Loader2 className="animate-spin" size={16} />}
+            Load more
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
