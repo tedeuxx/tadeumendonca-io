@@ -1,5 +1,8 @@
-// X-style app shell (/frontend/design-system): left nav rail + centered content column + right sidebar
-// on desktop; top bar + bottom tab bar on mobile. Dark-first with a theme toggle. Brand = slate + cyan.
+// X-style app shell (/frontend/design-system). Three responsive tiers:
+//   < md (phones):     top bar + bottom tab bar, single full-width column
+//   md–lg (tablets):   icon-only left rail + fixed 600px feed column (no right sidebar)
+//   xl+ (desktop):     expanded rail (labels) + 600px column + right About sidebar
+// Dark-first with a theme toggle. Brand = slate + cyan.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, FileText, User, PenSquare, Sun, Moon, LogIn, LogOut } from 'lucide-react';
@@ -20,11 +23,14 @@ const NAV: NavEntry[] = [
   { to: '/compose', label: 'New post', icon: PenSquare, adminOnly: true },
 ];
 
-function Brand() {
+function Brand({ collapsible = false }: { collapsible?: boolean }) {
   return (
-    <NavLink to="/" className="flex items-center gap-2 px-3 py-2 text-lg font-bold tracking-tight">
-      <span className="h-5 w-1.5 rounded-sm bg-primary" />
-      <span>
+    <NavLink
+      to="/"
+      className={cn('flex items-center gap-2 px-3 py-2 text-lg font-bold tracking-tight', collapsible && 'justify-center xl:justify-start')}
+    >
+      <span className="h-5 w-1.5 shrink-0 rounded-sm bg-primary" />
+      <span className={collapsible ? 'hidden xl:inline' : ''}>
         tadeumendonca<span className="text-primary">.io</span>
       </span>
     </NavLink>
@@ -44,23 +50,27 @@ function ThemeToggle() {
   );
 }
 
-function Account({ compact = false }: { compact?: boolean }) {
+function Account({ variant }: { variant: 'bar' | 'rail' }) {
   const { status, email, signIn, signOut } = useAuth();
+  // `bar` (mobile top bar) never shows text; `rail` shows it only when expanded (xl+).
+  const textCls = variant === 'rail' ? 'hidden xl:block' : 'hidden';
+  const centerCls = variant === 'rail' ? 'justify-center xl:justify-start' : '';
+
   if (status !== 'authenticated') {
     return (
       <button
         onClick={() => void signIn()}
-        className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        className={cn('flex items-center gap-2 rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90', centerCls)}
       >
-        <LogIn size={18} /> {!compact && 'Sign in'}
+        <LogIn size={18} /> <span className={variant === 'rail' ? 'hidden xl:inline' : 'hidden'}>Sign in</span>
       </button>
     );
   }
   const initial = (email ?? '?')[0]?.toUpperCase();
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{initial}</div>
-      {!compact && <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{email}</span>}
+    <div className={cn('flex items-center gap-1.5 xl:gap-2', centerCls)}>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{initial}</div>
+      <span className={cn('min-w-0 flex-1 truncate text-sm text-muted-foreground', textCls)}>{email}</span>
       <button onClick={() => void signOut()} aria-label="Sign out" className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
         <LogOut size={18} />
       </button>
@@ -80,14 +90,16 @@ function NavItems({ orientation }: { orientation: 'rail' | 'bottom' }) {
           end={to === '/'}
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-4 rounded-full transition-colors',
-              orientation === 'rail' ? 'px-4 py-3 text-lg hover:bg-muted' : 'flex-col gap-0.5 px-3 py-1.5 text-xs',
+              'flex items-center rounded-full transition-colors',
+              orientation === 'rail'
+                ? 'mx-auto h-12 w-12 justify-center gap-4 text-lg hover:bg-muted xl:mx-0 xl:h-auto xl:w-auto xl:justify-start xl:px-4 xl:py-3'
+                : 'flex-col gap-0.5 px-3 py-1.5 text-xs',
               isActive ? 'font-bold text-foreground' : 'text-muted-foreground',
             )
           }
         >
           <Icon size={orientation === 'rail' ? 24 : 22} />
-          <span className={orientation === 'bottom' ? 'text-[10px]' : ''}>{label}</span>
+          <span className={orientation === 'rail' ? 'hidden xl:inline' : 'text-[10px]'}>{label}</span>
         </NavLink>
       ))}
     </>
@@ -97,40 +109,40 @@ function NavItems({ orientation }: { orientation: 'rail' | 'bottom' }) {
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[1280px]">
-      {/* Left rail (desktop) */}
-      <header className="sticky top-0 hidden h-screen w-[88px] shrink-0 flex-col justify-between border-r border-border px-2 py-3 lg:flex xl:w-[260px]">
+      {/* Left rail (tablet: icon-only · desktop: expanded with labels) */}
+      <header className="sticky top-0 hidden h-screen w-[88px] shrink-0 flex-col justify-between border-r border-border px-2 py-3 md:flex xl:w-[260px]">
         <div className="flex flex-col gap-1">
-          <Brand />
+          <Brand collapsible />
           <nav className="mt-2 flex flex-col gap-1">
             <NavItems orientation="rail" />
           </nav>
         </div>
-        <div className="flex flex-col gap-2 px-2">
+        <div className="flex flex-col items-center gap-2 px-1 xl:items-stretch xl:px-2">
           <ThemeToggle />
-          <Account />
+          <Account variant="rail" />
         </div>
       </header>
 
-      {/* Center content column */}
-      <main className="min-w-0 flex-1 border-border pb-20 lg:border-x lg:pb-0">
-        {/* Mobile top bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/80 px-3 py-2 backdrop-blur lg:hidden">
+      {/* Center content column — fixed 600px feed width from md up (X-style) */}
+      <main className="min-w-0 w-full flex-1 border-border pb-20 md:w-[600px] md:flex-none md:border-x md:pb-0">
+        {/* Mobile top bar (phones only) */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/80 px-3 py-2 backdrop-blur md:hidden">
           <Brand />
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <Account compact />
+            <Account variant="bar" />
           </div>
         </div>
         {children}
       </main>
 
-      {/* Right sidebar (wide desktop) */}
+      {/* Right sidebar (desktop only) */}
       <aside className="sticky top-0 hidden h-screen w-sidebar shrink-0 flex-col gap-4 p-4 xl:flex">
         <SidebarAbout />
       </aside>
 
-      {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-around border-t border-border bg-background/90 backdrop-blur lg:hidden">
+      {/* Bottom tab bar (phones only) */}
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-around border-t border-border bg-background/90 backdrop-blur md:hidden">
         <NavItems orientation="bottom" />
       </nav>
     </div>
