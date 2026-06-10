@@ -45,6 +45,23 @@ describe('prerender — og-meta', () => {
     expect(res.status).toBe(404);
   });
 
+  it('resolves a /p/<code> short link to the post meta', async () => {
+    send
+      .mockResolvedValueOnce({ Item: { code: 'abc1234', type: 'post', target_id: 'p1', created_at: 't' } }) // resolveCode
+      .mockResolvedValueOnce({ Item: { post_id: 'p1', title: 'My Post', body: 'b', published: true, created_at: '2026-06-01T00:00:00.000Z' } }); // getPost
+    const res = await app.request('/og-meta/p/abc1234');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { title: string; url: string };
+    expect(body.title).toBe('My Post');
+    expect(body.url).toMatch(/\/posts\/p1$/); // canonical URL is the post, not the short link
+  });
+
+  it('404s an unknown short code', async () => {
+    send.mockResolvedValueOnce({}); // resolveCode → none
+    const res = await app.request('/og-meta/p/zzzzzzz');
+    expect(res.status).toBe(404);
+  });
+
   it('404s for an unsupported type', async () => {
     const res = await app.request('/og-meta/unknown/whatever');
     expect(res.status).toBe(404);

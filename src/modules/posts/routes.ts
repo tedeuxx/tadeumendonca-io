@@ -12,6 +12,7 @@ import { notifyPostPublished } from '../notifications/notify';
 import { NotFoundError } from '../../shared/errors/http-errors';
 import { resolveBodyPreviews } from '../unfurl/resolve';
 import { LinkPreviewSchema } from '../unfurl/routes';
+import { createShortLink } from '../shortlinks/repository';
 
 const ADMIN = 'admin';
 const SECURED = [{ CognitoAuth: [] }]; // the AWS overlay turns this into the Cognito authorizer
@@ -23,6 +24,9 @@ const PostSchema = z
     body: z.string(),
     tags: z.array(z.string()).optional(),
     link_previews: z.array(LinkPreviewSchema).optional(),
+    reaction_counts: z.record(z.string(), z.number()).optional(),
+    comment_count: z.number().optional(),
+    short_code: z.string().optional(),
     published: z.boolean(),
     author_sub: z.string().optional(),
     created_at: z.string(),
@@ -115,12 +119,16 @@ export function registerPosts(app: BffApp): void {
       const input = c.req.valid('json');
       const now = new Date().toISOString();
       const link_previews = await resolveBodyPreviews(input.body); // server-authoritative unfurl
+      const post_id = nanoid();
       const post: Post = {
-        post_id: nanoid(),
+        post_id,
         title: input.title,
         body: input.body,
         tags: input.tags,
         ...(link_previews.length ? { link_previews } : {}),
+        reaction_counts: {}, // init so atomic reaction ADDs on the nested path never fail
+        comment_count: 0,
+        short_code: await createShortLink(post_id), // share URL: /p/<short_code>
         published: input.published,
         author_sub: claims.sub,
         created_at: now,

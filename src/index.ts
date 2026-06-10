@@ -15,6 +15,9 @@ import { registerPosts } from './modules/posts/routes';
 import { registerSubscriptions } from './modules/subscriptions/routes';
 import { registerArticles } from './modules/articles/routes';
 import { registerUnfurl } from './modules/unfurl/routes';
+import { registerReactions } from './modules/reactions/routes';
+import { registerComments } from './modules/comments/routes';
+import { registerShortlinks } from './modules/shortlinks/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -42,6 +45,9 @@ registerPosts(app);
 registerSubscriptions(app);
 registerArticles(app);
 registerUnfurl(app);
+registerReactions(app);
+registerComments(app);
+registerShortlinks(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {

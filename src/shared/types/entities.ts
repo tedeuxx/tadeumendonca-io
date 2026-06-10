@@ -65,10 +65,33 @@ export interface Post {
   body: string; // markdown
   tags?: string[];
   link_previews?: LinkPreview[]; // server-derived from the body URLs (curated external content)
+  reaction_counts?: Record<string, number>; // emoji → count, denormalized on the item (public reactions)
+  comment_count?: number; // denormalized comment total (so the feed shows it without a join)
+  short_code?: string; // share URL code → tadeumendonca.io/p/<short_code>
   published: boolean;
   author_sub?: string; // Cognito sub of the admin author
   created_at: string; // ISO-8601
   updated_at?: string;
+}
+
+// Post-moderated comment (Phase: interactions). Hash key = comment_id; the by-post GSI (post_id,
+// created_at) lists a post's comments oldest-first. author_sub is server-verified (from the token);
+// author_name is client-supplied (cosmetic, moderated) since the access token carries no name claim.
+export interface Comment {
+  comment_id: string; // opaque nanoid
+  post_id: string;
+  author_sub: string; // Cognito sub (verified)
+  author_name: string; // display name (cosmetic)
+  body: string;
+  created_at: string;
+}
+
+// Short link: maps an opaque short code to a target (a post for now). Hash key = code.
+export interface ShortLink {
+  code: string; // base62, 7 chars
+  type: 'post';
+  target_id: string;
+  created_at: string;
 }
 
 // Newsletter subscription (Phase 2). Hash key = email. The `by-status` GSI (status, email) lists
