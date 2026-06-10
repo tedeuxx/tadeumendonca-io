@@ -1,10 +1,10 @@
-// Subscribe control (/frontend/forms) — shown to authenticated users on the feed. Subscribes the
-// signed-in user's email to new-post notifications. Anonymous users see a prompt to sign in.
-import Button from '@cloudscape-design/components/button';
-import Box from '@cloudscape-design/components/box';
-import StatusIndicator from '@cloudscape-design/components/status-indicator';
+// Subscribe control (/frontend/forms) — compact pill in the feed header. Subscribes the signed-in
+// user's email to new-post notifications; anonymous users get a sign-in prompt instead.
+import { Bell, Check } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { useSubscribe } from '../hooks/usePostMutations';
+
+const pill = 'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors';
 
 export function SubscribeButton() {
   const { status, email, signIn } = useAuth();
@@ -12,21 +12,25 @@ export function SubscribeButton() {
 
   if (status !== 'authenticated') {
     return (
-      <Button iconName="notification" onClick={() => void signIn()}>
-        Sign in to subscribe
-      </Button>
+      <button onClick={() => void signIn()} className={`${pill} border border-border text-foreground hover:bg-muted`}>
+        <Bell size={16} /> Sign in to subscribe
+      </button>
     );
   }
   if (subscribe.isSuccess) {
     return (
-      <Box>
-        <StatusIndicator type="success">Subscribed — you’ll get new posts by email</StatusIndicator>
-      </Box>
+      <span className={`${pill} text-primary`}>
+        <Check size={16} /> Subscribed
+      </span>
     );
   }
   return (
-    <Button iconName="notification" loading={subscribe.isPending} onClick={() => email && subscribe.mutate(email)}>
-      Subscribe to new posts
-    </Button>
+    <button
+      onClick={() => email && subscribe.mutate(email)}
+      disabled={subscribe.isPending}
+      className={`${pill} bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60`}
+    >
+      <Bell size={16} /> Subscribe
+    </button>
   );
 }
