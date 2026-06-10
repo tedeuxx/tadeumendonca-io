@@ -13,6 +13,7 @@ import { ArticlesPage } from './pages/ArticlesPage';
 import { ArticlePage } from './pages/ArticlePage';
 import { ComposeArticlePage } from './pages/ComposeArticlePage';
 import { CallbackPage } from './pages/CallbackPage';
+import { ShortLinkPage } from './pages/ShortLinkPage';
 import { RequireAuth } from './auth/RequireAuth';
 import { useAuth } from './auth/authStore';
 
@@ -34,6 +35,7 @@ export function App() {
             <Route path="/" element={<FeedPage />} />
             <Route path="/feed" element={<Navigate to="/" replace />} />
             <Route path="/posts/:postId" element={<PostPage />} />
+            <Route path="/p/:code" element={<ShortLinkPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
             <Route path="/articles/:slug" element={<ArticlePage />} />
             <Route path="/profile" element={<HomePage />} />

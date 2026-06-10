@@ -3,6 +3,7 @@
 import { useParams } from 'react-router-dom';
 import { usePost } from '../hooks/useFeed';
 import { PostCard } from '../components/PostCard';
+import { CommentsSection } from '../components/CommentsSection';
 import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
 export function PostPage() {
@@ -14,7 +15,12 @@ export function PostPage() {
       <ColumnHeader title="Post" back />
       {isLoading && <CenterLoader />}
       {(isError || (!isLoading && !post)) && <Notice>This post doesn&apos;t exist or isn&apos;t published.</Notice>}
-      {post && <PostCard post={post} linkTitle={false} />}
+      {post && (
+        <>
+          <PostCard post={post} linkTitle={false} />
+          <CommentsSection postId={post.post_id} />
+        </>
+      )}
     </div>
   );
 }

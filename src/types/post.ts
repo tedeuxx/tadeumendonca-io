@@ -17,10 +17,28 @@ export interface Post {
   body: string; // markdown
   tags?: string[];
   link_previews?: LinkPreview[];
+  reaction_counts?: Record<string, number>; // emoji → count (public reactions)
+  comment_count?: number;
+  short_code?: string; // share URL: /p/<short_code>
   published: boolean;
   author_sub?: string;
   created_at: string;
   updated_at?: string;
+}
+
+// A post-moderated comment (mirrors the BFF Comment). author_name is the display name. /frontend/state.
+export interface Comment {
+  comment_id: string;
+  post_id: string;
+  author_sub: string;
+  author_name: string;
+  body: string;
+  created_at: string;
+}
+
+export interface CommentPage {
+  items: Comment[];
+  next_cursor?: string;
 }
 
 export interface FeedPage {

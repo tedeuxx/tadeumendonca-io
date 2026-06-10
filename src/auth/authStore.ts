@@ -8,7 +8,9 @@ type Status = 'loading' | 'authenticated' | 'anonymous';
 
 interface AuthState {
   status: Status;
+  sub?: string; // Cognito subject — used to mark the user's own comments
   email?: string;
+  name?: string; // display name (Google) — sent with comments
   groups: string[];
   isAdmin: boolean;
   init: () => Promise<void>;
@@ -32,12 +34,14 @@ export const useAuth = create<AuthState>((set) => ({
       const groups = (payload['cognito:groups'] as string[] | undefined) ?? [];
       set({
         status: 'authenticated',
+        sub: payload.sub as string | undefined,
         email: payload.email as string | undefined,
+        name: payload.name as string | undefined,
         groups,
         isAdmin: groups.includes('admin'),
       });
     } catch {
-      set({ status: 'anonymous', email: undefined, groups: [], isAdmin: false });
+      set({ status: 'anonymous', sub: undefined, email: undefined, name: undefined, groups: [], isAdmin: false });
     }
   },
 
@@ -45,6 +49,6 @@ export const useAuth = create<AuthState>((set) => ({
 
   signOut: async () => {
     await signOut();
-    set({ status: 'anonymous', email: undefined, groups: [], isAdmin: false });
+    set({ status: 'anonymous', sub: undefined, email: undefined, name: undefined, groups: [], isAdmin: false });
   },
 }));
