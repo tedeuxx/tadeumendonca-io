@@ -4,8 +4,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Hub } from 'aws-amplify/utils';
-import Box from '@cloudscape-design/components/box';
-import Spinner from '@cloudscape-design/components/spinner';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 
 export function CallbackPage() {
@@ -18,20 +17,21 @@ export function CallbackPage() {
       navigate(to, { replace: true });
     };
     const unsub = Hub.listen('auth', ({ payload }) => {
-      if (payload.event === 'signInWithRedirect') void finish('/feed');
+      if (payload.event === 'signInWithRedirect') void finish('/');
       if (payload.event === 'signInWithRedirect_failure') void finish('/');
     });
     // If the code was already exchanged before this mounted, hydrate + leave.
     void (async () => {
       await init();
-      if (useAuth.getState().status === 'authenticated') navigate('/feed', { replace: true });
+      if (useAuth.getState().status === 'authenticated') navigate('/', { replace: true });
     })();
     return unsub;
   }, [init, navigate]);
 
   return (
-    <Box textAlign="center" padding="xxl">
-      <Spinner size="large" /> Signing you in…
-    </Box>
+    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+      <Loader2 className="animate-spin" size={28} />
+      Signing you in…
+    </div>
   );
 }

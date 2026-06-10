@@ -2,17 +2,9 @@
 // the admin group + enforces slug uniqueness (409). On success, navigates to the new article.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ContentLayout from '@cloudscape-design/components/content-layout';
-import Header from '@cloudscape-design/components/header';
-import Form from '@cloudscape-design/components/form';
-import FormField from '@cloudscape-design/components/form-field';
-import Input from '@cloudscape-design/components/input';
-import Textarea from '@cloudscape-design/components/textarea';
-import Toggle from '@cloudscape-design/components/toggle';
-import Button from '@cloudscape-design/components/button';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import Alert from '@cloudscape-design/components/alert';
 import { useCreateArticle } from '../hooks/useArticles';
+import { ColumnHeader, Notice } from '../components/Column';
+import { Field, TextInput, TextArea, ToggleSwitch, PrimaryButton, GhostButton } from '../components/Form';
 
 export function ComposeArticlePage() {
   const navigate = useNavigate();
@@ -39,42 +31,39 @@ export function ComposeArticlePage() {
   };
 
   return (
-    <ContentLayout header={<Header variant="h1">New article</Header>}>
-      <Form
-        actions={
-          <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => navigate('/articles')}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={submit} loading={create.isPending}>
-              {published ? 'Publish' : 'Save draft'}
-            </Button>
-          </SpaceBetween>
-        }
-      >
-        <SpaceBetween size="l">
-          {create.isError && (
-            <Alert type="error" header={conflict ? 'That title/slug already exists' : "Couldn't save the article"}>
-              {conflict ? 'Pick a different title.' : 'Please check your permissions and try again.'}
-            </Alert>
-          )}
-          <FormField label="Title" errorText={titleError}>
-            <Input value={title} onChange={(e) => setTitle(e.detail.value)} placeholder="Article title" />
-          </FormField>
-          <FormField label="Tag" description="Primary category" errorText={tagError}>
-            <Input value={tag} onChange={(e) => setTag(e.detail.value)} placeholder="aws" />
-          </FormField>
-          <FormField label="Excerpt" description="Short summary (optional)">
-            <Input value={excerpt} onChange={(e) => setExcerpt(e.detail.value)} placeholder="One-line summary" />
-          </FormField>
-          <FormField label="Body" description="Markdown supported (code blocks highlighted)" errorText={bodyError}>
-            <Textarea value={body} onChange={(e) => setBody(e.detail.value)} rows={16} placeholder="Write your article…" />
-          </FormField>
-          <Toggle checked={published} onChange={(e) => setPublished(e.detail.checked)}>
-            Publish now
-          </Toggle>
-        </SpaceBetween>
-      </Form>
-    </ContentLayout>
+    <div>
+      <ColumnHeader title="New article" back />
+      <div className="space-y-5 px-4 py-5">
+        {create.isError &&
+          (conflict ? (
+            <Notice>That title/slug already exists. Pick a different title.</Notice>
+          ) : (
+            <Notice>Couldn&apos;t save the article. Please check your permissions and try again.</Notice>
+          ))}
+
+        <Field label="Title" error={titleError}>
+          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Article title" />
+        </Field>
+        <Field label="Tag" description="Primary category" error={tagError}>
+          <TextInput value={tag} onChange={(e) => setTag(e.target.value)} placeholder="aws" />
+        </Field>
+        <Field label="Excerpt" description="Short summary (optional)">
+          <TextInput value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="One-line summary" />
+        </Field>
+        <Field label="Body" description="Markdown supported (code blocks highlighted)" error={bodyError}>
+          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={16} placeholder="Write your article…" />
+        </Field>
+        <ToggleSwitch checked={published} onChange={setPublished}>
+          Publish now
+        </ToggleSwitch>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <GhostButton onClick={() => navigate('/articles')}>Cancel</GhostButton>
+          <PrimaryButton onClick={submit} disabled={create.isPending}>
+            {published ? 'Publish' : 'Save draft'}
+          </PrimaryButton>
+        </div>
+      </div>
+    </div>
   );
 }

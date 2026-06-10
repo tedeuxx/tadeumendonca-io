@@ -63,6 +63,6 @@ describe('ComposeArticlePage', () => {
         <ComposeArticlePage />
       </MemoryRouter>,
     );
-    expect(screen.getByText('That title/slug already exists')).toBeInTheDocument();
+    expect(screen.getByText(/That title\/slug already exists/)).toBeInTheDocument();
   });
 });

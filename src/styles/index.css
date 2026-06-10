@@ -28,7 +28,7 @@
   --ring: 199 89% 60%;
 }
 
-/* Minimal base (preflight is off so we set just what we need). */
+/* Base (Tailwind preflight handles the reset; we set the brand surface + border default). */
 html,
 body,
 #root {
