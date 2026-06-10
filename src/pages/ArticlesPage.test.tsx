@@ -44,7 +44,7 @@ describe('ArticlesPage', () => {
   it('shows error state', () => {
     useArticles.mockReturnValue({ data: undefined, isLoading: false, isError: true, hasNextPage: false });
     renderAt();
-    expect(screen.getByText("Couldn't load articles")).toBeInTheDocument();
+    expect(screen.getByText(/Couldn't load articles/)).toBeInTheDocument();
   });
 
   it('filters by clicking a tag badge and loads more', () => {
@@ -58,7 +58,7 @@ describe('ArticlesPage', () => {
       isFetchingNextPage: false,
     });
     renderAt();
-    fireEvent.click(screen.getByText('aws')); // tag badge → setParams
+    fireEvent.click(screen.getByText('#aws')); // tag → setParams
     expect(screen.getByRole('button', { name: 'Clear filter' })).toBeInTheDocument(); // URL now has ?tag=aws
     fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
     expect(fetchNextPage).toHaveBeenCalled();

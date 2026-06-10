@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useFeed } from '../hooks/useFeed';
 import { PostCard } from '../components/PostCard';
 import { SubscribeButton } from '../components/SubscribeButton';
+import { ColumnHeader, CenterLoader, Notice, Empty } from '../components/Column';
 
 export function FeedPage() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
@@ -11,26 +12,11 @@ export function FeedPage() {
 
   return (
     <div>
-      <div className="z-10 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur lg:sticky lg:top-0">
-        <h1 className="text-xl font-bold">Feed</h1>
-        <SubscribeButton />
-      </div>
+      <ColumnHeader title="Feed" actions={<SubscribeButton />} />
 
-      {isLoading && (
-        <div className="flex justify-center py-16 text-muted-foreground">
-          <Loader2 className="animate-spin" size={28} />
-        </div>
-      )}
-
-      {isError && (
-        <div className="m-4 rounded-xl border border-border bg-card p-4 text-sm text-foreground">
-          Couldn&apos;t load the feed. Please try again later.
-        </div>
-      )}
-
-      {!isLoading && !isError && posts.length === 0 && (
-        <div className="px-4 py-16 text-center text-muted-foreground">No posts yet.</div>
-      )}
+      {isLoading && <CenterLoader />}
+      {isError && <Notice>Couldn&apos;t load the feed. Please try again later.</Notice>}
+      {!isLoading && !isError && posts.length === 0 && <Empty>No posts yet.</Empty>}
 
       {posts.map((post) => (
         <PostCard key={post.post_id} post={post} />
