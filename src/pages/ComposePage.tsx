@@ -2,17 +2,9 @@
 // RequireAuth admin in the router — and the BFF re-checks the admin group, so this UI gate is cosmetic.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ContentLayout from '@cloudscape-design/components/content-layout';
-import Header from '@cloudscape-design/components/header';
-import Form from '@cloudscape-design/components/form';
-import FormField from '@cloudscape-design/components/form-field';
-import Input from '@cloudscape-design/components/input';
-import Textarea from '@cloudscape-design/components/textarea';
-import Toggle from '@cloudscape-design/components/toggle';
-import Button from '@cloudscape-design/components/button';
-import SpaceBetween from '@cloudscape-design/components/space-between';
-import Alert from '@cloudscape-design/components/alert';
 import { useCreatePost } from '../hooks/usePostMutations';
+import { ColumnHeader, Notice } from '../components/Column';
+import { Field, TextInput, TextArea, ToggleSwitch, PrimaryButton, GhostButton } from '../components/Form';
 
 export function ComposePage() {
   const navigate = useNavigate();
@@ -41,39 +33,31 @@ export function ComposePage() {
   };
 
   return (
-    <ContentLayout header={<Header variant="h1">New post</Header>}>
-      <Form
-        actions={
-          <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="link" onClick={() => navigate('/feed')}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={submit} loading={create.isPending}>
-              {published ? 'Publish' : 'Save draft'}
-            </Button>
-          </SpaceBetween>
-        }
-      >
-        <SpaceBetween size="l">
-          {create.isError && (
-            <Alert type="error" header="Couldn't save the post">
-              Please check your permissions and try again.
-            </Alert>
-          )}
-          <FormField label="Title" errorText={titleError}>
-            <Input value={title} onChange={(e) => setTitle(e.detail.value)} placeholder="Post title" />
-          </FormField>
-          <FormField label="Body" description="Markdown supported" errorText={bodyError}>
-            <Textarea value={body} onChange={(e) => setBody(e.detail.value)} rows={12} placeholder="Write your post…" />
-          </FormField>
-          <FormField label="Tags" description="Comma-separated">
-            <Input value={tags} onChange={(e) => setTags(e.detail.value)} placeholder="serverless, aws" />
-          </FormField>
-          <Toggle checked={published} onChange={(e) => setPublished(e.detail.checked)}>
-            Publish now (notifies subscribers)
-          </Toggle>
-        </SpaceBetween>
-      </Form>
-    </ContentLayout>
+    <div>
+      <ColumnHeader title="New post" back />
+      <div className="space-y-5 px-4 py-5">
+        {create.isError && <Notice>Couldn&apos;t save the post. Please check your permissions and try again.</Notice>}
+
+        <Field label="Title" error={titleError}>
+          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title" />
+        </Field>
+        <Field label="Body" description="Markdown supported" error={bodyError}>
+          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={12} placeholder="Write your post…" />
+        </Field>
+        <Field label="Tags" description="Comma-separated">
+          <TextInput value={tags} onChange={(e) => setTags(e.target.value)} placeholder="serverless, aws" />
+        </Field>
+        <ToggleSwitch checked={published} onChange={setPublished}>
+          Publish now (notifies subscribers)
+        </ToggleSwitch>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <GhostButton onClick={() => navigate('/')}>Cancel</GhostButton>
+          <PrimaryButton onClick={submit} disabled={create.isPending}>
+            {published ? 'Publish' : 'Save draft'}
+          </PrimaryButton>
+        </div>
+      </div>
+    </div>
   );
 }
