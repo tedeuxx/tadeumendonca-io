@@ -2,8 +2,11 @@
 // RequireAuth admin in the router — and the BFF re-checks the admin group, so this UI gate is cosmetic.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { useCreatePost } from '../hooks/usePostMutations';
+import { useUnfurl } from '../hooks/useUnfurl';
 import { ColumnHeader, Notice } from '../components/Column';
+import { LinkPreviewCard } from '../components/LinkPreviewCard';
 import { Field, TextInput, TextArea, ToggleSwitch, PrimaryButton, GhostButton } from '../components/Form';
 
 export function ComposePage() {
@@ -14,6 +17,7 @@ export function ComposePage() {
   const [tags, setTags] = useState('');
   const [published, setPublished] = useState(false);
   const [touched, setTouched] = useState(false);
+  const { previews, loading: unfurling } = useUnfurl(body);
 
   const titleError = touched && !title.trim() ? 'Title is required' : undefined;
   const bodyError = touched && !body.trim() ? 'Body is required' : undefined;
@@ -44,6 +48,18 @@ export function ComposePage() {
         <Field label="Body" description="Markdown supported" error={bodyError}>
           <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={12} placeholder="Write your post…" />
         </Field>
+
+        {(previews.length > 0 || unfurling) && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              Link previews {unfurling && <Loader2 className="animate-spin" size={14} />}
+            </div>
+            {previews.map((p) => (
+              <LinkPreviewCard key={p.url} preview={p} />
+            ))}
+          </div>
+        )}
+
         <Field label="Tags" description="Comma-separated">
           <TextInput value={tags} onChange={(e) => setTags(e.target.value)} placeholder="serverless, aws" />
         </Field>
