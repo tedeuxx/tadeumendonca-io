@@ -44,12 +44,27 @@ export interface Profile {
 // carry no gsi_pk and never appear in the index (/backend/dynamodb).
 export const FEED_PK = 'POST';
 
+// Link preview ("unfurl") for a curated external URL found in a post body. Resolved server-side on
+// save (oEmbed for YouTube/Spotify, Open Graph for the generic web, a degraded card for X/Instagram
+// which block unauthenticated reads). `image` is always our own CDN URL — the source thumbnail is
+// downloaded and cached to S3 (og/unfurl/<hash>) so the card never hotlinks or breaks (/backend/unfurl).
+export interface LinkPreview {
+  url: string; // the original external URL
+  provider: string; // 'YouTube' | 'Spotify' | 'X' | 'Instagram' | 'web'
+  title?: string;
+  description?: string;
+  image?: string; // cached thumbnail, served from our CDN (spaOrigin/og/unfurl/<hash>.<ext>)
+  site_name?: string;
+  author?: string;
+}
+
 export interface Post {
   post_id: string; // opaque nanoid (never sequential)
   gsi_pk?: typeof FEED_PK; // present iff published — sparse feed index
   title: string;
   body: string; // markdown
   tags?: string[];
+  link_previews?: LinkPreview[]; // server-derived from the body URLs (curated external content)
   published: boolean;
   author_sub?: string; // Cognito sub of the admin author
   created_at: string; // ISO-8601
