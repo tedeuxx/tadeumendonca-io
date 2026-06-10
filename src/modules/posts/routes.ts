@@ -10,6 +10,8 @@ import { listPublished, getPost, createPost, savePost, deletePost } from './repo
 import { requireGroup } from '../../shared/auth/authorize';
 import { notifyPostPublished } from '../notifications/notify';
 import { NotFoundError } from '../../shared/errors/http-errors';
+import { resolveBodyPreviews } from '../unfurl/resolve';
+import { LinkPreviewSchema } from '../unfurl/routes';
 
 const ADMIN = 'admin';
 const SECURED = [{ CognitoAuth: [] }]; // the AWS overlay turns this into the Cognito authorizer
@@ -20,6 +22,7 @@ const PostSchema = z
     title: z.string(),
     body: z.string(),
     tags: z.array(z.string()).optional(),
+    link_previews: z.array(LinkPreviewSchema).optional(),
     published: z.boolean(),
     author_sub: z.string().optional(),
     created_at: z.string(),
@@ -111,11 +114,13 @@ export function registerPosts(app: BffApp): void {
       const claims = requireGroup(c, ADMIN);
       const input = c.req.valid('json');
       const now = new Date().toISOString();
+      const link_previews = await resolveBodyPreviews(input.body); // server-authoritative unfurl
       const post: Post = {
         post_id: nanoid(),
         title: input.title,
         body: input.body,
         tags: input.tags,
+        ...(link_previews.length ? { link_previews } : {}),
         published: input.published,
         author_sub: claims.sub,
         created_at: now,
@@ -148,11 +153,13 @@ export function registerPosts(app: BffApp): void {
       const input = c.req.valid('json');
       const existing = await getPost(post_id);
       if (!existing) throw new NotFoundError('post not found');
+      const link_previews = await resolveBodyPreviews(input.body); // re-resolve on edit
       const updated: Post = {
         ...existing,
         title: input.title,
         body: input.body,
         tags: input.tags,
+        link_previews: link_previews.length ? link_previews : undefined, // removeUndefinedValues drops it
         published: input.published,
         updated_at: new Date().toISOString(),
         gsi_pk: input.published ? FEED_PK : undefined, // removeUndefinedValues drops it → sparse
