@@ -4,6 +4,8 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 const { usePost } = vi.hoisted(() => ({ usePost: vi.fn() }));
 vi.mock('../hooks/useFeed', () => ({ usePost }));
+// CommentsSection has its own suite + needs a QueryClient; stub it here.
+vi.mock('../components/CommentsSection', () => ({ CommentsSection: () => null }));
 
 import { PostPage } from './PostPage';
 

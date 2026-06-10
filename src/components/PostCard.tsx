@@ -1,8 +1,11 @@
 // A single feed post (/frontend/design-system) — X-style row: avatar, author line, title, markdown
 // body, tags. The whole card links to the detail page; reused by the feed list and the detail header.
 import { Link as RouterLink } from 'react-router-dom';
+import { MessageCircle } from 'lucide-react';
 import { Markdown } from './Markdown';
 import { LinkPreviewCard } from './LinkPreviewCard';
+import { ReactionBar } from './ReactionBar';
+import { ShareButton } from './ShareButton';
 import { cn } from '../lib/cn';
 import type { Post } from '../types/post';
 
@@ -60,6 +63,18 @@ export function PostCard({ post, linkTitle = true }: { post: Post; linkTitle?: b
             ))}
           </div>
         )}
+
+        {/* interaction row — reactions (public), comment count → detail, share */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <ReactionBar postId={post.post_id} initialCounts={post.reaction_counts} size="sm" />
+          <RouterLink
+            to={`/posts/${post.post_id}`}
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <MessageCircle size={14} /> {post.comment_count ?? 0}
+          </RouterLink>
+          <ShareButton post={post} size="sm" />
+        </div>
       </div>
     </article>
   );
