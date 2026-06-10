@@ -2,6 +2,7 @@
 // body, tags. The whole card links to the detail page; reused by the feed list and the detail header.
 import { Link as RouterLink } from 'react-router-dom';
 import { Markdown } from './Markdown';
+import { LinkPreviewCard } from './LinkPreviewCard';
 import { cn } from '../lib/cn';
 import type { Post } from '../types/post';
 
@@ -41,6 +42,14 @@ export function PostCard({ post, linkTitle = true }: { post: Post; linkTitle?: b
         <div className="mt-1 text-[15px] leading-relaxed text-foreground/90">
           <Markdown>{post.body}</Markdown>
         </div>
+
+        {post.link_previews && post.link_previews.length > 0 && (
+          <div className="mt-3 space-y-3">
+            {post.link_previews.map((p) => (
+              <LinkPreviewCard key={p.url} preview={p} />
+            ))}
+          </div>
+        )}
 
         {post.tags && post.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
