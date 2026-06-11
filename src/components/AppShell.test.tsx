@@ -34,7 +34,7 @@ describe('AppShell', () => {
     const signIn = vi.fn();
     useAuth.mockReturnValue({ status: 'anonymous', signIn, signOut: vi.fn(), isAdmin: false });
     renderShell();
-    fireEvent.click(screen.getByText('Sign in'));
+    fireEvent.click(screen.getByText('Entrar'));
     expect(signIn).toHaveBeenCalled();
   });
 
@@ -42,7 +42,7 @@ describe('AppShell', () => {
     const signOut = vi.fn();
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn(), signOut, isAdmin: false });
     renderShell();
-    fireEvent.click(screen.getByLabelText('Sign out'));
+    fireEvent.click(screen.getByLabelText('Sair'));
     expect(signOut).toHaveBeenCalled();
   });
 });

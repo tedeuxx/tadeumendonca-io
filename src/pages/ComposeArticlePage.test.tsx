@@ -20,10 +20,10 @@ describe('ComposeArticlePage', () => {
         <ComposeArticlePage />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar rascunho' }));
     expect(mutate).not.toHaveBeenCalled();
-    expect(screen.getByText('Title is required')).toBeInTheDocument();
-    expect(screen.getByText('A tag is required')).toBeInTheDocument();
+    expect(screen.getByText('O título é obrigatório')).toBeInTheDocument();
+    expect(screen.getByText('A tag é obrigatória')).toBeInTheDocument();
   });
 
   it('submits the article', () => {
@@ -34,10 +34,10 @@ describe('ComposeArticlePage', () => {
         <ComposeArticlePage />
       </MemoryRouter>,
     );
-    fill('Article title', 'My Article');
+    fill('Título do artigo', 'My Article');
     fill('aws', 'cloud');
-    fill('Write your article…', 'Long form body');
-    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    fill('Escreva seu artigo…', 'Long form body');
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar rascunho' }));
     expect(mutate.mock.calls[0][0]).toMatchObject({ title: 'My Article', tag: 'cloud', body: 'Long form body', published: false });
   });
 
@@ -49,10 +49,10 @@ describe('ComposeArticlePage', () => {
         <ComposeArticlePage />
       </MemoryRouter>,
     );
-    fill('Article title', 'My Article');
+    fill('Título do artigo', 'My Article');
     fill('aws', 'cloud');
-    fill('Write your article…', 'body');
-    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    fill('Escreva seu artigo…', 'body');
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar rascunho' }));
     expect(mutate).toHaveBeenCalled();
   });
 
@@ -63,6 +63,6 @@ describe('ComposeArticlePage', () => {
         <ComposeArticlePage />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/That title\/slug already exists/)).toBeInTheDocument();
+    expect(screen.getByText(/Esse título\/slug já existe/)).toBeInTheDocument();
   });
 });

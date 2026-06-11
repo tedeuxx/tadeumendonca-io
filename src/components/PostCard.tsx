@@ -9,7 +9,7 @@ import { ShareButton } from './ShareButton';
 import { cn } from '../lib/cn';
 import type { Post } from '../types/post';
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
 
 export function PostCard({ post, linkTitle = true }: { post: Post; linkTitle?: boolean }) {
   return (

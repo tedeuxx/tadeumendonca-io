@@ -5,7 +5,7 @@ import { type ReactNode } from 'react';
 import { MapPin, ExternalLink, Briefcase, GraduationCap, Award, Sparkles } from 'lucide-react';
 import type { Profile } from '../types/profile';
 
-const dateRange = (start: string, end: string | null) => `${start} – ${end ?? 'Present'}`;
+const dateRange = (start: string, end: string | null) => `${start} – ${end ?? 'Atual'}`;
 
 function Section({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
@@ -51,7 +51,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
       </div>
 
       {profile.experience.length > 0 && (
-        <Section icon={<Briefcase size={18} />} title="Experience">
+        <Section icon={<Briefcase size={18} />} title="Experiência">
           <div className="space-y-5">
             {profile.experience.map((item, i) => (
               <div key={i} className="relative border-l-2 border-border pl-4">
@@ -75,7 +75,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
       )}
 
       {profile.education.length > 0 && (
-        <Section icon={<GraduationCap size={18} />} title="Education">
+        <Section icon={<GraduationCap size={18} />} title="Formação">
           <div className="space-y-4">
             {profile.education.map((item, i) => (
               <div key={i}>
@@ -91,7 +91,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
       )}
 
       {profile.certifications.length > 0 && (
-        <Section icon={<Award size={18} />} title="Certifications">
+        <Section icon={<Award size={18} />} title="Certificações">
           <ul className="space-y-2 text-[15px]">
             {profile.certifications.map((item, i) => (
               <li key={i}>
@@ -113,7 +113,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
       )}
 
       {Object.keys(profile.skills).length > 0 && (
-        <Section icon={<Sparkles size={18} />} title="Skills">
+        <Section icon={<Sparkles size={18} />} title="Habilidades">
           <div className="grid gap-4 sm:grid-cols-2">
             {Object.entries(profile.skills).map(([category, list]) => (
               <div key={category}>

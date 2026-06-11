@@ -19,8 +19,8 @@ export function ComposePage() {
   const [touched, setTouched] = useState(false);
   const { previews, loading: unfurling } = useUnfurl(body);
 
-  const titleError = touched && !title.trim() ? 'Title is required' : undefined;
-  const bodyError = touched && !body.trim() ? 'Body is required' : undefined;
+  const titleError = touched && !title.trim() ? 'O título é obrigatório' : undefined;
+  const bodyError = touched && !body.trim() ? 'O conteúdo é obrigatório' : undefined;
 
   const submit = () => {
     setTouched(true);
@@ -38,21 +38,21 @@ export function ComposePage() {
 
   return (
     <div>
-      <ColumnHeader title="New post" back />
+      <ColumnHeader title="Novo post" back />
       <div className="space-y-5 px-4 py-5">
-        {create.isError && <Notice>Couldn&apos;t save the post. Please check your permissions and try again.</Notice>}
+        {create.isError && <Notice>Não foi possível salvar o post. Verifique suas permissões e tente novamente.</Notice>}
 
-        <Field label="Title" error={titleError}>
-          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title" />
+        <Field label="Título" error={titleError}>
+          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título do post" />
         </Field>
-        <Field label="Body" description="Markdown supported" error={bodyError}>
-          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={12} placeholder="Write your post…" />
+        <Field label="Conteúdo" description="Markdown suportado" error={bodyError}>
+          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={12} placeholder="Escreva seu post…" />
         </Field>
 
         {(previews.length > 0 || unfurling) && (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              Link previews {unfurling && <Loader2 className="animate-spin" size={14} />}
+              Pré-visualização de links {unfurling && <Loader2 className="animate-spin" size={14} />}
             </div>
             {previews.map((p) => (
               <LinkPreviewCard key={p.url} preview={p} />
@@ -60,17 +60,17 @@ export function ComposePage() {
           </div>
         )}
 
-        <Field label="Tags" description="Comma-separated">
+        <Field label="Tags" description="Separadas por vírgula">
           <TextInput value={tags} onChange={(e) => setTags(e.target.value)} placeholder="serverless, aws" />
         </Field>
         <ToggleSwitch checked={published} onChange={setPublished}>
-          Publish now (notifies subscribers)
+          Publicar agora (notifica inscritos)
         </ToggleSwitch>
 
         <div className="flex justify-end gap-2 pt-2">
-          <GhostButton onClick={() => navigate('/')}>Cancel</GhostButton>
+          <GhostButton onClick={() => navigate('/')}>Cancelar</GhostButton>
           <PrimaryButton onClick={submit} disabled={create.isPending}>
-            {published ? 'Publish' : 'Save draft'}
+            {published ? 'Publicar' : 'Salvar rascunho'}
           </PrimaryButton>
         </div>
       </div>

@@ -15,7 +15,7 @@ export function SubscribeButton() {
   if (subscribe.isSuccess) {
     return (
       <span className={`${pill} text-primary`}>
-        <Check size={16} /> Subscribed
+        <Check size={16} /> Inscrito
       </span>
     );
   }
@@ -25,7 +25,7 @@ export function SubscribeButton() {
       disabled={subscribe.isPending}
       className={`${pill} bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60`}
     >
-      <Bell size={16} /> Subscribe
+      <Bell size={16} /> Inscrever-se
     </button>
   );
 }

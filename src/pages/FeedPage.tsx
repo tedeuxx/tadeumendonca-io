@@ -24,8 +24,8 @@ export function FeedPage() {
       />
 
       {isLoading && <CenterLoader />}
-      {isError && <Notice>Couldn&apos;t load the feed. Please try again later.</Notice>}
-      {!isLoading && !isError && posts.length === 0 && <Empty>No posts yet.</Empty>}
+      {isError && <Notice>Não foi possível carregar o feed. Tente novamente mais tarde.</Notice>}
+      {!isLoading && !isError && posts.length === 0 && <Empty>Ainda não há posts.</Empty>}
 
       {posts.map((post) => (
         <PostCard key={post.post_id} post={post} />
@@ -39,7 +39,7 @@ export function FeedPage() {
             className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
           >
             {isFetchingNextPage && <Loader2 className="animate-spin" size={16} />}
-            Load more
+            Carregar mais
           </button>
         </div>
       )}

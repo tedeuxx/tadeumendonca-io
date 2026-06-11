@@ -45,6 +45,6 @@ describe('HomePage', () => {
   it('shows an error state on failure', async () => {
     apiFetch.mockRejectedValueOnce({ error: { code: 'request_failed' } });
     renderHome();
-    await waitFor(() => expect(screen.getByText(/Could not load the profile/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Não foi possível carregar o perfil/)).toBeInTheDocument());
   });
 });

@@ -12,7 +12,7 @@ export function NewPostButton() {
       to="/compose"
       className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
     >
-      <PenSquare size={16} /> New post
+      <PenSquare size={16} /> Novo post
     </RouterLink>
   );
 }

@@ -7,7 +7,7 @@ import { useAuth } from '../auth/authStore';
 import { usePostComments, useCreateComment, useDeleteComment } from '../hooks/useComments';
 import type { Comment } from '../types/post';
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
 
 function CommentForm({ postId }: { postId: string }) {
   const { status, name, email, signIn } = useAuth();

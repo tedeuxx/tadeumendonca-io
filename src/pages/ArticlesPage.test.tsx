@@ -20,7 +20,7 @@ describe('ArticlesPage', () => {
   it('shows empty state', () => {
     useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
     renderAt();
-    expect(screen.getByText('No articles yet.')).toBeInTheDocument();
+    expect(screen.getByText('Ainda não há artigos.')).toBeInTheDocument();
   });
 
   it('lists articles with their title link', () => {
@@ -31,20 +31,20 @@ describe('ArticlesPage', () => {
       hasNextPage: false,
     });
     renderAt();
-    expect(screen.getByRole('link', { name: 'Building' })).toHaveAttribute('href', '/articles/building');
+    expect(screen.getByRole('link', { name: 'Building' })).toHaveAttribute('href', '/blog/building');
   });
 
   it('passes the tag from the URL to the hook + shows a clear filter', () => {
     useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
     renderAt('/articles?tag=aws');
     expect(useArticles).toHaveBeenCalledWith('aws');
-    expect(screen.getByRole('button', { name: 'Clear filter' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Limpar filtro' })).toBeInTheDocument();
   });
 
   it('shows error state', () => {
     useArticles.mockReturnValue({ data: undefined, isLoading: false, isError: true, hasNextPage: false });
     renderAt();
-    expect(screen.getByText(/Couldn't load articles/)).toBeInTheDocument();
+    expect(screen.getByText(/Não foi possível carregar os artigos/)).toBeInTheDocument();
   });
 
   it('filters by clicking a tag badge and loads more', () => {
@@ -59,15 +59,15 @@ describe('ArticlesPage', () => {
     });
     renderAt();
     fireEvent.click(screen.getByText('#aws')); // tag → setParams
-    expect(screen.getByRole('button', { name: 'Clear filter' })).toBeInTheDocument(); // URL now has ?tag=aws
-    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    expect(screen.getByRole('button', { name: 'Limpar filtro' })).toBeInTheDocument(); // URL now has ?tag=aws
+    fireEvent.click(screen.getByRole('button', { name: 'Carregar mais' }));
     expect(fetchNextPage).toHaveBeenCalled();
   });
 
   it('clears the tag filter', () => {
     useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
     renderAt('/articles?tag=aws');
-    fireEvent.click(screen.getByRole('button', { name: 'Clear filter' }));
-    expect(screen.queryByRole('button', { name: 'Clear filter' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar filtro' }));
+    expect(screen.queryByRole('button', { name: 'Limpar filtro' })).toBeNull();
   });
 });

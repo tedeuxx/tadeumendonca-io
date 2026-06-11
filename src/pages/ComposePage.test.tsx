@@ -22,9 +22,9 @@ describe('ComposePage', () => {
         <ComposePage />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar rascunho' }));
     expect(mutate).not.toHaveBeenCalled();
-    expect(screen.getByText('Title is required')).toBeInTheDocument();
+    expect(screen.getByText('O título é obrigatório')).toBeInTheDocument();
   });
 
   it('submits a parsed post (tags split, published flag)', () => {
@@ -35,10 +35,10 @@ describe('ComposePage', () => {
         <ComposePage />
       </MemoryRouter>,
     );
-    setByPlaceholder('Post title', 'My Post');
-    setByPlaceholder('Write your post…', 'Hello body');
+    setByPlaceholder('Título do post', 'My Post');
+    setByPlaceholder('Escreva seu post…', 'Hello body');
     setByPlaceholder('serverless, aws', 'aws, serverless');
-    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar rascunho' }));
     expect(mutate).toHaveBeenCalled();
     expect(mutate.mock.calls[0][0]).toMatchObject({ title: 'My Post', body: 'Hello body', tags: ['aws', 'serverless'], published: false });
   });

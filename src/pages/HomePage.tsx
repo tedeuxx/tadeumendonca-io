@@ -9,10 +9,10 @@ export function HomePage() {
 
   return (
     <div>
-      <ColumnHeader title="Profile" />
+      <ColumnHeader title="Perfil" />
       {isLoading && <CenterLoader />}
-      {isError && <Notice>Could not load the profile. Please try again later.</Notice>}
-      {!isLoading && !isError && !profile && <Empty>No profile yet.</Empty>}
+      {isError && <Notice>Não foi possível carregar o perfil. Tente novamente mais tarde.</Notice>}
+      {!isLoading && !isError && !profile && <Empty>Perfil ainda não disponível.</Empty>}
       {profile && <ProfileView profile={profile} />}
     </div>
   );

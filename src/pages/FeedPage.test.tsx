@@ -23,7 +23,7 @@ describe('FeedPage', () => {
   it('shows an empty state when there are no posts', () => {
     useFeed.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
     renderFeed();
-    expect(screen.getByText('No posts yet.')).toBeInTheDocument();
+    expect(screen.getByText('Ainda não há posts.')).toBeInTheDocument();
   });
 
   it('renders posts from the pages', () => {
@@ -40,7 +40,7 @@ describe('FeedPage', () => {
   it('shows an error state', () => {
     useFeed.mockReturnValue({ data: undefined, isLoading: false, isError: true, hasNextPage: false });
     renderFeed();
-    expect(screen.getByText(/Couldn't load the feed/)).toBeInTheDocument();
+    expect(screen.getByText(/Não foi possível carregar o feed/)).toBeInTheDocument();
   });
 
   it('shows a Load more button and fetches the next page on click', () => {
@@ -54,7 +54,7 @@ describe('FeedPage', () => {
       isFetchingNextPage: false,
     });
     renderFeed();
-    const btn = screen.getByRole('button', { name: 'Load more' });
+    const btn = screen.getByRole('button', { name: 'Carregar mais' });
     fireEvent.click(btn);
     expect(fetchNextPage).toHaveBeenCalled();
   });
