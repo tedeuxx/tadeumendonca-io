@@ -10,7 +10,7 @@ const dateRange = (start: string, end: string | null) => `${start} – ${end ?? 
 function Section({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
     <section className="border-t border-border px-4 py-5">
-      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
+      <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold">
         <span className="text-primary">{icon}</span>
         {title}
       </h2>
@@ -23,7 +23,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
   return (
     <div>
       {/* Cover + avatar */}
-      <div className="h-28 bg-gradient-to-r from-primary/30 via-primary/15 to-transparent" />
+      <div className="h-28 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
       <div className="px-4">
         <div className="-mt-10 flex items-end justify-between">
           <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary text-3xl font-bold text-primary-foreground">
@@ -31,7 +31,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
           </div>
         </div>
         <div className="mt-3">
-          <h1 className="text-2xl font-bold leading-tight">{profile.name}</h1>
+          <h1 className="font-display text-3xl font-extrabold leading-tight">{profile.name}</h1>
           <p className="text-muted-foreground">{profile.headline}</p>
         </div>
         {profile.summary && <p className="mt-3 text-[15px] leading-relaxed text-foreground/90">{profile.summary}</p>}
@@ -120,7 +120,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
                 <div className="mb-2 text-sm font-semibold text-muted-foreground">{category}</div>
                 <div className="flex flex-wrap gap-2">
                   {list.map((skill) => (
-                    <span key={skill} className="rounded-full bg-muted px-2.5 py-0.5 text-sm text-foreground">
+                    <span key={skill} className="rounded-md bg-muted px-2.5 py-0.5 text-sm text-foreground">
                       {skill}
                     </span>
                   ))}

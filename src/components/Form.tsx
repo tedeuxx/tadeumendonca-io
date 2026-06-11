@@ -53,7 +53,7 @@ export function ToggleSwitch({ checked, onChange, children }: { checked: boolean
   );
 }
 
-const btn = 'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-colors disabled:opacity-60';
+const btn = 'inline-flex items-center justify-center gap-2 rounded-md px-5 py-2 text-sm font-semibold transition-colors disabled:opacity-60';
 
 export function PrimaryButton({ children, className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (

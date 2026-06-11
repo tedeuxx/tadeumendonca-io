@@ -20,7 +20,7 @@ export function ArticlesPage() {
         description={tag ? `Tag: ${tag}` : undefined}
         actions={
           tag ? (
-            <button onClick={() => setParams({})} className="rounded-full border border-border px-3.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+            <button onClick={() => setParams({})} className="rounded-md border border-border px-3.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
               Clear filter
             </button>
           ) : undefined
@@ -40,7 +40,7 @@ export function ArticlesPage() {
               #{a.tag}
             </button>
           </div>
-          <RouterLink to={`/articles/${a.slug}`} className="mt-0.5 block text-lg font-bold leading-snug text-foreground hover:text-primary">
+          <RouterLink to={`/articles/${a.slug}`} className="mt-0.5 block font-display text-lg font-bold leading-snug text-foreground hover:text-primary">
             {a.title}
           </RouterLink>
           {a.excerpt && <p className="mt-1 text-[15px] leading-relaxed text-foreground/80">{a.excerpt}</p>}
@@ -52,7 +52,7 @@ export function ArticlesPage() {
           <button
             onClick={() => void fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
           >
             {isFetchingNextPage && <Loader2 className="animate-spin" size={16} />}
             Load more

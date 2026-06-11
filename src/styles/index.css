@@ -2,30 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand tokens (/frontend/design-system) — shadcn-style HSL vars so shadcn components drop in later.
-   Dark-first (the brand: slate + cyan). Light is the toggle. */
+/* Brand tokens (/frontend/design-system) — shadcn-style HSL vars.
+   Single fixed theme (no dark/light toggle): Borussia Dortmund — black/graphite + yellow. */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 210 40% 98%;
-  --border: 214 32% 91%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --primary: 199 89% 48%; /* cyan, darker for contrast on white */
-  --primary-foreground: 0 0% 100%;
-  --ring: 199 89% 48%;
-}
-
-.dark {
-  --background: 222 47% 11%; /* slate-900 #0f172a */
-  --foreground: 210 40% 98%; /* #f8fafc */
-  --card: 217 33% 17%; /* slate-800 #1e293b */
-  --border: 215 25% 27%; /* slate-700 #334155 */
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%; /* slate-400 #94a3b8 */
-  --primary: 199 89% 60%; /* sky-400 #38bdf8 */
-  --primary-foreground: 222 47% 11%;
-  --ring: 199 89% 60%;
+  --background: 0 0% 7%; /* #121212 near-black graphite */
+  --foreground: 0 0% 96%; /* off-white */
+  --card: 0 0% 11%; /* #1c1c1c raised graphite */
+  --border: 0 0% 20%; /* #333 hairline */
+  --muted: 0 0% 15%; /* #262626 */
+  --muted-foreground: 0 0% 64%; /* #a3a3a3 */
+  --primary: 53 100% 50%; /* #FDE100 BVB yellow */
+  --primary-foreground: 0 0% 7%; /* black text on yellow (AA ~13:1) */
+  --ring: 53 100% 50%;
+  --radius: 0.5rem;
 }
 
 /* Base (Tailwind preflight handles the reset; we set the brand surface + border default). */

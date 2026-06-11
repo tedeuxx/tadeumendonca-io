@@ -30,7 +30,7 @@ export function LinkPreviewCard({ preview, onRemove }: { preview: LinkPreview; o
           type="button"
           onClick={onRemove}
           aria-label="Remove preview"
-          className="absolute right-2 top-2 z-10 rounded-full bg-background/80 p-1 text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+          className="absolute right-2 top-2 z-10 rounded-full bg-background p-1 text-muted-foreground transition-colors hover:text-foreground"
         >
           <X size={16} />
         </button>

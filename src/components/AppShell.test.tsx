@@ -6,71 +6,49 @@ const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }));
 vi.mock('../auth/authStore', () => ({ useAuth }));
 
 import { AppShell } from './AppShell';
-import { ThemeProvider } from '../theme/ThemeProvider';
-
-function memoryStorage() {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (k: string) => store[k] ?? null,
-    setItem: (k: string, v: string) => {
-      store[k] = String(v);
-    },
-    removeItem: (k: string) => {
-      delete store[k];
-    },
-    clear: () => {
-      store = {};
-    },
-  } as Storage;
-}
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal('localStorage', memoryStorage());
-  document.documentElement.classList.remove('dark');
-  vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
 });
 
 const renderShell = () =>
   render(
-    <ThemeProvider>
-      <MemoryRouter>
-        <AppShell>
-          <div>child content</div>
-        </AppShell>
-      </MemoryRouter>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <AppShell>
+        <div>child content</div>
+      </AppShell>
+    </MemoryRouter>,
   );
 
 describe('AppShell', () => {
-  it('renders children and the public nav, hiding admin-only items', () => {
+  it('renders the header title, children and the public nav, hiding admin-only items', () => {
     useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn(), signOut: vi.fn(), isAdmin: false });
     renderShell();
     expect(screen.getByText('child content')).toBeInTheDocument();
-    // Feed/Articles/Profile appear (rail + bottom = duplicated), New post does not
-    expect(screen.getAllByText('Feed').length).toBeGreaterThan(0);
+    expect(screen.getByText('tadeumendonca')).toBeInTheDocument();
+    expect(screen.getByText('Feed')).toBeInTheDocument();
     expect(screen.queryByText('New post')).toBeNull();
   });
 
   it('shows the admin compose entry for admins', () => {
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn(), signOut: vi.fn(), isAdmin: true });
     renderShell();
-    expect(screen.getAllByText('New post').length).toBeGreaterThan(0);
+    expect(screen.getByText('New post')).toBeInTheDocument();
   });
 
   it('invokes signIn from the account button when anonymous', () => {
     const signIn = vi.fn();
     useAuth.mockReturnValue({ status: 'anonymous', signIn, signOut: vi.fn(), isAdmin: false });
     renderShell();
-    fireEvent.click(screen.getAllByText('Sign in')[0]);
+    fireEvent.click(screen.getByText('Sign in'));
     expect(signIn).toHaveBeenCalled();
   });
 
-  it('toggles the theme', () => {
-    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn(), signOut: vi.fn(), isAdmin: false });
+  it('shows the account avatar and invokes signOut when authenticated', () => {
+    const signOut = vi.fn();
+    useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn(), signOut, isAdmin: false });
     renderShell();
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    fireEvent.click(screen.getAllByLabelText('Toggle theme')[0]);
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    fireEvent.click(screen.getByLabelText('Sign out'));
+    expect(signOut).toHaveBeenCalled();
   });
 });
