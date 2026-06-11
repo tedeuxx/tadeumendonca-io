@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useFeed } from '../hooks/useFeed';
 import { PostCard } from '../components/PostCard';
 import { SubscribeButton } from '../components/SubscribeButton';
+import { NewPostButton } from '../components/NewPostButton';
 import { ColumnHeader, CenterLoader, Notice, Empty } from '../components/Column';
 
 export function FeedPage() {
@@ -12,7 +13,15 @@ export function FeedPage() {
 
   return (
     <div>
-      <ColumnHeader title="Feed" actions={<SubscribeButton />} />
+      <ColumnHeader
+        title="Feed"
+        actions={
+          <div className="flex items-center gap-2">
+            <NewPostButton />
+            <SubscribeButton />
+          </div>
+        }
+      />
 
       {isLoading && <CenterLoader />}
       {isError && <Notice>Couldn&apos;t load the feed. Please try again later.</Notice>}
