@@ -33,6 +33,6 @@ describe('ArticlePage', () => {
   it('shows not-found on error', () => {
     useArticle.mockReturnValue({ data: undefined, isLoading: false, isError: true });
     renderAt('nope');
-    expect(screen.getByText(/doesn't exist or isn't published/)).toBeInTheDocument();
+    expect(screen.getByText(/não existe ou não está publicado/)).toBeInTheDocument();
   });
 });

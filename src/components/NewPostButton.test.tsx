@@ -20,7 +20,7 @@ describe('NewPostButton', () => {
   it('renders a link to the compose page for admins', () => {
     useAuth.mockReturnValue({ isAdmin: true });
     renderBtn();
-    expect(screen.getByRole('link', { name: /New post/ })).toHaveAttribute('href', '/compose');
+    expect(screen.getByRole('link', { name: /Novo post/ })).toHaveAttribute('href', '/compose');
   });
 
   it('renders nothing for non-admins', () => {

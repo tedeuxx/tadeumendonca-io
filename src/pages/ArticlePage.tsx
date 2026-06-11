@@ -5,7 +5,7 @@ import { useArticle } from '../hooks/useArticles';
 import { Markdown } from '../components/Markdown';
 import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,9 +13,9 @@ export function ArticlePage() {
 
   return (
     <div>
-      <ColumnHeader title="Article" back />
+      <ColumnHeader title="Artigo" back />
       {isLoading && <CenterLoader />}
-      {(isError || (!isLoading && !article)) && <Notice>This article doesn&apos;t exist or isn&apos;t published.</Notice>}
+      {(isError || (!isLoading && !article)) && <Notice>Este artigo não existe ou não está publicado.</Notice>}
 
       {article && (
         <article className="px-4 py-5">
@@ -23,7 +23,7 @@ export function ArticlePage() {
           <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
             <time dateTime={article.created_at}>{fmtDate(article.created_at)}</time>
             <span>·</span>
-            <RouterLink to={`/articles?tag=${article.tag}`} className="font-medium text-primary hover:underline">
+            <RouterLink to={`/blog?tag=${article.tag}`} className="font-medium text-primary hover:underline">
               #{article.tag}
             </RouterLink>
           </div>

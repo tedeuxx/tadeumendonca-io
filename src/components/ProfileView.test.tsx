@@ -33,12 +33,12 @@ describe('ProfileView', () => {
   it('renders the CV sections', () => {
     render(<ProfileView profile={profile} />);
     expect(screen.getByText('Tadeu Mendonça')).toBeInTheDocument();
-    expect(screen.getByText('Experience')).toBeInTheDocument();
+    expect(screen.getByText('Experiência')).toBeInTheDocument();
     expect(screen.getByText('Hono')).toBeInTheDocument(); // experience highlight
     expect(screen.getAllByText(/Terraform/).length).toBeGreaterThan(0); // in highlights + skills
-    expect(screen.getByText('Education')).toBeInTheDocument();
-    expect(screen.getByText('Certifications')).toBeInTheDocument();
-    expect(screen.getByText('Skills')).toBeInTheDocument();
+    expect(screen.getByText('Formação')).toBeInTheDocument();
+    expect(screen.getByText('Certificações')).toBeInTheDocument();
+    expect(screen.getByText('Habilidades')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute(
       'href',
       'https://github.com/tedeuxx',
@@ -58,7 +58,7 @@ describe('ProfileView', () => {
     };
     render(<ProfileView profile={minimal} />);
     expect(screen.getByText('Tadeu Mendonça')).toBeInTheDocument();
-    expect(screen.queryByText('Experience')).not.toBeInTheDocument();
-    expect(screen.queryByText('Skills')).not.toBeInTheDocument();
+    expect(screen.queryByText('Experiência')).not.toBeInTheDocument();
+    expect(screen.queryByText('Habilidades')).not.toBeInTheDocument();
   });
 });

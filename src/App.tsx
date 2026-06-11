@@ -36,7 +36,10 @@ export function App() {
             <Route path="/feed" element={<Navigate to="/" replace />} />
             <Route path="/posts/:postId" element={<PostPage />} />
             <Route path="/p/:code" element={<ShortLinkPage />} />
-            <Route path="/articles" element={<ArticlesPage />} />
+            <Route path="/blog" element={<ArticlesPage />} />
+            <Route path="/blog/:slug" element={<ArticlePage />} />
+            {/* Back-compat: old /articles deep-links (og:image, notifications) still resolve. */}
+            <Route path="/articles" element={<Navigate to="/blog" replace />} />
             <Route path="/articles/:slug" element={<ArticlePage />} />
             <Route path="/profile" element={<HomePage />} />
             <Route

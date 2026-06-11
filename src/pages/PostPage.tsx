@@ -14,7 +14,7 @@ export function PostPage() {
     <div>
       <ColumnHeader title="Post" back />
       {isLoading && <CenterLoader />}
-      {(isError || (!isLoading && !post)) && <Notice>This post doesn&apos;t exist or isn&apos;t published.</Notice>}
+      {(isError || (!isLoading && !post)) && <Notice>Este post não existe ou não está publicado.</Notice>}
       {post && (
         <>
           <PostCard post={post} linkTitle={false} />

@@ -15,8 +15,8 @@ interface NavEntry {
 }
 const NAV: NavEntry[] = [
   { to: '/', label: 'Feed', icon: Home },
-  { to: '/articles', label: 'Articles', icon: FileText },
-  { to: '/profile', label: 'Profile', icon: User },
+  { to: '/blog', label: 'Blog', icon: FileText },
+  { to: '/profile', label: 'Perfil', icon: User },
 ];
 
 function HeaderBrand() {
@@ -38,7 +38,7 @@ function Account() {
         onClick={() => void signIn()}
         className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
       >
-        <LogIn size={18} /> <span>Sign in</span>
+        <LogIn size={18} /> <span>Entrar</span>
       </button>
     );
   }
@@ -47,7 +47,7 @@ function Account() {
     <div className="flex items-center gap-2">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{initial}</div>
       <span className="hidden max-w-[12rem] truncate text-sm text-muted-foreground sm:block">{email}</span>
-      <button onClick={() => void signOut()} aria-label="Sign out" className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
+      <button onClick={() => void signOut()} aria-label="Sair" className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
         <LogOut size={18} />
       </button>
     </div>

@@ -23,7 +23,7 @@ describe('SubscribeButton', () => {
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn() });
     useSubscribe.mockReturnValue({ mutate, isPending: false, isSuccess: false });
     render(<SubscribeButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Inscrever-se' }));
     expect(mutate).toHaveBeenCalledWith('a@b.io');
   });
 
@@ -31,6 +31,6 @@ describe('SubscribeButton', () => {
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn() });
     useSubscribe.mockReturnValue({ mutate: vi.fn(), isPending: false, isSuccess: true });
     render(<SubscribeButton />);
-    expect(screen.getByText(/Subscribed/)).toBeInTheDocument();
+    expect(screen.getByText(/Inscrito/)).toBeInTheDocument();
   });
 });

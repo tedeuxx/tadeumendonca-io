@@ -16,9 +16,9 @@ export function ComposeArticlePage() {
   const [published, setPublished] = useState(false);
   const [touched, setTouched] = useState(false);
 
-  const titleError = touched && !title.trim() ? 'Title is required' : undefined;
-  const tagError = touched && !tag.trim() ? 'A tag is required' : undefined;
-  const bodyError = touched && !body.trim() ? 'Body is required' : undefined;
+  const titleError = touched && !title.trim() ? 'O título é obrigatório' : undefined;
+  const tagError = touched && !tag.trim() ? 'A tag é obrigatória' : undefined;
+  const bodyError = touched && !body.trim() ? 'O conteúdo é obrigatório' : undefined;
   const conflict = create.isError && (create.error as { error?: { code?: string } })?.error?.code === 'conflict';
 
   const submit = () => {
@@ -26,41 +26,41 @@ export function ComposeArticlePage() {
     if (!title.trim() || !tag.trim() || !body.trim()) return;
     create.mutate(
       { title: title.trim(), tag: tag.trim(), excerpt: excerpt.trim() || undefined, body: body.trim(), published },
-      { onSuccess: (article) => navigate(`/articles/${article.slug}`) },
+      { onSuccess: (article) => navigate(`/blog/${article.slug}`) },
     );
   };
 
   return (
     <div>
-      <ColumnHeader title="New article" back />
+      <ColumnHeader title="Novo artigo" back />
       <div className="space-y-5 px-4 py-5">
         {create.isError &&
           (conflict ? (
-            <Notice>That title/slug already exists. Pick a different title.</Notice>
+            <Notice>Esse título/slug já existe. Escolha outro título.</Notice>
           ) : (
-            <Notice>Couldn&apos;t save the article. Please check your permissions and try again.</Notice>
+            <Notice>Não foi possível salvar o artigo. Verifique suas permissões e tente novamente.</Notice>
           ))}
 
-        <Field label="Title" error={titleError}>
-          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Article title" />
+        <Field label="Título" error={titleError}>
+          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Título do artigo" />
         </Field>
-        <Field label="Tag" description="Primary category" error={tagError}>
+        <Field label="Tag" description="Categoria principal" error={tagError}>
           <TextInput value={tag} onChange={(e) => setTag(e.target.value)} placeholder="aws" />
         </Field>
-        <Field label="Excerpt" description="Short summary (optional)">
-          <TextInput value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="One-line summary" />
+        <Field label="Resumo" description="Resumo curto (opcional)">
+          <TextInput value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Resumo em uma linha" />
         </Field>
-        <Field label="Body" description="Markdown supported (code blocks highlighted)" error={bodyError}>
-          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={16} placeholder="Write your article…" />
+        <Field label="Conteúdo" description="Markdown suportado (blocos de código destacados)" error={bodyError}>
+          <TextArea value={body} onChange={(e) => setBody(e.target.value)} rows={16} placeholder="Escreva seu artigo…" />
         </Field>
         <ToggleSwitch checked={published} onChange={setPublished}>
-          Publish now
+          Publicar agora
         </ToggleSwitch>
 
         <div className="flex justify-end gap-2 pt-2">
-          <GhostButton onClick={() => navigate('/articles')}>Cancel</GhostButton>
+          <GhostButton onClick={() => navigate('/blog')}>Cancelar</GhostButton>
           <PrimaryButton onClick={submit} disabled={create.isPending}>
-            {published ? 'Publish' : 'Save draft'}
+            {published ? 'Publicar' : 'Salvar rascunho'}
           </PrimaryButton>
         </div>
       </div>
