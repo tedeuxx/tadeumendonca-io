@@ -4,7 +4,7 @@ import { Bell, Check } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { useSubscribe } from '../hooks/usePostMutations';
 
-const pill = 'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors';
+const pill = 'inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-semibold transition-colors';
 
 export function SubscribeButton() {
   const { status, email, signIn } = useAuth();

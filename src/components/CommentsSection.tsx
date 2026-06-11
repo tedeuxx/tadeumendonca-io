@@ -44,7 +44,7 @@ function CommentForm({ postId }: { postId: string }) {
         <button
           onClick={submit}
           disabled={create.isPending || !body.trim()}
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {create.isPending && <Loader2 className="animate-spin" size={16} />}
           Comentar
@@ -109,7 +109,7 @@ export function CommentsSection({ postId }: { postId: string }) {
             <button
               onClick={() => void fetchNextPage()}
               disabled={isFetchingNextPage}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-1.5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-60"
             >
               {isFetchingNextPage && <Loader2 className="animate-spin" size={14} />}
               Ver mais

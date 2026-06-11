@@ -19,7 +19,7 @@ export function ReactionBar({ postId, initialCounts, size = 'md' }: { postId: st
             aria-pressed={active}
             aria-label={`React ${emoji}`}
             className={cn(
-              'inline-flex items-center gap-1 rounded-full border transition-colors disabled:opacity-60',
+              'inline-flex items-center gap-1 rounded-md border transition-colors disabled:opacity-60',
               size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
               active ? 'border-primary bg-primary/10 text-foreground' : 'border-border text-muted-foreground hover:bg-muted',
             )}

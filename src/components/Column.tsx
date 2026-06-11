@@ -17,18 +17,18 @@ export function ColumnHeader({
 }) {
   const navigate = useNavigate();
   return (
-    <div className="z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:sticky md:top-0">
+    <div className="z-10 flex items-center gap-3 border-b border-border bg-background px-4 py-3">
       {back && (
         <button
           onClick={() => navigate(-1)}
           aria-label="Back"
-          className="-ml-1 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="-ml-1 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft size={20} />
         </button>
       )}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-xl font-bold leading-tight">{title}</h1>
+        <h1 className="truncate font-display text-xl font-bold leading-tight">{title}</h1>
         {description && <div className="truncate text-sm text-muted-foreground">{description}</div>}
       </div>
       {actions}
