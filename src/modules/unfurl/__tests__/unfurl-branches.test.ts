@@ -111,6 +111,48 @@ describe('resolveUrl providers', () => {
     expect(p.image).toBeUndefined(); // no thumbnail_url
   });
 
+  it('falls back to a deterministic YouTube card when oEmbed is rate-limited (non-2xx)', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(streamResponse({ status: 403, contentType: 'text/html', body: 'denied' })) // oEmbed blocked
+      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' })); // ytimg thumbnail
+    vi.stubGlobal('fetch', fetchMock);
+    const p = await resolveUrl('https://youtu.be/dQw4w9WgXcQ');
+    expect(p.provider).toBe('YouTube');
+    expect(p.title).toBeUndefined();
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{40}\.jpg$/); // thumbnail from i.ytimg.com CDN
+    expect(putImage).toHaveBeenCalledOnce();
+  });
+
+  it('falls back to a YouTube card when oEmbed returns invalid JSON', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(streamResponse({ status: 200, contentType: 'application/json', body: 'NOT JSON' }))
+      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'J' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const p = await resolveUrl('https://www.youtube.com/watch?v=abc123');
+    expect(p.provider).toBe('YouTube');
+    expect(p.image).toMatch(/\/og\/unfurl\//);
+  });
+
+  it('YouTube fallback without an extractable video id yields a card with no image', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(streamResponse({ status: 500, body: 'err' })));
+    const p = await resolveUrl('https://www.youtube.com/feed/subscriptions');
+    expect(p.provider).toBe('YouTube');
+    expect(p.image).toBeUndefined();
+  });
+
+  it('falls back to an Open Graph scrape when Spotify oEmbed fails', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(streamResponse({ status: 429, body: 'rate limited' })) // oEmbed fails
+      .mockResolvedValueOnce(streamResponse({ contentType: 'text/html', body: '<meta property="og:title" content="A Song">' })); // page OG
+    vi.stubGlobal('fetch', fetchMock);
+    const p = await resolveUrl('https://open.spotify.com/track/abc');
+    expect(p.provider).toBe('Spotify');
+    expect(p.title).toBe('A Song');
+  });
+
   it('returns a degraded card for Instagram', async () => {
     const p = await resolveUrl('https://www.instagram.com/p/abc/');
     expect(p.provider).toBe('Instagram');

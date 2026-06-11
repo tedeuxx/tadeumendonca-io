@@ -39,33 +39,62 @@ async function cacheThumbnail(imageUrl: string): Promise<string | undefined> {
   }
 }
 
-async function oembed(endpoint: string, target: string, provider: string): Promise<LinkPreview> {
-  const res = await safeFetch(`${endpoint}?format=json&url=${encodeURIComponent(target)}`, { maxBytes: 200_000 });
-  const data = JSON.parse(new TextDecoder().decode(res.bytes)) as {
-    title?: string;
-    author_name?: string;
-    thumbnail_url?: string;
-    provider_name?: string;
-  };
+// Try a provider's oEmbed endpoint. Returns null (rather than throwing) on a non-2xx response or
+// unparseable body — oEmbed APIs commonly rate-limit/403 datacenter (Lambda) egress IPs, and the
+// caller falls back to a still-useful card instead of dropping the preview entirely.
+async function oembed(endpoint: string, target: string, provider: string): Promise<LinkPreview | null> {
+  try {
+    const res = await safeFetch(`${endpoint}?format=json&url=${encodeURIComponent(target)}`, { maxBytes: 200_000 });
+    if (res.status < 200 || res.status >= 300) return null;
+    const data = JSON.parse(new TextDecoder().decode(res.bytes)) as {
+      title?: string;
+      author_name?: string;
+      thumbnail_url?: string;
+      provider_name?: string;
+    };
+    if (!data.title && !data.thumbnail_url) return null;
+    return {
+      url: target,
+      provider,
+      title: data.title,
+      author: data.author_name,
+      site_name: data.provider_name ?? provider,
+      image: data.thumbnail_url ? await cacheThumbnail(data.thumbnail_url) : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Pull the video id from any YouTube URL shape (youtu.be/ID, watch?v=ID, shorts/embed/live/ID).
+function youtubeId(u: URL): string | undefined {
+  if (u.hostname.replace(/^www\./, '').toLowerCase() === 'youtu.be') return u.pathname.slice(1).split('/')[0] || undefined;
+  const v = u.searchParams.get('v');
+  if (v) return v;
+  return /^\/(?:shorts|embed|live)\/([^/?]+)/.exec(u.pathname)?.[1];
+}
+
+// Deterministic YouTube card when oEmbed is unavailable. The thumbnail lives on the public i.ytimg.com
+// CDN (not the rate-limited oEmbed API), so the card still gets an image even without oEmbed.
+async function youtubeFallback(u: URL, target: string): Promise<LinkPreview> {
+  const id = youtubeId(u);
   return {
     url: target,
-    provider,
-    title: data.title,
-    author: data.author_name,
-    site_name: data.provider_name ?? provider,
-    image: data.thumbnail_url ? await cacheThumbnail(data.thumbnail_url) : undefined,
+    provider: 'YouTube',
+    site_name: 'YouTube',
+    image: id ? await cacheThumbnail(`https://i.ytimg.com/vi/${id}/hqdefault.jpg`) : undefined,
   };
 }
 
-async function generic(target: string, host: string): Promise<LinkPreview> {
+async function generic(target: string, host: string, provider = 'web'): Promise<LinkPreview> {
   const res = await safeFetch(target, { maxBytes: MAX_HTML_BYTES });
   if (!res.contentType.includes('html')) {
-    return { url: target, provider: 'web', site_name: host };
+    return { url: target, provider, site_name: host };
   }
   const og = parseOg(new TextDecoder().decode(res.bytes));
   return {
     url: target,
-    provider: 'web',
+    provider,
     title: og.title,
     description: og.description,
     site_name: og.site_name ?? host,
@@ -85,10 +114,10 @@ export async function resolveUrl(raw: string): Promise<LinkPreview> {
   const target = u.toString();
 
   if (host === 'youtube.com' || host === 'youtu.be' || host.endsWith('.youtube.com')) {
-    return oembed('https://www.youtube.com/oembed', target, 'YouTube');
+    return (await oembed('https://www.youtube.com/oembed', target, 'YouTube')) ?? youtubeFallback(u, target);
   }
   if (host === 'spotify.com' || host === 'open.spotify.com' || host.endsWith('.spotify.com')) {
-    return oembed('https://open.spotify.com/oembed', target, 'Spotify');
+    return (await oembed('https://open.spotify.com/oembed', target, 'Spotify')) ?? generic(target, host, 'Spotify');
   }
   if (host === 'twitter.com' || host === 'x.com') return degraded(target, 'X');
   if (host === 'instagram.com' || host.endsWith('.instagram.com')) return degraded(target, 'Instagram');
