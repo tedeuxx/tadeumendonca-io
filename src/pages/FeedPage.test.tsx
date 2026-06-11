@@ -4,8 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 
 const { useFeed } = vi.hoisted(() => ({ useFeed: vi.fn() }));
 vi.mock('../hooks/useFeed', () => ({ useFeed }));
-// SubscribeButton has its own suite + needs QueryClient/auth — stub it here.
+// SubscribeButton / NewPostButton have their own suites + need QueryClient/auth — stub them here.
 vi.mock('../components/SubscribeButton', () => ({ SubscribeButton: () => null }));
+vi.mock('../components/NewPostButton', () => ({ NewPostButton: () => null }));
 
 import { FeedPage } from './FeedPage';
 

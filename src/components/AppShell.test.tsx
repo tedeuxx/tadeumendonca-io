@@ -21,19 +21,13 @@ const renderShell = () =>
   );
 
 describe('AppShell', () => {
-  it('renders the header title, children and the public nav, hiding admin-only items', () => {
+  it('renders the header title, children and the nav (compose is not in the nav)', () => {
     useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn(), signOut: vi.fn(), isAdmin: false });
     renderShell();
     expect(screen.getByText('child content')).toBeInTheDocument();
     expect(screen.getByText('tadeumendonca')).toBeInTheDocument();
     expect(screen.getByText('Feed')).toBeInTheDocument();
     expect(screen.queryByText('New post')).toBeNull();
-  });
-
-  it('shows the admin compose entry for admins', () => {
-    useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn(), signOut: vi.fn(), isAdmin: true });
-    renderShell();
-    expect(screen.getByText('New post')).toBeInTheDocument();
   });
 
   it('invokes signIn from the account button when anonymous', () => {

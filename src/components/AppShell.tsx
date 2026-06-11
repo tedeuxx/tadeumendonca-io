@@ -4,7 +4,7 @@
 //   The header + nav row stick together at the top; the nav row scrolls horizontally on narrow screens.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, User, PenSquare, LogIn, LogOut } from 'lucide-react';
+import { Home, FileText, User, LogIn, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { cn } from '../lib/cn';
 
@@ -12,13 +12,11 @@ interface NavEntry {
   to: string;
   label: string;
   icon: typeof Home;
-  adminOnly?: boolean;
 }
 const NAV: NavEntry[] = [
   { to: '/', label: 'Feed', icon: Home },
   { to: '/articles', label: 'Articles', icon: FileText },
   { to: '/profile', label: 'Profile', icon: User },
-  { to: '/compose', label: 'New post', icon: PenSquare, adminOnly: true },
 ];
 
 function HeaderBrand() {
@@ -57,11 +55,9 @@ function Account() {
 }
 
 function NavItems() {
-  const { isAdmin } = useAuth();
-  const items = NAV.filter((n) => !n.adminOnly || isAdmin);
   return (
     <>
-      {items.map(({ to, label, icon: Icon }) => (
+      {NAV.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}
