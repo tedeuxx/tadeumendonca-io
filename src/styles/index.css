@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Brand tokens (/frontend/design-system) — shadcn-style HSL vars.
-   Single fixed theme (no dark/light toggle): Borussia Dortmund — black/graphite + yellow. */
+   Single fixed theme (no dark/light toggle): Borussia Dortmund — black/graphite + gold. */
 :root {
   --background: 0 0% 7%; /* #121212 near-black graphite */
   --foreground: 0 0% 96%; /* off-white */
@@ -11,9 +11,9 @@
   --border: 0 0% 20%; /* #333 hairline */
   --muted: 0 0% 15%; /* #262626 */
   --muted-foreground: 0 0% 64%; /* #a3a3a3 */
-  --primary: 53 100% 50%; /* #FDE100 BVB yellow */
-  --primary-foreground: 0 0% 7%; /* black text on yellow (AA ~13:1) */
-  --ring: 53 100% 50%;
+  --primary: 43 90% 48%; /* #E8A613 warm gold (deeper than BVB yellow) */
+  --primary-foreground: 0 0% 7%; /* black text on gold (AA ~9:1) */
+  --ring: 43 90% 48%;
   --radius: 0.5rem;
 }
 
