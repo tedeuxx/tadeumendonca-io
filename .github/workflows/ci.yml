@@ -1,6 +1,7 @@
 name: ci
 
-# PR gate (/workflow/github-actions): lint + typecheck + tests (coverage ≥ 85%) + build.
+# PR gate (/workflow/github-actions): lint + typecheck + tests (coverage ≥ 85%) + build + SonarCloud gate.
+# Runs on PRs (gate + PR decoration) and on push to develop/main (sets SonarCloud's new-code baseline).
 on:
   pull_request:
     branches: [develop, main]
@@ -13,6 +14,20 @@ on:
       - "vitest.config.ts"
       - "eslint.config.mjs"
       - "esbuild.config.mjs"
+      - "sonar-project.properties"
+      - ".github/workflows/ci.yml"
+  push:
+    branches: [develop, main]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "vitest.config.ts"
+      - "eslint.config.mjs"
+      - "esbuild.config.mjs"
+      - "sonar-project.properties"
       - ".github/workflows/ci.yml"
 
 permissions:
@@ -30,7 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        # Full history — SonarCloud uses git blame for accurate new-code / authorship attribution.
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,3 +70,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Authoritative quality gate: SAST + coverage + smells + duplication. Runs after tests so
+      # coverage/lcov.info exists. `qualitygate.wait=true` polls SonarCloud and FAILS the job on a
+      # red gate — this is the blocking gate (vitest ≥85% above is the fast local pre-check).
+      # Requires CI-based analysis (SonarCloud Automatic Analysis must be OFF for this project).
+      - name: SonarCloud scan (quality gate blocks)
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: -Dsonar.qualitygate.wait=true
