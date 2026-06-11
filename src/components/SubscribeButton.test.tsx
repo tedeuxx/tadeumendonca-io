@@ -11,13 +11,11 @@ import { SubscribeButton } from './SubscribeButton';
 beforeEach(() => vi.clearAllMocks());
 
 describe('SubscribeButton', () => {
-  it('prompts anonymous users to sign in', () => {
-    const signIn = vi.fn();
-    useAuth.mockReturnValue({ status: 'anonymous', signIn });
+  it('renders nothing for anonymous users', () => {
+    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn() });
     useSubscribe.mockReturnValue({ mutate: vi.fn(), isPending: false, isSuccess: false });
-    render(<SubscribeButton />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in to subscribe' }));
-    expect(signIn).toHaveBeenCalled();
+    const { container } = render(<SubscribeButton />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('subscribes the signed-in user email', () => {
