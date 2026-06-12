@@ -17,10 +17,11 @@ beforeEach(() => vi.clearAllMocks());
 
 describe('useFeed', () => {
   it('fetches the first feed page', async () => {
-    apiFetch.mockResolvedValueOnce({ items: [{ post_id: 'p1', title: 'T', body: 'b', published: true, created_at: 'x' }], next_cursor: 'c2' });
+    apiFetch.mockResolvedValueOnce({ items: [{ kind: 'post', post_id: 'p1', title: 'T', body: 'b', published: true, created_at: 'x' }], next_cursor: 'c2' });
     const { result } = renderHook(() => useFeed(), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.pages[0].items[0].post_id).toBe('p1');
+    const first = result.current.data?.pages[0].items[0];
+    expect(first?.kind === 'post' && first.post_id).toBe('p1');
     expect(result.current.hasNextPage).toBe(true);
     expect(apiFetch).toHaveBeenCalledWith('/posts?limit=20');
   });

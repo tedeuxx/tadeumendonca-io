@@ -41,7 +41,23 @@ export interface CommentPage {
   next_cursor?: string;
 }
 
+// An article as it appears in the unified feed (mirrors the BFF feed.ts article variant — a trimmed
+// Article: no body, just the headline fields + excerpt, linking out to /blog/:slug). /frontend/state.
+export interface ArticleFeedItem {
+  kind: 'article';
+  article_id: string;
+  slug: string;
+  tag: string;
+  title: string;
+  excerpt?: string;
+  created_at: string;
+}
+
+// The unified public feed mixes posts and published articles, discriminated by `kind` (mirrors the BFF
+// FeedItem; the BFF tags each item so the client can pick a renderer). /frontend/state.
+export type FeedItem = ({ kind: 'post' } & Post) | ArticleFeedItem;
+
 export interface FeedPage {
-  items: Post[];
+  items: FeedItem[];
   next_cursor?: string;
 }
