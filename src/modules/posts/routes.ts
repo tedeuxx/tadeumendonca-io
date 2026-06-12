@@ -44,26 +44,33 @@ const PostInputSchema = z
   })
   .openapi('PostInput');
 
-// The public feed is a unified, reverse-chronological stream of posts AND published articles, each
-// tagged with a `kind` discriminator (the SPA renders a tweet-style post vs an article card).
-const FeedPostSchema = PostSchema.extend({ kind: z.literal('post') }).openapi('FeedPost');
-const FeedArticleSchema = z
+// The public feed is a unified, reverse-chronological stream of posts AND published articles. Each item
+// carries a `kind` discriminator + its type's fields. Modeled as ONE permissive object (post- and
+// article-only fields optional) because API Gateway's OpenAPI import rejects oneOf/discriminator unions.
+const FeedItemSchema = z
   .object({
-    kind: z.literal('article'),
-    article_id: z.string(),
-    slug: z.string(),
-    tag: z.string(),
+    kind: z.enum(['post', 'article']),
     title: z.string(),
-    excerpt: z.string().optional(),
     created_at: z.string(),
+    // post-only
+    post_id: z.string().optional(),
+    body: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    link_previews: z.array(LinkPreviewSchema).optional(),
+    reaction_counts: z.record(z.string(), z.number()).optional(),
+    comment_count: z.number().optional(),
+    short_code: z.string().optional(),
+    published: z.boolean().optional(),
+    author_sub: z.string().optional(),
+    updated_at: z.string().optional(),
+    // article-only
+    article_id: z.string().optional(),
+    slug: z.string().optional(),
+    tag: z.string().optional(),
+    excerpt: z.string().optional(),
   })
-  .openapi('FeedArticle');
-const FeedSchema = z
-  .object({
-    items: z.array(z.discriminatedUnion('kind', [FeedPostSchema, FeedArticleSchema])),
-    next_cursor: z.string().optional(),
-  })
-  .openapi('Feed');
+  .openapi('FeedItem');
+const FeedSchema = z.object({ items: z.array(FeedItemSchema), next_cursor: z.string().optional() }).openapi('Feed');
 
 const idParam = z.object({ post_id: z.string() });
 
