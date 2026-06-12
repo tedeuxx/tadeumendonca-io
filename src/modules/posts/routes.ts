@@ -6,7 +6,8 @@ import { createRoute, z } from '@hono/zod-openapi';
 import { nanoid } from 'nanoid';
 import type { BffApp } from '../../shared/types/app';
 import { FEED_PK, type Post } from '../../shared/types/entities';
-import { listPublished, getPost, createPost, savePost, deletePost } from './repository';
+import { getPost, createPost, savePost, deletePost } from './repository';
+import { listFeed } from './feed';
 import { requireGroup } from '../../shared/auth/authorize';
 import { notifyPostPublished } from '../notifications/notify';
 import { NotFoundError } from '../../shared/errors/http-errors';
@@ -43,9 +44,33 @@ const PostInputSchema = z
   })
   .openapi('PostInput');
 
-const FeedSchema = z
-  .object({ items: z.array(PostSchema), next_cursor: z.string().optional() })
-  .openapi('Feed');
+// The public feed is a unified, reverse-chronological stream of posts AND published articles. Each item
+// carries a `kind` discriminator + its type's fields. Modeled as ONE permissive object (post- and
+// article-only fields optional) because API Gateway's OpenAPI import rejects oneOf/discriminator unions.
+const FeedItemSchema = z
+  .object({
+    kind: z.enum(['post', 'article']),
+    title: z.string(),
+    created_at: z.string(),
+    // post-only
+    post_id: z.string().optional(),
+    body: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    link_previews: z.array(LinkPreviewSchema).optional(),
+    reaction_counts: z.record(z.string(), z.number()).optional(),
+    comment_count: z.number().optional(),
+    short_code: z.string().optional(),
+    published: z.boolean().optional(),
+    author_sub: z.string().optional(),
+    updated_at: z.string().optional(),
+    // article-only
+    article_id: z.string().optional(),
+    slug: z.string().optional(),
+    tag: z.string().optional(),
+    excerpt: z.string().optional(),
+  })
+  .openapi('FeedItem');
+const FeedSchema = z.object({ items: z.array(FeedItemSchema), next_cursor: z.string().optional() }).openapi('Feed');
 
 const idParam = z.object({ post_id: z.string() });
 
@@ -74,8 +99,8 @@ export function registerPosts(app: BffApp): void {
     }),
     async (c) => {
       const { limit, cursor } = c.req.valid('query');
-      const page = await listPublished(limit, cursor);
-      return c.json({ items: page.items.map(toApi), next_cursor: page.next_cursor }, 200);
+      const page = await listFeed(limit, cursor);
+      return c.json(page, 200);
     },
   );
 

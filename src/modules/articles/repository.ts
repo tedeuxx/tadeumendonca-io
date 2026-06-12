@@ -46,6 +46,26 @@ export async function listPublished(limit: number, cursor?: string, tag?: string
   return { items, next_cursor: enc(res.LastEvaluatedKey) };
 }
 
+// All published articles (drained across Scan pages), newest-first — for the unified feed merge.
+// Low-volume table, so loading the full set in memory is acceptable (same rationale as listPublished).
+export async function listAllPublished(): Promise<Article[]> {
+  const items: Article[] = [];
+  let ExclusiveStartKey: Record<string, unknown> | undefined;
+  do {
+    const res = await ddb.send(
+      new ScanCommand({
+        TableName: TABLES.articles,
+        FilterExpression: 'published = :p',
+        ExpressionAttributeValues: { ':p': true },
+        ExclusiveStartKey,
+      }),
+    );
+    items.push(...((res.Items as Article[]) ?? []));
+    ExclusiveStartKey = res.LastEvaluatedKey as Record<string, unknown> | undefined;
+  } while (ExclusiveStartKey);
+  return items.sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
 export async function getBySlug(slug: string): Promise<Article | null> {
   const res = await ddb.send(
     new QueryCommand({

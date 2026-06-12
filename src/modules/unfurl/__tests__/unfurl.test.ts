@@ -120,7 +120,7 @@ describe('resolveUrl', () => {
     const p = await resolveUrl('https://www.youtube.com/watch?v=abc');
     expect(p.provider).toBe('YouTube');
     expect(p.title).toBe('Vid');
-    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{40}\.jpg$/);
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/);
     expect(putImage).toHaveBeenCalledOnce();
     vi.unstubAllGlobals();
   });
@@ -134,7 +134,7 @@ describe('resolveUrl', () => {
     const p = await resolveUrl('https://blog.example.com/post');
     expect(p.provider).toBe('web');
     expect(p.title).toBe('Blog Post');
-    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{40}\.png$/);
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.png$/);
     vi.unstubAllGlobals();
   });
 });
