@@ -6,33 +6,49 @@ vi.mock('../hooks/useInstallPrompt', () => ({ useInstallPrompt }));
 
 import { InstallPrompt } from './InstallPrompt';
 
+const mock = (v: Record<string, unknown>) => useInstallPrompt.mockReturnValue({ promptInstall: vi.fn(), dismiss: vi.fn(), platform: null, ...v });
+
 beforeEach(() => vi.clearAllMocks());
 
 describe('InstallPrompt', () => {
   it('renders nothing when there is no install affordance', () => {
-    useInstallPrompt.mockReturnValue({ mode: null, promptInstall: vi.fn(), dismiss: vi.fn() });
+    mock({ mode: null });
     const { container } = render(<InstallPrompt />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('shows a one-tap install button (Android/desktop) and triggers the prompt', () => {
+  it('shows a one-tap install button (Chromium) and triggers the prompt', () => {
     const promptInstall = vi.fn();
-    useInstallPrompt.mockReturnValue({ mode: 'button', promptInstall, dismiss: vi.fn() });
+    mock({ mode: 'button', promptInstall });
     render(<InstallPrompt />);
     fireEvent.click(screen.getByRole('button', { name: 'Instalar' }));
     expect(promptInstall).toHaveBeenCalled();
   });
 
-  it('shows the manual Share → Add to Home Screen steps on iOS', () => {
-    useInstallPrompt.mockReturnValue({ mode: 'ios', promptInstall: vi.fn(), dismiss: vi.fn() });
+  it('iOS manual steps mention Safari + Add to Home Screen', () => {
+    mock({ mode: 'manual', platform: 'ios' });
     render(<InstallPrompt />);
+    expect(screen.getByText(/Safari/)).toBeInTheDocument();
     expect(screen.getByText(/Adicionar à Tela de Início/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Instalar' })).toBeNull();
   });
 
+  it('macOS Safari manual steps mention Add to Dock', () => {
+    mock({ mode: 'manual', platform: 'macos-safari' });
+    render(<InstallPrompt />);
+    expect(screen.getByText(/Adicionar ao Dock/)).toBeInTheDocument();
+  });
+
+  it('Firefox manual steps mention the Firefox menu + Install', () => {
+    mock({ mode: 'manual', platform: 'firefox' });
+    render(<InstallPrompt />);
+    expect(screen.getByText(/Firefox/)).toBeInTheDocument();
+    expect(screen.getByText(/Instalar/)).toBeInTheDocument();
+  });
+
   it('can be dismissed', () => {
     const dismiss = vi.fn();
-    useInstallPrompt.mockReturnValue({ mode: 'ios', promptInstall: vi.fn(), dismiss });
+    mock({ mode: 'manual', platform: 'ios', dismiss });
     render(<InstallPrompt />);
     fireEvent.click(screen.getByRole('button', { name: 'Dispensar' }));
     expect(dismiss).toHaveBeenCalled();
