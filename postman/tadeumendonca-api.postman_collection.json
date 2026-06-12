@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "tadeumendonca-api",
+    "description": "Smoke + contract regression for the BFF. Black-box checks against a real deployed environment (or a local server). Parametrized by environment (local/staging/production) via {{base_url}}; authenticated writes use {{token}} (a test user's Cognito access token, injected as an env var). Run with newman — see package.json `api-test`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Smoke: GET /profile (public)",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/profile" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('has name + headline (snake_case shape)', () => { pm.expect(b).to.have.property('name'); pm.expect(b).to.have.property('headline'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Smoke: GET /posts (unified feed)",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/posts?limit=20" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('items is an array', () => pm.expect(b.items).to.be.an('array'));",
+              "pm.test('every item carries a kind discriminator', () => b.items.forEach(i => pm.expect(['post','article']).to.include(i.kind)));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Smoke: GET /articles (blog list)",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/articles?limit=20" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('items is an array', () => pm.expect(pm.response.json().items).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth: POST /posts without a token -> 401",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "content-type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"smoke\",\"body\":\"smoke\",\"published\":false}" },
+        "url": "{{base_url}}/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('admin write is rejected without a token — the API Gateway Cognito authorizer returns 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth: GET /posts with a token -> 200 (only when {{token}} is set)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/posts?limit=1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.environment.get('token')) { pm.test.skip ? pm.test.skip('no {{token}} — skipping authed check') : console.log('no token; skipping'); }",
+              "else { pm.test('authenticated read returns 200', () => pm.response.to.have.status(200)); }"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
