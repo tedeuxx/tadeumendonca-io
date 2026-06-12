@@ -6,11 +6,14 @@ import { authedFetch } from '../lib/api';
 import type { LinkPreview } from '../types/post';
 
 const URL_RE = /https?:\/\/[^\s<>()\]]+/gi;
+const TRAILING_PUNCT = '.,;:!?';
 
 export function extractUrls(body: string, max = 4): string[] {
   const seen = new Set<string>();
   for (const m of body.matchAll(URL_RE)) {
-    const url = m[0].replace(/[.,;:!?]+$/, '');
+    let end = m[0].length; // trim trailing punctuation (linear scan, no regex backtracking)
+    while (end > 0 && TRAILING_PUNCT.includes(m[0][end - 1])) end--;
+    const url = m[0].slice(0, end);
     if (!seen.has(url)) seen.add(url);
     if (seen.size >= max) break;
   }

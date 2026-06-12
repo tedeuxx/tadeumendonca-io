@@ -19,8 +19,8 @@ export function useArticles(tag?: string) {
   });
 }
 
-export function useArticle(slug: string) {
-  return useQuery({ queryKey: ['article', slug], queryFn: () => apiFetch<Article>(`/articles/${slug}`) });
+export function useArticle(slug: string, enabled = true) {
+  return useQuery({ queryKey: ['article', slug], queryFn: () => apiFetch<Article>(`/articles/${slug}`), enabled: enabled && Boolean(slug) });
 }
 
 export interface ArticleInput {
@@ -35,6 +35,29 @@ export function useCreateArticle() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: ArticleInput) => authedFetch<Article>('/articles', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['articles'] }),
+  });
+}
+
+// Update by the article's CURRENT slug (the BFF resolves the id and re-checks slug uniqueness → 409 if a
+// retitle collides). Invalidate the list plus both the old and (if it changed) the new slug's detail.
+export function useUpdateArticle(slug: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ArticleInput) =>
+      authedFetch<Article>(`/articles/${slug}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }),
+    onSuccess: (article) => {
+      void qc.invalidateQueries({ queryKey: ['articles'] });
+      void qc.invalidateQueries({ queryKey: ['article', slug] });
+      if (article.slug !== slug) void qc.invalidateQueries({ queryKey: ['article', article.slug] });
+    },
+  });
+}
+
+export function useDeleteArticle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (slug: string) => authedFetch<void>(`/articles/${slug}`, { method: 'DELETE' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['articles'] }),
   });
 }

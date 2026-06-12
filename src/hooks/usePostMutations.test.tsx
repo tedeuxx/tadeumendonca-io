@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const { authedFetch } = vi.hoisted(() => ({ authedFetch: vi.fn() }));
 vi.mock('../lib/api', () => ({ authedFetch }));
 
-import { useCreatePost, useSubscribe, useUnsubscribe } from './usePostMutations';
+import { useCreatePost, useUpdatePost, useDeletePost, useSubscribe, useUnsubscribe } from './usePostMutations';
 
 const wrapper = ({ children }: { children: ReactNode }) => {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -25,6 +25,30 @@ describe('useCreatePost', () => {
     expect(path).toBe('/posts');
     expect(init.method).toBe('POST');
     expect(JSON.parse(init.body)).toMatchObject({ title: 'T', published: true });
+  });
+});
+
+describe('useUpdatePost', () => {
+  it('PUTs the input to the post id', async () => {
+    authedFetch.mockResolvedValueOnce({ post_id: 'p1', title: 'T2' });
+    const { result } = renderHook(() => useUpdatePost('p1'), { wrapper });
+    result.current.mutate({ title: 'T2', body: 'b', published: true });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const [path, init] = authedFetch.mock.calls[0];
+    expect(path).toBe('/posts/p1');
+    expect(init.method).toBe('PUT');
+    expect(JSON.parse(init.body)).toMatchObject({ title: 'T2', published: true });
+  });
+});
+
+describe('useDeletePost', () => {
+  it('DELETEs the post by id', async () => {
+    authedFetch.mockResolvedValueOnce(undefined);
+    const { result } = renderHook(() => useDeletePost(), { wrapper });
+    result.current.mutate('p1');
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authedFetch.mock.calls[0][0]).toBe('/posts/p1');
+    expect(authedFetch.mock.calls[0][1].method).toBe('DELETE');
   });
 });
 

@@ -3,13 +3,14 @@
 import { Loader2 } from 'lucide-react';
 import { useFeed } from '../hooks/useFeed';
 import { PostCard } from '../components/PostCard';
+import { ArticleCard } from '../components/ArticleCard';
 import { SubscribeButton } from '../components/SubscribeButton';
 import { NewPostButton } from '../components/NewPostButton';
 import { ColumnHeader, CenterLoader, Notice, Empty } from '../components/Column';
 
 export function FeedPage() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
-  const posts = data?.pages.flatMap((p) => p.items) ?? [];
+  const items = data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
     <div>
@@ -25,11 +26,15 @@ export function FeedPage() {
 
       {isLoading && <CenterLoader />}
       {isError && <Notice>Não foi possível carregar o feed. Tente novamente mais tarde.</Notice>}
-      {!isLoading && !isError && posts.length === 0 && <Empty>Ainda não há posts.</Empty>}
+      {!isLoading && !isError && items.length === 0 && <Empty>Ainda não há posts.</Empty>}
 
-      {posts.map((post) => (
-        <PostCard key={post.post_id} post={post} />
-      ))}
+      {items.map((item) =>
+        item.kind === 'article' ? (
+          <ArticleCard key={`a:${item.article_id}`} article={item} />
+        ) : (
+          <PostCard key={`p:${item.post_id}`} post={item} />
+        ),
+      )}
 
       {hasNextPage && (
         <div className="flex justify-center p-4">

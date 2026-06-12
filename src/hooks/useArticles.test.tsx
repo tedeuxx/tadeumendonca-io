@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const { apiFetch, authedFetch } = vi.hoisted(() => ({ apiFetch: vi.fn(), authedFetch: vi.fn() }));
 vi.mock('../lib/api', () => ({ apiFetch, authedFetch }));
 
-import { useArticles, useArticle, useCreateArticle } from './useArticles';
+import { useArticles, useArticle, useCreateArticle, useUpdateArticle, useDeleteArticle } from './useArticles';
 
 const wrapper = ({ children }: { children: ReactNode }) => {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -47,5 +47,27 @@ describe('useCreateArticle', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(authedFetch.mock.calls[0][0]).toBe('/articles');
     expect(authedFetch.mock.calls[0][1].method).toBe('POST');
+  });
+});
+
+describe('useUpdateArticle', () => {
+  it('PUTs the input to the current slug', async () => {
+    authedFetch.mockResolvedValueOnce({ slug: 'building', article_id: 'a1' });
+    const { result } = renderHook(() => useUpdateArticle('building'), { wrapper });
+    result.current.mutate({ title: 'T2', body: 'b', tag: 'aws', published: true });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authedFetch.mock.calls[0][0]).toBe('/articles/building');
+    expect(authedFetch.mock.calls[0][1].method).toBe('PUT');
+  });
+});
+
+describe('useDeleteArticle', () => {
+  it('DELETEs by slug', async () => {
+    authedFetch.mockResolvedValueOnce(undefined);
+    const { result } = renderHook(() => useDeleteArticle(), { wrapper });
+    result.current.mutate('building');
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(authedFetch.mock.calls[0][0]).toBe('/articles/building');
+    expect(authedFetch.mock.calls[0][1].method).toBe('DELETE');
   });
 });
