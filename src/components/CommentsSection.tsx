@@ -28,8 +28,13 @@ function CommentForm({ postId }: { postId: string }) {
   const submit = () => {
     const text = body.trim();
     if (!text) return;
-    create.mutate({ body: text, author_name: name ?? email ?? 'Member' }, { onSuccess: () => setBody('') });
+    // Optimistic clear: the comment is queued (replayed on reconnect if offline) and post-moderated
+    // anyway, so it won't appear in the list until approved — clearing the box is the right feedback.
+    create.mutate({ body: text, author_name: name ?? email ?? 'Member' });
+    setBody('');
   };
+
+  const sending = create.isPending && !create.isPaused;
 
   return (
     <div className="flex flex-col gap-2">
@@ -40,13 +45,16 @@ function CommentForm({ postId }: { postId: string }) {
         placeholder="Escreva um comentário…"
         className="w-full resize-y rounded-2xl border border-border bg-card px-3.5 py-2.5 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
       />
+      {create.isPaused && (
+        <p className="text-xs text-muted-foreground">Sem conexão — seu comentário foi salvo e será enviado quando a conexão voltar.</p>
+      )}
       <div className="flex justify-end">
         <button
           onClick={submit}
-          disabled={create.isPending || !body.trim()}
+          disabled={sending || !body.trim()}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {create.isPending && <Loader2 className="animate-spin" size={16} />}
+          {sending && <Loader2 className="animate-spin" size={16} />}
           Comentar
         </button>
       </div>

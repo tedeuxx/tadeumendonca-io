@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const { usePost, useDeletePost } = vi.hoisted(() => ({ usePost: vi.fn(), useDeletePost: vi.fn() }));
 vi.mock('../hooks/useFeed', () => ({ usePost }));
@@ -12,11 +13,13 @@ import { PostPage } from './PostPage';
 
 const renderAt = (id: string) =>
   render(
-    <MemoryRouter initialEntries={[`/posts/${id}`]}>
-      <Routes>
-        <Route path="/posts/:postId" element={<PostPage />} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryClientProvider client={new QueryClient()}>
+      <MemoryRouter initialEntries={[`/posts/${id}`]}>
+        <Routes>
+          <Route path="/posts/:postId" element={<PostPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 
 beforeEach(() => {

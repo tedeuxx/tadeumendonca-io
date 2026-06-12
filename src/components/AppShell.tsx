@@ -4,9 +4,21 @@
 //   The header + nav row stick together at the top; the nav row scrolls horizontally on narrow screens.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, User, LogIn, LogOut } from 'lucide-react';
+import { Home, FileText, User, LogIn, LogOut, WifiOff } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
+import { useOnline } from '../hooks/useOnline';
 import { cn } from '../lib/cn';
+
+function OfflineBanner() {
+  const online = useOnline();
+  if (online) return null;
+  return (
+    <div role="status" className="flex items-center justify-center gap-2 border-b border-border bg-muted px-4 py-1.5 text-xs text-muted-foreground">
+      <WifiOff size={14} />
+      <span>Você está offline — suas ações serão enviadas quando a conexão voltar.</span>
+    </div>
+  );
+}
 
 interface NavEntry {
   to: string;
@@ -101,6 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
           <NavItems />
         </nav>
+        <OfflineBanner />
       </div>
 
       {/* Content (the star) + components zone (desktop only) */}

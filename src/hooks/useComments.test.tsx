@@ -7,12 +7,14 @@ const { apiFetch, authedFetch } = vi.hoisted(() => ({ apiFetch: vi.fn(), authedF
 vi.mock('../lib/api', () => ({ apiFetch, authedFetch }));
 
 import { usePostComments, useCreateComment, useDeleteComment } from './useComments';
+import { installMutationDefaults } from '../lib/offline';
 
 let qc: QueryClient;
 const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 
 beforeEach(() => {
-  qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  installMutationDefaults(qc); // the keyed 'comment' request fn lives in the offline defaults
 });
 afterEach(() => vi.clearAllMocks());
 

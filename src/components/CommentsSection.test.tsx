@@ -38,7 +38,7 @@ describe('CommentsSection', () => {
     render(<CommentsSection postId="p1" />);
     fireEvent.change(screen.getByPlaceholderText('Escreva um comentário…'), { target: { value: 'hi there' } });
     fireEvent.click(screen.getByRole('button', { name: 'Comentar' }));
-    expect(mutate).toHaveBeenCalledWith({ body: 'hi there', author_name: 'Bob' }, expect.anything());
+    expect(mutate).toHaveBeenCalledWith({ body: 'hi there', author_name: 'Bob' });
   });
 
   it('shows a delete control for the author and deletes', () => {

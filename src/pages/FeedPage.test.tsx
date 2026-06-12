@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const { useFeed } = vi.hoisted(() => ({ useFeed: vi.fn() }));
 vi.mock('../hooks/useFeed', () => ({ useFeed }));
@@ -12,9 +13,11 @@ import { FeedPage } from './FeedPage';
 
 const renderFeed = () =>
   render(
-    <MemoryRouter>
-      <FeedPage />
-    </MemoryRouter>,
+    <QueryClientProvider client={new QueryClient()}>
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 
 beforeEach(() => vi.clearAllMocks());
