@@ -4,15 +4,14 @@
 //                macOS Safari, Firefox), since each has a different manual flow.
 //   - null     — already installed (standalone), dismissed, or a browser with no manual path worth showing
 //                (a Chromium that simply hasn't fired the event yet — the button will appear when eligible).
-// Dismissal is remembered in localStorage so the hint doesn't nag.
+// Dismissal is SESSION-only (in-memory): hiding it lasts until the next load/visit, never persisted —
+// so it can't get stuck hidden, and the install hint comes back next time.
 import { useEffect, useState } from 'react';
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 };
-
-const DISMISS_KEY = 'pwa-install-dismissed';
 
 // Platforms with a distinct MANUAL install flow (no beforeinstallprompt).
 export type InstallPlatform = 'ios' | 'macos-safari' | 'firefox';
@@ -43,14 +42,6 @@ function detectManualPlatform(): InstallPlatform | null {
   return null;
 }
 
-const readDismissed = (): boolean => {
-  try {
-    return localStorage.getItem(DISMISS_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
 export function useInstallPrompt(): {
   mode: InstallMode;
   platform: InstallPlatform | null;
@@ -59,7 +50,7 @@ export function useInstallPrompt(): {
 } {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(isStandalone);
-  const [dismissed, setDismissed] = useState(readDismissed);
+  const [dismissed, setDismissed] = useState(false); // session-only — never persisted
 
   useEffect(() => {
     const onBeforeInstall = (e: Event) => {
@@ -75,14 +66,7 @@ export function useInstallPrompt(): {
     };
   }, []);
 
-  const dismiss = () => {
-    setDismissed(true);
-    try {
-      localStorage.setItem(DISMISS_KEY, '1');
-    } catch {
-      /* private mode / disabled storage — best-effort */
-    }
-  };
+  const dismiss = () => setDismissed(true); // session-only; reappears on the next load/visit
 
   const promptInstall = async () => {
     if (!deferred) return;
