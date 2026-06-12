@@ -19,6 +19,26 @@ export function useCreatePost() {
   });
 }
 
+export function useUpdatePost(postId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: PostInput) =>
+      authedFetch<Post>(`/posts/${postId}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['feed'] });
+      void qc.invalidateQueries({ queryKey: ['post', postId] });
+    },
+  });
+}
+
+export function useDeletePost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (postId: string) => authedFetch<void>(`/posts/${postId}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['feed'] }),
+  });
+}
+
 export function useSubscribe() {
   return useMutation({
     mutationFn: (email: string) => authedFetch<{ email: string; status: string }>('/subscriptions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) }),

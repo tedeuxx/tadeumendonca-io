@@ -51,7 +51,23 @@ export function App() {
               }
             />
             <Route
+              path="/compose/:postId"
+              element={
+                <RequireAuth admin>
+                  <ComposePage />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/compose-article"
+              element={
+                <RequireAuth admin>
+                  <ComposeArticlePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/compose-article/:slug"
               element={
                 <RequireAuth admin>
                   <ComposeArticlePage />

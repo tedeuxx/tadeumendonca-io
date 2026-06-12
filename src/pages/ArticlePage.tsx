@@ -1,19 +1,34 @@
 // Article detail (/frontend/ux-states, /frontend/markdown). Public; the URL (/articles/:slug) is what
 // og:image deep-links + notification links point at. Markdown body with syntax highlighting.
-import { useParams, Link as RouterLink } from 'react-router-dom';
-import { useArticle } from '../hooks/useArticles';
+import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
+import { useArticle, useDeleteArticle } from '../hooks/useArticles';
 import { Markdown } from '../components/Markdown';
+import { AdminActions } from '../components/AdminActions';
 import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
 
 export function ArticlePage() {
+  const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading, isError } = useArticle(slug ?? '');
+  const del = useDeleteArticle();
 
   return (
     <div>
-      <ColumnHeader title="Artigo" back />
+      <ColumnHeader
+        title="Artigo"
+        back
+        actions={
+          article && (
+            <AdminActions
+              editTo={`/compose-article/${article.slug}`}
+              isDeleting={del.isPending}
+              onDelete={() => del.mutate(article.slug, { onSuccess: () => navigate('/blog') })}
+            />
+          )
+        }
+      />
       {isLoading && <CenterLoader />}
       {(isError || (!isLoading && !article)) && <Notice>Este artigo não existe ou não está publicado.</Notice>}
 

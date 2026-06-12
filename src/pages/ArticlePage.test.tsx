@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
-const { useArticle } = vi.hoisted(() => ({ useArticle: vi.fn() }));
-vi.mock('../hooks/useArticles', () => ({ useArticle }));
+const { useArticle, useDeleteArticle } = vi.hoisted(() => ({ useArticle: vi.fn(), useDeleteArticle: vi.fn() }));
+vi.mock('../hooks/useArticles', () => ({ useArticle, useDeleteArticle }));
 
 import { ArticlePage } from './ArticlePage';
 
@@ -16,7 +16,10 @@ const renderAt = (slug: string) =>
     </MemoryRouter>,
   );
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  useDeleteArticle.mockReturnValue({ mutate: vi.fn(), isPending: false });
+});
 
 describe('ArticlePage', () => {
   it('renders the article with its markdown body', () => {
