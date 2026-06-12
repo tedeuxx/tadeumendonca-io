@@ -7,6 +7,7 @@ import { NavLink } from 'react-router-dom';
 import { Home, FileText, User, LogIn, LogOut, WifiOff } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { useOnline } from '../hooks/useOnline';
+import { InstallPrompt } from './InstallPrompt';
 import { cn } from '../lib/cn';
 
 function OfflineBanner() {
@@ -114,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavItems />
         </nav>
         <OfflineBanner />
+        <InstallPrompt />
       </div>
 
       {/* Content (the star) + components zone (desktop only) */}
