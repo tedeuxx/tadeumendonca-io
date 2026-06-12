@@ -6,7 +6,8 @@ import { createRoute, z } from '@hono/zod-openapi';
 import { nanoid } from 'nanoid';
 import type { BffApp } from '../../shared/types/app';
 import { FEED_PK, type Post } from '../../shared/types/entities';
-import { listPublished, getPost, createPost, savePost, deletePost } from './repository';
+import { getPost, createPost, savePost, deletePost } from './repository';
+import { listFeed } from './feed';
 import { requireGroup } from '../../shared/auth/authorize';
 import { notifyPostPublished } from '../notifications/notify';
 import { NotFoundError } from '../../shared/errors/http-errors';
@@ -43,8 +44,25 @@ const PostInputSchema = z
   })
   .openapi('PostInput');
 
+// The public feed is a unified, reverse-chronological stream of posts AND published articles, each
+// tagged with a `kind` discriminator (the SPA renders a tweet-style post vs an article card).
+const FeedPostSchema = PostSchema.extend({ kind: z.literal('post') }).openapi('FeedPost');
+const FeedArticleSchema = z
+  .object({
+    kind: z.literal('article'),
+    article_id: z.string(),
+    slug: z.string(),
+    tag: z.string(),
+    title: z.string(),
+    excerpt: z.string().optional(),
+    created_at: z.string(),
+  })
+  .openapi('FeedArticle');
 const FeedSchema = z
-  .object({ items: z.array(PostSchema), next_cursor: z.string().optional() })
+  .object({
+    items: z.array(z.discriminatedUnion('kind', [FeedPostSchema, FeedArticleSchema])),
+    next_cursor: z.string().optional(),
+  })
   .openapi('Feed');
 
 const idParam = z.object({ post_id: z.string() });
@@ -74,8 +92,8 @@ export function registerPosts(app: BffApp): void {
     }),
     async (c) => {
       const { limit, cursor } = c.req.valid('query');
-      const page = await listPublished(limit, cursor);
-      return c.json({ items: page.items.map(toApi), next_cursor: page.next_cursor }, 200);
+      const page = await listFeed(limit, cursor);
+      return c.json(page, 200);
     },
   );
 
