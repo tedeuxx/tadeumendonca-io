@@ -14,7 +14,10 @@
     "test": "vitest run --coverage",
     "build": "node esbuild.config.mjs",
     "gen-openapi": "tsx scripts/gen-openapi.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "api-test:local": "newman run postman/tadeumendonca-api.postman_collection.json -e postman/local.postman_environment.json --reporters cli",
+    "api-test:staging": "newman run postman/tadeumendonca-api.postman_collection.json -e postman/staging.postman_environment.json --reporters cli",
+    "api-test:production": "newman run postman/tadeumendonca-api.postman_collection.json -e postman/production.postman_environment.json --reporters cli"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.10.0",
@@ -39,6 +42,7 @@
     "@vitest/coverage-v8": "^2.1.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
+    "newman": "^6.2.2",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8.11.0",

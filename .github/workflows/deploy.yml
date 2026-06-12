@@ -101,3 +101,11 @@ jobs:
             --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
             --stage-name live --description "$API_VERSION" >/dev/null
           echo "deployed BFF + contract to $ENV_NAME"
+
+      # Post-deploy regression: Postman/newman smoke + contract checks against the just-deployed
+      # environment (staging for develop, production for main) — see /backend/postman. The authed write
+      # check stays skipped until a Cognito test-user token is injected (TEST_USER_TOKEN secret).
+      - name: API smoke (newman) against the deployed environment
+        run: |
+          sleep 5 # let the new stage settle before black-box checks
+          npm run "api-test:$ENV_NAME" -- --env-var "token=${{ secrets.TEST_USER_TOKEN }}"
