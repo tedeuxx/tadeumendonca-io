@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { onlineManager } from '@tanstack/react-query';
 
 const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }));
 vi.mock('../auth/authStore', () => ({ useAuth }));
@@ -10,6 +11,7 @@ import { AppShell } from './AppShell';
 beforeEach(() => {
   vi.clearAllMocks();
 });
+afterEach(() => act(() => onlineManager.setOnline(true)));
 
 const renderShell = () =>
   render(
@@ -28,6 +30,14 @@ describe('AppShell', () => {
     expect(screen.getByText('tadeumendonca')).toBeInTheDocument();
     expect(screen.getByText('Feed')).toBeInTheDocument();
     expect(screen.queryByText('New post')).toBeNull();
+  });
+
+  it('shows an offline banner only while connectivity is down', () => {
+    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn(), signOut: vi.fn(), isAdmin: false });
+    renderShell();
+    expect(screen.queryByText(/Você está offline/)).toBeNull(); // online → hidden
+    act(() => onlineManager.setOnline(false));
+    expect(screen.getByText(/Você está offline/)).toBeInTheDocument();
   });
 
   it('invokes signIn from the account button when anonymous', () => {

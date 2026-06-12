@@ -3,7 +3,8 @@
 // callback; admin routes (compose) sit behind RequireAuth.
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { queryClient, persister, PERSIST_MAX_AGE } from './lib/offline';
 import { AppShell } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
@@ -17,10 +18,6 @@ import { ShortLinkPage } from './pages/ShortLinkPage';
 import { RequireAuth } from './auth/RequireAuth';
 import { useAuth } from './auth/authStore';
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
-});
-
 export function App() {
   const init = useAuth((s) => s.init);
   useEffect(() => {
@@ -28,7 +25,13 @@ export function App() {
   }, [init]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister, maxAge: PERSIST_MAX_AGE }}
+      // Once the cache is rehydrated, replay any mutations that were queued offline in a prior session.
+      // (React Query also auto-resumes them the moment connectivity returns within a session.)
+      onSuccess={() => void queryClient.resumePausedMutations()}
+    >
       <BrowserRouter>
         <AppShell>
           <Routes>
@@ -78,6 +81,6 @@ export function App() {
           </Routes>
         </AppShell>
       </BrowserRouter>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
