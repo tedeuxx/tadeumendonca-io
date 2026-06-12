@@ -2,15 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useInstallPrompt } from './useInstallPrompt';
 
-function memoryStorage() {
-  let store: Record<string, string> = {};
-  return {
-    getItem: (k: string) => store[k] ?? null,
-    setItem: (k: string, v: string) => void (store[k] = String(v)),
-    removeItem: (k: string) => void delete store[k],
-    clear: () => void (store = {}),
-  } as Storage;
-}
 const setStandalone = (v: boolean) => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: v }) as unknown as typeof window.matchMedia;
 };
@@ -34,15 +25,11 @@ const fireBeforeInstall = () => {
 };
 
 beforeEach(() => {
-  vi.stubGlobal('localStorage', memoryStorage());
   setStandalone(false);
   setTouch(0);
   setUA(UA.chrome);
 });
-afterEach(() => {
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-});
+afterEach(() => vi.restoreAllMocks());
 
 describe('useInstallPrompt — detection per user-agent', () => {
   it('shows nothing when already installed (standalone)', () => {
@@ -92,18 +79,20 @@ describe('useInstallPrompt — detection per user-agent', () => {
     expect(result.current.mode).toBeNull(); // one-shot; chrome UA → no manual fallback
   });
 
-  it('dismiss hides it and remembers the choice', () => {
+  it('dismiss hides it for the session (in-memory, not persisted)', () => {
     setUA(UA.iphone);
     const { result } = renderHook(() => useInstallPrompt());
     expect(result.current.mode).toBe('manual');
     act(() => result.current.dismiss());
     expect(result.current.mode).toBeNull();
-    expect(localStorage.getItem('pwa-install-dismissed')).toBe('1');
   });
 
-  it('stays hidden when previously dismissed', () => {
+  it('reappears on a fresh mount — dismissal does not persist across loads', () => {
     setUA(UA.iphone);
-    localStorage.setItem('pwa-install-dismissed', '1');
-    expect(renderHook(() => useInstallPrompt()).result.current.mode).toBeNull();
+    const first = renderHook(() => useInstallPrompt());
+    act(() => first.result.current.dismiss());
+    expect(first.result.current.mode).toBeNull();
+    // a fresh visit (new hook instance) shows it again — nothing was persisted
+    expect(renderHook(() => useInstallPrompt()).result.current.mode).toBe('manual');
   });
 });
