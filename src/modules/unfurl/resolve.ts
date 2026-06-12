@@ -31,7 +31,7 @@ async function cacheThumbnail(imageUrl: string): Promise<string | undefined> {
     const type = res.contentType.split(';')[0].trim().toLowerCase();
     const ext = EXT_BY_TYPE[type];
     if (!ext || res.bytes.length === 0) return undefined;
-    const key = `og/unfurl/${createHash('sha1').update(imageUrl).digest('hex')}.${ext}`;
+    const key = `og/unfurl/${createHash('sha256').update(imageUrl).digest('hex')}.${ext}`;
     if (!(await objectExists(key))) await putImage(key, res.bytes, type);
     return `${config.spaOrigin}/${key}`;
   } catch {
@@ -128,8 +128,11 @@ export async function resolveUrl(raw: string): Promise<LinkPreview> {
 // Extract up to `max` unique http(s) URLs from a markdown body, in order of appearance.
 export function extractUrls(body: string, max = 4): string[] {
   const seen = new Set<string>();
+  const TRAILING_PUNCT = '.,;:!?';
   for (const m of body.matchAll(/https?:\/\/[^\s<>()\]]+/gi)) {
-    const url = m[0].replace(/[.,;:!?]+$/, ''); // trim trailing punctuation
+    let end = m[0].length; // trim trailing punctuation (linear scan, no regex backtracking)
+    while (end > 0 && TRAILING_PUNCT.includes(m[0][end - 1])) end--;
+    const url = m[0].slice(0, end);
     if (!seen.has(url)) seen.add(url);
     if (seen.size >= max) break;
   }

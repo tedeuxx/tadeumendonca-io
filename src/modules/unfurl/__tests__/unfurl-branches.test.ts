@@ -120,7 +120,7 @@ describe('resolveUrl providers', () => {
     const p = await resolveUrl('https://youtu.be/dQw4w9WgXcQ');
     expect(p.provider).toBe('YouTube');
     expect(p.title).toBeUndefined();
-    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{40}\.jpg$/); // thumbnail from i.ytimg.com CDN
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/); // thumbnail from i.ytimg.com CDN
     expect(putImage).toHaveBeenCalledOnce();
   });
 
