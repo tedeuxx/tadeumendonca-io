@@ -4,7 +4,7 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import { nanoid } from 'nanoid';
 import type { BffApp } from '../../shared/types/app';
-import type { Article } from '../../shared/types/entities';
+import { ARTICLE_FEED_PK, type Article } from '../../shared/types/entities';
 import { listPublished, getBySlug, createArticle, saveArticle, deleteArticle } from './repository';
 import { requireGroup } from '../../shared/auth/authorize';
 import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
@@ -53,6 +53,13 @@ const ArticleInput = z
 
 const ListSchema = z.object({ items: z.array(ArticleSchema), next_cursor: z.string().optional() }).openapi('ArticleList');
 
+// Strip the sparse index key when echoing the entity back (gsi_pk is an index detail, not API surface).
+const toApi = (a: Article): Omit<Article, 'gsi_pk'> => {
+  const copy = { ...a };
+  delete copy.gsi_pk;
+  return copy;
+};
+
 export function registerArticles(app: BffApp): void {
   // GET /articles?tag=&limit=&cursor= — public list (published), newest-first.
   app.openapi(
@@ -73,7 +80,7 @@ export function registerArticles(app: BffApp): void {
     async (c) => {
       const { tag, limit, cursor } = c.req.valid('query');
       const page = await listPublished(limit, cursor, tag);
-      return c.json(page, 200);
+      return c.json({ items: page.items.map(toApi), next_cursor: page.next_cursor }, 200);
     },
   );
 
@@ -94,7 +101,7 @@ export function registerArticles(app: BffApp): void {
       const { slug } = c.req.valid('param');
       const article = await getBySlug(slug);
       if (!article || !article.published) throw new NotFoundError('article not found');
-      return c.json(article, 200);
+      return c.json(toApi(article), 200);
     },
   );
 
@@ -128,9 +135,10 @@ export function registerArticles(app: BffApp): void {
         published: input.published,
         author_sub: claims.sub,
         created_at: new Date().toISOString(),
+        ...(input.published ? { gsi_pk: ARTICLE_FEED_PK } : {}), // sparse by-created index
       };
       await createArticle(article);
-      return c.json(article, 201);
+      return c.json(toApi(article), 201);
     },
   );
 
@@ -169,9 +177,10 @@ export function registerArticles(app: BffApp): void {
         excerpt: input.excerpt,
         published: input.published,
         updated_at: new Date().toISOString(),
+        gsi_pk: input.published ? ARTICLE_FEED_PK : undefined, // removeUndefinedValues drops it → sparse
       };
       await saveArticle(updated);
-      return c.json(updated, 200);
+      return c.json(toApi(updated), 200);
     },
   );
 

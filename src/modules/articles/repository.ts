@@ -1,11 +1,11 @@
 // Articles repository (/backend/dynamodb). Reads: by-slug GSI (public URL), by-tag GSI (category feed,
-// newest-first). The "list all" path Scans — articles are long-form + low-volume, so a filtered Scan is
-// acceptable here (NOT a hot path); if volume grows, add a constant-partition GSI like posts' by-created.
-// Drafts are excluded by a published filter, never returned to the public.
-import { QueryCommand, ScanCommand, GetCommand, PutCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+// newest-first), by-created GSI (public list + unified feed). by-created is SPARSE (gsi_pk = "ARTICLE"
+// iff published), so listing published articles newest-first is a Query — NEVER a Scan (which reads the
+// whole table; cost/latency scale with table size, not the result — and the BFF role grants no Scan).
+import { QueryCommand, GetCommand, PutCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb } from '../../shared/db/client';
 import { TABLES } from '../../shared/db/tables';
-import type { Article } from '../../shared/types/entities';
+import { ARTICLE_FEED_PK, type Article } from '../../shared/types/entities';
 
 export interface Page {
   items: Article[];
@@ -15,7 +15,8 @@ export interface Page {
 const enc = (k?: Record<string, unknown>): string | undefined => (k ? Buffer.from(JSON.stringify(k)).toString('base64url') : undefined);
 const dec = (c?: string): Record<string, unknown> | undefined => (c ? JSON.parse(Buffer.from(c, 'base64url').toString('utf8')) : undefined);
 
-// Public list — newest-first. With a tag → the by-tag GSI; without → a published-filtered Scan.
+// Public list — newest-first. With a tag → the by-tag GSI (published-filtered, since tag is set on
+// drafts too); without → the sparse by-created GSI (already published-only, sorted by created_at).
 export async function listPublished(limit: number, cursor?: string, tag?: string): Promise<Page> {
   if (tag) {
     const res = await ddb.send(
@@ -34,36 +35,39 @@ export async function listPublished(limit: number, cursor?: string, tag?: string
     return { items: (res.Items as Article[]) ?? [], next_cursor: enc(res.LastEvaluatedKey) };
   }
   const res = await ddb.send(
-    new ScanCommand({
+    new QueryCommand({
       TableName: TABLES.articles,
-      FilterExpression: 'published = :p',
-      ExpressionAttributeValues: { ':p': true },
+      IndexName: 'by-created',
+      KeyConditionExpression: 'gsi_pk = :pk',
+      ExpressionAttributeValues: { ':pk': ARTICLE_FEED_PK },
+      ScanIndexForward: false,
       Limit: limit,
       ExclusiveStartKey: dec(cursor),
     }),
   );
-  const items = ((res.Items as Article[]) ?? []).sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return { items, next_cursor: enc(res.LastEvaluatedKey) };
+  return { items: (res.Items as Article[]) ?? [], next_cursor: enc(res.LastEvaluatedKey) };
 }
 
-// All published articles (drained across Scan pages), newest-first — for the unified feed merge.
-// Low-volume table, so loading the full set in memory is acceptable (same rationale as listPublished).
+// All published articles (drained across pages), newest-first — for the unified feed merge. Queries the
+// sparse by-created GSI (no Scan). Low-volume table, so loading the full set in memory is acceptable.
 export async function listAllPublished(): Promise<Article[]> {
   const items: Article[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {
     const res = await ddb.send(
-      new ScanCommand({
+      new QueryCommand({
         TableName: TABLES.articles,
-        FilterExpression: 'published = :p',
-        ExpressionAttributeValues: { ':p': true },
+        IndexName: 'by-created',
+        KeyConditionExpression: 'gsi_pk = :pk',
+        ExpressionAttributeValues: { ':pk': ARTICLE_FEED_PK },
+        ScanIndexForward: false,
         ExclusiveStartKey,
       }),
     );
     items.push(...((res.Items as Article[]) ?? []));
     ExclusiveStartKey = res.LastEvaluatedKey as Record<string, unknown> | undefined;
   } while (ExclusiveStartKey);
-  return items.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  return items;
 }
 
 export async function getBySlug(slug: string): Promise<Article | null> {
