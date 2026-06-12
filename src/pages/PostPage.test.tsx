@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
-const { usePost } = vi.hoisted(() => ({ usePost: vi.fn() }));
+const { usePost, useDeletePost } = vi.hoisted(() => ({ usePost: vi.fn(), useDeletePost: vi.fn() }));
 vi.mock('../hooks/useFeed', () => ({ usePost }));
+vi.mock('../hooks/usePostMutations', () => ({ useDeletePost }));
 // CommentsSection has its own suite + needs a QueryClient; stub it here.
 vi.mock('../components/CommentsSection', () => ({ CommentsSection: () => null }));
 
@@ -18,7 +19,10 @@ const renderAt = (id: string) =>
     </MemoryRouter>,
   );
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  useDeletePost.mockReturnValue({ mutate: vi.fn(), isPending: false });
+});
 
 describe('PostPage', () => {
   it('renders the post when loaded', () => {

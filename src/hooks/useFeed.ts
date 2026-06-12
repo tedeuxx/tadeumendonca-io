@@ -14,9 +14,10 @@ export function useFeed() {
   });
 }
 
-export function usePost(postId: string) {
+export function usePost(postId: string, enabled = true) {
   return useQuery({
     queryKey: ['post', postId],
     queryFn: () => apiFetch<Post>(`/posts/${postId}`),
+    enabled: enabled && Boolean(postId),
   });
 }
