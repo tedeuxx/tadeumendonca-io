@@ -22,18 +22,22 @@ const article = {
 afterEach(() => vi.clearAllMocks());
 
 describe('GET /articles (public list)', () => {
-  it('lists all published articles (Scan) sorted newest-first', async () => {
+  it('lists published articles via the sparse by-created GSI (Query, no Scan), newest-first', async () => {
     send.mockResolvedValueOnce({
       Items: [
-        { ...article, article_id: 'a1', slug: 's1', created_at: '2026-01-01T00:00:00Z' },
-        { ...article, article_id: 'a2', slug: 's2', created_at: '2026-05-01T00:00:00Z' },
+        { ...article, article_id: 'a2', slug: 's2', gsi_pk: 'ARTICLE', created_at: '2026-05-01T00:00:00Z' },
+        { ...article, article_id: 'a1', slug: 's1', gsi_pk: 'ARTICLE', created_at: '2026-01-01T00:00:00Z' },
       ],
     });
     const res = await app.request('/articles');
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { items: Array<{ slug: string }> };
-    expect(body.items[0].slug).toBe('s2'); // newer first
-    expect(send.mock.calls[0][0].constructor.name).toBe('ScanCommand');
+    const body = (await res.json()) as { items: Array<{ slug: string; gsi_pk?: string }> };
+    expect(body.items[0].slug).toBe('s2'); // the GSI returns newest-first (no in-memory sort)
+    expect(body.items[0].gsi_pk).toBeUndefined(); // index key stripped from the API surface
+    const cmd = send.mock.calls[0][0];
+    expect(cmd.constructor.name).toBe('QueryCommand');
+    expect(cmd.input.IndexName).toBe('by-created');
+    expect(cmd.input.ExpressionAttributeValues[':pk']).toBe('ARTICLE');
   });
 
   it('filters by tag via the by-tag GSI (Query)', async () => {
@@ -72,14 +76,25 @@ describe('POST /articles (admin)', () => {
   it('403s a non-admin', async () => {
     expect((await app.request('/articles', { method: 'POST', headers, body }, claims('registered'))).status).toBe(403);
   });
-  it('creates with a slug derived from the title', async () => {
+  it('creates with a slug derived from the title; published → sparse gsi_pk, stripped from the response', async () => {
     send.mockResolvedValueOnce({ Items: [] }); // getBySlug → free
     send.mockResolvedValueOnce({}); // createArticle
     const res = await app.request('/articles', { method: 'POST', headers, body }, claims('admin'));
     expect(res.status).toBe(201);
-    const created = (await res.json()) as { slug: string; article_id: string };
+    const created = (await res.json()) as Record<string, unknown>;
     expect(created.slug).toBe('my-new-article');
+    expect(created.gsi_pk).toBeUndefined(); // index key not exposed
     expect(send.mock.calls[1][0].input.Item.author_sub).toBe('u-1');
+    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBe('ARTICLE'); // published → indexed
+  });
+
+  it('creates a draft without a gsi_pk (stays out of the by-created index)', async () => {
+    send.mockResolvedValueOnce({ Items: [] }); // getBySlug → free
+    send.mockResolvedValueOnce({}); // createArticle
+    const draft = JSON.stringify({ title: 'A Draft', body: 'wip', tag: 'aws', published: false });
+    const res = await app.request('/articles', { method: 'POST', headers, body: draft }, claims('admin'));
+    expect(res.status).toBe(201);
+    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBeUndefined();
   });
   it('409s when the slug already exists', async () => {
     send.mockResolvedValueOnce({ Items: [article] }); // getBySlug → taken
@@ -90,11 +105,20 @@ describe('POST /articles (admin)', () => {
 
 describe('PUT/DELETE /articles/{slug} (admin)', () => {
   const headers = { 'content-type': 'application/json' };
-  it('updates an existing article (addressed by slug)', async () => {
+  it('updates an existing article (addressed by slug); published → gsi_pk set', async () => {
     send.mockResolvedValueOnce({ Items: [article] }); // getBySlug current
     send.mockResolvedValueOnce({}); // saveArticle (slug unchanged → no uniqueness query)
     const res = await app.request('/articles/hello-world', { method: 'PUT', headers, body: JSON.stringify({ title: 'Hello World', body: 'edited', tag: 'aws', published: true }) }, claims('admin'));
     expect(res.status).toBe(200);
+    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBe('ARTICLE');
+  });
+
+  it('unpublishing clears gsi_pk (drops out of the by-created index)', async () => {
+    send.mockResolvedValueOnce({ Items: [{ ...article, gsi_pk: 'ARTICLE' }] }); // getBySlug current (was published)
+    send.mockResolvedValueOnce({}); // saveArticle
+    const res = await app.request('/articles/hello-world', { method: 'PUT', headers, body: JSON.stringify({ title: 'Hello World', body: 'edited', tag: 'aws', published: false }) }, claims('admin'));
+    expect(res.status).toBe(200);
+    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBeUndefined();
   });
   it('404s updating a missing article', async () => {
     send.mockResolvedValueOnce({ Items: [] });

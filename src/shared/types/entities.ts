@@ -107,11 +107,15 @@ export interface Subscription {
 }
 
 // Long-form article (Phase 3). Hash key = article_id (opaque). `by-slug` GSI routes the public URL
-// (/articles/<slug>); `by-tag` GSI (tag, created_at) lists a category newest-first. `tag` is the single
-// indexed category; drafts are filtered out by `published` (not a sparse index, since slug must resolve
-// for previews). No "list all" GSI — that path Scans (articles are low-volume; see repository).
+// (/articles/<slug>); `by-tag` GSI (tag, created_at) lists a category newest-first; `by-created` GSI
+// (gsi_pk, created_at) lists ALL published articles newest-first for the public list + unified feed.
+// Like posts, `by-created` is SPARSE: gsi_pk = "ARTICLE" is set ONLY when published, so drafts never
+// appear in it — and the read path is a Query, never a Scan (/backend/dynamodb).
+export const ARTICLE_FEED_PK = 'ARTICLE';
+
 export interface Article {
   article_id: string; // opaque nanoid
+  gsi_pk?: typeof ARTICLE_FEED_PK; // present iff published — sparse by-created index
   slug: string; // human-readable, unique (by-slug GSI)
   tag: string; // primary category (by-tag GSI hash)
   title: string;
