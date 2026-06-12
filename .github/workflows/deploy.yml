@@ -8,6 +8,7 @@ on:
     branches: [develop, main]
     paths:
       - "src/**"
+      - "public/**"
       - "index.html"
       - "package.json"
       - "package-lock.json"
@@ -75,11 +76,15 @@ jobs:
 
       - name: Publish to S3 (split cache headers)
         run: |
-          # Hashed assets are immutable; index.html must never cache so it references fresh hashes.
+          # Content-hashed assets (assets/) are immutable. Everything else at the root is NOT
+          # content-hashed — index.html, the service worker (sw.js / registerSW.js), the PWA manifest
+          # and the icons — so it must revalidate, or clients get stuck on a stale shell or service
+          # worker. Two passes: immutable assets first, then the revalidating root (with --delete to
+          # prune stale files; assets/ is excluded so the first pass owns it).
+          aws s3 sync dist/assets/ "s3://${{ steps.cfg.outputs.bucket }}/assets/" \
+            --delete --cache-control "public,max-age=31536000,immutable"
           aws s3 sync dist/ "s3://${{ steps.cfg.outputs.bucket }}/" \
-            --delete --exclude index.html \
-            --cache-control "public,max-age=31536000,immutable"
-          aws s3 cp dist/index.html "s3://${{ steps.cfg.outputs.bucket }}/index.html" \
+            --delete --exclude "assets/*" \
             --cache-control "no-cache,no-store,must-revalidate"
 
       - name: CloudFront invalidation
