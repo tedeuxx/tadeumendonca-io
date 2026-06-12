@@ -13,8 +13,9 @@ const MenuIcon = () => <Menu size={14} className="mx-0.5 -mt-0.5 inline" aria-hi
 const MANUAL: Record<InstallPlatform, ReactNode> = {
   ios: (
     <>
-      Instale o app: toque em <span className="font-semibold">Compartilhar</span>
-      <ShareIcon /> na barra do Safari e escolha <span className="font-semibold">Adicionar à Tela de Início</span>.
+      Para instalar: toque na <span className="font-semibold">parte de baixo da tela</span> para abrir a barra do Safari, toque em{' '}
+      <span className="font-semibold">Compartilhar</span>
+      <ShareIcon /> e escolha <span className="font-semibold">Adicionar à Tela de Início</span>.
     </>
   ),
   'macos-safari': (
