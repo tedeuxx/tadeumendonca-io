@@ -42,4 +42,9 @@ describe('ArticleCard', () => {
     renderCard({ ...article, excerpt: undefined });
     expect(screen.queryByText('why and how')).toBeNull();
   });
+
+  it('renders link-preview cards when present', () => {
+    renderCard({ ...article, link_previews: [{ url: 'https://youtu.be/abc', provider: 'YouTube', title: 'A Video' }] });
+    expect(screen.getByText('A Video')).toBeInTheDocument();
+  });
 });

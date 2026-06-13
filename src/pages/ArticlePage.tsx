@@ -5,6 +5,7 @@ import { useArticle, useDeleteArticle } from '../hooks/useArticles';
 import { Markdown } from '../components/Markdown';
 import { AdminActions } from '../components/AdminActions';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
+import { LinkPreviewCard } from '../components/LinkPreviewCard';
 import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -48,6 +49,13 @@ export function ArticlePage() {
           <div className="mt-5 text-[17px] leading-relaxed text-foreground/90">
             <Markdown>{article.body}</Markdown>
           </div>
+          {article.link_previews && article.link_previews.length > 0 && (
+            <div className="mt-5 space-y-3">
+              {article.link_previews.map((p) => (
+                <LinkPreviewCard key={p.url} preview={p} />
+              ))}
+            </div>
+          )}
         </article>
       )}
     </div>
