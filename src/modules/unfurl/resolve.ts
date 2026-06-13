@@ -74,16 +74,24 @@ function youtubeId(u: URL): string | undefined {
   return /^\/(?:shorts|embed|live)\/([^/?]+)/.exec(u.pathname)?.[1];
 }
 
-// Deterministic YouTube card when oEmbed is unavailable. The thumbnail lives on the public i.ytimg.com
-// CDN (not the rate-limited oEmbed API), so the card still gets an image even without oEmbed.
-async function youtubeFallback(u: URL, target: string): Promise<LinkPreview> {
+// Guaranteed-non-empty thumbnail for a YouTube id, served from the public i.ytimg.com CDN (not the
+// rate-limited oEmbed API), cached to our own CDN like every other thumbnail.
+async function youtubeThumb(u: URL): Promise<string | undefined> {
   const id = youtubeId(u);
-  return {
-    url: target,
-    provider: 'YouTube',
-    site_name: 'YouTube',
-    image: id ? await cacheThumbnail(`https://i.ytimg.com/vi/${id}/hqdefault.jpg`) : undefined,
-  };
+  return id ? cacheThumbnail(`https://i.ytimg.com/vi/${id}/hqdefault.jpg`) : undefined;
+}
+
+// Resolve a YouTube URL to the richest card we can, never empty:
+//   1) scrape the watch page's Open Graph — title + description + image in one fetch (WhatsApp-style);
+//   2) if the page serves a consent interstitial (no og:title), fall back to the oEmbed API (title +
+//      thumbnail) — note oEmbed often 403s the Lambda egress IP, which is exactly why scraping is first;
+//   3) last resort: a thumbnail-only card from i.ytimg so there's still an image.
+async function youtubeCard(u: URL, target: string, host: string): Promise<LinkPreview> {
+  const og = await generic(target, host, 'YouTube');
+  if (og.title) return og.image ? og : { ...og, image: await youtubeThumb(u) };
+  const oe = await oembed('https://www.youtube.com/oembed', target, 'YouTube');
+  if (oe) return oe;
+  return { url: target, provider: 'YouTube', site_name: 'YouTube', image: await youtubeThumb(u) };
 }
 
 async function generic(target: string, host: string, provider = 'web'): Promise<LinkPreview> {
@@ -114,7 +122,7 @@ export async function resolveUrl(raw: string): Promise<LinkPreview> {
   const target = u.toString();
 
   if (host === 'youtube.com' || host === 'youtu.be' || host.endsWith('.youtube.com')) {
-    return (await oembed('https://www.youtube.com/oembed', target, 'YouTube')) ?? youtubeFallback(u, target);
+    return youtubeCard(u, target, host);
   }
   if (host === 'spotify.com' || host === 'open.spotify.com' || host.endsWith('.spotify.com')) {
     return (await oembed('https://open.spotify.com/oembed', target, 'Spotify')) ?? generic(target, host, 'Spotify');

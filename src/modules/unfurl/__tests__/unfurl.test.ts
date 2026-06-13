@@ -109,19 +109,54 @@ describe('resolveUrl', () => {
     expect(p.title).toMatch(/View on X/);
   });
 
-  it('resolves YouTube via oEmbed and caches the thumbnail', async () => {
+  it('resolves YouTube via the watch-page Open Graph (title + description + thumbnail)', async () => {
     const fetchMock = vi
       .fn()
-      // 1) oEmbed JSON
-      .mockResolvedValueOnce(mockResponse({ contentType: 'application/json', body: JSON.stringify({ title: 'Vid', author_name: 'Chan', thumbnail_url: 'https://i.ytimg.com/vi/abc/hqdefault.jpg', provider_name: 'YouTube' }) }))
+      // 1) watch page HTML with OG (the richest, WhatsApp-style card — one fetch)
+      .mockResolvedValueOnce(mockResponse({ contentType: 'text/html', body: '<meta property="og:title" content="Vid"><meta property="og:description" content="A great video"><meta property="og:image" content="https://i.ytimg.com/vi/abc/maxresdefault.jpg">' }))
       // 2) thumbnail bytes
       .mockResolvedValueOnce(mockResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' }));
     vi.stubGlobal('fetch', fetchMock);
     const p = await resolveUrl('https://www.youtube.com/watch?v=abc');
     expect(p.provider).toBe('YouTube');
     expect(p.title).toBe('Vid');
+    expect(p.description).toBe('A great video'); // YouTube cards now carry a description
     expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/);
     expect(putImage).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to oEmbed when the watch page serves a consent interstitial (no og:title)', async () => {
+    const fetchMock = vi
+      .fn()
+      // 1) consent page — HTML but no OG tags
+      .mockResolvedValueOnce(mockResponse({ contentType: 'text/html', body: '<html><body>Before you continue to YouTube</body></html>' }))
+      // 2) oEmbed JSON
+      .mockResolvedValueOnce(mockResponse({ contentType: 'application/json', body: JSON.stringify({ title: 'Vid', author_name: 'Chan', thumbnail_url: 'https://i.ytimg.com/vi/abc/hqdefault.jpg', provider_name: 'YouTube' }) }))
+      // 3) thumbnail bytes
+      .mockResolvedValueOnce(mockResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const p = await resolveUrl('https://youtu.be/abc');
+    expect(p.provider).toBe('YouTube');
+    expect(p.title).toBe('Vid');
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/);
+    vi.unstubAllGlobals();
+  });
+
+  it('still returns a thumbnail-only YouTube card when both OG and oEmbed fail', async () => {
+    const fetchMock = vi
+      .fn()
+      // 1) consent page (no OG)
+      .mockResolvedValueOnce(mockResponse({ contentType: 'text/html', body: '<html><body>consent</body></html>' }))
+      // 2) oEmbed 403 (datacenter IP blocked)
+      .mockResolvedValueOnce(mockResponse({ status: 403, contentType: 'text/html', body: 'denied' }))
+      // 3) i.ytimg thumbnail bytes
+      .mockResolvedValueOnce(mockResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const p = await resolveUrl('https://www.youtube.com/watch?v=abc');
+    expect(p.provider).toBe('YouTube');
+    expect(p.title).toBeUndefined(); // no title available, but…
+    expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/); // …never empty: i.ytimg thumbnail
     vi.unstubAllGlobals();
   });
 

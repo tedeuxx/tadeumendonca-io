@@ -111,24 +111,25 @@ describe('resolveUrl providers', () => {
     expect(p.image).toBeUndefined(); // no thumbnail_url
   });
 
-  it('falls back to a deterministic YouTube card when oEmbed is rate-limited (non-2xx)', async () => {
+  it('uses the i.ytimg thumbnail when the watch page OG has a title but no og:image', async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(streamResponse({ status: 403, contentType: 'text/html', body: 'denied' })) // oEmbed blocked
-      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' })); // ytimg thumbnail
+      .mockResolvedValueOnce(streamResponse({ contentType: 'text/html', body: '<meta property="og:title" content="A Video">' })) // OG title, no image
+      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'JPEGBYTES' })); // i.ytimg thumbnail
     vi.stubGlobal('fetch', fetchMock);
     const p = await resolveUrl('https://youtu.be/dQw4w9WgXcQ');
     expect(p.provider).toBe('YouTube');
-    expect(p.title).toBeUndefined();
+    expect(p.title).toBe('A Video');
     expect(p.image).toMatch(/\/og\/unfurl\/[0-9a-f]{64}\.jpg$/); // thumbnail from i.ytimg.com CDN
     expect(putImage).toHaveBeenCalledOnce();
   });
 
-  it('falls back to a YouTube card when oEmbed returns invalid JSON', async () => {
+  it('OG miss → oEmbed invalid JSON → still a thumbnail-only YouTube card', async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(streamResponse({ status: 200, contentType: 'application/json', body: 'NOT JSON' }))
-      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'J' }));
+      .mockResolvedValueOnce(streamResponse({ contentType: 'text/html', body: '<html>consent</html>' })) // OG: no title
+      .mockResolvedValueOnce(streamResponse({ status: 200, contentType: 'application/json', body: 'NOT JSON' })) // oEmbed garbage
+      .mockResolvedValueOnce(streamResponse({ contentType: 'image/jpeg', body: 'J' })); // i.ytimg thumbnail
     vi.stubGlobal('fetch', fetchMock);
     const p = await resolveUrl('https://www.youtube.com/watch?v=abc123');
     expect(p.provider).toBe('YouTube');
