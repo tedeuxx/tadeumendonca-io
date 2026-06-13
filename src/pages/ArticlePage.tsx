@@ -17,7 +17,7 @@ export function ArticlePage() {
   return (
     <div>
       <ColumnHeader
-        title="Artigo"
+        title="Blog"
         back
         actions={
           article && (

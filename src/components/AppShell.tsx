@@ -29,7 +29,7 @@ interface NavEntry {
 const NAV: NavEntry[] = [
   { to: '/', label: 'Feed', icon: Home },
   { to: '/blog', label: 'Blog', icon: FileText },
-  { to: '/profile', label: 'Perfil', icon: User },
+  { to: '/profile', label: 'Quem Sou', icon: User },
 ];
 
 function HeaderBrand() {
