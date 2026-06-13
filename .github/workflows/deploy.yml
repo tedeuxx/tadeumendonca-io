@@ -102,10 +102,30 @@ jobs:
             --stage-name live --description "$API_VERSION" >/dev/null
           echo "deployed BFF + contract to $ENV_NAME"
 
+      # Mint a fresh Cognito ID token for the native test user (admin via ADMIN_EMAILS), so the
+      # authed-write regression actually runs. USER_PASSWORD_AUTH on the NON-PROD test client — the
+      # SPA client is Google-only and can't be automated. Production has no test client (the SSM param
+      # is absent there): the token stays empty and newman's authed writes self-skip (see the collection).
+      - name: Mint Cognito test-user ID token (non-prod)
+        id: token
+        if: ${{ env.ENV_NAME != 'production' }}
+        env:
+          TEST_USER_USERNAME: ${{ secrets.TEST_USER_USERNAME }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          client_id="$(aws ssm get-parameter --name "/$ENV_NAME/auth/cognito-test-client-id" --query 'Parameter.Value' --output text)"
+          id_token="$(aws cognito-idp initiate-auth \
+            --auth-flow USER_PASSWORD_AUTH \
+            --client-id "$client_id" \
+            --auth-parameters "USERNAME=$TEST_USER_USERNAME,PASSWORD=$TEST_USER_PASSWORD" \
+            --query 'AuthenticationResult.IdToken' --output text)"
+          echo "::add-mask::$id_token"
+          echo "value=$id_token" >> "$GITHUB_OUTPUT"
+
       # Post-deploy regression: Postman/newman smoke + contract checks against the just-deployed
-      # environment (staging for develop, production for main) — see /backend/postman. The authed write
-      # check stays skipped until a Cognito test-user token is injected (TEST_USER_TOKEN secret).
+      # environment (staging for develop, production for main) — see /backend/postman. With a token the
+      # authed admin create→delete smoke runs; without one (prod) those requests self-skip.
       - name: API smoke (newman) against the deployed environment
         run: |
           sleep 5 # let the new stage settle before black-box checks
-          npm run "api-test:$ENV_NAME" -- --env-var "token=${{ secrets.TEST_USER_TOKEN }}"
+          npm run "api-test:$ENV_NAME" -- --env-var "token=${{ steps.token.outputs.value }}"
