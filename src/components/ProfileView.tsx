@@ -5,7 +5,11 @@ import { type ReactNode } from 'react';
 import { MapPin, ExternalLink, Briefcase, GraduationCap, Award, Sparkles } from 'lucide-react';
 import type { Profile } from '../types/profile';
 
-const dateRange = (start: string, end: string | null) => `${start} – ${end ?? 'Atual'}`;
+// "2021-01 – Atual"; when there's no start (e.g. only a graduation year), show just the end.
+const dateRange = (start: string, end: string | null) => (start ? `${start} – ${end ?? 'Atual'}` : (end ?? ''));
+
+// Friendly labels for the metadata link keys (kept lowercase in the data); falls back to the key.
+const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', medium: 'Medium', website: 'Website' };
 
 function Section({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
@@ -43,7 +47,7 @@ export function ProfileView({ profile }: { profile: Profile }) {
           )}
           {Object.entries(profile.metadata).map(([key, url]) => (
             <a key={key} href={url} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-medium text-primary hover:underline">
-              <ExternalLink size={15} /> {key}
+              <ExternalLink size={15} /> {LINK_LABELS[key] ?? key}
             </a>
           ))}
         </div>
