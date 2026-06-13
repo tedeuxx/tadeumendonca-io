@@ -55,4 +55,15 @@ describe('CommentsSection', () => {
     render(<CommentsSection postId="p1" />);
     expect(screen.queryByRole('button', { name: 'Delete comment' })).toBeNull();
   });
+
+  it('renders link-preview cards attached to a comment', () => {
+    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn() });
+    usePostComments.mockReturnValue({
+      data: { pages: [{ items: [{ ...comment, link_previews: [{ url: 'https://youtu.be/abc', provider: 'YouTube', title: 'A Video' }] }] }] },
+      isLoading: false,
+      hasNextPage: false,
+    });
+    render(<CommentsSection postId="p1" />);
+    expect(screen.getByText('A Video')).toBeInTheDocument();
+  });
 });
