@@ -26,4 +26,7 @@ export const TABLES = {
   get polls() {
     return process.env.POLLS_TABLE_NAME ?? '';
   },
+  get users() {
+    return process.env.USERS_TABLE_NAME ?? '';
+  },
 };

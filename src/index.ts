@@ -19,6 +19,7 @@ import { registerReactions } from './modules/reactions/routes';
 import { registerComments } from './modules/comments/routes';
 import { registerShortlinks } from './modules/shortlinks/routes';
 import { registerPolls } from './modules/polls/routes';
+import { registerUsers } from './modules/users/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -50,6 +51,7 @@ registerReactions(app);
 registerComments(app);
 registerShortlinks(app);
 registerPolls(app);
+registerUsers(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {

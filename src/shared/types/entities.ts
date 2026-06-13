@@ -156,3 +156,21 @@ export interface Poll {
   created_at: string; // ISO-8601
   updated_at?: string;
 }
+
+// User account (Phase 3) — profile + communication prefs, keyed by the Cognito sub (one item per
+// signed-in user, created lazily on the first PUT /me). The SPARSE by-digest GSI key `digest_schedule`
+// (= "daily" | "weekly") is set ONLY while opted in, so the newsletter-digest Lambda Queries opted-in
+// users by cadence WITHOUT a Scan (mirrors the sparse feed indexes). `avatar_key` points at the upload
+// in the assets bucket (avatars/<sub>.<ext>); the public URL is /assets/<avatar_key> via CloudFront.
+export type DigestSchedule = 'daily' | 'weekly';
+
+export interface User {
+  cognito_sub: string; // hash key (the Cognito user id)
+  nickname?: string; // apelido / display name (cosmetic)
+  avatar_key?: string; // assets-bucket key, e.g. avatars/<sub>.png (managed by the avatar endpoint)
+  newsletter_opt_in: boolean;
+  newsletter_schedule?: DigestSchedule; // chosen cadence; remembered even while opted out
+  digest_schedule?: DigestSchedule; // SPARSE by-digest GSI key — present iff opted in (derived, never client-set)
+  created_at: string; // ISO-8601
+  updated_at?: string;
+}

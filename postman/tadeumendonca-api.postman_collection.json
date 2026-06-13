@@ -318,6 +318,32 @@
           }
         }
       ]
+    },
+    {
+      "name": "Auth: GET /me returns my profile (only when {{token}} is set)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.environment.get('token')) { console.log('no {{token}} — skipping authed /me'); return; }",
+              "pm.test('GET /me returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('profile carries cognito_sub', () => pm.expect(pm.response.json().cognito_sub).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
