@@ -77,11 +77,15 @@
       ]
     },
     {
-      "name": "Auth: GET /posts with a token -> 200 (only when {{token}} is set)",
+      "name": "Auth (admin): POST /posts creates a draft (only when {{token}} is set)",
       "request": {
-        "method": "GET",
-        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-        "url": "{{base_url}}/posts?limit=1"
+        "method": "POST",
+        "header": [
+          { "key": "content-type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"title\":\"regression draft\",\"body\":\"created by the api regression smoke; deleted next\",\"published\":false}" },
+        "url": "{{base_url}}/posts"
       },
       "event": [
         {
@@ -89,8 +93,30 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "if (!pm.environment.get('token')) { pm.test.skip ? pm.test.skip('no {{token}} — skipping authed check') : console.log('no token; skipping'); }",
-              "else { pm.test('authenticated read returns 200', () => pm.response.to.have.status(200)); }"
+              "if (!pm.environment.get('token')) { console.log('no {{token}} — skipping admin write'); return; }",
+              "pm.test('admin can create a post (201)', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('created_post_id', pm.response.json().post_id);",
+              "pm.test('the created post is a draft (kept out of the public feed)', () => pm.expect(pm.response.json().published).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth (admin): DELETE the draft (cleanup; only when {{token}} is set)",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/posts/{{created_post_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.environment.get('token') || !pm.collectionVariables.get('created_post_id')) { console.log('no token / nothing created — skipping cleanup'); return; }",
+              "pm.test('admin can delete the post (204)', () => pm.response.to.have.status(204));"
             ]
           }
         }
