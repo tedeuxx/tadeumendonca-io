@@ -4,7 +4,7 @@
 //   The header + nav row stick together at the top; the nav row scrolls horizontally on narrow screens.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, User, LogIn, LogOut, WifiOff } from 'lucide-react';
+import { Home, FileText, User, LogIn, LogOut, Settings, WifiOff } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { useOnline } from '../hooks/useOnline';
 import { InstallPrompt } from './InstallPrompt';
@@ -60,8 +60,13 @@ function Account() {
   const initial = (email ?? '?')[0]?.toUpperCase();
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{initial}</div>
+      <NavLink to="/conta" aria-label="Minha conta" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
+        {initial}
+      </NavLink>
       <span className="hidden max-w-[12rem] truncate text-sm text-muted-foreground sm:block">{email}</span>
+      <NavLink to="/conta" aria-label="Configurações" className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <Settings size={18} />
+      </NavLink>
       <button onClick={() => void signOut()} aria-label="Sair" className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
         <LogOut size={18} />
       </button>

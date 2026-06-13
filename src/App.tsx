@@ -14,6 +14,7 @@ import { ArticlesPage } from './pages/ArticlesPage';
 import { ArticlePage } from './pages/ArticlePage';
 import { ComposeArticlePage } from './pages/ComposeArticlePage';
 import { ComposePollPage } from './pages/ComposePollPage';
+import { AccountPage } from './pages/AccountPage';
 import { CallbackPage } from './pages/CallbackPage';
 import { ShortLinkPage } from './pages/ShortLinkPage';
 import { RequireAuth } from './auth/RequireAuth';
@@ -91,6 +92,14 @@ export function App() {
               element={
                 <RequireAuth admin>
                   <ComposePollPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/conta"
+              element={
+                <RequireAuth>
+                  <AccountPage />
                 </RequireAuth>
               }
             />
