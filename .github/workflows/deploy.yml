@@ -92,18 +92,20 @@ jobs:
             --rest-api-id "$api_id" \
             --mode overwrite \
             --body "fileb://openapi.aws.json" >/dev/null
-          # put-rest-api is "synchronous" but the resource graph settles asynchronously — an immediate
+          # put-rest-api is "synchronous" but the API graph settles asynchronously — an immediate
           # create-deployment can snapshot BEFORE newly-added routes register, so the live stage serves
-          # 403 "Missing Authentication Token" for the new paths. A fixed sleep is fragile: adding N new
-          # routes needs more settle time than one. Instead POLL get-resources until the count is stable
-          # across two consecutive reads (so the just-added paths are present), THEN deploy exactly once
-          # (create-deployment is aggressively rate-limited account-wide — back-to-back calls trip
+          # 403 "Missing Authentication Token" for the new paths. A fixed sleep is fragile. Counting
+          # RESOURCES isn't enough either: a resource's METHOD/integration attaches a few seconds AFTER
+          # the resource appears, and 403 depends on the method — so a resource-count poll can deploy a
+          # path whose GET/POST isn't wired yet (observed when /me shipped). Poll the total METHOD count
+          # (get-resources --embed methods) until it's stable across two consecutive reads, THEN deploy
+          # exactly once (create-deployment is account-wide rate-limited — back-to-back calls trip
           # TooManyRequestsException).
           prev=-1
-          for _ in $(seq 1 18); do
+          for _ in $(seq 1 24); do
             sleep 5
-            count="$(aws apigateway get-resources --rest-api-id "$api_id" --limit 500 --query 'length(items)' --output text)"
-            echo "resource graph: $count resources (prev $prev)"
+            count="$(aws apigateway get-resources --rest-api-id "$api_id" --embed methods --limit 500 --output json | jq '[.items[].resourceMethods // {} | length] | add // 0')"
+            echo "method graph: $count methods (prev $prev)"
             [ "$count" = "$prev" ] && break
             prev="$count"
           done
