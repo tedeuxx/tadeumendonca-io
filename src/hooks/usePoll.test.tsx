@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 const { apiFetch, authedFetch } = vi.hoisted(() => ({ apiFetch: vi.fn(), authedFetch: vi.fn() }));
 vi.mock('../lib/api', () => ({ apiFetch, authedFetch }));
 
-import { useCurrentPoll, usePollVote, type Poll } from './usePoll';
+import { useCurrentPoll, usePollVote, useAdminPoll, useCreatePoll, useUpdatePoll, useDeletePoll, type Poll } from './usePoll';
 import { installMutationDefaults } from '../lib/offline';
 
 function memoryStorage() {
@@ -87,5 +87,35 @@ describe('usePollVote', () => {
     localStorage.setItem('poll:pl1', 'a');
     const { result } = renderHook(() => usePollVote({ ...poll, vote_counts: { a: 3, b: 1 } }), { wrapper });
     expect(result.current.total).toBe(4);
+  });
+});
+
+describe('admin poll hooks', () => {
+  it('useAdminPoll reads a single poll by id', async () => {
+    apiFetch.mockResolvedValueOnce(poll);
+    const { result } = renderHook(() => useAdminPoll('pl1'), { wrapper });
+    await waitFor(() => expect(result.current.data?.poll_id).toBe('pl1'));
+    expect(apiFetch).toHaveBeenCalledWith('/polls/pl1');
+  });
+
+  it('useCreatePoll POSTs the input', async () => {
+    authedFetch.mockResolvedValueOnce({ poll_id: 'new' });
+    const { result } = renderHook(() => useCreatePoll(), { wrapper });
+    act(() => result.current.mutate({ question: 'Q?', options: [{ label: 'A' }, { label: 'B' }], published: true }));
+    await waitFor(() => expect(authedFetch).toHaveBeenCalledWith('/polls', expect.objectContaining({ method: 'POST' })));
+  });
+
+  it('useUpdatePoll PUTs to the poll id', async () => {
+    authedFetch.mockResolvedValueOnce({ poll_id: 'pl1' });
+    const { result } = renderHook(() => useUpdatePoll('pl1'), { wrapper });
+    act(() => result.current.mutate({ question: 'Q?', options: [{ id: 'o1', label: 'A' }, { label: 'B' }], published: false }));
+    await waitFor(() => expect(authedFetch).toHaveBeenCalledWith('/polls/pl1', expect.objectContaining({ method: 'PUT' })));
+  });
+
+  it('useDeletePoll DELETEs the poll id', async () => {
+    authedFetch.mockResolvedValueOnce(undefined);
+    const { result } = renderHook(() => useDeletePoll(), { wrapper });
+    act(() => result.current.mutate('pl1'));
+    await waitFor(() => expect(authedFetch).toHaveBeenCalledWith('/polls/pl1', expect.objectContaining({ method: 'DELETE' })));
   });
 });

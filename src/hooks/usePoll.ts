@@ -7,8 +7,8 @@
 // persisted mutation defaults, src/lib/offline.ts), so a vote cast offline updates optimistically and
 // replays on reconnect / next launch.
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiFetch } from '../lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiFetch, authedFetch } from '../lib/api';
 import type { VoteVars } from '../lib/offline';
 
 export interface PollOption {
@@ -80,4 +80,51 @@ export function usePollVote(poll: Poll) {
 
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   return { counts, mine, voted: mine !== null, vote, total, pending: busy };
+}
+
+// ----- Admin (create / edit / delete) — authedFetch; the BFF re-checks the admin group server-side.
+
+// On input an option carries its id when it already exists (preserves its votes across an edit) or
+// omits it when new (the server mints one). 2..10 options enforced server-side too.
+export interface PollInputOption {
+  id?: string;
+  label: string;
+}
+export interface PollInput {
+  question: string;
+  options: PollInputOption[];
+  published: boolean;
+}
+
+// Read a single poll for the edit form. Like articles, the BFF's GET returns published polls only, so
+// editing a draft 404s (pre-existing limitation); the current (published) poll edits fine.
+export function useAdminPoll(pollId: string, enabled = true) {
+  return useQuery({ queryKey: ['poll', pollId], queryFn: () => apiFetch<Poll>(`/polls/${pollId}`), enabled: enabled && Boolean(pollId) });
+}
+
+export function useCreatePoll() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: PollInput) => authedFetch<Poll>('/polls', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['polls'] }),
+  });
+}
+
+export function useUpdatePoll(pollId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: PollInput) => authedFetch<Poll>(`/polls/${pollId}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['polls'] });
+      void qc.invalidateQueries({ queryKey: ['poll', pollId] });
+    },
+  });
+}
+
+export function useDeletePoll() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (pollId: string) => authedFetch<void>(`/polls/${pollId}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['polls'] }),
+  });
 }

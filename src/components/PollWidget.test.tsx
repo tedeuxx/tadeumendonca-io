@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
 const { apiFetch, authedFetch } = vi.hoisted(() => ({ apiFetch: vi.fn(), authedFetch: vi.fn() }));
 vi.mock('../lib/api', () => ({ apiFetch, authedFetch }));
+const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }));
+vi.mock('../auth/authStore', () => ({ useAuth }));
 
 import { PollWidget } from './PollWidget';
 import { installMutationDefaults } from '../lib/offline';
@@ -32,10 +35,15 @@ const poll = {
 };
 
 let qc: QueryClient;
-const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={qc}>
+    <MemoryRouter>{children}</MemoryRouter>
+  </QueryClientProvider>
+);
 
 beforeEach(() => {
   vi.stubGlobal('localStorage', memoryStorage());
+  useAuth.mockReturnValue({ isAdmin: false });
   qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   installMutationDefaults(qc);
 });
@@ -44,8 +52,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('PollWidget', () => {
-  it('renders nothing when there is no active poll', async () => {
+describe('PollWidget (public)', () => {
+  it('renders nothing when there is no active poll (visitor)', async () => {
     apiFetch.mockResolvedValue({ items: [] });
     const { container } = render(<PollWidget />, { wrapper });
     await waitFor(() => expect(apiFetch).toHaveBeenCalled());
@@ -61,13 +69,11 @@ describe('PollWidget', () => {
     render(<PollWidget />, { wrapper });
 
     await screen.findByText('Qual seu serviço AWS favorito?');
-    const lambdaBtn = screen.getByRole('button', { name: 'Lambda' });
-    expect(lambdaBtn).toBeInTheDocument(); // pre-vote: options are buttons, no percentages yet
+    expect(screen.getByRole('button', { name: 'Lambda' })).toBeInTheDocument();
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'DynamoDB' }));
 
-    // Post-vote: results view — percentages + total appear, buttons are gone.
     await waitFor(() => expect(screen.queryByRole('button', { name: 'DynamoDB' })).not.toBeInTheDocument());
     expect(screen.getByText('67%')).toBeInTheDocument(); // a: 2/3
     expect(screen.getByText('33%')).toBeInTheDocument(); // b: 1/3
@@ -80,8 +86,34 @@ describe('PollWidget', () => {
     apiFetch.mockResolvedValue({ items: [poll] });
     render(<PollWidget />, { wrapper });
     await screen.findByText('Qual seu serviço AWS favorito?');
-    expect(screen.queryByRole('button', { name: 'Lambda' })).not.toBeInTheDocument(); // straight to results
-    expect(screen.getByText('100%')).toBeInTheDocument(); // a: 2/2 (only recorded votes)
+    expect(screen.queryByRole('button', { name: 'Lambda' })).not.toBeInTheDocument();
+    expect(screen.getByText('100%')).toBeInTheDocument();
     expect(screen.getByText('2 votos')).toBeInTheDocument();
+  });
+});
+
+describe('PollWidget (admin)', () => {
+  beforeEach(() => useAuth.mockReturnValue({ isAdmin: true }));
+
+  it('offers a "Nova enquete" entry when there is no active poll', async () => {
+    apiFetch.mockResolvedValue({ items: [] });
+    render(<PollWidget />, { wrapper });
+    expect(await screen.findByText('Nenhuma enquete ativa.')).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /Nova enquete/ });
+    expect(link).toHaveAttribute('href', '/compose-poll');
+  });
+
+  it('shows edit/delete on the current poll and deletes via the api', async () => {
+    localStorage.setItem('poll:pl1', 'a'); // skip the vote view, go straight to results + admin bar
+    apiFetch.mockResolvedValue({ items: [poll] });
+    authedFetch.mockResolvedValue(undefined);
+    render(<PollWidget />, { wrapper });
+
+    await screen.findByText('Qual seu serviço AWS favorito?');
+    expect(screen.getByRole('link', { name: /Editar/ })).toHaveAttribute('href', '/compose-poll/pl1');
+
+    fireEvent.click(screen.getByRole('button', { name: /Excluir/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Confirmar/ }));
+    await waitFor(() => expect(authedFetch).toHaveBeenCalledWith('/polls/pl1', expect.objectContaining({ method: 'DELETE' })));
   });
 });

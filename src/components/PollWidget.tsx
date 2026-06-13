@@ -1,26 +1,61 @@
 // Poll / "enquete" widget for the right-hand components zone (xl+). Shows the current published poll:
 // before voting, each option is a button; after voting (or if the browser already voted), it switches
-// to results — a gold progress bar + percentage per option, with the viewer's choice marked. Renders
-// nothing when there's no active poll (so the aside just collapses to the other widgets). pt-BR copy.
+// to results — a gold progress bar + percentage per option, with the viewer's choice marked. Admins get
+// edit/delete on the current poll and a "Nova enquete" entry (and a create stub when there's no active
+// poll). Renders nothing for a non-admin when there's no active poll. pt-BR copy.
+import { Link as RouterLink } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { cn } from '../lib/cn';
-import { useCurrentPoll, usePollVote, type Poll } from '../hooks/usePoll';
+import { useAuth } from '../auth/authStore';
+import { AdminActions } from './AdminActions';
+import { useCurrentPoll, usePollVote, useDeletePoll, type Poll } from '../hooks/usePoll';
 
 export function PollWidget() {
-  const { poll } = useCurrentPoll();
-  if (!poll) return null; // no active poll (or still loading / errored) → no widget
+  const { poll, isLoading } = useCurrentPoll();
+  const { isAdmin } = useAuth();
   // Key by poll_id so switching to a different poll resets the local vote state cleanly.
-  return <PollCard key={poll.poll_id} poll={poll} />;
+  if (poll) return <PollCard key={poll.poll_id} poll={poll} isAdmin={isAdmin} />;
+  if (isAdmin && !isLoading) return <PollAdminEmpty />; // let an admin create the first poll
+  return null; // no active poll (or still loading / errored) → no widget for visitors
 }
 
-function PollCard({ poll }: { poll: Poll }) {
+function WidgetHeader() {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <span className="h-4 w-1.5 rounded-sm bg-primary" />
+      <h2 className="font-display font-bold">Enquete</h2>
+    </div>
+  );
+}
+
+function NewPollLink() {
+  return (
+    <RouterLink
+      to="/compose-poll"
+      className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+    >
+      <Plus size={15} /> Nova enquete
+    </RouterLink>
+  );
+}
+
+function PollAdminEmpty() {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <WidgetHeader />
+      <p className="mb-3 text-sm text-muted-foreground">Nenhuma enquete ativa.</p>
+      <NewPollLink />
+    </div>
+  );
+}
+
+function PollCard({ poll, isAdmin }: { poll: Poll; isAdmin: boolean }) {
   const { mine, voted, vote, counts, total, pending } = usePollVote(poll);
+  const del = useDeletePoll();
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="h-4 w-1.5 rounded-sm bg-primary" />
-        <h2 className="font-display font-bold">Enquete</h2>
-      </div>
+      <WidgetHeader />
       <p className="mb-3 text-sm font-medium">{poll.question}</p>
 
       <ul className="flex flex-col gap-2">
@@ -63,6 +98,13 @@ function PollCard({ poll }: { poll: Poll }) {
         <p className="mt-3 text-xs text-muted-foreground">
           {total} {total === 1 ? 'voto' : 'votos'}
         </p>
+      )}
+
+      {isAdmin && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <AdminActions editTo={`/compose-poll/${poll.poll_id}`} onDelete={() => del.mutate(poll.poll_id)} isDeleting={del.isPending} />
+          <NewPollLink />
+        </div>
       )}
     </div>
   );
