@@ -5,7 +5,7 @@ import { MessageCircle } from 'lucide-react';
 import { Markdown } from './Markdown';
 import { LinkPreviewCard } from './LinkPreviewCard';
 import { ReactionBar } from './ReactionBar';
-import { ShareButton } from './ShareButton';
+import { ShareButton, postShareUrl } from './ShareButton';
 import { cn } from '../lib/cn';
 import type { Post } from '../types/post';
 
@@ -57,7 +57,7 @@ export function PostCard({ post, linkTitle = true }: { post: Post; linkTitle?: b
         >
           <MessageCircle size={14} /> {post.comment_count ?? 0}
         </RouterLink>
-        <ShareButton post={post} size="sm" />
+        <ShareButton title={post.title} url={postShareUrl(post)} size="sm" />
       </div>
     </article>
   );

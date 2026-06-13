@@ -50,6 +50,7 @@ export interface ArticleFeedItem {
   tag: string;
   title: string;
   excerpt?: string;
+  short_code?: string; // share URL: /p/<short_code> → /blog/<slug>
   created_at: string;
 }
 

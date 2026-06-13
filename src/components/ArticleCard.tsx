@@ -2,6 +2,7 @@
 // body — just date, tag, headline and excerpt, linking out to the full article at /blog/:slug. A small
 // "Blog" badge sets it apart from posts in the mixed stream. The tag links into the Blog tag filter.
 import { Link as RouterLink } from 'react-router-dom';
+import { ShareButton, articleShareUrl } from './ShareButton';
 import type { ArticleFeedItem } from '../types/post';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -28,6 +29,11 @@ export function ArticleCard({ article }: { article: ArticleFeedItem }) {
       </RouterLink>
 
       {article.excerpt && <p className="mt-2 text-[15px] leading-relaxed text-foreground/80">{article.excerpt}</p>}
+
+      {/* interaction row — share the article (short URL /p/<code> when present) */}
+      <div className="mt-3 flex items-center">
+        <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
+      </div>
     </article>
   );
 }

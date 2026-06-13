@@ -4,6 +4,7 @@ import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
 import { useArticle, useDeleteArticle } from '../hooks/useArticles';
 import { Markdown } from '../components/Markdown';
 import { AdminActions } from '../components/AdminActions';
+import { ShareButton, articleShareUrl } from '../components/ShareButton';
 import { ColumnHeader, CenterLoader, Notice } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -41,6 +42,8 @@ export function ArticlePage() {
             <RouterLink to={`/blog?tag=${article.tag}`} className="font-medium text-primary hover:underline">
               #{article.tag}
             </RouterLink>
+            <span>·</span>
+            <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
           </div>
           <div className="mt-5 text-[17px] leading-relaxed text-foreground/90">
             <Markdown>{article.body}</Markdown>

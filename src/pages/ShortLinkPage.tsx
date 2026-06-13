@@ -1,6 +1,6 @@
-// Short-link landing (/frontend/routing). Resolves /p/<code> → the post via the BFF, then redirects to
-// the canonical /posts/<id>. Social/SEO crawlers never reach this (og-edge serves them the OG card at
-// the edge); this is the human path.
+// Short-link landing (/frontend/routing). Resolves /p/<code> → its target via the BFF, then redirects
+// to the canonical URL: a post → /posts/<id>, an article → /blog/<slug>. Social/SEO crawlers never
+// reach this (og-edge serves them the OG card at the edge); this is the human path.
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +17,9 @@ export function ShortLinkPage() {
   });
 
   useEffect(() => {
-    if (data?.target_id) navigate(`/posts/${data.target_id}`, { replace: true });
+    if (!data?.target_id) return;
+    const to = data.type === 'article' ? `/blog/${data.target_id}` : `/posts/${data.target_id}`;
+    navigate(to, { replace: true });
   }, [data, navigate]);
 
   return (

@@ -37,6 +37,12 @@ describe('ShortLinkPage', () => {
     expect(apiFetch).toHaveBeenCalledWith('/shortlinks/aB3xK9q');
   });
 
+  it('redirects an article code to the canonical /blog/<slug>', async () => {
+    apiFetch.mockResolvedValueOnce({ type: 'article', target_id: 'building-x' });
+    renderAt('art1234');
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/blog/building-x', { replace: true }));
+  });
+
   it('shows a not-found notice when the code is unknown', async () => {
     apiFetch.mockRejectedValueOnce({ error: { code: 'not_found' } });
     renderAt('nope');
