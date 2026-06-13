@@ -23,9 +23,15 @@ describe('LinkPreviewCard', () => {
     expect(container.querySelector('img')).toHaveAttribute('src', base.image);
   });
 
-  it('falls back to the hostname when there is no site_name, and omits the image', () => {
-    const { container } = render(<LinkPreviewCard preview={{ url: 'https://blog.example.com/x', provider: 'web' }} />);
+  it('renders the description', () => {
+    render(<LinkPreviewCard preview={base} />);
+    expect(screen.getByText('Some description')).toBeInTheDocument();
+  });
+
+  it('falls back to the hostname when there is no site_name, and uses the compact (imageless) layout', () => {
+    const { container } = render(<LinkPreviewCard preview={{ url: 'https://blog.example.com/x', provider: 'web', title: 'No image here' }} />);
     expect(screen.getByText('blog.example.com')).toBeInTheDocument();
+    expect(screen.getByText('No image here')).toBeInTheDocument(); // compact layout still shows the title
     expect(container.querySelector('img')).toBeNull();
   });
 
