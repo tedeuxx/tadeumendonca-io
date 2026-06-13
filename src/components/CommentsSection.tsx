@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Loader2, Trash2, LogIn } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { usePostComments, useCreateComment, useDeleteComment } from '../hooks/useComments';
+import { LinkPreviewCard } from './LinkPreviewCard';
 import type { Comment } from '../types/post';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -88,6 +89,13 @@ function CommentRow({ comment, postId }: { comment: Comment; postId: string }) {
           )}
         </div>
         <p className="mt-0.5 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{comment.body}</p>
+        {comment.link_previews && comment.link_previews.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {comment.link_previews.map((p) => (
+              <LinkPreviewCard key={p.url} preview={p} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

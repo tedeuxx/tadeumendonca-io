@@ -33,6 +33,7 @@ export interface Comment {
   author_sub: string;
   author_name: string;
   body: string;
+  link_previews?: LinkPreview[]; // server-derived rich previews of curated body URLs
   created_at: string;
 }
 
