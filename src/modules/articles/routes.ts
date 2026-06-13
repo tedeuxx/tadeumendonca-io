@@ -7,6 +7,8 @@ import type { BffApp } from '../../shared/types/app';
 import { ARTICLE_FEED_PK, type Article } from '../../shared/types/entities';
 import { listPublished, getBySlug, createArticle, saveArticle, deleteArticle } from './repository';
 import { createShortLink, repointShortLink } from '../shortlinks/repository';
+import { resolveBodyPreviews } from '../unfurl/resolve';
+import { LinkPreviewSchema } from '../unfurl/routes';
 import { requireGroup } from '../../shared/auth/authorize';
 import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
 
@@ -37,6 +39,7 @@ const ArticleSchema = z
     published: z.boolean(),
     author_sub: z.string().optional(),
     short_code: z.string().optional(),
+    link_previews: z.array(LinkPreviewSchema).optional(),
     created_at: z.string(),
     updated_at: z.string().optional(),
   })
@@ -127,6 +130,7 @@ export function registerArticles(app: BffApp): void {
       const input = c.req.valid('json');
       const slug = slugify(input.slug || input.title);
       if (await getBySlug(slug)) throw new ConflictError(`slug already exists: ${slug}`);
+      const link_previews = await resolveBodyPreviews(input.body); // server-authoritative unfurl
       const article: Article = {
         article_id: nanoid(),
         slug,
@@ -139,6 +143,7 @@ export function registerArticles(app: BffApp): void {
         short_code: await createShortLink(slug, 'article'), // share URL: /p/<short_code> → /blog/<slug>
         created_at: new Date().toISOString(),
         ...(input.published ? { gsi_pk: ARTICLE_FEED_PK } : {}), // sparse by-created index
+        ...(link_previews.length ? { link_previews } : {}),
       };
       await createArticle(article);
       return c.json(toApi(article), 201);
@@ -171,6 +176,7 @@ export function registerArticles(app: BffApp): void {
       if (!existing) throw new NotFoundError('article not found');
       const slug = slugify(input.slug || input.title);
       if (slug !== existing.slug && (await getBySlug(slug))) throw new ConflictError(`slug already exists: ${slug}`);
+      const link_previews = await resolveBodyPreviews(input.body); // re-resolve on edit
       const updated: Article = {
         ...existing,
         slug,
@@ -181,6 +187,7 @@ export function registerArticles(app: BffApp): void {
         published: input.published,
         updated_at: new Date().toISOString(),
         gsi_pk: input.published ? ARTICLE_FEED_PK : undefined, // removeUndefinedValues drops it → sparse
+        link_previews: link_previews.length ? link_previews : undefined, // removeUndefinedValues drops it
       };
       // Slug changed → repoint the existing short link so shared /p/<code> URLs keep resolving.
       if (slug !== existing.slug && existing.short_code) await repointShortLink(existing.short_code, slug);

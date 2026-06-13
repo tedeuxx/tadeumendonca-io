@@ -81,7 +81,14 @@ export async function safeFetch(raw: string, opts: { maxBytes: number; timeoutMs
       const res = await fetch(current, {
         redirect: 'manual',
         signal: controller.signal,
-        headers: { 'user-agent': 'tadeumendonca-unfurl/1.0 (+https://tadeumendonca.io)', accept: '*/*' },
+        // Identify as a link-preview crawler. Sites (YouTube, news, social) serve their Open Graph
+        // page to the recognised `facebookexternalhit` token — even from datacenter IPs that otherwise
+        // get a consent/bot interstitial — which is exactly how WhatsApp/LinkedIn build rich cards. We
+        // keep our own +URL appended so the request is still honestly attributable to us.
+        headers: {
+          'user-agent': 'facebookexternalhit/1.1 (+https://tadeumendonca.io/unfurl) tadeumendonca-unfurl/1.0',
+          accept: 'text/html,application/xhtml+xml,*/*',
+        },
       });
       if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
         current = parseSafeUrl(new URL(res.headers.get('location')!, current).toString());

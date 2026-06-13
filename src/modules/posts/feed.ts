@@ -10,7 +10,7 @@ import type { Post, Article } from '../../shared/types/entities';
 
 export type FeedItem =
   | ({ kind: 'post' } & Omit<Post, 'gsi_pk'>)
-  | { kind: 'article'; article_id: string; slug: string; tag: string; title: string; excerpt?: string; short_code?: string; created_at: string };
+  | { kind: 'article'; article_id: string; slug: string; tag: string; title: string; excerpt?: string; short_code?: string; link_previews?: Article['link_previews']; created_at: string };
 
 export interface FeedPage {
   items: FeedItem[];
@@ -41,6 +41,7 @@ const toArticleItem = (a: Article): FeedItem => ({
   title: a.title,
   excerpt: a.excerpt,
   short_code: a.short_code,
+  link_previews: a.link_previews,
   created_at: a.created_at,
 });
 

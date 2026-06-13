@@ -2,6 +2,10 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 vi.mock('../../../shared/db/client', () => ({ ddb: { send } }));
+// Unfurl is exercised in its own module; here we stub it (default: no previews) so article tests stay
+// hermetic. The link-preview test overrides it per-call.
+const { resolveBodyPreviews } = vi.hoisted(() => ({ resolveBodyPreviews: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../unfurl/resolve', () => ({ resolveBodyPreviews }));
 
 import { app } from '../../../index';
 
@@ -102,6 +106,20 @@ describe('POST /articles (admin)', () => {
     expect(res.status).toBe(201);
     expect(send.mock.calls[2][0].input.Item.gsi_pk).toBeUndefined();
   });
+  it('resolves and stores link previews from the body (unfurl)', async () => {
+    resolveBodyPreviews.mockResolvedValueOnce([{ url: 'https://youtu.be/abc', provider: 'YouTube', title: 'Vid' }]);
+    send.mockResolvedValueOnce({ Items: [] }); // getBySlug → free
+    send.mockResolvedValueOnce({}); // createShortLink Put
+    send.mockResolvedValueOnce({}); // createArticle
+    const withLink = JSON.stringify({ title: 'Has a link', body: 'see https://youtu.be/abc', tag: 'aws', published: true });
+    const res = await app.request('/articles', { method: 'POST', headers, body: withLink }, claims('admin'));
+    expect(res.status).toBe(201);
+    const created = (await res.json()) as { link_previews?: { provider: string }[] };
+    expect(created.link_previews?.[0].provider).toBe('YouTube');
+    // calls: [0] getBySlug, [1] shortlink Put, [2] article Put — the stored item carries the previews
+    expect(send.mock.calls[2][0].input.Item.link_previews[0].title).toBe('Vid');
+  });
+
   it('409s when the slug already exists', async () => {
     send.mockResolvedValueOnce({ Items: [article] }); // getBySlug → taken
     const res = await app.request('/articles', { method: 'POST', headers, body }, claims('admin'));
