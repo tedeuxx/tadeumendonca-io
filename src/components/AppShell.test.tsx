@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { onlineManager } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }));
 vi.mock('../auth/authStore', () => ({ useAuth }));
+// The aside's PollWidget queries the BFF — stub it to "no active poll" so it renders nothing and the
+// shell tests stay focused on the chrome (the real app supplies the QueryClientProvider at the root).
+vi.mock('../lib/api', () => ({ apiFetch: vi.fn().mockResolvedValue({ items: [] }), authedFetch: vi.fn() }));
 
 import { AppShell } from './AppShell';
 
@@ -15,11 +18,13 @@ afterEach(() => act(() => onlineManager.setOnline(true)));
 
 const renderShell = () =>
   render(
-    <MemoryRouter>
-      <AppShell>
-        <div>child content</div>
-      </AppShell>
-    </MemoryRouter>,
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <MemoryRouter>
+        <AppShell>
+          <div>child content</div>
+        </AppShell>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 
 describe('AppShell', () => {

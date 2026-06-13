@@ -9,6 +9,7 @@ import { useAuth } from '../auth/authStore';
 import { useOnline } from '../hooks/useOnline';
 import { InstallPrompt } from './InstallPrompt';
 import { SocialLinksWidget } from './SocialLinksWidget';
+import { PollWidget } from './PollWidget';
 import { cn } from '../lib/cn';
 
 function OfflineBanner() {
@@ -125,6 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="mx-auto w-full max-w-3xl">{children}</div>
         </main>
         <aside className="hidden w-[320px] shrink-0 flex-col gap-4 p-4 xl:flex">
+          <PollWidget />
           <SocialLinksWidget />
           <ComponentsPanel />
         </aside>

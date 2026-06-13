@@ -24,6 +24,7 @@ export const queryClient = new QueryClient({
 
 export type ReactionVars = { postId: string; emoji: string; method: 'POST' | 'DELETE' };
 export type CommentVars = { postId: string; body: string; author_name: string };
+export type VoteVars = { pollId: string; optionId: string };
 
 // Keyed mutation defaults carry the request fn + reconciliation so a persisted, paused mutation can
 // replay after a full reload (when the originating hook is long gone). Installed on a passed client so
@@ -42,6 +43,20 @@ export function installMutationDefaults(client: QueryClient): void {
     onSuccess: (_data: unknown, vars: ReactionVars) => {
       void client.invalidateQueries({ queryKey: ['feed'] });
       void client.invalidateQueries({ queryKey: ['post', vars.postId] });
+    },
+  });
+  // Poll votes — public (no auth), anonymous, one-per-browser (the hook dedupes via localStorage).
+  // Reconcile the current-poll query to the server's authoritative counts (matters when a queued vote
+  // finally lands after reload). The body is snake_case (option_id) to mirror the BFF.
+  client.setMutationDefaults(['vote'], {
+    mutationFn: (vars: VoteVars) =>
+      apiFetch(`/polls/${vars.pollId}/votes`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ option_id: vars.optionId }),
+      }),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['polls'] });
     },
   });
   // Comments — authenticated + post-moderated; refresh the list + the post's denormalized count.
