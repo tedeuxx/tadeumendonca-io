@@ -8,6 +8,8 @@ import type { BffApp } from '../../shared/types/app';
 import type { Comment } from '../../shared/types/entities';
 import { requireAuth } from '../../shared/auth/authorize';
 import { listByPost, addComment, getComment, deleteComment } from './repository';
+import { resolveBodyPreviews } from '../unfurl/resolve';
+import { LinkPreviewSchema } from '../unfurl/routes';
 import { NotFoundError, UnauthorizedError } from '../../shared/errors/http-errors';
 
 const SECURED = [{ CognitoAuth: [] }];
@@ -19,6 +21,7 @@ const CommentSchema = z
     author_sub: z.string(),
     author_name: z.string(),
     body: z.string(),
+    link_previews: z.array(LinkPreviewSchema).optional(),
     created_at: z.string(),
   })
   .openapi('Comment');
@@ -65,6 +68,7 @@ export function registerComments(app: BffApp): void {
       const claims = requireAuth(c);
       const { post_id } = c.req.valid('param');
       const input = c.req.valid('json');
+      const link_previews = await resolveBodyPreviews(input.body); // server-authoritative unfurl
       const comment: Comment = {
         comment_id: nanoid(),
         post_id,
@@ -72,6 +76,7 @@ export function registerComments(app: BffApp): void {
         author_name: input.author_name,
         body: input.body,
         created_at: new Date().toISOString(),
+        ...(link_previews.length ? { link_previews } : {}),
       };
       await addComment(comment);
       return c.json(comment, 201);

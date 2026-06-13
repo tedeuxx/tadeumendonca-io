@@ -83,6 +83,7 @@ export interface Comment {
   author_sub: string; // Cognito sub (verified)
   author_name: string; // display name (cosmetic)
   body: string;
+  link_previews?: LinkPreview[]; // server-derived from the body URLs (curated external content)
   created_at: string;
 }
 
