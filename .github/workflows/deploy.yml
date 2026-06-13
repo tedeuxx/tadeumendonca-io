@@ -93,3 +93,14 @@ jobs:
             --distribution-id "${{ steps.cfg.outputs.distribution_id }}" \
             --paths "/*" >/dev/null
           echo "deployed fed to $ENV_NAME"
+
+      # Post-deploy regression: Playwright E2E against the just-deployed environment (public journeys —
+      # /frontend/playwright). Retries (config) absorb CloudFront invalidation lag. Authenticated/admin
+      # journeys wait on a native Cognito test user (Google social-only can't be automated).
+      - name: E2E smoke (Playwright) against the deployed environment
+        env:
+          E2E_ENV: ${{ env.ENV_NAME }}
+        run: |
+          npx playwright install --with-deps chromium
+          sleep 10 # let the CloudFront invalidation propagate before driving the browser
+          npm run e2e
