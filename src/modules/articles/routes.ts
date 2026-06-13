@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import type { BffApp } from '../../shared/types/app';
 import { ARTICLE_FEED_PK, type Article } from '../../shared/types/entities';
 import { listPublished, getBySlug, createArticle, saveArticle, deleteArticle } from './repository';
+import { createShortLink, repointShortLink } from '../shortlinks/repository';
 import { requireGroup } from '../../shared/auth/authorize';
 import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
 
@@ -35,6 +36,7 @@ const ArticleSchema = z
     excerpt: z.string().optional(),
     published: z.boolean(),
     author_sub: z.string().optional(),
+    short_code: z.string().optional(),
     created_at: z.string(),
     updated_at: z.string().optional(),
   })
@@ -134,6 +136,7 @@ export function registerArticles(app: BffApp): void {
         excerpt: input.excerpt,
         published: input.published,
         author_sub: claims.sub,
+        short_code: await createShortLink(slug, 'article'), // share URL: /p/<short_code> → /blog/<slug>
         created_at: new Date().toISOString(),
         ...(input.published ? { gsi_pk: ARTICLE_FEED_PK } : {}), // sparse by-created index
       };
@@ -179,6 +182,8 @@ export function registerArticles(app: BffApp): void {
         updated_at: new Date().toISOString(),
         gsi_pk: input.published ? ARTICLE_FEED_PK : undefined, // removeUndefinedValues drops it → sparse
       };
+      // Slug changed → repoint the existing short link so shared /p/<code> URLs keep resolving.
+      if (slug !== existing.slug && existing.short_code) await repointShortLink(existing.short_code, slug);
       await saveArticle(updated);
       return c.json(toApi(updated), 200);
     },
