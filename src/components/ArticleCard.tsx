@@ -3,6 +3,7 @@
 // "Blog" badge sets it apart from posts in the mixed stream. The tag links into the Blog tag filter.
 import { Link as RouterLink } from 'react-router-dom';
 import { ShareButton, articleShareUrl } from './ShareButton';
+import { LinkPreviewCard } from './LinkPreviewCard';
 import type { ArticleFeedItem } from '../types/post';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -29,6 +30,14 @@ export function ArticleCard({ article }: { article: ArticleFeedItem }) {
       </RouterLink>
 
       {article.excerpt && <p className="mt-2 text-[15px] leading-relaxed text-foreground/80">{article.excerpt}</p>}
+
+      {article.link_previews && article.link_previews.length > 0 && (
+        <div className="mt-3 space-y-3">
+          {article.link_previews.map((p) => (
+            <LinkPreviewCard key={p.url} preview={p} />
+          ))}
+        </div>
+      )}
 
       {/* interaction row — share the article (short URL /p/<code> when present) */}
       <div className="mt-3 flex items-center">

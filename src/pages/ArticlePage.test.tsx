@@ -33,6 +33,20 @@ describe('ArticlePage', () => {
     expect(screen.getByRole('heading', { name: 'Why' })).toBeInTheDocument(); // markdown rendered
   });
 
+  it('renders link-preview cards from the article body', () => {
+    useArticle.mockReturnValue({
+      data: {
+        article_id: 'a1', slug: 'building', tag: 'aws', title: 'Building Serverless', body: 'see https://youtu.be/abc', published: true, created_at: '2026-06-01T00:00:00Z',
+        link_previews: [{ url: 'https://youtu.be/abc', provider: 'YouTube', title: 'A Video', description: 'desc' }],
+      },
+      isLoading: false,
+      isError: false,
+    });
+    renderAt('building');
+    expect(screen.getByText('A Video')).toBeInTheDocument();
+    expect(screen.getByText('desc')).toBeInTheDocument();
+  });
+
   it('shows not-found on error', () => {
     useArticle.mockReturnValue({ data: undefined, isLoading: false, isError: true });
     renderAt('nope');
