@@ -86,10 +86,12 @@ export interface Comment {
   created_at: string;
 }
 
-// Short link: maps an opaque short code to a target (a post for now). Hash key = code.
+// Short link: maps an opaque short code to a target — a post (target_id = post_id) or an article
+// (target_id = slug). Hash key = code. The /p/<code> resolver returns {type, target_id} so the SPA
+// can navigate to the right canonical URL (/posts/<id> vs /blog/<slug>).
 export interface ShortLink {
   code: string; // base62, 7 chars
-  type: 'post';
+  type: 'post' | 'article';
   target_id: string;
   created_at: string;
 }
@@ -123,6 +125,7 @@ export interface Article {
   excerpt?: string;
   published: boolean;
   author_sub?: string;
+  short_code?: string; // share URL code → tadeumendonca.io/p/<short_code> (resolves to /blog/<slug>)
   created_at: string;
   updated_at?: string;
 }

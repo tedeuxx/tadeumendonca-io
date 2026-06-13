@@ -5,16 +5,18 @@
 //   PROFILE_TABLE_NAME=tadeumendonca-profile-staging \
 //   POSTS_TABLE_NAME=tadeumendonca-posts-staging \
 //   ARTICLES_TABLE_NAME=tadeumendonca-articles-staging \
+//   SHORTLINKS_TABLE_NAME=tadeumendonca-shortlinks-staging \
 //   AWS_REGION=us-east-1 npx tsx scripts/seed.ts
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb } from '../src/shared/db/client';
-import { FEED_PK, ARTICLE_FEED_PK, type Profile, type Post, type Article } from '../src/shared/types/entities';
+import { FEED_PK, ARTICLE_FEED_PK, type Profile, type Post, type Article, type ShortLink } from '../src/shared/types/entities';
 
 const profileTable = process.env.PROFILE_TABLE_NAME;
 const postsTable = process.env.POSTS_TABLE_NAME;
 const articlesTable = process.env.ARTICLES_TABLE_NAME;
-if (!profileTable || !postsTable || !articlesTable) {
-  throw new Error('PROFILE_TABLE_NAME, POSTS_TABLE_NAME and ARTICLES_TABLE_NAME are required');
+const shortlinksTable = process.env.SHORTLINKS_TABLE_NAME;
+if (!profileTable || !postsTable || !articlesTable || !shortlinksTable) {
+  throw new Error('PROFILE_TABLE_NAME, POSTS_TABLE_NAME, ARTICLES_TABLE_NAME and SHORTLINKS_TABLE_NAME are required');
 }
 
 // CV content sourced from the owner's Canva design (DAELSwtFAuM) — keep textual.
@@ -88,6 +90,7 @@ const post: Post = {
   title: 'Hello from the feed',
   body: 'First post on the tadeumendonca.io feed. Built on a serverless BFF (Hono on Lambda) with a DynamoDB-backed feed.',
   tags: ['serverless', 'aws'],
+  short_code: 'demopst', // share URL: /p/demopst (shortlink entry written below)
   published: true,
   created_at: '2026-06-09T18:00:00.000Z',
 };
@@ -101,11 +104,20 @@ const article: Article = {
   title: 'Building Serverless on AWS',
   excerpt: 'How tadeumendonca.io is built: Hono BFF on Lambda, DynamoDB, CloudFront — fully serverless.',
   body: '## Why serverless\n\nThis platform runs on a **Hono** BFF on Lambda, DynamoDB, and CloudFront.\n\n- No servers to manage\n- Pay per request\n- Scales to zero',
+  short_code: 'demoart', // share URL: /p/demoart → /blog/<slug> (shortlink entry written below)
   published: true,
   created_at: '2026-06-09T19:00:00.000Z',
 };
 
+// Share-code entries so the demo post/article resolve at /p/<code> (the create path makes these for
+// real content; the seed mirrors it). Post target = post_id; article target = slug.
+const seededAt = new Date().toISOString();
+const postShortLink: ShortLink = { code: post.short_code!, type: 'post', target_id: post.post_id, created_at: seededAt };
+const articleShortLink: ShortLink = { code: article.short_code!, type: 'article', target_id: article.slug, created_at: seededAt };
+
 await ddb.send(new PutCommand({ TableName: profileTable, Item: profile }));
 await ddb.send(new PutCommand({ TableName: postsTable, Item: post }));
 await ddb.send(new PutCommand({ TableName: articlesTable, Item: article }));
-console.log(`seeded profile + 1 post + 1 article (published items carry gsi_pk)`);
+await ddb.send(new PutCommand({ TableName: shortlinksTable, Item: postShortLink }));
+await ddb.send(new PutCommand({ TableName: shortlinksTable, Item: articleShortLink }));
+console.log(`seeded profile + 1 post + 1 article + 2 short links (published items carry gsi_pk)`);

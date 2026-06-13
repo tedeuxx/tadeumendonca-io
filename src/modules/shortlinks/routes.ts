@@ -6,7 +6,7 @@ import type { BffApp } from '../../shared/types/app';
 import { resolveCode } from './repository';
 import { NotFoundError } from '../../shared/errors/http-errors';
 
-const ResolvedSchema = z.object({ type: z.literal('post'), target_id: z.string() }).openapi('ResolvedShortLink');
+const ResolvedSchema = z.object({ type: z.enum(['post', 'article']), target_id: z.string() }).openapi('ResolvedShortLink');
 
 export function registerShortlinks(app: BffApp): void {
   app.openapi(

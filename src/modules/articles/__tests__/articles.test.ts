@@ -78,23 +78,29 @@ describe('POST /articles (admin)', () => {
   });
   it('creates with a slug derived from the title; published → sparse gsi_pk, stripped from the response', async () => {
     send.mockResolvedValueOnce({ Items: [] }); // getBySlug → free
+    send.mockResolvedValueOnce({}); // createShortLink Put
     send.mockResolvedValueOnce({}); // createArticle
     const res = await app.request('/articles', { method: 'POST', headers, body }, claims('admin'));
     expect(res.status).toBe(201);
     const created = (await res.json()) as Record<string, unknown>;
     expect(created.slug).toBe('my-new-article');
     expect(created.gsi_pk).toBeUndefined(); // index key not exposed
-    expect(send.mock.calls[1][0].input.Item.author_sub).toBe('u-1');
-    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBe('ARTICLE'); // published → indexed
+    expect(created.short_code).toBeTruthy(); // share code generated
+    // calls: [0] getBySlug, [1] shortlink Put (type article, target = slug), [2] article Put
+    expect(send.mock.calls[1][0].input.Item.type).toBe('article');
+    expect(send.mock.calls[1][0].input.Item.target_id).toBe('my-new-article');
+    expect(send.mock.calls[2][0].input.Item.author_sub).toBe('u-1');
+    expect(send.mock.calls[2][0].input.Item.gsi_pk).toBe('ARTICLE'); // published → indexed
   });
 
   it('creates a draft without a gsi_pk (stays out of the by-created index)', async () => {
     send.mockResolvedValueOnce({ Items: [] }); // getBySlug → free
+    send.mockResolvedValueOnce({}); // createShortLink Put
     send.mockResolvedValueOnce({}); // createArticle
     const draft = JSON.stringify({ title: 'A Draft', body: 'wip', tag: 'aws', published: false });
     const res = await app.request('/articles', { method: 'POST', headers, body: draft }, claims('admin'));
     expect(res.status).toBe(201);
-    expect(send.mock.calls[1][0].input.Item.gsi_pk).toBeUndefined();
+    expect(send.mock.calls[2][0].input.Item.gsi_pk).toBeUndefined();
   });
   it('409s when the slug already exists', async () => {
     send.mockResolvedValueOnce({ Items: [article] }); // getBySlug → taken
@@ -120,6 +126,18 @@ describe('PUT/DELETE /articles/{slug} (admin)', () => {
     expect(res.status).toBe(200);
     expect(send.mock.calls[1][0].input.Item.gsi_pk).toBeUndefined();
   });
+  it('repoints the short link when the slug changes (shared /p/<code> keeps resolving)', async () => {
+    send.mockResolvedValueOnce({ Items: [{ ...article, short_code: 'art1234' }] }); // getBySlug current
+    send.mockResolvedValueOnce({ Items: [] }); // getBySlug(new slug) → free
+    send.mockResolvedValueOnce({}); // repointShortLink Update
+    send.mockResolvedValueOnce({}); // saveArticle
+    const res = await app.request('/articles/hello-world', { method: 'PUT', headers, body: JSON.stringify({ title: 'Brand New Title', body: 'edited', tag: 'aws', published: true }) }, claims('admin'));
+    expect(res.status).toBe(200);
+    // calls: [0] getBySlug, [1] uniqueness query, [2] repoint Update, [3] saveArticle
+    expect(send.mock.calls[2][0].input.Key).toEqual({ code: 'art1234' });
+    expect(send.mock.calls[2][0].input.ExpressionAttributeValues[':t']).toBe('brand-new-title');
+  });
+
   it('404s updating a missing article', async () => {
     send.mockResolvedValueOnce({ Items: [] });
     const res = await app.request('/articles/nope', { method: 'PUT', headers, body: JSON.stringify({ title: 'x', body: 'b', tag: 't', published: false }) }, claims('admin'));
