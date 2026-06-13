@@ -1,4 +1,4 @@
-// One-off: seed demo content — the profile (CV), one feed post, one blog article. Idempotent (fixed
+// One-off: seed demo content — the profile (CV), one feed post, one blog article, one poll. Idempotent (fixed
 // ids + PutCommand overwrite). Published items carry the SPARSE by-created key (gsi_pk), exactly like
 // the create path, so they appear in the feed/list (a row without it stays out of the index). Run with
 // the three table names + AWS creds that allow PutItem:
@@ -6,17 +6,19 @@
 //   POSTS_TABLE_NAME=tadeumendonca-posts-staging \
 //   ARTICLES_TABLE_NAME=tadeumendonca-articles-staging \
 //   SHORTLINKS_TABLE_NAME=tadeumendonca-shortlinks-staging \
+//   POLLS_TABLE_NAME=tadeumendonca-polls-staging \
 //   AWS_REGION=us-east-1 npx tsx scripts/seed.ts
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb } from '../src/shared/db/client';
-import { FEED_PK, ARTICLE_FEED_PK, type Profile, type Post, type Article, type ShortLink } from '../src/shared/types/entities';
+import { FEED_PK, ARTICLE_FEED_PK, POLL_FEED_PK, type Profile, type Post, type Article, type ShortLink, type Poll } from '../src/shared/types/entities';
 
 const profileTable = process.env.PROFILE_TABLE_NAME;
 const postsTable = process.env.POSTS_TABLE_NAME;
 const articlesTable = process.env.ARTICLES_TABLE_NAME;
 const shortlinksTable = process.env.SHORTLINKS_TABLE_NAME;
-if (!profileTable || !postsTable || !articlesTable || !shortlinksTable) {
-  throw new Error('PROFILE_TABLE_NAME, POSTS_TABLE_NAME, ARTICLES_TABLE_NAME and SHORTLINKS_TABLE_NAME are required');
+const pollsTable = process.env.POLLS_TABLE_NAME;
+if (!profileTable || !postsTable || !articlesTable || !shortlinksTable || !pollsTable) {
+  throw new Error('PROFILE_TABLE_NAME, POSTS_TABLE_NAME, ARTICLES_TABLE_NAME, SHORTLINKS_TABLE_NAME and POLLS_TABLE_NAME are required');
 }
 
 // CV content sourced from the owner's Canva design (DAELSwtFAuM) — keep textual.
@@ -109,6 +111,23 @@ const article: Article = {
   created_at: '2026-06-09T19:00:00.000Z',
 };
 
+// Published → gsi_pk set so it surfaces in the aside PollWidget (by-created GSI). Stable option ids so
+// the demo's vote_counts stay meaningful across re-seeds (the create path generates these for real
+// polls; the seed fixes them). Entity is `poll` (English) though the UI label is "Enquete".
+const poll: Poll = {
+  poll_id: 'poll-favorite-service',
+  gsi_pk: POLL_FEED_PK,
+  question: 'Qual serviço AWS você mais usa no dia a dia?',
+  options: [
+    { id: 'opt-lambda', label: 'Lambda' },
+    { id: 'opt-dynamodb', label: 'DynamoDB' },
+    { id: 'opt-s3', label: 'S3' },
+    { id: 'opt-ecs', label: 'ECS / Fargate' },
+  ],
+  published: true,
+  created_at: '2026-06-09T20:00:00.000Z',
+};
+
 // Share-code entries so the demo post/article resolve at /p/<code> (the create path makes these for
 // real content; the seed mirrors it). Post target = post_id; article target = slug.
 const seededAt = new Date().toISOString();
@@ -120,4 +139,5 @@ await ddb.send(new PutCommand({ TableName: postsTable, Item: post }));
 await ddb.send(new PutCommand({ TableName: articlesTable, Item: article }));
 await ddb.send(new PutCommand({ TableName: shortlinksTable, Item: postShortLink }));
 await ddb.send(new PutCommand({ TableName: shortlinksTable, Item: articleShortLink }));
-console.log(`seeded profile + 1 post + 1 article + 2 short links (published items carry gsi_pk)`);
+await ddb.send(new PutCommand({ TableName: pollsTable, Item: poll }));
+console.log(`seeded profile + 1 post + 1 article + 2 short links + 1 poll (published items carry gsi_pk)`);

@@ -23,4 +23,7 @@ export const TABLES = {
   get shortlinks() {
     return process.env.SHORTLINKS_TABLE_NAME ?? '';
   },
+  get polls() {
+    return process.env.POLLS_TABLE_NAME ?? '';
+  },
 };

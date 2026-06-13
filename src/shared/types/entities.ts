@@ -131,3 +131,28 @@ export interface Article {
   created_at: string;
   updated_at?: string;
 }
+
+// Poll / "enquete" (Phase 2). Hash key = poll_id (opaque). The `by-created` GSI (gsi_pk, created_at)
+// lists published polls newest-first for the aside widget. Like posts/articles it is SPARSE: gsi_pk =
+// "POLL" is set ONLY when published, so drafts never appear in it and the read path is a Query, never a
+// Scan. Votes are PUBLIC and anonymous (the SPA dedupes one-per-browser via localStorage) and stored
+// DENORMALIZED as a vote_counts map (option_id → count) ADDed atomically on the item — no votes table.
+// Entity names are English even though the UI label is pt-BR ("Enquete") (/infrastructure/dynamodb).
+export const POLL_FEED_PK = 'POLL';
+
+export interface PollOption {
+  id: string; // opaque, server-generated; stable across edits so vote_counts stays meaningful
+  label: string;
+}
+
+export interface Poll {
+  poll_id: string; // opaque nanoid
+  gsi_pk?: typeof POLL_FEED_PK; // present iff published — sparse by-created index
+  question: string;
+  options: PollOption[]; // 2..10 choices
+  vote_counts?: Record<string, number>; // option_id → count, denormalized on the item (public votes)
+  published: boolean;
+  author_sub?: string; // Cognito sub of the admin author
+  created_at: string; // ISO-8601
+  updated_at?: string;
+}
