@@ -126,6 +126,7 @@ export interface Article {
   published: boolean;
   author_sub?: string;
   short_code?: string; // share URL code → tadeumendonca.io/p/<short_code> (resolves to /blog/<slug>)
+  link_previews?: LinkPreview[]; // server-derived from the body URLs (curated external content)
   created_at: string;
   updated_at?: string;
 }
