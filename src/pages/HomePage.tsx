@@ -9,7 +9,7 @@ export function HomePage() {
 
   return (
     <div>
-      <ColumnHeader title="Perfil" />
+      <ColumnHeader title="Quem Sou" />
       {isLoading && <CenterLoader />}
       {isError && <Notice>Não foi possível carregar o perfil. Tente novamente mais tarde.</Notice>}
       {!isLoading && !isError && !profile && <Empty>Perfil ainda não disponível.</Empty>}

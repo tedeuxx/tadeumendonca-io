@@ -15,4 +15,11 @@ test.describe('feed (home)', () => {
     await expect(page).toHaveURL(/\/blog$/);
     await expect(page.getByRole('heading', { name: 'Blog' })).toBeVisible();
   });
+
+  test('navigates to the profile via the "Quem Sou" nav label', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Quem Sou' }).click();
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(page.getByRole('heading', { name: 'Quem Sou' })).toBeVisible();
+  });
 });

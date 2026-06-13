@@ -4,6 +4,8 @@ import { test, expect } from '@playwright/test';
 test.describe('content detail', () => {
   test('opens an article (blog) by slug and renders its markdown', async ({ page }) => {
     await page.goto('/blog/building-serverless-on-aws');
+    // The detail header reads "Blog" (not "Artigo") — the article surface is labelled Blog.
+    await expect(page.getByRole('heading', { name: 'Blog', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Building Serverless on AWS' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Why serverless' })).toBeVisible(); // markdown body rendered
   });
