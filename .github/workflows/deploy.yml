@@ -87,18 +87,28 @@ jobs:
           OPENAPI_OUT: openapi.aws.json
         run: |
           npx tsx scripts/build-openapi-aws.ts
+          api_id="${{ steps.cfg.outputs.api_id }}"
           aws apigateway put-rest-api \
-            --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
+            --rest-api-id "$api_id" \
             --mode overwrite \
             --body "fileb://openapi.aws.json" >/dev/null
           # put-rest-api is "synchronous" but the resource graph settles asynchronously — an immediate
           # create-deployment can snapshot BEFORE newly-added routes register, so the live stage serves
-          # 403 "Missing Authentication Token" for the new paths. Settle first, then a SINGLE deployment
+          # 403 "Missing Authentication Token" for the new paths. A fixed sleep is fragile: adding N new
+          # routes needs more settle time than one. Instead POLL get-resources until the count is stable
+          # across two consecutive reads (so the just-added paths are present), THEN deploy exactly once
           # (create-deployment is aggressively rate-limited account-wide — back-to-back calls trip
-          # TooManyRequestsException, so do exactly one).
-          sleep 15
+          # TooManyRequestsException).
+          prev=-1
+          for _ in $(seq 1 18); do
+            sleep 5
+            count="$(aws apigateway get-resources --rest-api-id "$api_id" --limit 500 --query 'length(items)' --output text)"
+            echo "resource graph: $count resources (prev $prev)"
+            [ "$count" = "$prev" ] && break
+            prev="$count"
+          done
           aws apigateway create-deployment \
-            --rest-api-id "${{ steps.cfg.outputs.api_id }}" \
+            --rest-api-id "$api_id" \
             --stage-name live --description "$API_VERSION" >/dev/null
           echo "deployed BFF + contract to $ENV_NAME"
 
