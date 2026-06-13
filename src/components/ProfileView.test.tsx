@@ -49,12 +49,14 @@ describe('ProfileView', () => {
     const p: Profile = {
       ...profile,
       education: [{ institution: 'PUC-Rio', degree: "Bachelor's Degree", field: 'IT', start_date: '', end_date: '2010' }],
-      metadata: { linkedin: 'https://www.linkedin.com/in/x/', medium: 'https://x.medium.com' },
+      // 'twitter' is not in the label map → falls back to the raw key.
+      metadata: { linkedin: 'https://www.linkedin.com/in/x/', medium: 'https://x.medium.com', twitter: 'https://x.com/y' },
     };
     render(<ProfileView profile={p} />);
     // lowercase keys render with friendly casing
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/x/');
     expect(screen.getByRole('link', { name: 'Medium' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'twitter' })).toBeInTheDocument(); // unknown key → raw fallback
     // no start date → just the year, no leading "–"
     expect(screen.getByText('2010')).toBeInTheDocument();
     expect(screen.queryByText('– 2010')).not.toBeInTheDocument();
