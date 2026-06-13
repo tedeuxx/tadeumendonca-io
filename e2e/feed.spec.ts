@@ -22,4 +22,13 @@ test.describe('feed (home)', () => {
     await expect(page).toHaveURL(/\/profile$/);
     await expect(page.getByRole('heading', { name: 'Quem Sou' })).toBeVisible();
   });
+
+  test('shows the social links widget (xl aside) with a WhatsApp click-to-message link', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 }); // xl+ so the aside renders
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Onde me encontrar' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'GitHub' })).toBeVisible();
+    const wa = page.getByRole('link', { name: 'WhatsApp' });
+    await expect(wa).toHaveAttribute('href', /wa\.me\/5521986619954\?text=/);
+  });
 });
