@@ -15,13 +15,26 @@ const auth = (sub: string, groups?: string) => ({
 afterEach(() => vi.clearAllMocks());
 
 describe('GET /posts/{id}/comments (public)', () => {
-  it('lists comments oldest-first', async () => {
-    send.mockResolvedValueOnce({ Items: [{ comment_id: 'c1', post_id: 'p1', author_name: 'Ana', body: 'hi', created_at: 't' }] });
+  it('lists comments oldest-first and enriches each with the author’s current avatar', async () => {
+    send
+      .mockResolvedValueOnce({ Items: [{ comment_id: 'c1', post_id: 'p1', author_sub: 'u-1', author_name: 'Ana', body: 'hi', created_at: 't' }] }) // by-post Query
+      .mockResolvedValueOnce({ Responses: { [process.env.USERS_TABLE_NAME ?? '']: [{ cognito_sub: 'u-1', avatar_key: 'avatars/u-1-x.png' }] } }); // BatchGet avatars
     const res = await app.request('/posts/p1/comments');
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { items: unknown[] };
+    const body = (await res.json()) as { items: { author_avatar_key?: string }[] };
     expect(body.items).toHaveLength(1);
+    expect(body.items[0].author_avatar_key).toBe('avatars/u-1-x.png');
     expect(send.mock.calls[0][0].input.IndexName).toBe('by-post');
+    expect(send.mock.calls[1][0].constructor.name).toBe('BatchGetCommand');
+  });
+
+  it('omits the avatar when the author has none', async () => {
+    send
+      .mockResolvedValueOnce({ Items: [{ comment_id: 'c1', post_id: 'p1', author_sub: 'u-2', author_name: 'Bo', body: 'hi', created_at: 't' }] })
+      .mockResolvedValueOnce({ Responses: { [process.env.USERS_TABLE_NAME ?? '']: [] } }); // no avatar item
+    const res = await app.request('/posts/p1/comments');
+    const body = (await res.json()) as { items: { author_avatar_key?: string }[] };
+    expect(body.items[0].author_avatar_key).toBeUndefined();
   });
 });
 

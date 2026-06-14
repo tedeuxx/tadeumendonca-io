@@ -8,6 +8,7 @@ import type { BffApp } from '../../shared/types/app';
 import type { Comment } from '../../shared/types/entities';
 import { requireAuth } from '../../shared/auth/authorize';
 import { listByPost, addComment, getComment, deleteComment } from './repository';
+import { getAvatarKeysBySub } from '../users/repository';
 import { resolveBodyPreviews } from '../unfurl/resolve';
 import { LinkPreviewSchema } from '../unfurl/routes';
 import { NotFoundError, UnauthorizedError } from '../../shared/errors/http-errors';
@@ -20,6 +21,7 @@ const CommentSchema = z
     post_id: z.string(),
     author_sub: z.string(),
     author_name: z.string(),
+    author_avatar_key: z.string().optional(), // read-time enrichment (assets key); SPA → /assets/<key>
     body: z.string(),
     link_previews: z.array(LinkPreviewSchema).optional(),
     created_at: z.string(),
@@ -46,7 +48,11 @@ export function registerComments(app: BffApp): void {
     async (c) => {
       const { post_id } = c.req.valid('param');
       const { limit, cursor } = c.req.valid('query');
-      return c.json(await listByPost(post_id, limit, cursor), 200);
+      const page = await listByPost(post_id, limit, cursor);
+      // Enrich with each author's current avatar (read-time, BatchGetItem on the users table).
+      const avatars = await getAvatarKeysBySub(page.items.map((c) => c.author_sub));
+      const items = page.items.map((c) => ({ ...c, author_avatar_key: avatars.get(c.author_sub) }));
+      return c.json({ items, next_cursor: page.next_cursor }, 200);
     },
   );
 

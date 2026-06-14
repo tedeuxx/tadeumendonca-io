@@ -142,6 +142,24 @@ describe('POST /me/avatar', () => {
   });
 });
 
+describe('getAvatarKeysBySub', () => {
+  it('returns an empty map without a DB call for no subs', async () => {
+    const { getAvatarKeysBySub } = await import('../repository');
+    const map = await getAvatarKeysBySub([]);
+    expect(map.size).toBe(0);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('BatchGets distinct subs and maps only those with an avatar', async () => {
+    send.mockResolvedValueOnce({ Responses: { [process.env.USERS_TABLE_NAME ?? '']: [{ cognito_sub: 'u-1', avatar_key: 'avatars/u-1.png' }, { cognito_sub: 'u-2' }] } });
+    const { getAvatarKeysBySub } = await import('../repository');
+    const map = await getAvatarKeysBySub(['u-1', 'u-2', 'u-1']); // dup collapses
+    expect(map.get('u-1')).toBe('avatars/u-1.png');
+    expect(map.has('u-2')).toBe(false); // no avatar_key → not mapped
+    expect(send.mock.calls[0][0].constructor.name).toBe('BatchGetCommand');
+  });
+});
+
 describe('listByDigestSchedule', () => {
   it('Queries the by-digest GSI for a cadence and follows pagination', async () => {
     send
