@@ -8,6 +8,7 @@ import { ARTICLE_FEED_PK, type Article } from '../../shared/types/entities';
 import { listPublished, getBySlug, createArticle, saveArticle, deleteArticle } from './repository';
 import { createShortLink, repointShortLink } from '../shortlinks/repository';
 import { resolveBodyPreviews } from '../unfurl/resolve';
+import { sanitizeArticleHtml } from '../../shared/render/sanitize';
 import { LinkPreviewSchema } from '../unfurl/routes';
 import { requireGroup } from '../../shared/auth/authorize';
 import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
@@ -35,6 +36,7 @@ const ArticleSchema = z
     tag: z.string(),
     title: z.string(),
     body: z.string(),
+    content_format: z.enum(['markdown', 'html']).optional(),
     excerpt: z.string().optional(),
     published: z.boolean(),
     author_sub: z.string().optional(),
@@ -49,6 +51,8 @@ const ArticleInput = z
   .object({
     title: z.string().min(1).max(200),
     body: z.string().min(1),
+    // 'html' bodies (Phase-4 rich editor) are sanitized server-side; 'markdown' is the legacy/default.
+    content_format: z.enum(['markdown', 'html']).default('markdown'),
     tag: z.string().min(1).max(40),
     excerpt: z.string().max(300).optional(),
     slug: z.string().max(80).optional(),
@@ -130,13 +134,15 @@ export function registerArticles(app: BffApp): void {
       const input = c.req.valid('json');
       const slug = slugify(input.slug || input.title);
       if (await getBySlug(slug)) throw new ConflictError(`slug already exists: ${slug}`);
-      const link_previews = await resolveBodyPreviews(input.body); // server-authoritative unfurl
+      const body = input.content_format === 'html' ? sanitizeArticleHtml(input.body) : input.body; // server-authoritative
+      const link_previews = await resolveBodyPreviews(body); // server-authoritative unfurl
       const article: Article = {
         article_id: nanoid(),
         slug,
         tag: input.tag,
         title: input.title,
-        body: input.body,
+        body,
+        content_format: input.content_format,
         excerpt: input.excerpt,
         published: input.published,
         author_sub: claims.sub,
@@ -176,13 +182,15 @@ export function registerArticles(app: BffApp): void {
       if (!existing) throw new NotFoundError('article not found');
       const slug = slugify(input.slug || input.title);
       if (slug !== existing.slug && (await getBySlug(slug))) throw new ConflictError(`slug already exists: ${slug}`);
-      const link_previews = await resolveBodyPreviews(input.body); // re-resolve on edit
+      const body = input.content_format === 'html' ? sanitizeArticleHtml(input.body) : input.body; // server-authoritative
+      const link_previews = await resolveBodyPreviews(body); // re-resolve on edit
       const updated: Article = {
         ...existing,
         slug,
         tag: input.tag,
         title: input.title,
-        body: input.body,
+        body,
+        content_format: input.content_format,
         excerpt: input.excerpt,
         published: input.published,
         updated_at: new Date().toISOString(),

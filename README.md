@@ -22,6 +22,20 @@ BFF-oriented serverless API. Each Lambda function handles a bounded domain. Dyna
 - `/feed` — Content feed (public read, admin write)
 - `/articles` — Long-form articles
 
+## Configuration
+
+Runtime config is read from **environment variables** injected by the IaC (table/bucket names, etc.).
+Most are non-sensitive resource names. Sensitive third-party credentials are **never** put in env — the
+IaC injects only the **secret ARN** and the BFF fetches the value from **AWS Secrets Manager** at runtime
+(cached for the container lifetime; see `src/shared/secrets.ts`):
+
+| Env var | Purpose | Source |
+| --- | --- | --- |
+| `GIPHY_SECRET_ARN` | ARN of the Giphy key for blog-editor GIF search (server-side proxy — the key never reaches the browser) | Secrets Manager `tadeumendonca/<env>/giphy-api-key` |
+
+To obtain and register the Giphy key (and the other out-of-band secrets), see
+[`tadeumendonca-iac` → Prerequisites — out-of-band secrets](https://github.com/tedeuxx/tadeumendonca-iac#prerequisites--out-of-band-secrets).
+
 ## Related repos
 
 - [`tadeumendonca-fed`](https://github.com/tedeuxx/tadeumendonca-fed) — Frontend

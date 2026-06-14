@@ -3,6 +3,7 @@
 // reference its URL. Public base URL = the SPA origin (config.spaOrigin).
 import MarkdownIt from 'markdown-it';
 import { config } from '../config';
+import { sanitizeArticleHtml } from './sanitize';
 import type { Profile, Post, Article } from '../types/entities';
 
 const md = new MarkdownIt({ html: false, linkify: true });
@@ -121,10 +122,26 @@ ${md.render(post.body)}
 }
 
 // --- articles (long-form) ---
+// Body → HTML by format: 'html' bodies (Phase-4 editor) are already sanitized on save; re-sanitize here
+// for defense-in-depth. Legacy (markdown / no field) goes through markdown-it.
+const articleBodyHtml = (article: Article): string =>
+  article.content_format === 'html' ? sanitizeArticleHtml(article.body) : md.render(article.body);
+
+// Plain-text snippet for meta descriptions, stripping the right markup for the body format.
+const htmlSnippet = (html: string, max = 160): string => {
+  // Bounded repetition ({0,4096}) instead of `+` so the tag-strip is provably linear-time (no
+  // super-linear backtracking) — clears the SonarCloud ReDoS hotspot. Real tags are far shorter than
+  // the cap (the body is already sanitized at store time).
+  const text = html.replace(/<[^>]{0,4096}>/g, ' ').replace(/\s+/g, ' ').trim();
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+};
+const articleSnippet = (article: Article): string =>
+  article.content_format === 'html' ? htmlSnippet(article.body) : plainSnippet(article.body);
+
 export function articleMeta(article: Article): MetaInput {
   return {
     title: article.title,
-    description: article.excerpt ?? plainSnippet(article.body),
+    description: article.excerpt ?? articleSnippet(article),
     image_url: `${config.apiOrigin}/og/articles/${article.slug}.png`,
     url: `${config.spaOrigin}/articles/${article.slug}`,
   };
@@ -147,7 +164,7 @@ export function articleHtml(article: Article): string {
   const body = `<article>
 <h1>${escapeHtml(article.title)}</h1>
 <p>${escapeHtml(article.tag)} · <time datetime="${article.created_at}">${escapeHtml(article.created_at.slice(0, 10))}</time></p>
-${md.render(article.body)}
+${articleBodyHtml(article)}
 </article>`;
   return htmlDoc({ ...meta, ogType: 'article', jsonLd: articleJsonLd(article), body });
 }

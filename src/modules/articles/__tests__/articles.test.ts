@@ -125,6 +125,26 @@ describe('POST /articles (admin)', () => {
     const res = await app.request('/articles', { method: 'POST', headers, body }, claims('admin'));
     expect(res.status).toBe(409);
   });
+
+  it('defaults to markdown and stores the body unchanged when content_format is absent', async () => {
+    send.mockResolvedValueOnce({ Items: [] }).mockResolvedValueOnce({}).mockResolvedValueOnce({});
+    await app.request('/articles', { method: 'POST', headers, body }, claims('admin'));
+    const item = send.mock.calls[2][0].input.Item;
+    expect(item.content_format).toBe('markdown');
+    expect(item.body).toBe('content'); // markdown stored verbatim
+  });
+
+  it('sanitizes an html body on save and records content_format=html', async () => {
+    send.mockResolvedValueOnce({ Items: [] }).mockResolvedValueOnce({}).mockResolvedValueOnce({});
+    const html = '<p>hi <strong>there</strong></p><script>alert(1)</script><img src="https://x/og.png" onerror="x()">';
+    const res = await app.request('/articles', { method: 'POST', headers, body: JSON.stringify({ title: 'Rich', body: html, tag: 'aws', content_format: 'html', published: false }) }, claims('admin'));
+    expect(res.status).toBe(201);
+    const stored = send.mock.calls[2][0].input.Item.body as string;
+    expect(stored).toContain('<strong>there</strong>'); // allowed formatting kept
+    expect(stored).not.toContain('<script>'); // script dropped
+    expect(stored).not.toContain('onerror'); // event handler dropped
+    expect(send.mock.calls[2][0].input.Item.content_format).toBe('html');
+  });
 });
 
 describe('PUT/DELETE /articles/{slug} (admin)', () => {

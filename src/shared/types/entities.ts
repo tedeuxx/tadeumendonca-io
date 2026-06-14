@@ -116,13 +116,18 @@ export interface Subscription {
 // appear in it — and the read path is a Query, never a Scan (/backend/dynamodb).
 export const ARTICLE_FEED_PK = 'ARTICLE';
 
+// Body format. Legacy articles (pre-Phase-4) have no field → treated as 'markdown'. The Phase-4 rich
+// editor (TipTap) stores 'html', server-sanitized on save. render/prerender branch on this.
+export type ArticleContentFormat = 'markdown' | 'html';
+
 export interface Article {
   article_id: string; // opaque nanoid
   gsi_pk?: typeof ARTICLE_FEED_PK; // present iff published — sparse by-created index
   slug: string; // human-readable, unique (by-slug GSI)
   tag: string; // primary category (by-tag GSI hash)
   title: string;
-  body: string; // markdown (long-form)
+  body: string; // long-form content; format given by content_format (absent → markdown for legacy items)
+  content_format?: ArticleContentFormat; // 'markdown' (legacy) | 'html' (Phase 4 rich editor, sanitized)
   excerpt?: string;
   published: boolean;
   author_sub?: string;
