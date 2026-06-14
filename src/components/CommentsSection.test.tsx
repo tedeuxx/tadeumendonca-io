@@ -56,6 +56,29 @@ describe('CommentsSection', () => {
     expect(screen.queryByRole('button', { name: 'Delete comment' })).toBeNull();
   });
 
+  it('shows the author avatar when present, else the initial', () => {
+    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn() });
+    usePostComments.mockReturnValue({
+      data: { pages: [{ items: [{ ...comment, author_avatar_key: 'avatars/u-1-x.png' }, { ...comment, comment_id: 'c2', author_name: 'Zé' }] }] },
+      isLoading: false,
+      hasNextPage: false,
+    });
+    const { container } = render(<CommentsSection postId="p1" />);
+    expect(container.querySelector('img[src="/assets/avatars/u-1-x.png"]')).not.toBeNull(); // c1 has an avatar
+    expect(screen.getByText('Z')).toBeInTheDocument(); // c2 falls back to the initial
+  });
+
+  it('falls back to "?" when a comment has no author name', () => {
+    useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn() });
+    usePostComments.mockReturnValue({
+      data: { pages: [{ items: [{ ...comment, author_name: '' }] }] },
+      isLoading: false,
+      hasNextPage: false,
+    });
+    render(<CommentsSection postId="p1" />);
+    expect(screen.getByText('?')).toBeInTheDocument();
+  });
+
   it('renders link-preview cards attached to a comment', () => {
     useAuth.mockReturnValue({ status: 'anonymous', signIn: vi.fn() });
     usePostComments.mockReturnValue({

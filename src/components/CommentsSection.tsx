@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { Loader2, Trash2, LogIn } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { usePostComments, useCreateComment, useDeleteComment } from '../hooks/useComments';
+import { avatarUrl } from '../hooks/useMe';
+import { Avatar } from './Avatar';
 import { LinkPreviewCard } from './LinkPreviewCard';
 import type { Comment } from '../types/post';
 
@@ -69,9 +71,11 @@ function CommentRow({ comment, postId }: { comment: Comment; postId: string }) {
   const canDelete = isAdmin || comment.author_sub === sub;
   return (
     <div className="flex gap-3 border-b border-border px-1 py-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted font-bold text-muted-foreground">
-        {(comment.author_name || '?')[0]?.toUpperCase()}
-      </div>
+      <Avatar
+        src={avatarUrl(comment.author_avatar_key)}
+        fallback={(comment.author_name || '?')[0]?.toUpperCase() ?? '?'}
+        className="h-9 w-9 bg-muted text-muted-foreground"
+      />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-sm">
           <span className="font-semibold text-foreground">{comment.author_name}</span>

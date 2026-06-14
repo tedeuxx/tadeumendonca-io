@@ -32,6 +32,7 @@ export interface Comment {
   post_id: string;
   author_sub: string;
   author_name: string;
+  author_avatar_key?: string; // assets key of the author's avatar (read-time from the BFF); → /assets/<key>
   body: string;
   link_previews?: LinkPreview[]; // server-derived rich previews of curated body URLs
   created_at: string;
