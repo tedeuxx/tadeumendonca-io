@@ -7,7 +7,8 @@ const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }));
 vi.mock('../auth/authStore', () => ({ useAuth }));
 // The aside's PollWidget queries the BFF — stub it to "no active poll" so it renders nothing and the
 // shell tests stay focused on the chrome (the real app supplies the QueryClientProvider at the root).
-vi.mock('../lib/api', () => ({ apiFetch: vi.fn().mockResolvedValue({ items: [] }), authedFetch: vi.fn() }));
+// authedFetch backs useMe (the account avatar); resolve an empty profile so no avatar_key → initial.
+vi.mock('../lib/api', () => ({ apiFetch: vi.fn().mockResolvedValue({ items: [] }), authedFetch: vi.fn().mockResolvedValue({}) }));
 
 import { AppShell } from './AppShell';
 
@@ -57,6 +58,7 @@ describe('AppShell', () => {
     const signOut = vi.fn();
     useAuth.mockReturnValue({ status: 'authenticated', email: 'a@b.io', signIn: vi.fn(), signOut, isAdmin: false });
     renderShell();
+    expect(screen.getByLabelText('Minha conta')).toHaveTextContent('A'); // no avatar yet → email initial
     fireEvent.click(screen.getByLabelText('Sair'));
     expect(signOut).toHaveBeenCalled();
   });

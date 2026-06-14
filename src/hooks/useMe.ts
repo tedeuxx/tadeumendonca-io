@@ -33,3 +33,20 @@ export function useUpdateMe() {
     onSuccess: (me) => qc.setQueryData(['me'], me), // the server echo is authoritative
   });
 }
+
+// Upload a new avatar. The image is sent base64-encoded in a JSON body (matches the BFF, which keeps
+// the text/JSON API Gateway path); the BFF resizes it server-side and returns the updated profile.
+export function useUploadAvatar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (image_base64: string) =>
+      authedFetch<Me>('/me/avatar', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image_base64 }) }),
+    onSuccess: (me) => qc.setQueryData(['me'], me), // the server echo (new avatar_key) is authoritative
+  });
+}
+
+// Public URL of a stored avatar. avatar_key is feature-relative (avatars/<sub>-<hash>.png); the bytes
+// are served same-origin via the CloudFront /assets/* behavior. Content-addressed, so it's safe to cache.
+export function avatarUrl(avatar_key?: string): string | undefined {
+  return avatar_key ? `/assets/${avatar_key}` : undefined;
+}

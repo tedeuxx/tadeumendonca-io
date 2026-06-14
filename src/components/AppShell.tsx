@@ -6,7 +6,9 @@ import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, FileText, User, LogIn, LogOut, Settings, WifiOff } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
+import { useMe, avatarUrl } from '../hooks/useMe';
 import { useOnline } from '../hooks/useOnline';
+import { Avatar } from './Avatar';
 import { InstallPrompt } from './InstallPrompt';
 import { SocialLinksWidget } from './SocialLinksWidget';
 import { PollWidget } from './PollWidget';
@@ -47,6 +49,9 @@ function HeaderBrand() {
 
 function Account() {
   const { status, email, signIn, signOut } = useAuth();
+  // Only fetch the profile once authenticated (the query is enabled regardless, but authedFetch would
+  // redirect to login otherwise). Used here just for the avatar; falls back to the email initial.
+  const me = useMe();
   if (status !== 'authenticated') {
     return (
       <button
@@ -60,8 +65,8 @@ function Account() {
   const initial = (email ?? '?')[0]?.toUpperCase();
   return (
     <div className="flex items-center gap-2">
-      <NavLink to="/conta" aria-label="Minha conta" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
-        {initial}
+      <NavLink to="/conta" aria-label="Minha conta" className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring/40">
+        <Avatar src={avatarUrl(me.data?.avatar_key)} fallback={initial} className="h-9 w-9" />
       </NavLink>
       <span className="hidden max-w-[12rem] truncate text-sm text-muted-foreground sm:block">{email}</span>
       <NavLink to="/conta" aria-label="Configurações" className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
