@@ -10,7 +10,7 @@ const nodeGlobals = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage'] },
+  { ignores: ['dist', 'dist-digest', 'node_modules', 'coverage'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

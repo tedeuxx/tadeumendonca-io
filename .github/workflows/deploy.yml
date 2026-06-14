@@ -67,6 +67,9 @@ jobs:
             echo "api_id=$(ssm /$ENV_NAME/api/gateway-id)"
             echo "account=$(aws sts get-caller-identity --query Account --output text)"
             echo "cognito_pool_id=$(ssm /$ENV_NAME/auth/cognito-user-pool-id)"
+            # digest function name is absent until the iac digest pipeline is applied — resolve softly so
+            # the api deploy isn't ordering-coupled to iac; the digest step skips when it's empty.
+            echo "digest_name=$(ssm /$ENV_NAME/api/digest-function-name 2>/dev/null || echo '')"
           } >> "$GITHUB_OUTPUT"
 
       - name: Deploy BFF code (update-function-code)
@@ -78,6 +81,17 @@ jobs:
             --s3-bucket "${{ steps.cfg.outputs.artifacts_bucket }}" \
             --s3-key bff/latest.zip >/dev/null
           aws lambda wait function-updated --function-name "${{ steps.cfg.outputs.bff_name }}"
+
+      - name: Deploy digest code (update-function-code)
+        if: steps.cfg.outputs.digest_name != ''
+        run: |
+          ( cd dist-digest && zip -q -r ../digest.zip . )
+          aws s3 cp digest.zip "s3://${{ steps.cfg.outputs.artifacts_bucket }}/digest/latest.zip"
+          aws lambda update-function-code \
+            --function-name "${{ steps.cfg.outputs.digest_name }}" \
+            --s3-bucket "${{ steps.cfg.outputs.artifacts_bucket }}" \
+            --s3-key digest/latest.zip >/dev/null
+          aws lambda wait function-updated --function-name "${{ steps.cfg.outputs.digest_name }}"
 
       - name: Republish REST API contract (put-rest-api + deploy)
         env:

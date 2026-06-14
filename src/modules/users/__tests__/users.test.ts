@@ -141,3 +141,18 @@ describe('POST /me/avatar', () => {
     expect(deleteAsset).not.toHaveBeenCalled();
   });
 });
+
+describe('listByDigestSchedule', () => {
+  it('Queries the by-digest GSI for a cadence and follows pagination', async () => {
+    send
+      .mockResolvedValueOnce({ Items: [{ cognito_sub: 'u-1' }], LastEvaluatedKey: { cognito_sub: 'u-1' } })
+      .mockResolvedValueOnce({ Items: [{ cognito_sub: 'u-2' }] });
+    const { listByDigestSchedule } = await import('../repository');
+    const users = await listByDigestSchedule('weekly');
+    expect(users.map((u) => u.cognito_sub)).toEqual(['u-1', 'u-2']);
+    const cmd = send.mock.calls[0][0];
+    expect(cmd.constructor.name).toBe('QueryCommand');
+    expect(cmd.input.IndexName).toBe('by-digest');
+    expect(cmd.input.ExpressionAttributeValues).toEqual({ ':s': 'weekly' });
+  });
+});

@@ -1,14 +1,10 @@
-// Bundles the BFF into a single dist/index.js (Pattern B: IaC owns config, this repo ships code).
-// node22 / esm / arm64-compatible; the AWS SDK v3 is bundled (Lambda's built-in SDK is also v3, but
-// bundling pins the version). minified for cold-start.
+// Bundles two Lambdas (Pattern B: IaC owns config, this repo ships code): the BFF → dist/index.mjs and
+// the newsletter digest → dist-digest/index.mjs. Each is a separate single-file artifact the deploy zips
+// + ships. node22 / esm / arm64; the AWS SDK v3 is bundled (pins the version). minified for cold-start.
 import { build } from 'esbuild';
 import { rm } from 'node:fs/promises';
 
-await rm('dist', { recursive: true, force: true }); // single artifact in the zip (index.mjs only)
-
-await build({
-  entryPoints: ['src/index.ts'],
-  outfile: 'dist/index.mjs', // .mjs so Lambda (nodejs22) loads it as ESM; handler = index.handler
+const shared = {
   bundle: true,
   platform: 'node',
   target: 'node22',
@@ -19,9 +15,13 @@ await build({
   // bundle stays a single self-contained file (no runtime file reads, no native binary to ship).
   loader: { '.wasm': 'binary', '.woff': 'binary' },
   // ESM output needs these shims for any CJS deps that reference __dirname/require.
-  banner: {
-    js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
-  },
-});
+  banner: { js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);" },
+};
 
-console.log('built dist/index.js');
+await rm('dist', { recursive: true, force: true }); // one artifact per dir (index.mjs only)
+await rm('dist-digest', { recursive: true, force: true });
+
+await build({ ...shared, entryPoints: ['src/index.ts'], outfile: 'dist/index.mjs' }); // BFF — handler = index.handler
+await build({ ...shared, entryPoints: ['src/digest/handler.ts'], outfile: 'dist-digest/index.mjs' }); // digest — handler = index.handler
+
+console.log('built dist/index.mjs + dist-digest/index.mjs');
