@@ -29,6 +29,7 @@
     "@hono/zod-openapi": "^0.18.0",
     "@resvg/resvg-wasm": "^2.6.2",
     "hono": "^4.6.0",
+    "jimp": "^1.6.1",
     "markdown-it": "^14.1.0",
     "nanoid": "^5.1.11",
     "satori": "^0.12.2",

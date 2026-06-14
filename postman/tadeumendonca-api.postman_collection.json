@@ -344,6 +344,34 @@
           }
         }
       ]
+    },
+    {
+      "name": "Auth: POST /me/avatar without a token -> 401",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"image_base64\":\"\"}"
+        },
+        "url": "{{base_url}}/me/avatar"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('avatar upload is rejected without a token — the API Gateway Cognito authorizer returns 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

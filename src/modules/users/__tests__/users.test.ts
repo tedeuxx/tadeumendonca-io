@@ -3,6 +3,16 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 const { send } = vi.hoisted(() => ({ send: vi.fn() }));
 vi.mock('../../../shared/db/client', () => ({ ddb: { send } }));
 
+// The avatar pipeline (jimp) + S3 are exercised in avatar.test.ts; here we mock them so the route's own
+// logic (auth, lazy item creation, key update, old-object cleanup) is what's under test.
+const { processAvatar, putAsset, deleteAsset } = vi.hoisted(() => ({
+  processAvatar: vi.fn(),
+  putAsset: vi.fn(),
+  deleteAsset: vi.fn(),
+}));
+vi.mock('../avatar', () => ({ processAvatar }));
+vi.mock('../../../shared/s3/client', () => ({ putAsset, deleteAsset }));
+
 import { app } from '../../../index';
 
 const headers = { 'content-type': 'application/json' };
@@ -81,5 +91,53 @@ describe('PUT /me', () => {
     expect(item.avatar_key).toBe('avatars/u-1.png'); // preserved (managed elsewhere)
     expect(item.digest_schedule).toBe('daily');
     expect(item.updated_at).toBeTruthy();
+  });
+});
+
+describe('POST /me/avatar', () => {
+  const post = (body: unknown, ctx?: ReturnType<typeof as>) =>
+    app.request('/me/avatar', { method: 'POST', headers, body: JSON.stringify(body) }, ctx);
+
+  it('403s without a token', async () => {
+    const res = await post({ image_base64: 'abc' });
+    expect(res.status).toBe(403);
+    expect(processAvatar).not.toHaveBeenCalled();
+  });
+
+  it('uploads, sets avatar_key, and lazily creates the item when none exists', async () => {
+    processAvatar.mockResolvedValueOnce({ key: 'avatars/u-1-abc.png', body: new Uint8Array([1]), contentType: 'image/png' });
+    send.mockResolvedValueOnce({}); // getUser → none
+    send.mockResolvedValueOnce({}); // saveUser
+    const res = await post({ image_base64: 'aGk=' }, as('u-1'));
+    expect(res.status).toBe(200);
+    expect(putAsset).toHaveBeenCalledWith('avatars/u-1-abc.png', expect.any(Uint8Array), 'image/png');
+    const item = send.mock.calls[1][0].input.Item;
+    expect(item.cognito_sub).toBe('u-1');
+    expect(item.avatar_key).toBe('avatars/u-1-abc.png');
+    expect(item.newsletter_opt_in).toBe(false); // sensible default for a brand-new item
+    expect(deleteAsset).not.toHaveBeenCalled(); // nothing to clean up
+    expect((await res.json() as Record<string, unknown>).avatar_key).toBe('avatars/u-1-abc.png');
+  });
+
+  it('preserves prefs/created_at and deletes the previous avatar object', async () => {
+    processAvatar.mockResolvedValueOnce({ key: 'avatars/u-1-new.png', body: new Uint8Array([2]), contentType: 'image/png' });
+    send.mockResolvedValueOnce({ Item: { cognito_sub: 'u-1', nickname: 'Tadeu', avatar_key: 'avatars/u-1-old.png', newsletter_opt_in: true, newsletter_schedule: 'weekly', digest_schedule: 'weekly', created_at: '2026-01-01T00:00:00Z' } });
+    send.mockResolvedValueOnce({}); // saveUser
+    const res = await post({ image_base64: 'aGk=' }, as('u-1'));
+    expect(res.status).toBe(200);
+    const item = send.mock.calls[1][0].input.Item;
+    expect(item.avatar_key).toBe('avatars/u-1-new.png');
+    expect(item.nickname).toBe('Tadeu'); // preserved
+    expect(item.created_at).toBe('2026-01-01T00:00:00Z'); // preserved
+    expect(item.digest_schedule).toBe('weekly'); // sparse GSI key preserved
+    expect(deleteAsset).toHaveBeenCalledWith('avatars/u-1-old.png');
+  });
+
+  it('does not delete when the new key equals the old (idempotent re-upload)', async () => {
+    processAvatar.mockResolvedValueOnce({ key: 'avatars/u-1-same.png', body: new Uint8Array([3]), contentType: 'image/png' });
+    send.mockResolvedValueOnce({ Item: { cognito_sub: 'u-1', avatar_key: 'avatars/u-1-same.png', newsletter_opt_in: false, created_at: '2026-01-01T00:00:00Z' } });
+    send.mockResolvedValueOnce({}); // saveUser
+    await post({ image_base64: 'aGk=' }, as('u-1'));
+    expect(deleteAsset).not.toHaveBeenCalled();
   });
 });
