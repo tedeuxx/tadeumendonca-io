@@ -20,6 +20,7 @@ import { registerComments } from './modules/comments/routes';
 import { registerShortlinks } from './modules/shortlinks/routes';
 import { registerPolls } from './modules/polls/routes';
 import { registerUsers } from './modules/users/routes';
+import { registerGiphy } from './modules/giphy/routes';
 
 export const app = new OpenAPIHono<{ Bindings: LambdaBindings }>();
 
@@ -52,6 +53,7 @@ registerComments(app);
 registerShortlinks(app);
 registerPolls(app);
 registerUsers(app);
+registerGiphy(app);
 
 // OpenAPI document served from the app (the api repo's gen-openapi reads this — /backend/openapi).
 app.doc('/openapi.json', {

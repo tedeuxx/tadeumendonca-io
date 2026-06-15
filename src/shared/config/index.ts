@@ -14,4 +14,7 @@ export const config = {
   // API origin (this BFF's public host) — og:image URLs point here so the first scrape triggers
   // on-demand generation; the og-image route then 302s to spaOrigin/og/* (CloudFront → S3 CDN).
   apiOrigin: environment === 'production' ? 'https://api.tadeumendonca.io' : 'https://api.staging.tadeumendonca.io',
+  // ARN of the Giphy API key secret (Secrets Manager) — the BFF fetches the value at runtime for the
+  // blog-editor GIF search proxy (/backend/secrets-management). Injected by IaC (api.tf GIPHY_SECRET_ARN).
+  giphySecretArn: process.env.GIPHY_SECRET_ARN ?? '',
 } as const;
