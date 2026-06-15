@@ -12,6 +12,9 @@ import { sanitizeArticleHtml } from '../../shared/render/sanitize';
 import { LinkPreviewSchema } from '../unfurl/routes';
 import { requireGroup } from '../../shared/auth/authorize';
 import { NotFoundError, ConflictError } from '../../shared/errors/http-errors';
+import { config } from '../../shared/config';
+import { putAsset } from '../../shared/s3/client';
+import { processArticleImage } from './image';
 
 const ADMIN = 'admin';
 const SECURED = [{ CognitoAuth: [] }];
@@ -61,6 +64,11 @@ const ArticleInput = z
   .openapi('ArticleInput');
 
 const ListSchema = z.object({ items: z.array(ArticleSchema), next_cursor: z.string().optional() }).openapi('ArticleList');
+
+// Inline image upload for the editor: base64 body in (JSON, no binary-media-type config on the gateway),
+// the public CDN URL + dimensions out. The URL is https → passes the article-body sanitizer's img allow.
+const ArticleImageInput = z.object({ image_base64: z.string().min(1) }).openapi('ArticleImageInput');
+const ArticleImageSchema = z.object({ url: z.string(), width: z.number(), height: z.number() }).openapi('ArticleImage');
 
 // Strip the sparse index key when echoing the entity back (gsi_pk is an index detail, not API surface).
 const toApi = (a: Article): Omit<Article, 'gsi_pk'> => {
@@ -153,6 +161,33 @@ export function registerArticles(app: BffApp): void {
       };
       await createArticle(article);
       return c.json(toApi(article), 201);
+    },
+  );
+
+  // POST /articles/image — admin: upload an inline editor image. Resized server-side (long edge capped,
+  // aspect preserved) and stored content-addressed in the assets bucket; returns the public CDN URL the
+  // editor inserts as <img src>. Static sub-path (no slug param) so it never collides with /articles/{slug}.
+  app.openapi(
+    createRoute({
+      method: 'post',
+      path: '/articles/image',
+      tags: ['articles'],
+      summary: 'Upload an inline article image (admin)',
+      security: SECURED,
+      request: { body: { content: { 'application/json': { schema: ArticleImageInput } } } },
+      responses: {
+        200: { description: 'Stored', content: { 'application/json': { schema: ArticleImageSchema } } },
+        400: { description: 'Invalid image' },
+        403: { description: 'Forbidden' },
+        413: { description: 'Image too large' },
+      },
+    }),
+    async (c) => {
+      requireGroup(c, ADMIN);
+      const { image_base64 } = c.req.valid('json');
+      const img = await processArticleImage(image_base64);
+      await putAsset(img.key, img.body, img.contentType);
+      return c.json({ url: `${config.spaOrigin}/assets/${img.key}`, width: img.width, height: img.height }, 200);
     },
   );
 
