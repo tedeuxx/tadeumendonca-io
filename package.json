@@ -1,0 +1,13 @@
+{
+  "name": "tadeumendonca-pwa",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo da plataforma tadeumendonca.io — apps/bff (BFF) + apps/fed (PWA) + packages/shared",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
