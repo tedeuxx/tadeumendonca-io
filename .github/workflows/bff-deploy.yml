@@ -2,7 +2,7 @@ name: bff-deploy
 
 # Deploy the BFF (Pattern B: code only) + republish the REST API contract.
 # develop → staging (auto); main → production (gated by the production Environment). AWS via OIDC
-# (AWS_OIDC_ROLE_ARN = the api deploy role; its OIDC trust is repo:org/tadeumendonca-pwa:*).
+# (AWS_BFF_OIDC_ROLE_ARN = the api/bff deploy role, least-privilege; trust repo:org/tadeumendonca-pwa:*).
 # Monorepo Stage A: steps run in apps/bff (its own package-lock).
 #
 # Ordering caveat: when a single push changes BOTH iac/ and apps/bff/, this workflow and infra-apply
@@ -64,7 +64,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_BFF_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Resolve config from SSM
