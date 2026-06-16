@@ -1,0 +1,157 @@
+name: deploy
+
+# Deploy the BFF (Pattern B: code only) + republish the REST API contract.
+# develop → staging (auto); main → production (gated by the production Environment).
+# AWS via OIDC (role from the AWS_OIDC_ROLE_ARN secret, set once from SSM /{env}/iam/github-actions-api-role-arn).
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "esbuild.config.mjs"
+      - ".github/workflows/deploy.yml"
+
+permissions:
+  id-token: write # OIDC → AWS
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    # Skip the version-bump commit (it doesn't change code).
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    env:
+      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      SPA_ORIGIN: ${{ github.ref == 'refs/heads/main' && 'https://tadeumendonca.io' || 'https://staging.tadeumendonca.io' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (esbuild → dist/index.mjs)
+        run: npm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve config from SSM
+        id: cfg
+        run: |
+          ssm() { aws ssm get-parameter --name "$1" --query 'Parameter.Value' --output text; }
+          {
+            echo "artifacts_bucket=$(ssm /$ENV_NAME/storage/artifacts-bucket-name)"
+            echo "bff_name=$(ssm /$ENV_NAME/api/bff-function-name)"
+            echo "api_id=$(ssm /$ENV_NAME/api/gateway-id)"
+            echo "account=$(aws sts get-caller-identity --query Account --output text)"
+            echo "cognito_pool_id=$(ssm /$ENV_NAME/auth/cognito-user-pool-id)"
+            # digest function name is absent until the iac digest pipeline is applied — resolve softly so
+            # the api deploy isn't ordering-coupled to iac; the digest step skips when it's empty.
+            echo "digest_name=$(ssm /$ENV_NAME/api/digest-function-name 2>/dev/null || echo '')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Deploy BFF code (update-function-code)
+        run: |
+          ( cd dist && zip -q -r ../bff.zip . )
+          aws s3 cp bff.zip "s3://${{ steps.cfg.outputs.artifacts_bucket }}/bff/latest.zip"
+          aws lambda update-function-code \
+            --function-name "${{ steps.cfg.outputs.bff_name }}" \
+            --s3-bucket "${{ steps.cfg.outputs.artifacts_bucket }}" \
+            --s3-key bff/latest.zip >/dev/null
+          aws lambda wait function-updated --function-name "${{ steps.cfg.outputs.bff_name }}"
+
+      - name: Deploy digest code (update-function-code)
+        if: steps.cfg.outputs.digest_name != ''
+        run: |
+          ( cd dist-digest && zip -q -r ../digest.zip . )
+          aws s3 cp digest.zip "s3://${{ steps.cfg.outputs.artifacts_bucket }}/digest/latest.zip"
+          aws lambda update-function-code \
+            --function-name "${{ steps.cfg.outputs.digest_name }}" \
+            --s3-bucket "${{ steps.cfg.outputs.artifacts_bucket }}" \
+            --s3-key digest/latest.zip >/dev/null
+          aws lambda wait function-updated --function-name "${{ steps.cfg.outputs.digest_name }}"
+
+      - name: Republish REST API contract (put-rest-api + deploy)
+        env:
+          INVOKE_ARN_BFF: arn:aws:apigateway:${{ env.AWS_REGION }}:lambda:path/2015-03-31/functions/arn:aws:lambda:${{ env.AWS_REGION }}:${{ steps.cfg.outputs.account }}:function:${{ steps.cfg.outputs.bff_name }}/invocations
+          COGNITO_USER_POOL_ARN: arn:aws:cognito-idp:${{ env.AWS_REGION }}:${{ steps.cfg.outputs.account }}:userpool/${{ steps.cfg.outputs.cognito_pool_id }}
+          API_VERSION: ${{ github.sha }}
+          OPENAPI_OUT: openapi.aws.json
+        run: |
+          npx tsx scripts/build-openapi-aws.ts
+          api_id="${{ steps.cfg.outputs.api_id }}"
+          aws apigateway put-rest-api \
+            --rest-api-id "$api_id" \
+            --mode overwrite \
+            --body "fileb://openapi.aws.json" >/dev/null
+          # put-rest-api is "synchronous" but the API graph settles asynchronously — an immediate
+          # create-deployment can snapshot BEFORE newly-added routes register, so the live stage serves
+          # 403 "Missing Authentication Token" for the new paths. A fixed sleep is fragile. Counting
+          # RESOURCES isn't enough either: a resource's METHOD/integration attaches a few seconds AFTER
+          # the resource appears, and 403 depends on the method — so a resource-count poll can deploy a
+          # path whose GET/POST isn't wired yet (observed when /me shipped). Poll the total METHOD count
+          # (get-resources --embed methods) until it's stable across two consecutive reads, THEN deploy
+          # exactly once (create-deployment is account-wide rate-limited — back-to-back calls trip
+          # TooManyRequestsException).
+          prev=-1
+          for _ in $(seq 1 24); do
+            sleep 5
+            count="$(aws apigateway get-resources --rest-api-id "$api_id" --embed methods --limit 500 --output json | jq '[.items[].resourceMethods // {} | length] | add // 0')"
+            echo "method graph: $count methods (prev $prev)"
+            [ "$count" = "$prev" ] && break
+            prev="$count"
+          done
+          aws apigateway create-deployment \
+            --rest-api-id "$api_id" \
+            --stage-name live --description "$API_VERSION" >/dev/null
+          echo "deployed BFF + contract to $ENV_NAME"
+
+      # Mint a fresh Cognito ID token for the native test user (admin via ADMIN_EMAILS), so the
+      # authed-write regression actually runs. USER_PASSWORD_AUTH on the NON-PROD test client — the
+      # SPA client is Google-only and can't be automated. Production has no test client (the SSM param
+      # is absent there): the token stays empty and newman's authed writes self-skip (see the collection).
+      - name: Mint Cognito test-user ID token (non-prod)
+        id: token
+        if: ${{ env.ENV_NAME != 'production' }}
+        env:
+          TEST_USER_USERNAME: ${{ secrets.TEST_USER_USERNAME }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          client_id="$(aws ssm get-parameter --name "/$ENV_NAME/auth/cognito-test-client-id" --query 'Parameter.Value' --output text)"
+          id_token="$(aws cognito-idp initiate-auth \
+            --auth-flow USER_PASSWORD_AUTH \
+            --client-id "$client_id" \
+            --auth-parameters "USERNAME=$TEST_USER_USERNAME,PASSWORD=$TEST_USER_PASSWORD" \
+            --query 'AuthenticationResult.IdToken' --output text)"
+          echo "::add-mask::$id_token"
+          echo "value=$id_token" >> "$GITHUB_OUTPUT"
+
+      # Post-deploy regression: Postman/newman smoke + contract checks against the just-deployed
+      # environment (staging for develop, production for main) — see /backend/postman. With a token the
+      # authed admin create→delete smoke runs; without one (prod) those requests self-skip.
+      - name: API smoke (newman) against the deployed environment
+        run: |
+          sleep 5 # let the new stage settle before black-box checks
+          npm run "api-test:$ENV_NAME" -- --env-var "token=${{ steps.token.outputs.value }}"
