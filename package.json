@@ -2,12 +2,9 @@
   "name": "tadeumendonca-pwa",
   "private": true,
   "version": "0.0.0",
-  "description": "Monorepo da plataforma tadeumendonca.io — apps/bff (BFF) + apps/fed (PWA) + packages/shared",
+  "description": "Monorepo da plataforma tadeumendonca.io — apps/bff (BFF) + apps/fed (PWA) + iac (Terraform de app)",
   "engines": {
     "node": ">=22"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "comment_workspaces": "npm workspaces + packages/shared + lock unificado entram no ESTÁGIO B (após reabrir no -pwa). No Estágio A cada app é independente (seu próprio package-lock); CI/deploy fazem `cd apps/<app> && npm ci`. Adicionar aqui: \"workspaces\": [\"apps/*\", \"packages/*\"]."
 }
