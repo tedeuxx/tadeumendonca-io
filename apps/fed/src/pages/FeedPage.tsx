@@ -1,0 +1,53 @@
+// Public feed (/frontend/ux-states, /frontend/pagination) — the home column. Published posts
+// newest-first with cursor "load more". Sticky column header (X-style). Explicit loading/error/empty.
+import { Loader2 } from 'lucide-react';
+import { useFeed } from '../hooks/useFeed';
+import { PostCard } from '../components/PostCard';
+import { ArticleCard } from '../components/ArticleCard';
+import { SubscribeButton } from '../components/SubscribeButton';
+import { NewPostButton } from '../components/NewPostButton';
+import { ColumnHeader, CenterLoader, Notice, Empty } from '../components/Column';
+
+export function FeedPage() {
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed();
+  const items = data?.pages.flatMap((p) => p.items) ?? [];
+
+  return (
+    <div>
+      <ColumnHeader
+        title="Feed"
+        actions={
+          <div className="flex items-center gap-2">
+            <NewPostButton />
+            <SubscribeButton />
+          </div>
+        }
+      />
+
+      {isLoading && <CenterLoader />}
+      {isError && <Notice>Não foi possível carregar o feed. Tente novamente mais tarde.</Notice>}
+      {!isLoading && !isError && items.length === 0 && <Empty>Ainda não há posts.</Empty>}
+
+      {items.map((item) =>
+        item.kind === 'article' ? (
+          <ArticleCard key={`a:${item.article_id}`} article={item} />
+        ) : (
+          <PostCard key={`p:${item.post_id}`} post={item} />
+        ),
+      )}
+
+      {hasNextPage && (
+        <div className="flex justify-center p-4">
+          <button
+            onClick={() => void fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
+          >
+            {isFetchingNextPage && <Loader2 className="animate-spin" size={16} />}
+            Carregar mais
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
