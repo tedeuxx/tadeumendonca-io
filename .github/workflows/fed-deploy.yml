@@ -1,26 +1,26 @@
-name: deploy
+name: fed-deploy
 
 # Build the SPA (Vite, env injected at build time) and publish: S3 sync with split cache headers
-# (immutable hashed assets vs no-cache index.html) + CloudFront invalidation (/workflow/github-actions).
-# develop → staging (auto); main → production (Environment-gated). AWS via OIDC.
+# (immutable hashed assets vs no-cache index.html) + CloudFront invalidation.
+# develop → staging (auto); main → production (Environment-gated). AWS via OIDC (AWS_OIDC_ROLE_ARN =
+# the fed deploy role; OIDC trust repo:org/tadeumendonca-pwa:*). Monorepo Stage A: steps run in apps/fed.
+#
+# Regression policy (owner, 2026-06-16): post-deploy E2E (Playwright) runs ONLY on main (production),
+# NOT on develop/staging.
 on:
   push:
     branches: [develop, main]
     paths:
-      - "src/**"
-      - "public/**"
-      - "index.html"
-      - "package.json"
-      - "package-lock.json"
-      - "vite.config.ts"
-      - ".github/workflows/deploy.yml"
+      - "apps/fed/**"
+      - "packages/shared/**"
+      - ".github/workflows/fed-deploy.yml"
 
 permissions:
   id-token: write # OIDC → AWS
   contents: read
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: fed-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -32,6 +32,9 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    defaults:
+      run:
+        working-directory: apps/fed
     env:
       ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
@@ -43,6 +46,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
 
       - name: Install
         run: npm ci
@@ -76,11 +80,8 @@ jobs:
 
       - name: Publish to S3 (split cache headers)
         run: |
-          # Content-hashed assets (assets/) are immutable. Everything else at the root is NOT
-          # content-hashed — index.html, the service worker (sw.js / registerSW.js), the PWA manifest
-          # and the icons — so it must revalidate, or clients get stuck on a stale shell or service
-          # worker. Two passes: immutable assets first, then the revalidating root (with --delete to
-          # prune stale files; assets/ is excluded so the first pass owns it).
+          # Immutable hashed assets first; then the revalidating root (index.html, sw.js, manifest, icons)
+          # with --delete to prune stale files (assets/ excluded — the first pass owns it).
           aws s3 sync dist/assets/ "s3://${{ steps.cfg.outputs.bucket }}/assets/" \
             --delete --cache-control "public,max-age=31536000,immutable"
           aws s3 sync dist/ "s3://${{ steps.cfg.outputs.bucket }}/" \
@@ -94,10 +95,10 @@ jobs:
             --paths "/*" >/dev/null
           echo "deployed fed to $ENV_NAME"
 
-      # Post-deploy regression: Playwright E2E against the just-deployed environment (public journeys —
-      # /frontend/playwright). Retries (config) absorb CloudFront invalidation lag. Authenticated/admin
-      # journeys wait on a native Cognito test user (Google social-only can't be automated).
-      - name: E2E smoke (Playwright) against the deployed environment
+      # Post-deploy regression (Playwright E2E) — MAIN/production ONLY (owner policy). Public journeys;
+      # config retries absorb CloudFront invalidation lag.
+      - name: E2E smoke (Playwright) against production
+        if: github.ref == 'refs/heads/main'
         env:
           E2E_ENV: ${{ env.ENV_NAME }}
         run: |

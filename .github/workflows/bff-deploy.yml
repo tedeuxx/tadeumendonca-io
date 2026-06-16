@@ -1,25 +1,31 @@
-name: deploy
+name: bff-deploy
 
 # Deploy the BFF (Pattern B: code only) + republish the REST API contract.
-# develop → staging (auto); main → production (gated by the production Environment).
-# AWS via OIDC (role from the AWS_OIDC_ROLE_ARN secret, set once from SSM /{env}/iam/github-actions-api-role-arn).
+# develop → staging (auto); main → production (gated by the production Environment). AWS via OIDC
+# (AWS_OIDC_ROLE_ARN = the api deploy role; its OIDC trust is repo:org/tadeumendonca-pwa:*).
+# Monorepo Stage A: steps run in apps/bff (its own package-lock).
+#
+# Ordering caveat: when a single push changes BOTH iac/ and apps/bff/, this workflow and infra-apply
+# run concurrently (cross-workflow `needs` isn't possible). The SSM config bus keeps it resilient — the
+# deploy reads SSM and fails clearly if a param is missing. Convention: merge/apply infra before app
+# changes (the cutover applies infra manually first).
+#
+# Regression policy (owner, 2026-06-16): post-deploy regression (newman) runs ONLY on main (production),
+# NOT on develop/staging.
 on:
   push:
     branches: [develop, main]
     paths:
-      - "src/**"
-      - "scripts/**"
-      - "package.json"
-      - "package-lock.json"
-      - "esbuild.config.mjs"
-      - ".github/workflows/deploy.yml"
+      - "apps/bff/**"
+      - "packages/shared/**"
+      - ".github/workflows/bff-deploy.yml"
 
 permissions:
   id-token: write # OIDC → AWS
   contents: read
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: bff-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -32,6 +38,9 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    defaults:
+      run:
+        working-directory: apps/bff
     env:
       ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
       SPA_ORIGIN: ${{ github.ref == 'refs/heads/main' && 'https://tadeumendonca.io' || 'https://staging.tadeumendonca.io' }}
@@ -44,6 +53,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+          cache-dependency-path: apps/bff/package-lock.json
 
       - name: Install
         run: npm ci
@@ -67,8 +77,8 @@ jobs:
             echo "api_id=$(ssm /$ENV_NAME/api/gateway-id)"
             echo "account=$(aws sts get-caller-identity --query Account --output text)"
             echo "cognito_pool_id=$(ssm /$ENV_NAME/auth/cognito-user-pool-id)"
-            # digest function name is absent until the iac digest pipeline is applied — resolve softly so
-            # the api deploy isn't ordering-coupled to iac; the digest step skips when it's empty.
+            # digest function name is absent until the app infra is applied — resolve softly so the deploy
+            # isn't ordering-coupled; the digest step skips when it's empty.
             echo "digest_name=$(ssm /$ENV_NAME/api/digest-function-name 2>/dev/null || echo '')"
           } >> "$GITHUB_OUTPUT"
 
@@ -106,15 +116,9 @@ jobs:
             --rest-api-id "$api_id" \
             --mode overwrite \
             --body "fileb://openapi.aws.json" >/dev/null
-          # put-rest-api is "synchronous" but the API graph settles asynchronously — an immediate
-          # create-deployment can snapshot BEFORE newly-added routes register, so the live stage serves
-          # 403 "Missing Authentication Token" for the new paths. A fixed sleep is fragile. Counting
-          # RESOURCES isn't enough either: a resource's METHOD/integration attaches a few seconds AFTER
-          # the resource appears, and 403 depends on the method — so a resource-count poll can deploy a
-          # path whose GET/POST isn't wired yet (observed when /me shipped). Poll the total METHOD count
-          # (get-resources --embed methods) until it's stable across two consecutive reads, THEN deploy
-          # exactly once (create-deployment is account-wide rate-limited — back-to-back calls trip
-          # TooManyRequestsException).
+          # put-rest-api settles asynchronously — poll the total METHOD count until stable across two
+          # reads, THEN create-deployment exactly once (account-wide rate-limited). See the api repo
+          # history for why a fixed sleep / resource-count poll is insufficient.
           prev=-1
           for _ in $(seq 1 24); do
             sleep 5
@@ -128,30 +132,10 @@ jobs:
             --stage-name live --description "$API_VERSION" >/dev/null
           echo "deployed BFF + contract to $ENV_NAME"
 
-      # Mint a fresh Cognito ID token for the native test user (admin via ADMIN_EMAILS), so the
-      # authed-write regression actually runs. USER_PASSWORD_AUTH on the NON-PROD test client — the
-      # SPA client is Google-only and can't be automated. Production has no test client (the SSM param
-      # is absent there): the token stays empty and newman's authed writes self-skip (see the collection).
-      - name: Mint Cognito test-user ID token (non-prod)
-        id: token
-        if: ${{ env.ENV_NAME != 'production' }}
-        env:
-          TEST_USER_USERNAME: ${{ secrets.TEST_USER_USERNAME }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: |
-          client_id="$(aws ssm get-parameter --name "/$ENV_NAME/auth/cognito-test-client-id" --query 'Parameter.Value' --output text)"
-          id_token="$(aws cognito-idp initiate-auth \
-            --auth-flow USER_PASSWORD_AUTH \
-            --client-id "$client_id" \
-            --auth-parameters "USERNAME=$TEST_USER_USERNAME,PASSWORD=$TEST_USER_PASSWORD" \
-            --query 'AuthenticationResult.IdToken' --output text)"
-          echo "::add-mask::$id_token"
-          echo "value=$id_token" >> "$GITHUB_OUTPUT"
-
-      # Post-deploy regression: Postman/newman smoke + contract checks against the just-deployed
-      # environment (staging for develop, production for main) — see /backend/postman. With a token the
-      # authed admin create→delete smoke runs; without one (prod) those requests self-skip.
-      - name: API smoke (newman) against the deployed environment
+      # Post-deploy regression (newman) — MAIN/production ONLY (owner policy). Production has no test
+      # client, so the collection's authed admin writes self-skip; public smokes + contract checks run.
+      - name: API smoke (newman) against production
+        if: github.ref == 'refs/heads/main'
         run: |
           sleep 5 # let the new stage settle before black-box checks
-          npm run "api-test:$ENV_NAME" -- --env-var "token=${{ steps.token.outputs.value }}"
+          npm run "api-test:$ENV_NAME" -- --env-var "token="

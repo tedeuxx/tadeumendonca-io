@@ -1,0 +1,92 @@
+name: fed-ci
+
+# PR gate for apps/fed (PWA). lint + typecheck + tests (coverage ≥ 85%) + build + SonarCloud gate.
+# Runs on EVERY PR to develop/main so the required `fed-ci` check always reports a status; the dorny
+# paths-filter skips the heavy steps when the change doesn't touch apps/fed (or packages/shared) — the
+# job still finishes green, satisfying the required check.
+# Monorepo Stage A: apps are independent (each with its own package-lock); steps run in apps/fed.
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+    paths:
+      - "apps/fed/**"
+      - "packages/shared/**"
+      - ".github/workflows/fed-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fed-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  fed-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        # Full history — SonarCloud uses git blame for accurate new-code / authorship attribution.
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Does this change touch apps/fed (or packages/shared), or is it unrelated? Unrelated PRs skip
+      # every step below but the job still completes green, satisfying the required `fed-ci` check.
+      - name: Detect fed changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            code:
+              - 'apps/fed/**'
+              - 'packages/shared/**'
+              - '.github/workflows/fed-ci.yml'
+
+      - name: Setup Node
+        if: steps.changes.outputs.code == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+
+      - name: Install
+        if: steps.changes.outputs.code == 'true'
+        run: npm ci
+
+      - name: Lint
+        if: steps.changes.outputs.code == 'true'
+        run: npm run lint
+
+      - name: Typecheck
+        if: steps.changes.outputs.code == 'true'
+        run: npm run typecheck
+
+      - name: Test (coverage ≥ 85%)
+        if: steps.changes.outputs.code == 'true'
+        run: npm test
+
+      - name: Build
+        if: steps.changes.outputs.code == 'true'
+        run: npm run build
+
+      # Authoritative quality gate (see bff-ci). projectBaseDir scopes the scan to apps/fed.
+      # NOTE (owner/external): the SonarCloud project tedeuxx_tadeumendonca-fed must be rebound to the
+      # tadeumendonca-pwa repo (monorepo mode) for PR decoration to work.
+      - name: SonarCloud scan (quality gate blocks)
+        if: steps.changes.outputs.code == 'true'
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          projectBaseDir: apps/fed
+          args: -Dsonar.qualitygate.wait=true
