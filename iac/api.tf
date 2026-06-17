@@ -346,9 +346,9 @@ module "fn_digest" {
     USERS_TABLE_NAME        = module.users_table.dynamodb_table_id
     POSTS_TABLE_NAME        = module.posts_table.dynamodb_table_id
     ARTICLES_TABLE_NAME     = module.articles_table.dynamodb_table_id
-    SES_FROM_ADDRESS        = local.ses_from_address                            # notifications sender (ses.tf)
-    FRONTEND_URL            = "https://${local.frontend_host}"                  # for building post/article links in the email
-    COGNITO_USER_POOL_ID    = data.aws_ssm_parameter.cognito_user_pool_id.value # from shared infra via SSM (ssm-shared.tf)
+    SES_FROM_ADDRESS        = local.ses_from_address           # notifications sender (ses.tf)
+    FRONTEND_URL            = "https://${local.frontend_host}" # for building post/article links in the email
+    COGNITO_USER_POOL_ID    = module.cognito.id                # workload-owned pool (auth.tf)
   }
 
   attach_policy_statements = true
@@ -376,8 +376,8 @@ module "fn_digest" {
     cognito_read = {
       effect  = "Allow"
       actions = ["cognito-idp:ListUsers"]
-      # Pool ARN derived from the shared pool id (ssm-shared.tf) + region + account — avoids a 2nd SSM param.
-      resources = ["arn:aws:cognito-idp:${var.aws_region}:${local.account}:userpool/${data.aws_ssm_parameter.cognito_user_pool_id.value}"]
+      # Pool ARN derived from the workload-owned pool id (auth.tf) + region + account — no SSM round-trip.
+      resources = ["arn:aws:cognito-idp:${var.aws_region}:${local.account}:userpool/${module.cognito.id}"]
     }
   }
 
