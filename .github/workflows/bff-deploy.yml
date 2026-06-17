@@ -19,6 +19,7 @@ on:
       - "apps/bff/**"
       - "packages/shared/**"
       - ".github/workflows/bff-deploy.yml"
+  workflow_dispatch:
 
 permissions:
   id-token: write # OIDC → AWS
