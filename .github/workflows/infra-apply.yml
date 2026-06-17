@@ -10,6 +10,8 @@ on:
     paths:
       - "iac/**"
       - ".github/workflows/infra-apply.yml"
+  # Manual trigger for cutovers / re-applies after out-of-band remediation (e.g. Lambda@Edge replica drain).
+  workflow_dispatch:
 
 permissions:
   contents: read
