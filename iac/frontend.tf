@@ -108,6 +108,12 @@ module "cloudfront" {
     }
   }
 
+  # NOTE: CloudFront evaluates these in order and uses the FIRST match. Vite emits the SPA build under
+  # /assets/* into the FED bucket (the `s3` origin), so /assets/* MUST resolve there or the app can't
+  # load its own JS/CSS. The generic asset store (avatars today, editor uploads later) lives in the
+  # `assets` bucket under the avatars/ prefix → served at /assets/avatars/*, which is listed BEFORE the
+  # broad /assets/* so it wins. (A future non-avatars prefix in the assets bucket needs its own behavior
+  # here, or move the SPA build to /static/* to reserve all of /assets/* for the store.)
   ordered_cache_behavior = [
     {
       path_pattern           = "/og/*"
@@ -120,8 +126,18 @@ module "cloudfront" {
       cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
     },
     {
-      path_pattern           = "/assets/*"
+      path_pattern           = "/assets/avatars/*" # generic asset store (avatars) — MUST precede /assets/*
       target_origin_id       = "assets"
+      viewer_protocol_policy = "redirect-to-https"
+      allowed_methods        = ["GET", "HEAD"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+      use_forwarded_values   = false
+      cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+    },
+    {
+      path_pattern           = "/assets/*" # Vite SPA build assets → FED bucket (the app's own JS/CSS/fonts)
+      target_origin_id       = "s3"
       viewer_protocol_policy = "redirect-to-https"
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
