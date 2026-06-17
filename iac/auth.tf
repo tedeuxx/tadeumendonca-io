@@ -48,6 +48,10 @@ module "cognito" {
   source  = "lgallard/cognito-user-pool/aws"
   version = "~> 0.31"
 
+  # Gate on SES verification (ses.tf) — the pool's email_configuration points at the SES identity, and
+  # CreateUserPool fails if SES hasn't verified the domain yet. Critical for greenfield (prod) applies.
+  depends_on = [aws_ses_domain_identity_verification.this]
+
   user_pool_name           = "${var.project}-${var.environment}"
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]

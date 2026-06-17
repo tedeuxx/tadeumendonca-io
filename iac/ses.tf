@@ -29,3 +29,14 @@ resource "aws_ssm_parameter" "ses_from_address" {
   type  = "String"
   value = local.ses_from_address
 }
+
+# Block the apply until SES has actually VERIFIED the domain identity (an async DNS check — module.ses
+# only creates the identity + the _amazonses TXT record, it does not wait for verification). Without
+# this gate a greenfield apply races: module.cognito's email_configuration references the SES identity,
+# and CreateUserPool fails with "Email address is not verified" if the pool is created before SES
+# finishes verifying. module.cognito depends_on this (auth.tf), so Cognito never runs early. Because the
+# route53 records live in the same hosted zone, verification typically completes within a couple minutes.
+resource "aws_ses_domain_identity_verification" "this" {
+  domain     = local.frontend_host
+  depends_on = [module.ses]
+}
