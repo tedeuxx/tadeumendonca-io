@@ -26,7 +26,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 export async function authedFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = (await fetchAuthSession()).tokens?.accessToken?.toString();
   if (!token) {
-    await signInWithRedirect();
+    await signInWithRedirect({ provider: 'Google' }); // social-only → straight to Google, never the hosted-UI screen
     throw { error: { code: 'unauthenticated' } } satisfies ApiError;
   }
   const res = await fetch(`${env.apiBaseUrl}${path}`, {
@@ -34,7 +34,7 @@ export async function authedFetch<T>(path: string, init: RequestInit = {}): Prom
     headers: { ...init.headers, Authorization: `Bearer ${token}` },
   });
   if (res.status === 401) {
-    await signInWithRedirect();
+    await signInWithRedirect({ provider: 'Google' }); // social-only → straight to Google, never the hosted-UI screen
     throw { error: { code: 'unauthorized' } } satisfies ApiError;
   }
   return parse<T>(res);
