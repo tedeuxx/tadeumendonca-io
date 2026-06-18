@@ -3,6 +3,7 @@
 // BFF identifies the caller by their token sub, so these only ever touch the caller's own record.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authedFetch } from '../lib/api';
+import { useAuth } from '../auth/authStore';
 
 export type DigestSchedule = 'daily' | 'weekly';
 
@@ -22,8 +23,12 @@ export interface MeInput {
   newsletter_schedule?: DigestSchedule;
 }
 
+// Gated on an authenticated session — `/me` is authed, so firing it while anonymous makes authedFetch
+// redirect to login. The site is PUBLIC (feed/blog/profile are open); only fetch the profile once the
+// viewer is actually signed in. (This guard is what keeps the home from bouncing visitors to Cognito.)
 export function useMe() {
-  return useQuery({ queryKey: ['me'], queryFn: () => authedFetch<Me>('/me') });
+  const status = useAuth((s) => s.status);
+  return useQuery({ queryKey: ['me'], queryFn: () => authedFetch<Me>('/me'), enabled: status === 'authenticated' });
 }
 
 export function useUpdateMe() {
