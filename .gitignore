@@ -28,3 +28,6 @@ crash.log
 # editor / os
 .DS_Store
 *.log
+
+# Claude Code — personal/local overrides (e.g. autoMemoryDirectory). Never committed.
+.claude/settings.local.json
