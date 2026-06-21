@@ -1,64 +1,108 @@
 # tadeumendonca-pwa
 
-**Monorepo da plataforma tadeumendonca.io — o workspace ativo E o produto em si.** Todo o desenvolvimento
-(frontend, BFF, infra do app) acontece **aqui, in-place**. `-api`/`-fed` arquivados.
+**Monorepo of the tadeumendonca.io platform — the active app workspace AND the product itself.** All app
+development (frontend, BFF, app infra) happens **here, in-place**. `-api`/`-fed` were archived then deleted
+(their history is preserved here via `git subtree`).
 
-## Propósito na plataforma (por que existe — NÃO é portfólio)
-tadeumendonca.io é o **artefato de prova de engenharia** do dono — um **produto real** que ele projeta,
-constrói e opera, para se reposicionar de "Architect (AWS Professional Services / consultoria)" para
-**Senior Software Engineer** em product companies. O site **não é portfólio estático**: a stack e as
-decisões arquiteturais **são parte do argumento**. **Este repo é o produto que os visitantes veem**, e
-entrega 3 fases:
-1. **CV digital interativo** (`/profile`) — referência canônica da experiência (mais rico que PDF; alinhado palavra-a-palavra com LinkedIn + CV Canva).
-2. **Feed** (`/`) — análises técnicas, decisões de sistema, raciocínio de engenharia em público.
-3. **Blog / artigos longos** (`/blog`) — deep dives, trade-offs explícitos, padrões de distributed systems / AWS.
+> Convention: everything **published on GitHub** (this file, READMEs, descriptions, commit/PR text, issues)
+> is written in **English**. The product UI is pt-BR; that's product content, not GitHub publication.
 
-**Implicações operacionais (são REGRA, não enfeite):**
-- **Decisões defensáveis + trade-offs documentados** — o código é público e é o pitch; toda escolha precisa de um porquê articulável.
-- **Sem over-engineering** — o serviço/abstração mais simples que resolve. Mas **não é playground**: é produto que precisa funcionar (qualidade real, não protótipo).
-- Princípios fixos da plataforma: **cloud-native** (sem servidor próprio), **IaC-first** (zero ClickOps), **scale-to-zero / custo controlado**, **observabilidade desde o dia 1** (CloudWatch + X-Ray), **CI/CD desde o commit 1** (GitHub Actions).
+## Purpose in the platform (why it exists — NOT a portfolio)
+tadeumendonca.io is the owner's **proof-of-engineering product** — a **real product** he designs, builds and
+operates, to reposition from "Architect (AWS Professional Services / consulting)" to **Senior Software
+Engineer** at product companies. The site is **not a static portfolio**: the stack and the architectural
+decisions **are part of the argument**. **This repo is the product visitors see**, delivering 3 phases:
+1. **Interactive digital CV** (`/profile`) — canonical reference of the owner's experience (richer than a PDF; aligned word-for-word with LinkedIn + the Canva CV).
+2. **Feed** (`/`) — technical analyses, system decisions, engineering reasoning in public.
+3. **Blog / long-form articles** (`/blog`) — deep dives, explicit trade-offs, distributed-systems / AWS patterns.
 
-## Estrutura
-- **`apps/fed/`** — SPA pública (React + Vite + PWA offline-first). Guia próprio em `apps/fed/CLAUDE.md`.
-- **`apps/bff/`** — Backend-for-Frontend (Hono + Lambda + DynamoDB). Guia próprio em `apps/bff/CLAUDE.md`.
-- **`iac/`** — Terraform da **infra do app** (Cognito, SES, API GW, S3, CloudFront, lambdas, EventBridge
-  digest…). State em Terraform Cloud (`tadeumendonca-pwa-{staging,production}`), execução **Local**.
+**Operating implications (RULES, not flavor):** defensible decisions with documented trade-offs (the code is
+public and IS the pitch); **no over-engineering** (simplest thing that solves it) but **not a playground**
+(it's a product that must work); fixed principles — **cloud-native**, **IaC-first** (zero ClickOps),
+**scale-to-zero / cost-controlled**, **observability from day 1** (CloudWatch + X-Ray), **CI/CD from commit 1**.
 
-## Repos irmãos (ativos)
-- **`tadeumendonca-iac`** — só **infra compartilhada** (WAF regional). Toca lá só se for cross-workload.
-- **`tadeumendonca-skills`** — biblioteca de skills do Claude (plugin + marketplace).
+## Architectural decisions, requirements & trade-offs (the rationale — read before changing infra)
+Two requirements are in tension; every decision below resolves them.
+- **R1 — run a REAL product on a personal budget:** scale-to-zero, cost-controlled, no always-on spend.
+- **R2 — keep a DEFENSIBLE security posture:** security is part of the engineering argument; access control is non-negotiable.
 
-## Fluxo (GitFlow)
-- Branch a partir de **`develop`** → PR (0 approvals) → merge → **deploy automático em staging**.
-- `develop` é o default. **`main` ainda NÃO existe** — criar quando houver linha de produção (main = prod com aprovação do Environment `production`).
-- **Versão única do monorepo** (SemVer numérico, `VERSION` na raiz; `version-develop` bumpa patch no push pra develop; `version-main` lê label `semver:` no merge pra main). Tags `vX.Y.Z`.
-- **CI:** `fed-ci`/`bff-ci` (lint+typecheck+test ≥85%+SonarCloud, com `dorny/paths-filter`); `infra-plan` (checkov+plan). **Deploys:** `fed-deploy`/`bff-deploy`/`infra-apply`. **Claude App:** `@claude` + auto-review.
+**Traded AWAY for cost (R1 — deliberate, acceptable, documented):**
+- **No private networking.** The BFF runs **non-VPC**; there are **no NAT Gateways, no private subnets, no
+  VPC endpoints**. NAT (~$32/mo per env + data processing) was the single largest line item — dropping it
+  roughly halved per-env cost. *Acceptable because* the BFF is stateless and reaches AWS only via public
+  service endpoints scoped by IAM; nothing sensitive sits on a network we'd need to isolate. *Revisit only*
+  if a VPC-only resource (RDS/ElastiCache) is ever introduced.
+- **No account-level environment isolation.** Staging and production share **ONE AWS account**, separated by
+  `Environment`/`Project` tags, per-env resource names (`*-staging`/`*-production`), and per-env Terraform
+  workspaces — **not** separate AWS Organizations accounts. *Acceptable because* multi-account adds real
+  overhead/cost not justified for a solo product. *The weaker cross-env blast-radius isolation is deliberately
+  compensated by R2 below.*
 
-## Decisões fixas (NÃO reverter sem discussão)
-- **Monorepo** com **versão única**. SSM como **config bus** entre workloads (DAG acíclico, sem `terraform_remote_state`).
-- **Auth social-only via Google** (Cognito hosted-UI PKCE; sem signup nativo). UI gating é **cosmético** — o BFF re-checa o grupo server-side.
-- **snake_case** ponta-a-ponta (DB/JSON/TS, sem camada de mapeamento). **REST**, ids opacos (slug/hashid). **pt-BR** em toda a UI.
-- **fed:** Tailwind próprio, **sem shadcn**; tema único (identidade BVB: preto/grafite/ouro); **PWA offline-first**.
-- **bff:** Hono + Lambda em **Pattern B** (o código vai via pipeline `update-function-code`; o Terraform usa `ignore_source_code_hash` — um `apply` NÃO reverte o código deployado); DynamoDB por entidade.
-- **Secrets:** OIDC role ARNs = **environment secrets per-env** (`AWS_INFRA/BFF/FED_OIDC_ROLE_ARN`); tooling tokens (`TFC/SONAR/CLAUDE_CODE_OAUTH/VERSION_BUMP`) = **repository** (ver skill `/workflow/github-actions`).
+**Invested in DESPITE cost (R2 — NOT cut; it compensates for what R1 gave up):**
+- **Least-privilege CI roles — the IAM role boundary IS our isolation.** Because there is no account boundary
+  between envs, IAM is the primary isolation mechanism, so it is **not optional**:
+  - **Per-job least privilege:** distinct OIDC roles — the iac runner may create/delete anything; **bff-deploy**
+    may only update its Lambda code; **fed-deploy** may only sync its bucket + invalidate CloudFront. A bug or
+    compromise in one pipeline cannot touch another's resources.
+  - **Per-env roles:** `github-actions-…-{staging,production}` are distinct — a leaked staging OIDC token can't
+    assume the production role, and the prod role is released only after the `production` Environment's
+    required-reviewer approval. This restores the env isolation the single-account choice gave up.
+- **WAF** (shared regional baseline, in `-iac`), **Cognito threat protection** (PLUS tier, ~$0.05/MAU —
+  accepted over the free ESSENTIALS tier), and the **production approval gate** are kept as the defensible posture.
 
-## ⚠️ Destrutivo / exige confirmação explícita
-- **Merge em `develop`** → deploy automático em **staging** (app) e, se tocar `iac/`, `infra-apply` = **infra AWS real**. Confirme o `plan`.
-- **Merge em `main`** → **produção** (com aprovação do Environment).
-- `terraform apply`/`destroy`; deletar dados (DynamoDB/S3); mexer em Cognito/SES/DNS — irreversível, confirmar.
-- **IaC é pipeline-only** — `apply`/`destroy` só no CI. Local é read-only (`fmt`/`validate`/`plan` de inspeção).
+**Other cost-shaped choices (R1):** fully serverless (Lambda + **DynamoDB on-demand** + S3/CloudFront static)
+so cost tracks traffic and is ~zero when idle; **CloudFront `PriceClass_100`** (NA+EU edges only);
+**Lambda@Edge only for bots** (humans pass through, minimizing the pricier L@E invocations); **OG images
+generated once, cached in S3**; **EventBridge cron** for the newsletter digest (pay-on-fire); **Terraform
+Cloud free tier + Local execution** (no paid TFC runners); **AWS Support on Basic** (free — flag before any
+paid plan reappears).
 
-## Convenções (detalhe nos guias dos apps)
-Estados de UI explícitos (loading/empty/error); contratos espelhados api↔fed (hoje duplicados — ver Stage B
-abaixo); datas com locale `pt-BR`.
+## Branching strategy (this repo: GitFlow)
+- **`develop`** is the default + integration line. Feature/fix branches cut **from `develop`** → PR (0 approvals)
+  → merge → **automatic staging deploy**.
+- **`main`** = **production**: a `develop → main` PR (with a `semver:` label) deploys to prod, gated by the
+  `production` Environment's required reviewer. **`main` does NOT exist yet** (no production line stood up).
+- **Single monorepo version** (numeric SemVer, root `VERSION`): `version-develop` bumps patch on push to
+  develop; `version-main` reads the PR `semver:` label on merge to main. Tags `vX.Y.Z`. The `bump:` commit is
+  loop-guarded. Apps' own `package.json` versions are NOT the release version.
+- `-iac` uses the **same** GitFlow. **`-skills` uses a different model** (plugin release-cut — see its CLAUDE.md):
+  there `main` is the published release consumers track, not a deploy target.
 
-## Status atual (ponto-no-tempo — 2026-06-21)
-- **Staging vivo e migrado** (app + infra + auth). Produção do `-pwa` ainda **greenfield** (não levantada).
-- **Pendente — Stage B (a dedup, motivação nº1 da migração):** extrair a lógica duplicada api↔fed pra um
-  **`packages/shared`** com **npm workspaces** (o root `package.json` ainda não tem `workspaces`, não há
-  `packages/`). Hoje `extractUrls`/unfurl e tipos (Post/Article/FeedItem) seguem duplicados em
-  `apps/bff/src/modules/unfurl/` **e** `apps/fed/src/hooks/useUnfurl.ts`.
-- **Pendente:** criar o branch **`main`** + levantar produção.
-- **Roadmap (plano aprovado):** Phases F,0,1,2,3 concluídas; próximo = **Phase 4** (editor Medium-like:
-  body HTML sanitizado + TipTap + imagens inline via pipeline de assets + Giphy via proxy do BFF) →
-  Phase 5 (automação de conteúdo + sindicação no LinkedIn).
+## Structure
+- **`apps/fed/`** — public SPA (React + Vite + PWA, offline-first). Own guide in `apps/fed/CLAUDE.md`.
+- **`apps/bff/`** — Backend-for-Frontend (Hono + Lambda + DynamoDB). Own guide in `apps/bff/CLAUDE.md`.
+- **`iac/`** — Terraform for the **app infra** (Cognito, SES, API GW, S3, CloudFront, lambdas, EventBridge
+  digest…). State in Terraform Cloud (`tadeumendonca-pwa-{staging,production}`), **Local** execution.
+
+## Sibling repos (active)
+- **`tadeumendonca-iac`** — **shared infra only** (regional WAF). Touch it only for cross-workload concerns.
+- **`tadeumendonca-skills`** — Claude Code skills library (plugin + marketplace), consumed by this repo + `-iac`.
+
+## Fixed decisions (do NOT revert without discussion)
+- **Monorepo** with a **single version**. **SSM as the config bus** between workloads (acyclic DAG, no `terraform_remote_state`).
+- **Social-only auth via Google** (Cognito hosted-UI PKCE; no native signup). UI gating is **cosmetic** — the BFF re-checks the group server-side.
+- **snake_case** end-to-end (DB/JSON/TS, no mapping layer). **REST**, opaque ids (slug/hashid). **Product UI in pt-BR** (no i18n framework).
+- **fed:** own Tailwind, **no shadcn**; single theme (BVB identity: black/graphite/gold); **offline-first PWA**.
+- **bff:** Hono + Lambda in **Pattern B** (code ships via the pipeline's `update-function-code`; Terraform uses `ignore_source_code_hash`, so an `apply` does NOT revert deployed code); per-entity DynamoDB tables.
+- **Secrets:** OIDC role ARNs = **environment secrets per-env**; tooling tokens = **repository** (see `/workflow/github-actions`).
+
+## ⚠️ Destructive / requires explicit confirmation
+- **Merge to `develop`** → automatic **staging** deploy (app) and, if it touches `iac/`, `infra-apply` = **real AWS infra**. Confirm the `plan`.
+- **Merge to `main`** → **production** (gated by Environment approval).
+- `terraform apply`/`destroy`; deleting data (DynamoDB/S3); changing Cognito/SES/DNS — irreversible, confirm.
+- **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
+
+## CI (`.github/workflows/`)
+`fed-ci`/`bff-ci` (lint + typecheck + test ≥85% + SonarCloud, gated by `dorny/paths-filter`); `infra-plan`
+(checkov + plan). Deploys: `fed-deploy`/`bff-deploy`/`infra-apply`. Claude App: `@claude` + auto-review.
+
+## Current status (point-in-time — 2026-06-21)
+- **Staging live and migrated** (app + infra + auth). `-pwa` production is still **greenfield** (not stood up).
+- **Pending — Stage B (the dedup, the #1 motivation for the migration):** extract the duplicated api↔fed logic
+  into a **`packages/shared`** with **npm workspaces** (root `package.json` has no `workspaces` yet, no
+  `packages/`). `extractUrls`/unfurl and the shared types (Post/Article/FeedItem) are still duplicated in
+  `apps/bff/src/modules/unfurl/` AND `apps/fed/src/hooks/useUnfurl.ts`.
+- **Pending:** create the **`main`** branch + stand up production.
+- **Roadmap (approved plan):** Phases F,0,1,2,3 done; next = **Phase 4** (Medium-like editor: sanitized HTML
+  body + TipTap + inline images via the assets pipeline + Giphy via a BFF proxy) → Phase 5 (content automation
+  + LinkedIn syndication).
