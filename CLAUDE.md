@@ -7,6 +7,30 @@ development (frontend, BFF, app infra) happens **here, in-place**. `-api`/`-fed`
 > Convention: everything **published on GitHub** (this file, READMEs, descriptions, commit/PR text, issues)
 > is written in **English**. The product UI is pt-BR; that's product content, not GitHub publication.
 
+## Engineering principles (always-on floor — non-negotiable)
+This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;
+its `PreToolUse` permission-guard hook activates automatically). The spine is **agent-led verification,
+human-residual**: the agent proves "done" with mechanical gates and real evidence; the human is left only the
+irreversible/architectural judgment and the production go/no-go. The floor below **never bends to risk**:
+- **Plan-first** — design and align before coding; no solo architectural call.
+- **Ask on the boundaries** — architecture, contracts (API/schema/DynamoDB), anything irreversible or
+  production-facing; decide autonomously on in-pattern implementation.
+- **Thin vertical slices, WIP = 1** — each increment end-to-end and reviewable; finish one before the next.
+- **Quality is a gate** — tests + coverage ≥ 85% + lint/typecheck + review, and **100% functional E2E + API
+  regression** (every feature ships its own; the suite is the proof nothing already working broke).
+- **Observability is part of done** — structured logs + metrics + tracing (CloudWatch + X-Ray) + post-deploy smoke.
+- **Security & resilience by-design** — least-privilege, idempotency, fail-fast/open, retries, light threat-modeling.
+- **Rigor calibrated to blast-radius** — heavy where irreversible/production, product-speed where cheap to revert;
+  the floor above is what it never turns below.
+
+**Environment = git branch** (`develop` → staging, `main` → production); **IaC is pipeline-only**; local dev is
+**staging-backed and necessarily partial** (real auth flow, email, edge validated only at staging). The agent
+works the full inner loop unprompted (git-reversible / staging-scoped) and is **denied the irreversible/production
+boundary** (push/merge to `main`, `terraform apply`/`destroy`, direct cloud mutation, force-push, `rm -rf`, secret
+writes); **never `--dangerously-skip-permissions`**. Depth lives in the plugin's `/principles/*` skills
+(`engineering-philosophy`, `verification-and-gates`, `dev-loop`, `permissions-and-environments`); for deliberate
+validation of a non-trivial decision, invoke the **`principles-guide`** subagent.
+
 ## Purpose in the platform (why it exists — NOT a portfolio)
 tadeumendonca.io is the owner's **proof-of-engineering product** — a **real product** he designs, builds and
 operates, to reposition from "Architect (AWS Professional Services / consulting)" to **Senior Software

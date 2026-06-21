@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "tadeumendonca": {
+      "source": { "source": "github", "repo": "tedeuxx/tadeumendonca-skills" }
+    }
+  },
+  "enabledPlugins": {
+    "tadeumendonca-skills@tadeumendonca": true
+  },
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git restore:*)",
+      "Bash(git stash:*)",
+      "Bash(git push:*)",
+
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(tsx:*)",
+      "Bash(python3:*)",
+
+      "Bash(playwright:*)",
+      "Bash(newman:*)",
+
+      "Bash(terraform fmt:*)",
+      "Bash(terraform validate:*)",
+      "Bash(terraform plan:*)",
+      "Bash(terraform init:*)",
+      "Bash(terraform -chdir=iac fmt:*)",
+      "Bash(terraform -chdir=iac validate:*)",
+      "Bash(terraform -chdir=iac plan:*)",
+      "Bash(terraform -chdir=iac init:*)",
+
+      "Bash(aws sts get-caller-identity:*)",
+      "Bash(aws ssm get-parameter:*)",
+      "Bash(aws ssm get-parameters:*)",
+      "Bash(aws ssm get-parameters-by-path:*)",
+      "Bash(aws ssm describe-parameters:*)",
+      "Bash(aws s3 ls:*)",
+      "Bash(aws dynamodb describe-table:*)",
+      "Bash(aws dynamodb list-tables:*)",
+      "Bash(aws dynamodb scan:*)",
+      "Bash(aws dynamodb query:*)",
+      "Bash(aws dynamodb get-item:*)",
+      "Bash(aws logs tail:*)",
+      "Bash(aws logs get-log-events:*)",
+      "Bash(aws logs filter-log-events:*)",
+      "Bash(aws logs describe-log-groups:*)",
+      "Bash(aws lambda get-function:*)",
+      "Bash(aws lambda list-functions:*)",
+      "Bash(aws cloudfront get-distribution:*)",
+      "Bash(aws cloudfront list-distributions:*)",
+      "Bash(aws cognito-idp describe-user-pool:*)",
+      "Bash(aws cognito-idp list-user-pools:*)",
+      "Bash(aws apigateway get-rest-apis:*)",
+
+      "Bash(curl http://localhost:*)",
+      "Bash(curl http://127.0.0.1:*)",
+      "Bash(curl localhost:*)"
+    ],
+    "deny": [
+      "Bash(git push origin main)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin HEAD:main:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+
+      "Bash(gh pr merge --base main:*)",
+
+      "Bash(terraform apply:*)",
+      "Bash(terraform destroy:*)",
+      "Bash(terraform -chdir=iac apply:*)",
+      "Bash(terraform -chdir=iac destroy:*)",
+
+      "Bash(aws s3 rm:*)",
+      "Bash(aws s3 cp:*)",
+      "Bash(aws s3 sync:*)",
+      "Bash(aws dynamodb put-item:*)",
+      "Bash(aws dynamodb update-item:*)",
+      "Bash(aws dynamodb delete-item:*)",
+      "Bash(aws dynamodb batch-write-item:*)",
+      "Bash(aws ssm put-parameter:*)",
+      "Bash(aws secretsmanager:*)",
+
+      "Bash(npm run e2e:production:*)",
+      "Bash(npm run api-test:production:*)",
+
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)",
+
+      "Bash(claude --dangerously-skip-permissions:*)"
+    ]
+  }
+}
