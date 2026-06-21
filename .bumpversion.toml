@@ -1,0 +1,14 @@
+[tool.bumpversion]
+current_version = "0.1.3"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+message = "bump: {current_version} → {new_version}"
+tag_message = "bump: {current_version} → {new_version}"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+
+# Single monorepo version (option A): one root VERSION + one tag for the whole repo.
+# Mirrors the per-repo scheme; the apps' own package.json versions are left as-is (not release versions).
+[[tool.bumpversion.files]]
+filename = "VERSION"
