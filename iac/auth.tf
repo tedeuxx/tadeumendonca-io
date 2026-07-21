@@ -171,13 +171,6 @@ resource "aws_cognito_user_pool_ui_customization" "this" {
   CSS
 }
 
-# Associate the SHARED REGIONAL WAF (tadeumendonca-iac, read via SSM) with the Cognito hosted UI. Raw
-# glue — no native WAF attribute on the user pool. The API GW stage association is in api.tf.
-resource "aws_wafv2_web_acl_association" "cognito" {
-  resource_arn = module.cognito.arn
-  web_acl_arn  = data.aws_ssm_parameter.waf_regional_arn.value
-}
-
 # Route53 A-alias for the custom auth domain → the Cognito-managed CloudFront distribution.
 resource "aws_route53_record" "auth" {
   zone_id = data.aws_route53_zone.main.zone_id

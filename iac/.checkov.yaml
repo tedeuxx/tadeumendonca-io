@@ -25,3 +25,7 @@ skip-check:
   # public AWS endpoints with IAM. CKV_AWS_117 ("Lambda inside a VPC") conflicts — skip until an
   # in-VPC dependency (Redis) is reintroduced (api.tf).
   - CKV_AWS_117
+  # The WAF was deliberately retired (lean/static repositioning — a personal static site doesn't carry
+  # it, and the security-posture showcase belonged to the old architect framing). CKV2_AWS_29 ("public
+  # API Gateway protected by WAF") no longer applies — skip it.
+  - CKV2_AWS_29

@@ -223,14 +223,6 @@ resource "aws_lambda_permission" "apigw_bff" {
   source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/*/*"
 }
 
-# REGIONAL WAF → the REST API stage (REST stages ARE WAF-associable). Raw glue — no native attr.
-# The WAF resource lives in the shared infra repo (tadeumendonca-iac/auth.tf); its ARN comes from the SSM
-# config bus (ssm-shared.tf) — no terraform_remote_state, acyclic split.
-resource "aws_wafv2_web_acl_association" "api_gw" {
-  resource_arn = aws_api_gateway_stage.this.arn
-  web_acl_arn  = data.aws_ssm_parameter.waf_regional_arn.value
-}
-
 # Route53 A-alias for the custom API domain → the REST API regional domain.
 resource "aws_route53_record" "api" {
   zone_id = data.aws_route53_zone.main.zone_id
