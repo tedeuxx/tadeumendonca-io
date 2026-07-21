@@ -52,6 +52,9 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Install Playwright browser (for the prerender step)
+        run: npx playwright install --with-deps chromium
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -77,7 +80,7 @@ jobs:
           VITE_COGNITO_USER_POOL_ID: ${{ steps.cfg.outputs.cognito_pool_id }}
           VITE_COGNITO_CLIENT_ID: ${{ steps.cfg.outputs.cognito_client_id }}
           VITE_COGNITO_DOMAIN: ${{ steps.cfg.outputs.cognito_domain }}
-        run: npm run build
+        run: npm run build:static
 
       - name: Publish to S3 (split cache headers)
         run: |
