@@ -57,6 +57,19 @@ module "waf_cloudfront" {
   log_destination_configs = [aws_cloudwatch_log_group.waf_cloudfront.arn]
 }
 
+# CloudFront Function (viewer-request) — rewrites directory routes to their prerendered index.html so
+# the per-route static HTML (built by `build:static`) is served. Replaces the og-edge Lambda@Edge:
+# with build-time prerender the crawler-facing OG lives in the static HTML, so UA routing is obsolete.
+# CloudFront Functions are managed in us-east-1.
+resource "aws_cloudfront_function" "spa_rewrite" {
+  provider = aws.us_east_1
+  name     = "${var.project}-spa-rewrite-${var.environment}"
+  runtime  = "cloudfront-js-2.0"
+  comment  = "Serve prerendered per-route index.html (append index.html to directory routes)."
+  publish  = true
+  code     = file("${path.module}/cloudfront-functions/spa-rewrite.js")
+}
+
 module "cloudfront" {
   source  = "terraform-aws-modules/cloudfront/aws"
   version = "~> 3.0"
@@ -99,11 +112,10 @@ module "cloudfront" {
     use_forwarded_values       = false
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6" # managed CachingOptimized
     response_headers_policy_id = "67f7725c-6f97-4210-82d7-5512b31e9d03" # managed SecurityHeadersPolicy
-    # og-edge Lambda@Edge (#6b): 3-way UA routing (human passthrough / social OG / SEO crawler)
-    lambda_function_association = {
+    # Serve prerendered per-route index.html (replaces the og-edge Lambda@Edge — see the function above).
+    function_association = {
       viewer-request = {
-        lambda_arn   = module.fn_og_edge.lambda_function_qualified_arn
-        include_body = false
+        function_arn = aws_cloudfront_function.spa_rewrite.arn
       }
     }
   }
