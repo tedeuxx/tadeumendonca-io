@@ -2,6 +2,8 @@
 // post from markdown-in-repo (../lib/content) and renders its markdown body — fully static, no backend.
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { getPostBySlug } from '../lib/content';
+import { useDocumentHead } from '../hooks/useDocumentHead';
+import { absoluteUrl } from '../lib/site';
 import { Markdown } from '../components/Markdown';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
 import { ColumnHeader, Notice } from '../components/Column';
@@ -11,6 +13,28 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { yea
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getPostBySlug(slug) : undefined;
+
+  useDocumentHead(
+    article
+      ? {
+          title: article.title,
+          description: article.excerpt,
+          canonicalPath: `/blog/${article.slug}`,
+          image: article.ogImage,
+          type: 'article',
+          publishedTime: article.date,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: article.title,
+            datePublished: article.date,
+            articleSection: article.tag,
+            url: absoluteUrl(`/blog/${article.slug}`),
+            author: { '@type': 'Person', name: 'Luiz Tadeu Mendonça' },
+          },
+        }
+      : { title: 'Artigo não encontrado', canonicalPath: '/blog' },
+  );
 
   return (
     <div>

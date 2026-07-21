@@ -2,6 +2,7 @@
 // with an optional tag filter (?tag= in the URL). Fully static — no backend, no pagination.
 import { useSearchParams, Link as RouterLink } from 'react-router-dom';
 import { getAllPosts } from '../lib/content';
+import { useDocumentHead } from '../hooks/useDocumentHead';
 import { ColumnHeader, Empty } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -10,6 +11,12 @@ export function ArticlesPage() {
   const [params, setParams] = useSearchParams();
   const tag = params.get('tag') ?? undefined;
   const posts = getAllPosts(tag);
+
+  useDocumentHead({
+    title: tag ? `Blog — #${tag}` : 'Blog',
+    description: 'Escritos técnicos sobre engenharia, IA e automação.',
+    canonicalPath: tag ? `/blog?tag=${tag}` : '/blog',
+  });
 
   return (
     <div>
