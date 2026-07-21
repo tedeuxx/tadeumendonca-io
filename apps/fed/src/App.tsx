@@ -8,6 +8,7 @@ import { queryClient, persister, PERSIST_MAX_AGE } from './lib/offline';
 import { AppShell } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
+import { PortfolioPage } from './pages/PortfolioPage';
 import { PostPage } from './pages/PostPage';
 import { ComposePage } from './pages/ComposePage';
 import { ArticlesPage } from './pages/ArticlesPage';
@@ -37,8 +38,9 @@ export function App() {
       <BrowserRouter>
         <AppShell>
           <Routes>
-            <Route path="/" element={<FeedPage />} />
-            <Route path="/feed" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/feed" element={<FeedPage />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/posts/:postId" element={<PostPage />} />
             <Route path="/p/:code" element={<ShortLinkPage />} />
             <Route path="/blog" element={<ArticlesPage />} />
@@ -46,7 +48,8 @@ export function App() {
             {/* Back-compat: old /articles deep-links (og:image, notifications) still resolve. */}
             <Route path="/articles" element={<Navigate to="/blog" replace />} />
             <Route path="/articles/:slug" element={<ArticlePage />} />
-            <Route path="/profile" element={<HomePage />} />
+            {/* Back-compat: /profile deep-links (og:image, older shares) now land on the CV landing. */}
+            <Route path="/profile" element={<Navigate to="/" replace />} />
             <Route
               path="/compose"
               element={
