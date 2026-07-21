@@ -1,24 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HomePage } from './HomePage';
-import type { Profile } from '../types/profile';
+import { profile } from '../data/profile';
 
-const { apiFetch } = vi.hoisted(() => ({ apiFetch: vi.fn() }));
-vi.mock('../lib/api', () => ({ apiFetch }));
-
-const sample: Profile = {
-  profile_id: 'me',
-  name: 'Tadeu Mendonça',
-  headline: 'Engineer',
-  experience: [],
-  education: [],
-  certifications: [],
-  skills: {},
-  metadata: {},
-};
-
+// Reframe-first: the landing renders the STATIC CV (no BFF call) followed by the portfolio section.
 function renderHome() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -30,21 +17,14 @@ function renderHome() {
   );
 }
 
-describe('HomePage', () => {
-  beforeEach(() => apiFetch.mockReset());
-
-  it('shows a loading state, then the profile', async () => {
-    let resolve: (p: Profile) => void = () => {};
-    apiFetch.mockReturnValueOnce(new Promise<Profile>((r) => (resolve = r)));
+describe('HomePage (landing)', () => {
+  it('renders the static CV', async () => {
     renderHome();
-    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
-    resolve(sample);
-    expect(await screen.findByText('Tadeu Mendonça')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: profile.name })).toBeInTheDocument();
   });
 
-  it('shows an error state on failure', async () => {
-    apiFetch.mockRejectedValueOnce({ error: { code: 'request_failed' } });
+  it('renders the portfolio section', async () => {
     renderHome();
-    await waitFor(() => expect(screen.getByText(/Não foi possível carregar o perfil/)).toBeInTheDocument());
+    expect(await screen.findByRole('heading', { level: 2, name: 'Portfólio' })).toBeInTheDocument();
   });
 });

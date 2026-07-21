@@ -4,7 +4,7 @@
 //   The header + nav row stick together at the top; the nav row scrolls horizontally on narrow screens.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, User, LogIn, LogOut, Settings, WifiOff } from 'lucide-react';
+import { Home, FileText, User, Boxes, LogIn, LogOut, Settings, WifiOff } from 'lucide-react';
 import { useAuth } from '../auth/authStore';
 import { useMe, avatarUrl } from '../hooks/useMe';
 import { useOnline } from '../hooks/useOnline';
@@ -30,10 +30,13 @@ interface NavEntry {
   label: string;
   icon: typeof Home;
 }
+// Reframe-first: lead with the CV landing + portfolio; the product (blog, feed) stays but is
+// de-emphasized (pushed to the right).
 const NAV: NavEntry[] = [
-  { to: '/', label: 'Feed', icon: Home },
+  { to: '/', label: 'Quem Sou', icon: User },
+  { to: '/portfolio', label: 'Portfólio', icon: Boxes },
   { to: '/blog', label: 'Blog', icon: FileText },
-  { to: '/profile', label: 'Quem Sou', icon: User },
+  { to: '/feed', label: 'Feed', icon: Home },
 ];
 
 function HeaderBrand() {
