@@ -1,5 +1,4 @@
-# App-infra outputs (visibility in TFC). Shared-infra outputs (cognito_user_pool_id, cognito_hosted_ui_url,
-# waf_regional_arn) live in the tadeumendonca-iac repo; this app repo consumes them via SSM (ssm-shared.tf).
+# App-infra outputs (visibility in TFC).
 
 output "frontend_bucket_name" {
   description = "Private fed SPA origin bucket (CloudFront OAC reads it)."

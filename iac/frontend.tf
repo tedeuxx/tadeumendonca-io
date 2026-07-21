@@ -3,60 +3,6 @@
 # a /og/* behavior to the og-images bucket and SPA error routing. The Lambda@Edge (og-edge) viewer
 # request is deferred to api.tf (#6) — the SPA serves fine without it (it's bot/SEO only).
 
-# WAF CLOUDFRONT scope — us-east-1 (required). Same block-list model + pin rationale as the REGIONAL
-# WAF (auth.tf): cloudposse/waf 1.11.x (>= 1.12 needs aws v6) with a per-rule visibility_config.
-resource "aws_cloudwatch_log_group" "waf_cloudfront" {
-  provider          = aws.us_east_1 # CLOUDFRONT WAF logs must live in us-east-1
-  name              = "aws-waf-logs-${var.project}-cloudfront-${var.environment}"
-  retention_in_days = var.environment == "production" ? 90 : 30
-}
-
-module "waf_cloudfront" {
-  source    = "cloudposse/waf/aws"
-  version   = "~> 1.11.0"
-  providers = { aws = aws.us_east_1 }
-
-  name           = "${var.project}-cloudfront-${var.environment}"
-  scope          = "CLOUDFRONT"
-  default_action = "allow"
-
-  managed_rule_group_statement_rules = [
-    {
-      name            = "common"
-      priority        = 1
-      override_action = "none"
-      statement       = { name = "AWSManagedRulesCommonRuleSet", vendor_name = "AWS" }
-      visibility_config = {
-        cloudwatch_metrics_enabled = true
-        sampled_requests_enabled   = true
-        metric_name                = "${var.project}-cloudfront-common-${var.environment}"
-      }
-    },
-  ]
-
-  rate_based_statement_rules = [
-    {
-      name      = "rate-limit"
-      priority  = 10
-      action    = "block"
-      statement = { limit = 2000, aggregate_key_type = "IP" }
-      visibility_config = {
-        cloudwatch_metrics_enabled = true
-        sampled_requests_enabled   = true
-        metric_name                = "${var.project}-cloudfront-rate-limit-${var.environment}"
-      }
-    },
-  ]
-
-  visibility_config = {
-    cloudwatch_metrics_enabled = true
-    sampled_requests_enabled   = true
-    metric_name                = "${var.project}-cloudfront-${var.environment}"
-  }
-
-  log_destination_configs = [aws_cloudwatch_log_group.waf_cloudfront.arn]
-}
-
 # CloudFront Function (viewer-request) — rewrites directory routes to their prerendered index.html so
 # the per-route static HTML (built by `build:static`) is served. Replaces the og-edge Lambda@Edge:
 # with build-time prerender the crawler-facing OG lives in the static HTML, so UA routing is obsolete.
@@ -81,7 +27,6 @@ module "cloudfront" {
   http_version        = "http2and3"
   price_class         = "PriceClass_100" # NA + EU edges (cheapest)
   wait_for_deployment = false
-  web_acl_id          = module.waf_cloudfront.arn
 
   create_origin_access_control = true
   origin_access_control = {
