@@ -1,13 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { BlogPost } from '../lib/content';
 
-const { useArticles } = vi.hoisted(() => ({ useArticles: vi.fn() }));
-vi.mock('../hooks/useArticles', () => ({ useArticles }));
+const { getAllPosts } = vi.hoisted(() => ({ getAllPosts: vi.fn() }));
+vi.mock('../lib/content', () => ({ getAllPosts }));
 
 import { ArticlesPage } from './ArticlesPage';
 
-const renderAt = (path = '/articles') =>
+const post: BlogPost = {
+  slug: 'building',
+  title: 'Building',
+  date: '2026-06-01T00:00:00Z',
+  tag: 'aws',
+  excerpt: 'x',
+  body: '# hi',
+};
+
+const renderAt = (path = '/blog') =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <ArticlesPage />
@@ -17,56 +27,35 @@ const renderAt = (path = '/articles') =>
 beforeEach(() => vi.clearAllMocks());
 
 describe('ArticlesPage', () => {
-  it('shows empty state', () => {
-    useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
+  it('shows the empty state', () => {
+    getAllPosts.mockReturnValue([]);
     renderAt();
     expect(screen.getByText('Ainda não há artigos.')).toBeInTheDocument();
   });
 
-  it('lists articles with their title link', () => {
-    useArticles.mockReturnValue({
-      data: { pages: [{ items: [{ article_id: 'a1', slug: 'building', tag: 'aws', title: 'Building', excerpt: 'x', published: true, created_at: '2026-06-01T00:00:00Z' }] }] },
-      isLoading: false,
-      isError: false,
-      hasNextPage: false,
-    });
+  it('lists posts with their title link', () => {
+    getAllPosts.mockReturnValue([post]);
     renderAt();
     expect(screen.getByRole('link', { name: 'Building' })).toHaveAttribute('href', '/blog/building');
   });
 
-  it('passes the tag from the URL to the hook + shows a clear filter', () => {
-    useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
-    renderAt('/articles?tag=aws');
-    expect(useArticles).toHaveBeenCalledWith('aws');
+  it('passes the tag from the URL to the loader + shows a clear filter', () => {
+    getAllPosts.mockReturnValue([]);
+    renderAt('/blog?tag=aws');
+    expect(getAllPosts).toHaveBeenCalledWith('aws');
     expect(screen.getByRole('button', { name: 'Limpar filtro' })).toBeInTheDocument();
   });
 
-  it('shows error state', () => {
-    useArticles.mockReturnValue({ data: undefined, isLoading: false, isError: true, hasNextPage: false });
-    renderAt();
-    expect(screen.getByText(/Não foi possível carregar os artigos/)).toBeInTheDocument();
-  });
-
-  it('filters by clicking a tag badge and loads more', () => {
-    const fetchNextPage = vi.fn();
-    useArticles.mockReturnValue({
-      data: { pages: [{ items: [{ article_id: 'a1', slug: 'building', tag: 'aws', title: 'Building', excerpt: 'x', published: true, created_at: '2026-06-01T00:00:00Z' }] }] },
-      isLoading: false,
-      isError: false,
-      hasNextPage: true,
-      fetchNextPage,
-      isFetchingNextPage: false,
-    });
+  it('filters by clicking a tag badge', () => {
+    getAllPosts.mockReturnValue([post]);
     renderAt();
     fireEvent.click(screen.getByText('#aws')); // tag → setParams
-    expect(screen.getByRole('button', { name: 'Limpar filtro' })).toBeInTheDocument(); // URL now has ?tag=aws
-    fireEvent.click(screen.getByRole('button', { name: 'Carregar mais' }));
-    expect(fetchNextPage).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Limpar filtro' })).toBeInTheDocument();
   });
 
   it('clears the tag filter', () => {
-    useArticles.mockReturnValue({ data: { pages: [{ items: [] }] }, isLoading: false, isError: false, hasNextPage: false });
-    renderAt('/articles?tag=aws');
+    getAllPosts.mockReturnValue([]);
+    renderAt('/blog?tag=aws');
     fireEvent.click(screen.getByRole('button', { name: 'Limpar filtro' }));
     expect(screen.queryByRole('button', { name: 'Limpar filtro' })).toBeNull();
   });
