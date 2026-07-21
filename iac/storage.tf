@@ -12,14 +12,6 @@ locals {
   # Shared hardened baseline applied to every bucket.
   s3_force_destroy = var.environment != "production" # stg can be torn down; prod protected
 
-  # Default: SSE-KMS with the AWS-managed aws/s3 key (the not-publicly-served buckets — artifacts).
-  s3_encryption = {
-    rule = {
-      apply_server_side_encryption_by_default = { sse_algorithm = "aws:kms" }
-      bucket_key_enabled                      = true # S3 Bucket Keys — fewer KMS calls (cost)
-    }
-  }
-
   # CloudFront-served public buckets (fed, og-images) use SSE-S3 (AES256): CloudFront OAC can't
   # decrypt objects under the AWS-managed aws/s3 KMS key (its key policy can't grant the CloudFront
   # service principal kms:Decrypt), which 403s the SPA. The content is public, so AES256 at rest is
@@ -56,35 +48,7 @@ module "frontend_bucket" {
   versioning = { enabled = true } # rollback safety for the site
 }
 
-# 2. Lambda code artifacts — Pattern B bootstrap zip + deploy bundles (bff/og-edge).
-module "artifacts_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 4.0"
-
-  bucket        = "${local.bucket_prefix}-artifacts-${var.environment}"
-  force_destroy = local.s3_force_destroy
-
-  control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration  = local.s3_encryption
-  attach_deny_insecure_transport_policy = true
-
-  versioning = { enabled = true } # keep prior bundles for rollback
-
-  lifecycle_rule = [{
-    id                            = "expire-old-versions"
-    enabled                       = true
-    noncurrent_version_expiration = { days = 30 }
-  }]
-}
-
-# 3. Generated OG images cache — private, read via the main CloudFront /og/* behavior (OAC in #7).
+# 2. Generated OG images cache — private, read via the main CloudFront /og/* behavior (OAC in #7).
 module "og_images_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 4.0"
@@ -144,12 +108,6 @@ resource "aws_ssm_parameter" "frontend_bucket_name" {
   name  = "/${var.environment}/frontend/s3-bucket-name"
   type  = "String"
   value = module.frontend_bucket.s3_bucket_id
-}
-
-resource "aws_ssm_parameter" "artifacts_bucket_name" {
-  name  = "/${var.environment}/storage/artifacts-bucket-name"
-  type  = "String"
-  value = module.artifacts_bucket.s3_bucket_id
 }
 
 resource "aws_ssm_parameter" "og_images_bucket_name" {
