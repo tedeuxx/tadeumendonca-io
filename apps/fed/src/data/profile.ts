@@ -100,12 +100,14 @@ export const profile: Profile = {
       end_date: '2010',
     },
   ],
+  // badge_image_url (the official Credly image) and credential_url are still missing; until they are
+  // filled in, the CV falls back to the typographic seal built from badge_label.
   certifications: [
-    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)' },
+    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nPRO' },
+    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nPRA' },
+    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'DEV\nASC' },
+    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nASC' },
+    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A' },
   ],
   skills: {
     'AI & Agentic': [

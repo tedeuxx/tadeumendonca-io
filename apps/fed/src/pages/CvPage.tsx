@@ -2,11 +2,11 @@
 // name and bio appear (the landing is the brand, not the person). Static profile (../data/profile),
 // so there is no loading or error path.
 //
-// Slice 3 gives the route its own head + reading width; the brutalist CVSection (separate Formação
-// and Certificações, Credly badges, mono ticks) lands in the CV slice.
+// The CV is rendered by CVSection: numbered sticky blocks, separate Formação and Certificações,
+// certifications as badges.
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
-import { ProfileView } from '../components/ProfileView';
+import { CVSection } from '../components/CVSection';
 import { Empty } from '../components/Column';
 import { SITE_URL } from '../lib/site';
 
@@ -32,9 +32,5 @@ export function CvPage() {
 
   if (!profile) return <Empty>Perfil ainda não disponível.</Empty>;
 
-  return (
-    <div className="mx-auto w-full max-w-3xl">
-      <ProfileView profile={profile} />
-    </div>
-  );
+  return <CVSection profile={profile} />;
 }
