@@ -58,9 +58,13 @@ module "oidc_fed" {
   role_name                      = "github-actions-fed-${var.environment}"
   provider_url                   = "token.actions.githubusercontent.com"
   oidc_fully_qualified_audiences = ["sts.amazonaws.com"]
-  # Monorepo: the fed deploy job runs from tadeumendonca-pwa. Role kept fed-scoped (policy_fed_deploy).
-  oidc_subjects_with_wildcards = ["repo:${var.github_org}/${var.project}-pwa:*"]
-  role_policy_arns             = [module.policy_fed_deploy.arn]
+  # The fed deploy job runs from this repo. Trusts BOTH the current name (-pwa) and the rename target
+  # (-io) during the repo-rename transition; drop the -pwa entry after the rename lands.
+  oidc_subjects_with_wildcards = [
+    "repo:${var.github_org}/${var.project}-pwa:*",
+    "repo:${var.github_org}/${var.project}-io:*",
+  ]
+  role_policy_arns = [module.policy_fed_deploy.arn]
 }
 
 # SSM config bus — app repos read AWS_OIDC_ROLE_ARN at deploy (never a rotatable secret).
