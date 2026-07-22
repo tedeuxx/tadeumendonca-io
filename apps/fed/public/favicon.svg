@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TM.io">
-  <rect width="512" height="512" rx="96" fill="#0A0A0A"/>
-  <g fill="#E8A613">
+  <rect width="512" height="512" fill="#0A0A0A"/>
+  <g fill="#FF5A00">
     <rect x="106.24" y="194.56" width="69.12" height="23.04"/>
     <rect x="129.28" y="194.56" width="23.04" height="122.88"/>
     <rect x="185.6" y="194.56" width="23.04" height="122.88"/>
@@ -9,7 +9,7 @@
     <rect x="308.48" y="240.64" width="16.38" height="76.8"/>
     <circle cx="316.67" cy="217.6" r="12.29"/>
   </g>
-  <g stroke="#E8A613" stroke-linecap="round" fill="none">
+  <g stroke="#FF5A00" stroke-linecap="round" fill="none">
     <g stroke-width="23.04">
       <line x1="197.12" y1="194.56" x2="225.28" y2="258.46"/>
       <line x1="253.44" y1="194.56" x2="225.28" y2="258.46"/>
