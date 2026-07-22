@@ -78,9 +78,9 @@ jobs:
         if: steps.changes.outputs.code == 'true'
         run: npm run build
 
-      # Authoritative quality gate (see bff-ci). projectBaseDir scopes the scan to apps/fed.
+      # Authoritative quality gate. projectBaseDir scopes the scan to apps/fed.
       # NOTE (owner/external): the SonarCloud project tedeuxx_tadeumendonca-fed must be rebound to the
-      # tadeumendonca-pwa repo (monorepo mode) for PR decoration to work.
+      # tadeumendonca-io repo for PR decoration to work.
       - name: SonarCloud scan (quality gate blocks)
         if: steps.changes.outputs.code == 'true'
         uses: SonarSource/sonarqube-scan-action@v7

@@ -1,60 +1,48 @@
-# tadeumendonca-pwa
+# tadeumendonca-io
 
-Monorepo for [tadeumendonca.io](https://tadeumendonca.io) — the platform's application workspace **and** the
-product itself: an installable, offline-first PWA backed by a serverless BFF, all developed here in-place.
+The public presence for [tadeumendonca.io](https://tadeumendonca.io) — a **fully static SPA** that serves as
+the owner's proof-of-engineering: an interactive CV, a portfolio that links to a curated catalog of automations
+and agentic tools, and a blog. It backs a repositioning to **AI Engineer** (agentic development / AI-native
+automations), anchored in SDLC and distributed systems.
 
-This is **not a static portfolio**. tadeumendonca.io is a real, operated product whose stack and architectural
-decisions are part of the engineering argument, delivered in three surfaces:
+Three surfaces:
 
-1. **Interactive digital CV** (`/profile`) — canonical reference of the owner's experience.
-2. **Feed** (`/`) — technical analyses, system decisions, engineering reasoning in public.
-3. **Blog / long-form articles** (`/blog`) — deep dives with explicit trade-offs.
+1. **Interactive CV** (`/`) — canonical reference of the owner's experience.
+2. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code.
+3. **Blog** (`/blog`) — long-form engineering writing with explicit trade-offs.
 
 ## Stack
 
-- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), React Query + Zustand,
-  installable offline-first **PWA**. UI is pt-BR.
-- **BFF** (`apps/bff`): Hono on AWS Lambda (node22/arm64), `@hono/zod-openapi` (contract generated from code),
-  DynamoDB + S3 + SES, AWS Lambda Powertools (logs/metrics/tracing).
-- **Infra** (`iac`): Terraform for the application infrastructure (Cognito, SES, API Gateway, S3, CloudFront,
-  Lambdas, EventBridge digest). State in Terraform Cloud, **local** execution; `apply`/`destroy` are
-  **pipeline-only**.
-- **Auth**: AWS Cognito (social-only via Google, hosted-UI PKCE). UI gating is cosmetic — the BFF re-checks the
-  `admin` group server-side.
+- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), installable offline-first
+  **PWA**. Content (CV, articles) is **markdown in the repo**; the build **prerenders each route** (Playwright)
+  so OG/SEO tags land in the served HTML. UI copy is pt-BR.
+- **Infra** (`iac`): Terraform for the frontend only — S3 + CloudFront (with a viewer-request URL-rewrite
+  function), custom email via iCloud, and the GitHub OIDC deploy roles. State in Terraform Cloud, **local**
+  execution; `apply`/`destroy` are **pipeline-only**.
 
-## Architecture
-
-Fully serverless and cost-controlled (scale-to-zero): the SPA talks **only** to the BFF via API Gateway;
-the BFF runs **non-VPC** and reaches AWS through public service endpoints scoped by IAM. **snake_case
-end-to-end** (DB/JSON/TS, no mapping layer); REST with opaque ids. **SSM is the config bus** between
-workloads. Least-privilege per-job/per-env OIDC roles are the primary isolation boundary (staging and
-production share one AWS account, separated by tags, names and Terraform workspaces).
+There is **no backend** — no API, database, auth, or Lambda. Cost is near-zero / scale-to-zero (static objects
+on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's immutable OIDC subject.
 
 ## Structure
 
 ```
 apps/
-  fed/    # public SPA (React + Vite + PWA, offline-first)
-  bff/    # Backend-for-Frontend (Hono + Lambda + DynamoDB)
-iac/      # Terraform for the app infra (Cognito, SES, API GW, S3, CloudFront, …)
-VERSION   # single monorepo version (numeric SemVer)
+  fed/    # the static SPA (React + Vite + PWA, offline-first)
+iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
+VERSION   # single version (numeric SemVer)
 ```
 
-## Workflow (GitFlow)
+## Workflow (trunk-based)
 
-- **`develop`** is the default + integration line. Feature/fix branches cut from `develop` → PR → merge →
-  **automatic staging deploy**.
-- **`main`** = production (gated by the `production` Environment's required reviewer). *Not stood up yet.*
-- **Environment = git branch** (`develop` → staging, `main` → production). Single monorepo version (root
-  `VERSION`, tags `vX.Y.Z`).
+- **`main`** is the only branch. Feature/fix branches cut from `main` → PR → merge → **automatic deploy** to the
+  single environment; the site serves at the apex `tadeumendonca.io`.
+- Single version (root `VERSION`, tags `vX.Y.Z`); `version-main` auto-bumps patch on every push to `main`.
 
 ## CI (`.github/workflows/`)
 
-`fed-ci` / `bff-ci` (lint + typecheck + test ≥85% coverage + SonarCloud, gated by path filters);
-`infra-plan` (checkov + plan). Deploys: `fed-deploy` / `bff-deploy` / `infra-apply`.
+`fed-ci` (lint + typecheck + test ≥85% + build + SonarCloud, path-filtered to `apps/fed`); `infra-plan`
+(checkov + `plan`). Deploys: `fed-deploy` / `infra-apply` on merge to `main`.
 
 ## Related repos
 
-- [`tadeumendonca-iac`](https://github.com/tedeuxx/tadeumendonca-iac) — shared infrastructure only (regional WAF)
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — Claude Code skills library (plugin + marketplace), consumed here
-- [`tadeumendonca-io-aws-landing-zone`](https://github.com/tedeuxx/tadeumendonca-io-aws-landing-zone) — AWS account foundation
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — Claude Code skills library (plugin + marketplace), whose principles layer this repo consumes.
