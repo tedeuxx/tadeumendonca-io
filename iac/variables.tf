@@ -1,6 +1,5 @@
-# Canonical input variables for the APP infra (split from tadeumendonca-iac). Every variable is typed
-# and domain-validated so a bad value fails at `plan`, never at `apply`. The shared infra repo keeps its
-# own copy (plus admin_emails, which only the Cognito layer needs).
+# Canonical input variables for the frontend infra. Every variable is typed and domain-validated so a
+# bad value fails at `plan`, never at `apply`.
 
 variable "project" {
   type        = string
@@ -49,7 +48,7 @@ variable "apex_domain" {
 
 variable "github_org" {
   type        = string
-  description = "GitHub org owning the tadeumendonca-pwa monorepo — OIDC trust subjects repo:<org>/<repo>:*."
+  description = "GitHub org owning this repo. OIDC trust pins the immutable subject repo:<org>@<org_id>/<repo>@<repo_id>:* (see iam.tf)."
   default     = "tedeuxx"
   validation {
     condition     = can(regex("^[a-zA-Z0-9](-?[a-zA-Z0-9]){0,38}$", var.github_org))

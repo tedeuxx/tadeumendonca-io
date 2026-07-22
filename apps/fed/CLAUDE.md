@@ -1,8 +1,8 @@
 # tadeumendonca-fed
 
 The public **static SPA** of **tadeumendonca.io** — interactive CV, portfolio catalog and blog.
-No backend: content is markdown in the repo, prerendered at build time for OG/SEO. Part of the
-`tadeumendonca` platform (sibling repos: `-skills` = Claude Code skills library; `-iac` = archived).
+No backend: content is markdown in the repo, prerendered at build time for OG/SEO. The Terraform that
+serves it lives alongside, in `iac/`.
 
 ## Stack
 - **React 18 + Vite + TypeScript**, **Tailwind v3** (preflight on).

@@ -63,8 +63,21 @@ repo's **immutable OIDC subject** (`repo:<org>@<org_id>/<repo>@<repo_id>:*` — 
 The shared regional WAF was retired (nothing to protect on a static bucket behind CloudFront).
 
 ## Branching (trunk-based)
+**Loop model: `trunk-single-env`.** This is the declaration the principles layer reads — see
+`/principles/dev-loop`, which documents two models. Everything below follows from it, and the
+`gitflow-multi-env` half of those skills (integration branch, staging→production promotion,
+staging-backed local dev) **does not apply here**. If a principles skill and this file disagree, this
+file wins.
+
+Two consequences worth stating outright, because they are what the other model gets wrong:
+- **The PR to `main` carries the entire gate.** There is no downstream tier to defer a check to, so
+  `fed-ci` blocking on the PR is the whole verification story — a gate skipped there never runs.
+- **`main` is the working branch, not a protected production mirror.** Never add tooling that blocks
+  edits or commits by branch context; it would break every slice.
+
 - **`main`** is the only branch. Feature/fix branches cut **from `main`** → PR (0 required approvals) → merge →
-  **automatic deploy** to the single environment. A merge to `main` ships real site/infra — **confirm first**.
+  **automatic deploy** to the single environment. The merge **is** the deploy, so it is the go/no-go —
+  **confirm first**, always.
 - **Single environment** (the `tadeumendonca-pwa-staging` TFC workspace, kept as-is internally); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
@@ -74,10 +87,23 @@ The shared regional WAF was retired (nothing to protect on a static bucket behin
 - **`apps/fed/`** — the static SPA (React + Vite + Tailwind, no PWA). Own guide in `apps/fed/CLAUDE.md`.
 - **`iac/`** — Terraform for the frontend infra (S3, CloudFront + URL-rewrite function, email, OIDC roles).
   State in Terraform Cloud, **Local** execution; `apply`/`destroy` are **pipeline-only**.
+- **`.brand/`** — **gitignored, local-only, never published.** See below.
 
-## Sibling repos
-- **`tadeumendonca-skills`** — Claude Code skills library (plugin + marketplace); this repo consumes its principles layer.
-- **`tadeumendonca-iac`** — **archived** (was the shared regional WAF; retired with the backend).
+## Single workspace for the public presence
+This repo is the **one place** the owner's professional presence is maintained from — the site is one
+surface among several (LinkedIn, the Canva CV, the GitHub catalog, the newsletter). The positioning,
+the copy canonically published on each surface, and the playbook that keeps them in sync live in
+**`.brand/`**, which is **gitignored and never published** (this repo is public).
+
+Working rules that follow from that:
+- **Read `.brand/positioning.md` + `.brand/surfaces.md` before writing any public-facing copy** —
+  site content, READMEs, profile bios, CV text. Do not write positioning copy from memory; it drifts.
+- **Never publish anything from `.brand/`** — no commits, PRs, issues, or quotes into public surfaces.
+- **A positioning change propagates to every surface in one batch**, per the sync playbook, and
+  `.brand/surfaces.md` is updated to match what actually shipped.
+- **Writes to external public surfaces are ask-first** — show the diff/proposal and get an ok.
+- MCP servers for this workflow are registered in **local scope** (`claude mcp add -s local …`),
+  never in a committed `.mcp.json`.
 
 ## Fixed decisions (do NOT revert without discussion)
 - **Static site**, no backend. Content is **markdown in the repo**, prerendered for OG/SEO.
