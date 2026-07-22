@@ -30,12 +30,6 @@ variable "aws_region" {
   }
 }
 
-variable "admin_emails" {
-  type        = list(string)
-  description = "Emails granted the Cognito 'admin' group by the fn-cognito-groups trigger (allowlist)."
-  default     = []
-}
-
 variable "apex_domain" {
   type        = string
   description = "Registrable apex domain. Hosted zone name + base for per-env hosts (api/frontend)."
