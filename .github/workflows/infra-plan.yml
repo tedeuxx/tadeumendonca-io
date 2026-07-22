@@ -2,7 +2,7 @@ name: infra-plan
 
 # PR gate for iac/ (APP infra). checkov → fmt → init → validate → plan → comment.
 # Trunk-based: a PR into main plans the single workspace. TFC is the state backend (Local execution —
-# GitHub runs the plan); AWS via OIDC. Workspace: tadeumendonca-pwa-staging (tag-based, execution Local).
+# GitHub runs the plan); AWS via OIDC. Workspace: tadeumendonca-io (tag-based, execution Local).
 #
 # Runs on EVERY PR to main so the required `infra-plan` check always reports a status; the dorny
 # paths-filter skips the heavy steps (checkov/terraform) when the change doesn't touch iac/ — the job
@@ -23,7 +23,7 @@ concurrency:
 env:
   TF_TOKEN_app_terraform_io: ${{ secrets.TFC_API_TOKEN }}
   # Single environment (trunk-based): always the one workspace + tfvars.
-  TF_WORKSPACE: tadeumendonca-pwa-staging
+  TF_WORKSPACE: tadeumendonca-io
   VAR_FILE: env/stg.tfvars
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 

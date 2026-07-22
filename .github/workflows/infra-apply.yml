@@ -32,7 +32,7 @@ jobs:
       run:
         working-directory: iac
     env:
-      TF_WORKSPACE: tadeumendonca-pwa-staging
+      TF_WORKSPACE: tadeumendonca-io
     steps:
       - name: Checkout
         uses: actions/checkout@v4

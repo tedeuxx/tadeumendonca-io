@@ -14,16 +14,17 @@ terraform {
 
   # Terraform Cloud holds state + locks; execution mode is Local (GitHub Actions runs plan/apply).
   # The cloud{} block is parsed before variables resolve, so org/tags are literal here.
-  # CI selects the workspace via TF_WORKSPACE=tadeumendonca-pwa-staging.
-  # DO NOT RENAME the workspace name or the tag below to match the current repo name. They identify the
-  # LIVE Terraform Cloud workspace holding real state; renaming points Terraform at an empty workspace,
-  # which plans a full recreate of the live site infra. The `-pwa-` string is deliberate history.
+  # CI selects the workspace via TF_WORKSPACE=tadeumendonca-io. One workspace, one environment —
+  # there is no tier suffix because there is no second tier.
+  # These identifiers resolve to LIVE state (52 resources). Changing the name or tag here WITHOUT
+  # renaming the workspace in Terraform Cloud first points Terraform at a new, empty workspace, and
+  # `plan` then proposes recreating the whole site. Rename in TFC and here in the same window.
   # This workspace owns everything the static site needs: S3 buckets, CloudFront + the URL-rewrite
   # function, the iCloud email records, and the GitHub OIDC deploy roles. There is no backend.
   cloud {
     organization = "tadeumendonca-io"
     workspaces {
-      tags = ["tadeumendonca-pwa"]
+      tags = ["tadeumendonca-io"]
     }
   }
 }
