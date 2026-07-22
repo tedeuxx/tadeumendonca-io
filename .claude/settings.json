@@ -3,10 +3,14 @@
   "extraKnownMarketplaces": {
     "tadeumendonca": {
       "source": { "source": "github", "repo": "tedeuxx/tadeumendonca-skills" }
+    },
+    "mattpocock": {
+      "source": { "source": "github", "repo": "mattpocock/skills" }
     }
   },
   "enabledPlugins": {
-    "tadeumendonca-skills@tadeumendonca": true
+    "tadeumendonca-skills@tadeumendonca": true,
+    "mattpocock-skills@mattpocock": true
   },
   "permissions": {
     "allow": [
@@ -46,7 +50,6 @@
       "Bash(python3:*)",
 
       "Bash(playwright:*)",
-      "Bash(newman:*)",
 
       "Bash(terraform fmt:*)",
       "Bash(terraform validate:*)",
@@ -63,22 +66,8 @@
       "Bash(aws ssm get-parameters-by-path:*)",
       "Bash(aws ssm describe-parameters:*)",
       "Bash(aws s3 ls:*)",
-      "Bash(aws dynamodb describe-table:*)",
-      "Bash(aws dynamodb list-tables:*)",
-      "Bash(aws dynamodb scan:*)",
-      "Bash(aws dynamodb query:*)",
-      "Bash(aws dynamodb get-item:*)",
-      "Bash(aws logs tail:*)",
-      "Bash(aws logs get-log-events:*)",
-      "Bash(aws logs filter-log-events:*)",
-      "Bash(aws logs describe-log-groups:*)",
-      "Bash(aws lambda get-function:*)",
-      "Bash(aws lambda list-functions:*)",
       "Bash(aws cloudfront get-distribution:*)",
       "Bash(aws cloudfront list-distributions:*)",
-      "Bash(aws cognito-idp describe-user-pool:*)",
-      "Bash(aws cognito-idp list-user-pools:*)",
-      "Bash(aws apigateway get-rest-apis:*)",
 
       "Bash(curl http://localhost:*)",
       "Bash(curl http://127.0.0.1:*)",
