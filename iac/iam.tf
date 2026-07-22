@@ -64,8 +64,9 @@ module "oidc_fed" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "~> 5.0"
 
-  create_role                    = true
-  role_name                      = "github-actions-fed-${var.environment}"
+  create_role = true
+  # Repo-scoped name (single env, so no -staging suffix): github-actions-tadeumendonca-io-fed.
+  role_name                      = "github-actions-${var.project}-io-fed"
   provider_url                   = "token.actions.githubusercontent.com"
   oidc_fully_qualified_audiences = ["sts.amazonaws.com"]
   # The fed deploy job runs from the tadeumendonca-io repo. Trust matches GitHub's immutable OIDC
