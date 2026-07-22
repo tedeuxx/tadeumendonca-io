@@ -37,7 +37,7 @@ test.describe('routes', () => {
 
   test('keeps the legacy /articles/:slug permalink rendering the article', async ({ page }) => {
     await page.goto('/articles/building-serverless-on-aws');
-    await expect(page.getByRole('heading', { name: 'Building Serverless on AWS' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toBeVisible();
   });
 
   test('sends an unknown path back to the landing instead of a dead end', async ({ page }) => {
