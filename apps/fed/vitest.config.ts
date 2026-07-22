@@ -15,10 +15,7 @@ export default defineConfig({
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/main.tsx', // bootstrap wiring
-        'src/App.tsx', // provider/layout/router wiring (Cloudscape AppLayout) — exercised by e2e, not unit
-        'src/auth/amplify.ts', // Amplify.configure wiring (no logic) — exercised by e2e
-        'src/pages/CallbackPage.tsx', // OAuth redirect + Hub side-effects — exercised by e2e (Playwright)
-        'src/env.ts', // build-time config accessor
+        'src/App.tsx', // provider/router/layout wiring — exercised by e2e, not unit
         'src/test-setup.ts',
         'src/types/**',
         'src/vite-env.d.ts',
