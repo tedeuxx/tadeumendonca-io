@@ -13,14 +13,18 @@ resource "aws_route53_record" "email_mx" {
   ]
 }
 
-# Apex TXT holds BOTH the Apple domain-verification token AND the SPF record (one TXT record set per
-# name; Route53 stores multiple quoted values). SPF is iCloud-only since SES is being retired.
+# Apex TXT is a SINGLE record set holding every apex TXT value (Route53 = one TXT set per name):
+# the pre-existing OpenAI domain-verification token, the Apple domain-verification token, and the SPF
+# record (iCloud-only, since SES is retired). allow_overwrite adopts the pre-existing set instead of
+# failing to create it. Keep the openai value or its verification breaks.
 resource "aws_route53_record" "email_txt" {
-  zone_id = data.aws_route53_zone.main.zone_id
-  name    = var.apex_domain
-  type    = "TXT"
-  ttl     = 3600
+  zone_id         = data.aws_route53_zone.main.zone_id
+  name            = var.apex_domain
+  type            = "TXT"
+  ttl             = 3600
+  allow_overwrite = true
   records = [
+    "openai-domain-verification=dv-kbZ0rogC68MHWmV6KeoMcOGW",
     "apple-domain=pZXsGLD80aMvXGr9",
     "v=spf1 include:icloud.com ~all",
   ]
