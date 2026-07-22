@@ -6,8 +6,8 @@ test.describe('content detail', () => {
     await page.goto('/blog/building-serverless-on-aws');
     // The detail header reads "Blog".
     await expect(page.getByRole('heading', { name: 'Blog', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Building Serverless on AWS' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Why serverless' })).toBeVisible(); // markdown body rendered
+    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'A pergunta que decidiu' })).toBeVisible(); // markdown body rendered
     await expect(page.getByRole('button', { name: 'Share' })).toBeVisible();
   });
 });
