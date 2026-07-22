@@ -15,4 +15,16 @@ describe('AboutCard', () => {
     expect(screen.getByRole('link', { name: /Quem escreve/ })).toHaveAttribute('href', '/cv');
     expect(container.textContent).not.toContain(profile.name); // no name on the landing
   });
+
+  it('shows the avatar as decoration, not as a second link target', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <AboutCard />
+      </MemoryRouter>,
+    );
+    const avatar = container.querySelector('img');
+    expect(avatar).toHaveAttribute('aria-hidden', 'true'); // the link text carries the meaning
+    expect(avatar).toHaveAttribute('alt', '');
+    expect(screen.getAllByRole('link')).toHaveLength(1); // avatar and label are one target
+  });
 });
