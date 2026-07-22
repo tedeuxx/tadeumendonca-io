@@ -3,14 +3,14 @@
 // live on /cv. Fully static (../data/*, markdown-in-repo) — no backend call.
 //
 // It owns the document head + the Person JSON-LD (the structured data still describes the person,
-// even though the visible landing does not). The contact region is a placeholder until the contact
-// footer slice replaces it.
+// even though the visible landing does not).
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { Hero } from '../components/Hero';
 import { ArticlesSection } from '../components/ArticlesSection';
 import { AboutCard } from '../components/AboutCard';
 import { ContactLinks } from '../components/ContactLinks';
+import { ContactFooter } from '../components/ContactFooter';
 import { PortfolioSection } from '../components/PortfolioSection';
 import { SITE_URL, DEFAULT_DESCRIPTION } from '../lib/site';
 
@@ -53,9 +53,7 @@ export function LandingPage() {
         <PortfolioSection limit={4} showAllLink />
       </section>
 
-      <section id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] py-8">
-        <ContactLinks title="Contato" />
-      </section>
+      <ContactFooter />
     </div>
   );
 }

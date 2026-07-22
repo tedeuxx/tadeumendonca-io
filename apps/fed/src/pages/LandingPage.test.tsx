@@ -28,7 +28,7 @@ describe('LandingPage', () => {
     renderLanding();
     expect(await screen.findByRole('heading', { name: 'Portfólio' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'Onde me encontrar' })).toBeInTheDocument(); // aside
-    expect(await screen.findByRole('heading', { name: 'Contato' })).toBeInTheDocument(); // #contato region
+    expect(await screen.findByRole('heading', { name: /Algo aqui te ajudou/ })).toBeInTheDocument(); // contact footer
   });
 
   it('does not show the personal name (it lives on /cv)', async () => {
