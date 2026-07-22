@@ -1,15 +1,18 @@
 // Generates the site-wide default OG image (public/og-default.png, 1200x630) — the fallback og:image
-// when a post has no explicit one. Dependency-free: hand-encodes a PNG (dark BVB background + a yellow
-// brand bar on the left). Run: `npm run gen-og`. A richer per-post card generator can come later.
+// when a post has no explicit one. Dependency-free: hand-encodes a PNG in the brutalist palette
+// (near-black canvas, a safety-orange brand bar on the left, and a hairline rule framing the top and
+// bottom edges). Run: `npm run gen-og`. A richer per-post card generator can come later.
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const W = 1200;
 const H = 630;
-const BG = [10, 10, 10]; // near-black graphite
-const BAR = [245, 197, 24]; // BVB yellow
-const BAR_W = 24;
+const BG = [10, 10, 10]; // #0A0A0A near-black
+const BAR = [255, 90, 0]; // #FF5A00 safety orange — the single accent
+const RULE = [42, 42, 42]; // #2A2A2A grid hairline
+const BAR_W = 32;
+const RULE_W = 4; // the heavy top/bottom rule of the brutalist frame
 
 // Raw RGB scanlines, each prefixed by a filter byte (0 = none).
 const raw = Buffer.alloc(H * (1 + W * 3));
@@ -17,7 +20,8 @@ for (let y = 0; y < H; y++) {
   const row = y * (1 + W * 3);
   raw[row] = 0;
   for (let x = 0; x < W; x++) {
-    const [r, g, b] = x < BAR_W ? BAR : BG;
+    const onRule = y < RULE_W || y >= H - RULE_W;
+    const [r, g, b] = x < BAR_W ? BAR : onRule ? RULE : BG;
     const p = row + 1 + x * 3;
     raw[p] = r;
     raw[p + 1] = g;

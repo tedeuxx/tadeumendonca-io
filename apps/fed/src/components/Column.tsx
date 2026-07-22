@@ -22,7 +22,7 @@ export function ColumnHeader({
         <button
           onClick={() => navigate(-1)}
           aria-label="Back"
-          className="-ml-1 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="-ml-1 p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft size={20} />
         </button>
@@ -45,7 +45,7 @@ export function CenterLoader() {
 }
 
 export function Notice({ children }: { children: ReactNode }) {
-  return <div className="m-4 rounded-xl border border-border bg-card p-4 text-sm text-foreground">{children}</div>;
+  return <div className="m-4 border border-border p-4 text-sm text-foreground">{children}</div>;
 }
 
 export function Empty({ children }: { children: ReactNode }) {
