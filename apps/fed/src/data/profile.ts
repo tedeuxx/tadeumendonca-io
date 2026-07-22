@@ -4,10 +4,12 @@
 // Positioning: AI Engineer (agentic development / applied GenAI), anchored in SDLC + distributed
 // systems. Sourced from LinkedIn + the Canva CV (2026-07), reframed to the new positioning.
 import type { Profile } from '../types/profile';
+import avatar from '../assets/avatar.jpg';
 
 export const profile: Profile = {
   profile_id: 'me',
   name: 'Luiz Tadeu Mendonça',
+  avatar_url: avatar,
   headline:
     'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
     'Python · TypeScript · AWS · Terraform | 17y across SDLC & Distributed Systems',

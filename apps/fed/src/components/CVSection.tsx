@@ -75,7 +75,21 @@ export function CVSection({ profile }: { profile: Profile }) {
   return (
     <div>
       <header className="px-[--gutter] pb-[clamp(1.5rem,3vw,2.5rem)] pt-[clamp(2rem,5vw,4rem)]">
-        <h1 className="text-[clamp(2.4rem,7vw,5.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.04em]">{profile.name}</h1>
+        {/* The portrait sits beside the name — full colour here, unlike the small greyscale one on
+            the landing's aside. It is decorative: the <h1> right next to it already names the person. */}
+        <div className="flex flex-wrap items-center gap-[clamp(1rem,3vw,2rem)]">
+          {profile.avatar_url && (
+            <img
+              src={profile.avatar_url}
+              alt=""
+              aria-hidden="true"
+              width={200}
+              height={200}
+              className="h-[clamp(7rem,18vw,12.5rem)] w-[clamp(7rem,18vw,12.5rem)] shrink-0 border-2 border-border-strong object-cover"
+            />
+          )}
+          <h1 className="text-[clamp(2.4rem,7vw,5.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.04em]">{profile.name}</h1>
+        </div>
         <p className="mt-3 font-mono text-sm uppercase tracking-[0.1em] text-muted-foreground">
           {profile.headline}
           {profile.location ? ` · ${profile.location}` : ''}

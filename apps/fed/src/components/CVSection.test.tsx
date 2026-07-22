@@ -38,10 +38,18 @@ describe('CVSection', () => {
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
   });
 
+  it('shows the portrait beside the name when the profile carries one', () => {
+    const { container } = render(<CVSection profile={{ ...profile, avatar_url: '/avatar.jpg' }} />);
+    const portrait = container.querySelector('img');
+    expect(portrait).toHaveAttribute('src', '/avatar.jpg');
+    expect(portrait).toHaveAttribute('aria-hidden', 'true'); // the h1 beside it names the person
+  });
+
   it('links a certification to its credential and falls back to the typographic seal', () => {
     const { container } = render(<CVSection profile={profile} />);
     expect(screen.getByRole('link', { name: /AWS SAA/ })).toHaveAttribute('href', 'https://x');
-    expect(container.querySelector('img')).toBeNull(); // no badge_image_url → seal, not an image
+    // no avatar_url and no badge_image_url → nothing renders as an image at all
+    expect(container.querySelector('img')).toBeNull();
   });
 
   it('renders the official Credly image when the data carries one', () => {
