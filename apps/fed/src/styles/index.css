@@ -32,6 +32,13 @@ body,
 #root {
   height: 100%;
 }
+/* Landing anchors (#artigos/#portfolio/#contato) — smooth only when motion is welcome; the reduced
+   motion block below resets it back to auto. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 body {
   margin: 0;
   background-color: hsl(var(--background));

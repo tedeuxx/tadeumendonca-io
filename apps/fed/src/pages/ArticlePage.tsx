@@ -37,7 +37,7 @@ export function ArticlePage() {
   );
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-3xl">
       <ColumnHeader title="Blog" back />
       {!article && <Notice>Este artigo não existe ou não está publicado.</Notice>}
 
@@ -47,7 +47,8 @@ export function ArticlePage() {
           <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
             <time dateTime={article.date}>{fmtDate(article.date)}</time>
             <span>·</span>
-            <RouterLink to={`/blog?tag=${article.tag}`} className="font-medium text-primary hover:underline">
+            {/* The /blog list is retired: the tag points back at the landing's articles section. */}
+            <RouterLink to="/#artigos" className="font-medium text-primary hover:underline">
               #{article.tag}
             </RouterLink>
             <span>·</span>
