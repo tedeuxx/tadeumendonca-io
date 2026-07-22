@@ -10,6 +10,8 @@ import { ColumnHeader, Notice } from '../components/Column';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
 
+const TRACK_LABEL = { pessoal: 'Vida pessoal', engenharia: 'Engenharia' } as const;
+
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getPostBySlug(slug) : undefined;
@@ -42,21 +44,42 @@ export function ArticlePage() {
       {!article && <Notice>Este artigo não existe ou não está publicado.</Notice>}
 
       {article && (
-        <article className="px-4 py-5">
-          <h1 className="text-3xl font-bold leading-tight">{article.title}</h1>
-          <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <time dateTime={article.date}>{fmtDate(article.date)}</time>
-            <span>·</span>
-            {/* The /blog list is retired: the tag points back at the landing's articles section. */}
-            <RouterLink to="/#artigos" className="font-medium text-primary hover:underline">
-              #{article.tag}
-            </RouterLink>
-            <span>·</span>
-            <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
-          </div>
-          <div className="mt-5 text-[17px] leading-relaxed text-foreground/90">
+        <article className="px-[--gutter] py-6">
+          <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
+              <time dateTime={article.date}>{fmtDate(article.date)}</time>
+              {article.tag && <span>· #{article.tag}</span>}
+              <span>· {TRACK_LABEL[article.track]}</span>
+              <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
+            </div>
+            <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
+              {article.title}
+            </h1>
+          </header>
+
+          <div className="max-w-prose text-[17px] leading-relaxed text-foreground/90">
             <Markdown>{article.body}</Markdown>
           </div>
+
+          <footer className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap border-t border-border pt-5">
+            {/* The /blog list is retired: "back to the articles" points at the landing's section. */}
+            <RouterLink
+              to="/#artigos"
+              className="-mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
+            >
+              ← Todos os artigos
+            </RouterLink>
+            {article.linkedinUrl && (
+              <a
+                href={article.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="-mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
+              >
+                Ver no LinkedIn
+              </a>
+            )}
+          </footer>
         </article>
       )}
     </div>

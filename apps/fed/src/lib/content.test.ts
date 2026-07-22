@@ -13,8 +13,31 @@ describe('content (markdown-in-repo)', () => {
     expect(post?.body).not.toContain('---'); // frontmatter fence stripped
   });
 
+  it('parses the track and the reader-first takeaway', () => {
+    const post = getPostBySlug('building-serverless-on-aws');
+    expect(post?.track).toBe('engenharia');
+    expect(post?.takeaway).toBeTruthy();
+  });
+
+  it('defaults the optional fields conservatively', () => {
+    const post = getPostBySlug('building-serverless-on-aws');
+    expect(post?.hasVideo).toBe(false); // an absent flag is never truthy
+    expect(post?.linkedinUrl).toBeUndefined();
+    expect(post?.cover).toBeUndefined();
+  });
+
   it('filters by tag and returns [] for an unknown tag', () => {
-    expect(getAllPosts('aws').length).toBeGreaterThan(0);
-    expect(getAllPosts('does-not-exist')).toEqual([]);
+    expect(getAllPosts({ tag: 'aws' }).length).toBeGreaterThan(0);
+    expect(getAllPosts({ tag: 'does-not-exist' })).toEqual([]);
+  });
+
+  it('filters by track', () => {
+    expect(getAllPosts({ track: 'engenharia' }).length).toBeGreaterThan(0);
+    expect(getAllPosts({ track: 'pessoal' })).toEqual([]);
+  });
+
+  it('returns everything when no filter is given', () => {
+    expect(getAllPosts().length).toBeGreaterThan(0);
+    expect(getAllPosts({})).toEqual(getAllPosts());
   });
 });

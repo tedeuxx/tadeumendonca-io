@@ -2,15 +2,16 @@
 // a full-width section, contact closes the page. The owner's name and bio do NOT live here; they
 // live on /cv. Fully static (../data/*, markdown-in-repo) — no backend call.
 //
-// Slice 3 wires the anchored regions and owns the document head + Person JSON-LD (moved off the
-// retired HomePage). Hero, the slim aside, the reader-first article cards and the contact footer
-// land in their own slices.
+// It owns the document head + the Person JSON-LD (the structured data still describes the person,
+// even though the visible landing does not). The contact region is a placeholder until the contact
+// footer slice replaces it.
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { Hero } from '../components/Hero';
 import { ArticlesSection } from '../components/ArticlesSection';
+import { AboutCard } from '../components/AboutCard';
+import { ContactLinks } from '../components/ContactLinks';
 import { PortfolioSection } from '../components/PortfolioSection';
-import { SocialLinksWidget } from '../components/SocialLinksWidget';
 import { SITE_URL, DEFAULT_DESCRIPTION } from '../lib/site';
 
 export function LandingPage() {
@@ -37,14 +38,23 @@ export function LandingPage() {
     <div>
       <Hero />
 
-      <ArticlesSection />
+      {/* Two-column region: articles are the main pane, the aside stays slim and secondary. */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px]">
+        <ArticlesSection />
+        <aside className="flex flex-col gap-8 border-border px-[--gutter] py-8 max-lg:border-t-2 max-lg:border-border-strong lg:border-l lg:pl-8">
+          <div className="flex flex-col gap-8 lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
+            <AboutCard />
+            <ContactLinks />
+          </div>
+        </aside>
+      </div>
 
       <section id="portfolio" className="scroll-mt-[--header-h] border-t-2 border-border-strong">
         <PortfolioSection />
       </section>
 
-      <section id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-4 py-5">
-        <SocialLinksWidget />
+      <section id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] py-8">
+        <ContactLinks title="Contato" />
       </section>
     </div>
   );

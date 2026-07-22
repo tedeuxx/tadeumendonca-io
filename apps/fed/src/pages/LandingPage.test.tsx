@@ -21,18 +21,19 @@ function renderLanding() {
 describe('LandingPage', () => {
   it('leads with the articles section', async () => {
     renderLanding();
-    expect(await screen.findByRole('heading', { name: 'Artigos' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Artigos/ })).toBeInTheDocument();
   });
 
   it('renders the portfolio and contact regions', async () => {
     renderLanding();
     expect(await screen.findByRole('heading', { name: 'Portfólio' })).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Onde me encontrar' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Onde me encontrar' })).toBeInTheDocument(); // aside
+    expect(await screen.findByRole('heading', { name: 'Contato' })).toBeInTheDocument(); // #contato region
   });
 
   it('does not show the personal name (it lives on /cv)', async () => {
     renderLanding();
-    await screen.findByRole('heading', { name: 'Artigos' });
+    await screen.findByRole('heading', { name: /Artigos/ });
     expect(screen.queryByText(profile.name)).toBeNull();
   });
 });
