@@ -1,7 +1,8 @@
-// Generate the PWA app icons — a "TM" monogram (Tadeu Mendonça) in BVB yellow on near-black.
+// Generate the app icon — a "TM" monogram (Tadeu Mendonça) in the accent orange on near-black.
+// The site is not a PWA, so only the apple-touch-icon (referenced in index.html) is produced.
 // Pure Node (zlib only): no native deps, no rasterizer, no network — fully reproducible. The glyphs
 // are drawn as vector shapes and supersampled for anti-aliasing. These are PLACEHOLDER icons; swap in
-// final artwork by replacing the PNGs (and favicon.svg). Run: `node scripts/gen-icons.mjs`.
+// final artwork by replacing the PNG (and favicon.svg). Run: `node scripts/gen-icons.mjs`.
 import zlib from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -10,8 +11,8 @@ import { dirname, join } from 'node:path';
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 mkdirSync(OUT, { recursive: true });
 
-const BG = [10, 10, 10]; // #0A0A0A near-black (preto/grafite)
-const FG = [232, 166, 19]; // #E8A613 — the site's BVB gold (--primary: 43 90% 48%)
+const BG = [10, 10, 10]; // #0A0A0A near-black
+const FG = [255, 90, 0]; // #FF5A00 — safety orange, the site's single accent (--primary: 21 100% 50%)
 
 // ---- PNG encoding (RGB, 8-bit) ----
 const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -117,12 +118,7 @@ const render = (n) => {
   return rgb;
 };
 
-const icons = [
-  ['pwa-192x192.png', 192],
-  ['pwa-512x512.png', 512],
-  ['maskable-icon-512x512.png', 512],
-  ['apple-touch-icon-180x180.png', 180],
-];
+const icons = [['apple-touch-icon-180x180.png', 180]];
 for (const [name, size] of icons) {
   writeFileSync(join(OUT, name), encodePNG(size, render(size)));
   console.log(`wrote public/${name}`);
