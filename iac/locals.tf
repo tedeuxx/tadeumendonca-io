@@ -7,7 +7,7 @@ locals {
     ManagedBy   = "terraform"
   }
 
-  # Per-env domain model (/infrastructure/route53): production sits on the apex; staging on a
-  # `staging.` subdomain. (Static site — only the frontend host remains.)
-  frontend_host = var.environment == "production" ? var.apex_domain : "staging.${var.apex_domain}"
+  # Single-environment static site: serve at the apex. (Resource names keep their internal env suffix
+  # to avoid a churny recreate; the public host is the apex regardless.)
+  frontend_host = var.apex_domain
 }
