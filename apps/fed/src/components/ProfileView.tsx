@@ -108,7 +108,8 @@ export function ProfileView({ profile }: { profile: Profile }) {
                 )}
                 <span className="text-muted-foreground">
                   {' '}
-                  · {item.issuer} ({item.issued_date})
+                  · {item.issuer}
+                  {item.issued_date ? ` (${item.issued_date})` : ''}
                 </span>
               </li>
             ))}

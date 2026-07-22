@@ -19,7 +19,7 @@ export interface EducationItem {
 export interface CertificationItem {
   name: string;
   issuer: string;
-  issued_date: string;
+  issued_date?: string;
   credential_url?: string;
 }
 
