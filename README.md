@@ -39,8 +39,8 @@ VERSION   # single version (numeric SemVer)
 
 ## CI (`.github/workflows/`)
 
-`fed-ci` (lint + typecheck + test ≥85% + build + SonarCloud, path-filtered to `apps/fed`); `infra-plan`
-(checkov + `plan`). Deploys: `fed-deploy` / `infra-apply` on merge to `main`.
+`build-test` (lint + typecheck + test ≥85% + build + E2E + SonarCloud, path-filtered to `apps/fed`); `infra-plan`
+(checkov + `plan`). Deploys: `deploy` / `infra-apply` on merge to `main`.
 
 ## Related repos
 

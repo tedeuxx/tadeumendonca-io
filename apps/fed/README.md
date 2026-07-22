@@ -62,5 +62,5 @@ npm run e2e:local    # Playwright against a local vite preview
 ## Workflow (trunk-based · `trunk-single-env`)
 
 Branch from `main`; PR required (0 approvals). Merge to `main` → **automatic deploy** to the single environment
-(the site serves at the apex `tadeumendonca.io`). The PR gate (`fed-ci`) runs lint + typecheck + test (coverage
+(the site serves at the apex `tadeumendonca.io`). The PR gate (`build-test`) runs lint + typecheck + test (coverage
 ≥85%) + build + the SonarCloud quality gate. See the [repo README](../../README.md) for the full picture.

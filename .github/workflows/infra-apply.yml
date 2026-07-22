@@ -2,7 +2,7 @@ name: infra-apply
 
 # Apply on merge to main → the single (staging) workspace (auto, no gate). TFC holds state (Local
 # execution — GitHub runs apply); AWS via OIDC. On apply, this writes the app SSM params
-# (/{env}/{frontend,storage,iam}/*) that fed-deploy reads.
+# (/{env}/{frontend,storage,iam}/*) that deploy reads.
 on:
   push:
     branches: [main]

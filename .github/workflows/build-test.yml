@@ -1,11 +1,11 @@
-name: fed-ci
+name: build-test
 
-# PR gate for apps/fed. lint + typecheck + tests (coverage ≥ 85%) + build + E2E + SonarCloud gate.
+# PR gate for the site. lint + typecheck + tests (coverage ≥ 85%) + build + E2E + SonarCloud gate.
 # trunk-single-env: main IS production, so there is no downstream tier to defer a check to — the full
 # regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys,
-# not only post-deploy. Runs on EVERY PR to main so the required `fed-ci` check always reports a status;
-# the dorny paths-filter skips the heavy steps when the change doesn't touch apps/fed — the job still
-# finishes green, satisfying the required check. Steps run in apps/fed.
+# not only post-deploy. Runs on EVERY PR to main so the required `build-test` check always reports a
+# status; the dorny paths-filter skips the heavy steps when the change doesn't touch apps/fed — the job
+# still finishes green, satisfying the required check. Steps run in apps/fed.
 on:
   pull_request:
     branches: [main]
@@ -14,20 +14,20 @@ on:
     paths:
       - "apps/fed/**"
       - "packages/shared/**"
-      - ".github/workflows/fed-ci.yml"
+      - ".github/workflows/build-test.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: fed-ci-${{ github.ref }}
+  group: build-test-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  fed-ci:
+  build-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       # Does this change touch apps/fed (or packages/shared), or is it unrelated? Unrelated PRs skip
-      # every step below but the job still completes green, satisfying the required `fed-ci` check.
+      # every step below but the job still completes green, satisfying the required `build-test` check.
       - name: Detect fed changes
         uses: dorny/paths-filter@v3
         id: changes
@@ -49,7 +49,7 @@ jobs:
             code:
               - 'apps/fed/**'
               - 'packages/shared/**'
-              - '.github/workflows/fed-ci.yml'
+              - '.github/workflows/build-test.yml'
 
       - name: Setup Node
         if: steps.changes.outputs.code == 'true'
