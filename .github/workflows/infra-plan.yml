@@ -38,13 +38,13 @@ jobs:
         working-directory: iac
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # Gate the heavy steps: only plan when iac/ (or this workflow) actually changed. On other PRs the
       # job still runs and reports green, so the required check never deadlocks.
       - name: Detect iac changes
         id: changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
         with:
           filters: |
             iac:
@@ -54,7 +54,7 @@ jobs:
       # Static analysis — hard-fail gate. Suppressions curated in iac/.checkov.yaml + inline #checkov:skip.
       - name: Checkov
         if: steps.changes.outputs.iac == 'true'
-        uses: bridgecrewio/checkov-action@v12
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12
         with:
           directory: iac/
           framework: terraform
@@ -64,14 +64,14 @@ jobs:
 
       - name: Configure AWS credentials (OIDC)
         if: steps.changes.outputs.iac == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: us-east-1
 
       - name: Setup Terraform
         if: steps.changes.outputs.iac == 'true'
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: "1.9.8"
 
@@ -101,7 +101,7 @@ jobs:
 
       - name: Comment plan on PR
         if: always() && steps.changes.outputs.iac == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           WORKSPACE: ${{ env.TF_WORKSPACE }}
         with:

@@ -35,14 +35,14 @@ jobs:
     steps:
       - name: Checkout
         # Full history — SonarCloud uses git blame for accurate new-code / authorship attribution.
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       # Does this change touch apps/fed (or packages/shared), or is it unrelated? Unrelated PRs skip
       # every step below but the job still completes green, satisfying the required `build-test` check.
       - name: Detect fed changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
         id: changes
         with:
           filters: |
@@ -53,7 +53,7 @@ jobs:
 
       - name: Setup Node
         if: steps.changes.outputs.code == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
           cache: npm
@@ -61,7 +61,7 @@ jobs:
 
       - name: Install
         if: steps.changes.outputs.code == 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Lint
         if: steps.changes.outputs.code == 'true'
@@ -84,7 +84,7 @@ jobs:
       # trunk-single-env this is the gate — a route break fails the PR instead of reaching production.
       - name: Install Playwright browser
         if: steps.changes.outputs.code == 'true'
-        run: npx playwright install --with-deps chromium
+        run: npm run e2e:install
 
       - name: E2E (Playwright against a preview of the build)
         if: steps.changes.outputs.code == 'true'
@@ -95,7 +95,7 @@ jobs:
       # tadeumendonca-io repo for PR decoration to work.
       - name: SonarCloud scan (quality gate blocks)
         if: steps.changes.outputs.code == 'true'
-        uses: SonarSource/sonarqube-scan-action@v7
+        uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io

@@ -38,23 +38,23 @@ jobs:
       ENV_NAME: staging
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: apps/fed/package-lock.json
 
       - name: Install
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install Playwright browser (for the prerender step)
-        run: npx playwright install --with-deps chromium
+        run: npm run e2e:install
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
         with:
           role-to-assume: ${{ secrets.AWS_FED_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -97,6 +97,6 @@ jobs:
         env:
           E2E_ENV: ${{ env.ENV_NAME }}
         run: |
-          npx playwright install --with-deps chromium
+          npm run e2e:install
           sleep 10 # let the CloudFront invalidation propagate before driving the browser
           npm run e2e
