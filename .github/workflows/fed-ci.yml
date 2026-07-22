@@ -1,15 +1,15 @@
 name: fed-ci
 
 # PR gate for apps/fed (PWA). lint + typecheck + tests (coverage ≥ 85%) + build + SonarCloud gate.
-# Runs on EVERY PR to develop/main so the required `fed-ci` check always reports a status; the dorny
+# Runs on EVERY PR to main so the required `fed-ci` check always reports a status; the dorny
 # paths-filter skips the heavy steps when the change doesn't touch apps/fed (or packages/shared) — the
 # job still finishes green, satisfying the required check.
 # Monorepo Stage A: apps are independent (each with its own package-lock); steps run in apps/fed.
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main]
   push:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "apps/fed/**"
       - "packages/shared/**"

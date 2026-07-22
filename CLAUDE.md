@@ -23,8 +23,8 @@ irreversible/architectural judgment and the production go/no-go. The floor below
 - **Rigor calibrated to blast-radius** — heavy where irreversible/production, product-speed where cheap to revert;
   the floor above is what it never turns below.
 
-**Environment = git branch** (`develop` → staging, `main` → production); **IaC is pipeline-only**; local dev is
-**staging-backed and necessarily partial** (real auth flow, email, edge validated only at staging). The agent
+**Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
+**static** (the site is a fully static SPA — no backend). The agent
 works the full inner loop unprompted (git-reversible / staging-scoped) and is **denied the irreversible/production
 boundary** (push/merge to `main`, `terraform apply`/`destroy`, direct cloud mutation, force-push, `rm -rf`, secret
 writes); **never `--dangerously-skip-permissions`**. Depth lives in the plugin's `/principles/*` skills
@@ -81,16 +81,16 @@ generated once, cached in S3**; **EventBridge cron** for the newsletter digest (
 Cloud free tier + Local execution** (no paid TFC runners); **AWS Support on Basic** (free — flag before any
 paid plan reappears).
 
-## Branching strategy (this repo: GitFlow)
-- **`develop`** is the default + integration line. Feature/fix branches cut **from `develop`** → PR (0 approvals)
-  → merge → **automatic staging deploy**.
-- **`main`** = **production**: a `develop → main` PR (with a `semver:` label) deploys to prod, gated by the
-  `production` Environment's required reviewer. **`main` does NOT exist yet** (no production line stood up).
-- **Single monorepo version** (numeric SemVer, root `VERSION`): `version-develop` bumps patch on push to
-  develop; `version-main` reads the PR `semver:` label on merge to main. Tags `vX.Y.Z`. The `bump:` commit is
-  loop-guarded. Apps' own `package.json` versions are NOT the release version.
-- `-iac` uses the **same** GitFlow. **`-skills` uses a different model** (plugin release-cut — see its CLAUDE.md):
-  there `main` is the published release consumers track, not a deploy target.
+## Branching strategy (this repo: trunk-based)
+- **`main`** is the only branch. Feature/fix branches cut **from `main`** → PR (0 approvals) → merge →
+  **automatic deploy** to the single environment (no manual gate).
+- **Single deployed environment** (`tadeumendonca-pwa-staging` workspace, kept as-is internally); the public
+  site serves at the **apex** `tadeumendonca.io`.
+- **Single monorepo version** (numeric SemVer, root `VERSION`): `version-main` **auto-bumps patch** on every
+  push to `main`, tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded. Apps' own
+  `package.json` versions are NOT the release version.
+- `-iac` uses the **same** trunk-based model. **`-skills` uses a different model** (plugin release-cut — see
+  its CLAUDE.md): there `main` is the published release consumers track, not a deploy target.
 
 ## Structure
 - **`apps/fed/`** — public SPA (React + Vite + PWA, offline-first). Own guide in `apps/fed/CLAUDE.md`.
@@ -111,9 +111,8 @@ paid plan reappears).
 - **Secrets:** OIDC role ARNs = **environment secrets per-env**; tooling tokens = **repository** (see `/workflow/github-actions`).
 
 ## ⚠️ Destructive / requires explicit confirmation
-- **Merge to `develop`** → automatic **staging** deploy (app) and, if it touches `iac/`, `infra-apply` = **real AWS infra**. Confirm the `plan`.
-- **Merge to `main`** → **production** (gated by Environment approval).
-- `terraform apply`/`destroy`; deleting data (DynamoDB/S3); changing Cognito/SES/DNS — irreversible, confirm.
+- **Merge to `main`** → automatic deploy (app) and, if it touches `iac/`, `infra-apply` = **real AWS infra**. Confirm the `plan`.
+- `terraform apply`/`destroy`; changing DNS/CloudFront/S3 — irreversible, confirm.
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 
 ## CI (`.github/workflows/`)
