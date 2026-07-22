@@ -71,7 +71,7 @@ file wins.
 
 Two consequences worth stating outright, because they are what the other model gets wrong:
 - **The PR to `main` carries the entire gate.** There is no downstream tier to defer a check to, so
-  `fed-ci` blocking on the PR is the whole verification story — a gate skipped there never runs.
+  `build-test` blocking on the PR is the whole verification story — a gate skipped there never runs.
 - **`main` is the working branch, not a protected production mirror.** Never add tooling that blocks
   edits or commits by branch context; it would break every slice.
 
@@ -119,8 +119,8 @@ Working rules that follow from that:
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 
 ## CI (`.github/workflows/`)
-- **`fed-ci`** (PR): lint + typecheck + test ≥85% + build + SonarCloud, path-filtered to `apps/fed`.
+- **`build-test`** (PR): lint + typecheck + test ≥85% + build + E2E + SonarCloud, path-filtered to `apps/fed`.
 - **`infra-plan`** (PR): checkov + `fmt`/`validate`/`plan`, path-filtered to `iac/`.
-- **`fed-deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform.
+- **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform.
 - **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
 - **`claude` / `claude-code-review`**: `@claude` on-demand + auto-review (Claude App).

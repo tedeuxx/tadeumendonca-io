@@ -56,4 +56,4 @@ npm run e2e        # playwright
 ## Workflow (see platform)
 - **Trunk-based**: branch from `main`; PR required (0 approvals). Merge to `main` → **automatic deploy**
   to the single environment (`https://tadeumendonca.io`).
-- CI (`fed-ci`): lint + typecheck + test + build + **SonarCloud quality gate**. Numeric SemVer auto-bump.
+- CI (`build-test`): lint + typecheck + test + build + E2E + **SonarCloud quality gate**. Numeric SemVer auto-bump.

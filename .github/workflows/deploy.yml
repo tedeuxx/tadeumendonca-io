@@ -1,4 +1,4 @@
-name: fed-deploy
+name: deploy
 
 # Build the SPA (Vite, static — prerendered) and publish: S3 sync with split cache headers (immutable
 # hashed assets vs no-cache index.html) + CloudFront invalidation. Trunk-based: merge to main → deploy
@@ -11,7 +11,7 @@ on:
     paths:
       - "apps/fed/**"
       - "packages/shared/**"
-      - ".github/workflows/fed-deploy.yml"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: fed-deploy-${{ github.ref }}
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -89,7 +89,7 @@ jobs:
           echo "deployed fed to $ENV_NAME"
 
       # Post-deploy SMOKE (Playwright E2E) against the real apex. The full regression already gated the
-      # PR (fed-ci, against a preview) — this is the post-deploy health confirmation the principles ask
+      # PR (build-test, against a preview) — this is the post-deploy health confirmation the principles ask
       # for: it exercises the real CDN + prerendered HTML and catches deploy/CloudFront-level breakage
       # the pre-merge run can't see. Config retries absorb invalidation lag.
       - name: E2E smoke (Playwright) against production
