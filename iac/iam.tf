@@ -1,7 +1,8 @@
 # IAM layer — owned by /infrastructure/iam.
 # GitHub OIDC deploy roles for the api + fed repos: a scoped deploy policy (iam-policy submodule)
 # + an OIDC-assumable role (iam-assumable-role-with-oidc) each, with the role ARNs published to SSM.
-# Trust = the pre-existing GitHub OIDC provider (landing zone), scoped to repo:<org>/<repo>:*.
+# Trust = the pre-existing GitHub OIDC provider (landing zone), scoped to the repo's immutable
+# OIDC subject (repo:<org>@<org_id>/<repo>@<repo_id>:*) — see local.github_oidc_sub.
 # The iac repo's own deploy role is bootstrapped out-of-band (not here).
 
 locals {
@@ -9,6 +10,15 @@ locals {
   # ARN fragments — scope every statement to specific resources (least privilege).
   fed_bucket_arn = "arn:aws:s3:::${local.account}-${var.project}-fed-${var.environment}"
   ssm_env_arn    = "arn:aws:ssm:${var.aws_region}:${local.account}:parameter/${var.environment}/*"
+
+  # GitHub now emits an IMMUTABLE OIDC subject that embeds the org + repo numeric IDs
+  # (repo:<org>@<org_id>/<repo>@<repo_id>:<context>). The plain repo:<org>/<repo>:* no longer
+  # matches, so trust conditions must use the ID form. The IDs are stable across repo renames —
+  # pinning them (vs a @* wildcard) keeps the immutable-subject guarantee: a deleted/recreated
+  # repo of the same name gets a new ID and can't assume the role.
+  github_org_id   = "29521634"   # tedeuxx
+  github_repo_id  = "1271693722" # tadeumendonca-io
+  github_oidc_sub = "repo:${var.github_org}@${local.github_org_id}/${var.project}-io@${local.github_repo_id}:*"
 }
 
 # fed deploy policy — site sync to the fed bucket, CloudFront invalidation, SSM read.
@@ -58,13 +68,10 @@ module "oidc_fed" {
   role_name                      = "github-actions-fed-${var.environment}"
   provider_url                   = "token.actions.githubusercontent.com"
   oidc_fully_qualified_audiences = ["sts.amazonaws.com"]
-  # The fed deploy job runs from this repo. Trusts BOTH the current name (-pwa) and the rename target
-  # (-io) during the repo-rename transition; drop the -pwa entry after the rename lands.
-  oidc_subjects_with_wildcards = [
-    "repo:${var.github_org}/${var.project}-pwa:*",
-    "repo:${var.github_org}/${var.project}-io:*",
-  ]
-  role_policy_arns = [module.policy_fed_deploy.arn]
+  # The fed deploy job runs from the tadeumendonca-io repo. Trust matches GitHub's immutable OIDC
+  # subject (org+repo IDs) — the plain repo:<org>/<repo>:* form no longer matches. See local.github_oidc_sub.
+  oidc_subjects_with_wildcards = [local.github_oidc_sub]
+  role_policy_arns             = [module.policy_fed_deploy.arn]
 }
 
 # SSM config bus — app repos read AWS_OIDC_ROLE_ARN at deploy (never a rotatable secret).
