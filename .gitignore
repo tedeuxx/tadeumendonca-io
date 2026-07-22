@@ -25,6 +25,11 @@ crash.log
 .env.*
 !.env.example
 
+# personal-brand strategy layer — private working notes for the repositioning
+# initiative (positioning, canonical copy, sync playbook, backlog). Local only,
+# never published: this repo is public.
+.brand/
+
 # editor / os
 .DS_Store
 *.log

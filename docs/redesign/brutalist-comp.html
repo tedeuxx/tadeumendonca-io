@@ -1,0 +1,551 @@
+<title>tadeumendonca.io — redesign brutalista</title>
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --fg: #F5F4EF;
+    --accent: #FF5A00;
+    --muted: #8C8880;
+    --rule: #2A2A2A;
+    --rule-strong: #F5F4EF;
+    --sans: "Space Grotesk", "Helvetica Neue", "Arial Narrow", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Menlo", monospace;
+    --container: 1440px;
+    --gutter: clamp(1rem, 4vw, 4rem);
+    --nav-h: 56px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 17px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .mono { font-family: var(--mono); }
+  .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .accent { color: var(--accent); }
+
+  .frame { max-width: var(--container); margin: 0 auto; border-left: 2px solid var(--rule-strong); border-right: 2px solid var(--rule-strong); }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); padding: 0 var(--gutter); background: var(--bg); border-bottom: 2px solid var(--rule-strong); }
+  .brand { font-family: var(--mono); font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.55rem; }
+  .brand .bar { width: 6px; height: 20px; background: var(--accent); display: inline-block; }
+  .navlinks { display: flex; gap: 0; }
+  .navlinks a { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.5rem 0.85rem; color: var(--muted); transition: background-color .12s steps(1), color .12s steps(1); }
+  .navlinks a.cvlink { border: 1px solid var(--rule); color: var(--fg); }
+  .navlinks a:hover { background: var(--fg); color: var(--bg); }
+  .menutoggle { display: none; }
+
+  /* Hero */
+  .hero { position: relative; padding: clamp(2.5rem, 7vw, 6rem) var(--gutter) 0; }
+  .gridlines { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(12, 1fr); pointer-events: none; z-index: 0; }
+  .gridlines > i { border-right: 1px solid var(--rule); }
+  .gridlines > i:last-child { border-right: 0; }
+  .hero-inner { position: relative; z-index: 1; }
+  .hero .eyebrow { margin-bottom: clamp(1.4rem, 4vw, 2.6rem); display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
+  h1.title { margin: 0; font-weight: 700; font-size: clamp(1.9rem, 8vw, 7rem); line-height: 0.9; letter-spacing: -0.05em; text-transform: lowercase; white-space: nowrap; }
+  .tagline { margin: clamp(1.2rem, 3vw, 2.2rem) 0 0; font-weight: 700; font-size: clamp(1.35rem, 4.2vw, 3.1rem); line-height: 1.02; letter-spacing: -0.03em; text-wrap: balance; max-width: 20ch; }
+  .tagline .accent { color: var(--accent); }
+  .thesis { max-width: 60ch; margin: clamp(1.4rem, 3vw, 2rem) 0 clamp(1.8rem, 4vw, 2.6rem); font-size: clamp(1.05rem, 1.6vw, 1.3rem); line-height: 1.45; color: var(--muted); }
+  .thesis b { color: var(--fg); font-weight: 500; }
+  .links { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: clamp(2.2rem, 5vw, 3.5rem); }
+  .links a { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.7rem 1.2rem; border: 1px solid var(--rule-strong); margin: 0 -1px -1px 0; display: inline-flex; align-items: center; gap: 0.5rem; transition: background-color .12s steps(1), color .12s steps(1); }
+  .links a:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .links a .arw { color: var(--accent); }
+  .links a:hover .arw { color: var(--bg); }
+
+  /* Marquee */
+  .marquee { position: relative; z-index: 1; overflow: hidden; white-space: nowrap; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--rule); background: var(--bg); }
+  .marquee-track { display: inline-flex; will-change: transform; animation: scroll 32s linear infinite; }
+  .marquee-track span { font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.7rem 0; }
+  .marquee-track span i { color: var(--accent); font-style: normal; padding: 0 1.1rem; }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* Feed region */
+  .region-head { border-top: 2px solid var(--rule-strong); padding: clamp(1.6rem,3vw,2.4rem) var(--gutter) 0; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .region-head .rt { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; }
+  .region-head .rt b { color: var(--accent); font-weight: 700; }
+  .region-head .rc { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; }
+
+  .feed { display: grid; grid-template-columns: 1fr; padding: 0 var(--gutter) clamp(2.5rem,5vw,4rem); }
+  @media (min-width: 1000px) { .feed { grid-template-columns: minmax(0,1fr) 320px; } }
+  .feed .main { padding-top: 0.5rem; }
+  .feed .aside { border-left: 1px solid var(--rule); padding-left: clamp(1.5rem,2.5vw,2.5rem); margin-left: clamp(1.5rem,2.5vw,2.5rem); padding-top: 0.5rem; }
+  .aside .stick { position: sticky; top: calc(var(--nav-h) + 1.5rem); display: flex; flex-direction: column; }
+
+  .art { border-top: 1px solid var(--rule); padding: 1.6rem 0; display: block; transition: padding-left .15s ease; }
+  .art:first-child { border-top: 0; }
+  .art:hover { padding-left: 1rem; }
+  .art-meta { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .art-meta .t { color: var(--accent); }
+  .art h4 { margin: 0 0 0.5rem; font-size: clamp(1.4rem, 2.6vw, 2.1rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+  .art:hover h4 { color: var(--accent); }
+  .art p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 1rem; }
+  .art .learn { margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--fg); }
+  .art .learn .pl { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-right: 0.5rem; }
+  .art .actions { margin-top: 0.9rem; display: flex; gap: 0; }
+  .art .actions a { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--rule); padding: 0.4rem 0.8rem; margin: 0 -1px 0 0; transition: background-color .12s steps(1), color .12s steps(1); }
+  .art .actions a:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .art .embedhint { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .art .embedhint::before { content: "▶"; color: var(--accent); }
+
+  /* Track filter (Vida pessoal / Engenharia) */
+  .trackfilter { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 1.2rem; }
+  .tf { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: 1px solid var(--rule); color: var(--muted); padding: 0.45rem 0.85rem; margin: 0 -1px 0 0; cursor: pointer; transition: background-color .12s steps(1), color .12s steps(1); }
+  .tf:hover { color: var(--fg); }
+  .tf.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .trk { font-family: var(--mono); border: 1px solid var(--rule); padding: 0.02rem 0.4rem; color: var(--muted); }
+  .trk.pessoal { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+  .trk.eng { color: var(--fg); border-color: var(--rule); }
+
+  /* Aside widgets */
+  .widget { border: 1px solid var(--rule); padding: 1.2rem; margin-bottom: -1px; }
+  .widget-h { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.9rem; }
+  .widget-h .bar { width: 5px; height: 16px; background: var(--accent); }
+  .widget-h h3 { margin: 0; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+  .about p { margin: 0 0 0.9rem; font-size: 0.95rem; color: var(--muted); }
+  .about a.more { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.4rem; border-bottom: 1px solid var(--accent); padding-bottom: 2px; }
+  .about a.more .arw { color: var(--accent); }
+  .contactw a { display: flex; align-items: center; gap: 0.6rem; font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; border-top: 1px solid var(--rule); padding: 0.6rem 0; transition: padding-left .12s ease; }
+  .contactw a:first-of-type { border-top: 0; }
+  .contactw a:hover { padding-left: 0.5rem; color: var(--accent); }
+  .contactw a .wi { color: var(--accent); width: 1.1em; display: inline-block; }
+  .contactw a.wa:hover { color: var(--accent); }
+  .wa-icon { width: 1.15em; height: 1.15em; fill: var(--accent); flex-shrink: 0; vertical-align: -0.18em; }
+  .contactw a:hover .wa-icon, .contact .clinks a:hover .wa-icon { fill: currentColor; }
+  .contact .clinks a.wa { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .brand-icon { width: 1.12em; height: 1.12em; fill: var(--accent); flex-shrink: 0; vertical-align: -0.16em; }
+  .contactw a:hover .brand-icon, .contact .clinks a:hover .brand-icon { fill: currentColor; }
+
+  /* Portfolio full-width section */
+  section.block { border-top: 2px solid var(--rule-strong); }
+  .block-grid { display: grid; grid-template-columns: repeat(12, 1fr); padding: 0 var(--gutter); }
+  .col-label { grid-column: 1 / 4; padding: clamp(2rem,4vw,3.5rem) 1.5rem clamp(2rem,4vw,3.5rem) 0; }
+  .col-label .sticky { position: sticky; top: calc(var(--nav-h) + 1.5rem); }
+  .col-label .idx { display: block; font-family: var(--mono); font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 700; line-height: 1; color: var(--accent); letter-spacing: -0.03em; }
+  .col-label .lbl { display: block; margin-top: 0.4rem; }
+  .col-label .sub { display: block; margin-top: 1rem; max-width: 24ch; font-size: 0.9rem; color: var(--muted); }
+  .col-body { grid-column: 4 / 13; padding: clamp(2rem,4vw,3.5rem) 0 clamp(2.5rem,5vw,4rem) clamp(1.5rem, 3vw, 3rem); border-left: 1px solid var(--rule); }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .card { border: 1px solid var(--rule); margin: 0 -1px -1px 0; padding: 1.6rem; display: flex; flex-direction: column; gap: 0.8rem; min-height: 230px; transition: background-color .14s steps(1), color .14s steps(1), border-color .14s steps(1); }
+  .card:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .card h4 { margin: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+  .badge { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid currentColor; padding: 0.2rem 0.5rem; white-space: nowrap; }
+  .badge.live { color: var(--accent); }
+  .card:hover .badge.live { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+  .card .tag { color: var(--muted); font-size: 0.95rem; }
+  .card:hover .tag { color: #444; }
+  .card .take { font-size: 0.9rem; }
+  .card .take .pl { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 0.2rem; }
+  .card .stack { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: auto; }
+  .card .stack span { font-family: var(--mono); font-size: 0.68rem; border: 1px solid var(--rule); padding: 0.15rem 0.45rem; }
+  .card:hover .stack span { border-color: rgba(10,10,10,0.25); }
+  .card .go { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.4rem; }
+  .card .go .arw { color: var(--accent); }
+  .card.empty { align-items: center; justify-content: center; color: var(--muted); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .card.empty:hover { background: var(--bg); color: var(--muted); border-color: var(--rule); }
+
+  /* Contact */
+  .contact { border-top: 2px solid var(--rule-strong); padding: clamp(3rem,7vw,6rem) var(--gutter) clamp(2rem,4vw,3rem); }
+  .contact .cta { font-weight: 700; font-size: clamp(2.1rem, 8vw, 7rem); line-height: 0.92; letter-spacing: -0.045em; text-transform: uppercase; margin: 0 0 clamp(1.5rem,4vw,2.5rem); text-wrap: balance; }
+  .contact .cta .dot { color: var(--accent); }
+  .contact .clinks { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: clamp(2.5rem,5vw,4rem); }
+  .contact .clinks a { font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--rule-strong); padding: 0.9rem 1.4rem; margin: 0 -1px -1px 0; display: inline-flex; align-items: center; gap: 0.5rem; transition: background-color .12s steps(1), color .12s steps(1); }
+  .contact .clinks a:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .colophon { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; border-top: 1px solid var(--rule); padding-top: 1.4rem; }
+  .colophon span { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  /* CV page */
+  .cvhero { padding: clamp(2rem,5vw,4rem) var(--gutter) clamp(1.5rem,3vw,2.5rem); }
+  .cvhero .back { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .cvhero .back:hover { color: var(--accent); }
+  .cvhero h2 { margin: 1rem 0 0; font-size: clamp(2.4rem, 7vw, 5.5rem); font-weight: 700; letter-spacing: -0.04em; line-height: 0.9; text-transform: uppercase; }
+  .cvhero .crole { margin: 0.8rem 0 0; font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cvhero .crole b { color: var(--accent); font-weight: 700; }
+  .xp { border-top: 1px solid var(--rule); }
+  .xp:first-child { border-top: 0; }
+  .xp-row { padding: 1.4rem 0; position: relative; padding-left: 1.6rem; }
+  .xp-row::before { content: ""; position: absolute; left: 0; top: 1.85rem; width: 9px; height: 9px; background: var(--accent); }
+  .xp-when { display:block; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--muted); }
+  .xp-title { display:block; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 0.2rem; }
+  .xp-co { display:block; color: var(--muted); font-size: 0.95rem; }
+  .xp-desc { margin: 0.4rem 0 0; font-size: 0.95rem; max-width: 66ch; color: var(--muted); }
+  .subhead { margin: clamp(2rem,4vw,3rem) 0 1rem; display: flex; align-items: baseline; gap: 0.75rem; }
+  .subhead h3 { margin: 0; font-size: 1rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; }
+  .subhead .rule { flex: 1; height: 1px; background: var(--rule); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0; }
+  .chip { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.03em; border: 1px solid var(--rule); padding: 0.4rem 0.7rem; margin: 0 -1px -1px 0; transition: background-color .12s steps(1), color .12s steps(1); }
+  .chip:hover { background: var(--fg); color: var(--bg); }
+  .skillgroup { margin-top: 1.3rem; }
+  .skillgroup .gl { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+  .edu-row { padding: 0.3rem 0 0.6rem; }
+  .edu-row span { display: block; }
+  .certs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0; }
+  .cert { border: 1px solid var(--rule); margin: 0 -1px -1px 0; padding: 1.3rem 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem; transition: background-color .14s steps(1), color .14s steps(1); }
+  .cert:hover { background: var(--fg); color: var(--bg); }
+  .cert .seal { width: 62px; height: 68px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.72rem; font-weight: 700; line-height: 1.05; color: var(--bg); background: var(--accent); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .cert .cn { font-size: 0.9rem; font-weight: 700; line-height: 1.15; }
+  .cert .ci { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cert:hover .ci { color: #555; }
+  .certs-note { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); margin-top: 0.8rem; }
+
+  /* Article reading page (/blog/:slug) */
+  .article { padding: clamp(2rem,5vw,3.5rem) var(--gutter) clamp(3rem,6vw,5rem); }
+  .article .ahead { border-bottom: 2px solid var(--rule-strong); padding-bottom: clamp(1.4rem,3vw,2rem); margin-bottom: clamp(1.8rem,3vw,2.6rem); }
+  .article .ameta { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.9rem; }
+  .article .ameta .t { color: var(--accent); }
+  .article h1.atitle { margin: 1rem 0 0; font-size: clamp(2rem, 5.5vw, 4rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1; text-wrap: balance; max-width: 22ch; }
+  .article .dek { margin: 1rem 0 0; font-size: clamp(1.1rem,1.8vw,1.4rem); color: var(--muted); max-width: 60ch; line-height: 1.4; }
+  .article .author { margin-top: 1.1rem; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; }
+  .article .author a { color: var(--fg); border-bottom: 1px solid var(--accent); }
+  .article .abody { max-width: 72ch; }
+  .article .abody p { margin: 1.1em 0; font-size: 1.08rem; line-height: 1.65; }
+  .article .abody h2 { font-size: clamp(1.4rem,2.6vw,1.9rem); letter-spacing: -0.02em; margin: 1.8em 0 0.4em; }
+  .article .abody a { color: var(--accent); border-bottom: 1px solid var(--accent); }
+  .article .abody blockquote { border-left: 3px solid var(--accent); margin: 1.4em 0; padding: 0.2em 0 0.2em 1.2em; color: var(--muted); font-size: 1.15rem; }
+  .article .abody ul { padding-left: 1.3em; margin: 1.1em 0; }
+  .article .abody li { margin: 0.4em 0; }
+  .article .abody code { font-family: var(--mono); font-size: 0.88em; background: #141414; border: 1px solid var(--rule); padding: 0.1em 0.35em; }
+  .article .abody pre { background: #141414; border: 1px solid var(--rule); padding: 1rem 1.1rem; overflow-x: auto; margin: 1.4em 0; }
+  .article .abody pre code { background: none; border: 0; padding: 0; color: var(--fg); font-size: 0.86rem; line-height: 1.6; }
+  .article .vembed { margin: 1.7em 0; border: 1px solid var(--rule); max-width: 72ch; }
+  .article .vembed .thumb { aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--rule); background: #141414; }
+  .article .vembed .play { width: 62px; height: 62px; border: 2px solid var(--fg); display: flex; align-items: center; justify-content: center; transition: background-color .12s steps(1), color .12s steps(1); }
+  .article .vembed .play::after { content: "▶"; margin-left: 4px; font-size: 1.1rem; }
+  .article .vembed:hover .play { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .article .vembed .vcap { padding: 0.7rem 1rem; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .article .afoot { border-top: 2px solid var(--rule-strong); margin-top: clamp(2.5rem,5vw,4rem); padding-top: 1.6rem; display: flex; flex-wrap: wrap; gap: 0; }
+  .article .afoot a { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--rule-strong); padding: 0.8rem 1.3rem; margin: 0 -1px -1px 0; transition: background-color .12s steps(1), color .12s steps(1); }
+  .article .afoot a.li { border-color: var(--accent); color: var(--accent); }
+  .article .afoot a:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    body { font-size: 16px; }
+    .frame { border-left: 0; border-right: 0; }
+    .navlinks { display: none; }
+    .navlinks.open { display: flex; position: absolute; top: var(--nav-h); left: 0; right: 0; flex-direction: column; background: var(--bg); border-bottom: 2px solid var(--rule-strong); }
+    .navlinks.open a { padding: 0.9rem var(--gutter); border-top: 1px solid var(--rule); }
+    .navlinks.open a.cvlink { border: 0; border-top: 1px solid var(--rule); color: var(--accent); }
+    .menutoggle { display: inline-flex; font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: 1px solid var(--rule-strong); color: var(--fg); padding: 0.4rem 0.7rem; cursor: pointer; }
+    .gridlines { grid-template-columns: repeat(6, 1fr); }
+    .feed .aside { border-left: 0; padding-left: 0; margin-left: 0; border-top: 2px solid var(--rule-strong); margin-top: 1.5rem; padding-top: 1.5rem; }
+    .aside .stick { position: static; }
+    .block-grid { grid-template-columns: 1fr; }
+    .col-label { grid-column: 1; padding: clamp(1.6rem,5vw,2.4rem) 0 1rem; }
+    .col-label .sticky { position: static; }
+    .col-body { grid-column: 1; border-left: 0; border-top: 1px solid var(--rule); padding: 1.6rem 0 2.5rem; }
+    .cards { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .marquee-track { animation: none; }
+    * { transition-duration: 0.001ms !important; }
+  }
+</style>
+
+<!-- ============ HOME ( / ) ============ -->
+<div class="frame" id="home-view">
+  <nav>
+    <a class="brand" href="#top" aria-label="tadeumendonca.io — início">
+      <span class="bar" aria-hidden="true"></span>
+      tadeumendonca<span class="accent">.io</span>
+    </a>
+    <button class="menutoggle" aria-expanded="false" aria-controls="navlinks">Menu</button>
+    <div class="navlinks" id="navlinks">
+      <a href="#artigos">Artigos</a>
+      <a href="#portfolio">Portfólio</a>
+      <a href="#contato">Contato</a>
+      <a href="#cv" class="cvlink">CV ↗</a>
+    </div>
+  </nav>
+
+  <!-- HERO — voz reader-first: o produto é te fazer aprender -->
+  <header class="hero" id="top">
+    <div class="gridlines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hero-inner">
+      <div class="eyebrow">
+        <span class="label">Conteúdo técnico aberto</span>
+        <span class="label accent">▶ Da vida pessoal à produção</span>
+      </div>
+      <h1 class="title">tadeumendonca<span class="accent">.io</span></h1>
+      <p class="tagline">Aprenda a construir com IA — <span class="accent">do dia a dia à produção</span>.</p>
+      <p class="thesis">
+        Compartilho o que aprendo construindo com IA — de experimentos que automatizam a
+        <b>vida pessoal com Claude Cowork</b> a <b>sistemas agentic em produção</b>. Trade-offs reais
+        e código aberto pra você aplicar, seja na sua rotina ou na sua empresa. O objetivo é te fazer
+        construir melhor — quem escreve isso é consequência, não o ponto.
+      </p>
+      <div class="links">
+        <a href="#artigos"><span class="arw">→</span> Artigos</a>
+        <a href="#portfolio"><span class="arw">→</span> Portfólio</a>
+      </div>
+    </div>
+    <div class="marquee" aria-label="Assuntos">
+      <div class="marquee-track">
+        <span>Agentic AI<i>·</i>Tool-Calling<i>·</i>RAG<i>·</i>MCP<i>·</i>Evaluation Loops<i>·</i>AI-DLC<i>·</i>Claude Code<i>·</i>Python<i>·</i>TypeScript<i>·</i>AWS Bedrock<i>·</i>Distributed Systems<i>·</i></span>
+        <span aria-hidden="true">Agentic AI<i>·</i>Tool-Calling<i>·</i>RAG<i>·</i>MCP<i>·</i>Evaluation Loops<i>·</i>AI-DLC<i>·</i>Claude Code<i>·</i>Python<i>·</i>TypeScript<i>·</i>AWS Bedrock<i>·</i>Distributed Systems<i>·</i></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ARTIGOS (pane principal) + aside -->
+  <div class="region-head" id="artigos">
+    <span class="rt"><b>Artigos</b> — pra você aplicar</span>
+    <span class="rc">Escrita técnica com trade-offs explícitos · vídeos embedados no texto</span>
+  </div>
+  <div class="feed">
+    <main class="main">
+      <div class="trackfilter" role="tablist" aria-label="Filtrar por trilha">
+        <button class="tf active" data-track="all" aria-selected="true">Tudo</button>
+        <button class="tf" data-track="pessoal" aria-selected="false">Vida pessoal</button>
+        <button class="tf" data-track="engenharia" aria-selected="false">Engenharia</button>
+      </div>
+      <a class="art" data-track="engenharia" href="#artigo">
+        <div class="art-meta">21 Jul 2026 <span class="t">· #aws</span> · <span class="trk eng">Engenharia</span></div>
+        <h4>Building Serverless on AWS</h4>
+        <p>Quando Lambda paga e quando não paga — os trade-offs de arquitetura serverless em produção, sem hype.</p>
+        <p class="learn"><span class="pl">Você sai sabendo</span> onde serverless ajuda de verdade e onde vira armadilha de custo.</p>
+        <div class="embedhint">Vídeo explicativo embedado no artigo</div>
+        <div class="actions"><a href="#artigo">→ Ler</a><a href="#">Ver no LinkedIn</a></div>
+      </a>
+      <a class="art" data-track="pessoal" href="#artigo">
+        <div class="art-meta">14 Jul 2026 <span class="t">· #cowork</span> · <span class="trk pessoal">Vida pessoal</span></div>
+        <h4>Automatizei minha rotina com Claude Cowork</h4>
+        <p>Do resumo dos e-mails ao planejamento da semana — experimentos de automação pessoal com Cowork, sem escrever código.</p>
+        <p class="learn"><span class="pl">Você sai sabendo</span> montar automações úteis do dia a dia com Cowork, mesmo sem ser dev.</p>
+        <div class="embedhint">Demo em vídeo embedada no artigo</div>
+        <div class="actions"><a href="#artigo">→ Ler</a><a href="#">Ver no LinkedIn</a></div>
+      </a>
+      <a class="art" data-track="engenharia" href="#artigo">
+        <div class="art-meta">Em breve <span class="t">· #agentic</span> · <span class="trk eng">Engenharia</span></div>
+        <h4>Loop Engineering com Claude Code &amp; Kiro</h4>
+        <p>Como um loop AI-native (AI-DLC) muda o inner loop de engenharia — plan-first, gates mecânicos, verificação agent-led.</p>
+        <p class="learn"><span class="pl">Você sai sabendo</span> montar seu próprio loop de desenvolvimento com IA.</p>
+        <div class="actions"><a href="#artigo">→ Ler</a></div>
+      </a>
+      <a class="art" data-track="pessoal" href="#artigo">
+        <div class="art-meta">Em breve <span class="t">· #cowork</span> · <span class="trk pessoal">Vida pessoal</span></div>
+        <h4>Um assistente de finanças pessoais com Cowork</h4>
+        <p>Categorizar gastos, gerar o resumo do mês e receber alertas — um agente pessoal montado em uma tarde.</p>
+        <p class="learn"><span class="pl">Você sai sabendo</span> ligar Cowork aos seus dados do dia a dia com segurança.</p>
+        <div class="actions"><a href="#artigo">→ Ler</a></div>
+      </a>
+    </main>
+
+    <aside class="aside">
+      <div class="stick">
+        <div class="widget about">
+          <div class="widget-h"><span class="bar"></span><h3>Sobre este site</h3></div>
+          <p>Escrevo e construo em público sobre engenharia de IA. Se algo aqui te ajudou a evoluir, cumpriu o papel.</p>
+          <a class="more" href="#cv">Quem escreve (CV) <span class="arw">↗</span></a>
+        </div>
+        <div class="widget contactw">
+          <div class="widget-h"><span class="bar"></span><h3>Onde me encontrar</h3></div>
+          <a href="https://github.com/tedeuxx"><svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> GitHub</a>
+          <a href="https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530"><svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg> LinkedIn</a>
+          <a class="wa" href="https://wa.me/5521986619954?text=Ol%C3%A1%20Tadeu%2C%20vim%20pelo%20tadeumendonca.io"><svg class="wa-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> WhatsApp</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- PORTFÓLIO (full-width, onde antes ficavam os vídeos) -->
+  <section class="block" id="portfolio">
+    <div class="block-grid">
+      <div class="col-label">
+        <div class="sticky">
+          <span class="idx">↗</span>
+          <span class="lbl label">Portfólio</span>
+          <span class="sub">Código aberto pra você estudar, clonar e usar. Cresce conforme automações graduam.</span>
+        </div>
+      </div>
+      <div class="col-body">
+        <div class="cards">
+          <a class="card" href="https://github.com/tedeuxx/tadeumendonca-io">
+            <div class="card-top"><h4>tadeumendonca.io</h4><span class="badge live">Live</span></div>
+            <span class="tag">Este site — SPA estático React/Vite, construído agent-first com Claude Code.</span>
+            <div class="take"><span class="pl">O que você tira disso</span> um exemplo real de SDLC agent-driven: plan-first, CI gated, deploy estático em S3 + CloudFront via Terraform.</div>
+            <div class="stack"><span>React</span><span>Vite</span><span>TypeScript</span><span>Terraform</span></div>
+            <span class="go"><span class="arw">→</span> Ver no GitHub</span>
+          </a>
+          <div class="card empty">Em breve — MCP server</div>
+          <div class="card empty">Em breve — agente</div>
+          <div class="card empty">Em breve — automação</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <footer class="contact" id="contato">
+    <p class="cta">Algo aqui te<br>ajudou? Me conta<span class="dot">.</span></p>
+    <div class="clinks">
+      <a class="wa" href="https://wa.me/5521986619954?text=Ol%C3%A1%20Tadeu%2C%20vim%20pelo%20tadeumendonca.io"><svg class="wa-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> WhatsApp</a>
+      <a href="mailto:tadeu.tyf@gmail.com"><svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg> E-mail</a>
+      <a href="https://github.com/tedeuxx"><svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> GitHub</a>
+      <a href="https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530"><svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg> LinkedIn</a>
+    </div>
+    <div class="colophon">
+      <span>tadeumendonca.io</span>
+      <span>Built agent-first · Claude Code</span>
+      <span>São Paulo — BR · 2026</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ ARTICLE PAGE (/blog/:slug — escondida até navegar) ============ -->
+<div class="frame" id="article-view" hidden>
+  <nav>
+    <a class="brand" href="#top" aria-label="tadeumendonca.io — início">
+      <span class="bar" aria-hidden="true"></span>
+      tadeumendonca<span class="accent">.io</span>
+    </a>
+    <div class="navlinks"><a href="#artigos">← Artigos</a></div>
+  </nav>
+  <article class="article">
+    <div class="ahead">
+      <div class="ameta">
+        <span>21 Jul 2026</span>
+        <span class="t">#aws</span>
+        <span class="trk eng">Engenharia</span>
+        <span>· 8 min de leitura</span>
+      </div>
+      <h1 class="atitle">Building Serverless on AWS</h1>
+      <p class="dek">Quando Lambda paga e quando não paga — os trade-offs de arquitetura serverless em produção, sem hype.</p>
+      <p class="author">por <a href="#cv">Luiz Tadeu Mendonça</a> · AI Engineer</p>
+    </div>
+    <div class="abody">
+      <p>Serverless virou resposta-padrão pra quase tudo — e é aí que mora a armadilha. A pergunta certa não é "serverless ou não", e sim <em>onde</em> o modelo de custo por invocação trabalha a seu favor e onde ele te cobra caro em escala.</p>
+      <h2>O que muda com Lambda</h2>
+      <p>Em cargas espinhadas e de baixa ocupação, pagar por request é imbatível: você escala a zero e o custo acompanha o uso. Em cargas contínuas de alto volume, a mesma conta inverte — e um contêiner sempre ligado sai mais barato.</p>
+      <blockquote>Regra prática: escala-a-zero e picos → serverless. Throughput constante e previsível → contêiner. Meça antes de decidir.</blockquote>
+      <p>Um esqueleto de handler que já nasce testável:</p>
+      <pre><code>export const handler = async (event) =&gt; {
+  const body = JSON.parse(event.body ?? "{}");
+  const result = await useCase(body);
+  return { statusCode: 200, body: JSON.stringify(result) };
+};</code></pre>
+      <h2>Vídeo — o trade-off na prática</h2>
+      <p>Abaixo, a mesma carga rodando nos dois modelos, com o custo lado a lado:</p>
+      <div class="vembed" role="button" tabindex="0" aria-label="Reproduzir vídeo do YouTube">
+        <div class="thumb"><span class="play" aria-hidden="true"></span></div>
+        <div class="vcap">▶ YouTube · lazy-load (clique para carregar)</div>
+      </div>
+      <p>Fecho com uma checklist do que eu olho antes de escolher: perfil de tráfego, latência tolerável de cold start, limites de execução e o custo real medido — não o estimado.</p>
+    </div>
+    <div class="afoot">
+      <a class="li" href="#">◆ Ver no LinkedIn</a>
+      <a href="#artigos">← Voltar aos artigos</a>
+      <a href="#">Compartilhar</a>
+    </div>
+  </article>
+</div>
+
+<!-- ============ /cv PAGE (rota separada — escondida até navegar) ============ -->
+<div class="frame" id="cv-view" hidden>
+  <nav>
+    <a class="brand" href="#top" aria-label="tadeumendonca.io — início">
+      <span class="bar" aria-hidden="true"></span>
+      tadeumendonca<span class="accent">.io</span>
+    </a>
+    <div class="navlinks"><a href="#top">← Voltar</a></div>
+  </nav>
+  <header class="cvhero">
+    <a class="back" href="#top">← tadeumendonca.io</a>
+    <h2>Luiz Tadeu<br>Mendonça</h2>
+    <p class="crole">AI Engineer <b>— Agentic Development</b> · São Paulo, BR · 17 anos SDLC</p>
+  </header>
+  <section class="block">
+    <div class="block-grid">
+      <div class="col-label">
+        <div class="sticky">
+          <span class="idx">01</span>
+          <span class="lbl label">Experiência</span>
+          <span class="sub">Entregando ao longo do SDLC, de código de aplicação a IaC — agora em loop AI-native.</span>
+        </div>
+      </div>
+      <div class="col-body">
+        <div class="xp">
+          <div class="xp-row"><span class="xp-when">2023 — Presente</span><span class="xp-title">Senior Cloud Application Architect</span><span class="xp-co">AWS — Professional Services</span><p class="xp-desc">Sistemas distribuídos cloud-native ponta a ponta, movendo a entrega para um loop AI-native com Claude Code, Kiro e AI-DLC.</p></div>
+          <div class="xp-row"><span class="xp-when">2021 — 2023</span><span class="xp-title">Cloud Application Architect</span><span class="xp-co">AWS — Professional Services</span><p class="xp-desc">Soluções cloud-native em times enterprise, sob restrições de legado, compliance e soberania de dados.</p></div>
+          <div class="xp-row"><span class="xp-when">2020 — 2021</span><span class="xp-title">Senior DevOps Engineer</span><span class="xp-co">Globo.com</span><p class="xp-desc">Fundação de observabilidade para o lançamento de um streaming direct-to-consumer em larga escala.</p></div>
+          <div class="xp-row"><span class="xp-when">2008 — 2020</span><span class="xp-title">Digital Business Integration Consultant</span><span class="xp-co">Accenture</span><p class="xp-desc">Application architect de produtos web e mobile, desenhando sistemas distribuídos e camadas de integração.</p></div>
+        </div>
+        <div class="subhead"><h3>Formação</h3><span class="rule"></span></div>
+        <div class="edu-row">
+          <span class="xp-when">2006 — 2010</span>
+          <span class="xp-title">Bacharelado em TI / Análise de Sistemas</span>
+          <span class="xp-co">Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)</span>
+        </div>
+
+        <div class="subhead"><h3>Certificações</h3><span class="rule"></span></div>
+        <div class="certs">
+          <div class="cert"><span class="seal">SA<br>PRO</span><span class="cn">Solutions Architect</span><span class="ci">AWS · Professional</span></div>
+          <div class="cert"><span class="seal">AI<br>PRA</span><span class="cn">AI Practitioner</span><span class="ci">AWS · Foundational</span></div>
+          <div class="cert"><span class="seal">DEV<br>ASC</span><span class="cn">Developer</span><span class="ci">AWS · Associate</span></div>
+          <div class="cert"><span class="seal">SA<br>ASC</span><span class="cn">Solutions Architect</span><span class="ci">AWS · Associate</span></div>
+          <div class="cert"><span class="seal">W·A</span><span class="cn">Well-Architected</span><span class="ci">AWS · Proficient</span></div>
+        </div>
+        <p class="certs-note">↳ no site, badges oficiais do Credly (imagem verificável, link para a credencial)</p>
+
+        <div class="subhead"><h3>Habilidades</h3><span class="rule"></span></div>
+        <div class="skillgroup"><div class="gl">AI &amp; Agentic</div><div class="chips"><span class="chip">Agentic AI</span><span class="chip">Applied GenAI</span><span class="chip">LLMs</span><span class="chip">Tool-Calling</span><span class="chip">RAG</span><span class="chip">MCP</span><span class="chip">Prompt / Context Eng.</span><span class="chip">LLM-as-judge</span></div></div>
+        <div class="skillgroup"><div class="gl">Linguagens &amp; Backend</div><div class="chips"><span class="chip">Python</span><span class="chip">TypeScript</span><span class="chip">Node.js</span><span class="chip">Java</span><span class="chip">Microservices</span><span class="chip">Event-Driven</span><span class="chip">API Design</span></div></div>
+        <div class="skillgroup"><div class="gl">Cloud &amp; Infra</div><div class="chips"><span class="chip">AWS Bedrock</span><span class="chip">Lambda</span><span class="chip">ECS / EKS</span><span class="chip">DynamoDB</span><span class="chip">Terraform</span><span class="chip">IaC</span><span class="chip">CI/CD</span></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    // Three "routes": / (home), /blog/:slug (#artigo), /cv (#cv).
+    var home = document.getElementById('home-view');
+    var cv = document.getElementById('cv-view');
+    var article = document.getElementById('article-view');
+    function show(el, on) { if (el) el.hidden = !on; }
+    function route() {
+      var h = location.hash;
+      var isCv = h === '#cv', isArt = h === '#artigo';
+      show(cv, isCv);
+      show(article, isArt);
+      show(home, !isCv && !isArt);
+      if (isCv || isArt) window.scrollTo(0, 0);
+    }
+    window.addEventListener('hashchange', route);
+    route();
+
+    // Article track filter (Tudo / Vida pessoal / Engenharia)
+    var tfs = document.querySelectorAll('.trackfilter .tf');
+    var arts = document.querySelectorAll('#home-view .feed .main .art');
+    tfs.forEach(function (b) {
+      b.addEventListener('click', function () {
+        tfs.forEach(function (x) { x.classList.remove('active'); x.setAttribute('aria-selected', 'false'); });
+        b.classList.add('active'); b.setAttribute('aria-selected', 'true');
+        var t = b.getAttribute('data-track');
+        arts.forEach(function (a) {
+          a.style.display = (t === 'all' || a.getAttribute('data-track') === t) ? '' : 'none';
+        });
+      });
+    });
+
+    var btn = document.querySelector('.menutoggle');
+    var links = document.getElementById('navlinks');
+    if (btn && links) {
+      btn.addEventListener('click', function () {
+        var open = links.classList.toggle('open');
+        btn.setAttribute('aria-expanded', String(open));
+      });
+      links.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') { links.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+      });
+    }
+  })();
+</script>

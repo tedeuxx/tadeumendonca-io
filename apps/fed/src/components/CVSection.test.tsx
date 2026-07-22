@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { ProfileView } from './ProfileView';
+import { CVSection } from './CVSection';
 import type { Profile } from '../types/profile';
 
 const profile: Profile = {
   profile_id: 'me',
   name: 'Tadeu Mendonça',
-  headline: 'Software Engineer',
-  summary: 'Builds serverless products.',
+  headline: 'AI Engineer',
+  summary: 'Builds agentic systems.',
   location: 'Brazil',
   experience: [
     {
@@ -19,30 +19,46 @@ const profile: Profile = {
       highlights: ['Terraform', 'Hono'],
     },
   ],
-  education: [
-    { institution: 'Uni', degree: 'BSc', field: 'CS', start_date: '2014', end_date: '2018' },
-  ],
-  certifications: [
-    { name: 'AWS SAA', issuer: 'AWS', issued_date: '2025', credential_url: 'https://x' },
-  ],
+  education: [{ institution: 'Uni', degree: 'BSc', field: 'CS', start_date: '2014', end_date: '2018' }],
+  certifications: [{ name: 'AWS SAA', issuer: 'AWS', issued_date: '2025', credential_url: 'https://x', badge_label: 'SA\nASC' }],
   skills: { cloud: ['AWS', 'Terraform'] },
   metadata: { github: 'https://github.com/tedeuxx' },
 };
 
-describe('ProfileView', () => {
-  it('renders the CV sections', () => {
-    render(<ProfileView profile={profile} />);
-    expect(screen.getByText('Tadeu Mendonça')).toBeInTheDocument();
+describe('CVSection', () => {
+  it('renders the CV blocks — Formação and Certificações are separate', () => {
+    render(<CVSection profile={profile} />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Tadeu Mendonça' })).toBeInTheDocument();
     expect(screen.getByText('Experiência')).toBeInTheDocument();
     expect(screen.getByText('Hono')).toBeInTheDocument(); // experience highlight
     expect(screen.getAllByText(/Terraform/).length).toBeGreaterThan(0); // in highlights + skills
     expect(screen.getByText('Formação')).toBeInTheDocument();
     expect(screen.getByText('Certificações')).toBeInTheDocument();
     expect(screen.getByText('Habilidades')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute(
-      'href',
-      'https://github.com/tedeuxx',
-    );
+    expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
+  });
+
+  it('shows the portrait beside the name when the profile carries one', () => {
+    const { container } = render(<CVSection profile={{ ...profile, avatar_url: '/avatar.jpg' }} />);
+    const portrait = container.querySelector('img');
+    expect(portrait).toHaveAttribute('src', '/avatar.jpg');
+    expect(portrait).toHaveAttribute('aria-hidden', 'true'); // the h1 beside it names the person
+  });
+
+  it('links a certification to its credential and falls back to the typographic seal', () => {
+    const { container } = render(<CVSection profile={profile} />);
+    expect(screen.getByRole('link', { name: /AWS SAA/ })).toHaveAttribute('href', 'https://x');
+    // no avatar_url and no badge_image_url → nothing renders as an image at all
+    expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('renders the official Credly image when the data carries one', () => {
+    const withBadge: Profile = {
+      ...profile,
+      certifications: [{ ...profile.certifications[0], badge_image_url: 'https://images.credly.com/x.png' }],
+    };
+    const { container } = render(<CVSection profile={withBadge} />);
+    expect(container.querySelector('img')).toHaveAttribute('src', 'https://images.credly.com/x.png');
   });
 
   it('renders friendly link labels and a dash-less single graduation year', () => {
@@ -52,8 +68,7 @@ describe('ProfileView', () => {
       // 'twitter' is not in the label map → falls back to the raw key.
       metadata: { linkedin: 'https://www.linkedin.com/in/x/', medium: 'https://x.medium.com', twitter: 'https://x.com/y' },
     };
-    render(<ProfileView profile={p} />);
-    // lowercase keys render with friendly casing
+    render(<CVSection profile={p} />);
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/x/');
     expect(screen.getByRole('link', { name: 'Medium' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'twitter' })).toBeInTheDocument(); // unknown key → raw fallback
@@ -62,7 +77,7 @@ describe('ProfileView', () => {
     expect(screen.queryByText('– 2010')).not.toBeInTheDocument();
   });
 
-  it('omits empty sections', () => {
+  it('omits empty blocks', () => {
     const minimal: Profile = {
       ...profile,
       summary: undefined,
@@ -73,9 +88,10 @@ describe('ProfileView', () => {
       skills: {},
       metadata: {},
     };
-    render(<ProfileView profile={minimal} />);
-    expect(screen.getByText('Tadeu Mendonça')).toBeInTheDocument();
+    render(<CVSection profile={minimal} />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Tadeu Mendonça' })).toBeInTheDocument();
     expect(screen.queryByText('Experiência')).not.toBeInTheDocument();
+    expect(screen.queryByText('Certificações')).not.toBeInTheDocument();
     expect(screen.queryByText('Habilidades')).not.toBeInTheDocument();
   });
 });

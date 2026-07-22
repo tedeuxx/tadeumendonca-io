@@ -33,7 +33,7 @@ export function ShareButton({ title, url, size = 'md' }: { title: string; url: s
       onClick={() => void share()}
       aria-label="Share"
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+        'inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
         size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
       )}
     >

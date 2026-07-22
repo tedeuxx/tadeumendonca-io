@@ -4,10 +4,12 @@
 // Positioning: AI Engineer (agentic development / applied GenAI), anchored in SDLC + distributed
 // systems. Sourced from LinkedIn + the Canva CV (2026-07), reframed to the new positioning.
 import type { Profile } from '../types/profile';
+import avatar from '../assets/avatar.jpg';
 
 export const profile: Profile = {
   profile_id: 'me',
   name: 'Luiz Tadeu Mendonça',
+  avatar_url: avatar,
   headline:
     'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
     'Python · TypeScript · AWS · Terraform | 17y across SDLC & Distributed Systems',
@@ -100,12 +102,14 @@ export const profile: Profile = {
       end_date: '2010',
     },
   ],
+  // badge_image_url (the official Credly image) and credential_url are still missing; until they are
+  // filled in, the CV falls back to the typographic seal built from badge_label.
   certifications: [
-    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)' },
-    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)' },
+    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nPRO' },
+    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nPRA' },
+    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'DEV\nASC' },
+    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nASC' },
+    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A' },
   ],
   skills: {
     'AI & Agentic': [

@@ -14,10 +14,12 @@ terraform {
 
   # Terraform Cloud holds state + locks; execution mode is Local (GitHub Actions runs plan/apply).
   # The cloud{} block is parsed before variables resolve, so org/tags are literal here.
-  # CI selects the workspace via TF_WORKSPACE=tadeumendonca-pwa-{staging|production}.
-  # Split from tadeumendonca-iac (shared infra): this workspace owns the APP infra (DynamoDB, Lambda,
-  # API GW, CloudFront, buckets, app IAM/OIDC roles); shared infra (Cognito/auth, SES, WAF regional)
-  # stays in tadeumendonca-iac and is read here via the SSM config bus (ssm-shared.tf). Acyclic.
+  # CI selects the workspace via TF_WORKSPACE=tadeumendonca-pwa-staging.
+  # DO NOT RENAME the workspace name or the tag below to match the current repo name. They identify the
+  # LIVE Terraform Cloud workspace holding real state; renaming points Terraform at an empty workspace,
+  # which plans a full recreate of the live site infra. The `-pwa-` string is deliberate history.
+  # This workspace owns everything the static site needs: S3 buckets, CloudFront + the URL-rewrite
+  # function, the iCloud email records, and the GitHub OIDC deploy roles. There is no backend.
   cloud {
     organization = "tadeumendonca-io"
     workspaces {

@@ -1,8 +1,5 @@
-# Staging — paired with TF_WORKSPACE=tadeumendonca-pwa-staging.
-# Differences from prd are driven by var.environment, not extra vars. (BFF is non-VPC — no NAT.)
+# The single environment — paired with TF_WORKSPACE=tadeumendonca-pwa-staging.
+# That workspace name is deliberate history from the repo rename; see the warning in versions.tf.
 project     = "tadeumendonca"
 environment = "staging"
 aws_region  = "us-east-1"
-# e2e-test@... is the native test user for authed/admin regression (USER_PASSWORD_AUTH test client).
-# Staging-only — prd keeps just the owner. The cognito-groups trigger reads ADMIN_EMAILS to grant admin.
-admin_emails = ["tadeu.tyf@gmail.com", "e2e-test@tadeumendonca.io"]

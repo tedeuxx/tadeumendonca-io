@@ -3,18 +3,27 @@
 @tailwind utilities;
 
 /* Brand tokens (/frontend/design-system) — shadcn-style HSL vars.
-   Single fixed theme (no dark/light toggle): Borussia Dortmund — black/graphite + gold. */
+   Single fixed theme (no dark/light toggle): modern brutalism — near-black / off-white
+   with one committed accent (safety orange). Radius 0, no shadow, no gradient. */
 :root {
-  --background: 0 0% 7%; /* #121212 near-black graphite */
-  --foreground: 0 0% 96%; /* off-white */
-  --card: 0 0% 11%; /* #1c1c1c raised graphite */
-  --border: 0 0% 20%; /* #333 hairline */
-  --muted: 0 0% 15%; /* #262626 */
-  --muted-foreground: 0 0% 64%; /* #a3a3a3 */
-  --primary: 43 90% 48%; /* #E8A613 warm gold (deeper than BVB yellow) */
-  --primary-foreground: 0 0% 7%; /* black text on gold (AA ~9:1) */
-  --ring: 43 90% 48%;
-  --radius: 0.5rem;
+  --background: 0 0% 4%; /* #0A0A0A near-black */
+  --foreground: 50 23% 95%; /* #F5F4EF warm off-white */
+  --card: 0 0% 4%; /* = background (brutalism has no raised surface) */
+  --border: 0 0% 16%; /* #2A2A2A visible grid line */
+  --border-strong: 50 23% 95%; /* heavy rule (section frame) */
+  --muted: 0 0% 10%; /* #1A1A1A flat fill */
+  --muted-foreground: 40 5% 53%; /* #8C8880 warm muted text */
+  --primary: 21 100% 50%; /* #FF5A00 safety orange — the only accent */
+  --primary-foreground: 0 0% 4%; /* near-black on orange (AA ~8:1) */
+  --ring: 21 100% 50%;
+  --radius: 0;
+
+  /* Rules of the exposed brutalist grid. */
+  --rule: 1px;
+  --rule-strong: 2px;
+  --container: 1440px;
+  --gutter: clamp(1rem, 4vw, 4rem);
+  --header-h: 56px;
 }
 
 /* Base (Tailwind preflight handles the reset; we set the brand surface + border default). */
@@ -23,15 +32,69 @@ body,
 #root {
   height: 100%;
 }
+/* Landing anchors (#artigos/#portfolio/#contato) — smooth only when motion is welcome; the reduced
+   motion block below resets it back to auto. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 body {
   margin: 0;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 * {
   border-color: hsl(var(--border));
+}
+::selection {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Motion is decoration — everything is gated on prefers-reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* Mechanical fg/bg swap — the brutalist hover (no fade, no shadow). */
+  .invert-hover {
+    transition: background-color 0.12s steps(1), color 0.12s steps(1);
+  }
+  .invert-hover:hover {
+    background-color: hsl(var(--foreground));
+    color: hsl(var(--background));
+  }
+  .label-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+  .rule {
+    border-color: hsl(var(--border));
+    border-width: var(--rule);
+  }
+  .rule-heavy {
+    border-color: hsl(var(--border-strong));
+    border-width: var(--rule-strong);
+  }
 }
 
 /* Markdown body (preflight is off, so style the rendered elements explicitly). */
@@ -53,7 +116,8 @@ body {
 .markdown h3 {
   margin: 1em 0 0.4em;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 .markdown h1 {
   font-size: 1.5em;
@@ -67,9 +131,11 @@ body {
 .markdown a {
   color: hsl(var(--primary));
   text-decoration: none;
+  border-bottom: 1px solid hsl(var(--primary));
 }
 .markdown a:hover {
-  text-decoration: underline;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
 .markdown ul,
 .markdown ol {
@@ -79,21 +145,21 @@ body {
   margin: 0.2em 0;
 }
 .markdown blockquote {
-  border-left: 3px solid hsl(var(--border));
+  border-left: var(--rule-strong) solid hsl(var(--primary));
   padding-left: 0.9em;
   color: hsl(var(--muted-foreground));
 }
 .markdown code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9em;
   background: hsl(var(--muted));
   padding: 0.1em 0.35em;
-  border-radius: 0.3em;
+  border-radius: 0;
 }
 .markdown pre {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 0.6em;
+  background: hsl(var(--muted));
+  border: var(--rule) solid hsl(var(--border));
+  border-radius: 0;
   padding: 0.9em;
   overflow-x: auto;
 }
@@ -103,5 +169,5 @@ body {
 }
 .markdown img {
   max-width: 100%;
-  border-radius: 0.6em;
+  border-radius: 0;
 }

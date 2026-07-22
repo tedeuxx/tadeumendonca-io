@@ -1,93 +1,119 @@
-// Portfolio section (/frontend/design-system) — renders the curated catalog as GitHub-linked cards.
-// Pure/presentational: data comes from ../data/catalog, so it's trivially testable and has no backend
-// dependency. Used both on the landing (/) and the dedicated /portfolio page.
-import { Boxes, Github, ExternalLink } from 'lucide-react';
+// Portfolio section (/frontend/design-system) — the curated catalog as GitHub-linked cards, laid out
+// full-width on the 12-column grid: a sticky label column beside the card body. Pure/presentational
+// (data comes from ../data/catalog), so it is trivially testable and has no backend dependency.
+// Used both on the landing (/) and on the dedicated /portfolio page.
+//
+// The card is reader-first: besides what the project IS, it states what you take away from studying
+// it ("o que você tira disso" — the optional `proof` field).
+import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   if (!status) return null;
-  const label = status === 'live' ? 'Live' : 'WIP';
   return (
-    <span className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-      {label}
+    <span className="shrink-0 border border-current px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-[0.1em]">
+      {status === 'live' ? 'Live' : 'WIP'}
     </span>
   );
 }
 
+// The card is an article, not one big anchor: a project can carry both a repo and a live URL, and
+// nesting anchors is invalid. The whole surface still reacts as one via the group hover.
 function ProjectCard({ project }: { project: CatalogProject }) {
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-card p-4">
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2 font-display font-bold hover:text-primary"
-        >
-          <Github size={16} className="shrink-0 text-muted-foreground" />
-          {project.name}
-        </a>
+    <article className="group flex flex-col gap-3 border border-border p-6 transition-colors duration-150 hover:bg-foreground hover:text-background">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-[1.4rem] font-bold leading-tight tracking-[-0.02em]">
+          <a href={project.repoUrl} target="_blank" rel="noreferrer" className="hover:text-primary group-hover:hover:text-primary">
+            {project.name}
+          </a>
+        </h3>
         <StatusBadge status={project.status} />
       </div>
-      <p className="text-sm font-medium text-foreground/90">{project.tagline}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{project.description}</p>
+
+      <p className="font-medium leading-snug">{project.tagline}</p>
+      <p className="text-[15px] leading-relaxed opacity-70">{project.description}</p>
+
+      {project.proof && (
+        <p className="text-[15px] leading-relaxed">
+          <span className="mb-0.5 block font-mono text-[0.64rem] uppercase tracking-[0.1em] text-primary">
+            O que você tira disso
+          </span>
+          {project.proof}
+        </p>
+      )}
+
       {project.stack.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap">
           {project.stack.map((tech) => (
-            <span key={tech} className="rounded-md bg-muted px-2 py-0.5 text-xs text-foreground">
+            <span key={tech} className="-mb-px -mr-px border border-border px-2 py-0.5 font-mono text-[0.68rem]">
               {tech}
             </span>
           ))}
         </div>
       )}
-      {project.liveUrl && (
-        <a
-          href={project.liveUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-        >
-          <ExternalLink size={14} /> Ver ao vivo
+
+      <div className="mt-auto flex flex-wrap gap-x-5 pt-1 font-mono text-xs uppercase tracking-wider">
+        <a href={project.repoUrl} target="_blank" rel="noreferrer" className="hover:underline">
+          <span className="text-primary">→</span> Ver no GitHub
         </a>
-      )}
-    </div>
+        {project.liveUrl && (
+          <a href={project.liveUrl} target="_blank" rel="noreferrer" className="hover:underline">
+            <span className="text-primary">↗</span> Ver ao vivo
+          </a>
+        )}
+      </div>
+    </article>
   );
 }
 
-// `embedded` (default) renders the section chrome (top border + heading) so it sits inside the CV
-// flow on the landing; the standalone /portfolio page passes embedded={false} (its ColumnHeader
-// already provides the title).
-export function PortfolioSection({ embedded = true }: { embedded?: boolean }) {
+/**
+ * `limit` truncates the grid (the landing shows a shortlist and links to the full catalog);
+ * `showAllLink` renders that link. The /portfolio page passes neither and shows everything.
+ */
+export function PortfolioSection({ limit, showAllLink = false }: { limit?: number; showAllLink?: boolean }) {
+  const shown = limit ? catalog.slice(0, limit) : catalog;
+
   return (
-    <section className={embedded ? 'border-t border-border px-4 py-5' : 'px-4 py-5'}>
-      {embedded && (
-        <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold">
-          <span className="text-primary">
-            <Boxes size={18} />
+    <div className="md:grid md:grid-cols-12">
+      <div className="px-[--gutter] pb-4 pt-[clamp(2rem,4vw,3.5rem)] md:col-span-3 md:pr-6">
+        <div className="md:sticky md:top-[calc(var(--header-h)+2rem)]">
+          <span aria-hidden="true" className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none text-primary">
+            ↗
           </span>
-          Portfólio
-        </h2>
-      )}
-      {catalog.length === 0 ? (
-        <p className="text-[15px] text-muted-foreground">
-          Catálogo em construção.{' '}
-          <a
-            href="https://github.com/tedeuxx"
-            target="_blank"
-            rel="noreferrer"
-            className="font-medium text-primary hover:underline"
-          >
-            Acompanhe no GitHub
-          </a>
-          .
-        </p>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {catalog.map((project) => (
-            <ProjectCard key={project.name} project={project} />
-          ))}
+          <h2 className="mt-2 label-mono text-foreground">Portfólio</h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+            Código aberto pra você estudar, clonar e usar. Cresce conforme as automações graduam.
+          </p>
         </div>
-      )}
-    </section>
+      </div>
+
+      <div className="px-[--gutter] pb-[clamp(2.5rem,5vw,4rem)] md:col-span-9 md:border-l md:border-border md:pl-8 md:pt-[clamp(2rem,4vw,3.5rem)]">
+        {shown.length === 0 ? (
+          <p className="text-[15px] text-muted-foreground">
+            Catálogo em construção.{' '}
+            <a href="https://github.com/tedeuxx" target="_blank" rel="noreferrer" className="text-primary hover:underline">
+              Acompanhe no GitHub
+            </a>
+            .
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {shown.map((project) => (
+              <ProjectCard key={project.name} project={project} />
+            ))}
+          </div>
+        )}
+
+        {showAllLink && (
+          <RouterLink
+            to="/portfolio"
+            className="mt-6 inline-block border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
+          >
+            → Ver catálogo completo
+          </RouterLink>
+        )}
+      </div>
+    </div>
   );
 }

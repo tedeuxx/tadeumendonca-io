@@ -1,27 +1,29 @@
-// Landing (/) — reframe-first: leads with the CV, then the portfolio catalog. The profile is static
-// (../data/profile via useProfile), so there's no BFF call and no loading/error path. The product
-// (feed, blog, posts) still exists, just de-emphasized in the nav.
+// CV (/cv) — the canonical reference of the owner's experience, and the only place the personal
+// name and bio appear (the landing is the brand, not the person). Static profile (../data/profile),
+// so there is no loading or error path.
+//
+// The CV is rendered by CVSection: numbered sticky blocks, separate Formação and Certificações,
+// certifications as badges.
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
-import { ProfileView } from '../components/ProfileView';
-import { PortfolioSection } from '../components/PortfolioSection';
+import { CVSection } from '../components/CVSection';
 import { Empty } from '../components/Column';
 import { SITE_URL } from '../lib/site';
 
-export function HomePage() {
+export function CvPage() {
   const { data: profile } = useProfile();
 
   useDocumentHead({
-    title: profile?.name ?? 'tadeumendonca.io',
+    title: profile ? `CV — ${profile.name}` : 'CV',
     description: profile?.summary,
-    canonicalPath: '/',
+    canonicalPath: '/cv',
     jsonLd: profile
       ? {
           '@context': 'https://schema.org',
           '@type': 'Person',
           name: profile.name,
           jobTitle: profile.headline,
-          url: SITE_URL,
+          url: `${SITE_URL}/cv`,
           sameAs: Object.values(profile.metadata),
           ...(profile.location ? { address: profile.location } : {}),
         }
@@ -30,10 +32,5 @@ export function HomePage() {
 
   if (!profile) return <Empty>Perfil ainda não disponível.</Empty>;
 
-  return (
-    <div>
-      <ProfileView profile={profile} />
-      <PortfolioSection />
-    </div>
-  );
+  return <CVSection profile={profile} />;
 }

@@ -21,12 +21,18 @@ export interface CertificationItem {
   issuer: string;
   issued_date?: string;
   credential_url?: string;
+  /** Official badge image (Credly). Absent → the CV falls back to a typographic seal. */
+  badge_image_url?: string;
+  /** Two short lines for the fallback seal, e.g. 'SA\nPRO'. */
+  badge_label?: string;
 }
 
 export interface Profile {
   profile_id: string;
   name: string;
   headline: string;
+  /** Portrait shown on /cv (the landing stays impersonal apart from the small aside avatar). */
+  avatar_url?: string;
   summary?: string;
   location?: string;
   experience: ExperienceItem[];

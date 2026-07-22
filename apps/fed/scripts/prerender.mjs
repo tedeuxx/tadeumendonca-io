@@ -23,7 +23,8 @@ function slugOf(file) {
 const slugs = readdirSync(contentDir)
   .filter((f) => f.endsWith('.md'))
   .map(slugOf);
-const routes = ['/', '/portfolio', '/blog', ...slugs.map((s) => `/blog/${s}`)];
+// Real routes only — redirects (/blog, /articles, /profile) must never be snapshotted.
+const routes = ['/', '/cv', '/portfolio', ...slugs.map((s) => `/blog/${s}`)];
 
 const SITE_URL = process.env.VITE_SITE_URL?.replace(/\/$/, '') ?? 'https://tadeumendonca.io';
 const canonicalFor = (route) => (route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`);
