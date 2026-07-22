@@ -1,10 +1,11 @@
 name: fed-ci
 
-# PR gate for apps/fed (PWA). lint + typecheck + tests (coverage ≥ 85%) + build + SonarCloud gate.
-# Runs on EVERY PR to main so the required `fed-ci` check always reports a status; the dorny
-# paths-filter skips the heavy steps when the change doesn't touch apps/fed (or packages/shared) — the
-# job still finishes green, satisfying the required check.
-# Monorepo Stage A: apps are independent (each with its own package-lock); steps run in apps/fed.
+# PR gate for apps/fed. lint + typecheck + tests (coverage ≥ 85%) + build + E2E + SonarCloud gate.
+# trunk-single-env: main IS production, so there is no downstream tier to defer a check to — the full
+# regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys,
+# not only post-deploy. Runs on EVERY PR to main so the required `fed-ci` check always reports a status;
+# the dorny paths-filter skips the heavy steps when the change doesn't touch apps/fed — the job still
+# finishes green, satisfying the required check. Steps run in apps/fed.
 on:
   pull_request:
     branches: [main]
@@ -77,6 +78,17 @@ jobs:
       - name: Build
         if: steps.changes.outputs.code == 'true'
         run: npm run build
+
+      # Full regression BEFORE the merge deploys. Playwright boots a `vite preview` of the build above
+      # (webServer in playwright.config.ts) and runs the public journeys against it. Under
+      # trunk-single-env this is the gate — a route break fails the PR instead of reaching production.
+      - name: Install Playwright browser
+        if: steps.changes.outputs.code == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E (Playwright against a preview of the build)
+        if: steps.changes.outputs.code == 'true'
+        run: npm run e2e:local
 
       # Authoritative quality gate. projectBaseDir scopes the scan to apps/fed.
       # NOTE (owner/external): the SonarCloud project tedeuxx_tadeumendonca-fed must be rebound to the

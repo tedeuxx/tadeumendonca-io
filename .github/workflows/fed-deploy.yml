@@ -88,8 +88,10 @@ jobs:
             --paths "/*" >/dev/null
           echo "deployed fed to $ENV_NAME"
 
-      # Post-deploy regression (Playwright E2E) — MAIN/production ONLY (owner policy). Public journeys;
-      # config retries absorb CloudFront invalidation lag.
+      # Post-deploy SMOKE (Playwright E2E) against the real apex. The full regression already gated the
+      # PR (fed-ci, against a preview) — this is the post-deploy health confirmation the principles ask
+      # for: it exercises the real CDN + prerendered HTML and catches deploy/CloudFront-level breakage
+      # the pre-merge run can't see. Config retries absorb invalidation lag.
       - name: E2E smoke (Playwright) against production
         if: github.ref == 'refs/heads/main'
         env:
