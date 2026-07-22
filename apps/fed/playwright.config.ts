@@ -1,8 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // E2E config (/frontend/playwright). The base URL comes from PLAYWRIGHT_BASE_URL, or from E2E_ENV
-// (local | staging) mapped below. The SAME specs run anywhere: locally against a `vite preview`, or
-// against the deployed site (the single environment serves at the apex). `npm run e2e:staging`.
+// (local | staging) mapped below. The SAME specs run anywhere: locally / on the PR gate against a
+// `vite preview` of the built app, or against the deployed site post-deploy (the single environment
+// serves at the apex). `npm run e2e:local` is the pre-merge gate; `e2e:staging` is the deploy smoke.
 const ENV = process.env.E2E_ENV ?? 'staging';
 const URLS: Record<string, string> = {
   local: 'http://localhost:4173', // vite preview
@@ -19,4 +20,16 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: { baseURL, trace: 'on-first-retry' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // Only the local target needs a server booted: it points at a `vite preview` of the built app
+  // (dist/ must exist — run `npm run build` first). The staging/production targets hit the live apex,
+  // so no webServer. reuseExistingServer keeps a preview you already have running locally.
+  webServer:
+    ENV === 'local'
+      ? {
+          command: 'npm run preview',
+          url: 'http://localhost:4173',
+          reuseExistingServer: !process.env.CI,
+          timeout: 60_000,
+        }
+      : undefined,
 });
