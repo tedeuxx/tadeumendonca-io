@@ -13,8 +13,7 @@ Three surfaces:
 
 ## Stack
 
-- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), installable offline-first
-  **PWA**. Content (CV, articles) is **markdown in the repo**; the build **prerenders each route** (Playwright)
+- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), **no PWA**. Content (CV, articles) is **markdown in the repo**; the build **prerenders each route** (Playwright)
   so OG/SEO tags land in the served HTML. UI copy is pt-BR.
 - **Infra** (`iac`): Terraform for the frontend only — S3 + CloudFront (with a viewer-request URL-rewrite
   function), custom email via iCloud, and the GitHub OIDC deploy roles. State in Terraform Cloud, **local**
@@ -27,7 +26,7 @@ on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's i
 
 ```
 apps/
-  fed/    # the static SPA (React + Vite + PWA, offline-first)
+  fed/    # the static SPA (React + Vite + Tailwind, no PWA)
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
 VERSION   # single version (numeric SemVer)
 ```

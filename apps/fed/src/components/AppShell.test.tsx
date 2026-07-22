@@ -1,10 +1,7 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { onlineManager } from '@tanstack/react-query';
 import { AppShell } from './AppShell';
-
-afterEach(() => act(() => onlineManager.setOnline(true)));
 
 const renderShell = () =>
   render(
@@ -27,10 +24,9 @@ describe('AppShell', () => {
     expect(screen.queryByText('Entrar')).toBeNull();
   });
 
-  it('shows an offline banner only while connectivity is down', () => {
+  it('carries no PWA chrome — the offline banner and install prompt are retired', () => {
     renderShell();
-    expect(screen.queryByText(/Você está offline/)).toBeNull(); // online → hidden
-    act(() => onlineManager.setOnline(false));
-    expect(screen.getByText(/Você está offline/)).toBeInTheDocument();
+    expect(screen.queryByText(/Você está offline/)).toBeNull();
+    expect(screen.queryByText(/[Ii]nstalar/)).toBeNull();
   });
 });

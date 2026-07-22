@@ -49,7 +49,7 @@ the pitch); **no over-engineering** (simplest thing that solves it), but **not a
 **no client/employer references** in public writing (abstract any war-story to a generic principle).
 
 ## Architecture (static — read before changing infra)
-A **fully static SPA** (React + Vite + TypeScript, offline-first PWA) built to `dist/` and served from
+A **fully static SPA** (React + Vite + TypeScript, no PWA) built to `dist/` and served from
 **S3 + CloudFront**; a **CloudFront Function** (viewer-request) rewrites clean URLs. Content (CV, articles) is
 **markdown in the repo** (frontmatter + react-markdown), and the build **prerenders each route** (Playwright
 snapshot of `vite preview`) so OG/SEO tags land in the served HTML. There is **no backend** — no API, no
@@ -71,7 +71,7 @@ The shared regional WAF was retired (nothing to protect on a static bucket behin
   tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded.
 
 ## Structure
-- **`apps/fed/`** — the static SPA (React + Vite + PWA, offline-first). Own guide in `apps/fed/CLAUDE.md`.
+- **`apps/fed/`** — the static SPA (React + Vite + Tailwind, no PWA). Own guide in `apps/fed/CLAUDE.md`.
 - **`iac/`** — Terraform for the frontend infra (S3, CloudFront + URL-rewrite function, email, OIDC roles).
   State in Terraform Cloud, **Local** execution; `apply`/`destroy` are **pipeline-only**.
 
@@ -81,7 +81,8 @@ The shared regional WAF was retired (nothing to protect on a static bucket behin
 
 ## Fixed decisions (do NOT revert without discussion)
 - **Static site**, no backend. Content is **markdown in the repo**, prerendered for OG/SEO.
-- **fed:** own Tailwind, **no shadcn**; single theme (BVB identity: black/graphite/gold); **offline-first PWA**.
+- **fed:** own Tailwind, **no shadcn**; single theme (**brutalist mono**: near-black `#0A0A0A` / off-white
+  `#F5F4EF` + one accent, safety orange `#FF5A00`; radius 0, no shadow, no gradient); **no PWA**.
 - **CI OIDC roles** pinned to the **immutable OIDC subject**; role ARNs are **environment secrets**, tooling
   tokens are **repository** secrets (see `/workflow/github-actions`).
 - **No client/employer references** in public writing.

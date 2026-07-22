@@ -1,24 +1,11 @@
-// App shell (/frontend/design-system). BVB identity: black/graphite + yellow, single fixed theme.
-// Layout: global header (brand) → horizontal nav row → content (the star, wide & centered) + a static
-// "components" zone (xl+). Fully static — no auth, no backend widgets.
+// App shell (/frontend/design-system). Brutalist identity: near-black/off-white + safety orange,
+// single fixed theme. Layout: global header (brand) → horizontal nav row → content (the star, wide &
+// centered) + a static "components" zone (xl+). Fully static — no auth, no backend, no PWA.
 import { type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FileText, User, Boxes, WifiOff } from 'lucide-react';
-import { useOnline } from '../hooks/useOnline';
-import { InstallPrompt } from './InstallPrompt';
+import { FileText, User, Boxes } from 'lucide-react';
 import { SocialLinksWidget } from './SocialLinksWidget';
 import { cn } from '../lib/cn';
-
-function OfflineBanner() {
-  const online = useOnline();
-  if (online) return null;
-  return (
-    <div role="status" className="flex items-center justify-center gap-2 border-b border-border bg-muted px-4 py-1.5 text-xs text-muted-foreground">
-      <WifiOff size={14} />
-      <span>Você está offline — conteúdo já carregado continua acessível.</span>
-    </div>
-  );
-}
 
 interface NavEntry {
   to: string;
@@ -88,8 +75,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
           <NavItems />
         </nav>
-        <OfflineBanner />
-        <InstallPrompt />
       </div>
 
       {/* Content (the star) + components zone (desktop only) */}
