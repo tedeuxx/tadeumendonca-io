@@ -1,5 +1,16 @@
 # Redesign brutalista moderno — tadeumendonca.io (`apps/fed`)
 
+> **Status: CONCLUÍDO (2026-07-22).** O redesign brutalista — Fase 0 (comp) e §1–§10
+> (design-to-code) — foi entregue e está em produção (PR #35, merge em `main` → deploy).
+> A identidade mono/`#FF5A00`, a divisão home/`/cv`, os templates `/blog/:slug` e `/portfolio`,
+> a remoção do PWA e o prerender/OG estão todos no ar, com o gate verde (lint, typecheck,
+> cobertura ≥85%, build, E2E cobrindo cada rota).
+>
+> **Fases ainda ABERTAS (fora do que shippou):** a **Fase i18n** (bilíngue EN/PT) e a
+> **Fase LinkedIn** (automação de distribuição) permanecem adiadas — ver o fim do documento.
+> Este plano fica como registro do que foi decidido e entregue; não é backlog ativo, exceto
+> por essas duas fases.
+
 ## Context
 O site é a prova pública do reposicionamento do Tadeu de *Cloud Application Architect* → **AI Engineer (agentic development)**. A identidade atual (Borussia Dortmund: preto/grafite + ouro `#E8A613`, Archivo/Inter, layout de feed multi-rota, PWA offline-first) não expressa esse posicionamento. O brief aprovado pede uma **estética brutalista moderna** — monocromática, grid exposto, alto contraste, "engenharia à mostra". Este plano cobre a fase design-to-code; a alta-fi visual **foi aprovada** via comp HTML (ver Fase 0).
 
