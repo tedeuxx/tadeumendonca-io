@@ -14,6 +14,8 @@ export interface CatalogProject {
   description: string;
   /** Primary stack / tools (shown as chips). */
   stack: string[];
+  /** Reader-first payoff — what someone takes away from studying it ("o que você tira disso"). */
+  proof?: string;
   /** Canonical GitHub URL. */
   repoUrl: string;
   /** Optional live/demo URL. */
@@ -27,12 +29,15 @@ export interface CatalogProject {
 export const catalog: CatalogProject[] = [
   {
     name: 'tadeumendonca.io',
-    tagline: 'This site — an offline-first PWA built agent-first with Claude Code.',
+    tagline: 'Este site — SPA estático React/Vite, construído agent-first com Claude Code.',
     description:
-      'A React/Vite PWA + Hono-on-Lambda BFF, provisioned with Terraform and shipped through an ' +
-      'agent-driven SDLC (plan-first, gated CI, per-environment promotion). The repo is the source of truth.',
-    stack: ['React', 'Vite', 'Hono', 'AWS Lambda', 'Terraform', 'Claude Code'],
-    repoUrl: 'https://github.com/tedeuxx/tadeumendonca-pwa',
+      'Uma SPA estática (sem backend) servida em S3 + CloudFront e provisionada com Terraform, ' +
+      'entregue por um SDLC agent-driven: plan-first, CI com gates e deploy no merge. O repo é a fonte da verdade.',
+    proof:
+      'um exemplo real de SDLC agent-driven ponta a ponta: plan-first, CI gated, prerender para SEO e ' +
+      'deploy estático em S3 + CloudFront via Terraform.',
+    stack: ['React', 'Vite', 'TypeScript', 'Terraform', 'Claude Code'],
+    repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',
     liveUrl: 'https://tadeumendonca.io',
     status: 'live',
   },

@@ -50,7 +50,7 @@ export function LandingPage() {
       </div>
 
       <section id="portfolio" className="scroll-mt-[--header-h] border-t-2 border-border-strong">
-        <PortfolioSection />
+        <PortfolioSection limit={4} showAllLink />
       </section>
 
       <section id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] py-8">

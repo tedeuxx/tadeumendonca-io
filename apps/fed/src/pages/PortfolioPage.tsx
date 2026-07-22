@@ -1,7 +1,7 @@
-// Portfolio page (/portfolio) — the curated catalog of projects the site links out to on GitHub.
-// No auth, no backend (static ../data/catalog).
+// Portfolio page (/portfolio) — the full curated catalog the site links out to on GitHub. Same
+// cards as the landing's section, without the shortlist limit; the section carries its own heading,
+// so there is no separate page header. No auth, no backend (static ../data/catalog).
 import { PortfolioSection } from '../components/PortfolioSection';
-import { ColumnHeader } from '../components/Column';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 
 export function PortfolioPage() {
@@ -11,10 +11,5 @@ export function PortfolioPage() {
     canonicalPath: '/portfolio',
   });
 
-  return (
-    <div>
-      <ColumnHeader title="Portfólio" description="Automações e projetos — o catálogo no GitHub." />
-      <PortfolioSection embedded={false} />
-    </div>
-  );
+  return <PortfolioSection />;
 }
