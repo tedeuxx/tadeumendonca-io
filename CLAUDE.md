@@ -78,7 +78,7 @@ Two consequences worth stating outright, because they are what the other model g
 - **`main`** is the only branch. Feature/fix branches cut **from `main`** → PR (0 required approvals) → merge →
   **automatic deploy** to the single environment. The merge **is** the deploy, so it is the go/no-go —
   **confirm first**, always.
-- **Single environment** (the `tadeumendonca-pwa-staging` TFC workspace, kept as-is internally); the public
+- **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
   tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded.
