@@ -19,6 +19,13 @@ describe('ContactLinks', () => {
     }
   });
 
+  it('renders every icon in the theme accent — no borrowed brand colour', () => {
+    const { container } = render(<ContactLinks />);
+    const icons = [...container.querySelectorAll('svg')];
+    expect(icons).toHaveLength(3);
+    for (const icon of icons) expect(icon).toHaveClass('text-primary');
+  });
+
   it('takes its heading from the caller (aside vs. contact region)', () => {
     render(<ContactLinks title="Contato" />);
     expect(screen.getByRole('heading', { name: 'Contato' })).toBeInTheDocument();

@@ -24,6 +24,13 @@ describe('ContactFooter', () => {
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('rel', 'noreferrer');
   });
 
+  it('renders every icon in the theme accent — no borrowed brand colour', () => {
+    const { container } = render(<ContactFooter />);
+    const icons = [...container.querySelectorAll('svg')];
+    expect(icons).toHaveLength(4);
+    for (const icon of icons) expect(icon).toHaveClass('text-primary');
+  });
+
   it('anchors the #contato nav target', () => {
     const { container } = render(<ContactFooter />);
     expect(container.querySelector('#contato')).not.toBeNull();

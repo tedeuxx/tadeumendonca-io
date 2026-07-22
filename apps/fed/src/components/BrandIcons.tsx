@@ -1,7 +1,7 @@
 // Brand glyphs (official marks, inline SVG). lucide-react has no WhatsApp mark, and the GitHub /
 // LinkedIn lucide icons are line-art approximations — a brand link reads better with the real glyph.
-// They inherit `currentColor`, so the palette stays in charge (the one exception is WhatsApp's own
-// green, applied at the call site).
+// They inherit `currentColor`, so the palette stays in charge: every mark renders in the theme
+// accent, brand colours included.
 const base = { viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': true as const, width: 16, height: 16 };
 
 export function GithubMark(props: { className?: string }) {

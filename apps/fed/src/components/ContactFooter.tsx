@@ -2,23 +2,17 @@
 // content helped, not for work. Links are the direct channels (WhatsApp click-to-message, e-mail on
 // the site's own domain, GitHub, LinkedIn); the colophon states how the site is built.
 //
-// WhatsApp keeps its brand green — the single contained exception to the one-accent rule.
+// Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
 import { GithubMark, LinkedinMark, MailMark, WhatsappMark } from './BrandIcons';
 import { whatsappHref } from './ContactLinks';
 
 export const CONTACT_EMAIL = 'me@tadeumendonca.io';
 
 const LINKS = [
-  { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark, className: 'text-[#25D366]', external: true },
-  { label: 'E-mail', href: `mailto:${CONTACT_EMAIL}`, Icon: MailMark, className: 'text-primary', external: false },
-  { label: 'GitHub', href: 'https://github.com/tedeuxx', Icon: GithubMark, className: 'text-primary', external: true },
-  {
-    label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530/',
-    Icon: LinkedinMark,
-    className: 'text-primary',
-    external: true,
-  },
+  { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark, external: true },
+  { label: 'E-mail', href: `mailto:${CONTACT_EMAIL}`, Icon: MailMark, external: false },
+  { label: 'GitHub', href: 'https://github.com/tedeuxx', Icon: GithubMark, external: true },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530/', Icon: LinkedinMark, external: true },
 ];
 
 export function ContactFooter() {
@@ -29,14 +23,14 @@ export function ContactFooter() {
       </h2>
 
       <div className="mb-[clamp(2.5rem,5vw,4rem)] flex flex-wrap">
-        {LINKS.map(({ label, href, Icon, className, external }) => (
+        {LINKS.map(({ label, href, Icon, external }) => (
           <a
             key={label}
             href={href}
             {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
             className="-mb-px -mr-px inline-flex items-center gap-2 border border-border-strong px-5 py-3.5 font-mono text-sm uppercase tracking-wider invert-hover"
           >
-            <Icon className={`shrink-0 ${className}`} />
+            <Icon className="shrink-0 text-primary" />
             {label}
           </a>
         ))}
