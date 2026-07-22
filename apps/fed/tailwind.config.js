@@ -46,6 +46,12 @@ export default {
         inner: 'none',
       },
       maxWidth: { screen: '1440px', prose: '72ch', feed: '600px', sidebar: '320px' },
+      // The single moving element (Marquee). The duplicated track makes -50% a seamless loop;
+      // prefers-reduced-motion freezes it via the global reset in index.css.
+      keyframes: {
+        marquee: { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-50%)' } },
+      },
+      animation: { marquee: 'marquee 32s linear infinite' },
       fontSize: {
         hero: ['clamp(3rem, 10vw, 12rem)', { lineHeight: '0.95', letterSpacing: '-0.04em' }],
         'display-2': ['clamp(2rem, 5vw, 4rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],

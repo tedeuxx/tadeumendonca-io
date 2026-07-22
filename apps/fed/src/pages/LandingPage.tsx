@@ -7,6 +7,7 @@
 // land in their own slices.
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
+import { Hero } from '../components/Hero';
 import { ArticlesSection } from '../components/ArticlesSection';
 import { PortfolioSection } from '../components/PortfolioSection';
 import { SocialLinksWidget } from '../components/SocialLinksWidget';
@@ -34,6 +35,8 @@ export function LandingPage() {
 
   return (
     <div>
+      <Hero />
+
       <ArticlesSection />
 
       <section id="portfolio" className="scroll-mt-[--header-h] border-t-2 border-border-strong">
