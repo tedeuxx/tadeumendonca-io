@@ -1,12 +1,11 @@
 name: infra-plan
 
 # PR gate for iac/ (APP infra). checkov → fmt → init → validate → plan → comment.
-# A PR into develop plans the staging workspace; a PR into main plans production.
-# TFC is the state backend (Local execution — GitHub runs the plan); AWS access via OIDC.
-# Workspaces: tadeumendonca-pwa-{staging,production} (created out-of-band — tag-based, execution Local).
+# Trunk-based: a PR into main plans the single workspace. TFC is the state backend (Local execution —
+# GitHub runs the plan); AWS via OIDC. Workspace: tadeumendonca-pwa-staging (tag-based, execution Local).
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "iac/**"
       - ".github/workflows/infra-plan.yml"
@@ -22,18 +21,17 @@ concurrency:
 
 env:
   TF_TOKEN_app_terraform_io: ${{ secrets.TFC_API_TOKEN }}
-  # Workspace + tfvars follow the PR target branch. cloud{} selects the workspace by TF_WORKSPACE.
-  TF_WORKSPACE: tadeumendonca-pwa-${{ github.base_ref == 'main' && 'production' || 'staging' }}
-  VAR_FILE: ${{ github.base_ref == 'main' && 'env/prd.tfvars' || 'env/stg.tfvars' }}
+  # Single environment (trunk-based): always the one workspace + tfvars.
+  TF_WORKSPACE: tadeumendonca-pwa-staging
+  VAR_FILE: env/stg.tfvars
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   plan:
     runs-on: ubuntu-latest
-    # Per-env OIDC role: the plan job assumes the role from the target env's GitHub Environment, so
-    # AWS_INFRA_OIDC_ROLE_ARN resolves to the staging/production runner. A PR into main therefore waits
-    # on the production Environment's required reviewer before the plan runs (accepted trade-off).
-    environment: ${{ github.base_ref == 'main' && 'production' || 'staging' }}
+    # The `staging` GitHub Environment only scopes AWS_INFRA_OIDC_ROLE_ARN (an environment secret) — it
+    # has no required reviewers, so it is not an approval gate.
+    environment: staging
     defaults:
       run:
         working-directory: iac

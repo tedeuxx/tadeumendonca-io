@@ -1,12 +1,11 @@
 name: infra-apply
 
-# Apply on merge: develop → staging (auto), main → production (gated by the production Environment's
-# required reviewer). TFC holds state (Local execution — GitHub runs apply); AWS via OIDC.
-# On apply, this writes the app SSM params (/{env}/{api,frontend,storage,data,iam}/*) that bff-deploy
-# and fed-deploy read. Shared infra (Cognito/SES/WAF) lives in tadeumendonca-iac and is read via SSM.
+# Apply on merge to main → the single (staging) workspace (auto, no gate). TFC holds state (Local
+# execution — GitHub runs apply); AWS via OIDC. On apply, this writes the app SSM params
+# (/{env}/{frontend,storage,iam}/*) that fed-deploy reads.
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "iac/**"
       - ".github/workflows/infra-apply.yml"
@@ -22,8 +21,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  apply-staging:
-    if: ${{ github.ref == 'refs/heads/develop' && !startsWith(github.event.head_commit.message, 'bump:') }}
+  apply:
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
     environment: staging
     concurrency:
@@ -54,36 +53,3 @@ jobs:
 
       - name: Apply
         run: terraform apply -input=false -auto-approve -var-file=env/stg.tfvars
-
-  apply-production:
-    if: ${{ github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'bump:') }}
-    runs-on: ubuntu-latest
-    environment: production # required reviewer gates the apply
-    concurrency:
-      group: infra-apply-production
-      cancel-in-progress: false
-    defaults:
-      run:
-        working-directory: iac
-    env:
-      TF_WORKSPACE: tadeumendonca-pwa-production
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
-          aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.9.8"
-
-      - name: Init
-        run: terraform init -input=false
-
-      - name: Apply
-        run: terraform apply -input=false -auto-approve -var-file=env/prd.tfvars

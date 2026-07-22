@@ -1,15 +1,12 @@
 name: fed-deploy
 
-# Build the SPA (Vite, env injected at build time) and publish: S3 sync with split cache headers
-# (immutable hashed assets vs no-cache index.html) + CloudFront invalidation.
-# develop → staging (auto); main → production (Environment-gated). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN =
-# the fed deploy role; OIDC trust repo:org/tadeumendonca-pwa:*). Monorepo Stage A: steps run in apps/fed.
-#
-# Regression policy (owner, 2026-06-16): post-deploy E2E (Playwright) runs ONLY on main (production),
-# NOT on develop/staging.
+# Build the SPA (Vite, static — prerendered) and publish: S3 sync with split cache headers (immutable
+# hashed assets vs no-cache index.html) + CloudFront invalidation. Trunk-based: merge to main → deploy
+# to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; OIDC
+# trust repo:org/tadeumendonca-pwa:*). Post-deploy E2E (Playwright) runs on the trunk.
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "apps/fed/**"
       - "packages/shared/**"
@@ -32,12 +29,12 @@ jobs:
   deploy:
     if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    environment: staging
     defaults:
       run:
         working-directory: apps/fed
     env:
-      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      ENV_NAME: staging
     steps:
       - name: Checkout
         uses: actions/checkout@v4
