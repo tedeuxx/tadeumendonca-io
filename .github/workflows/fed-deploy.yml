@@ -2,8 +2,9 @@ name: fed-deploy
 
 # Build the SPA (Vite, static — prerendered) and publish: S3 sync with split cache headers (immutable
 # hashed assets vs no-cache index.html) + CloudFront invalidation. Trunk-based: merge to main → deploy
-# to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; OIDC
-# trust repo:org/tadeumendonca-pwa:*). Post-deploy E2E (Playwright) runs on the trunk.
+# to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; the
+# trust pins the IMMUTABLE subject repo:<org>@<org_id>/<repo>@<repo_id>:* — see iac/iam.tf, and note
+# that a repo rename does not change it). Post-deploy E2E (Playwright) runs on the trunk.
 on:
   push:
     branches: [main]
