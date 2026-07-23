@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { CatalogProject } from '../data/catalog';
+import { renderWithLocale } from '../test-utils';
 
 // Drive both the empty state and the populated state by mocking the (static) catalog module.
 const { state } = vi.hoisted(() => ({ state: { catalog: [] as CatalogProject[] } }));
@@ -25,7 +26,7 @@ const sample: CatalogProject = {
 };
 
 const renderSection = (props: { limit?: number; showAllLink?: boolean } = {}) =>
-  render(
+  renderWithLocale(
     <MemoryRouter>
       <PortfolioSection {...props} />
     </MemoryRouter>,

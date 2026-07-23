@@ -7,12 +7,15 @@ import { absoluteUrl } from '../lib/site';
 import { Markdown } from '../components/Markdown';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
 import { ColumnHeader, Notice } from '../components/Column';
+import { dateLocale, useLocale, type Locale, type MessageKey } from '../i18n';
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
+const fmtDate = (iso: string, locale: Locale) =>
+  new Date(iso).toLocaleDateString(dateLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' });
 
-const TRACK_LABEL = { pessoal: 'Vida pessoal', engenharia: 'Engenharia' } as const;
+const TRACK_KEY = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' } as const satisfies Record<string, MessageKey>;
 
 export function ArticlePage() {
+  const { locale, t } = useLocale();
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getPostBySlug(slug) : undefined;
 
@@ -35,21 +38,21 @@ export function ArticlePage() {
             author: { '@type': 'Person', name: 'Luiz Tadeu Mendonça' },
           },
         }
-      : { title: 'Artigo não encontrado', canonicalPath: '/blog' },
+      : { title: t('article.notFoundTitle'), canonicalPath: '/blog' },
   );
 
   return (
     <div className="mx-auto w-full max-w-3xl">
       <ColumnHeader title="Blog" back />
-      {!article && <Notice>Este artigo não existe ou não está publicado.</Notice>}
+      {!article && <Notice>{t('article.notFoundBody')}</Notice>}
 
       {article && (
         <article className="px-[--gutter] py-6">
           <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
-              <time dateTime={article.date}>{fmtDate(article.date)}</time>
+              <time dateTime={article.date}>{fmtDate(article.date, locale)}</time>
               {article.tag && <span>· #{article.tag}</span>}
-              <span>· {TRACK_LABEL[article.track]}</span>
+              <span>· {t(TRACK_KEY[article.track])}</span>
               <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
             </div>
             <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
@@ -67,7 +70,7 @@ export function ArticlePage() {
               to="/#artigos"
               className="-mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
             >
-              ← Todos os artigos
+              {t('article.allArticles')}
             </RouterLink>
             {article.linkedinUrl && (
               <a
@@ -76,7 +79,7 @@ export function ArticlePage() {
                 rel="noreferrer"
                 className="-mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
               >
-                Ver no LinkedIn
+                {t('articles.viewOnLinkedin')}
               </a>
             )}
           </footer>

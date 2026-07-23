@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
+import { renderWithLocale } from '../test-utils';
 
 const { getPostBySlug } = vi.hoisted(() => ({ getPostBySlug: vi.fn() }));
 vi.mock('../lib/content', () => ({ getPostBySlug }));
@@ -9,7 +10,7 @@ vi.mock('../lib/content', () => ({ getPostBySlug }));
 import { ArticlePage } from './ArticlePage';
 
 const renderAt = (slug: string) =>
-  render(
+  renderWithLocale(
     <MemoryRouter initialEntries={[`/blog/${slug}`]}>
       <Routes>
         <Route path="/blog/:slug" element={<ArticlePage />} />

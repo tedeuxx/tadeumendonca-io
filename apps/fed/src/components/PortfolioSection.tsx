@@ -7,12 +7,14 @@
 // it ("o que você tira disso" — the optional `proof` field).
 import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
+import { useT } from '../i18n';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
+  const t = useT();
   if (!status) return null;
   return (
     <span className="shrink-0 border border-current px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-[0.1em]">
-      {status === 'live' ? 'Live' : 'WIP'}
+      {status === 'live' ? t('portfolio.statusLive') : t('portfolio.statusWip')}
     </span>
   );
 }
@@ -20,6 +22,7 @@ function StatusBadge({ status }: { status: CatalogProject['status'] }) {
 // The card is an article, not one big anchor: a project can carry both a repo and a live URL, and
 // nesting anchors is invalid. The whole surface still reacts as one via the group hover.
 function ProjectCard({ project }: { project: CatalogProject }) {
+  const t = useT();
   return (
     <article className="group flex flex-col gap-3 border border-border p-6 transition-colors duration-150 hover:bg-foreground hover:text-background">
       <div className="flex items-start justify-between gap-3">
@@ -37,7 +40,7 @@ function ProjectCard({ project }: { project: CatalogProject }) {
       {project.proof && (
         <p className="text-[15px] leading-relaxed">
           <span className="mb-0.5 block font-mono text-[0.64rem] uppercase tracking-[0.1em] text-primary">
-            O que você tira disso
+            {t('portfolio.payoff')}
           </span>
           {project.proof}
         </p>
@@ -55,11 +58,11 @@ function ProjectCard({ project }: { project: CatalogProject }) {
 
       <div className="mt-auto flex flex-wrap gap-x-5 pt-1 font-mono text-xs uppercase tracking-wider">
         <a href={project.repoUrl} target="_blank" rel="noreferrer" className="hover:underline">
-          <span className="text-primary">→</span> Ver no GitHub
+          <span className="text-primary">→</span> {t('portfolio.viewGithub')}
         </a>
         {project.liveUrl && (
           <a href={project.liveUrl} target="_blank" rel="noreferrer" className="hover:underline">
-            <span className="text-primary">↗</span> Ver ao vivo
+            <span className="text-primary">↗</span> {t('portfolio.viewLive')}
           </a>
         )}
       </div>
@@ -72,6 +75,7 @@ function ProjectCard({ project }: { project: CatalogProject }) {
  * `showAllLink` renders that link. The /portfolio page passes neither and shows everything.
  */
 export function PortfolioSection({ limit, showAllLink = false }: { limit?: number; showAllLink?: boolean }) {
+  const t = useT();
   const shown = limit ? catalog.slice(0, limit) : catalog;
 
   return (
@@ -81,19 +85,17 @@ export function PortfolioSection({ limit, showAllLink = false }: { limit?: numbe
           <span aria-hidden="true" className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none text-primary">
             ↗
           </span>
-          <h2 className="mt-2 label-mono text-foreground">Portfólio</h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Código aberto pra você estudar, clonar e usar. Cresce conforme as automações graduam.
-          </p>
+          <h2 className="mt-2 label-mono text-foreground">{t('portfolio.heading')}</h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t('portfolio.intro')}</p>
         </div>
       </div>
 
       <div className="px-[--gutter] pb-[clamp(2.5rem,5vw,4rem)] md:col-span-9 md:border-l md:border-border md:pl-8 md:pt-[clamp(2rem,4vw,3.5rem)]">
         {shown.length === 0 ? (
           <p className="text-[15px] text-muted-foreground">
-            Catálogo em construção.{' '}
+            {t('portfolio.emptyLead')}{' '}
             <a href="https://github.com/tedeuxx" target="_blank" rel="noreferrer" className="text-primary hover:underline">
-              Acompanhe no GitHub
+              {t('portfolio.emptyLink')}
             </a>
             .
           </p>
@@ -110,7 +112,7 @@ export function PortfolioSection({ limit, showAllLink = false }: { limit?: numbe
             to="/portfolio"
             className="mt-6 inline-block border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
           >
-            → Ver catálogo completo
+            {t('portfolio.viewAll')}
           </RouterLink>
         )}
       </div>

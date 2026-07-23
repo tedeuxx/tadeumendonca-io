@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LandingPage } from './LandingPage';
 import { profile } from '../data/profile';
+import { renderWithLocale } from '../test-utils';
 
 // The landing is the content shop window: articles first, then portfolio, then contact. The owner's
 // name and bio belong to /cv and must NOT leak onto the landing.
 function renderLanding() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
+  return renderWithLocale(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
         <LandingPage />

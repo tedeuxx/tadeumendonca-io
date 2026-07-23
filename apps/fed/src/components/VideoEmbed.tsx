@@ -2,6 +2,7 @@
 // The facade renders YouTube's thumbnail and only swaps in the iframe on click, so a page with a
 // video still ships zero third-party frames, cookies or requests until the reader asks for one.
 import { useState } from 'react';
+import { useT } from '../i18n';
 
 /** Accepts the watch, short and embed forms; returns the 11-char id, or null when it isn't YouTube. */
 export function youtubeId(url: string): string | null {
@@ -9,7 +10,9 @@ export function youtubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-export function VideoEmbed({ id, title = 'Vídeo' }: { id: string; title?: string }) {
+export function VideoEmbed({ id, title }: { id: string; title?: string }) {
+  const t = useT();
+  const label = title ?? t('video.defaultTitle');
   const [playing, setPlaying] = useState(false);
 
   return (
@@ -17,7 +20,7 @@ export function VideoEmbed({ id, title = 'Vídeo' }: { id: string; title?: strin
       {playing ? (
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1`}
-          title={title}
+          title={label}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           className="h-full w-full"
@@ -26,7 +29,7 @@ export function VideoEmbed({ id, title = 'Vídeo' }: { id: string; title?: strin
         <button
           type="button"
           onClick={() => setPlaying(true)}
-          aria-label={`Reproduzir vídeo: ${title}`}
+          aria-label={`${t('video.play')}: ${label}`}
           className="group relative flex h-full w-full items-center justify-center bg-muted"
         >
           <img
@@ -37,7 +40,7 @@ export function VideoEmbed({ id, title = 'Vídeo' }: { id: string; title?: strin
             className="absolute inset-0 h-full w-full object-cover opacity-70 transition-opacity group-hover:opacity-90"
           />
           <span className="relative z-10 border-2 border-border-strong bg-background px-5 py-2.5 font-mono text-sm uppercase tracking-wider group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-            ▶ Assistir
+            {t('video.watch')}
           </span>
         </button>
       )}

@@ -7,18 +7,22 @@ import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getAllPosts, type BlogPost, type Track } from '../lib/content';
 import { Empty } from './Column';
+import { dateLocale, useLocale, useT, type Locale, type MessageKey } from '../i18n';
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { year: 'numeric', month: 'short', day: 'numeric' });
+const fmtDate = (iso: string, locale: Locale) =>
+  new Date(iso).toLocaleDateString(dateLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' });
 
-const FILTERS: { value: Track | 'all'; label: string }[] = [
-  { value: 'all', label: 'Tudo' },
-  { value: 'pessoal', label: 'Vida pessoal' },
-  { value: 'engenharia', label: 'Engenharia' },
+// Filter values map to catalog keys; 'all' is a virtual filter, the two real ones are the Track chips.
+const FILTERS: { value: Track | 'all'; labelKey: MessageKey }[] = [
+  { value: 'all', labelKey: 'articles.filterAll' },
+  { value: 'pessoal', labelKey: 'tracks.pessoal' },
+  { value: 'engenharia', labelKey: 'tracks.engenharia' },
 ];
 
-const TRACK_LABEL: Record<Track, string> = { pessoal: 'Vida pessoal', engenharia: 'Engenharia' };
+const TRACK_KEY: Record<Track, MessageKey> = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' };
 
 function TrackChip({ track }: { track: Track }) {
+  const t = useT();
   return (
     <span
       className={
@@ -27,16 +31,17 @@ function TrackChip({ track }: { track: Track }) {
           : 'border border-border px-1.5 py-px font-mono text-muted-foreground'
       }
     >
-      {TRACK_LABEL[track]}
+      {t(TRACK_KEY[track])}
     </span>
   );
 }
 
 function ArticleRow({ post }: { post: BlogPost }) {
+  const { locale, t } = useLocale();
   return (
     <article className="border-b border-border px-[--gutter] py-6">
       <div className="mb-2 flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-        <time dateTime={post.date}>{fmtDate(post.date)}</time>
+        <time dateTime={post.date}>{fmtDate(post.date, locale)}</time>
         {post.tag && <span>· #{post.tag}</span>}
         <span>·</span>
         <TrackChip track={post.track} />
@@ -52,13 +57,13 @@ function ArticleRow({ post }: { post: BlogPost }) {
 
       {post.takeaway && (
         <p className="mt-2 max-w-prose leading-relaxed text-foreground/80">
-          <span className="mr-2 font-mono text-[0.64rem] uppercase tracking-[0.1em] text-primary">Você sai sabendo</span>
+          <span className="mr-2 font-mono text-[0.64rem] uppercase tracking-[0.1em] text-primary">{t('articles.takeaway')}</span>
           {post.takeaway}
         </p>
       )}
 
       {post.hasVideo && (
-        <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-wider text-muted-foreground">▶ vídeo no artigo</p>
+        <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-wider text-muted-foreground">{t('articles.hasVideo')}</p>
       )}
 
       <div className="mt-4 flex flex-wrap">
@@ -66,7 +71,7 @@ function ArticleRow({ post }: { post: BlogPost }) {
           to={`/blog/${post.slug}`}
           className="-mr-px border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-wider invert-hover"
         >
-          Ler artigo
+          {t('articles.read')}
         </RouterLink>
         {post.linkedinUrl && (
           <a
@@ -75,7 +80,7 @@ function ArticleRow({ post }: { post: BlogPost }) {
             rel="noreferrer"
             className="-mr-px border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-wider invert-hover"
           >
-            Ver no LinkedIn
+            {t('articles.viewOnLinkedin')}
           </a>
         )}
       </div>
@@ -84,6 +89,7 @@ function ArticleRow({ post }: { post: BlogPost }) {
 }
 
 export function ArticlesSection() {
+  const t = useT();
   const [track, setTrack] = useState<Track | 'all'>('all');
   const posts = getAllPosts(track === 'all' ? undefined : { track });
 
@@ -91,13 +97,13 @@ export function ArticlesSection() {
     <section id="artigos" className="scroll-mt-[--header-h]">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t-2 border-border-strong px-[--gutter] pb-4 pt-[clamp(1.6rem,3vw,2.4rem)]">
         <h2 className="font-mono text-sm uppercase tracking-[0.16em]">
-          <b className="font-bold">Artigos</b> — pra você aplicar
+          <b className="font-bold">{t('articles.headingBold')}</b> — {t('articles.headingRest')}
         </h2>
-        <p className="label-mono">Escrita técnica com trade-offs explícitos · vídeos embedados no texto</p>
+        <p className="label-mono">{t('articles.subtitle')}</p>
       </div>
 
-      <div role="tablist" aria-label="Filtrar por trilha" className="flex flex-wrap px-[--gutter] pb-5">
-        {FILTERS.map(({ value, label }) => (
+      <div role="tablist" aria-label={t('articles.filtersLabel')} className="flex flex-wrap px-[--gutter] pb-5">
+        {FILTERS.map(({ value, labelKey }) => (
           <button
             key={value}
             role="tab"
@@ -107,12 +113,12 @@ export function ArticlesSection() {
               track === value ? 'bg-foreground text-background' : 'text-muted-foreground invert-hover'
             }`}
           >
-            {label}
+            {t(labelKey)}
           </button>
         ))}
       </div>
 
-      {posts.length === 0 && <Empty>Ainda não há artigos nesta trilha.</Empty>}
+      {posts.length === 0 && <Empty>{t('articles.empty')}</Empty>}
       {posts.map((post) => (
         <ArticleRow key={post.slug} post={post} />
       ))}

@@ -8,9 +8,13 @@
 // "Habilidades") — they are what the tests and the reader anchor on.
 import { type ReactNode } from 'react';
 import type { CertificationItem, Profile } from '../types/profile';
+import { useT } from '../i18n';
 
-// "2021 – Atual"; when there's no start (e.g. only a graduation year), show just the end.
-const dateRange = (start: string, end: string | null) => (start ? `${start} – ${end ?? 'Atual'}` : (end ?? ''));
+// "2021 – Atual"; when there's no start (e.g. only a graduation year), show just the end. `present`
+// is the localized "ongoing" label (Atual / Present) — the section chrome localizes; the CV *data*
+// (profile.ts) does not.
+const dateRange = (start: string, end: string | null, present: string) =>
+  start ? `${start} – ${end ?? present}` : (end ?? '');
 
 // Friendly labels for the metadata link keys (kept lowercase in the data); falls back to the key.
 const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', medium: 'Medium', website: 'Website' };
@@ -69,6 +73,8 @@ function CertBadge({ cert }: { cert: CertificationItem }) {
 }
 
 export function CVSection({ profile }: { profile: Profile }) {
+  const t = useT();
+  const present = t('cv.present');
   const hasEducation = profile.education.length > 0;
   const hasCertifications = profile.certifications.length > 0;
 
@@ -113,13 +119,13 @@ export function CVSection({ profile }: { profile: Profile }) {
       </header>
 
       {profile.experience.length > 0 && (
-        <Block index="01" title="Experiência">
+        <Block index="01" title={t('cv.experience')}>
           <div className="flex flex-col">
             {profile.experience.map((item, i) => (
               <div key={i} className="relative border-l-2 border-border py-3 pl-5">
                 <span aria-hidden="true" className="absolute -left-[5px] top-[1.15rem] h-2 w-2 bg-primary" />
                 <span className="block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  {dateRange(item.start_date, item.end_date)}
+                  {dateRange(item.start_date, item.end_date, present)}
                 </span>
                 <span className="mt-1 block text-lg font-bold leading-tight">{item.title}</span>
                 <span className="block text-muted-foreground">{item.company}</span>
@@ -140,12 +146,12 @@ export function CVSection({ profile }: { profile: Profile }) {
       {/* Formação and Certificações are separate blocks: a degree and a credential are not the
           same claim, and the certifications are badges rather than a list. */}
       {hasEducation && (
-        <Block index="02" title="Formação">
+        <Block index="02" title={t('cv.education')}>
           <div className="flex flex-col gap-4">
             {profile.education.map((item, i) => (
               <div key={i}>
                 <span className="block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  {dateRange(item.start_date, item.end_date)}
+                  {dateRange(item.start_date, item.end_date, present)}
                 </span>
                 <span className="mt-1 block font-bold leading-tight">
                   {item.degree}
@@ -159,7 +165,7 @@ export function CVSection({ profile }: { profile: Profile }) {
       )}
 
       {hasCertifications && (
-        <Block index="03" title="Certificações">
+        <Block index="03" title={t('cv.certifications')}>
           <div className="grid gap-3 sm:grid-cols-2">
             {profile.certifications.map((cert, i) => (
               <CertBadge key={i} cert={cert} />
@@ -169,7 +175,7 @@ export function CVSection({ profile }: { profile: Profile }) {
       )}
 
       {Object.keys(profile.skills).length > 0 && (
-        <Block index="04" title="Habilidades">
+        <Block index="04" title={t('cv.skills')}>
           <div className="flex flex-col gap-6">
             {Object.entries(profile.skills).map(([category, list]) => (
               <div key={category}>

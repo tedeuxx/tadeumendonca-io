@@ -5,6 +5,7 @@
 // Medium is deliberately absent — articles are hosted here, this site holds the canonical.
 // Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
 import { GithubMark, LinkedinMark, WhatsappMark } from './BrandIcons';
+import { useT } from '../i18n';
 
 export const WHATSAPP_NUMBER = '5521986619954';
 const WHATSAPP_MESSAGE = 'Olá Tadeu, vim pelo tadeumendonca.io';
@@ -16,12 +17,15 @@ const LINKS = [
   { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark },
 ];
 
-export function ContactLinks({ title = 'Onde me encontrar' }: { title?: string }) {
+// `title` is optional: when the caller omits it (the landing aside), it falls back to the localized
+// default; the contact region passes its own heading.
+export function ContactLinks({ title }: { title?: string }) {
+  const t = useT();
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
         <span className="h-4 w-1.5 shrink-0 bg-primary" />
-        <h3 className="label-mono text-foreground">{title}</h3>
+        <h3 className="label-mono text-foreground">{title ?? t('contactLinks.defaultTitle')}</h3>
       </div>
       <ul>
         {LINKS.map(({ label, href, Icon }) => (

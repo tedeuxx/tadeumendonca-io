@@ -3,11 +3,13 @@
 // so there is no separate page header. No auth, no backend (static ../data/catalog).
 import { PortfolioSection } from '../components/PortfolioSection';
 import { useDocumentHead } from '../hooks/useDocumentHead';
+import { useT } from '../i18n';
 
 export function PortfolioPage() {
+  const t = useT();
   useDocumentHead({
-    title: 'Portfólio',
-    description: 'Automações, agentes e projetos — o catálogo no GitHub.',
+    title: t('portfolio.heading'),
+    description: t('portfolio.metaDescription'),
     canonicalPath: '/portfolio',
   });
 

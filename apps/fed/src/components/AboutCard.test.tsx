@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AboutCard } from './AboutCard';
 import { profile } from '../data/profile';
+import { renderWithLocale } from '../test-utils';
 
 describe('AboutCard', () => {
   it('describes the site and defers the person to /cv', () => {
-    const { container } = render(
+    const { container } = renderWithLocale(
       <MemoryRouter>
         <AboutCard />
       </MemoryRouter>,
@@ -17,7 +18,7 @@ describe('AboutCard', () => {
   });
 
   it('shows the avatar as decoration, not as a second link target', () => {
-    const { container } = render(
+    const { container } = renderWithLocale(
       <MemoryRouter>
         <AboutCard />
       </MemoryRouter>,

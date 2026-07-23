@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
+import { renderWithLocale } from '../test-utils';
 
 const { getAllPosts } = vi.hoisted(() => ({ getAllPosts: vi.fn() }));
 vi.mock('../lib/content', () => ({ getAllPosts }));
@@ -20,7 +21,7 @@ const post = (over: Partial<BlogPost> = {}): BlogPost => ({
 });
 
 const renderSection = () =>
-  render(
+  renderWithLocale(
     <MemoryRouter>
       <ArticlesSection />
     </MemoryRouter>,
