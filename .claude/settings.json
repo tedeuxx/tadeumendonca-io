@@ -1,25 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "extraKnownMarketplaces": {
-    "tadeumendonca": {
-      "source": { "source": "github", "repo": "tedeuxx/tadeumendonca-skills" }
-    },
-    "mattpocock": {
-      "source": { "source": "github", "repo": "mattpocock/skills" }
-    }
-  },
-  "enabledPlugins": {
-    "tadeumendonca-skills@tadeumendonca": true,
-    "mattpocock-skills@mattpocock": true
-  },
   "permissions": {
-    "additionalDirectories": [
-      "/Users/tadeumen/git-reps/tadeumendonca-skills"
-    ],
     "allow": [
       "Edit",
       "Write",
-
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
@@ -51,7 +35,6 @@
       "Bash(git describe:*)",
       "Bash(git cherry-pick:*)",
       "Bash(git -C:*)",
-
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
@@ -80,7 +63,6 @@
       "Bash(gh auth status:*)",
       "Bash(gh -R:*)",
       "Bash(gh --repo:*)",
-
       "Bash(npm:*)",
       "Bash(npx:*)",
       "Bash(node:*)",
@@ -90,7 +72,6 @@
       "Bash(actionlint:*)",
       "Bash(jq:*)",
       "Bash(bump-my-version:*)",
-
       "Bash(cat:*)",
       "Bash(ls:*)",
       "Bash(grep:*)",
@@ -118,7 +99,6 @@
       "Bash(touch:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
-
       "Bash(terraform fmt:*)",
       "Bash(terraform validate:*)",
       "Bash(terraform plan:*)",
@@ -128,7 +108,6 @@
       "Bash(terraform -chdir=iac plan:*)",
       "Bash(terraform -chdir=iac init:*)",
       "Bash(checkov:*)",
-
       "Bash(aws sts get-caller-identity:*)",
       "Bash(aws ssm get-parameter:*)",
       "Bash(aws ssm get-parameters:*)",
@@ -137,11 +116,9 @@
       "Bash(aws s3 ls:*)",
       "Bash(aws cloudfront get-distribution:*)",
       "Bash(aws cloudfront list-distributions:*)",
-
       "Bash(curl http://localhost:*)",
       "Bash(curl http://127.0.0.1:*)",
       "Bash(curl localhost:*)",
-
       "Bash(claude mcp:*)"
     ],
     "deny": [
@@ -154,17 +131,14 @@
       "Bash(git reset --hard:*)",
       "Bash(git clean -f:*)",
       "Bash(git clean -fd:*)",
-
       "Bash(terraform apply:*)",
       "Bash(terraform destroy:*)",
       "Bash(terraform -chdir=iac apply:*)",
       "Bash(terraform -chdir=iac destroy:*)",
-
       "Bash(gh secret set:*)",
       "Bash(gh secret delete:*)",
       "Bash(aws secretsmanager:*)",
       "Bash(aws ssm put-parameter:*)",
-
       "Bash(aws s3 rm:*)",
       "Bash(aws s3 cp:*)",
       "Bash(aws s3 sync:*)",
@@ -176,13 +150,32 @@
       "Bash(aws dynamodb batch-write-item:*)",
       "Bash(aws lambda update-function-code:*)",
       "Bash(aws lambda publish-version:*)",
-
       "Bash(npm run e2e:production:*)",
-
       "Bash(rm -rf:*)",
       "Bash(rm -fr:*)",
-
       "Bash(claude --dangerously-skip-permissions:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/tadeumen/git-reps/tadeumendonca-skills"
     ]
+  },
+  "enabledPlugins": {
+    "tadeumendonca-skills@tadeumendonca": true,
+    "mattpocock-skills@mattpocock": true
+  },
+  "extraKnownMarketplaces": {
+    "tadeumendonca": {
+      "source": {
+        "source": "github",
+        "repo": "tedeuxx/tadeumendonca-skills"
+      },
+      "autoUpdate": true
+    },
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      }
+    }
   }
 }
