@@ -3,7 +3,15 @@
 // snapshot prerender captures per route: the crawler reads these tags from the static HTML. On the live
 // SPA it also keeps the head correct across client-side navigation.
 import { useEffect } from 'react';
-import { SITE_NAME, DEFAULT_OG_IMAGE, absoluteUrl } from '../lib/site';
+import {
+  SITE_NAME,
+  DEFAULT_OG_IMAGE,
+  OG_IMAGE_WIDTH,
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_TYPE,
+  OG_IMAGE_ALT,
+  absoluteUrl,
+} from '../lib/site';
 
 export interface DocumentHead {
   /** Page title; the site name is appended unless it's already present. */
@@ -28,6 +36,12 @@ function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
     document.head.appendChild(el);
   }
   el.setAttribute('content', content);
+}
+
+/** Drop a meta tag entirely. Needed because upsertMeta only ever writes: on client-side navigation a
+ *  tag that no longer applies would otherwise linger and describe the previous page. */
+function removeMeta(attr: 'name' | 'property', key: string) {
+  document.head.querySelector(`meta[${attr}="${key}"]`)?.remove();
 }
 
 function upsertLink(rel: string, href: string) {
@@ -70,6 +84,23 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     upsertMeta('property', 'og:title', fullTitle);
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:image', img);
+    // Declaring the size is what makes WhatsApp/LinkedIn render the WIDE card. Without it they fetch
+    // first and guess, and the fallback guess is the small square thumbnail. Only emitted for the
+    // default card, whose dimensions we actually know — a per-article image could be any size, and
+    // claiming 1200×630 for it would be worse than staying silent.
+    if (img === DEFAULT_OG_IMAGE) {
+      upsertMeta('property', 'og:image:width', OG_IMAGE_WIDTH);
+      upsertMeta('property', 'og:image:height', OG_IMAGE_HEIGHT);
+      upsertMeta('property', 'og:image:type', OG_IMAGE_TYPE);
+      upsertMeta('property', 'og:image:alt', OG_IMAGE_ALT);
+    } else {
+      // A custom image is a different, unknown size — carrying the default's dimensions over from a
+      // previous route would actively lie about it.
+      removeMeta('property', 'og:image:width');
+      removeMeta('property', 'og:image:height');
+      removeMeta('property', 'og:image:type');
+      removeMeta('property', 'og:image:alt');
+    }
     if (description) upsertMeta('property', 'og:description', description);
     if (url) upsertMeta('property', 'og:url', url);
     if (publishedTime) upsertMeta('property', 'article:published_time', publishedTime);
