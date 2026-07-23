@@ -3,7 +3,7 @@
 - **Status:** accepted
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Supersedes / superseded by:** supersedes the GitFlow two-environment model (see ADR-0023)
+- **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in the History index)
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
 
 ## Context & problem
@@ -48,4 +48,4 @@ regression gates the PR** (see ADR-0017). The merge is production, so it is the 
 
 ## Links
 - Driven by ADR-0001 · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
-  · relies on ADR-0017 (full gate on the PR) · supersedes ADR-0023 (GitFlow two-environment).
+  · relies on ADR-0017 (full gate on the PR) · supersedes the GitFlow two-environment model (History index).

@@ -3,7 +3,7 @@
 - **Status:** accepted
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Supersedes / superseded by:** supersedes the backend-era architecture (see ADR-0022)
+- **Supersedes / superseded by:** supersedes the backend-era architecture (recorded in the History index)
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
 
 ## Context & problem
@@ -42,5 +42,5 @@ was retired.
   (ADR-0004, ADR-0020).
 
 ## Links
-- Driven by ADR-0001 · enabled by ADR-0004 (build-time prerender for OG/SEO) · supersedes ADR-0022
+- Driven by ADR-0001 · enabled by ADR-0004 (build-time prerender for OG/SEO) · supersedes the backend-era architecture (History index)
   (the backend-era architecture).
