@@ -17,4 +17,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Majors are a deliberate manual upgrade, not an auto-PR: a dev-tooling major often needs coordinated
+    # peer bumps + testing (e.g. vite 8 needs a newer @vitejs/plugin-react + vitest, and its lockfile fails
+    # `npm ci` until they move together). So Dependabot auto-proposes only minor/patch here. This governs
+    # scheduled VERSION updates only — security fixes still surface via Dependabot alerts, and the audit-ci
+    # gate (build-test.yml) still blocks a shipped high/critical prod vulnerability regardless.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
