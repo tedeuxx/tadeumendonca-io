@@ -23,7 +23,7 @@ export function publicRoutes() {
   const slugs = readdirSync(contentDir)
     .filter((f) => f.endsWith('.md'))
     .map(slugOf);
-  return ['/', '/cv', '/portfolio', ...slugs.map((s) => `/blog/${s}`)];
+  return ['/', '/cv', '/portfolio', '/ramp-up', ...slugs.map((s) => `/blog/${s}`)];
 }
 
 export const SITE_URL = process.env.VITE_SITE_URL?.replace(/\/$/, '') ?? 'https://tadeumendonca.io';
