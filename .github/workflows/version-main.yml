@@ -42,11 +42,37 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump patch version
-        run: bump-my-version bump patch --verbose
-
-      - name: Push commit and tags
-        run: git push origin main --follow-tags
+      # Rebase onto whatever landed while this job was starting. `concurrency` serializes RUNS, but it
+      # cannot stop main moving between this job's checkout and its push — two merges seconds apart is
+      # enough, and that is exactly what happened on 2026-07-23.
+      - name: Bump patch version and push, rebasing if main moved
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main          # re-read VERSION from the real tip, not a stale one
+            # Fail with a diagnosis, not a traceback. If the tag we are about to create already exists
+            # remotely, bump-my-version dies with a raw Python CalledProcessError that says nothing about
+            # the actual situation — which is how the 2026-07-23 wedge presented for four merges running.
+            next="v$(bump-my-version show new_version --increment patch)"
+            if git ls-remote --exit-code --tags origin "refs/tags/$next" >/dev/null 2>&1; then
+              echo "::error::$next already exists on the remote while VERSION is $(cat VERSION). A previous run pushed the tag without its commit. Delete the orphaned tag, then re-run."
+              exit 1
+            fi
+            bump-my-version bump patch --verbose
+            # --atomic is the load-bearing flag. Without it a push is NOT all-or-nothing: on
+            # 2026-07-23 the branch was rejected (non-fast-forward) while the TAG went through,
+            # leaving v0.1.39 pointing at a commit that never reached main. Every later run then
+            # died on "tag already exists" — a self-perpetuating break across four merges.
+            if git push --atomic origin main --follow-tags; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected (main moved); dropping the local bump and retrying"
+            git tag -d "v$(cat VERSION)"          # local only — --atomic guarantees it never shipped
+          done
+          echo "::error::could not push the version bump after 3 attempts"
+          exit 1
 
       - name: Read new version
         id: version
