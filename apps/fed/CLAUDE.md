@@ -33,9 +33,15 @@ serves it lives alongside, in `iac/`.
 - Reference: the approved hi-fi comp and the design-to-code plan in `docs/redesign/` (repo root).
 
 ## Language
-- **The whole site UI is pt-BR** (features + UX copy). No i18n framework — inline strings, dates in the
-  `pt-BR` locale. Write UI text in pt-BR. (Everything published on GitHub — this file, READMEs, commit
-  and PR text — is written in English.)
+- **The site UI is bilingual (pt-BR + en)** via a **light in-repo locale layer** (`src/i18n/`: a typed
+  pt/en catalog, `LocaleProvider`, `useT()`/`useLocale()`; **ADR-0032**, supersedes ADR-0011). It
+  **auto-detects the visitor's native language** and offers a **PT/EN toggle** (persisted, overrides
+  detection). **Add every new UI-chrome string to the `src/i18n/` catalog in both locales — never hardcode
+  a UI string.** Dates use the active locale. The **crawlable/OG prerender baseline is pinned to English**
+  (`scripts/prerender.mjs` forces the snapshot locale to en-US). The **CV content (`profile.ts`) stays
+  canonical English** (ADR-0024); only the chrome localizes. Deferred: route-prefixed `/en`·`/pt` +
+  per-locale prerender/hreflang, and a pt-BR CV translation. (Everything published on GitHub — this file,
+  READMEs, commit and PR text — is written in English.)
 
 ## Conventions
 - Explicit UI states (loading/empty/error) via the primitives in `src/components/Column.tsx`.

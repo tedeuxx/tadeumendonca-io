@@ -4,8 +4,10 @@
 import { useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { cn } from '../lib/cn';
+import { useT } from '../i18n';
 
 export function ShareButton({ title, url, size = 'md' }: { title: string; url: string; size?: 'sm' | 'md' }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const fullUrl = `${window.location.origin}${url}`;
 
@@ -31,14 +33,14 @@ export function ShareButton({ title, url, size = 'md' }: { title: string; url: s
     <button
       type="button"
       onClick={() => void share()}
-      aria-label="Share"
+      aria-label={t('share.share')}
       className={cn(
         'inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
         size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
       )}
     >
       {copied ? <Check size={size === 'sm' ? 14 : 16} /> : <Share2 size={size === 'sm' ? 14 : 16} />}
-      {copied ? 'Copiado' : 'Compartilhar'}
+      {copied ? t('share.copied') : t('share.share')}
     </button>
   );
 }

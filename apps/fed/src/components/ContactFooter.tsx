@@ -5,6 +5,7 @@
 // Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
 import { GithubMark, LinkedinMark, MailMark, WhatsappMark } from './BrandIcons';
 import { whatsappHref } from './ContactLinks';
+import { useT } from '../i18n';
 
 export const CONTACT_EMAIL = 'me@tadeumendonca.io';
 
@@ -16,10 +17,12 @@ const LINKS = [
 ];
 
 export function ContactFooter() {
+  const t = useT();
   return (
     <footer id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] pb-[clamp(2rem,4vw,3rem)] pt-[clamp(3rem,7vw,6rem)]">
       <h2 className="mb-[clamp(1.5rem,4vw,2.5rem)] text-balance text-[clamp(2.1rem,8vw,7rem)] font-bold uppercase leading-[0.92] tracking-[-0.045em]">
-        Algo aqui te ajudou? Me conta<span className="text-primary">.</span>
+        {t('contact.heading')}
+        <span className="text-primary">.</span>
       </h2>
 
       <div className="mb-[clamp(2.5rem,5vw,4rem)] flex flex-wrap">

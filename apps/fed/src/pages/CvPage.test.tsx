@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CvPage } from './CvPage';
 import { profile } from '../data/profile';
+import { renderWithLocale } from '../test-utils';
 
 function renderCv() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
+  return renderWithLocale(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
         <CvPage />

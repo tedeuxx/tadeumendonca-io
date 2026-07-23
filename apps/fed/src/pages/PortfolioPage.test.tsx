@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { PortfolioPage } from './PortfolioPage';
 import { catalog } from '../data/catalog';
+import { renderWithLocale } from '../test-utils';
 
 describe('PortfolioPage', () => {
   it('renders the header and the seeded catalog', () => {
-    render(
+    renderWithLocale(
       <MemoryRouter>
         <PortfolioPage />
       </MemoryRouter>,

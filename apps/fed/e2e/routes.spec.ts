@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+// Pinned to pt-BR chrome: these journeys assert localized strings ("Portfólio", "Ver no GitHub",
+// "Artigos", "Ver catálogo completo"). The i18n auto-detect layer (ADR-0032) makes en-US the default
+// rendered chrome, so pin the context to pt-BR to keep the routing assertions deterministic. Routing
+// itself is language-neutral; only the visible labels these checks anchor on are localized.
+test.use({ locale: 'pt-BR' });
+
 // Routing regression. The landing/CV split moved every route, and the back-compat redirects exist so
 // shared URLs and og:image deep-links keep resolving. Component tests can't prove a route still
 // answers — only a real navigation can, so each route in App.tsx gets a journey here.

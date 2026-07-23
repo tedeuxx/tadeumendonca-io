@@ -7,7 +7,8 @@ Hono/Lambda BFF, Cognito, API Gateway, DynamoDB, SES); that backend was **retire
 content ships as **markdown in the repo**, prerendered at build time for OG/SEO.
 
 > Convention: everything **published on GitHub** (this file, READMEs, descriptions, commit/PR text, issues) is
-> written in **English**. The site's UI copy is pt-BR; that's content, not GitHub publication.
+> written in **English**. The site's UI copy is **bilingual (pt-BR + en, ADR-0032** — auto-detect + toggle,
+> English prerender baseline); that's content, not GitHub publication.
 
 ## Engineering principles (always-on floor — non-negotiable)
 This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;

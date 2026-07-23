@@ -1,16 +1,21 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AppShell } from './AppShell';
+import { renderWithLocale } from '../test-utils';
+import { STORAGE_KEY, type Locale } from '../i18n';
 
-const renderShell = () =>
-  render(
+const renderShell = (locale: Locale = 'pt') =>
+  renderWithLocale(
     <MemoryRouter>
       <AppShell>
         <div>child content</div>
       </AppShell>
     </MemoryRouter>,
+    { locale },
   );
+
+beforeEach(() => window.localStorage.removeItem(STORAGE_KEY));
 
 describe('AppShell', () => {
   it('renders the brand, children and the static nav (no auth, no feed)', () => {
@@ -47,5 +52,30 @@ describe('AppShell', () => {
     renderShell();
     expect(screen.queryByText(/Você está offline/)).toBeNull();
     expect(screen.queryByText(/[Ii]nstalar/)).toBeNull();
+  });
+
+  it('renders a PT/EN toggle that marks the active locale', () => {
+    renderShell('pt');
+    expect(screen.getByRole('button', { name: 'PT' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('switches locale on toggle, persists the choice, and re-renders the nav', () => {
+    renderShell('pt');
+    expect(screen.getByRole('link', { name: 'Artigos' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }));
+
+    expect(screen.getByRole('link', { name: 'Articles' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Artigos' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
+  });
+
+  it('renders English nav chrome when the active locale is en (anchors unchanged)', () => {
+    renderShell('en');
+    expect(screen.getByRole('link', { name: 'Articles' })).toHaveAttribute('href', '/#artigos');
+    expect(screen.getByRole('link', { name: 'Portfolio' })).toHaveAttribute('href', '/#portfolio');
+    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/#contato');
   });
 });

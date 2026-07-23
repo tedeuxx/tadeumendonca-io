@@ -3,6 +3,7 @@
 import { type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useT } from '../i18n';
 
 export function ColumnHeader({
   title,
@@ -16,12 +17,13 @@ export function ColumnHeader({
   back?: boolean;
 }) {
   const navigate = useNavigate();
+  const t = useT();
   return (
     <div className="z-10 flex items-center gap-3 border-b border-border bg-background px-4 py-3">
       {back && (
         <button
           onClick={() => navigate(-1)}
-          aria-label="Back"
+          aria-label={t('column.back')}
           className="-ml-1 p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft size={20} />
@@ -37,8 +39,9 @@ export function ColumnHeader({
 }
 
 export function CenterLoader() {
+  const t = useT();
   return (
-    <div role="status" aria-label="Loading" className="flex justify-center py-16 text-muted-foreground">
+    <div role="status" aria-label={t('column.loading')} className="flex justify-center py-16 text-muted-foreground">
       <Loader2 className="animate-spin" size={28} />
     </div>
   );

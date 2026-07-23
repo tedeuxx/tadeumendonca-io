@@ -9,8 +9,10 @@ import { useDocumentHead } from '../hooks/useDocumentHead';
 import { CVSection } from '../components/CVSection';
 import { Empty } from '../components/Column';
 import { SITE_URL } from '../lib/site';
+import { useT } from '../i18n';
 
 export function CvPage() {
+  const t = useT();
   const { data: profile } = useProfile();
 
   useDocumentHead({
@@ -30,7 +32,7 @@ export function CvPage() {
       : undefined,
   });
 
-  if (!profile) return <Empty>Perfil ainda não disponível.</Empty>;
+  if (!profile) return <Empty>{t('cv.unavailable')}</Empty>;
 
   return <CVSection profile={profile} />;
 }

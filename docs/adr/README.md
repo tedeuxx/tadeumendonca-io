@@ -35,8 +35,8 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0008](./0008-brutalist-mono-identity.md) | Brutalist mono identity (colors, radius-0, visible grid) | accepted |
 | [0009](./0009-self-hosted-fonts.md) | Self-hosted fonts (Space Grotesk + JetBrains Mono) | accepted |
 | [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted |
-| [0011](./0011-ui-ptbr-i18n-deferred.md) | UI in pt-BR; i18n deferred | accepted |
 | [0012](./0012-snake-case-content-no-mapping.md) | snake_case content/data, no mapping layer | accepted |
+| [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted |
 
 ## Infrastructure
 | ADR | Title | Status |
@@ -72,6 +72,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0029](./0029-superseded-offline-first-pwa.md) | Offline-first PWA | 0002 |
 | [0030](./0030-superseded-monorepo-pwa.md) | Monorepo `tadeumendonca-pwa` consolidation | the `-io` rename + static pivot |
 | [0031](./0031-superseded-shared-regional-waf.md) | Shared regional WAF | 0017 |
+| [0011](./0011-ui-ptbr-i18n-deferred.md) | UI in pt-BR; i18n deferred | 0032 |
 
 ## Known gaps (honest — surfaced by the reverse-engineering, tracked as follow-up Issues)
 - ~~**No `sitemap.xml` / `robots.txt`** (ADR-0005)~~ — **RESOLVED** ([#51](https://github.com/tedeuxx/tadeumendonca-io/issues/51)): build emits `sitemap.xml` + ships `robots.txt`; on-page SEO and discovery are both complete.
