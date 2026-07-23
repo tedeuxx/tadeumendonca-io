@@ -30,13 +30,13 @@ design, calibrated to strategy* — and every other ADR is read through it.
 ## Frontend
 | ADR | Title | Status |
 |---|---|---|
-| 0006 | React + Vite + TypeScript | pending |
-| 0007 | Tailwind, no shadcn — own tokens + components | pending |
-| 0008 | Brutalist mono identity (colors, radius-0, visible grid) | pending |
-| 0009 | Self-hosted fonts (Space Grotesk + JetBrains Mono) | pending |
-| 0010 | Client-side routing + landing/CV split + back-compat redirects | pending |
-| 0011 | UI in pt-BR; i18n deferred | pending |
-| 0012 | snake_case content/data, no mapping layer | pending |
+| [0006](./0006-react-vite-typescript.md) | React + Vite + TypeScript | accepted |
+| [0007](./0007-tailwind-no-shadcn-own-components.md) | Tailwind, no shadcn — own tokens + components | accepted |
+| [0008](./0008-brutalist-mono-identity.md) | Brutalist mono identity (colors, radius-0, visible grid) | accepted |
+| [0009](./0009-self-hosted-fonts.md) | Self-hosted fonts (Space Grotesk + JetBrains Mono) | accepted |
+| [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted |
+| [0011](./0011-ui-ptbr-i18n-deferred.md) | UI in pt-BR; i18n deferred | accepted |
+| [0012](./0012-snake-case-content-no-mapping.md) | snake_case content/data, no mapping layer | accepted |
 
 ## Infrastructure
 | ADR | Title | Status |
