@@ -44,6 +44,20 @@ practice, not an accident of copy-paste.
   drift. The sync process (its checklists and per-surface mechanics) is **private working material and is
   not part of this public repo**; only the coherence *obligation* is recorded here.
 
+## Amendment (2026-07-23) — the CV is bilingual; English stays canonical
+`profile.ts` is now authored **in both locales** (`ProfileSource`; flattened per locale by
+`resolveProfile`), closing the pt-BR CV slice that [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
+deferred. This **does not** weaken "canonical": **English remains the canonical edition** — it is what
+LinkedIn carries, what the prerender baseline serves, and what the resolved `profile` constant exports.
+pt-BR is a **translation of** that edition, not an independent CV.
+
+The coherence obligation above is now partly **mechanical rather than maintained**: dates, employers,
+official job titles and certification names are authored **once** and shared by both editions, so a
+translation cannot drift the facts — only the prose is per-locale, and the type makes a missing
+translation a compile error. Translation policy: prose, category labels and spoken languages localize;
+technical terms, product names and official job titles stay English in both.
+
 ## Links
 - Driven by ADR-0001, ADR-0006 · the CV lives at `/cv` (ADR-0010) · the sync process itself is private
-  (kept outside this repo).
+  (kept outside this repo) · bilingual authoring per the amendment above, within
+  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md).
