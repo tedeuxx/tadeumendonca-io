@@ -121,6 +121,14 @@ CSS puro (sem framer-motion): `.invert-hover` (swap fg/bg mecânico), labels de 
 - Critérios de aceite do brief: fiel ao spec brutalista · 1 acento só · zero raio/sombra/gradiente · responsivo desktop-first · **zero XHR em runtime** · deep-links/embeds funcionando · nome só em `/cv`
 
 ## Fase i18n — Bilíngue EN/PT (fase própria, DEPOIS do redesign)
+
+> **Atualização (ADR-0032, 2026-07): Slice 1 shippou** — a camada i18n leve in-repo (`src/i18n/`, `LocaleProvider`,
+> `useT()`), **auto-detect da língua nativa + toggle PT/EN persistido**, e o **baseline de prerender/OG fixado em
+> inglês**. Duas decisões desta seção **mudaram** vs. o esboço abaixo: (a) a detecção é **client-side**, não via
+> CloudFront Function `Accept-Language` (sem mudança de infra na Slice 1); (b) não há "pt padrão" — carrega a nativa,
+> baseline crawlable em inglês. O que continua como **Slice 2** (deferido): URLs por idioma `/en`·`/pt` + `hreflang`
+> + prerender por-locale. E **Slice 3:** CV pt-BR traduzido. O esboço abaixo permanece como referência dessas fases.
+
 Reverte a decisão fixa pt-BR-only. Escopo aprovado: paridade **UI + CV + artigos**. Abordagem (SEO-correta, "transparente"):
 - **Camada i18n leve** (sem framework pesado): dicionário de strings `src/i18n/{pt,en}.ts` + hook `useLang()`/`useT()`; idioma no contexto React. Dados de perfil bilíngues (`profile.pt.ts`/`profile.en.ts` ou campo `{pt,en}`). Artigos: markdown por idioma (`slug.pt.md`/`slug.en.md`), `content.ts` agrupando por `slug`+`lang`.
 - **URLs por idioma:** `/` (pt padrão) + `/en/*` espelho de todas as rotas; **hreflang** (`<link rel="alternate" hreflang>`) em `useDocumentHead`; **prerender dos dois idiomas** (dobra a lista de rotas em `prerender.mjs`).

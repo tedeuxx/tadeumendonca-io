@@ -1,7 +1,7 @@
 # 0011. UI in pt-BR; bilingual i18n deferred
 
-- **Status:** accepted
-- **Date:** 2026-07-22
+- **Status:** superseded by [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (2026-07)
+- **Date:** decided 2026-07-22 · superseded 2026-07-23
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
 
@@ -45,3 +45,6 @@ UI-pt-BR / profile-data-EN inconsistency — is a planned future phase, recorded
 ## Links
 - Driven by ADR-0001 · reverses the prior "100% pt-BR, no i18n" fixed decision as a *planned* future phase
   (see `docs/redesign/redesign-plan.md`, Fase i18n).
+- **Superseded by [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)** — the deferred i18n phase this
+  ADR named is now built: a light in-repo locale layer with native auto-detect + a manual toggle, and an
+  English-pinned crawlable baseline.
