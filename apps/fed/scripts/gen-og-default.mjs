@@ -52,6 +52,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 await page.setContent(html, { waitUntil: 'networkidle' });
+// eslint-disable-next-line no-undef -- this callback is serialized and runs in the browser page
 await page.evaluate(() => document.fonts.ready);
 const out = join(root, 'public', 'og-default.png');
 mkdirSync(join(root, 'public'), { recursive: true });
