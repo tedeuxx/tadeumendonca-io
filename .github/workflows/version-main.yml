@@ -42,11 +42,29 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump patch version
-        run: bump-my-version bump patch --verbose
-
-      - name: Push commit and tags
-        run: git push origin main --follow-tags
+      # Rebase onto whatever landed while this job was starting. `concurrency` serializes RUNS, but it
+      # cannot stop main moving between this job's checkout and its push — two merges seconds apart is
+      # enough, and that is exactly what happened on 2026-07-23.
+      - name: Bump patch version and push, rebasing if main moved
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main          # re-read VERSION from the real tip, not a stale one
+            bump-my-version bump patch --verbose
+            # --atomic is the load-bearing flag. Without it a push is NOT all-or-nothing: on
+            # 2026-07-23 the branch was rejected (non-fast-forward) while the TAG went through,
+            # leaving v0.1.39 pointing at a commit that never reached main. Every later run then
+            # died on "tag already exists" — a self-perpetuating break across four merges.
+            if git push --atomic origin main --follow-tags; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected (main moved); dropping the local bump and retrying"
+            git tag -d "v$(cat VERSION)"          # local only — --atomic guarantees it never shipped
+          done
+          echo "::error::could not push the version bump after 3 attempts"
+          exit 1
 
       - name: Read new version
         id: version
