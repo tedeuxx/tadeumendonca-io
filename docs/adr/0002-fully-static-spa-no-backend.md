@@ -39,7 +39,7 @@ was retired.
 - Zero server-side capability. Auth, dynamic/user data, an API, or server telemetry require re-adding
   infrastructure (per ADR-0001's gradual-evolution path).
 - Some SEO/interaction concerns move to build time or the client, constraining how they're solved
-  (ADR-0004, ADR-0020).
+  (ADR-0004, ADR-0005).
 
 ## Links
 - Driven by ADR-0001 · enabled by ADR-0004 (build-time prerender for OG/SEO) · supersedes the backend-era architecture (History index)

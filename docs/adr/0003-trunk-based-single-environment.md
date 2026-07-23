@@ -33,7 +33,7 @@ records the product's decision to adopt it.
 ## Decision outcome
 Chosen: **trunk-based, single environment**. `main` is the only branch and the working branch; merging
 to it deploys the live site. Because there is no downstream tier to defer a check to, the **full
-regression gates the PR** (see ADR-0017). The merge is production, so it is the go/no-go a human confirms.
+regression gates the PR** (see the CI-gate ADR). The merge is production, so it is the go/no-go a human confirms.
 
 ## Consequences
 **Good**
@@ -43,9 +43,9 @@ regression gates the PR** (see ADR-0017). The merge is production, so it is the 
 
 **Bad / accepted costs**
 - No pre-production tier: a defect the PR gate misses reaches the live site directly, so the gate must
-  be comprehensive and blocking (ADR-0017 puts E2E on the PR for exactly this reason).
+  be comprehensive and blocking (the CI-gate ADR puts E2E on the PR for exactly this reason).
 - A fast forward-fix discipline (revert-on-`main` + re-deploy) replaces a promotion rollback.
 
 ## Links
 - Driven by ADR-0001 · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
-  · relies on ADR-0017 (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
+  · relies on the CI-gate ADR (full gate on the PR) · supersedes the GitFlow two-environment model (History index).

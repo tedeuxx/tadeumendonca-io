@@ -45,12 +45,11 @@ maximally unfurlable.
 
 **Bad / accepted costs**
 - Every public route must be prerendered; build time and the prerender's coverage list grow with the
-  route count (a missed route silently ships blank — the build/prerender smoke guards this, ADR-0021).
+  route count (a missed route silently ships blank — the build/prerender smoke guards this).
 - OG/meta values are build-frozen (inherited from ADR-0004).
 - **Known SEO gap:** the site has **no `sitemap.xml` and no `robots.txt`** today. On-page SEO (meta,
   canonical, JSON-LD, crawler-readable HTML) is complete; crawl-directives and discovery aids are not.
   Marginal at ~5 routes, but a real gap — filed as a follow-up, not silently claimed as covered.
 
 ## Links
-- Driven by ADR-0001 (presence) · implemented by ADR-0004 (build-time prerender) · guarded by ADR-0021
-  (prerender smoke) · open follow-up: `sitemap.xml` + `robots.txt`.
+- Driven by ADR-0001 (presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · open follow-up: `sitemap.xml` + `robots.txt`.
