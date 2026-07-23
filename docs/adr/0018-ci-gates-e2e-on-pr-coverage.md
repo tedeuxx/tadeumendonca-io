@@ -28,7 +28,11 @@ not checked there is not checked at all.
 
 ## Decision outcome
 Chosen: **the full gate runs on the PR**, E2E included, coverage ≥85%. Post-deploy E2E remains only as a
-smoke against the real CDN (ADR-0023). The merge stays the human go/no-go (ADR-0003).
+smoke against the real CDN (ADR-0023). ~~The merge stays the human go/no-go (ADR-0003).~~ **Amended
+2026-07-23:** the merge's go/no-go is held by the `critical-reviewer`, which escalates the boundary class
+to the owner — see the amendment on [ADR-0003](./0003-trunk-based-single-environment.md). Note the
+division of labour that makes this work: **CI proves nothing broke; the reviewer judges whether the change
+is right.** A green pipeline is not the review, and treating it as one is how the review gets skipped.
 
 ## Consequences
 **Good**

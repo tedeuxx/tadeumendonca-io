@@ -33,7 +33,15 @@ records the product's decision to adopt it.
 ## Decision outcome
 Chosen: **trunk-based, single environment**. `main` is the only branch and the working branch; merging
 to it deploys the live site. Because there is no downstream tier to defer a check to, the **full
-regression gates the PR** (see the CI-gate ADR). The merge is production, so it is the go/no-go a human confirms.
+regression gates the PR** (see the CI-gate ADR). ~~The merge is production, so it is the go/no-go a
+human confirms.~~ **Amended 2026-07-23:** the merge is still the go/no-go — what changed is **who holds
+it**. The `critical-reviewer` subagent does, per methodology ADR-0004: it verifies the MR Definition of
+Done and then **merges the safe class itself** (docs, dependency bumps, tests, in-pattern work against an
+already-approved spec) or **escalates the boundary class to the owner** — `iac/`, contract/schema,
+positioning or public-facing **content by path** (not by directory: the CV and article markdown live under
+`apps/fed`), anything creating or changing an ADR decision, anything irreversible. *Significance beats
+in-pattern.* A blanket human confirmation on every merge spent the owner's attention on in-pattern work,
+which devalues it at the boundary where it is actually needed. See `CLAUDE.md` §Branching.
 
 ## Consequences
 **Good**

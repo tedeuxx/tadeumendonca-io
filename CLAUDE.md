@@ -88,8 +88,10 @@ Two consequences worth stating outright, because they are what the other model g
   **every** PR before merging, unprompted; it verifies the MR Definition of Done with real evidence and
   then either **approves-and-merges the safe class itself** (docs, dependency bumps, tests, in-pattern
   work implementing an already-approved spec) or **escalates the boundary class to the owner** (`iac/`,
-  contract/schema, positioning or public copy, anything that creates or changes an ADR decision,
-  anything irreversible). *Significance beats in-pattern:* when the class is unclear, it is boundary.
+  contract/schema, reader-facing content **by path** — see the ⚠️ section — anything that creates or
+  changes an ADR decision, anything irreversible). *Significance beats in-pattern:* when the class is
+  unclear, it is boundary. **The reviewer never merges an expansion of its own authority** — a change to
+  this guide's merge rules is boundary by construction, whatever the diff looks like.
   A green CI is **not** a substitute for the review — CI proves nothing broke, the reviewer judges
   whether the change is right.
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
@@ -129,10 +131,13 @@ Working rules that follow from that:
 
 ## ⚠️ Destructive / requires explicit confirmation
 - **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.
-  (A merge that touches only `apps/fed` deploys static objects and is reversible by the next merge — it
-  is the `critical-reviewer`'s call per the branching section above, not a standing human prompt.)
-- **Merge to `main` that changes positioning or public-facing copy** — the words are the product here;
-  the reviewer escalates these rather than merging them.
+- **Merge to `main` that changes reader-facing CONTENT** — boundary **by path, not by directory**. The
+  copy lives inside `apps/fed`, so "it's only `apps/fed`" is not a safety argument:
+  `src/content/**` (articles, the ramp-up page), `src/data/profile.ts` (the CV),
+  `src/i18n/messages.ts` (UI copy), `public/og-*` and `index.html`'s meta. The words are the product,
+  **and they are the least reversible thing here** — CloudFront caches, and OG scrapers (LinkedIn, X,
+  WhatsApp) pin the card they first fetch, so a bad unfurl outlives the next merge.
+  *App code and config* under `apps/fed` (components, hooks, tests, build scripts) is safe class.
 - `terraform apply`/`destroy`; changing DNS / CloudFront / S3 — confirm.
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 
