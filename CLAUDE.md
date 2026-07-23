@@ -123,4 +123,4 @@ Working rules that follow from that:
 - **`infra-plan`** (PR): checkov + `fmt`/`validate`/`plan`, path-filtered to `iac/`.
 - **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform.
 - **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
-- **`claude` / `claude-code-review`**: `@claude` on-demand + auto-review (Claude App).
+- **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.
