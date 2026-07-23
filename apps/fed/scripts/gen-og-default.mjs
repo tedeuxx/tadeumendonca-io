@@ -1,70 +1,60 @@
 // Generates the site-wide default OG image (public/og-default.png, 1200x630) — the fallback og:image
-// when a post has no explicit one. Dependency-free: hand-encodes a PNG in the brutalist palette
-// (near-black canvas, a safety-orange brand bar on the left, and a hairline rule framing the top and
-// bottom edges). Run: `npm run gen-og`. A richer per-post card generator can come later.
-import { deflateSync } from 'node:zlib';
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+// when a page/post has no explicit one. It renders a real brutalist-mono card (name + title + wordmark)
+// as HTML and screenshots it with Playwright (already a devDependency — same headless Chromium the
+// prerender uses), so no image/canvas library is needed. The site fonts (Space Grotesk + JetBrains Mono)
+// are embedded from @fontsource as base64 so the card renders identically everywhere. Run: `npm run gen-og`.
+import { chromium } from '@playwright/test';
+import { readFileSync, mkdirSync } from 'node:fs';
+import { resolve, join } from 'node:path';
 
-const W = 1200;
-const H = 630;
-const BG = [10, 10, 10]; // #0A0A0A near-black
-const BAR = [255, 90, 0]; // #FF5A00 safety orange — the single accent
-const RULE = [42, 42, 42]; // #2A2A2A grid hairline
-const BAR_W = 32;
-const RULE_W = 4; // the heavy top/bottom rule of the brutalist frame
+const root = resolve(import.meta.dirname, '..');
+const fontsDir = join(root, 'node_modules', '@fontsource');
 
-// Raw RGB scanlines, each prefixed by a filter byte (0 = none).
-const raw = Buffer.alloc(H * (1 + W * 3));
-for (let y = 0; y < H; y++) {
-  const row = y * (1 + W * 3);
-  raw[row] = 0;
-  for (let x = 0; x < W; x++) {
-    const onRule = y < RULE_W || y >= H - RULE_W;
-    const [r, g, b] = x < BAR_W ? BAR : onRule ? RULE : BG;
-    const p = row + 1 + x * 3;
-    raw[p] = r;
-    raw[p + 1] = g;
-    raw[p + 2] = b;
+// Embed a woff2 as a data: URI so the card doesn't depend on network/system fonts.
+const font = (pkg, file) =>
+  `data:font/woff2;base64,${readFileSync(join(fontsDir, pkg, 'files', file)).toString('base64')}`;
+const grotesk = font('space-grotesk', 'space-grotesk-latin-700-normal.woff2');
+const mono = font('jetbrains-mono', 'jetbrains-mono-latin-500-normal.woff2');
+
+// Brutalist mono: near-black canvas, one safety-orange accent, radius 0, no shadow/gradient.
+const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+  @font-face { font-family: 'Space Grotesk'; font-weight: 700; src: url('${grotesk}') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 500; src: url('${mono}') format('woff2'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    background: #0A0A0A; color: #F5F4EF;
+    border-top: 6px solid #2A2A2A; border-bottom: 6px solid #2A2A2A;
+    display: flex; align-items: stretch;
   }
-}
+  .bar { width: 20px; background: #FF5A00; flex: none; }
+  .content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 84px; }
+  .wordmark { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 30px;
+    letter-spacing: 0.04em; color: #F5F4EF; margin-bottom: 40px; display: flex; align-items: center; gap: 12px; }
+  .wordmark .tick { width: 12px; height: 40px; background: #FF5A00; }
+  .wordmark .io { color: #FF5A00; }
+  .name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 104px; line-height: 0.92;
+    letter-spacing: -0.03em; text-transform: uppercase; }
+  .rule { height: 4px; width: 120px; background: #FF5A00; margin: 34px 0; }
+  .title { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 30px;
+    letter-spacing: 0.06em; text-transform: uppercase; color: #B8B6AE; line-height: 1.35; max-width: 900px; }
+  .title b { color: #F5F4EF; }
+</style></head><body>
+  <div class="bar"></div>
+  <div class="content">
+    <div class="wordmark"><span class="tick"></span>tadeumendonca<span class="io">.io</span></div>
+    <div class="name">Luiz Tadeu<br>Mendonça</div>
+    <div class="rule"></div>
+    <div class="title"><b>AI Engineer</b> · Agentic Development &amp; GenAI Apps<br>Python · TypeScript · AWS · Terraform · 17y SDLC</div>
+  </div>
+</body></html>`;
 
-// CRC32 (PNG chunks are CRC-checked).
-const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-const crc32 = (buf) => {
-  let c = 0xffffffff;
-  for (const byte of buf) c = CRC_TABLE[(c ^ byte) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-};
-
-const chunk = (type, data) => {
-  const typeBuf = Buffer.from(type, 'ascii');
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length, 0);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0);
-  return Buffer.concat([len, typeBuf, data, crc]);
-};
-
-const ihdr = Buffer.alloc(13);
-ihdr.writeUInt32BE(W, 0);
-ihdr.writeUInt32BE(H, 4);
-ihdr[8] = 8; // bit depth
-ihdr[9] = 2; // color type: truecolor RGB
-// 10,11,12 = compression/filter/interlace = 0
-
-const png = Buffer.concat([
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-  chunk('IHDR', ihdr),
-  chunk('IDAT', deflateSync(raw, { level: 9 })),
-  chunk('IEND', Buffer.alloc(0)),
-]);
-
-const out = resolve(import.meta.dirname, '..', 'public', 'og-default.png');
-mkdirSync(resolve(import.meta.dirname, '..', 'public'), { recursive: true });
-writeFileSync(out, png);
-console.log(`Wrote ${out} (${png.length} bytes, ${W}x${H})`);
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
+await page.setContent(html, { waitUntil: 'networkidle' });
+await page.evaluate(() => document.fonts.ready);
+const out = join(root, 'public', 'og-default.png');
+mkdirSync(join(root, 'public'), { recursive: true });
+await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1200, height: 630 } });
+await browser.close();
+console.log(`Wrote ${out} (1200x630)`);
