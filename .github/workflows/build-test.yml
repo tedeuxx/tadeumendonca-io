@@ -102,8 +102,13 @@ jobs:
       # Authoritative quality gate. projectBaseDir scopes the scan to apps/fed.
       # NOTE (owner/external): the SonarCloud project tedeuxx_tadeumendonca-fed must be rebound to the
       # tadeumendonca-io repo for PR decoration to work.
+      # Skipped on Dependabot PRs: GitHub isolates Actions secrets from Dependabot-triggered runs, so
+      # SONAR_TOKEN is empty there and the scan fails "not authorized" — blocking every dep bump for an
+      # infrastructural reason, not a code one. A dep bump changes package.json/lock, not app source, so
+      # Sonar's SAST/smells add little; the other gates (audit, lint, typecheck, test, build, E2E) still
+      # run and gate the bump. Human PRs are unaffected.
       - name: SonarCloud scan (quality gate blocks)
-        if: steps.changes.outputs.code == 'true'
+        if: steps.changes.outputs.code == 'true' && github.actor != 'dependabot[bot]'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
