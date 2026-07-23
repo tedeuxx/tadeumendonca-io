@@ -41,11 +41,11 @@ design, calibrated to strategy* — and every other ADR is read through it.
 ## Infrastructure
 | ADR | Title | Status |
 |---|---|---|
-| 0013 | S3 + CloudFront (PriceClass_100) + CloudFront Function URL-rewrite | pending |
-| 0014 | Terraform + Terraform Cloud, pipeline-only apply/destroy | pending |
-| 0015 | GitHub OIDC deploy roles — immutable subject, least-privilege | pending |
-| 0016 | Custom email via iCloud (MX/DKIM/SPF) | pending |
-| 0017 | No WAF, no CMK, SSM String-only config bus | pending |
+| [0013](./0013-s3-cloudfront-hosting.md) | S3 + CloudFront (PriceClass_100) + CloudFront Function URL-rewrite | accepted |
+| [0014](./0014-terraform-cloud-pipeline-only.md) | Terraform + Terraform Cloud, pipeline-only apply/destroy | accepted |
+| [0015](./0015-oidc-immutable-subject-least-privilege.md) | GitHub OIDC deploy roles — immutable subject, least-privilege | accepted |
+| [0016](./0016-custom-email-via-icloud.md) | Custom email via iCloud (MX/DKIM/SPF) | accepted |
+| [0017](./0017-no-waf-no-cmk-ssm-string-only.md) | No WAF, no CMK, SSM String-only config bus | accepted |
 
 ## SDLC, quality & security
 | ADR | Title | Status |
