@@ -24,7 +24,7 @@ const crcTable = Array.from({ length: 256 }, (_, n) => {
 });
 const crc32 = (buf) => {
   let c = 0xffffffff;
-  for (let i = 0; i < buf.length; i++) c = crcTable[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+  for (const byte of buf) c = crcTable[(c ^ byte) & 0xff] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 };
 const chunk = (type, data) => {
