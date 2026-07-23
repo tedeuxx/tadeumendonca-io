@@ -60,18 +60,18 @@ design, calibrated to strategy* — and every other ADR is read through it.
 ## Presence / cross-surface
 | ADR | Title | Status |
 |---|---|---|
-| 0024 | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | pending |
+| [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
 
 ## History (superseded — reverse-engineered, kept not deleted)
 | ADR | Title | Superseded by |
 |---|---|---|
-| 0025 | Backend-ful platform (BFF/Lambda · DynamoDB · Cognito · SES · Lambda@Edge) | 0002 |
-| 0026 | Lambda@Edge OG renderer | 0004 |
-| 0027 | Backend link-unfurl / OG preview cards | 0004 |
-| 0028 | GitFlow, staging + production two-environment | 0003 |
-| 0029 | Offline-first PWA | 0002 |
-| 0030 | Monorepo `tadeumendonca-pwa` consolidation | the `-io` rename + static pivot |
-| 0031 | Shared regional WAF | 0017 |
+| [0025](./0025-superseded-backend-platform.md) | Backend-ful platform (BFF/Lambda · DynamoDB · Cognito · SES · Lambda@Edge) | 0002 |
+| [0026](./0026-superseded-lambda-edge-og.md) | Lambda@Edge OG renderer | 0004 |
+| [0027](./0027-superseded-backend-link-unfurl.md) | Backend link-unfurl / OG preview cards | 0004 |
+| [0028](./0028-superseded-gitflow-two-env.md) | GitFlow, staging + production two-environment | 0003 |
+| [0029](./0029-superseded-offline-first-pwa.md) | Offline-first PWA | 0002 |
+| [0030](./0030-superseded-monorepo-pwa.md) | Monorepo `tadeumendonca-pwa` consolidation | the `-io` rename + static pivot |
+| [0031](./0031-superseded-shared-regional-waf.md) | Shared regional WAF | 0017 |
 
 ## Known gaps (honest — surfaced by the reverse-engineering, to become follow-up Issues)
 - **No `sitemap.xml` / `robots.txt`** (ADR-0005) — on-page SEO is complete; crawl-directives/discovery are not.
