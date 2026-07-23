@@ -47,9 +47,11 @@ maximally unfurlable.
 - Every public route must be prerendered; build time and the prerender's coverage list grow with the
   route count (a missed route silently ships blank — the build/prerender smoke guards this).
 - OG/meta values are build-frozen (inherited from ADR-0004).
-- **Known SEO gap:** the site has **no `sitemap.xml` and no `robots.txt`** today. On-page SEO (meta,
-  canonical, JSON-LD, crawler-readable HTML) is complete; crawl-directives and discovery aids are not.
-  Marginal at ~5 routes, but a real gap — filed as a follow-up, not silently claimed as covered.
+- ~~**Known SEO gap:** the site has **no `sitemap.xml` and no `robots.txt`** today.~~ **RESOLVED (Issue
+  #51):** build now emits `sitemap.xml` (one `<loc>` per canonical route, generated from the same
+  `scripts/routes.mjs` enumeration the prerender walks, so the two can't drift) and ships a static
+  `public/robots.txt` (allow-all + a `Sitemap:` pointer). On-page SEO **and** crawl-directives/discovery are
+  now both complete. An E2E journey (`e2e/seo.spec.ts`) guards both.
 
 ## Links
-- Driven by ADR-0001 (presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · open follow-up: `sitemap.xml` + `robots.txt`.
+- Driven by ADR-0001 (presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · discovery half (`sitemap.xml` + `robots.txt`) delivered by Issue #51.
