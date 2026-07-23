@@ -73,9 +73,9 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0030](./0030-superseded-monorepo-pwa.md) | Monorepo `tadeumendonca-pwa` consolidation | the `-io` rename + static pivot |
 | [0031](./0031-superseded-shared-regional-waf.md) | Shared regional WAF | 0017 |
 
-## Known gaps (honest — surfaced by the reverse-engineering, to become follow-up Issues)
-- **No `sitemap.xml` / `robots.txt`** (ADR-0005) — on-page SEO is complete; crawl-directives/discovery are not.
-- **No package-vulnerability scanning** (ADR-0021) — Sonar SAST is live; Dependabot / `npm audit` is not.
+## Known gaps (honest — surfaced by the reverse-engineering, tracked as follow-up Issues)
+- **No `sitemap.xml` / `robots.txt`** (ADR-0005) — on-page SEO is complete; crawl-directives/discovery are not. → [#51](https://github.com/tedeuxx/tadeumendonca-io/issues/51)
+- **No package-vulnerability scanning** (ADR-0021) — Sonar SAST is live; Dependabot / `npm audit` is not. → [#52](https://github.com/tedeuxx/tadeumendonca-io/issues/52)
 
 New ADRs: copy the plugin's `template.md` → `NNNN-kebab-title.md`, next number in sequence. A reversed
 decision becomes `superseded by ADR-XXXX` and links forward — never deleted.
