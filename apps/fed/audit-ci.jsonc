@@ -1,0 +1,22 @@
+// Package-vulnerability gate policy (ADR-0021). Run by `npm run audit`, blocking in build-test.
+//
+// Threshold: block the PR on HIGH + CRITICAL advisories in PRODUCTION dependencies only.
+// Rationale (ADR-0001 / ADR-0021): a static site's whole attack surface is the client bundle and its
+// deps; only PRODUCTION deps ship in that bundle. A build-tool devDependency advisory never reaches a
+// user, so `skip-dev` omits devDependencies here — those still surface via Dependabot alerts, but they
+// do not block the deploy. Controls calibrated to a real threat, not theatre.
+{
+  "high": true,
+  "critical": true,
+  "moderate": false,
+  "low": false,
+  // Omit devDependencies — only prod deps reach the shipped bundle (passes --omit=dev to npm audit).
+  "skip-dev": true,
+  "package-manager": "npm",
+  "report-type": "important",
+  // Triage: the ONLY sanctioned exception mechanism. An advisory that is genuinely unreachable in a
+  // static bundle may be listed here — each entry MUST carry a written justification and a review/expiry
+  // date. Removing an entry re-blocks the gate. Never replace this gate with `|| true` or a silent skip.
+  // Format: an array of advisory identifiers, e.g. "GHSA-xxxx-xxxx-xxxx".
+  "allowlist": []
+}

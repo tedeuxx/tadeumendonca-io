@@ -75,7 +75,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 
 ## Known gaps (honest — surfaced by the reverse-engineering, tracked as follow-up Issues)
 - ~~**No `sitemap.xml` / `robots.txt`** (ADR-0005)~~ — **RESOLVED** ([#51](https://github.com/tedeuxx/tadeumendonca-io/issues/51)): build emits `sitemap.xml` + ships `robots.txt`; on-page SEO and discovery are both complete.
-- **No package-vulnerability scanning** (ADR-0021) — Sonar SAST is live; Dependabot / `npm audit` is not. → [#52](https://github.com/tedeuxx/tadeumendonca-io/issues/52)
+- ~~**No package-vulnerability scanning** (ADR-0021)~~ — **RESOLVED** ([#52](https://github.com/tedeuxx/tadeumendonca-io/issues/52)): blocking `audit-ci` gate in `build-test` (high/critical prod deps) + Dependabot; the AppSec floor is whole.
 
 New ADRs: copy the plugin's `template.md` → `NNNN-kebab-title.md`, next number in sequence. A reversed
 decision becomes `superseded by ADR-XXXX` and links forward — never deleted.
