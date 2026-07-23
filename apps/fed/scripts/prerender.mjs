@@ -4,30 +4,15 @@
 // use for e2e, and writes dist/<route>/index.html). Run: `npm run prerender` (or `build:static`).
 import { preview } from 'vite';
 import { chromium } from '@playwright/test';
-import { load } from 'js-yaml';
-import { readdirSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { publicRoutes, canonicalFor } from './routes.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const dist = join(root, 'dist');
-const contentDir = join(root, 'src', 'content', 'blog');
 
-// Slug from frontmatter (falls back to filename) — must match src/lib/content.ts.
-function slugOf(file) {
-  const raw = readFileSync(join(contentDir, file), 'utf8');
-  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
-  const fm = m ? load(m[1]) : null;
-  return (fm && fm.slug) || file.replace(/\.md$/, '');
-}
-
-const slugs = readdirSync(contentDir)
-  .filter((f) => f.endsWith('.md'))
-  .map(slugOf);
-// Real routes only — redirects (/blog, /articles, /profile) must never be snapshotted.
-const routes = ['/', '/cv', '/portfolio', ...slugs.map((s) => `/blog/${s}`)];
-
-const SITE_URL = process.env.VITE_SITE_URL?.replace(/\/$/, '') ?? 'https://tadeumendonca.io';
-const canonicalFor = (route) => (route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`);
+// Shared with the sitemap generator so the snapshotted routes and the advertised URLs can't drift.
+const routes = publicRoutes();
 
 const port = 4183;
 const server = await preview({ preview: { port, strictPort: true } });
