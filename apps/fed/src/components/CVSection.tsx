@@ -1,5 +1,6 @@
 // Presentational CV (/frontend/design-system) — rendered only on /cv, the one place the person
-// appears. Brutalist: no cover gradient, no circular avatar, no card. A numbered sticky label column
+// appears. Brutalist: no cover gradient, no card. The portrait is the ONE carved exception to
+// radius 0 (`.avatar-round`, ADR-0008 amendment). A numbered sticky label column
 // carries each block, the body holds the rows. Pure component (data comes from the page).
 //
 // Formação and Certificações are SEPARATE blocks (they used to share the "education" bucket), and
@@ -91,7 +92,7 @@ export function CVSection({ profile }: { profile: Profile }) {
               aria-hidden="true"
               width={200}
               height={200}
-              className="h-[clamp(7rem,18vw,12.5rem)] w-[clamp(7rem,18vw,12.5rem)] shrink-0 border-2 border-border-strong object-cover"
+              className="avatar-round h-[clamp(7rem,18vw,12.5rem)] w-[clamp(7rem,18vw,12.5rem)] shrink-0 border-2 border-border-strong object-cover"
             />
           )}
           <h1 className="text-[clamp(2.4rem,7vw,5.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.04em]">{profile.name}</h1>

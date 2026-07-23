@@ -27,7 +27,10 @@ serves it lives alongside, in `iac/`.
 - Typography: **Space Grotesk** (display/sans) + **JetBrains Mono** (labels, data, meta). Self-hosted
   via `@fontsource`, imported in `src/main.tsx`.
 - Shape: **radius 0, no shadow, no gradient** — enforced in the Tailwind scale itself, so a leftover
-  `rounded-*` / `shadow-*` renders square and flat. Visible 12-col grid; rules (`--rule` / `--rule-strong`)
+  `rounded-*` / `shadow-*` renders square and flat. **One carved exception:** the portrait is round,
+  via the hand-written `.avatar-round` utility in `src/styles/index.css` — deliberately NOT reachable
+  through Tailwind, so the guard above stays intact (ADR-0008 amendment). A face is a portrait, not a
+  UI box; every actual surface (cards, buttons, inputs, rules) is still radius 0. Visible 12-col grid; rules (`--rule` / `--rule-strong`)
   are the layout's main device.
 - Motion is decoration: CSS only (no framer-motion), every animation gated on `prefers-reduced-motion`.
 - Reference: the approved hi-fi comp and the design-to-code plan in `docs/redesign/` (repo root).

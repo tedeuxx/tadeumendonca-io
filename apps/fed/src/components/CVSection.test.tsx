@@ -44,6 +44,9 @@ describe('CVSection', () => {
     const portrait = container.querySelector('img');
     expect(portrait).toHaveAttribute('src', '/avatar.jpg');
     expect(portrait).toHaveAttribute('aria-hidden', 'true'); // the h1 beside it names the person
+    // The one carved exception to radius 0 (ADR-0008 amendment). Pinned here because the Tailwind
+    // radius scale is collapsed to 0, so losing this class would silently square the portrait.
+    expect(portrait).toHaveClass('avatar-round');
   });
 
   it('links a certification to its credential and falls back to the typographic seal', () => {

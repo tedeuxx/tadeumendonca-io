@@ -42,6 +42,29 @@ absence of shadow/gradient are the point — the structure is visible.
 - Radius-0/no-shadow must be enforced (tokens collapse the radius scale) or a stray `rounded-*` breaks the
   look; a component kit couldn't be used off-the-shelf (ADR-0007).
 
+## Amendment (2026-07-23) — the portrait is round; radius 0 still holds everywhere else
+The **portrait** (the `/cv` header image and the small greyscale one in the landing's aside) is now a
+circle. Nothing else changes: cards, buttons, inputs, badges and rules stay **radius 0**.
+
+The reasoning is that "radius 0" is a rule about **surfaces** — the visible structure this ADR exists to
+expose. A face is not a surface; a circular crop is the convention for a portrait, the way a rule is the
+convention for a boundary. Applying the surface rule to a photograph was over-reach, not identity.
+
+**How it is carved matters more than the change itself.** The Tailwind `borderRadius` scale stays
+collapsed to `0` — `full` included — so the guard recorded under *accepted costs* above still works: a
+stray `rounded-*` anywhere renders square. The exception is a hand-written utility,
+`.avatar-round` in `src/styles/index.css`, deliberately **not reachable through Tailwind**. Opening the
+scale to obtain one circle would have traded a named exception for an open door, which is precisely how
+this identity would erode.
+
+Same shape of decision as the `LocaleProvider` carve-out in
+[ADR-0032](./0032-i18n-locale-layer-english-baseline.md): a deliberate, documented exception, recorded
+so a later reader does not mistake it for drift — or, worse, cite it as precedent for rounding a card.
+
+*Accepted cost:* `object-cover` crops harder inside a circle than a square, so the portrait loses more of
+its edges; the framing is chosen for the round crop now.
+
 ## Links
 - Driven by ADR-0001 · drives ADR-0007 (own components) and ADR-0009 (fonts) · supersedes the
-  Borussia-Dortmund identity (History index) · a fixed decision (see repo `CLAUDE.md`).
+  Borussia-Dortmund identity (History index) · a fixed decision (see repo `CLAUDE.md`) · amended above
+  for the portrait, within the same guard.
