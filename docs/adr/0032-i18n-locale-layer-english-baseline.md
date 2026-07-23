@@ -44,10 +44,13 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   **manual PT/EN toggle** overrides and **persists** in `localStorage`; the fallback is `en`.
 - **Detect-before-first-render.** The locale is resolved **synchronously before `createRoot`**, so there is
   no post-mount language flash. `<html lang>` tracks the active locale.
-- **CV content stays canonical English.** Only the UI **chrome** localizes; the CV data (`profile.ts`,
+- ~~**CV content stays canonical English.** Only the UI **chrome** localizes; the CV data (`profile.ts`,
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)) stays English. In **EN**, chrome + content are
   both English (the point of this work). In **PT**, pt-BR chrome wraps the English CV — an **accepted
-  interim**, resolved by the deferred pt-BR-CV-translation slice (Slice 3 below).
+  interim**, resolved by the deferred pt-BR-CV-translation slice (Slice 3 below).~~ **SUPERSEDED by
+  Slice 3, shipped 2026-07-23:** the CV content localizes too, so chrome and content are always in the
+  same language. English remains the **canonical** edition (ADR-0024), which is a statement about which
+  edition is authoritative — not about which one a pt visitor sees.
 - **The prerender / crawlable + OG baseline is pinned to ENGLISH.** `scripts/prerender.mjs` forces the
   browser locale to `en-US` during the snapshot, so Google / LinkedIn / WhatsApp discovery + unfurl are
   **English** — serving the CV-sync driver and [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) —
@@ -65,8 +68,12 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   canonical + per-locale OG. This interacts with [ADR-0005](./0005-og-coverage-every-public-url.md)
   (OG coverage) and [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) — it is the
   slice that makes **pt-BR discovery** first-class.
-- **Slice 3 (deferred):** a translated pt-BR `profile` object, so PT mode wraps a pt-BR CV instead of the
-  English one.
+- ~~**Slice 3 (deferred):** a translated pt-BR `profile` object, so PT mode wraps a pt-BR CV instead of the
+  English one.~~ **RESOLVED (2026-07-23):** `profile.ts` is now authored bilingually (`ProfileSource` +
+  `resolveProfile`), so PT mode renders a real pt-BR CV. English stays the canonical edition and the facts
+  are shared, not mirrored — see the amendment on
+  [ADR-0024](./0024-profile-canonical-cv-cross-surface.md). The "PT wraps an English CV" cost recorded
+  below is therefore **no longer accepted — it is paid off**.
 - **Out of scope:** blog article i18n — long-form pt-BR articles stay pt-BR.
 
 ## Consequences

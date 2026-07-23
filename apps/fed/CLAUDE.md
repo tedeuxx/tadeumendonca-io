@@ -38,10 +38,14 @@ serves it lives alongside, in `iac/`.
   **auto-detects the visitor's native language** and offers a **PT/EN toggle** (persisted, overrides
   detection). **Add every new UI-chrome string to the `src/i18n/` catalog in both locales — never hardcode
   a UI string.** Dates use the active locale. The **crawlable/OG prerender baseline is pinned to English**
-  (`scripts/prerender.mjs` forces the snapshot locale to en-US). The **CV content (`profile.ts`) stays
-  canonical English** (ADR-0024); only the chrome localizes. Deferred: route-prefixed `/en`·`/pt` +
-  per-locale prerender/hreflang, and a pt-BR CV translation. (Everything published on GitHub — this file,
-  READMEs, commit and PR text — is written in English.)
+  (`scripts/prerender.mjs` forces the snapshot locale to en-US). **The CV content localizes too**:
+  `src/data/profile.ts` is authored bilingually (`ProfileSource`, same key-first shape as the message
+  catalog) and flattened per locale by `resolveProfile`, so chrome and content are always in the same
+  language. **English stays the canonical edition** (ADR-0024) — it is what LinkedIn carries, what the
+  prerender serves, and what `profile` (the resolved constant) exports; pt-BR is a translation of it, and
+  facts (dates, employers, official job titles, certification names) are authored **once** and shared, so
+  the two editions cannot disagree. Deferred: route-prefixed `/en`·`/pt` + per-locale prerender/hreflang.
+  (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions
 - Explicit UI states (loading/empty/error) via the primitives in `src/components/Column.tsx`.

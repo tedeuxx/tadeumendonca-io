@@ -1,8 +1,9 @@
 // The typed message catalog — EVERY UI-chrome string. Key-first: each string carries BOTH locales
 // adjacent ({ pt, en }), so there is no parallel per-locale block (which duplication detectors read as
 // duplicated code) and adding a key can't miss a locale (the `satisfies` below makes it a compile error).
-// The CV *content* (src/data/profile.ts, ADR-0024 canonical) stays English and is NOT here — only the UI
-// chrome localizes. In EN mode chrome + content are English; in PT mode pt-BR chrome wraps the English CV.
+// The CV *content* is NOT here — it lives in src/data/profile.ts, authored bilingually in the same
+// key-first shape and flattened by `resolveProfile`. Two catalogs, one convention: this one for chrome,
+// that one for the CV, so chrome and content are in the visitor's language together.
 import type { Locale } from './config';
 
 /** One UI-chrome string in both locales. */

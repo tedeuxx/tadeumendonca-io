@@ -3,7 +3,8 @@ import { test, expect } from '@playwright/test';
 // i18n journeys (ADR-0032). The site is bilingual via a light in-repo locale layer: it auto-detects the
 // visitor's native browser language (navigator.language → pt | en, fallback en), a persisted PT/EN nav
 // toggle overrides detection, <html lang> tracks the locale (pt-BR | en), and dates follow the locale.
-// The CV *content* (profile.ts) stays canonical English in both modes (ADR-0024); only the chrome flips.
+// The CV *content* (profile.ts) is authored bilingually and follows the locale; English stays the
+// canonical edition and the facts are shared between editions (ADR-0024 amendment).
 //
 // These are journey-level checks against the real rendered DOM: chrome strings come from src/i18n/messages.ts,
 // the toggle is the role="group" of PT/EN buttons in AppShell.tsx (aria-pressed marks the active locale).
@@ -91,21 +92,24 @@ test.describe('i18n — the PT/EN toggle', () => {
   });
 });
 
-// Criterion: CV stays English in both locales — on /cv the body content (name, English experience text from
-// profile.ts) is English regardless of locale; only the section labels flip (Experiência/Experience,
-// Atual/Present). ADR-0024: the CV data is canonical English, only the chrome localizes.
-test.describe('i18n — the CV content stays English', () => {
+// Criterion: the CV CONTENT localizes with the chrome — a pt visitor gets a Portuguese CV, an English
+// visitor an English one (ADR-0024 amendment; closes ADR-0032's Slice 3). What does NOT flip are the
+// facts: the name, the official job titles, the employers and the dates are authored once and shared, so
+// each journey asserts both halves — the prose changed AND the facts did not.
+test.describe('i18n — the CV content follows the locale', () => {
   const CV_NAME = 'Luiz Tadeu Mendonça';
-  const CV_ENGLISH_ROLE = 'Senior Cloud Application Architect'; // profile.ts content — never translated
+  const OFFICIAL_ROLE = 'Senior Cloud Application Architect'; // an official title — English in both
 
   test.describe('pt-BR context', () => {
     test.use({ locale: 'pt-BR' });
 
-    test('renders English CV content under pt-BR chrome (only labels flip)', async ({ page }) => {
+    test('renders a Portuguese CV, with the facts unchanged', async ({ page }) => {
       await page.goto('/cv');
-      // Content is English even though chrome is pt-BR.
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
-      await expect(page.getByText(CV_ENGLISH_ROLE)).toBeVisible();
+      // Prose is Portuguese.
+      await expect(page.getByText(/17 anos em SDLC/)).toBeVisible();
+      // Facts are shared, not translated.
+      await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
       // Section chrome is pt-BR: the "Experiência" label and the ongoing-role "Atual" marker.
       await expect(page.getByRole('heading', { name: 'Experiência' })).toBeVisible();
       await expect(page.getByText(/–\s*Atual/)).toBeVisible();
@@ -115,13 +119,26 @@ test.describe('i18n — the CV content stays English', () => {
   test.describe('en-US context', () => {
     test.use({ locale: 'en-US' });
 
-    test('renders English CV content with English chrome', async ({ page }) => {
+    test('renders an English CV, with the same facts', async ({ page }) => {
       await page.goto('/cv');
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
-      await expect(page.getByText(CV_ENGLISH_ROLE)).toBeVisible();
+      await expect(page.getByText(/17y across SDLC/)).toBeVisible();
+      await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
       // Section chrome flips to English: "Experience" label and the "Present" marker.
       await expect(page.getByRole('heading', { name: 'Experience' })).toBeVisible();
       await expect(page.getByText(/–\s*Present/)).toBeVisible();
+    });
+  });
+
+  test.describe('the toggle switches the CV itself', () => {
+    test.use({ locale: 'en-US' });
+
+    test('flipping to PT re-renders the CV in Portuguese', async ({ page }) => {
+      await page.goto('/cv');
+      await expect(page.getByText(/17y across SDLC/)).toBeVisible();
+      await page.getByRole('button', { name: 'PT', exact: true }).click();
+      await expect(page.getByText(/17 anos em SDLC/)).toBeVisible();
+      await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
     });
   });
 });
