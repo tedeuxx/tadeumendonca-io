@@ -36,6 +36,16 @@ Release, automatically.
 - The release automation is load-bearing: a fragility in the notes step (an empty category aborting under
   `bash -e`) once tagged versions without publishing their Release — found and fixed this session, a
   reminder that the pipeline needs its own care.
+- **Second instance, 2026-07-23, worse than the first.** Two merges 16 seconds apart caused a
+  non-fast-forward push; because `git push` is **not atomic by default**, the branch was rejected while
+  the tag went through, orphaning `v0.1.39`. Every later run then died on "tag already exists" — **four
+  consecutive merges shipped no version and no Release**, and the break was self-perpetuating rather than
+  self-healing. Fixed with `--atomic` plus a fetch/reset/retry loop.
+  The pattern across both incidents is the real cost being accepted here: **this pipeline is the one
+  piece of automation with no gate of its own.** `build-test` is path-filtered to `apps/fed`, so a change
+  to `.github/workflows/**` is verified by nothing and first executes on the live release path. That gap
+  is tracked separately; until it closes, "the pipeline needs its own care" means a human reading the
+  diff, which is exactly the kind of assurance this repo otherwise refuses to rely on.
 
 ## Links
 - Driven by ADR-0003 · rules in the plugin's `/workflow/versioning` · `version-main` runs on merge.

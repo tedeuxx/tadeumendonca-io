@@ -51,6 +51,14 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main          # re-read VERSION from the real tip, not a stale one
+            # Fail with a diagnosis, not a traceback. If the tag we are about to create already exists
+            # remotely, bump-my-version dies with a raw Python CalledProcessError that says nothing about
+            # the actual situation — which is how the 2026-07-23 wedge presented for four merges running.
+            next="v$(bump-my-version show new_version --increment patch)"
+            if git ls-remote --exit-code --tags origin "refs/tags/$next" >/dev/null 2>&1; then
+              echo "::error::$next already exists on the remote while VERSION is $(cat VERSION). A previous run pushed the tag without its commit. Delete the orphaned tag, then re-run."
+              exit 1
+            fi
             bump-my-version bump patch --verbose
             # --atomic is the load-bearing flag. Without it a push is NOT all-or-nothing: on
             # 2026-07-23 the branch was rejected (non-fast-forward) while the TAG went through,
