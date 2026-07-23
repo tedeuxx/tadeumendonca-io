@@ -1,0 +1,20 @@
+# Dependency hygiene (ADR-0021). The continuous half of the package-vulnerability floor: scheduled
+# update PRs + GitHub-native vulnerability alerts / security-update PRs. The *enforcement* half — a
+# blocking gate that fails a PR on a high/critical prod advisory — lives in build-test.yml (audit-ci).
+#
+# NOTE (owner, repo Settings): Dependabot *version* updates are governed by this file, but the
+# *vulnerability alerts* / security-update half is a repo toggle (Settings → Code security →
+# Dependabot alerts + security updates). Enable it there — the workflow file cannot set it.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/apps/fed"
+    schedule:
+      interval: "weekly"
+    # Keep update-PR noise low: fold minor + patch bumps into a single grouped PR.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5

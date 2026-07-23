@@ -63,6 +63,15 @@ jobs:
         if: steps.changes.outputs.code == 'true'
         run: npm ci
 
+      # Package-vulnerability gate (ADR-0021). Blocks the PR on HIGH/CRITICAL advisories in PRODUCTION
+      # deps (audit-ci.jsonc: skip-dev + high/critical); devDep advisories surface via Dependabot but
+      # never block a static-site deploy. Placed right after Install so a vulnerable dep aborts BEFORE
+      # the expensive E2E + Sonar. It queries a live advisory DB, so a new advisory can start blocking an
+      # otherwise-unrelated code PR — the checked-in allowlist (justification + expiry) is the relief valve.
+      - name: Audit (package vulnerabilities — high/critical prod deps block)
+        if: steps.changes.outputs.code == 'true'
+        run: npm run audit
+
       - name: Lint
         if: steps.changes.outputs.code == 'true'
         run: npm run lint
