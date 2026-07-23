@@ -87,6 +87,16 @@ body {
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
   }
+  /* The ONE round thing on the site, and deliberately not reachable through Tailwind.
+     `borderRadius` is zeroed to 0 across the whole scale (`full` included) so a stray `rounded-*`
+     renders square instead of quietly eroding the brutalist identity — see ADR-0008. That guard is
+     worth keeping, so this exception is carved by hand rather than by opening the scale back up.
+     Scope is the portrait only: a face reads as a portrait, not as a UI box, and every actual
+     surface (cards, buttons, inputs, rules) stays radius 0. Same shape of decision as the
+     LocaleProvider carve-out in ADR-0032 — a named exception, not drift. */
+  .avatar-round {
+    border-radius: 50%;
+  }
   .rule {
     border-color: hsl(var(--border));
     border-width: var(--rule);

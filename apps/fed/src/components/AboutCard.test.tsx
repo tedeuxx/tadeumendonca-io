@@ -28,4 +28,16 @@ describe('AboutCard', () => {
     expect(avatar).toHaveAttribute('alt', '');
     expect(screen.getAllByRole('link')).toHaveLength(1); // avatar and label are one target
   });
+
+  // The portrait is the ONE carved exception to radius 0 (ADR-0008 amendment). Asserting it here
+  // pins the exception in place: if someone removes the utility, this fails rather than the circle
+  // silently going square — the Tailwind scale is collapsed, so nothing else would catch it.
+  it('marks the portrait with the carved round-portrait utility', () => {
+    const { container } = renderWithLocale(
+      <MemoryRouter>
+        <AboutCard />
+      </MemoryRouter>,
+    );
+    expect(container.querySelector('img')).toHaveClass('avatar-round');
+  });
 });
