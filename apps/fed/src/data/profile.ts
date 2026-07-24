@@ -16,9 +16,13 @@ import { resolveProfile } from './resolveProfile';
 import { careerYears, YEARS_TOKEN } from '../lib/experience';
 import avatar from '../assets/avatar.jpg';
 
-// Years of experience are written as `{{years}}` and DERIVED from the dates below — never typed out.
-// The figure was hardcoded as "17" here and in the ramp-up page, and had drifted by more than a year
-// (the earliest role starts 2008-03); nothing recomputed it. See lib/experience.ts and issue #82.
+// Years of experience are written as `{{years}}` and resolved by `withYears`. The PUBLIC figure is an
+// evergreen floor — "17+" — anchored to the formal career start (2008-03). Evergreen so it never drifts
+// across surfaces (site vs LinkedIn/CV) and stays true as the count grows (#124). The exact count is
+// still DERIVED from the dates below (CAREER_YEARS, currently 18) and kept as the honesty guard: a test
+// asserts CAREER_YEARS >= the published floor (17), so the "+" is always true. History: the figure was a
+// hardcoded "17" that drifted (issue #82), then a bare derived number that diverged from manual surfaces;
+// the evergreen floor fixes both. See lib/experience.ts.
 const sourceTemplate: ProfileSource = {
   profile_id: 'me',
   name: 'Luiz Tadeu Mendonça',
@@ -26,7 +30,7 @@ const sourceTemplate: ProfileSource = {
   headline: {
     en:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
-      'Python · TypeScript · AWS · Terraform | {{years}}y across SDLC & Distributed Systems',
+      'Python · TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
     pt:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering com Claude Code & Kiro | ' +
       'Python · TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
@@ -268,7 +272,9 @@ export const CAREER_YEARS = careerYears(sourceTemplate.experience);
  * Resolve `{{years}}` in any authored prose. Exported because the ramp-up page states the same figure
  * and must resolve it from the same constant — two substitution helpers would be two things to drift.
  */
-export const withYears = (text: string) => text.split(YEARS_TOKEN).join(String(CAREER_YEARS));
+/** The evergreen public figure (#124) — a floor, not the bare derived count (see the header note). */
+export const CAREER_YEARS_PUBLIC = '17+';
+export const withYears = (text: string) => text.split(YEARS_TOKEN).join(CAREER_YEARS_PUBLIC);
 
 /**
  * The CV with `{{years}}` resolved. Only the two prose fields carry the token; everything else is
