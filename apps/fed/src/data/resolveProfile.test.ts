@@ -8,8 +8,10 @@ const pt = resolveProfile(profileSource, 'pt');
 
 describe('resolveProfile', () => {
   it('resolves prose to the requested locale', () => {
-    expect(en.headline).toContain('17y across SDLC');
-    expect(pt.headline).toContain('17 anos em SDLC');
+    // The figure is derived (lib/experience), so assert the SHAPE and the locale, not the number —
+    // hardcoding it here would recreate the drift this replaced, one layer down.
+    expect(en.headline).toMatch(/\d+y across SDLC/);
+    expect(pt.headline).toMatch(/\d+ anos em SDLC/);
     expect(en.summary).toContain('not machine learning research');
     expect(pt.summary).toContain('não pesquisa em machine learning');
     expect(en.location).toBe('São Paulo — Brazil');

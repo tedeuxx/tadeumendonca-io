@@ -13,31 +13,35 @@
 // systems. Client names are never used — sectors only.
 import type { Profile, ProfileSource } from '../types/profile';
 import { resolveProfile } from './resolveProfile';
+import { careerYears, YEARS_TOKEN } from '../lib/experience';
 import avatar from '../assets/avatar.jpg';
 
-export const profileSource: ProfileSource = {
+// Years of experience are written as `{{years}}` and DERIVED from the dates below — never typed out.
+// The figure was hardcoded as "17" here and in the ramp-up page, and had drifted by more than a year
+// (the earliest role starts 2008-03); nothing recomputed it. See lib/experience.ts and issue #82.
+const sourceTemplate: ProfileSource = {
   profile_id: 'me',
   name: 'Luiz Tadeu Mendonça',
   avatar_url: avatar,
   headline: {
     en:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
-      'Python · TypeScript · AWS · Terraform | 17y across SDLC & Distributed Systems',
+      'Python · TypeScript · AWS · Terraform | {{years}}y across SDLC & Distributed Systems',
     pt:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering com Claude Code & Kiro | ' +
-      'Python · TypeScript · AWS · Terraform | 17 anos em SDLC & Sistemas Distribuídos',
+      'Python · TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
   },
   summary: {
     en:
       'AI Engineer applying AI-native development — Claude Code, Kiro, and AI-DLC / Loop Engineering — to ' +
-      'design, build and ship production-ready systems, anchored in 17 years of software engineering across ' +
+      'design, build and ship production-ready systems, anchored in {{years}} years of software engineering across ' +
       'enterprise SDLC and distributed systems. My lane is applied GenAI and agentic development, not machine ' +
       'learning research: I build with agentic patterns — tool-calling, RAG, memory, evaluation loops, MCP — ' +
       'and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and backend; ' +
       'TypeScript for the full-stack and web layer.',
     pt:
       'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro e AI-DLC / Loop Engineering — para ' +
-      'projetar, construir e entregar sistemas prontos para produção, ancorado em 17 anos de engenharia de ' +
+      'projetar, construir e entregar sistemas prontos para produção, ancorado em {{years}} anos de engenharia de ' +
       'software em SDLC corporativo e sistemas distribuídos. Minha faixa é GenAI aplicada e agentic development, ' +
       'não pesquisa em machine learning: construo com padrões agênticos — tool-calling, RAG, memória, loops de ' +
       'avaliação, MCP — e trago o rigor de SDLC que transforma trabalho de IA em software de produção. Python ' +
@@ -254,6 +258,24 @@ export const profileSource: ProfileSource = {
     linkedin: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530',
   },
   updated_at: '2026-07-21',
+};
+
+/** Career length, derived from the earliest `start_date` above — the single source for the figure. */
+export const CAREER_YEARS = careerYears(sourceTemplate.experience);
+
+const withYears = (text: string) => text.split(YEARS_TOKEN).join(String(CAREER_YEARS));
+
+/**
+ * The CV with `{{years}}` resolved. Only the two prose fields carry the token; everything else is
+ * passed through untouched, so this cannot accidentally rewrite a job title or a date.
+ */
+export const profileSource: ProfileSource = {
+  ...sourceTemplate,
+  headline: { en: withYears(sourceTemplate.headline.en), pt: withYears(sourceTemplate.headline.pt) },
+  summary: sourceTemplate.summary && {
+    en: withYears(sourceTemplate.summary.en),
+    pt: withYears(sourceTemplate.summary.pt),
+  },
 };
 
 /**
