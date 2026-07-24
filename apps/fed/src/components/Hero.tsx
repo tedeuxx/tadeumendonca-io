@@ -4,6 +4,7 @@
 //
 // The title is a single unbreakable line (whitespace-nowrap) that scales with the viewport, so the
 // brand never wraps mid-word — hence the reduced clamp ceiling compared to the hero font size.
+import { Link as RouterLink } from 'react-router-dom';
 import { Marquee } from './Marquee';
 import { GridLines } from './GridLines';
 import { useT } from '../i18n';
@@ -34,6 +35,15 @@ export function Hero() {
         </p>
 
         <div className="mb-[clamp(2.2rem,5vw,3.5rem)] flex flex-wrap">
+          {/* Ramp-up is the positioning centerpiece, and a real route (not a landing anchor) — so it
+              leads as the filled primary CTA, and uses the router Link for client-side nav. */}
+          <RouterLink
+            to="/ramp-up"
+            className="group -mb-px -mr-px inline-flex items-center gap-2 border border-primary bg-primary px-5 py-2.5 font-mono text-sm uppercase tracking-wider text-primary-foreground transition-colors duration-150 hover:bg-background hover:text-primary"
+          >
+            <span className="text-primary-foreground group-hover:text-primary">→</span>
+            {t('nav.rampup')}
+          </RouterLink>
           <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
           <HeroLink href="#portfolio">{t('nav.portfolio')}</HeroLink>
         </div>

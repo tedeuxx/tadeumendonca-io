@@ -37,4 +37,10 @@ describe('LandingPage', () => {
     await screen.findByRole('heading', { name: /Artigos/ });
     expect(screen.queryByText(profile.name)).toBeNull();
   });
+
+  it('surfaces the ramp-up page as a hero CTA (not only from the navbar)', async () => {
+    renderLanding();
+    const cta = await screen.findByRole('link', { name: /Ramp-up/ });
+    expect(cta).toHaveAttribute('href', '/ramp-up');
+  });
 });
