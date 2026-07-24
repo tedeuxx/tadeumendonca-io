@@ -137,4 +137,11 @@ jobs:
             echo "::notice::no apps/fed changes — lint, typecheck, tests, build, E2E and Sonar did NOT run (nothing was verified)"
             exit 0
           fi
+          # A failed step aborts the ones after it, so the full list would be a lie on this path —
+          # the same overstatement this notice exists to prevent, just on the red branch instead of
+          # the green one.
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::apps/fed gate did NOT complete — a step failed, so the checks after it never ran. Read the failing step, not this line."
+            exit 0
+          fi
           echo "::notice::apps/fed gate ran — lint, typecheck, tests (coverage >=85%), build, E2E; SonarCloud: ${{ steps.sonar.outcome }}"

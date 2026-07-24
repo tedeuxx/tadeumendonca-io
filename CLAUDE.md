@@ -148,8 +148,10 @@ Working rules that follow from that:
   did not exist, so a workflow change reported PASS having verified nothing (#79). Note the shape:
   every one of these runs on **every** PR and filters **inside** the job. A workflow-level `paths:`
   filter cannot be a required check — it never reports on a non-matching PR and sits pending — so a
-  filtered workflow is permanently advisory. Each also emits a `::notice::` saying whether it ran or
-  skipped, because a check that matched nothing must not read like one that passed.
+  filtered workflow is permanently advisory. Each ends with a `::notice::` naming which of **three**
+  cases happened — *nothing matched, so nothing was verified* · *a step failed, so the rest never ran* ·
+  *the gate ran, with the list*. A check that matched nothing must not read like one that passed, and a
+  notice that prints the full list after a failure is the same overstatement on the red path.
 - **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform.
 - **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
 - **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.

@@ -89,5 +89,9 @@ jobs:
             echo "::notice::no workflow files changed — actionlint did not run (nothing was verified)"
             exit 0
           fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::workflow lint did NOT complete — a step failed. Read the failing step, not this line."
+            exit 0
+          fi
           count=$(find .github/workflows -maxdepth 1 \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')
           echo "::notice::actionlint + shellcheck passed over ${count} workflow file(s)"

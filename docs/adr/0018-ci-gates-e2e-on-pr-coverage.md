@@ -60,9 +60,19 @@ it. A filtered workflow is therefore permanently *advisory* — which would have
 name while leaving the decision above unmet. Every gate here runs on **every** PR and applies its path
 filter **inside** the job (the shape `build-test` already used, for exactly this reason).
 
-**Corollary, now applied to all three:** each job emits a `::notice::` stating whether it ran or
-skipped. "Blocking" is not sufficient if a skipped run is indistinguishable from a verified one —
-that ambiguity is what let "build-test is green" be read as assurance it had not given.
+**Corollary, applied to all three:** each job ends with a `::notice::` naming which of **three** cases
+occurred — *nothing matched the filter, so nothing was verified* · *a step failed, so the checks after
+it never ran* · *the gate ran, with the list*. "Blocking" is not sufficient if a skipped run is
+indistinguishable from a verified one; that ambiguity is what let "build-test is green" be read as
+assurance it had not given.
+
+The failure branch is not decoration. A notice that prints the full list after an early step failed
+overstates what ran — the same defect on the red path instead of the green one — and the first draft
+here did exactly that. `infra-plan` was also asserted to have this behaviour before it did: on the PR
+that introduced the corollary, `plan` reported **pass in 15s** having run neither checkov nor
+`terraform`, while this ADR already claimed otherwise. **An ADR that overstates what was implemented
+is the durable form of the defect the corollary exists to remove**, which is why the mismatch is
+recorded rather than quietly corrected.
 
 *Also recorded:* `actionlint` silently disables `shellcheck` when the binary is absent, halving the
 check and still exiting 0 — and passing `-shellcheck <path>` does **not** change that (verified: an
