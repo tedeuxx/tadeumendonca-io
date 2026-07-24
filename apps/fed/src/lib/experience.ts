@@ -48,6 +48,8 @@ function monthIndex(isoMonth: string): number {
 export function careerYears(experience: readonly { start_date: string }[], now: Date = new Date()): number {
   const starts = experience.map((role) => role.start_date).filter(Boolean);
   if (starts.length === 0) return 0;
-  const earliest = starts.reduce((min, current) => (monthIndex(current) < monthIndex(min) ? current : min));
+  // Seeded explicitly: a bare reduce() throws on an empty array, and while the guard above prevents
+  // that, the seed states the invariant locally instead of making a reader verify it two lines up.
+  const earliest = starts.reduce((min, current) => (monthIndex(current) < monthIndex(min) ? current : min), starts[0]);
   return yearsSince(earliest, now);
 }
