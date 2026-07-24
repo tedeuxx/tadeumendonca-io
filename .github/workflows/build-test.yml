@@ -23,10 +23,11 @@ concurrency:
   group: build-test-${{ github.ref }}
   cancel-in-progress: true
 
-# No FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 here: every JS action in this workflow is now pinned to a
-# node24 release (checkout v5, setup-node v5, paths-filter v4, sonarqube-scan v7). The flag would be
-# dead — it forces node20 actions onto node24, and there are none. It remains in the three AWS
-# workflows only because configure-aws-credentials has no node24 release yet.
+# No FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 here: every JS action in this workflow is pinned to a node24
+# release (checkout v7, setup-node v7, paths-filter v4, sonarqube-scan v8). The flag would be dead —
+# it forces node20 actions onto node24, and there are none. It remains in the three AWS workflows only
+# because they use configure-aws-credentials, which is pinned to v4 (node20); its v6 is node24-native
+# but breaks our OIDC, so the migration off the flag is deferred to slice #89.
 
 jobs:
   build-test:
@@ -37,14 +38,14 @@ jobs:
     steps:
       - name: Checkout
         # Full history — SonarCloud uses git blame for accurate new-code / authorship attribution.
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       # Does this change touch apps/fed (or packages/shared), or is it unrelated? Unrelated PRs skip
       # every step below but the job still completes green, satisfying the required `build-test` check.
       - name: Detect fed changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2 (node24)
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
         id: changes
         with:
           filters: |
@@ -55,7 +56,7 @@ jobs:
 
       - name: Setup Node
         if: steps.changes.outputs.code == 'true'
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0 (node24)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
           cache: npm
@@ -115,7 +116,7 @@ jobs:
       - name: SonarCloud scan (quality gate blocks)
         id: sonar
         if: steps.changes.outputs.code == 'true' && github.actor != 'dependabot[bot]'
-        uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7.2.1 (node24)
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io

@@ -37,16 +37,19 @@ jobs:
       TF_WORKSPACE: tadeumendonca-io
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1 (node20 — no node24 release yet; FORCE flag covers it)
+        # Sole node20 action (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 below runs it on node24). Pinned to v4:
+        # v6 is node24-native but breaks our OIDC assume-role (verified on PR #101) — adopting it is its
+        # own slice (#89), not an auto-bump. Dependabot skips its majors here; minor/patch still flow.
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: us-east-1
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1 (node24)
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: "1.9.8"
 

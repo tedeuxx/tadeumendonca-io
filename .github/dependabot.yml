@@ -29,10 +29,12 @@ updates:
 
   # GitHub Actions are now SHA-pinned (supply-chain hardening, #73). A pinned SHA never moves on its
   # own, so without this it would silently rot — miss security patches and node-runtime bumps. Dependabot
-  # updates the pin AND rewrites the trailing `# vX.Y.Z` comment, so the human-readable version stays
-  # truthful. Majors are auto-proposed here (unlike npm): an action major is a small, isolated,
-  # CI-gated change, not a coordinated peer bump — and the node20→24 migration (#89) is exactly the kind
-  # of major that must not be ignored.
+  # updates the pin AND rewrites the trailing `# vX.Y.Z` comment — but ONLY when that comment is a bare
+  # version. A trailing parenthetical (`# v5.1.0 (node24)`) silently defeats the rewriter: the SHA moves,
+  # the version text does not, and the pin comment starts lying (this bit us on PR #101). So pin comments
+  # are kept as a bare `# vX.Y.Z`; node-runtime rationale lives in the workflow header, not per-line.
+  # Majors are auto-proposed here (unlike npm): an action major is usually a small, isolated, CI-gated
+  # change, not a coordinated peer bump.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -41,4 +43,13 @@ updates:
       actions:
         patterns:
           - "*"
+    # configure-aws-credentials is the one exception to "majors auto-flow": it is on the OIDC deploy
+    # path, and its v6 (node24-native) changed credential loading in a way that breaks our assume-role
+    # (every deploy/infra job failed "Could not load credentials" on PR #101). A broken bump there is
+    # not a green-CI dependency bump the reviewer can merge — it takes the whole pipeline down. Adopting
+    # v6 (and dropping FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 with it) is a deliberate slice, #89. Minor/patch
+    # within v4 still flow, so security fixes are not blocked.
+    ignore:
+      - dependency-name: "aws-actions/configure-aws-credentials"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
