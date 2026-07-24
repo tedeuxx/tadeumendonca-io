@@ -204,9 +204,13 @@ const sourceTemplate: ProfileSource = {
   certifications: [
     { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nPRO' },
     { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nPRA' },
+    { name: 'AI-DLC Ambassador', issuer: 'Amazon Web Services (AWS)', badge_label: 'DLC\nAMB' },
+    { name: 'AWS Accreditation — AI (L200)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL200' },
+    { name: 'AWS Accreditation — AI (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL100' },
     { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'DEV\nASC' },
     { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nASC' },
     { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A' },
+    { name: 'AWS Accreditation — Telecom (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'TEL\nL100' },
   ],
   skills: [
     {
