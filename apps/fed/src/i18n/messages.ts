@@ -65,9 +65,13 @@ const strings = {
     viewOnLinkedin: { pt: 'Ver no LinkedIn', en: 'View on LinkedIn' },
     empty: { pt: 'Ainda não há artigos nesta trilha.', en: 'No articles in this track yet.' },
   },
-  // The ramp-up page's chrome. Its BODY is markdown-in-repo (content/rampup.md) and English-only for
-  // now — long-form content i18n is outside the locale layer's scope (ADR-0032); it joins the article
-  // parity slice. So these keys wrap an English body in the visitor's language, which is deliberate.
+  // The ramp-up page's chrome. Its BODY is markdown-in-repo (content/rampup.md) and English-only.
+  //
+  // KNOWN INCOHERENCE, deliberate and temporary: a pt visitor reads a Portuguese metaDescription
+  // promising the page, then lands on an English body. ADR-0032 does NOT authorize this — its
+  // deferral is about keeping pt-BR articles pt-BR, the opposite direction — so this is an open
+  // decision recorded in the ADR-0010 amendment, not an inherited one. `heading` is intentionally
+  // identical in both locales: it is the page's English title, quoted rather than translated.
   rampup: {
     heading: { pt: 'Ramp-Up — Becoming an AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
     // Document title (the site name is appended by useDocumentHead).

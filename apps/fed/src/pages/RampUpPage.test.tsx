@@ -36,25 +36,42 @@ describe('RampUpPage', () => {
   it('turns the YouTube links into click-to-load facades, not eager iframes', () => {
     const { container } = renderPage();
     // The property that matters: nothing third-party is loaded before the reader asks for it.
-    // No iframe, and the only YouTube request is the thumbnail, which is lazy.
     expect(container.querySelector('iframe')).toBeNull();
-    const thumbs = container.querySelectorAll('img[src^="https://i.ytimg.com/"]');
-    expect(thumbs).toHaveLength(3); // one facade per curated video
-    thumbs.forEach((img) => expect(img).toHaveAttribute('loading', 'lazy'));
+
+    // Count facades by their accessible role, not by the thumbnail host — the CDN hostname is an
+    // internal of VideoEmbed, and pinning it would fail a rename that changes no behavior.
+    const facades = screen.getAllByRole('button', { name: /Reproduzir vídeo/ });
+    expect(facades).toHaveLength(3);
+
+    // Pin WHICH videos: these three were each chosen and verified against the channel, so a wrong or
+    // silently-swapped id is the failure worth catching. A host-shaped assertion would miss it.
+    const thumbs = [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src') ?? '');
+    expect(thumbs).toHaveLength(3);
+    ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg'].forEach((id) =>
+      expect(thumbs.some((src) => src.includes(`/vi/${id}/`))).toBe(true),
+    );
+    // The one request the facade does make must not block the page.
+    container.querySelectorAll('img[src*="/vi/"]').forEach((img) => expect(img).toHaveAttribute('loading', 'lazy'));
 
     // …and clicking one does swap in the player, so the facade is a facade and not a dead thumbnail.
     // Target the facade by its label — the page also renders a ShareButton, so index 0 is not it.
-    fireEvent.click(screen.getAllByRole('button', { name: /Reproduzir vídeo/ })[0]);
+    fireEvent.click(facades[0]);
     expect(container.querySelector('iframe')?.getAttribute('src')).toMatch(
       /^https:\/\/www\.youtube-nocookie\.com\/embed\//,
     );
   });
 
   it('links the sources out to their public canonical URLs', () => {
-    renderPage();
-    // O'Reilly links must point at the public catalog, never the logged-in reader.
+    const { container } = renderPage();
     const book = screen.getByRole('link', { name: 'AI Engineering' });
     expect(book).toHaveAttribute('href', 'https://www.oreilly.com/library/view/ai-engineering/9781098166298/');
-    expect(screen.queryByRole('link', { name: /learning\.oreilly/ })).toBeNull();
+
+    // Every O'Reilly link must be the PUBLIC catalog, never the subscriber reader. This has to query
+    // by href: a link's accessible name is its text ("AI Engineering"), so a name-based query can
+    // never see the host and would pass no matter what the hrefs said.
+    const oreilly = [...container.querySelectorAll('a[href*="oreilly.com"]')];
+    expect(oreilly).toHaveLength(6);
+    oreilly.forEach((a) => expect(a.getAttribute('href')).toMatch(/^https:\/\/www\.oreilly\.com\/library\/view\//));
+    expect(container.querySelectorAll('a[href*="learning.oreilly.com"]')).toHaveLength(0);
   });
 });
