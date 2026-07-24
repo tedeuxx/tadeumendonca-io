@@ -1,6 +1,6 @@
 # 0033. GA4, consent-gated — a hard opt-in gate, not Consent Mode v2
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-07-24
 - **Deciders:** the owner
 - **Driven by:** [ADR-0023](./0023-observability-static-site.md) (which chose "GA" as the analytics tool in
