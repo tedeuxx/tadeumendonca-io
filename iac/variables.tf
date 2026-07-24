@@ -40,6 +40,40 @@ variable "apex_domain" {
   }
 }
 
+variable "monthly_budget_usd" {
+  type        = number
+  description = <<-EOT
+    Ceiling for the whole initiative's AWS spend, in USD/month. Not a forecast — an alarm.
+    Measured 2026-07-23: the site itself costs ~$0.53/mo (S3 + Route 53) and the account's run-rate is
+    ~$4.60/mo, the difference being residue from the retired backend. So this sits ~10x above actual on
+    purpose: it exists to catch a DECISION that adds recurring cost (a database, an always-on compute,
+    a paid tier), not to police pennies.
+    The one expected breach is the annual `.io` renewal ($71.00 — see budget.tf); raising the ceiling to
+    absorb it would blind the other eleven months, which is the opposite of the point.
+  EOT
+  default     = 50
+  validation {
+    condition     = var.monthly_budget_usd > 0 && var.monthly_budget_usd <= 1000
+    error_message = "monthly_budget_usd must be between 1 and 1000 — a ceiling outside that range is a typo, not a decision."
+  }
+}
+
+variable "budget_alert_email" {
+  type        = string
+  description = <<-EOT
+    Where budget alerts go. Empty disables notifications — the budget still tracks, silently, which is
+    the safe default rather than a useful one.
+    SET IT AS A TERRAFORM CLOUD WORKSPACE VARIABLE, never in env/*.tfvars: those files are committed to
+    a PUBLIC repo, and a personal address in one is a permanent harvestable artifact. This is the same
+    reason role ARNs live in environment secrets rather than here.
+  EOT
+  default     = ""
+  validation {
+    condition     = var.budget_alert_email == "" || can(regex("^[^@\\s]+@[^@\\s]+\\.[a-z]{2,}$", var.budget_alert_email))
+    error_message = "budget_alert_email must be a valid address or empty."
+  }
+}
+
 variable "github_org" {
   type        = string
   description = "GitHub org owning this repo. OIDC trust pins the immutable subject repo:<org>@<org_id>/<repo>@<repo_id>:* (see iam.tf)."
