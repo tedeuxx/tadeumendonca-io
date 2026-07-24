@@ -10,6 +10,7 @@ const CANONICAL = [
   'https://tadeumendonca.io/',
   'https://tadeumendonca.io/cv',
   'https://tadeumendonca.io/portfolio',
+  'https://tadeumendonca.io/ramp-up',
   'https://tadeumendonca.io/blog/building-serverless-on-aws',
 ];
 

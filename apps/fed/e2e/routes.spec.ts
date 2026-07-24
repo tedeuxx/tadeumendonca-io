@@ -22,6 +22,32 @@ test.describe('routes', () => {
     await expect(repoLink).toHaveAttribute('href', /^https:\/\/github\.com\//);
   });
 
+  // The ramp-up page is the fourth public surface. Its body is markdown-in-repo rendered through the
+  // shared <Markdown>, so this journey proves the whole chain — route answers, markdown renders, and
+  // the YouTube links became click-to-load facades rather than eager third-party frames.
+  test('/ramp-up serves the plan, with the videos behind a facade', async ({ page }) => {
+    await page.goto('/ramp-up');
+    await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
+    // A section heading from the markdown body — proves the content rendered, not just the chrome.
+    await expect(page.getByRole('heading', { name: /Get the category right first/ })).toBeVisible();
+
+    // The property the facade exists to protect: no third-party frame until the reader asks.
+    await expect(page.locator('iframe')).toHaveCount(0);
+    const facades = page.getByRole('button', { name: /Reproduzir vídeo/ });
+    await expect(facades).toHaveCount(3);
+
+    // Clicking one swaps in the privacy-preserving player.
+    await facades.first().click();
+    await expect(page.locator('iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed\//);
+  });
+
+  test('reaches the ramp-up page from the nav', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('navigation').getByRole('link', { name: 'Ramp-up' }).click();
+    await expect(page).toHaveURL(/\/ramp-up$/);
+    await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
+  });
+
   test('reaches the full catalog from the landing shortlist', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: /Ver catálogo completo/ }).click();

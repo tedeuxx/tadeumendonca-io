@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { RampUpPage } from './RampUpPage';
 import { renderWithLocale } from '../test-utils';
@@ -35,10 +35,19 @@ describe('RampUpPage', () => {
 
   it('turns the YouTube links into click-to-load facades, not eager iframes', () => {
     const { container } = renderPage();
-    // Nothing third-party may load before the reader asks: no iframe until a facade is clicked.
+    // The property that matters: nothing third-party is loaded before the reader asks for it.
+    // No iframe, and the only YouTube request is the thumbnail, which is lazy.
     expect(container.querySelector('iframe')).toBeNull();
-    // One facade per curated video (Anthropic, Claude, Lucas Montano).
-    expect(screen.getAllByRole('button', { name: /play/i })).toHaveLength(3);
+    const thumbs = container.querySelectorAll('img[src^="https://i.ytimg.com/"]');
+    expect(thumbs).toHaveLength(3); // one facade per curated video
+    thumbs.forEach((img) => expect(img).toHaveAttribute('loading', 'lazy'));
+
+    // …and clicking one does swap in the player, so the facade is a facade and not a dead thumbnail.
+    // Target the facade by its label — the page also renders a ShareButton, so index 0 is not it.
+    fireEvent.click(screen.getAllByRole('button', { name: /Reproduzir vídeo/ })[0]);
+    expect(container.querySelector('iframe')?.getAttribute('src')).toMatch(
+      /^https:\/\/www\.youtube-nocookie\.com\/embed\//,
+    );
   });
 
   it('links the sources out to their public canonical URLs', () => {
