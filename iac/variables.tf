@@ -44,14 +44,17 @@ variable "monthly_budget_usd" {
   type        = number
   description = <<-EOT
     Ceiling for the whole initiative's AWS spend, in USD/month. Not a forecast — an alarm.
-    Measured 2026-07-23: the site itself costs ~$0.53/mo (S3 + Route 53) and the account's run-rate is
-    ~$4.60/mo, the difference being residue from the retired backend. So this sits ~10x above actual on
-    purpose: it exists to catch a DECISION that adds recurring cost (a database, an always-on compute,
-    a paid tier), not to police pennies.
-    The one expected breach is the annual `.io` renewal ($71.00 — see budget.tf); raising the ceiling to
-    absorb it would blind the other eleven months, which is the opposite of the point.
+    Set to absorb the one month that legitimately spikes: the annual `.io` renewal is $71.00 and lands
+    in October on top of a ~$5 baseline, so $80 keeps the ceiling meaningful in the month it would
+    otherwise breach for a reason that is neither a surprise nor a mistake.
+    Measured 2026-07-23: the site itself costs ~$0.53/mo (S3 + Route 53); account run-rate ~$4.60/mo,
+    the rest being residue from the retired backend.
+    NOTE the consequence, handled by the thresholds in budget.tf rather than by the ceiling: at $80 the
+    run-rate is under 6%, so a percentage alarm anchored at 50% would sit ~9x above reality and miss a
+    new recurring cost entirely. The ceiling bounds the worst month; the LOW threshold is what actually
+    detects a decision.
   EOT
-  default     = 50
+  default     = 80
   validation {
     condition     = var.monthly_budget_usd > 0 && var.monthly_budget_usd <= 1000
     error_message = "monthly_budget_usd must be between 1 and 1000 — a ceiling outside that range is a typo, not a decision."

@@ -11,16 +11,16 @@
 # were untagged precisely because nothing here manages them. A tag filter would have hidden every
 # dollar that actually mattered.
 #
-# KNOWN: October WILL exceed this, and by design. The apex renews 2026-10-04 with AutoRenew on, and
-# `.io` renewal is **$71.00/yr** (verified via `aws route53domains list-prices --tld io`, not estimated).
-# So October lands at roughly $76 against a ~$5 baseline — an ANNUAL charge in one month, and the single
-# largest expense of the year. It is not a false positive and it is not filtered out, for two reasons:
-#   - It is real money leaving the account, and seeing it confirmed once a year is worth one email.
-#   - Filtering it would mean the budget stops watching the registrar line entirely — so a price
-#     change, a second domain, or an accidental multi-year renewal would pass silently. The whole
-#     lesson behind this file is that the invisible line item is the one that costs you.
-# The FORECASTED threshold is what makes this bearable: it warns in late September, before the charge,
-# rather than after.
+# THE DOMAIN RENEWAL is why the ceiling is $80 rather than the initiative's $50 target. The apex renews
+# 2026-10-04 with AutoRenew on, and `.io` renewal is **$71.00/yr** — verified via
+# `aws route53domains list-prices --tld io`, not estimated. That is an ANNUAL charge landing in one
+# month, so October reaches ~$76 against a ~$5 baseline: the single largest expense of the year, and
+# neither a surprise nor a mistake. The ceiling absorbs it so the month does not read as a breach.
+#
+# It is NOT filtered out of the budget, and that distinction matters: absorbing a known charge in the
+# ceiling still leaves it visible, while filtering it would stop the budget watching the registrar line
+# at all — so a price change, a second domain, or an accidental multi-year renewal would pass in
+# silence. The lesson behind this whole file is that the invisible line item is the one that costs you.
 
 resource "aws_budgets_budget" "monthly" {
   name         = "${var.project}-monthly-ceiling"
@@ -29,10 +29,24 @@ resource "aws_budgets_budget" "monthly" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
-  # Two ACTUAL thresholds plus one FORECASTED. Actual tells you it happened; forecasted tells you it is
-  # going to, which is the only one that arrives while a bad decision is still cheap to undo.
+  # The thresholds carry the sensitivity, NOT the ceiling — and that separation is the whole design.
+  # The ceiling is sized for the worst legitimate month (October, $76). Against $80, the ~$4.60 run-rate
+  # is under 6%, so a conventional 50%/80% pair would first speak at $40 — roughly 9x actual spend, and
+  # blind to a new $30/month service for a full year.
+  #
+  #   15%  ≈ $12  — the one that matters. Above the current baseline with headroom, so it stays quiet
+  #                 normally, and fires on any new recurring cost of roughly $8/month or more. This is
+  #                 the "someone added a service" alarm.
+  #   50%  ≈ $40  — something substantial is running that nobody decided.
+  #   80%  ≈ $64  — approaching the ceiling.
+  #   100% FORECASTED — projected to breach. In October it arrives in late September, BEFORE the
+  #                 renewal charge, which is what makes an expected spike bearable instead of noise.
+  #
+  # October will trip the three ACTUAL thresholds. That is once a year, expected, and confirms the
+  # largest single expense actually left the account — not a false positive to tune away.
   dynamic "notification" {
     for_each = var.budget_alert_email == "" ? [] : [
+      { type = "ACTUAL", threshold = 15 },
       { type = "ACTUAL", threshold = 50 },
       { type = "ACTUAL", threshold = 80 },
       { type = "FORECASTED", threshold = 100 },
