@@ -106,7 +106,33 @@ back-compat journeys as the rest — so the redirect set is larger, but a routin
 break a shared link. The `/cv` references in the `/ramp-up` amendment above are left intact as the record of
 what the route was when that amendment was written — supersede, never rewrite history.
 
+## Amendment (2026-07-24) — pre-launch: the back-compat redirects are dropped (the premise didn't hold yet)
+The redirect contract above rests on a premise stated as fact — *"URLs already in the world"* — that is
+**not true yet**: the site is **pre-launch / not yet productive**. Nothing external points at `/cv`,
+`/profile`, `/articles` or `/articles/:slug` — there are no shared or indexed deep-links, no scraper-pinned
+OG cards for them, and the owner's LinkedIn links the **apex**, not `/cv`. Option 3 above ("no back-compat
+redirects") was rejected because deep-links "would 404, destroying accumulated presence" — but pre-launch
+there is no accumulated presence to protect. That rejection was right for a *launched* site and premature
+for this one.
+
+**Decision (owner, 2026-07-24):** drop the `/cv`, `/profile`, `/articles` and `/articles/:slug` redirects
+now. Unmatched paths still fall through to the landing via `*`, so they do not dead-end (the surviving
+"unknown path → landing" E2E test covers exactly this). The three E2E back-compat journeys that asserted
+these specific redirects are removed — they tested behavior that no longer exists. **`/blog → /#artigos`
+stays**: that is a live convenience for the current blog namespace, not back-compat for a retired path.
+
+**This is a scope correction, not a reversal of the principle.** The back-compat *contract* still binds the
+moment URLs enter the world. **Re-introduce it at launch:** before the site goes productive (first external
+shares, OG scrapers, indexing), any path advertised externally must regain its redirect **and** its E2E
+guard. Until then, carrying redirects for URLs that were never published is maintenance with no reader on
+the other end. Supersedes the "permanent contract" framing in *Decision outcome* and the 2026-07-24
+`/cv → /me` amendment's "two more permanent redirects" cost — **for the pre-launch window only.** History is
+left intact (supersede, never rewrite): the prior amendments remain the record of what was decided when
+URLs were expected imminently.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
-  for `/ramp-up`, within the same enumeration contract · amended again (2026-07-24) for the `/cv → /me`
-  rename + "Perfil / Profile" label, using this ADR's own redirect pattern.
+  for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
+  rename + "Perfil / Profile" label, using this ADR's own redirect pattern · amended again (2026-07-24)
+  to drop the back-compat redirects for the pre-launch window (premise "URLs already in the world" not yet
+  true), to be re-introduced at launch.
