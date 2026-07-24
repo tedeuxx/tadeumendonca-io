@@ -48,7 +48,7 @@ describe('Hero', () => {
     expect(screen.getByRole('link', { name: /Portfólio/ })).toHaveAttribute('href', '#portfolio');
   });
 
-  it('leads with the ramp-up page as the primary CTA (a real route)', () => {
+  it('offers the ramp-up page as a real route (client-side nav, not a landing anchor)', () => {
     renderHero();
     expect(screen.getByRole('link', { name: /Ramp-up/ })).toHaveAttribute('href', '/ramp-up');
   });
