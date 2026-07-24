@@ -143,6 +143,44 @@ test.describe('i18n — the CV content follows the locale', () => {
   });
 });
 
+// Criterion: LONG-FORM content follows the locale too — the parity rule. Everything the reader reads is
+// authored in both languages, so the ramp-up page's markdown BODY flips with the chrome, not just the
+// labels around it. Each journey asserts both halves: the target language is present AND the other is
+// absent — a fallback that rendered both, or the wrong file, would pass a one-sided check.
+test.describe('i18n — long-form content follows the locale', () => {
+  test.describe('pt-BR context', () => {
+    test.use({ locale: 'pt-BR' });
+
+    test('serves the Portuguese edition of the ramp-up page', async ({ page }) => {
+      await page.goto('/ramp-up');
+      await expect(page.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Get the category right first/ })).toHaveCount(0);
+    });
+  });
+
+  test.describe('en-US context', () => {
+    test.use({ locale: 'en-US' });
+
+    test('serves the English edition of the ramp-up page', async ({ page }) => {
+      await page.goto('/ramp-up');
+      await expect(page.getByRole('heading', { name: /Get the category right first/ })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toHaveCount(0);
+    });
+  });
+
+  test.describe('the toggle switches the body, not only the chrome', () => {
+    test.use({ locale: 'en-US' });
+
+    test('flipping to PT re-renders the long-form body in Portuguese', async ({ page }) => {
+      await page.goto('/ramp-up');
+      await expect(page.getByRole('heading', { name: /Get the category right first/ })).toBeVisible();
+      await page.getByRole('button', { name: 'PT', exact: true }).click();
+      await expect(page.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Get the category right first/ })).toHaveCount(0);
+    });
+  });
+});
+
 // Criterion: Dates follow the locale — an article date on the landing renders in the active locale's format.
 // The format is `toLocaleDateString(dateLocale, { year:'numeric', month:'short', day:'numeric' })`:
 //   en-US → "Jul 22, 2026" (comma, no "de")   ·   pt-BR → "22 de jul. de 2026" ("de", no comma)

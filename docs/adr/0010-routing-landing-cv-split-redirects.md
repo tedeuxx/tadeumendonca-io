@@ -41,5 +41,37 @@ redirects are a permanent contract with URLs already in the world.
 - Client-side routing means the prerender must enumerate every real route (ADR-0005) — a missed route
   ships blank.
 
+## Amendment (2026-07-23) — `/ramp-up`, a fourth public surface
+`/ramp-up` joins `/`, `/cv` and `/portfolio` as a real route with a nav entry: the owner's plan for
+moving into AI Engineering, published in the open — the reasoning, the roadmap, and the sources.
+
+It is a **page, not an article**, and the distinction is deliberate. An article is dated, finished, and
+sits in a feed; this is a living document that gets edited as the plan advances, so a `/blog/:slug`
+entry would misrepresent it as a point-in-time piece and bury it in reverse-chronological order. It
+earns a nav slot for the same reason `/portfolio` does: it is a standing part of the argument, not an
+entry in a stream.
+
+Its body is **markdown-in-repo** (`src/content/rampup.pt.md` · `rampup.en.md`) rendered through the shared `<Markdown>`,
+which is what makes the surface cheap — it inherits the article pipeline, including the YouTube
+click-to-load facade, so the page embeds video while still shipping **zero third-party frames until the
+reader asks** (verified in the prerendered HTML, not only in tests).
+
+Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
+enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or
+not at all. The E2E canonical-route list was updated in the same slice — its drift guard caught the
+omission, which is the guard working as designed.
+
+**Bilingual, like everything else the reader reads.** The body is authored in both languages
+(`rampup.pt.md` · `rampup.en.md`), so chrome and content are always in the same language.
+
+Worth recording how this was decided, because the first draft got it wrong: it shipped English-only and
+justified that by citing [ADR-0032](./0032-i18n-locale-layer-english-baseline.md). The citation did not
+hold — ADR-0032's out-of-scope line is *"long-form **pt-BR** articles stay pt-BR"*, and the site's only
+long-form piece is in Portuguese, so it deferred translating **pt→en**, the opposite direction, and
+decided nothing about a new surface's authoring language. A new decision was being presented as an
+inherited one, which is precisely the drift the ADR practice exists to catch. The owner then settled it
+as policy — *everything in two languages* — and ADR-0032's deferral is superseded there.
+
 ## Links
-- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019).
+- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
+  for `/ramp-up`, within the same enumeration contract.

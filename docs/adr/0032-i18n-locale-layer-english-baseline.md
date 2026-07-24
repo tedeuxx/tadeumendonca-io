@@ -74,7 +74,28 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   are shared, not mirrored — see the amendment on
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md). The "PT wraps an English CV" cost recorded
   below is therefore **no longer accepted — it is paid off**.
-- **Out of scope:** blog article i18n — long-form pt-BR articles stay pt-BR.
+- ~~**Out of scope:** blog article i18n — long-form pt-BR articles stay pt-BR.~~
+  **Amended 2026-07-23 — everything the reader reads is authored in both languages.** The owner's
+  rule, stated plainly: *"tudo tem que ser dois idiomas."* Long-form is no longer an exception, so
+  there is no category of content where chrome and body can disagree.
+
+  **Shape:** prose gets **one markdown file per locale** (`rampup.pt.md` · `rampup.en.md`), selected by
+  a `Record<Locale, string>` so a missing translation is a **compile error**. This deliberately differs
+  from the key-first `{ pt, en }` shape used for the message catalog and the CV: a paragraph is not a
+  leaf, and interleaving two languages inside one document would make both unreadable to edit. Same
+  contract — every locale present or it does not build — different granularity.
+
+  **Cost, accepted:** two files can drift where a key-first object cannot, so the parity that matters
+  is asserted mechanically — the editions must expose the same links in the same order and the same
+  section count, and each edition must render *without* the other's text present. That catches a stale
+  translation and a fallback rendering both; it cannot catch a translation that is merely bad.
+
+  **Still true:** the **prerender baseline stays English** (verified: the `/ramp-up` snapshot contains
+  the English body and none of the Portuguese), so OG/SEO discovery is unchanged and the client
+  re-resolves after hydration. Per-locale prerender remains Slice 2.
+
+  **Debt this creates:** the existing pt-BR article has no English edition, so the rule is not yet
+  satisfied repo-wide — tracked separately rather than silently ignored.
 
 ## Consequences
 **Good**

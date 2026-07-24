@@ -18,6 +18,7 @@ const strings = {
     portfolio: { pt: 'Portfólio', en: 'Portfolio' },
     contact: { pt: 'Contato', en: 'Contact' },
     cv: { pt: 'CV', en: 'CV' },
+    rampup: { pt: 'Ramp-up', en: 'Ramp-up' },
     openMenu: { pt: 'Abrir menu', en: 'Open menu' },
     closeMenu: { pt: 'Fechar menu', en: 'Close menu' },
   },
@@ -63,6 +64,19 @@ const strings = {
     read: { pt: 'Ler artigo', en: 'Read article' },
     viewOnLinkedin: { pt: 'Ver no LinkedIn', en: 'View on LinkedIn' },
     empty: { pt: 'Ainda não há artigos nesta trilha.', en: 'No articles in this track yet.' },
+  },
+  // The ramp-up page's chrome. Its BODY is markdown-in-repo, authored in both locales
+  // (content/rampup.pt.md · content/rampup.en.md), so chrome and content are always in the same
+  // language — the parity rule, not an interim.
+  rampup: {
+    heading: { pt: 'Ramp-Up — Virando AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
+    // Document title (the site name is appended by useDocumentHead).
+    title: { pt: 'Ramp-up para AI Engineer', en: 'Ramp-up to AI Engineer' },
+    kicker: { pt: 'Plano aberto · em andamento', en: 'Open plan · in progress' },
+    metaDescription: {
+      pt: 'O plano que montei para migrar de arquiteto de aplicações cloud para AI Engineer: o raciocínio, os cinco pilares, o roadmap de 6–12 meses e as fontes que estou realmente usando.',
+      en: 'The plan I built to move from cloud application architect to AI Engineer: the reasoning, the five pillars, the 6–12 month roadmap, and the sources I am actually using.',
+    },
   },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
