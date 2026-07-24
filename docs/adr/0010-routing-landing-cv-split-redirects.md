@@ -72,6 +72,41 @@ decided nothing about a new surface's authoring language. A new decision was bei
 inherited one, which is precisely the drift the ADR practice exists to catch. The owner then settled it
 as policy — *everything in two languages* — and ADR-0032's deferral is superseded there.
 
+## Amendment (2026-07-24) — the CV route is `/cv → /me`; the label is "Perfil / Profile"
+The canonical CV/profile route is renamed **`/cv` → `/me`**, and the reader-facing nav label and document
+title change from "CV" to **"Perfil" (pt) / "Profile" (en)**. This is the same decision this ADR already
+owns — *what lives where, and how the old URL keeps working* — applied to the CV route itself, so it
+belongs here, not in a new ADR.
+
+**Why (positioning, the owner's call).** "CV" reads too marketing/recruiting for a reader-first
+proof-of-engineering site; `/me` + "Profile / Perfil" is neutral and de-emphasizes the résumé framing.
+**Only the framing and the route change** — the page's content (experience, education, certifications) is
+untouched. This is a change to how the surface is *named and reached*, not to what it says.
+
+**Back-compat, exactly the pattern this ADR established.** `/cv` **and** `/profile` now redirect to `/me`
+via client-side `<Navigate … replace>` — the same mechanism the `/blog`·`/articles` redirects already use.
+External links that are already in the world (LinkedIn, the email signature) keep resolving through the
+redirect; the owner updates those to `/me` post-merge. Consistent with this ADR's accepted cost, the
+redirects are **not** prerendered and **not** in the sitemap: `scripts/routes.mjs` — the single enumeration
+both the prerender and sitemap read — lists **`/me`** as the real route and deliberately excludes the two
+redirects. `/me` carries the canonical link + the `Person` JSON-LD that `/cv` used to.
+
+**OG, unchanged for what is already shared.** Already-shared `/cv` cards are pinned by scrapers (frozen), so
+they do not degrade — the old unfurl keeps working, it just points at a URL that now redirects. New shares
+should use `/me`, which is the prerendered, canonical surface.
+
+**Internal vocabulary vs. the reader-facing label — a deliberate split.** The page component is renamed
+`CvPage → ProfilePage`, but the `CVSection` résumé-rendering component and the `cv.*` i18n section labels
+are **left as-is**. "CV" is still the correct *internal* word for the machinery that renders a résumé; what
+changed is the *label the reader sees*. Renaming the internal résumé vocabulary too would have been churn
+without meaning — the decision is about reader framing, and it stops at the reader-facing boundary.
+
+*Accepted cost:* two more permanent redirects to carry (`/cv`, `/profile` → `/me`), covered by the same E2E
+back-compat journeys as the rest — so the redirect set is larger, but a routing change still cannot silently
+break a shared link. The `/cv` references in the `/ramp-up` amendment above are left intact as the record of
+what the route was when that amendment was written — supersede, never rewrite history.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
-  for `/ramp-up`, within the same enumeration contract.
+  for `/ramp-up`, within the same enumeration contract · amended again (2026-07-24) for the `/cv → /me`
+  rename + "Perfil / Profile" label, using this ADR's own redirect pattern.

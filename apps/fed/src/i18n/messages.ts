@@ -17,7 +17,7 @@ const strings = {
     articles: { pt: 'Artigos', en: 'Articles' },
     portfolio: { pt: 'Portfólio', en: 'Portfolio' },
     contact: { pt: 'Contato', en: 'Contact' },
-    cv: { pt: 'CV', en: 'CV' },
+    profile: { pt: 'Perfil', en: 'Profile' },
     rampup: { pt: 'Ramp-up', en: 'Ramp-up' },
     openMenu: { pt: 'Abrir menu', en: 'Open menu' },
     closeMenu: { pt: 'Fechar menu', en: 'Close menu' },

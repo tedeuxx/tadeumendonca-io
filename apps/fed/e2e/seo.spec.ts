@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 // routes.spec.ts). The sitemap's canonical routes must match scripts/routes.mjs — the shared build source.
 const CANONICAL = [
   'https://tadeumendonca.io/',
-  'https://tadeumendonca.io/cv',
+  'https://tadeumendonca.io/me',
   'https://tadeumendonca.io/portfolio',
   'https://tadeumendonca.io/ramp-up',
   'https://tadeumendonca.io/blog/building-serverless-on-aws',
@@ -47,6 +47,7 @@ test.describe('SEO discovery', () => {
     // Canonical-only: the retired redirects are never advertised (they aren't prerendered either).
     expect(body).not.toContain('/articles');
     expect(body).not.toContain('/profile');
+    expect(body).not.toContain('<loc>https://tadeumendonca.io/cv</loc>'); // /cv is a redirect now, not advertised
     expect(body).not.toContain('<loc>https://tadeumendonca.io/blog</loc>');
     // Drift guard: exactly the shared enumeration, no more.
     const locCount = (body.match(/<loc>/g) ?? []).length;
@@ -57,8 +58,8 @@ test.describe('SEO discovery', () => {
     // Take a representative loc from the sitemap and prove it is a real prerendered route, not a stale
     // entry — tying discovery back to ADR-0005's coverage guarantee.
     const body = await (await request.get('/sitemap.xml')).text();
-    expect(body).toContain('<loc>https://tadeumendonca.io/cv</loc>');
-    await page.goto('/cv');
+    expect(body).toContain('<loc>https://tadeumendonca.io/me</loc>');
+    await page.goto('/me');
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
   });
 });

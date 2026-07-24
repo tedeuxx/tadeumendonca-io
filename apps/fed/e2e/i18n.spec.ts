@@ -13,11 +13,11 @@ import { test, expect } from '@playwright/test';
 // starts on the English snapshot and the client re-resolves to the detected locale after hydration — every
 // assertion below is web-first (auto-retrying) to ride out that settle.
 
-// Nav labels per locale — the visible chrome. 'CV' is intentionally identical in both (it is a label,
-// not a translated word), so it is not a useful discriminator and is asserted only for presence.
+// Nav labels per locale — the visible chrome. The profile label localizes (Profile/Perfil), so it is
+// also a locale discriminator now (unlike the old "CV", which was identical in both).
 const NAV = {
-  en: { articles: 'Articles', portfolio: 'Portfolio', contact: 'Contact' },
-  pt: { articles: 'Artigos', portfolio: 'Portfólio', contact: 'Contato' },
+  en: { articles: 'Articles', portfolio: 'Portfolio', contact: 'Contact', profile: 'Profile' },
+  pt: { articles: 'Artigos', portfolio: 'Portfólio', contact: 'Contato', profile: 'Perfil' },
 };
 
 test.describe('i18n — auto-detect + <html lang>', () => {
@@ -31,7 +31,7 @@ test.describe('i18n — auto-detect + <html lang>', () => {
       await expect(nav.getByRole('link', { name: NAV.en.articles })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.en.portfolio })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.en.contact })).toBeVisible();
-      await expect(nav.getByRole('link', { name: 'CV', exact: true })).toBeVisible();
+      await expect(nav.getByRole('link', { name: NAV.en.profile, exact: true })).toBeVisible();
       // pt-BR chrome must NOT be present — proves detection actually flipped the tree, not a lax match.
       await expect(nav.getByRole('link', { name: NAV.pt.articles })).toHaveCount(0);
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -48,7 +48,7 @@ test.describe('i18n — auto-detect + <html lang>', () => {
       await expect(nav.getByRole('link', { name: NAV.pt.articles })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.pt.portfolio })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.pt.contact })).toBeVisible();
-      await expect(nav.getByRole('link', { name: 'CV', exact: true })).toBeVisible();
+      await expect(nav.getByRole('link', { name: NAV.pt.profile, exact: true })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.en.articles })).toHaveCount(0);
       await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
     });
@@ -104,7 +104,7 @@ test.describe('i18n — the CV content follows the locale', () => {
     test.use({ locale: 'pt-BR' });
 
     test('renders a Portuguese CV, with the facts unchanged', async ({ page }) => {
-      await page.goto('/cv');
+      await page.goto('/me');
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
       // Prose is Portuguese.
       await expect(page.getByText(/\d+ anos em SDLC/)).toBeVisible();
@@ -120,7 +120,7 @@ test.describe('i18n — the CV content follows the locale', () => {
     test.use({ locale: 'en-US' });
 
     test('renders an English CV, with the same facts', async ({ page }) => {
-      await page.goto('/cv');
+      await page.goto('/me');
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
       await expect(page.getByText(/\d+y across SDLC/)).toBeVisible();
       await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
@@ -134,7 +134,7 @@ test.describe('i18n — the CV content follows the locale', () => {
     test.use({ locale: 'en-US' });
 
     test('flipping to PT re-renders the CV in Portuguese', async ({ page }) => {
-      await page.goto('/cv');
+      await page.goto('/me');
       await expect(page.getByText(/\d+y across SDLC/)).toBeVisible();
       await page.getByRole('button', { name: 'PT', exact: true }).click();
       await expect(page.getByText(/\d+ anos em SDLC/)).toBeVisible();

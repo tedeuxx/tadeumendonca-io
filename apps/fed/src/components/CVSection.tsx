@@ -1,4 +1,4 @@
-// Presentational CV (/frontend/design-system) — rendered only on /cv, the one place the person
+// Presentational CV (/frontend/design-system) — rendered only on /me, the one place the person
 // appears. Brutalist: no cover gradient, no card. The portrait is the ONE carved exception to
 // radius 0 (`.avatar-round`, ADR-0008 amendment). A numbered sticky label column
 // carries each block, the body holds the rows. Pure component (data comes from the page).

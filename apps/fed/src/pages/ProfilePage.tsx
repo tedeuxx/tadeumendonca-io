@@ -1,8 +1,8 @@
-// CV (/cv) — the canonical reference of the owner's experience, and the only place the personal
+// Profile (/me) — the canonical reference of the owner's experience, and the only place the personal
 // name and bio appear (the landing is the brand, not the person). Static profile (../data/profile),
-// so there is no loading or error path.
+// so there is no loading or error path. The route is /me; /cv and /profile redirect here (back-compat).
 //
-// The CV is rendered by CVSection: numbered sticky blocks, separate Formação and Certificações,
+// The experience is rendered by CVSection: numbered sticky blocks, separate Formação and Certificações,
 // certifications as badges.
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
@@ -11,21 +11,21 @@ import { Empty } from '../components/Column';
 import { SITE_URL } from '../lib/site';
 import { useT } from '../i18n';
 
-export function CvPage() {
+export function ProfilePage() {
   const t = useT();
   const { data: profile } = useProfile();
 
   useDocumentHead({
-    title: profile ? `CV — ${profile.name}` : 'CV',
+    title: profile ? `${t('nav.profile')} — ${profile.name}` : t('nav.profile'),
     description: profile?.summary,
-    canonicalPath: '/cv',
+    canonicalPath: '/me',
     jsonLd: profile
       ? {
           '@context': 'https://schema.org',
           '@type': 'Person',
           name: profile.name,
           jobTitle: profile.headline,
-          url: `${SITE_URL}/cv`,
+          url: `${SITE_URL}/me`,
           sameAs: Object.values(profile.metadata),
           ...(profile.location ? { address: profile.location } : {}),
         }

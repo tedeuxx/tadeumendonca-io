@@ -26,12 +26,12 @@ describe('AppShell', () => {
     expect(screen.queryByText('Entrar')).toBeNull();
   });
 
-  it('points the landing anchors at /# and keeps /cv a real route', () => {
+  it('points the landing anchors at /# and keeps /me a real route', () => {
     renderShell();
     expect(screen.getByRole('link', { name: 'Artigos' })).toHaveAttribute('href', '/#artigos');
     expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/#portfolio');
     expect(screen.getByRole('link', { name: 'Contato' })).toHaveAttribute('href', '/#contato');
-    expect(screen.getByRole('link', { name: 'CV' })).toHaveAttribute('href', '/cv');
+    expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/me');
   });
 
   it('toggles the mobile menu, rendering a second copy of the nav links', () => {

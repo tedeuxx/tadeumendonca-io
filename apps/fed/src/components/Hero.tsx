@@ -1,5 +1,5 @@
 // Hero (/frontend/design-system) — the signature surface. The title is the BRAND, not the person:
-// the owner's name and bio live on /cv. Copy is reader-first (what you walk away knowing), and it
+// the owner's name and bio live on /me. Copy is reader-first (what you walk away knowing), and it
 // speaks to both audiences: personal-life automation and engineering in production.
 //
 // The title is a single unbreakable line (whitespace-nowrap) that scales with the viewport, so the

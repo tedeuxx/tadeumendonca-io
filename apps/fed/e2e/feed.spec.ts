@@ -13,14 +13,14 @@ test.describe('static site', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Portfólio' })).toBeVisible();
-    // The personal name lives on /cv only.
+    // The personal name lives on /me only.
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toHaveCount(0);
   });
 
-  test('navigates to the CV from the nav', async ({ page }) => {
+  test('navigates to the profile from the nav', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('navigation').getByRole('link', { name: 'CV', exact: true }).click();
-    await expect(page).toHaveURL(/\/cv$/);
+    await page.getByRole('navigation').getByRole('link', { name: 'Perfil', exact: true }).click();
+    await expect(page).toHaveURL(/\/me$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
   });
 
@@ -39,8 +39,10 @@ test.describe('static site', () => {
     await expect(page).toHaveURL(/\/$/); // local state only — the canonical URL never changes
   });
 
-  test('keeps the retired /profile deep-link working by redirecting to /cv', async ({ page }) => {
+  test('keeps the former /cv and /profile deep-links working by redirecting to /me', async ({ page }) => {
+    await page.goto('/cv');
+    await expect(page).toHaveURL(/\/me$/);
     await page.goto('/profile');
-    await expect(page).toHaveURL(/\/cv$/);
+    await expect(page).toHaveURL(/\/me$/);
   });
 });
