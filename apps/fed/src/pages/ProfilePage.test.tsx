@@ -37,13 +37,13 @@ describe('ProfilePage', () => {
   it('renders the profile content in Portuguese for a pt visitor', async () => {
     renderProfile('pt');
     await screen.findByRole('heading', { level: 1, name: profile.name });
-    // Locale-discriminating, number-agnostic: the years figure is derived (lib/experience).
-    expect(screen.getByText(/\d+ anos em SDLC/)).toBeInTheDocument();
+    // Locale-discriminating, floor-agnostic: the years figure is the evergreen "N+" form (#124).
+    expect(screen.getByText(/\d+\+ anos em SDLC/)).toBeInTheDocument();
   });
 
   it('renders the profile content in English for an en visitor', async () => {
     renderProfile('en');
     await screen.findByRole('heading', { level: 1, name: profile.name });
-    expect(screen.getByText(/\d+y across SDLC/)).toBeInTheDocument();
+    expect(screen.getByText(/\d+\+ years across SDLC/)).toBeInTheDocument();
   });
 });
