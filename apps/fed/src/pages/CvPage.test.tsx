@@ -36,12 +36,13 @@ describe('CvPage', () => {
   it('renders the CV content in Portuguese for a pt visitor', async () => {
     renderCv('pt');
     await screen.findByRole('heading', { level: 1, name: profile.name });
-    expect(screen.getByText(/17 anos em SDLC/)).toBeInTheDocument();
+    // Locale-discriminating, number-agnostic: the years figure is derived (lib/experience).
+    expect(screen.getByText(/\d+ anos em SDLC/)).toBeInTheDocument();
   });
 
   it('renders the CV content in English for an en visitor', async () => {
     renderCv('en');
     await screen.findByRole('heading', { level: 1, name: profile.name });
-    expect(screen.getByText(/17y across SDLC/)).toBeInTheDocument();
+    expect(screen.getByText(/\d+y across SDLC/)).toBeInTheDocument();
   });
 });
