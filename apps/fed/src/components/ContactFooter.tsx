@@ -1,20 +1,12 @@
 // Contact footer (#contato) — closes the landing. The CTA is reader-first: it asks whether the
-// content helped, not for work. Links are the direct channels (WhatsApp click-to-message, e-mail on
-// the site's own domain, GitHub, LinkedIn); the colophon states how the site is built.
-//
-// Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
-import { GithubMark, LinkedinMark, MailMark, WhatsappMark } from './BrandIcons';
-import { whatsappHref } from './ContactLinks';
+// content helped, not for work. It renders the shared contact channels (see contactChannels) as button
+// chips, so it stays in sync with the "Where to find me" directory; the colophon states how the site is
+// built. The mailto stays in the same tab; the outbound links open in a new one.
+import { CONTACT_CHANNELS } from './contactChannels';
 import { useT } from '../i18n';
 
-export const CONTACT_EMAIL = 'me@tadeumendonca.io';
-
-const LINKS = [
-  { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark, external: true },
-  { label: 'E-mail', href: `mailto:${CONTACT_EMAIL}`, Icon: MailMark, external: false },
-  { label: 'GitHub', href: 'https://github.com/tedeuxx', Icon: GithubMark, external: true },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530/', Icon: LinkedinMark, external: true },
-];
+// Re-exported for callers/tests that reference the site's own contact address.
+export { CONTACT_EMAIL } from './contactChannels';
 
 export function ContactFooter() {
   const t = useT();
@@ -26,7 +18,7 @@ export function ContactFooter() {
       </h2>
 
       <div className="mb-[clamp(2.5rem,5vw,4rem)] flex flex-wrap">
-        {LINKS.map(({ label, href, Icon, external }) => (
+        {CONTACT_CHANNELS.map(({ label, href, Icon, external }) => (
           <a
             key={label}
             href={href}

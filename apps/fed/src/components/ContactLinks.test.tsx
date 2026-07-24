@@ -1,30 +1,34 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { ContactLinks } from './ContactLinks';
+import { CONTACT_EMAIL } from './contactChannels';
 import { renderWithLocale } from '../test-utils';
 
 describe('ContactLinks', () => {
-  it('offers GitHub, LinkedIn, X and a WhatsApp click-to-message link — and no Medium', () => {
+  it('offers GitHub, LinkedIn, X, WhatsApp and e-mail — and no Medium', () => {
     renderWithLocale(<ContactLinks />);
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/tedeuxx');
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', expect.stringContaining('linkedin.com/in/'));
     expect(screen.getByRole('link', { name: 'X' })).toHaveAttribute('href', 'https://x.com/tedeuxx');
     expect(screen.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', expect.stringMatching(/wa\.me\/5521986619954\?text=/));
+    expect(screen.getByRole('link', { name: 'E-mail' })).toHaveAttribute('href', `mailto:${CONTACT_EMAIL}`);
     expect(screen.queryByRole('link', { name: 'Medium' })).toBeNull();
   });
 
-  it('opens every link in a new tab, safely', () => {
+  it('opens the outbound links in a new tab and keeps the mailto in the same one', () => {
     renderWithLocale(<ContactLinks />);
-    for (const link of screen.getAllByRole('link')) {
+    for (const name of ['GitHub', 'LinkedIn', 'X', 'WhatsApp']) {
+      const link = screen.getByRole('link', { name });
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noreferrer');
     }
+    expect(screen.getByRole('link', { name: 'E-mail' })).not.toHaveAttribute('target');
   });
 
   it('renders every icon in the theme accent — no borrowed brand colour', () => {
     const { container } = renderWithLocale(<ContactLinks />);
     const icons = [...container.querySelectorAll('svg')];
-    expect(icons).toHaveLength(4);
+    expect(icons).toHaveLength(5);
     for (const icon of icons) expect(icon).toHaveClass('text-primary');
   });
 
