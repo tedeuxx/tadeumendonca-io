@@ -23,6 +23,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  # Still needed: configure-aws-credentials has no node24 release, so it declares node20; this forces
+  # it (and only it) onto the node24 runtime. Remove when that action ships node24 (issue #89).
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   AWS_REGION: us-east-1
 
@@ -38,10 +40,10 @@ jobs:
       ENV_NAME: staging
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0 (node24)
         with:
           node-version: "22"
           cache: npm
@@ -54,7 +56,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1 (node20 — no node24 release yet; FORCE flag covers it)
         with:
           role-to-assume: ${{ secrets.AWS_FED_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
