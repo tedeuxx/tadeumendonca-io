@@ -1,8 +1,8 @@
 // App root — a static landing + profile + portfolio + ramp-up + markdown-blog SPA. No backend. The
 // landing (/) is the content shop window and owns the #artigos / #portfolio / #contato anchors; /me
 // hosts the profile, /portfolio the full catalog, /ramp-up the open AI-Engineer plan, /blog/:slug the
-// canonical article. React Query wraps the (static) profile query. The retired /blog list, /articles,
-// and the former /cv and /profile paths keep back-compat redirects (/cv · /profile → /me).
+// canonical article. React Query wraps the (static) profile query. A bare /blog redirects to the
+// landing's #artigos section; any other unmatched path falls through to the landing.
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConsentProvider } from './lib/consent';
@@ -29,13 +29,7 @@ export function App() {
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/ramp-up" element={<RampUpPage />} />
               <Route path="/blog/:slug" element={<ArticlePage />} />
-              {/* Back-compat: old deep-links (og:image, shared URLs) still resolve. */}
-              <Route path="/articles/:slug" element={<ArticlePage />} />
               <Route path="/blog" element={<Navigate to="/#artigos" replace />} />
-              <Route path="/articles" element={<Navigate to="/#artigos" replace />} />
-              {/* /cv and /profile were the CV route before it became /me — keep external links alive. */}
-              <Route path="/cv" element={<Navigate to="/me" replace />} />
-              <Route path="/profile" element={<Navigate to="/me" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppShell>
