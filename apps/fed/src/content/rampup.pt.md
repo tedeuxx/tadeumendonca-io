@@ -130,6 +130,7 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — praticantes postando técnicas e ferramentas que valem roubar.
 - **[@virattt](https://x.com/virattt)** — IA aplicada a finanças, se esse for seu domínio.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — a lente de fundador/investidor sobre onde a IA está indo.
+- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — a lente da indústria: para onde o compute de IA e a fronteira estão indo, de quem constrói o hardware por baixo.
 - PT-BR: **[@AkitaOnRails](https://x.com/AkitaOnRails)** (Fabio Akita) · **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — vozes brasileiras de dev indo fundo nisso.
 
 Trate X como sinal, não como verdade — é onde você descobre o que é novo, e daí vai verificar nos livros.

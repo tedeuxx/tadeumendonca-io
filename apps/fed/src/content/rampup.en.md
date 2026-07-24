@@ -130,6 +130,7 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — practitioners posting techniques and tools worth stealing.
 - **[@virattt](https://x.com/virattt)** — AI applied to finance, if that's your domain.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — founder/investor lens on where AI is heading.
+- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — the industry lens: where AI compute and the frontier are heading, from the person building the hardware under it.
 - PT-BR: **[@AkitaOnRails](https://x.com/AkitaOnRails)** (Fabio Akita) · **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — Brazilian dev voices going deep on this.
 
 Treat X as signal, not truth — it's where you spot what's new, then you go verify it in the books.
