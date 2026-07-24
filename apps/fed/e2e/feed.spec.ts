@@ -24,6 +24,13 @@ test.describe('static site', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
   });
 
+  test('reaches the ramp-up page from the hero CTA (not only the navbar)', async ({ page }) => {
+    await page.goto('/');
+    // Scope to the hero (#top) — the navbar also carries a Ramp-up link.
+    await page.locator('#top').getByRole('link', { name: 'Ramp-up' }).click();
+    await expect(page).toHaveURL(/\/ramp-up$/);
+  });
+
   test('shows the contact links with a WhatsApp click-to-message link', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Onde me encontrar' })).toBeVisible();
