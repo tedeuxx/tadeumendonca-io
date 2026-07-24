@@ -25,9 +25,6 @@ env:
   # Single environment (trunk-based): always the one workspace + tfvars.
   TF_WORKSPACE: tadeumendonca-io
   VAR_FILE: env/stg.tfvars
-  # Still needed: configure-aws-credentials has no node24 release, so it declares node20; this forces
-  # it (and only it) onto the node24 runtime. Remove when that action ships node24 (issue #89).
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   plan:
@@ -66,10 +63,10 @@ jobs:
 
       - name: Configure AWS credentials (OIDC)
         if: steps.changes.outputs.iac == 'true'
-        # Sole node20 action (FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 below runs it on node24). Pinned to v4:
-        # v6 is node24-native but breaks our OIDC assume-role (verified on PR #101) — adopting it is its
-        # own slice (#89), not an auto-bump. Dependabot skips its majors here; minor/patch still flow.
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
+        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action and
+        # breaks its runtime. That flag is gone now (every action here is node24), so v6 runs clean (#89).
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: us-east-1

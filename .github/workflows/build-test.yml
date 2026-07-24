@@ -23,11 +23,9 @@ concurrency:
   group: build-test-${{ github.ref }}
   cancel-in-progress: true
 
-# No FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 here: every JS action in this workflow is pinned to a node24
-# release (checkout v7, setup-node v7, paths-filter v4, sonarqube-scan v8). The flag would be dead —
-# it forces node20 actions onto node24, and there are none. It remains in the three AWS workflows only
-# because they use configure-aws-credentials, which is pinned to v4 (node20); its v6 is node24-native
-# but breaks our OIDC, so the migration off the flag is deferred to slice #89.
+# Every JS action across all workflows is now pinned to a node24 release, so FORCE_JAVASCRIPT_ACTIONS_TO_NODE24
+# is gone everywhere (removed from the three AWS workflows in #89 when configure-aws-credentials moved to
+# its node24-native v6). No workflow declares it — there are no node20 actions left to force.
 
 jobs:
   build-test:

@@ -33,8 +33,11 @@ updates:
   # version. A trailing parenthetical (`# v5.1.0 (node24)`) silently defeats the rewriter: the SHA moves,
   # the version text does not, and the pin comment starts lying (this bit us on PR #101). So pin comments
   # are kept as a bare `# vX.Y.Z`; node-runtime rationale lives in the workflow header, not per-line.
-  # Majors are auto-proposed here (unlike npm): an action major is usually a small, isolated, CI-gated
-  # change, not a coordinated peer bump.
+  # Majors are auto-proposed here (unlike npm): an action major is usually a small, isolated change, not
+  # a coordinated peer bump, and it is CI-gated — including on the OIDC deploy path. #101 proved this:
+  # configure-aws-credentials v6 broke our assume-role and infra-plan caught it RED on the PR, before any
+  # merge. (The real culprit was FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 re-forcing node24 onto v6's native
+  # node24, fixed in #89 — not v6 itself.) So majors flow uniformly; no per-action exceptions.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -43,13 +46,4 @@ updates:
       actions:
         patterns:
           - "*"
-    # configure-aws-credentials is the one exception to "majors auto-flow": it is on the OIDC deploy
-    # path, and its v6 (node24-native) changed credential loading in a way that breaks our assume-role
-    # (every deploy/infra job failed "Could not load credentials" on PR #101). A broken bump there is
-    # not a green-CI dependency bump the reviewer can merge — it takes the whole pipeline down. Adopting
-    # v6 (and dropping FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 with it) is a deliberate slice, #89. Minor/patch
-    # within v4 still flow, so security fixes are not blocked.
-    ignore:
-      - dependency-name: "aws-actions/configure-aws-credentials"
-        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
