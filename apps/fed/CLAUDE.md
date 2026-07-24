@@ -74,7 +74,10 @@ npm run lint       # eslint
 npm run typecheck  # tsc --noEmit
 npm run build      # tsc + vite build
 npm run build:static  # build + prerender (the deploy artifact)
-npm run e2e        # playwright
+npm run e2e:local        # builds, THEN runs Playwright against a preview — the local gate
+npm run e2e:local:built  # skips the build; use right after one (CI does), or after build:static
+                         # to test the PRERENDERED artifact — `vite build` empties dist/
+npm run e2e              # ⚠️ no E2E_ENV → defaults to STAGING, i.e. the live apex (issue #88)
 ```
 
 ## Workflow (see platform)
