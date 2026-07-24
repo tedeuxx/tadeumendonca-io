@@ -35,15 +35,9 @@ export function Hero() {
         </p>
 
         <div className="mb-[clamp(2.2rem,5vw,3.5rem)] flex flex-wrap">
-          {/* Ramp-up is the positioning centerpiece, and a real route (not a landing anchor) — so it
-              leads as the filled primary CTA, and uses the router Link for client-side nav. */}
-          <RouterLink
-            to="/ramp-up"
-            className="group -mb-px -mr-px inline-flex items-center gap-2 border border-primary bg-primary px-5 py-2.5 font-mono text-sm uppercase tracking-wider text-primary-foreground transition-colors duration-150 hover:bg-background hover:text-primary"
-          >
-            <span className="text-primary-foreground group-hover:text-primary">→</span>
-            {t('nav.rampup')}
-          </RouterLink>
+          {/* Ramp-up leads, but shares the outlined HeroLink styling with the content anchors — it is a
+              real route (not a landing anchor), so it renders as a router Link for client-side nav. */}
+          <HeroLink to="/ramp-up">{t('nav.rampup')}</HeroLink>
           <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
           <HeroLink href="#portfolio">{t('nav.portfolio')}</HeroLink>
         </div>
@@ -54,14 +48,25 @@ export function Hero() {
   );
 }
 
-function HeroLink({ href, children }: { href: string; children: string }) {
-  return (
-    <a
-      href={href}
-      className="group -mb-px -mr-px inline-flex items-center gap-2 border border-border-strong px-5 py-2.5 font-mono text-sm uppercase tracking-wider transition-colors duration-150 hover:border-primary hover:bg-primary hover:text-primary-foreground"
-    >
+// The ramp-up (router) link and the content anchors share one outlined treatment: bordered, filling
+// with the accent only on hover — so the accent stays sparing. `to` renders a router Link (real route),
+// `href` a plain anchor (landing section).
+function HeroLink({ href, to, children }: { href?: string; to?: string; children: string }) {
+  const className =
+    'group -mb-px -mr-px inline-flex items-center gap-2 border border-border-strong px-5 py-2.5 font-mono text-sm uppercase tracking-wider transition-colors duration-150 hover:border-primary hover:bg-primary hover:text-primary-foreground';
+  const inner = (
+    <>
       <span className="text-primary group-hover:text-primary-foreground">→</span>
       {children}
+    </>
+  );
+  return to ? (
+    <RouterLink to={to} className={className}>
+      {inner}
+    </RouterLink>
+  ) : (
+    <a href={href} className={className}>
+      {inner}
     </a>
   );
 }
