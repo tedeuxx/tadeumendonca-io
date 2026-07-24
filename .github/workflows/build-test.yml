@@ -95,9 +95,12 @@ jobs:
         if: steps.changes.outputs.code == 'true'
         run: npx playwright install --with-deps chromium
 
+      # `:built` skips the rebuild `e2e:local` does — the Build step above already produced dist/, and
+      # a fresh checkout cannot have a stale one. Locally the default script rebuilds first, because
+      # there dist/ CAN be stale and a suite run against old output passes for the wrong reason.
       - name: E2E (Playwright against a preview of the build)
         if: steps.changes.outputs.code == 'true'
-        run: npm run e2e:local
+        run: npm run e2e:local:built
 
       # Authoritative quality gate. projectBaseDir scopes the scan to apps/fed.
       # NOTE (owner/external): the SonarCloud project tedeuxx_tadeumendonca-fed must be rebound to the

@@ -20,9 +20,23 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: { baseURL, trace: 'on-first-retry' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  // Only the local target needs a server booted: it points at a `vite preview` of the built app
-  // (dist/ must exist — run `npm run build` first). The staging/production targets hit the live apex,
-  // so no webServer. reuseExistingServer keeps a preview you already have running locally.
+  // Only the local target needs a server booted: it points at a `vite preview` of the built app.
+  // The staging/production targets hit the live apex, so no webServer.
+  //
+  // dist/ must exist AND be current. Staleness is the failure that actually happens — a suite run
+  // against a previous build passes for the wrong reason, which cost a false 26/26 green during the
+  // ramp-up slice. Hence `npm run e2e:local` rebuilds first. Use `e2e:local:built` when dist/ is
+  // already what you want tested: CI (it just built), or after `build:static` when you specifically
+  // want the PRERENDERED artifact — `vite build` empties outDir, so `e2e:local` would destroy it.
+  //
+  // reuseExistingServer did NOT cause that failure: `vite preview` reads dist/ from disk per request
+  // (sirv with dev:true stats each file; indexHtmlMiddleware re-reads index.html), so an
+  // already-running preview picks up a rebuild — including new hashed asset names.
+  //
+  // It is not therefore SAFE, and the residual is worth knowing: Playwright only probes that
+  // *something* answers on :4173. A `vite preview` left running from another worktree or checkout is
+  // reused silently, and building in THIS tree does not fix that — you would be testing a different
+  // dist/ entirely. Same class of false green, not covered by the build-first default.
   webServer:
     ENV === 'local'
       ? {

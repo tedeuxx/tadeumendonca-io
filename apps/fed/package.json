@@ -22,7 +22,8 @@
     "gen-icons": "node scripts/gen-icons.mjs",
     "audit": "audit-ci --config audit-ci.jsonc",
     "e2e": "playwright test",
-    "e2e:local": "E2E_ENV=local playwright test",
+    "e2e:local": "npm run build && npm run e2e:local:built",
+    "e2e:local:built": "E2E_ENV=local playwright test",
     "e2e:staging": "E2E_ENV=staging playwright test",
     "e2e:production": "E2E_ENV=production playwright test"
   },
