@@ -57,7 +57,36 @@ translation cannot drift the facts — only the prose is per-locale, and the typ
 translation a compile error. Translation policy: prose, category labels and spoken languages localize;
 technical terms, product names and official job titles stay English in both.
 
+## Amendment (2026-07-23) — derived facts are never restated in prose
+The years-of-experience figure was written into the copy as "17" — in the CV headline, the CV summary,
+and the ramp-up page — and had been wrong for over a year: the earliest role starts 2008-03, which is 18.
+It was correct when written, nothing recomputed it, and because it appeared on four surfaces the drift
+was invisible from any one of them.
+
+The correction is a **convention, not a number**: a fact derivable from the CV data is **authored as a
+token and resolved at render**, never typed. `{{years}}` resolves through a single exported helper
+(`withYears`) from a single derivation (`lib/experience.ts`, reading the earliest `start_date`), used by
+both `data/profile.ts` and `content/rampup.*.md`. Two surfaces stating the same fact now resolve it from
+one computation, so they cannot disagree — the failure mode this ADR's coherence obligation exists to
+prevent, appearing here as a *number* rather than as a claim.
+
+**Accepted costs**
+- **Build-time vs read-time skew.** The prerendered HTML — including the JSON-LD `jobTitle` a crawler
+  reads — carries the value computed at build. A visitor between an anniversary and the next deploy sees
+  the previous figure until the client re-renders; the JSON-LD stays stale until *some* merge happens.
+  Bounded and self-correcting, where the hardcoded version was unbounded — but "self-healing" overstates
+  it: with no merges, the machine-readable copy can sit a year behind.
+- **The site now changes a positioning statement unattended.** The seniority claim advances on a March
+  with no human in the loop. Deliberate, and the reason this is recorded rather than treated as a fix.
+- **Tests assert the shape, not the value** (`/\d+y across SDLC/`), so they cannot catch a wrong
+  *derivation* — only a missing one. The derivation is unit-tested separately against fixed dates.
+
+**External surfaces are not covered.** LinkedIn and the Canva CV still carry the old figure; only the
+site derives. That is a *deliberate temporary incoherence* against the obligation above, tracked in
+issue #82 until the batch lands.
+
 ## Links
 - Driven by ADR-0001, ADR-0006 · the CV lives at `/cv` (ADR-0010) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
-  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md).
+  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23
+  amendment.

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { yearsSince, careerYears, YEARS_TOKEN } from './experience';
-import { profileSource, CAREER_YEARS } from '../data/profile';
+import { profileSource, CAREER_YEARS, withYears } from '../data/profile';
+import rampUpEn from '../content/rampup.en.md?raw';
+import rampUpPt from '../content/rampup.pt.md?raw';
 
 // `now` is injected in every case: a test that used the real clock would assert a different number
 // each year, which is the same defect this module exists to remove.
@@ -36,6 +38,17 @@ describe('careerYears', () => {
   it('is 0 when there is nothing to measure', () => {
     expect(careerYears([], new Date('2026-07-24'))).toBe(0);
   });
+
+  // A lexicographic sort passes the padded cases above and breaks on these — which is why the
+  // comparison parses the month instead of sorting strings.
+  it('compares by month, not by string order', () => {
+    // '2008-12' < '2008-3' as strings, so a string sort would pick December as the earlier month.
+    expect(careerYears([{ start_date: '2008-12' }, { start_date: '2008-3' }], new Date('2026-07-24'))).toBe(18);
+    // A year-only entry sorts earliest as a string and would collapse the figure toward 0.
+    expect(careerYears([{ start_date: '2008-03' }, { start_date: '2006' }], new Date('2026-07-24'))).toBe(20);
+    // An unparseable entry must lose, not win.
+    expect(careerYears([{ start_date: 'soon' }, { start_date: '2008-03' }], new Date('2026-07-24'))).toBe(18);
+  });
 });
 
 // The point of the whole module: the published figure comes from the CV's own dates.
@@ -45,13 +58,32 @@ describe('the published figure', () => {
     expect(CAREER_YEARS).toBeGreaterThan(0);
   });
 
-  it('leaves no unresolved token in the published prose', () => {
-    expect(profileSource.headline.en).not.toContain(YEARS_TOKEN);
-    expect(profileSource.headline.pt).not.toContain(YEARS_TOKEN);
-    expect(profileSource.summary?.en).not.toContain(YEARS_TOKEN);
-    expect(profileSource.summary?.pt).not.toContain(YEARS_TOKEN);
-    // …and the number actually landed, in both locales.
+  // Whole-object, deliberately. Only headline and summary are substituted, but every other prose
+  // leaf (location, descriptions, highlights, degrees, skill labels) is passed through untouched —
+  // so a token authored into one of them would publish the literal `{{years}}` with lint, typecheck
+  // and every field-by-field assertion still green. Checking the serialized object makes the
+  // invariant structural instead of a list someone has to remember to extend.
+  it('leaves no unresolved token anywhere in the published CV', () => {
+    expect(JSON.stringify(profileSource)).not.toContain(YEARS_TOKEN);
+  });
+
+  it('actually substitutes the number, in both locales', () => {
     expect(profileSource.headline.en).toContain(`${CAREER_YEARS}y across SDLC`);
     expect(profileSource.headline.pt).toContain(`${CAREER_YEARS} anos em SDLC`);
+  });
+
+  // The claim this whole slice is named for: the CV and the ramp-up page cannot disagree, because
+  // both resolve the same token from the same constant. Without this the page could publish a raw
+  // `{{years}}` — or drift back to a typed number — with the suite still green.
+  it('resolves the same figure in the ramp-up page, in both editions', () => {
+    // Authored as a token in both editions, never as a number.
+    expect(rampUpEn).toContain(YEARS_TOKEN);
+    expect(rampUpPt).toContain(YEARS_TOKEN);
+
+    // …and each resolves to the CV's figure, in its own wording.
+    expect(withYears(rampUpEn)).toContain(`${CAREER_YEARS} years across SDLC`);
+    expect(withYears(rampUpPt)).toContain(`${CAREER_YEARS} anos entre SDLC`);
+    expect(withYears(rampUpEn)).not.toContain(YEARS_TOKEN);
+    expect(withYears(rampUpPt)).not.toContain(YEARS_TOKEN);
   });
 });

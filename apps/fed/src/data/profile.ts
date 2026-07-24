@@ -263,7 +263,11 @@ const sourceTemplate: ProfileSource = {
 /** Career length, derived from the earliest `start_date` above — the single source for the figure. */
 export const CAREER_YEARS = careerYears(sourceTemplate.experience);
 
-const withYears = (text: string) => text.split(YEARS_TOKEN).join(String(CAREER_YEARS));
+/**
+ * Resolve `{{years}}` in any authored prose. Exported because the ramp-up page states the same figure
+ * and must resolve it from the same constant — two substitution helpers would be two things to drift.
+ */
+export const withYears = (text: string) => text.split(YEARS_TOKEN).join(String(CAREER_YEARS));
 
 /**
  * The CV with `{{years}}` resolved. Only the two prose fields carry the token; everything else is

@@ -18,15 +18,13 @@ import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
 import { ShareButton } from '../components/ShareButton';
 import { useLocale, type Locale } from '../i18n';
-import { YEARS_TOKEN } from '../lib/experience';
-import { CAREER_YEARS } from '../data/profile';
+import { withYears } from '../data/profile';
 
 const BODIES: Record<Locale, string> = { en: rampUpEn, pt: rampUpPt };
 
 // The page states the owner's years of experience, and the CV states it too. Both read `{{years}}`
-// and resolve from the same derived figure, so the two surfaces cannot disagree — which is exactly
-// how they DID disagree before (issue #82: "~17" here, "17" on the CV, 18 in the underlying dates).
-const resolveTokens = (body: string) => body.split(YEARS_TOKEN).join(String(CAREER_YEARS));
+// and resolve through the SAME helper, so the two surfaces cannot disagree — which is exactly how
+// they DID disagree before (issue #82: "~17" here, "17" on the CV, 18 in the underlying dates).
 
 export function RampUpPage() {
   const { locale, t } = useLocale();
@@ -60,7 +58,7 @@ export function RampUpPage() {
         </header>
 
         <div className="max-w-prose text-[17px] leading-relaxed text-foreground/90">
-          <Markdown>{resolveTokens(BODIES[locale])}</Markdown>
+          <Markdown>{withYears(BODIES[locale])}</Markdown>
         </div>
       </article>
     </div>

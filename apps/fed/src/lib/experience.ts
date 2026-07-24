@@ -22,19 +22,32 @@ export const YEARS_TOKEN = '{{years}}';
  */
 export function yearsSince(isoMonth: string, now: Date = new Date()): number {
   const [year, month] = isoMonth.split('-').map(Number);
-  if (!year || !month) return 0;
-  const months = (now.getUTCFullYear() - year) * 12 + (now.getUTCMonth() + 1 - month);
+  if (!year) return 0;
+  // A year-only date ("2006") means January of that year — the same reading CVSection already gives it
+  // when rendering a graduation year. Accepting it here keeps this consistent with monthIndex below;
+  // rejecting it in one and accepting it in the other silently produced 0.
+  const startMonth = month || 1;
+  const months = (now.getUTCFullYear() - year) * 12 + (now.getUTCMonth() + 1 - startMonth);
   return Math.max(0, Math.floor(months / 12));
 }
 
+/** Absolute month number, for comparing dates without relying on how their strings sort. */
+function monthIndex(isoMonth: string): number {
+  const [year, month] = isoMonth.split('-').map(Number);
+  return year ? year * 12 + (month || 1) : Number.POSITIVE_INFINITY;
+}
+
 /**
- * Career length from the earliest role on record. `YYYY-MM` strings sort lexicographically, so the
- * earliest start date is simply the smallest — no date parsing needed to find it.
+ * Career length from the earliest role on record.
+ *
+ * Compared by parsed month, NOT lexicographically. A string sort looks equivalent for zero-padded
+ * `YYYY-MM` and silently breaks otherwise: `'2008-12' < '2008-3'`, and a year-only `'2006'` — the
+ * form this very CV already uses for education dates — would sort earliest and collapse the published
+ * figure to `0`. An unparseable entry sorts last rather than winning.
  */
 export function careerYears(experience: readonly { start_date: string }[], now: Date = new Date()): number {
-  const earliest = experience
-    .map((role) => role.start_date)
-    .filter(Boolean)
-    .sort()[0];
-  return earliest ? yearsSince(earliest, now) : 0;
+  const starts = experience.map((role) => role.start_date).filter(Boolean);
+  if (starts.length === 0) return 0;
+  const earliest = starts.reduce((min, current) => (monthIndex(current) < monthIndex(min) ? current : min));
+  return yearsSince(earliest, now);
 }
