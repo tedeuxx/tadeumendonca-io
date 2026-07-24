@@ -47,7 +47,18 @@ serves it lives alongside, in `iac/`.
   language. **English stays the canonical edition** (ADR-0024) — it is what LinkedIn carries, what the
   prerender serves, and what `profile` (the resolved constant) exports; pt-BR is a translation of it, and
   facts (dates, employers, official job titles, certification names) are authored **once** and shared, so
-  the two editions cannot disagree. Deferred: route-prefixed `/en`·`/pt` + per-locale prerender/hreflang.
+  the two editions cannot disagree.
+- **EVERYTHING the reader reads is authored in both languages** — chrome, CV, and **long-form prose**.
+  There is no category where chrome and body may disagree (owner rule, 2026-07-23; supersedes ADR-0032's
+  long-form deferral). **Long-form uses one markdown file per locale** — `<name>.pt.md` / `<name>.en.md`,
+  selected through a `Record<Locale, string>` so a missing translation is a **compile error**
+  (`src/content/rampup.*.md` is the reference implementation). This is deliberately NOT the key-first
+  `{ pt, en }` shape used for the catalog and the CV: a paragraph is not a leaf, and interleaving two
+  languages in one document makes both unreadable to edit. Same contract, different granularity.
+  *Two files can drift where an object cannot*, so parity is asserted — both editions must expose the
+  same links and embedded videos in the same order, and each must render without the other's text.
+  **Known debt:** the blog article is still pt-only and `lib/content.ts` still loads one file per slug
+  (issue #83). Deferred: route-prefixed `/en`·`/pt` + per-locale prerender/hreflang.
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions

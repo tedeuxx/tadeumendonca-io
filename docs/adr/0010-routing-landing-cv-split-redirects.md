@@ -51,7 +51,7 @@ entry would misrepresent it as a point-in-time piece and bury it in reverse-chro
 earns a nav slot for the same reason `/portfolio` does: it is a standing part of the argument, not an
 entry in a stream.
 
-Its body is **markdown-in-repo** (`src/content/rampup.md`) rendered through the shared `<Markdown>`,
+Its body is **markdown-in-repo** (`src/content/rampup.pt.md` · `rampup.en.md`) rendered through the shared `<Markdown>`,
 which is what makes the surface cheap — it inherits the article pipeline, including the YouTube
 click-to-load facade, so the page embeds video while still shipping **zero third-party frames until the
 reader asks** (verified in the prerendered HTML, not only in tests).

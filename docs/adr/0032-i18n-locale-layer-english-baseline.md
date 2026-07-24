@@ -75,7 +75,7 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md). The "PT wraps an English CV" cost recorded
   below is therefore **no longer accepted — it is paid off**.
 - ~~**Out of scope:** blog article i18n — long-form pt-BR articles stay pt-BR.~~
-  **SUPERSEDED 2026-07-24 — everything the reader reads is authored in both languages.** The owner's
+  **Amended 2026-07-23 — everything the reader reads is authored in both languages.** The owner's
   rule, stated plainly: *"tudo tem que ser dois idiomas."* Long-form is no longer an exception, so
   there is no category of content where chrome and body can disagree.
 

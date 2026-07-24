@@ -2,7 +2,7 @@
 // It is the owner's plan for moving into AI Engineering, in the open: the reasoning, the roadmap, and
 // the exact sources.
 //
-// The body is markdown-in-repo (../content/rampup.md) rendered by the shared <Markdown>, which means
+// The body is markdown-in-repo (../content/rampup.{pt,en}.md) rendered by the shared <Markdown>, which means
 // the YouTube links in it become click-to-load <VideoEmbed> facades for free — nothing third-party
 // loads until the reader asks. Fully static, no backend.
 //

@@ -36,23 +36,34 @@ describe('RampUpPage', () => {
     expect(screen.queryByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeNull();
   });
 
-  // The two editions are separate files, so they can drift. These are the facts that must NOT differ:
-  // the same sources, in the same order, or the page argues two different things in two languages.
-  it('keeps the two editions structurally in sync', () => {
-    const pt = renderPage('pt');
+  // The two editions are separate files, so they can drift. This pins the SOURCES — every outbound
+  // link and every embedded video, in order — plus the section count. It does NOT check that the
+  // prose means the same thing; a structurally identical bad translation passes, and that limit is
+  // recorded in ADR-0032 rather than implied away.
+  //
+  // Videos need their own extraction: a facade renders a <button>, not an <a>, so a link-only
+  // comparison is blind to exactly the three sources that were hand-verified against their channels.
+  it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.
-    const ptLinks = [...pt.container.querySelectorAll('a')].map((a) => a.getAttribute('href'));
-    const ptSections = pt.container.querySelectorAll('h2').length;
+    const sourcesOf = (container: HTMLElement) => ({
+      links: [...container.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+      videos: [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src')),
+      sections: container.querySelectorAll('h2').length,
+    });
+
+    const pt = renderPage('pt');
+    const ptSources = sourcesOf(pt.container);
     pt.unmount();
 
     const en = renderPage('en');
-    const enLinks = [...en.container.querySelectorAll('a')].map((a) => a.getAttribute('href'));
-    const enSections = en.container.querySelectorAll('h2').length;
+    const enSources = sourcesOf(en.container);
 
-    expect(ptLinks).toEqual(enLinks);
-    expect(ptSections).toBe(enSections);
-    expect(ptSections).toBeGreaterThan(0); // guards against comparing two empty renders
+    expect(ptSources).toEqual(enSources);
+    // Guard against two empty renders comparing equal.
+    expect(ptSources.links.length).toBeGreaterThan(0);
+    expect(ptSources.videos).toHaveLength(3);
+    expect(ptSources.sections).toBeGreaterThan(0);
   });
 
   it('turns the YouTube links into click-to-load facades, not eager iframes', () => {

@@ -1,6 +1,6 @@
 _Vaga-alvo: **AI Engineer** (GenAI aplicada / agentic — não pesquisa em ML)._
 
-Esse é o meu ramp-up em público. Sou arquiteto de aplicações cloud (AWS, 17 anos entre SDLC e sistemas distribuídos) migrando para AI Engineering — e esta página é o plano que montei pra mim, o raciocínio por trás dele, e as fontes exatas que estou usando. Publico porque quase todo conteúdo de "como virar AI Engineer" é ou gatekeeping de PhD em ML ou thread de hype, e nenhum dos dois me ajudou.
+Esse é o meu ramp-up em público. Sou arquiteto de aplicações cloud (AWS, 17 anos entre SDLC e sistemas distribuídos) migrando para AI Engineering — e esta página é o plano que montei pra mim, o raciocínio por trás dele, e as fontes exatas que estou usando. Publico porque a maior parte do conteúdo de "como virar AI Engineer" é ou gatekeeping de PhD em ML ou thread de hype, e nenhum dos dois me ajudou.
 
 Aviso honesto: isso é um plano em andamento, não uma volta olímpica. Estou no meio da transição. Pega o que servir, ignora o resto.
 
@@ -95,13 +95,13 @@ Os links vão pro catálogo da O'Reilly; ler exige assinatura.
 
 ### YouTube
 
-Três pra começar — um por canal, escolhidos pra mostrar por que o canal está aqui, não porque têm o número maior. Assiste um, e se colar, segue o canal.
+Três pra começar — um por canal, escolhidos pra mostrar por que o canal merece o lugar dele aqui, não porque têm o número maior. Assiste um, e se colar, segue o canal.
 
 **Anthropic** — a explicação curta mais clara que vi do que acontece de fato dentro de um modelo. Não é demo de produto: é um resultado de interpretabilidade, contado em cinco minutos.
 
 https://www.youtube.com/watch?v=rKV5JcALQoQ
 
-**Claude** — a porta de entrada. Se você só conhece o produto de chat, são os dois minutos que reenquadram como ferramenta que se dirige do terminal.
+**Claude** — a porta de entrada. Se você só conhece o produto de chat, são os dois minutos que reenquadram o Claude como ferramenta que se dirige do terminal.
 
 https://www.youtube.com/watch?v=fl1DSmwQKKY
 
@@ -111,7 +111,7 @@ https://www.youtube.com/watch?v=P1-8da1GgBg
 
 O resto do que assisto, ranqueado por quanto eu realmente assisto — não por número de seguidor:
 
-- **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — os três acima, com folga os que eu mais volto.
+- **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — os três acima, com folga os canais aos quais eu mais volto.
 - **[Kiro](https://www.youtube.com/channel/UCXouiHXUN8mba_K-jn1gqVg)** — IDE agentic, vale assistir mesmo usando outra.
 - **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — Bedrock e IA cloud-native.
 - **[Y Combinator](https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg)** — pra onde o campo está indo, pelo lado de quem constrói.
