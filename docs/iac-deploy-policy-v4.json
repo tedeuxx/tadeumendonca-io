@@ -34,14 +34,17 @@
     {
       "Sid": "CertificateReadOnly",
       "Effect": "Allow",
-      "Action": ["acm:DescribeCertificate", "acm:ListCertificates", "acm:ListTagsForCertificate"],
+      "Action": ["acm:GetCertificate", "acm:DescribeCertificate", "acm:ListCertificates", "acm:ListTagsForCertificate"],
       "Resource": "*"
     },
     {
       "Sid": "Parameters",
       "Effect": "Allow",
-      "Action": ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath", "ssm:PutParameter", "ssm:DeleteParameter", "ssm:AddTagsToResource", "ssm:RemoveTagsFromResource", "ssm:ListTagsForResource", "ssm:DescribeParameters"],
-      "Resource": "arn:aws:ssm:*:858049036700:parameter/tadeumendonca/*"
+      "Action": ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath", "ssm:PutParameter", "ssm:DeleteParameter", "ssm:AddTagsToResource", "ssm:RemoveTagsFromResource", "ssm:ListTagsForResource"],
+      "Resource": [
+        "arn:aws:ssm:*:858049036700:parameter/staging/*",
+        "arn:aws:ssm:*:858049036700:parameter/production/*"
+      ]
     },
     {
       "Sid": "CostCeiling",
