@@ -71,6 +71,11 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Build (static — prerendered)
+        # GA4 measurement id — PUBLIC (it ships in the client JS), so it lives here, not in a secret.
+        # Analytics is inert without it; setting it here is what turns it on in production. GA still
+        # loads only after the reader consents (src/lib/analytics), so the prerender emits no hit.
+        env:
+          VITE_GA_MEASUREMENT_ID: G-5W9EQN303X
         run: npm run build:static
 
       - name: Publish to S3 (split cache headers)
