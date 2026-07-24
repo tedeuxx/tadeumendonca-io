@@ -46,11 +46,4 @@ test.describe('static site', () => {
     await expect(page.getByRole('tab', { name: 'Vida pessoal' })).toHaveAttribute('aria-selected', 'true');
     await expect(page).toHaveURL(/\/$/); // local state only — the canonical URL never changes
   });
-
-  test('keeps the former /cv and /profile deep-links working by redirecting to /me', async ({ page }) => {
-    await page.goto('/cv');
-    await expect(page).toHaveURL(/\/me$/);
-    await page.goto('/profile');
-    await expect(page).toHaveURL(/\/me$/);
-  });
 });

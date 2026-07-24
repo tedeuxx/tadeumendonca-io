@@ -45,7 +45,10 @@ resource "aws_budgets_budget" "monthly" {
   # October will trip the three ACTUAL thresholds. That is once a year, expected, and confirms the
   # largest single expense actually left the account — not a false positive to tune away.
   dynamic "notification" {
-    for_each = var.budget_alert_email == "" ? [] : [
+    # for_each cannot depend on a sensitive value (instance keys can't be sensitive). budget_alert_email
+    # is sensitive, so nonsensitive() unwraps ONLY the "is it set?" boolean — never the address. The
+    # address itself (subscriber_email_addresses below) stays sensitive and is redacted in plan/apply.
+    for_each = nonsensitive(var.budget_alert_email == "") ? [] : [
       { type = "ACTUAL", threshold = 15 },
       { type = "ACTUAL", threshold = 50 },
       { type = "ACTUAL", threshold = 80 },

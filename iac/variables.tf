@@ -63,12 +63,16 @@ variable "monthly_budget_usd" {
 
 variable "budget_alert_email" {
   type        = string
+  sensitive   = true
   description = <<-EOT
     Where budget alerts go. Empty disables notifications — the budget still tracks, silently, which is
     the safe default rather than a useful one.
-    SET IT AS A TERRAFORM CLOUD WORKSPACE VARIABLE, never in env/*.tfvars: those files are committed to
-    a PUBLIC repo, and a personal address in one is a permanent harvestable artifact. This is the same
-    reason role ARNs live in environment secrets rather than here.
+    DELIVERED VIA A GITHUB ACTIONS SECRET, never in env/*.tfvars: those files are committed to a PUBLIC
+    repo, and a personal address in one is a permanent harvestable artifact (the same reason role ARNs
+    live in environment secrets). CI maps the BUDGET_ALERT_EMAIL staging-environment secret onto
+    TF_VAR_budget_alert_email on the terraform plan/apply steps. A Terraform Cloud workspace variable
+    would be INERT here: the workspace runs in Local execution mode, where TFC does not inject workspace
+    variables. `sensitive` keeps the address out of the (public) plan output and apply logs.
   EOT
   default     = ""
   validation {

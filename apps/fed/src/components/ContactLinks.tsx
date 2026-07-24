@@ -1,22 +1,9 @@
-// Contact links (/frontend/design-system). The owner's public handles + a WhatsApp click-to-message
-// link, all opening in a new tab. Deep-links use the universal https:// URLs: on mobile these open
-// the native app when installed, with a reliable web fallback.
-//
-// Medium is deliberately absent — articles are hosted here, this site holds the canonical.
-// Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
-import { GithubMark, LinkedinMark, WhatsappMark, XMark } from './BrandIcons';
+// The "Where to find me" directory. Renders the shared contact channels (see contactChannels), so it
+// stays in sync with the ContactFooter CTA — both list the same channels in the same order.
+// Deep-links use the universal https:// URLs: on mobile these open the native app when installed, with
+// a reliable web fallback. The mailto stays in the same tab; the outbound links open in a new one.
+import { CONTACT_CHANNELS } from './contactChannels';
 import { useT } from '../i18n';
-
-export const WHATSAPP_NUMBER = '5521986619954';
-const WHATSAPP_MESSAGE = 'Olá Tadeu, vim pelo tadeumendonca.io';
-export const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
-
-const LINKS = [
-  { label: 'GitHub', href: 'https://github.com/tedeuxx', Icon: GithubMark },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530/', Icon: LinkedinMark },
-  { label: 'X', href: 'https://x.com/tedeuxx', Icon: XMark },
-  { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark },
-];
 
 // `title` is optional: when the caller omits it (the landing aside), it falls back to the localized
 // default; the contact region passes its own heading.
@@ -29,12 +16,11 @@ export function ContactLinks({ title }: { title?: string }) {
         <h3 className="label-mono text-foreground">{title ?? t('contactLinks.defaultTitle')}</h3>
       </div>
       <ul>
-        {LINKS.map(({ label, href, Icon }) => (
+        {CONTACT_CHANNELS.map(({ label, href, Icon, external }) => (
           <li key={label}>
             <a
               href={href}
-              target="_blank"
-              rel="noreferrer"
+              {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
               className="flex items-center gap-3 border-t border-border py-2.5 font-mono text-sm uppercase tracking-wider transition-[padding] duration-150 hover:pl-2"
             >
               <Icon className="shrink-0 text-primary" />

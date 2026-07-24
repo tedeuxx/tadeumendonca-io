@@ -44,7 +44,7 @@ export function RampUpPage() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto w-full max-w-5xl">
       <article className="px-[--gutter] py-6">
         <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
@@ -57,7 +57,7 @@ export function RampUpPage() {
           </h1>
         </header>
 
-        <div className="max-w-prose text-[17px] leading-relaxed text-foreground/90">
+        <div className="max-w-none text-[17px] leading-relaxed text-foreground/90">
           <Markdown>{withYears(BODIES[locale])}</Markdown>
         </div>
       </article>

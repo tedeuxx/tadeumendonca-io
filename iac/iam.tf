@@ -3,7 +3,12 @@
 # + an OIDC-assumable role (iam-assumable-role-with-oidc) each, with the role ARNs published to SSM.
 # Trust = the pre-existing GitHub OIDC provider (landing zone), scoped to the repo's immutable
 # OIDC subject (repo:<org>@<org_id>/<repo>@<repo_id>:*) — see local.github_oidc_sub.
-# The iac repo's own deploy role is bootstrapped out-of-band (not here).
+# The iac repo's own deploy role is bootstrapped out-of-band (not here); its managed policy
+# (tadeumendonca-iac-deploy) is likewise applied by hand and scoped per-ARN — the Iam* grants are
+# split by resource type (roles / policies / oidc-provider / list) so the role can only touch the
+# fed role and policies it manages, never rewrite its own trust or the policy that constrains it.
+# That document and its apply runbook live in docs/iac-deploy-policy.md (AWS is the source of truth
+# for what is attached; the JSON there is the source of truth for what should be).
 
 locals {
   account = data.aws_caller_identity.current.account_id

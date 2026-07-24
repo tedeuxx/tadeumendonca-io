@@ -16,6 +16,7 @@ describe('ContactFooter', () => {
     expect(CONTACT_EMAIL).toMatch(/@tadeumendonca\.io$/);
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/tedeuxx');
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'X' })).toHaveAttribute('href', 'https://x.com/tedeuxx');
   });
 
   it('keeps the mailto in the same tab and the outbound links in a new one', () => {
@@ -28,7 +29,7 @@ describe('ContactFooter', () => {
   it('renders every icon in the theme accent — no borrowed brand colour', () => {
     const { container } = renderWithLocale(<ContactFooter />);
     const icons = [...container.querySelectorAll('svg')];
-    expect(icons).toHaveLength(4);
+    expect(icons).toHaveLength(5);
     for (const icon of icons) expect(icon).toHaveClass('text-primary');
   });
 

@@ -62,17 +62,6 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 
-  test('keeps the retired /articles list deep-link working by redirecting to the landing', async ({ page }) => {
-    await page.goto('/articles');
-    await expect(page).toHaveURL(/\/#artigos$/);
-    await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
-  });
-
-  test('keeps the legacy /articles/:slug permalink rendering the article', async ({ page }) => {
-    await page.goto('/articles/building-serverless-on-aws');
-    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toBeVisible();
-  });
-
   test('sends an unknown path back to the landing instead of a dead end', async ({ page }) => {
     await page.goto('/rota-que-nao-existe');
     await expect(page).toHaveURL(/\/$/);

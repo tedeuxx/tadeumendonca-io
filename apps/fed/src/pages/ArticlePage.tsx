@@ -42,7 +42,7 @@ export function ArticlePage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto w-full max-w-5xl">
       <ColumnHeader title="Blog" back />
       {!article && <Notice>{t('article.notFoundBody')}</Notice>}
 
@@ -60,7 +60,7 @@ export function ArticlePage() {
             </h1>
           </header>
 
-          <div className="max-w-prose text-[17px] leading-relaxed text-foreground/90">
+          <div className="max-w-none text-[17px] leading-relaxed text-foreground/90">
             <Markdown>{article.body}</Markdown>
           </div>
 
