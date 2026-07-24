@@ -18,7 +18,7 @@ const dateRange = (start: string, end: string | null, present: string) =>
   start ? `${start} – ${end ?? present}` : (end ?? '');
 
 // Friendly labels for the metadata link keys (kept lowercase in the data); falls back to the key.
-const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', medium: 'Medium', website: 'Website' };
+const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', x: 'X', medium: 'Medium', website: 'Website' };
 
 function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
   return (

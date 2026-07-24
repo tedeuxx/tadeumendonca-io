@@ -4,10 +4,11 @@ import { ContactLinks } from './ContactLinks';
 import { renderWithLocale } from '../test-utils';
 
 describe('ContactLinks', () => {
-  it('offers GitHub, LinkedIn and a WhatsApp click-to-message link — and no Medium', () => {
+  it('offers GitHub, LinkedIn, X and a WhatsApp click-to-message link — and no Medium', () => {
     renderWithLocale(<ContactLinks />);
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/tedeuxx');
     expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', expect.stringContaining('linkedin.com/in/'));
+    expect(screen.getByRole('link', { name: 'X' })).toHaveAttribute('href', 'https://x.com/tedeuxx');
     expect(screen.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', expect.stringMatching(/wa\.me\/5521986619954\?text=/));
     expect(screen.queryByRole('link', { name: 'Medium' })).toBeNull();
   });
@@ -23,7 +24,7 @@ describe('ContactLinks', () => {
   it('renders every icon in the theme accent — no borrowed brand colour', () => {
     const { container } = renderWithLocale(<ContactLinks />);
     const icons = [...container.querySelectorAll('svg')];
-    expect(icons).toHaveLength(3);
+    expect(icons).toHaveLength(4);
     for (const icon of icons) expect(icon).toHaveClass('text-primary');
   });
 
