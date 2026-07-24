@@ -26,3 +26,19 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
+
+  # GitHub Actions are now SHA-pinned (supply-chain hardening, #73). A pinned SHA never moves on its
+  # own, so without this it would silently rot — miss security patches and node-runtime bumps. Dependabot
+  # updates the pin AND rewrites the trailing `# vX.Y.Z` comment, so the human-readable version stays
+  # truthful. Majors are auto-proposed here (unlike npm): an action major is a small, isolated,
+  # CI-gated change, not a coordinated peer bump — and the node20→24 migration (#89) is exactly the kind
+  # of major that must not be ignored.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 5
