@@ -43,6 +43,32 @@ is right.** A green pipeline is not the review, and treating it as one is how th
 - The PR is slower — a full E2E + Sonar run on every PR.
 - The gate must stay comprehensive; a check dropped here has no downstream backstop (ADR-0019).
 
+## Amendment (2026-07-23) — a third gate, and what "blocking" actually requires
+The gate set gains **`lint-workflows`**: `actionlint` + `shellcheck` over `.github/workflows/**`.
+
+It exists because the decision above had a hole. "All blocking, on every PR" was true of the two gates
+named, and **workflows themselves were covered by neither** — `build-test` is path-filtered to
+`apps/fed`, so a workflow-only change matched nothing and reported **PASS**. A green check that
+verified nothing, indistinguishable from one that verified everything. That is how an un-executed
+retry loop reached the production release path (#79), and `actionlint` sat in the permission allowlist
+without being wired into any job.
+
+**The mechanical detail worth recording, because the first attempt got it wrong:** a workflow with a
+top-level `paths:` filter on `pull_request` **cannot be a required status check**. On a PR that does
+not match, the check never reports and stays pending forever, so branch protection can never require
+it. A filtered workflow is therefore permanently *advisory* — which would have added a third gate in
+name while leaving the decision above unmet. Every gate here runs on **every** PR and applies its path
+filter **inside** the job (the shape `build-test` already used, for exactly this reason).
+
+**Corollary, now applied to all three:** each job emits a `::notice::` stating whether it ran or
+skipped. "Blocking" is not sufficient if a skipped run is indistinguishable from a verified one —
+that ambiguity is what let "build-test is green" be read as assurance it had not given.
+
+*Also recorded:* `actionlint` silently disables `shellcheck` when the binary is absent, halving the
+check and still exiting 0 — and passing `-shellcheck <path>` does **not** change that (verified: an
+invalid path still just disables the rule). The job asserts the executable itself before trusting the
+result.
+
 ## Links
 - Driven by ADR-0003 · the regression it runs is ADR-0019 · the quality gate is ADR-0020 · post-deploy
   smoke is ADR-0023 · the loop model is the plugin's `trunk-single-env`.

@@ -3,16 +3,20 @@ name: lint-workflows
 # The gate that did not exist. `build-test` is path-filtered to apps/fed, so a change to
 # .github/workflows/** matched nothing and still reported PASS — a green check that verified
 # nothing, indistinguishable from one that verified everything. That is how an unexecuted retry
-# loop reached the production release path (issue #79), and it is why `actionlint` was in the
+# loop reached the production release path (issue #79), and it is why `actionlint` sat in the
 # permission allowlist while being wired into no job at all.
 #
-# actionlint also runs shellcheck over inline `run:` blocks, which is where the real logic lives —
-# version-main.yml's retry loop, the release-notes generator. One tool covers both gaps.
-
+# actionlint also drives shellcheck over inline `run:` blocks, which is where the real logic lives
+# here — version-main's retry loop, the release-notes generator. One tool closes both halves.
+#
+# TRIGGERING: runs on EVERY PR, with the path filter applied INSIDE the job — the same shape as
+# build-test.yml, and for the same reason. A workflow-level `paths:` filter cannot be a required
+# status check: on a PR that does not match, the check never reports and sits pending forever. So a
+# filtered workflow is permanently unpromotable to blocking, which would have made this an advisory
+# check dressed as a gate — the exact defect it was written to remove.
 on:
   pull_request:
-    paths:
-      - ".github/workflows/**"
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -32,10 +36,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Pinned by CHECKSUM, not just by version: a tag can be moved, a release asset can be
-      # replaced. This job reads every workflow in the repo, so its own supply chain is worth the
-      # extra line — and #73 is about to pin the actions here for the same reason.
+      - name: Detect workflow changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            workflows:
+              - '.github/workflows/**'
+
+      # Pinned by CHECKSUM, not only by version: a tag can be moved and a release asset replaced.
+      # NOTE the asymmetry, stated rather than glossed: `actions/checkout@v4` above is a MUTABLE tag
+      # running arbitrary JS with the job's token, which is the higher-value pin and is still open.
+      # It is tracked in #73 and left consistent with the rest of the repo rather than pinned here
+      # unilaterally — but the tarball pin is not, on its own, the supply-chain story.
       - name: Install actionlint (pinned)
+        if: steps.changes.outputs.workflows == 'true'
         env:
           ACTIONLINT_VERSION: 1.7.12
           ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
@@ -46,14 +61,33 @@ jobs:
           echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum --check --strict
           tar -xzf actionlint.tar.gz actionlint
 
-      # shellcheck is preinstalled on ubuntu-latest; actionlint shells out to it for `run:` blocks.
-      - name: Lint every workflow
-        run: ./actionlint -color
+      # actionlint SILENTLY DISABLES shellcheck when the binary is missing — it halves the check and
+      # still exits 0. That happened during authoring: the first local run was clean for the wrong
+      # reason. Passing `-shellcheck <path>` does NOT fix it (verified: an invalid path still just
+      # disables the rule and exits 0; the reason appears only under -verbose). The only reliable
+      # guard is asserting the executable ourselves, before trusting the result.
+      - name: Assert shellcheck is available
+        if: steps.changes.outputs.workflows == 'true'
+        run: |
+          set -euo pipefail
+          command -v shellcheck >/dev/null || {
+            echo "::error::shellcheck is missing — actionlint would skip the run: block analysis and still pass"
+            exit 1
+          }
+          shellcheck --version | head -2
 
-      # A path-filtered job that matched nothing is the failure this workflow exists to prevent, so
-      # this one says out loud what it checked rather than leaving a bare green tick to interpret.
+      - name: Lint every workflow
+        if: steps.changes.outputs.workflows == 'true'
+        run: ./actionlint -color -shellcheck shellcheck
+
+      # A check that matched nothing must not read like a check that passed — that ambiguity IS
+      # issue #79. So this job always says which of the two happened.
       - name: Report what was linted
         run: |
           set -euo pipefail
-          count=$(find .github/workflows -name '*.yml' -o -name '*.yaml' | wc -l | tr -d ' ')
-          echo "::notice::actionlint passed over ${count} workflow file(s)"
+          if [ "${{ steps.changes.outputs.workflows }}" != "true" ]; then
+            echo "::notice::no workflow files changed — actionlint did not run (nothing was verified)"
+            exit 0
+          fi
+          count=$(find .github/workflows -maxdepth 1 \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')
+          echo "::notice::actionlint + shellcheck passed over ${count} workflow file(s)"

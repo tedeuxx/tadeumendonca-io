@@ -110,6 +110,19 @@ jobs:
       # infrastructural reason, not a code one. A dep bump changes package.json/lock, not app source, so
       # Sonar's SAST/smells add little; the other gates (audit, lint, typecheck, test, build, E2E) still
       # run and gate the bump. Human PRs are unaffected.
+      # Say which of the two greens this is. A path-filtered job that matched nothing reports PASS
+      # exactly like one that ran every gate, and that ambiguity is the second half of issue #79 —
+      # it is how "build-test is green" got read as assurance it never gave on a workflow-only PR.
+      - name: Report what was verified
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.changes.outputs.code }}" != "true" ]; then
+            echo "::notice::no apps/fed changes — lint, typecheck, tests, build, E2E and Sonar did NOT run (nothing was verified)"
+          else
+            echo "::notice::full gate ran — lint, typecheck, tests (coverage ≥85%), build, E2E, SonarCloud"
+          fi
+
       - name: SonarCloud scan (quality gate blocks)
         if: steps.changes.outputs.code == 'true' && github.actor != 'dependabot[bot]'
         uses: SonarSource/sonarqube-scan-action@v7
