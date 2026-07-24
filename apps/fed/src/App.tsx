@@ -4,6 +4,7 @@
 // profile query. The retired /blog list, /articles and /profile keep back-compat redirects.
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConsentProvider } from './lib/consent';
 import { AppShell } from './components/AppShell';
 import { LandingPage } from './pages/LandingPage';
 import { CvPage } from './pages/CvPage';
@@ -18,23 +19,25 @@ const queryClient = new QueryClient({
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppShell>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/cv" element={<CvPage />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/ramp-up" element={<RampUpPage />} />
-            <Route path="/blog/:slug" element={<ArticlePage />} />
-            {/* Back-compat: old deep-links (og:image, shared URLs) still resolve. */}
-            <Route path="/articles/:slug" element={<ArticlePage />} />
-            <Route path="/blog" element={<Navigate to="/#artigos" replace />} />
-            <Route path="/articles" element={<Navigate to="/#artigos" replace />} />
-            <Route path="/profile" element={<Navigate to="/cv" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AppShell>
-      </BrowserRouter>
+      <ConsentProvider>
+        <BrowserRouter>
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/cv" element={<CvPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/ramp-up" element={<RampUpPage />} />
+              <Route path="/blog/:slug" element={<ArticlePage />} />
+              {/* Back-compat: old deep-links (og:image, shared URLs) still resolve. */}
+              <Route path="/articles/:slug" element={<ArticlePage />} />
+              <Route path="/blog" element={<Navigate to="/#artigos" replace />} />
+              <Route path="/articles" element={<Navigate to="/#artigos" replace />} />
+              <Route path="/profile" element={<Navigate to="/cv" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AppShell>
+        </BrowserRouter>
+      </ConsentProvider>
     </QueryClientProvider>
   );
 }

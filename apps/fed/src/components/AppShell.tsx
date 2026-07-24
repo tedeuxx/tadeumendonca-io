@@ -9,7 +9,11 @@ import { useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useActiveSection } from '../hooks/useActiveSection';
+import { usePageviews } from '../hooks/usePageviews';
 import { cn } from '../lib/cn';
+import { useConsent } from '../lib/consent';
+import { analyticsConfigured } from '../lib/analytics';
+import { ConsentBanner } from './ConsentBanner';
 import { LOCALES, useLocale, type MessageKey } from '../i18n';
 
 interface NavEntry {
@@ -101,6 +105,9 @@ function LocaleToggle() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLocale();
+  const { reopen } = useConsent();
+  // Send a GA4 page_view on route changes (no-op until the reader has consented).
+  usePageviews();
   // Only the landing carries the anchored regions.
   const onLanding = useLocation().pathname === '/';
   const activeSection = useActiveSection(SECTIONS, onLanding);
@@ -138,6 +145,25 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="flex-1">{children}</main>
+
+      <footer className="border-t-2 border-border-strong px-[--gutter] py-4">
+        <div className="mx-auto flex w-full max-w-screen items-center justify-between gap-3">
+          <span className="font-mono text-xs text-muted-foreground">tadeumendonca.io</span>
+          {/* Withdrawal must be as reachable as granting: this re-opens the banner to re-decide. Shown
+              only when analytics is configured — otherwise there is no cookie choice to manage. */}
+          {analyticsConfigured() && (
+            <button
+              type="button"
+              onClick={reopen}
+              className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground invert-hover"
+            >
+              {t('consent.manage')}
+            </button>
+          )}
+        </div>
+      </footer>
+
+      <ConsentBanner />
     </div>
   );
 }

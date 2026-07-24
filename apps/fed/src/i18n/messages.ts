@@ -137,6 +137,17 @@ const strings = {
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
     defaultTitle: { pt: 'Vídeo', en: 'Video' },
   },
+  consent: {
+    notice: { pt: 'Aviso de cookies', en: 'Cookie notice' },
+    message: {
+      pt: 'Uso o Google Analytics pra entender o que é lido por aqui. Ele só carrega se você aceitar — nada de terceiros roda antes disso.',
+      en: 'I use Google Analytics to understand what gets read here. It only loads if you accept — nothing third-party runs before that.',
+    },
+    accept: { pt: 'Aceitar', en: 'Accept' },
+    reject: { pt: 'Recusar', en: 'Decline' },
+    learnMore: { pt: 'Como o Google usa esses dados', en: 'How Google uses this data' },
+    manage: { pt: 'Preferências de cookies', en: 'Cookie preferences' },
+  },
 } satisfies Record<string, Record<string, Entry>>;
 
 export { strings };
