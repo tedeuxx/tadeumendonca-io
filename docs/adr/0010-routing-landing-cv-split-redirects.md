@@ -61,25 +61,16 @@ enumeration both the prerender and the sitemap read, so it is snapshotted and ad
 not at all. The E2E canonical-route list was updated in the same slice — its drift guard caught the
 omission, which is the guard working as designed.
 
-**Authoring language: OPEN — the page ships English-only as an explicit, temporary exception.**
-An earlier draft of this amendment justified that by citing
-[ADR-0032](./0032-i18n-locale-layer-english-baseline.md). **That citation was wrong**, and it is
-recorded here rather than quietly corrected: ADR-0032's out-of-scope line reads *"blog article i18n —
-long-form **pt-BR** articles stay pt-BR"*, and the site's only long-form piece is written in
-Portuguese. ADR-0032 therefore defers translating pt→en — the opposite direction — and decides
-**nothing** about the authoring language of a new long-form surface. Presenting a new decision as an
-inherited one is exactly the drift the ADR practice exists to prevent.
+**Bilingual, like everything else the reader reads.** The body is authored in both languages
+(`rampup.pt.md` · `rampup.en.md`), so chrome and content are always in the same language.
 
-The honest statement of the current state: this page is authored in English while its **chrome
-localizes**, which produces a real incoherence — a pt visitor is served a Portuguese `metaDescription`
-promising the page, and lands on an English body. That runs against ADR-0032's own decision driver
-(*"a pt-BR visitor should still get the site in their language"*) and against the bilingual-content
-direction set when the CV was made bilingual (see the amendment on
-[ADR-0024](./0024-profile-canonical-cv-cross-surface.md)).
-
-It is shipped this way deliberately and with the cost named, not because a prior ADR authorized it.
-Resolving it — translate the body, or drop the surface to English-only chrome and all — is an owner
-decision, and it belongs with the article-parity slice where the same question is already open.
+Worth recording how this was decided, because the first draft got it wrong: it shipped English-only and
+justified that by citing [ADR-0032](./0032-i18n-locale-layer-english-baseline.md). The citation did not
+hold — ADR-0032's out-of-scope line is *"long-form **pt-BR** articles stay pt-BR"*, and the site's only
+long-form piece is in Portuguese, so it deferred translating **pt→en**, the opposite direction, and
+decided nothing about a new surface's authoring language. A new decision was being presented as an
+inherited one, which is precisely the drift the ADR practice exists to catch. The owner then settled it
+as policy — *everything in two languages* — and ADR-0032's deferral is superseded there.
 
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above

@@ -65,15 +65,11 @@ const strings = {
     viewOnLinkedin: { pt: 'Ver no LinkedIn', en: 'View on LinkedIn' },
     empty: { pt: 'Ainda não há artigos nesta trilha.', en: 'No articles in this track yet.' },
   },
-  // The ramp-up page's chrome. Its BODY is markdown-in-repo (content/rampup.md) and English-only.
-  //
-  // KNOWN INCOHERENCE, deliberate and temporary: a pt visitor reads a Portuguese metaDescription
-  // promising the page, then lands on an English body. ADR-0032 does NOT authorize this — its
-  // deferral is about keeping pt-BR articles pt-BR, the opposite direction — so this is an open
-  // decision recorded in the ADR-0010 amendment, not an inherited one. `heading` is intentionally
-  // identical in both locales: it is the page's English title, quoted rather than translated.
+  // The ramp-up page's chrome. Its BODY is markdown-in-repo, authored in both locales
+  // (content/rampup.pt.md · content/rampup.en.md), so chrome and content are always in the same
+  // language — the parity rule, not an interim.
   rampup: {
-    heading: { pt: 'Ramp-Up — Becoming an AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
+    heading: { pt: 'Ramp-Up — Virando AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
     // Document title (the site name is appended by useDocumentHead).
     title: { pt: 'Ramp-up para AI Engineer', en: 'Ramp-up to AI Engineer' },
     kicker: { pt: 'Plano aberto · em andamento', en: 'Open plan · in progress' },

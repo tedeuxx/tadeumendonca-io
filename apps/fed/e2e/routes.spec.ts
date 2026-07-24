@@ -28,8 +28,9 @@ test.describe('routes', () => {
   test('/ramp-up serves the plan, with the videos behind a facade', async ({ page }) => {
     await page.goto('/ramp-up');
     await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
-    // A section heading from the markdown body — proves the content rendered, not just the chrome.
-    await expect(page.getByRole('heading', { name: /Get the category right first/ })).toBeVisible();
+    // This file pins the context to pt-BR, and the BODY is bilingual too — so the Portuguese edition
+    // is what must render here. Asserting the English heading would pass only against a stale build.
+    await expect(page.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeVisible();
 
     // The property the facade exists to protect: no third-party frame until the reader asks.
     await expect(page.locator('iframe')).toHaveCount(0);

@@ -1,6 +1,6 @@
 _Target role: **AI Engineer** (applied GenAI / agentic — not ML research)._
 
-This is my ramp-up in the open. I'm a cloud application architect (AWS, ~17 years across SDLC and distributed systems) moving into AI Engineering — and this page is the plan I built for myself, the reasoning behind it, and the exact sources I'm using. I'm sharing it because most "become an AI Engineer" content is either ML-PhD gatekeeping or hype threads, and neither helped me.
+This is my ramp-up in the open. I'm a cloud application architect (AWS, 17 years across SDLC and distributed systems) moving into AI Engineering — and this page is the plan I built for myself, the reasoning behind it, and the exact sources I'm using. I'm sharing it because most "become an AI Engineer" content is either ML-PhD gatekeeping or hype threads, and neither helped me.
 
 Fair warning: this is a plan in progress, not a victory lap. I'm mid-transition. Take what's useful, ignore the rest.
 
@@ -67,7 +67,7 @@ Built as a planned move, not a sprint — I have a job. A cadence that survives 
 
 - **Phase 0 — Setup:** Python environment, a portfolio repo, and pick the first agent's domain from real work.
 - **Phase 1 — Python-agentic:** build the first real agent with LangGraph.
-- **Phase 2 — Eval + Observability:** instrument that agent — eval harness + tracing/metrics. *(This is where the moat becomes the headline.)*
+- **Phase 2 — Eval + Observability:** instrument that agent — eval harness + tracing/metrics. *(This is where the moat stops being invisible: the rigor is the artifact, not the biography.)*
 - **Phase 3 — RAG + MCP:** add a knowledge layer and expose a capability as an MCP server.
 - **Phase 4 — Cloud-native:** run it in production with guardrails.
 - **Phase 5 — Credential + consolidation:** cert + polished portfolio + write-ups.

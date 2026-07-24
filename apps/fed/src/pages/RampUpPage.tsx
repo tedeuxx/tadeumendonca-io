@@ -6,18 +6,23 @@
 // the YouTube links in it become click-to-load <VideoEmbed> facades for free — nothing third-party
 // loads until the reader asks. Fully static, no backend.
 //
-// The page is authored in ENGLISH ONLY for now, like the long-form articles: ADR-0032 puts long-form
-// content i18n outside the locale layer's scope, so this joins the article parity slice rather than
-// the chrome catalog. Only the surrounding chrome localizes.
-import rampUpBody from '../content/rampup.md?raw';
+// The body is authored in BOTH locales — one markdown file per language, selected here. Long-form prose
+// is the one thing the key-first `{ pt, en }` shape used for the CV and the message catalog does not
+// suit: a paragraph is not a leaf, and interleaving two languages inside one document would make both
+// unreadable to edit. Two files, one contract: every locale in BODIES must have a file, so a missing
+// translation is a compile error rather than a page that silently falls back.
+import rampUpEn from '../content/rampup.en.md?raw';
+import rampUpPt from '../content/rampup.pt.md?raw';
 import { Markdown } from '../components/Markdown';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
 import { ShareButton } from '../components/ShareButton';
-import { useT } from '../i18n';
+import { useLocale, type Locale } from '../i18n';
+
+const BODIES: Record<Locale, string> = { en: rampUpEn, pt: rampUpPt };
 
 export function RampUpPage() {
-  const t = useT();
+  const { locale, t } = useLocale();
 
   useDocumentHead({
     title: t('rampup.title'),
@@ -48,7 +53,7 @@ export function RampUpPage() {
         </header>
 
         <div className="max-w-prose text-[17px] leading-relaxed text-foreground/90">
-          <Markdown>{rampUpBody}</Markdown>
+          <Markdown>{BODIES[locale]}</Markdown>
         </div>
       </article>
     </div>

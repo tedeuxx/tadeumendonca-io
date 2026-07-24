@@ -16,21 +16,43 @@ describe('RampUpPage', () => {
   it('renders the page heading and the markdown body', () => {
     renderPage();
     expect(screen.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeInTheDocument();
-    // A section heading from content/rampup.md — proves the markdown body actually rendered,
-    // not just the chrome around it.
-    expect(screen.getByRole('heading', { name: /Get the category right first/ })).toBeInTheDocument();
+    // A section heading from the markdown body (pt is the suite's default locale) — proves the body
+    // actually rendered, not just the chrome around it.
+    expect(screen.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeInTheDocument();
   });
 
-  it('localizes the chrome while the body stays English', () => {
+  it('serves the whole page in the visitor language — chrome AND body', () => {
     const { unmount } = renderPage('pt');
     expect(screen.getByText('Plano aberto · em andamento')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeInTheDocument();
+    // Parity means the English body is ABSENT, not merely that Portuguese is present — a fallback
+    // rendering both, or the wrong file, would pass a laxer assertion.
+    expect(screen.queryByRole('heading', { name: /Get the category right first/ })).toBeNull();
     unmount();
 
     renderPage('en');
     expect(screen.getByText('Open plan · in progress')).toBeInTheDocument();
-    // The body is authored English-only for now (ADR-0032 scopes long-form content out of the
-    // locale layer), so the same section heading is present in both.
     expect(screen.getByRole('heading', { name: /Get the category right first/ })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeNull();
+  });
+
+  // The two editions are separate files, so they can drift. These are the facts that must NOT differ:
+  // the same sources, in the same order, or the page argues two different things in two languages.
+  it('keeps the two editions structurally in sync', () => {
+    const pt = renderPage('pt');
+    // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
+    // returns zero and the comparison passes for the wrong reason.
+    const ptLinks = [...pt.container.querySelectorAll('a')].map((a) => a.getAttribute('href'));
+    const ptSections = pt.container.querySelectorAll('h2').length;
+    pt.unmount();
+
+    const en = renderPage('en');
+    const enLinks = [...en.container.querySelectorAll('a')].map((a) => a.getAttribute('href'));
+    const enSections = en.container.querySelectorAll('h2').length;
+
+    expect(ptLinks).toEqual(enLinks);
+    expect(ptSections).toBe(enSections);
+    expect(ptSections).toBeGreaterThan(0); // guards against comparing two empty renders
   });
 
   it('turns the YouTube links into click-to-load facades, not eager iframes', () => {
