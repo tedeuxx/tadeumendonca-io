@@ -132,3 +132,21 @@ jobs:
       - name: Fail if plan failed
         if: steps.changes.outputs.iac == 'true' && steps.plan.outcome == 'failure'
         run: exit 1
+
+      # Say which of the two greens this is (issue #79). This job reports as the required check
+      # `plan`, and on a PR that touches no `iac/` it passes in seconds having run neither checkov nor
+      # terraform — a green indistinguishable from a full infra verification. Same treatment as
+      # build-test and lint-workflows.
+      - name: Report what was verified
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.changes.outputs.iac }}" != "true" ]; then
+            echo "::notice::no iac/ changes — checkov, fmt, validate and plan did NOT run (nothing was verified)"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::iac/ gate did NOT complete — a step failed, so the checks after it never ran. Read the failing step, not this line."
+            exit 0
+          fi
+          echo "::notice::iac/ gate ran — checkov, fmt, validate, plan"
