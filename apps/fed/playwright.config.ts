@@ -20,9 +20,17 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: { baseURL, trace: 'on-first-retry' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  // Only the local target needs a server booted: it points at a `vite preview` of the built app
-  // (dist/ must exist — run `npm run build` first). The staging/production targets hit the live apex,
-  // so no webServer. reuseExistingServer keeps a preview you already have running locally.
+  // Only the local target needs a server booted: it points at a `vite preview` of the built app.
+  // The staging/production targets hit the live apex, so no webServer.
+  //
+  // dist/ must exist AND be current. Staleness is the failure that actually happens — a suite run
+  // against a previous build passes for the wrong reason, which cost a false 26/26 green during the
+  // ramp-up slice. Hence `npm run e2e:local` rebuilds first; use `e2e:local:built` only when you just
+  // built (CI does).
+  //
+  // reuseExistingServer is safe here and was NOT the cause: `vite preview` serves dist/ from disk per
+  // request, so a rebuilt dist is picked up by an already-running preview — verified when the rebuild
+  // turned that green run red without restarting anything.
   webServer:
     ENV === 'local'
       ? {
