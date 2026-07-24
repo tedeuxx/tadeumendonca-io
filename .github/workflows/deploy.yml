@@ -64,8 +64,8 @@ jobs:
         run: |
           ssm() { aws ssm get-parameter --name "$1" --query 'Parameter.Value' --output text; }
           {
-            echo "bucket=$(ssm /$ENV_NAME/frontend/s3-bucket-name)"
-            echo "distribution_id=$(ssm /$ENV_NAME/frontend/cloudfront-distribution-id)"
+            echo "bucket=$(ssm "/$ENV_NAME/frontend/s3-bucket-name")"
+            echo "distribution_id=$(ssm "/$ENV_NAME/frontend/cloudfront-distribution-id")"
           } >> "$GITHUB_OUTPUT"
 
       - name: Build (static — prerendered)

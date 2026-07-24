@@ -40,7 +40,11 @@ VERSION   # single version (numeric SemVer)
 ## CI (`.github/workflows/`)
 
 `build-test` (lint + typecheck + test ≥85% + build + E2E + SonarCloud, path-filtered to `apps/fed`); `infra-plan`
-(checkov + `plan`). Deploys: `deploy` / `infra-apply` on merge to `main`.
+(checkov + `plan`, path-filtered to `iac/`); `lint-workflows` (actionlint + shellcheck over
+`.github/workflows/**`). Each runs on **every** PR and applies its path filter inside the job, then reports
+whether it skipped, failed part-way, or ran in full — a check that matched nothing must not read like one
+that passed.
+Deploys: `deploy` / `infra-apply` on merge to `main`.
 
 ## Related repos
 
