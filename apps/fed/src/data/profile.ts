@@ -256,6 +256,7 @@ const sourceTemplate: ProfileSource = {
   metadata: {
     github: 'https://github.com/tedeuxx',
     linkedin: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530',
+    x: 'https://x.com/tedeuxx',
   },
   updated_at: '2026-07-21',
 };

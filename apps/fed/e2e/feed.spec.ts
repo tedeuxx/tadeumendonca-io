@@ -34,9 +34,10 @@ test.describe('static site', () => {
   test('shows the contact links with a WhatsApp click-to-message link', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Onde me encontrar' })).toBeVisible();
-    // The aside and the #contato region each carry the link — assert on the aside's copy.
+    // The aside and the #contato region each carry the link — assert on the first (aside) copy.
     const wa = page.getByRole('link', { name: 'WhatsApp' }).first();
     await expect(wa).toHaveAttribute('href', /wa\.me\/5521986619954\?text=/);
+    await expect(page.getByRole('link', { name: 'X', exact: true }).first()).toHaveAttribute('href', 'https://x.com/tedeuxx');
   });
 
   test('filters the articles by track without touching the URL', async ({ page }) => {

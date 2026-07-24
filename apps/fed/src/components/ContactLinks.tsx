@@ -4,7 +4,7 @@
 //
 // Medium is deliberately absent — articles are hosted here, this site holds the canonical.
 // Every icon carries the theme accent, WhatsApp included: one palette, no brand colours borrowed.
-import { GithubMark, LinkedinMark, WhatsappMark } from './BrandIcons';
+import { GithubMark, LinkedinMark, WhatsappMark, XMark } from './BrandIcons';
 import { useT } from '../i18n';
 
 export const WHATSAPP_NUMBER = '5521986619954';
@@ -14,6 +14,7 @@ export const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURICo
 const LINKS = [
   { label: 'GitHub', href: 'https://github.com/tedeuxx', Icon: GithubMark },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/luiz-tadeu-mendonca-83a16530/', Icon: LinkedinMark },
+  { label: 'X', href: 'https://x.com/tedeuxx', Icon: XMark },
   { label: 'WhatsApp', href: whatsappHref, Icon: WhatsappMark },
 ];
 
