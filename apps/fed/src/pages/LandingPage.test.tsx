@@ -7,7 +7,7 @@ import { profile } from '../data/profile';
 import { renderWithLocale } from '../test-utils';
 
 // The landing is the content shop window: articles first, then portfolio, then contact. The owner's
-// name and bio belong to /cv and must NOT leak onto the landing.
+// name and bio belong to /me and must NOT leak onto the landing.
 function renderLanding() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return renderWithLocale(
@@ -32,7 +32,7 @@ describe('LandingPage', () => {
     expect(await screen.findByRole('heading', { name: /Algo aqui te ajudou/ })).toBeInTheDocument(); // contact footer
   });
 
-  it('does not show the personal name (it lives on /cv)', async () => {
+  it('does not show the personal name (it lives on /me)', async () => {
     renderLanding();
     await screen.findByRole('heading', { name: /Artigos/ });
     expect(screen.queryByText(profile.name)).toBeNull();

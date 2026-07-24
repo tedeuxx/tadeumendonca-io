@@ -34,7 +34,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0007](./0007-tailwind-no-shadcn-own-components.md) | Tailwind, no shadcn — own tokens + components | accepted |
 | [0008](./0008-brutalist-mono-identity.md) | Brutalist mono identity (colors, radius-0, visible grid) | accepted |
 | [0009](./0009-self-hosted-fonts.md) | Self-hosted fonts (Space Grotesk + JetBrains Mono) | accepted |
-| [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted |
+| [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted · amended 2026-07-24 (CV route `/cv → /me`, "Perfil / Profile" label; `/cv`·`/profile` redirect) |
 | [0012](./0012-snake-case-content-no-mapping.md) | snake_case content/data, no mapping layer | accepted |
 | [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted |
 

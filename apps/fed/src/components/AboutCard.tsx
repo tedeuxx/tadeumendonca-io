@@ -1,6 +1,6 @@
 // About block for the landing's slim aside. Reader-first and deliberately impersonal: it explains
-// what the SITE is for and defers the person to /cv. No name, no bio — the landing is the brand,
-// /cv is the person. The one personal token here is the avatar next to the "quem escreve" link:
+// what the SITE is for and defers the person to /me. No name, no bio — the landing is the brand,
+// /me is the person. The one personal token here is the avatar next to the "quem escreve" link:
 // a face, not a byline. It is the site's one round element (`.avatar-round`) — a portrait reads as a
 // portrait, while every actual surface stays radius 0. See ADR-0008's amendment.
 import { Link as RouterLink } from 'react-router-dom';
@@ -16,7 +16,7 @@ export function AboutCard() {
         <h3 className="label-mono text-foreground">{t('about.heading')}</h3>
       </div>
       <p className="text-[15px] leading-relaxed text-muted-foreground">{t('about.body')}</p>
-      <RouterLink to="/cv" className="group mt-4 flex items-center gap-3">
+      <RouterLink to="/me" className="group mt-4 flex items-center gap-3">
         <img
           src={avatar}
           alt=""

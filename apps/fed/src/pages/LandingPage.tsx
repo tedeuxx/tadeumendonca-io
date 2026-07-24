@@ -1,6 +1,6 @@
 // Landing (/) — the content shop window, reader-first: articles are the main pane, the portfolio is
 // a full-width section, contact closes the page. The owner's name and bio do NOT live here; they
-// live on /cv. Fully static (../data/*, markdown-in-repo) — no backend call.
+// live on /me. Fully static (../data/*, markdown-in-repo) — no backend call.
 //
 // It owns the document head + the Person JSON-LD (the structured data still describes the person,
 // even though the visible landing does not).

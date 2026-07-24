@@ -43,7 +43,7 @@ export interface Profile {
   profile_id: string;
   name: string;
   headline: string;
-  /** Portrait shown on /cv (the landing stays impersonal apart from the small aside avatar). */
+  /** Portrait shown on /me (the landing stays impersonal apart from the small aside avatar). */
   avatar_url?: string;
   summary?: string;
   location?: string;

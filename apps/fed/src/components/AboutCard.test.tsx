@@ -6,14 +6,14 @@ import { profile } from '../data/profile';
 import { renderWithLocale } from '../test-utils';
 
 describe('AboutCard', () => {
-  it('describes the site and defers the person to /cv', () => {
+  it('describes the site and defers the person to /me', () => {
     const { container } = renderWithLocale(
       <MemoryRouter>
         <AboutCard />
       </MemoryRouter>,
     );
     expect(screen.getByRole('heading', { name: 'Sobre este site' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Quem escreve/ })).toHaveAttribute('href', '/cv');
+    expect(screen.getByRole('link', { name: /Quem escreve/ })).toHaveAttribute('href', '/me');
     expect(container.textContent).not.toContain(profile.name); // no name on the landing
   });
 

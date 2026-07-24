@@ -4,7 +4,7 @@
 //
 // The landing owns the anchors (#artigos, #portfolio, #contato); nav points at them through `/#…`
 // so the same link works from a sub-route (full load back to the landing) and as an in-page jump on
-// the landing itself. `/cv` and `/portfolio` are real routes.
+// the landing itself. `/me` and `/portfolio` are real routes.
 import { useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -30,7 +30,7 @@ const NAV: NavEntry[] = [
   { href: '/#portfolio', labelKey: 'nav.portfolio', section: 'portfolio' },
   { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
   { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
-  { href: '/cv', labelKey: 'nav.cv', route: true },
+  { href: '/me', labelKey: 'nav.profile', route: true },
 ];
 const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => id !== undefined);
 
