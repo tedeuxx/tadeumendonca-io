@@ -54,4 +54,9 @@ jobs:
         run: terraform init -input=false
 
       - name: Apply
+        # budget_alert_email is delivered here, not via env/stg.tfvars (public repo) nor a TFC workspace
+        # variable (inert under Local execution). The variable is `sensitive`, so terraform redacts it in
+        # the apply output. Empty/unset secret keeps budget notifications off — the budget still tracks.
+        env:
+          TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
         run: terraform apply -input=false -auto-approve -var-file=env/stg.tfvars

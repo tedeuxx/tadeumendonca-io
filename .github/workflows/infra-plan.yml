@@ -97,6 +97,11 @@ jobs:
         id: plan
         if: steps.changes.outputs.iac == 'true'
         shell: bash
+        # Same value as apply, so the plan preview matches what apply will do. The variable is
+        # `sensitive`, so terraform renders it as "(sensitive value)" in plan.txt — which is posted as a
+        # public PR comment — never the address in cleartext.
+        env:
+          TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
         run: |
           set -o pipefail
           terraform plan -input=false -no-color -var-file="$VAR_FILE" 2>&1 | tee plan.txt
