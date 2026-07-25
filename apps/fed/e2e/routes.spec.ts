@@ -49,6 +49,39 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
   });
 
+  // The architecture page is the fifth public surface. Its body is markdown-in-repo rendered through the
+  // shared <Markdown>, and it is an orientation LAYER — it links canonical detail rather than restating
+  // it. Unlike the ramp-up page it carries no video embeds, so this journey anchors on the heading plus
+  // at least one outbound canonical link (both public repos + the catalog-ready gate must be reachable).
+  test('/architecture serves the blueprint, linking canonical detail out', async ({ page }) => {
+    await page.goto('/architecture');
+    await expect(page.getByRole('heading', { level: 1, name: /Arquitetura/ })).toBeVisible();
+    // pt-BR context: the Portuguese body must render (asserting the English heading would pass only
+    // against a stale build).
+    await expect(page.getByRole('heading', { name: /O registro de decisões É a documentação/ })).toBeVisible();
+
+    // The orientation contract, on the real page: both public repos and catalog-ready are reachable.
+    await expect(page.getByRole('link', { name: 'tadeumendonca-io' }).first()).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-io',
+    );
+    await expect(page.getByRole('link', { name: 'tadeumendonca-skills' }).first()).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-skills',
+    );
+    await expect(page.getByRole('link', { name: 'docs/catalog-ready.md' })).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md',
+    );
+  });
+
+  test('reaches the architecture page from the nav', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('navigation').getByRole('link', { name: 'Arquitetura' }).click();
+    await expect(page).toHaveURL(/\/architecture$/);
+    await expect(page.getByRole('heading', { level: 1, name: /Arquitetura/ })).toBeVisible();
+  });
+
   test('reaches the full catalog from the landing shortlist', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: /Ver catálogo completo/ }).click();

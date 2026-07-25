@@ -30,7 +30,7 @@ export function publicRoutes() {
         .map(slugOf),
     ),
   ];
-  return ['/', '/me', '/portfolio', '/ramp-up', ...slugs.map((s) => `/blog/${s}`)];
+  return ['/', '/me', '/portfolio', '/ramp-up', '/architecture', ...slugs.map((s) => `/blog/${s}`)];
 }
 
 export const SITE_URL = process.env.VITE_SITE_URL?.replace(/\/$/, '') ?? 'https://tadeumendonca.io';

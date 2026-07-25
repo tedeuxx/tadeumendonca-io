@@ -11,6 +11,7 @@ import { LandingPage } from './pages/LandingPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PortfolioPage } from './pages/PortfolioPage';
 import { RampUpPage } from './pages/RampUpPage';
+import { ArchitecturePage } from './pages/ArchitecturePage';
 import { ArticlePage } from './pages/ArticlePage';
 
 const queryClient = new QueryClient({
@@ -28,6 +29,7 @@ export function App() {
               <Route path="/me" element={<ProfilePage />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/ramp-up" element={<RampUpPage />} />
+              <Route path="/architecture" element={<ArchitecturePage />} />
               <Route path="/blog/:slug" element={<ArticlePage />} />
               <Route path="/blog" element={<Navigate to="/#artigos" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />

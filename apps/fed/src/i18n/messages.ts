@@ -19,6 +19,7 @@ const strings = {
     contact: { pt: 'Contato', en: 'Contact' },
     profile: { pt: 'Perfil', en: 'Profile' },
     rampup: { pt: 'Ramp-up', en: 'Ramp-up' },
+    architecture: { pt: 'Arquitetura', en: 'Architecture' },
     openMenu: { pt: 'Abrir menu', en: 'Open menu' },
     closeMenu: { pt: 'Fechar menu', en: 'Close menu' },
   },
@@ -76,6 +77,20 @@ const strings = {
     metaDescription: {
       pt: 'O plano que montei para migrar de arquiteto de aplicações cloud para AI Engineer: o raciocínio, os cinco pilares, o roadmap de 6–12 meses e as fontes que estou realmente usando.',
       en: 'The plan I built to move from cloud application architect to AI Engineer: the reasoning, the five pillars, the 6–12 month roadmap, and the sources I am actually using.',
+    },
+  },
+  // The architecture page's chrome. Its BODY is markdown-in-repo, authored in both locales
+  // (content/architecture.pt.md · content/architecture.en.md), so chrome and content are always in the
+  // same language — the parity rule. The page is an orientation layer that LINKS canonical detail
+  // (the ADRs, the two public repos, catalog-ready) rather than restating it.
+  architecture: {
+    heading: { pt: 'Arquitetura — a planta, em aberto', en: 'Architecture — the blueprint, in the open' },
+    // Document title (the site name is appended by useDocumentHead).
+    title: { pt: 'Arquitetura do site', en: 'How this site is built' },
+    kicker: { pt: 'A planta · aberta', en: 'The blueprint · open' },
+    metaDescription: {
+      pt: 'Como este site é construído: a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, o dev-loop de verificação liderada pelo agente, e os ADRs que registram cada decisão — com links para replicar.',
+      en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record every decision — with links to replicate it.',
     },
   },
   portfolio: {
