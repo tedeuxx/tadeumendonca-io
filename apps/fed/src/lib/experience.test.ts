@@ -56,9 +56,9 @@ describe('the published figure', () => {
   it('is derived from the CV, not written into it', () => {
     expect(CAREER_YEARS).toBe(careerYears(profileSource.experience));
     expect(CAREER_YEARS).toBeGreaterThan(0);
-    // The public figure is the evergreen floor "17+"; this guard keeps the "+" honest — the derived
+    // The public figure is the evergreen floor "18+"; this guard keeps the "+" honest — the derived
     // count must never fall below the published floor (#124).
-    expect(CAREER_YEARS).toBeGreaterThanOrEqual(17);
+    expect(CAREER_YEARS).toBeGreaterThanOrEqual(18);
   });
 
   // Whole-object, deliberately. Only headline and summary are substituted, but every other prose
@@ -71,8 +71,8 @@ describe('the published figure', () => {
   });
 
   it('substitutes the evergreen figure, in both locales', () => {
-    expect(profileSource.headline.en).toContain('17+ years across SDLC');
-    expect(profileSource.headline.pt).toContain('17+ anos em SDLC');
+    expect(profileSource.headline.en).toContain('18+ years across SDLC');
+    expect(profileSource.headline.pt).toContain('18+ anos em SDLC');
   });
 
   // The claim this whole slice is named for: the CV and the ramp-up page cannot disagree, because
@@ -84,8 +84,8 @@ describe('the published figure', () => {
     expect(rampUpPt).toContain(YEARS_TOKEN);
 
     // …and each resolves to the CV's figure, in its own wording.
-    expect(withYears(rampUpEn)).toContain('17+ years across SDLC');
-    expect(withYears(rampUpPt)).toContain('17+ anos entre SDLC');
+    expect(withYears(rampUpEn)).toContain('18+ years across SDLC');
+    expect(withYears(rampUpPt)).toContain('18+ anos entre SDLC');
     expect(withYears(rampUpEn)).not.toContain(YEARS_TOKEN);
     expect(withYears(rampUpPt)).not.toContain(YEARS_TOKEN);
   });

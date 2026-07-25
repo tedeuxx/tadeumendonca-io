@@ -17,10 +17,10 @@ import { careerYears, YEARS_TOKEN } from '../lib/experience';
 import avatar from '../assets/avatar.jpg';
 
 // Years of experience are written as `{{years}}` and resolved by `withYears`. The PUBLIC figure is an
-// evergreen floor — "17+" — anchored to the formal career start (2008-03). Evergreen so it never drifts
+// evergreen floor — "18+" — anchored to the formal career start (2008-03). Evergreen so it never drifts
 // across surfaces (site vs LinkedIn/CV) and stays true as the count grows (#124). The exact count is
 // still DERIVED from the dates below (CAREER_YEARS, currently 18) and kept as the honesty guard: a test
-// asserts CAREER_YEARS >= the published floor (17), so the "+" is always true. History: the figure was a
+// asserts CAREER_YEARS >= the published floor (18), so the "+" is always true. History: the figure was a
 // hardcoded "17" that drifted (issue #82), then a bare derived number that diverged from manual surfaces;
 // the evergreen floor fixes both. See lib/experience.ts.
 const sourceTemplate: ProfileSource = {
@@ -306,7 +306,7 @@ export const CAREER_YEARS = careerYears(sourceTemplate.experience);
  * and must resolve it from the same constant — two substitution helpers would be two things to drift.
  */
 /** The evergreen public figure (#124) — a floor, not the bare derived count (see the header note). */
-export const CAREER_YEARS_PUBLIC = '17+';
+export const CAREER_YEARS_PUBLIC = '18+';
 export const withYears = (text: string) => text.split(YEARS_TOKEN).join(CAREER_YEARS_PUBLIC);
 
 /**
