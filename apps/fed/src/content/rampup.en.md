@@ -118,6 +118,7 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — cloud-native AI on AWS.
 - **[Y Combinator](https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg)** — where the field is heading, builder-side.
 - **[Dwarkesh Patel](https://www.youtube.com/channel/UCXl4i9dYBrFOabk0xGmbkRA)** — long-form with AI researchers; depth and alignment thinking.
+- **[Andrej Karpathy](https://www.youtube.com/@AndrejKarpathy)** — foundational LLM deep-dives; the clearest "what's actually under the hood" long-form there is.
 - **[Chase AI](https://www.youtube.com/channel/UCoy6cTJ7Tg0dqS-DI-_REsA)** · **[Zack the AI Guy](https://www.youtube.com/channel/UCppvQz-ua7Rfi1Ca2qV9nzw)** — hands-on Claude/agent walkthroughs.
 - **[IBM Technology](https://www.youtube.com/channel/UCKWaEZ-_VweaEx1j62do_vQ)** — clean whiteboard explainers on core concepts.
 - **[Matt Pocock](https://www.youtube.com/@mattpocockuk)** · **[bycloud](https://www.youtube.com/channel/UCgfe2ooZD3VJPB6aJAnuQng)** · **[Shaw Talebi](https://www.youtube.com/channel/UCa9gErQ9AE5jT2DZLjXBIdA)** — hands-on AI coding and agent tutorials.
@@ -133,6 +134,7 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[@virattt](https://x.com/virattt)** — AI applied to finance, if that's your domain.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — founder/investor lens on where AI is heading.
 - **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — the industry lens: where AI compute and the frontier are heading, from the person building the hardware under it.
+- **[@karpathy](https://x.com/karpathy)** (Andrej Karpathy) — foundational LLM education and frontier takes from one of the field's clearest teachers.
 - PT-BR: **[@AkitaOnRails](https://x.com/AkitaOnRails)** (Fabio Akita) · **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — Brazilian dev voices going deep on this.
 
 Treat X as signal, not truth — it's where you spot what's new, then you go verify it in the books.

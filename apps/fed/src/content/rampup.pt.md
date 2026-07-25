@@ -118,6 +118,7 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 - **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — IA cloud-native na AWS.
 - **[Y Combinator](https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg)** — pra onde o campo está indo, pelo lado de quem constrói.
 - **[Dwarkesh Patel](https://www.youtube.com/channel/UCXl4i9dYBrFOabk0xGmbkRA)** — conversas longas com pesquisadores de IA; profundidade e alinhamento.
+- **[Andrej Karpathy](https://www.youtube.com/@AndrejKarpathy)** — deep-dives fundamentais de LLM; o long-form mais claro de "o que realmente roda por baixo".
 - **[Chase AI](https://www.youtube.com/channel/UCoy6cTJ7Tg0dqS-DI-_REsA)** · **[Zack the AI Guy](https://www.youtube.com/channel/UCppvQz-ua7Rfi1Ca2qV9nzw)** — walkthroughs práticos de Claude/agentes.
 - **[IBM Technology](https://www.youtube.com/channel/UCKWaEZ-_VweaEx1j62do_vQ)** — explicações limpas de quadro branco sobre conceitos centrais.
 - **[Matt Pocock](https://www.youtube.com/@mattpocockuk)** · **[bycloud](https://www.youtube.com/channel/UCgfe2ooZD3VJPB6aJAnuQng)** · **[Shaw Talebi](https://www.youtube.com/channel/UCa9gErQ9AE5jT2DZLjXBIdA)** — tutoriais práticos de AI coding e agentes.
@@ -133,6 +134,7 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 - **[@virattt](https://x.com/virattt)** — IA aplicada a finanças, se esse for seu domínio.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — a lente de fundador/investidor sobre onde a IA está indo.
 - **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — a lente da indústria: para onde o compute de IA e a fronteira estão indo, de quem constrói o hardware por baixo.
+- **[@karpathy](https://x.com/karpathy)** (Andrej Karpathy) — educação fundamental de LLM e takes de fronteira de um dos professores mais claros do campo.
 - PT-BR: **[@AkitaOnRails](https://x.com/AkitaOnRails)** (Fabio Akita) · **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — vozes brasileiras de dev indo fundo nisso.
 
 Trate X como sinal, não como verdade — é onde você descobre o que é novo, e daí vai verificar nos livros.
