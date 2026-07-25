@@ -1,8 +1,8 @@
 _Vaga-alvo: **AI Engineer** (GenAI aplicada / agentic — não pesquisa em ML)._
 
-Esse é o meu ramp-up em público. Sou arquiteto de aplicações cloud (AWS, {{years}} anos entre SDLC e sistemas distribuídos) migrando para AI Engineering — e esta página é o plano que montei pra mim, o raciocínio por trás dele, e as fontes exatas que estou usando. Publico porque a maior parte do conteúdo de "como virar AI Engineer" é ou gatekeeping de PhD em ML ou thread de hype, e nenhum dos dois me ajudou.
+Esse é o meu ramp-up em público. Já trabalho como AI Engineer — GenAI aplicada e o loop de desenvolvimento AI-native — construído sobre {{years}} anos entre SDLC e sistemas distribuídos como arquiteto de aplicações cloud e distribuídas. Esta página é o plano para a profundidade que ainda estou construindo, o raciocínio por trás dele, e as fontes exatas que estou usando. Publico porque a maior parte do conteúdo de "como virar AI Engineer" é ou gatekeeping de PhD em ML ou thread de hype, e nenhum dos dois me ajudou.
 
-Aviso honesto: isso é um plano em andamento, não uma volta olímpica. Estou no meio da transição. Pega o que servir, ignora o resto.
+Aviso honesto: isso é um plano em andamento, não uma volta olímpica. A identidade está firmada; a profundidade ainda está compondo. Pega o que servir, ignora o resto.
 
 ---
 
