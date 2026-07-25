@@ -17,7 +17,7 @@ const TRACK_KEY = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' }
 export function ArticlePage() {
   const { locale, t } = useLocale();
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? getPostBySlug(slug) : undefined;
+  const article = slug ? getPostBySlug(slug, locale) : undefined;
 
   useDocumentHead(
     article

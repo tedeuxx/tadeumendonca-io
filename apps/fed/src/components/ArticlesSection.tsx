@@ -89,9 +89,9 @@ function ArticleRow({ post }: { post: BlogPost }) {
 }
 
 export function ArticlesSection() {
-  const t = useT();
+  const { locale, t } = useLocale();
   const [track, setTrack] = useState<Track | 'all'>('all');
-  const posts = getAllPosts(track === 'all' ? undefined : { track });
+  const posts = getAllPosts(locale, track === 'all' ? undefined : { track });
 
   return (
     <section id="artigos" className="scroll-mt-[--header-h]">

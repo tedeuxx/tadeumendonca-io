@@ -68,7 +68,7 @@ describe('ArticlesSection', () => {
   it('starts on "Tudo" and asks the loader for every track', () => {
     getAllPosts.mockReturnValue([post()]);
     renderSection();
-    expect(getAllPosts).toHaveBeenCalledWith(undefined);
+    expect(getAllPosts).toHaveBeenCalledWith('pt', undefined);
     expect(screen.getByRole('tab', { name: 'Tudo' })).toHaveAttribute('aria-selected', 'true');
   });
 
@@ -77,13 +77,13 @@ describe('ArticlesSection', () => {
     renderSection();
 
     fireEvent.click(screen.getByRole('tab', { name: 'Vida pessoal' }));
-    expect(getAllPosts).toHaveBeenLastCalledWith({ track: 'pessoal' });
+    expect(getAllPosts).toHaveBeenLastCalledWith('pt', { track: 'pessoal' });
     expect(screen.getByRole('tab', { name: 'Vida pessoal' })).toHaveAttribute('aria-selected', 'true');
 
     fireEvent.click(screen.getByRole('tab', { name: 'Engenharia' }));
-    expect(getAllPosts).toHaveBeenLastCalledWith({ track: 'engenharia' });
+    expect(getAllPosts).toHaveBeenLastCalledWith('pt', { track: 'engenharia' });
 
     fireEvent.click(screen.getByRole('tab', { name: 'Tudo' }));
-    expect(getAllPosts).toHaveBeenLastCalledWith(undefined);
+    expect(getAllPosts).toHaveBeenLastCalledWith('pt', undefined);
   });
 });
