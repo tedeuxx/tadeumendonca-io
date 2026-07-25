@@ -77,7 +77,9 @@ npm run build:static  # build + prerender (the deploy artifact)
 npm run e2e:local        # builds, THEN runs Playwright against a preview — the local gate
 npm run e2e:local:built  # skips the build; use right after one (CI does), or after build:static
                          # to test the PRERENDERED artifact — `vite build` empties dist/
-npm run e2e              # ⚠️ no E2E_ENV → defaults to STAGING, i.e. the live apex (issue #88)
+npm run e2e              # bare: now FAILS FAST with guidance if no target is set — no silent default (#88).
+                         #   the deploy job sets E2E_ENV for its post-deploy smoke; locally use e2e:local.
+npm run e2e:production   # ⚠️ drives the LIVE apex on purpose (E2E_ENV=production)
 ```
 
 ## Workflow (see platform)

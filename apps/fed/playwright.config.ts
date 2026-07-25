@@ -1,16 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// E2E config (/frontend/playwright). The base URL comes from PLAYWRIGHT_BASE_URL, or from E2E_ENV
-// (local | staging) mapped below. The SAME specs run anywhere: locally / on the PR gate against a
-// `vite preview` of the built app, or against the deployed site post-deploy (the single environment
-// serves at the apex). `npm run e2e:local` is the pre-merge gate; `e2e:staging` is the deploy smoke.
-const ENV = process.env.E2E_ENV ?? 'staging';
+// E2E config (/frontend/playwright). The target is EXPLICIT: PLAYWRIGHT_BASE_URL, or E2E_ENV
+// (local | staging | production) mapped below. There is NO default — a bare default silently pointed
+// at the live apex and cost a debugging session (the suite asserted code that wasn't deployed yet, #88).
+// The SAME specs run anywhere: locally / on the PR gate against a `vite preview` of the built app, or
+// against the deployed site post-deploy (the single environment serves at the apex). `npm run e2e:local`
+// is the pre-merge gate; the deploy job sets E2E_ENV for its post-deploy smoke.
+const ENV = process.env.E2E_ENV;
 const URLS: Record<string, string> = {
   local: 'http://localhost:4173', // vite preview
-  staging: 'https://tadeumendonca.io', // single env, served at the apex
+  // Both remote targets are the SAME live apex — there is one environment. 'staging' names no real
+  // tier here; the rename/removal is #120. Until then it stays so the deploy smoke's E2E_ENV resolves.
+  staging: 'https://tadeumendonca.io',
   production: 'https://tadeumendonca.io',
 };
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? URLS[ENV] ?? URLS.staging;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? (ENV ? URLS[ENV] : undefined);
+if (!baseURL) {
+  throw new Error(
+    'E2E target not set — refusing to default (a bare default here silently drives the live apex, #88). ' +
+      'Use `npm run e2e:local` (pre-merge gate — builds, then runs against a local preview) · ' +
+      '`npm run e2e:local:built` (dist/ already current) · `npm run e2e:production` (the live apex, on purpose) · ' +
+      'or pass E2E_ENV=local|staging|production / PLAYWRIGHT_BASE_URL explicitly.',
+  );
+}
 
 export default defineConfig({
   testDir: './e2e',
