@@ -4,6 +4,8 @@ Esse é o meu ramp-up em público. Já trabalho como AI Engineer — GenAI aplic
 
 Aviso honesto: isso é um plano em andamento, não uma volta olímpica. A identidade está firmada; a profundidade ainda está compondo. Pega o que servir, ignora o resto.
 
+**Como isso começou:** no início de 2026 peguei o Kiro — um IDE agentic — e o loop AI-native fez sentido. Em seguida entrou na minha vida pessoal (Claude, Cowork), depois em projetos pessoais construídos com Claude Code. Este site e este ramp-up fazem parte do mesmo movimento: uma transição que estou vivendo em público, não um claim que estou fazendo.
+
 ---
 
 ## 1. Primeiro, acerte a categoria
