@@ -83,7 +83,7 @@ function NavItems({ activeSection, onNavigate }: { activeSection: string | null;
 function LocaleToggle() {
   const { locale, setLocale, t } = useLocale();
   return (
-    <div role="group" aria-label={t('locale.switch')} className="ml-1 flex items-center border border-border">
+    <div role="group" data-print="hide" aria-label={t('locale.switch')} className="ml-1 flex items-center border border-border">
       {LOCALES.map((code) => (
         <button
           key={code}
@@ -114,8 +114,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-screen flex-col border-x-2 border-border-strong">
-      <header className="sticky top-0 z-20 bg-background">
+      {/* Chrome hidden in print (#140): the print PDF of /me is a CV, not a page screenshot. */}
+      <header data-print="hide" className="sticky top-0 z-20 bg-background">
         <nav
+          data-print="hide"
           className="flex items-center justify-between gap-3 border-b-2 border-border-strong px-[--gutter]"
           style={{ minHeight: 'var(--header-h)' }}
         >
@@ -135,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </nav>
         {menuOpen && (
-          <div className="flex flex-col items-start border-b border-border bg-background px-[--gutter] py-2 md:hidden">
+          <div data-print="hide" className="flex flex-col items-start border-b border-border bg-background px-[--gutter] py-2 md:hidden">
             <NavItems activeSection={activeSection} onNavigate={() => setMenuOpen(false)} />
             <div className="pt-1">
               <LocaleToggle />
@@ -146,7 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t-2 border-border-strong px-[--gutter] py-4">
+      <footer data-print="hide" className="border-t-2 border-border-strong px-[--gutter] py-4">
         <div className="mx-auto flex w-full max-w-screen items-center justify-between gap-3">
           <span className="font-mono text-xs text-muted-foreground">tadeumendonca.io</span>
           {/* Withdrawal must be as reachable as granting: this re-opens the banner to re-decide. Shown

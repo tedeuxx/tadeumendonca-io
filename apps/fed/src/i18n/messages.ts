@@ -118,6 +118,7 @@ const strings = {
     skills: { pt: 'Habilidades', en: 'Skills' },
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
+    download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
   },
   column: {
     loading: { pt: 'Carregando', en: 'Loading' },

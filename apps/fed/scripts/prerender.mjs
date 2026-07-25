@@ -45,6 +45,22 @@ try {
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, 'index.html'), html);
     console.log(`prerendered ${route}`);
+
+    // Build-time CV export (#140): on /me, emit the downloadable PDF from the page we already have
+    // navigated + settled. `page.pdf()` is headless-chromium only — which this pass already is — so no
+    // new dependency. It forces print-media emulation, so src/styles/index.css's @media print drives the
+    // layout (chrome hidden, mono palette on paper); printBackground keeps the orange accents + the
+    // filled LevelMeter squares (they paint via background/border). The web HTML snapshot above is
+    // captured first, so this print pass does not affect the served /me/index.html.
+    if (route === '/me') {
+      await page.pdf({
+        path: join(dist, 'cv.pdf'),
+        printBackground: true,
+        format: 'A4',
+        margin: { top: '1.5cm', bottom: '1.5cm', left: '1.5cm', right: '1.5cm' },
+      });
+      console.log('  emitted dist/cv.pdf');
+    }
   }
 } finally {
   await browser.close();

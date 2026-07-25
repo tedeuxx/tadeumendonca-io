@@ -85,20 +85,25 @@ jobs:
         if: steps.changes.outputs.code == 'true'
         run: npm test
 
-      - name: Build
-        if: steps.changes.outputs.code == 'true'
-        # A TEST measurement id so the E2E can exercise the consent banner without touching the real GA
-        # property — the Playwright suite blocks the googletagmanager request, so no hit ever leaves CI.
-        env:
-          VITE_GA_MEASUREMENT_ID: G-TEST00000000
-        run: npm run build
-
-      # Full regression BEFORE the merge deploys. Playwright boots a `vite preview` of the build above
-      # (webServer in playwright.config.ts) and runs the public journeys against it. Under
-      # trunk-single-env this is the gate — a route break fails the PR instead of reaching production.
+      # Chromium is installed BEFORE the build because build:static runs scripts/prerender.mjs, which
+      # launches headless chromium to snapshot each route (and now emit /cv.pdf, #140) into dist/. On a
+      # fresh `npm ci` runner the browser does not exist yet, so the prerender would fail if this ran
+      # after Build. E2E below reuses the same browser — this is a reorder, not a new dependency.
       - name: Install Playwright browser
         if: steps.changes.outputs.code == 'true'
         run: npx playwright install --with-deps chromium
+
+      - name: Build
+        if: steps.changes.outputs.code == 'true'
+        # build:static (not build) so scripts/prerender.mjs runs: it prerenders each route for OG/SEO and
+        # emits the build-time /cv.pdf (#140) into dist/, which the served-/cv.pdf E2E asserts. Without it
+        # dist/cv.pdf never exists in the PR gate and the new E2E would have nothing to check.
+        # A TEST measurement id so the E2E can exercise the consent banner without touching the real GA
+        # property — the Playwright suite blocks the googletagmanager request, so no hit ever leaves CI.
+        # build:static does not inject the id the way e2e:local does, so it is set here for the build.
+        env:
+          VITE_GA_MEASUREMENT_ID: G-TEST00000000
+        run: npm run build:static
 
       # `:built` skips the rebuild `e2e:local` does — the Build step above already produced dist/, and
       # a fresh checkout cannot have a stale one. Locally the default script rebuilds first, because

@@ -62,6 +62,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | ADR | Title | Status |
 |---|---|---|
 | [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
+| [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted |
 
 ## History (superseded — reverse-engineered, kept not deleted)
 | ADR | Title | Superseded by |
