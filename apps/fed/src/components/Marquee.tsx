@@ -37,7 +37,7 @@ function Track({ hidden = false }: { hidden?: boolean }) {
 export function Marquee() {
   const t = useT();
   return (
-    <div aria-label={t('marquee.subjects')} className="relative z-10 overflow-hidden border-y border-b-border border-t-2 border-t-border-strong bg-background">
+    <div data-print="hide" aria-label={t('marquee.subjects')} className="relative z-10 overflow-hidden border-y border-b-border border-t-2 border-t-border-strong bg-background">
       <div className="flex w-max animate-marquee">
         <Track />
         <Track hidden />

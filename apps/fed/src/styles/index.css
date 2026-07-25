@@ -107,6 +107,41 @@ body {
   }
 }
 
+/* Print — the build-time PDF export of /me (#140, ADR-0002 static-asset approach). The prerender pass
+   drives `page.pdf({ printBackground: true })` over /me, and this block turns that print render into a
+   clean one/two-page CV rather than a page screenshot:
+   - The web chrome is hidden through ONE stable hook, `[data-print="hide"]`, placed on the AppShell
+     header/nav + mobile menu, every LocaleToggle, the Marquee, the AppShell footer (incl. its
+     conditional consent button), and — on /me — the metadata/contact row and the Download-CV control
+     itself. A single attribute selector is testable and robust (no brittle deep selectors).
+   - The mono palette is flipped onto paper: the site's own off-white becomes the sheet and the
+     near-black becomes the ink (both are brand tokens, just swapped for print), the safety-orange
+     accent is kept. Radius 0 and the typefaces are inherited unchanged.
+   - printBackground is on, so the filled LevelMeter squares (`bg-foreground`) and the orange accents
+     (`bg-primary` / the cert seal) — which paint via background/border — survive into the PDF. */
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+  [data-print='hide'] {
+    display: none !important;
+  }
+  /* Ink-on-paper: swap the two brand neutrals, keep the accent. Grid rules go light so they read on
+     white; the strong rule stays ink for the section frames. */
+  :root {
+    --background: 50 23% 95%; /* off-white → the sheet */
+    --foreground: 0 0% 4%; /* near-black → the ink */
+    --border: 0 0% 80%; /* light grid line on paper */
+    --border-strong: 0 0% 4%; /* heavy rule = ink */
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 30%;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
 /* Markdown body (preflight is off, so style the rendered elements explicitly). */
 .markdown > :first-child {
   margin-top: 0;

@@ -114,21 +114,30 @@ export function CVSection({ profile }: { profile: Profile }) {
           {profile.location ? ` · ${profile.location}` : ''}
         </p>
         {profile.summary && <p className="mt-5 max-w-prose leading-relaxed text-foreground/90">{profile.summary}</p>}
-        {Object.keys(profile.metadata).length > 0 && (
-          <div className="mt-5 flex flex-wrap">
-            {Object.entries(profile.metadata).map(([key, url]) => (
-              <a
-                key={key}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="-mb-px -mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
-              >
-                {LINK_LABELS[key] ?? key}
-              </a>
-            ))}
-          </div>
-        )}
+        {/* Metadata/contact row + the Download-CV control. Both are web chrome, hidden in the print
+            render (#140) — the PDF is generated FROM this page, so it must not carry a link back to
+            itself. The download is a plain static <a> to the build-time asset (no runtime JS, ADR-0002). */}
+        <div className="mt-5 flex flex-wrap items-stretch" data-print="hide">
+          {Object.entries(profile.metadata).map(([key, url]) => (
+            <a
+              key={key}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="-mb-px -mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
+            >
+              {LINK_LABELS[key] ?? key}
+            </a>
+          ))}
+          <a
+            href="/cv.pdf"
+            download="luiz-tadeu-mendonca-cv.pdf"
+            data-print="hide"
+            className="-mb-px -mr-px border border-primary px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-primary invert-hover"
+          >
+            {t('cv.download')}
+          </a>
+        </div>
       </header>
 
       {profile.experience.length > 0 && (

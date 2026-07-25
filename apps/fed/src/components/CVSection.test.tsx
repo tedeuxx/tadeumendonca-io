@@ -100,6 +100,21 @@ describe('CVSection', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tadeu Mendonça' })).toBeInTheDocument();
   });
 
+  it('offers a static Download-CV link to the build-time PDF, localized in both locales (#140)', () => {
+    // The PDF is a static asset emitted at build (scripts/prerender.mjs), reached by a plain <a download>
+    // — no runtime JS (ADR-0002). The label is chrome, so it localizes with the rest of the section.
+    const { unmount } = renderWithLocale(<CVSection profile={profile} />, { locale: 'en' });
+    const en = screen.getByRole('link', { name: 'Download CV (PDF)' });
+    expect(en).toHaveAttribute('href', '/cv.pdf');
+    expect(en).toHaveAttribute('download', 'luiz-tadeu-mendonca-cv.pdf');
+    unmount();
+
+    renderWithLocale(<CVSection profile={profile} />, { locale: 'pt' });
+    const pt = screen.getByRole('link', { name: 'Baixar CV (PDF)' });
+    expect(pt).toHaveAttribute('href', '/cv.pdf');
+    expect(pt).toHaveAttribute('download', 'luiz-tadeu-mendonca-cv.pdf');
+  });
+
   it('omits empty blocks', () => {
     const minimal: Profile = {
       ...profile,
