@@ -57,8 +57,10 @@ serves it lives alongside, in `iac/`.
   languages in one document makes both unreadable to edit. Same contract, different granularity.
   *Two files can drift where an object cannot*, so parity is asserted — both editions must expose the
   same links and embedded videos in the same order, and each must render without the other's text.
-  **Known debt:** the blog article is still pt-only and `lib/content.ts` still loads one file per slug
-  (issue #83). Deferred: route-prefixed `/en`·`/pt` + per-locale prerender/hreflang.
+  **The blog is bilingual too** (#83): `lib/content.ts` loads the per-locale `<slug>.pt.md` / `<slug>.en.md`
+  pair and **throws at module load if either is missing** — the single-language case fails the build, the
+  prerender and the tests, so it cannot ship. Still deferred: route-prefixed `/en`·`/pt` + per-locale
+  prerender/hreflang (the crawlable baseline stays English, ADR-0032).
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions
