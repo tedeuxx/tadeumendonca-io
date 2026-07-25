@@ -1,8 +1,8 @@
 _Target role: **AI Engineer** (applied GenAI / agentic — not ML research)._
 
-This is my ramp-up in the open. I'm a cloud application architect (AWS, {{years}} years across SDLC and distributed systems) moving into AI Engineering — and this page is the plan I built for myself, the reasoning behind it, and the exact sources I'm using. I'm sharing it because most "become an AI Engineer" content is either ML-PhD gatekeeping or hype threads, and neither helped me.
+This is my ramp-up in the open. I already work as an AI Engineer — applied GenAI and the AI-native development loop — built on {{years}} years across SDLC and distributed systems as a cloud and distributed-applications architect. This page is the plan for the depth I'm still building, the reasoning behind it, and the exact sources I'm using. I'm sharing it because most "become an AI Engineer" content is either ML-PhD gatekeeping or hype threads, and neither helped me.
 
-Fair warning: this is a plan in progress, not a victory lap. I'm mid-transition. Take what's useful, ignore the rest.
+Fair warning: this is a plan in progress, not a victory lap. The identity is set; the depth is still compounding. Take what's useful, ignore the rest.
 
 ---
 
