@@ -37,6 +37,18 @@ function Block({ index, title, children }: { index: string; title: string; child
 }
 
 /** Credly badge when the data has the image, otherwise a typographic seal built from the label. */
+// A 4-square proficiency meter (AWS L100–L400 model): `level` squares filled, the rest muted. Mono,
+// radius-0 squares — on-brand, and read as a recognized competency ladder, not an arbitrary self-bar.
+function LevelMeter({ level }: { level: number }) {
+  return (
+    <span className="inline-flex gap-px" role="img" aria-label={`Proficiency level ${level} of 4`}>
+      {[1, 2, 3, 4].map((i) => (
+        <span key={i} className={`h-2 w-2 ${i <= level ? 'bg-foreground' : 'bg-border'}`} />
+      ))}
+    </span>
+  );
+}
+
 function CertBadge({ cert }: { cert: CertificationItem }) {
   const seal = cert.badge_image_url ? (
     <img src={cert.badge_image_url} alt="" aria-hidden="true" loading="lazy" className="h-16 w-16 shrink-0 object-contain" />
@@ -183,8 +195,12 @@ export function CVSection({ profile }: { profile: Profile }) {
                 <div className="mb-2 font-mono text-xs uppercase tracking-[0.12em] text-primary">{category}</div>
                 <div className="flex flex-wrap">
                   {list.map((skill) => (
-                    <span key={skill} className="-mb-px -mr-px border border-border px-2.5 py-1.5 font-mono text-xs">
-                      {skill}
+                    <span
+                      key={skill.name}
+                      className="-mb-px -mr-px inline-flex items-center gap-2 border border-border px-2.5 py-1.5 font-mono text-xs"
+                    >
+                      {skill.name}
+                      {skill.level ? <LevelMeter level={skill.level} /> : null}
                     </span>
                   ))}
                 </div>

@@ -7,14 +7,18 @@ import type {
   Profile,
   ProfileSource,
   SkillGroupSource,
+  SkillItem,
 } from '../types/profile';
 import type { Locale } from '../i18n/config';
 
 const pick = <T,>(value: Localized<T>, locale: Locale): T => value[locale];
 
-/** Localized items ({pt,en}) resolve; a plain array is shared by both locales (technical terms). */
-const pickItems = (items: SkillGroupSource['items'], locale: Locale): string[] =>
-  Array.isArray(items) ? items : pick(items, locale);
+/** Resolve a group's items to `SkillItem[]`: a leveled technical array passes through; a localized
+ * string list (spoken languages) resolves to the locale and carries no level. */
+const pickItems = (items: SkillGroupSource['items'], locale: Locale): SkillItem[] =>
+  Array.isArray(items)
+    ? items.map((i) => ({ name: i.name, level: i.level }))
+    : pick(items, locale).map((name) => ({ name }));
 
 export function resolveProfile(source: ProfileSource, locale: Locale): Profile {
   return {

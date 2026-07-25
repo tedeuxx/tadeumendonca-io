@@ -50,7 +50,7 @@ export interface Profile {
   experience: ExperienceItem[];
   education: EducationItem[];
   certifications: CertificationItem[];
-  skills: Record<string, string[]>;
+  skills: Record<string, SkillItem[]>;
   metadata: Record<string, string>;
   updated_at?: string;
 }
@@ -79,10 +79,28 @@ export interface EducationSource {
   end_date: string | null;
 }
 
+/** Skill proficiency on a 4-level scale, mirroring AWS's own L100–L400 ladder: 1 = foundational,
+ * 4 = expert. Deliberately caps AI skills below 4 (the field is too new for anyone to be an expert). */
+export type SkillLevel = 1 | 2 | 3 | 4;
+
+/** A resolved skill: a name, optionally with a proficiency level. Spoken languages carry no level —
+ * their name already says "Native" / "Advanced". */
+export interface SkillItem {
+  name: string;
+  level?: SkillLevel;
+}
+
+/** Authoring shape for a leveled technical skill (the name is English in both locales). */
+export interface SkillItemSource {
+  name: string;
+  level: SkillLevel;
+}
+
 export interface SkillGroupSource {
   label: Localized<string>;
-  /** Technical terms are English in both, so they are written once; prose-like groups localize. */
-  items: string[] | Localized<string[]>;
+  /** Leveled technical skills (English names, written once), OR a localized string list for
+   * prose-like groups (spoken languages), which carry no level. */
+  items: SkillItemSource[] | Localized<string[]>;
 }
 
 export interface ProfileSource {
