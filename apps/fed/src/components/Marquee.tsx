@@ -11,7 +11,6 @@ const SUBJECTS = [
   'Tool-Calling',
   'MCP',
   'Context Engineering',
-  'Evaluation Loops',
   'AI-DLC',
   'Claude Code',
   'Python',
