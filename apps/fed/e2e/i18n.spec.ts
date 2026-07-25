@@ -209,3 +209,58 @@ test.describe('i18n — dates follow the locale', () => {
     });
   });
 });
+
+// Criterion (#83): the BLOG article body follows the locale — the blog is now bilingual, one markdown
+// file per locale (<slug>.pt.md / <slug>.en.md), resolved by lib/content.ts against the active locale.
+// This is the blog counterpart of the ramp-up long-form test above, on the deep-linked /blog/:slug route.
+// The journey loads one article and toggles PT↔EN, asserting three things at once:
+//   (1) the prose flips — the title AND a section heading render in the other language;
+//   (2) no prose leak — a distinctive body phrase of the hidden edition is absent (a fallback that
+//       rendered both files, or the wrong one, would pass a one-sided "target present" check);
+//   (3) the FACTS are shared, not translated — the tag, the article's ISO date, and the slug/URL are
+//       authored once and MUST NOT change across the toggle. Note the date's *rendered* text localizes
+//       its format (asserted in the dates block above), so the stable fact is the machine-readable
+//       `<time datetime>` ISO, not the human string — that is what "the date does not change" means here.
+test.describe('i18n — the blog article body follows the locale', () => {
+  const SLUG = 'building-serverless-on-aws';
+  const DATE_ISO = '2026-07-22T19:00:00.000Z'; // the shared fact, authored once across both editions
+
+  // English is the canonical edition and the prerender baseline, so an en-US context lands on it.
+  test.use({ locale: 'en-US' });
+
+  test('toggling PT↔EN re-renders the article body, keeps the facts, and never leaks the other language', async ({
+    page,
+  }) => {
+    await page.goto(`/blog/${SLUG}`);
+
+    // --- English edition (detected) ---
+    await expect(page.getByRole('heading', { level: 1, name: /I retired my own site's backend/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /What serverless solves/ })).toBeVisible();
+    // No pt prose leaked into the English edition.
+    await expect(page.getByText(/dívida sem receita/)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toHaveCount(0);
+
+    // Facts, captured on the English edition: tag, the ISO date, and the slug/URL.
+    await expect(page.getByText(/#aws/)).toBeVisible();
+    await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
+    await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
+
+    // --- Toggle to Portuguese: the body must flip, not just the chrome ---
+    await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1, name: /Aposentei o backend/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /O que serverless resolve/ })).toBeVisible();
+    // No en prose leaked into the Portuguese edition.
+    await expect(page.getByText(/debt with no revenue/)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /I retired my own site's backend/ })).toHaveCount(0);
+
+    // The facts are unchanged by the toggle — same tag, same ISO date, same slug/URL.
+    await expect(page.getByText(/#aws/)).toBeVisible();
+    await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
+    await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
+
+    // --- Round-trip back to English: the English edition returns ---
+    await page.getByRole('button', { name: 'EN', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1, name: /I retired my own site's backend/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toHaveCount(0);
+  });
+});
