@@ -86,7 +86,7 @@ const strings = {
   architecture: {
     heading: { pt: 'Arquitetura — a planta, em aberto', en: 'Architecture — the blueprint, in the open' },
     // Document title (the site name is appended by useDocumentHead).
-    title: { pt: 'Arquitetura do site', en: 'How this site is built' },
+    title: { pt: 'Como este site é construído', en: 'How this site is built' },
     kicker: { pt: 'A planta · aberta', en: 'The blueprint · open' },
     metaDescription: {
       pt: 'Como este site é construído: a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, o dev-loop de verificação liderada pelo agente, e os ADRs que registram cada decisão — com links para replicar.',
