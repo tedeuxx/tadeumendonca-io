@@ -44,22 +44,22 @@ describe('resolveProfile', () => {
   });
 
   it('localizes skill group labels while sharing the technical terms', () => {
-    expect(Object.keys(en.skills)).toContain('Backend & Distributed Systems');
-    expect(Object.keys(pt.skills)).toContain('Backend & Sistemas Distribuídos');
+    expect(Object.keys(en.skills)).toContain('Distributed Systems & DevOps');
+    expect(Object.keys(pt.skills)).toContain('Sistemas Distribuídos & DevOps');
     // The terms themselves are proper nouns — identical in both editions.
     expect(pt.skills['Linguagens']).toEqual(en.skills['Languages']);
-    expect(pt.skills['IA & Agentes']).toEqual(en.skills['AI & Agentic']);
+    expect(pt.skills['Engenharia AI-native']).toEqual(en.skills['AI-native Engineering']);
   });
 
   it('localizes the one prose-like skill group (spoken languages)', () => {
-    expect(en.skills['Languages (spoken)']).toContain('Portuguese (Native)');
-    expect(pt.skills['Idiomas']).toContain('Português (nativo)');
+    expect(en.skills['Languages (spoken)']).toContainEqual({ name: 'Portuguese (Native)' });
+    expect(pt.skills['Idiomas']).toContainEqual({ name: 'Português (nativo)' });
   });
 
   it('preserves the authored group order in both editions', () => {
     expect(Object.keys(pt.skills)).toHaveLength(Object.keys(en.skills).length);
-    expect(Object.keys(en.skills)[0]).toBe('AI & Agentic');
-    expect(Object.keys(pt.skills)[0]).toBe('IA & Agentes');
+    expect(Object.keys(en.skills)[0]).toBe('AWS Cloud');
+    expect(Object.keys(pt.skills)[0]).toBe('AWS Cloud');
   });
 
   it('omits optional fields that were not authored', () => {

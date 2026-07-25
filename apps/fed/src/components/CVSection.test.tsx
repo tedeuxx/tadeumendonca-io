@@ -22,7 +22,7 @@ const profile: Profile = {
   ],
   education: [{ institution: 'Uni', degree: 'BSc', field: 'CS', start_date: '2014', end_date: '2018' }],
   certifications: [{ name: 'AWS SAA', issuer: 'AWS', issued_date: '2025', credential_url: 'https://x', badge_label: 'SA\nASC' }],
-  skills: { cloud: ['AWS', 'Terraform'] },
+  skills: { cloud: [{ name: 'AWS', level: 4 }, { name: 'Terraform', level: 3 }] },
   metadata: { github: 'https://github.com/tedeuxx' },
 };
 
@@ -36,6 +36,8 @@ describe('CVSection', () => {
     expect(screen.getByText('Formação')).toBeInTheDocument();
     expect(screen.getByText('Certificações')).toBeInTheDocument();
     expect(screen.getByText('Habilidades')).toBeInTheDocument();
+    // Each leveled skill shows the 4-square proficiency meter (AWS L100–L400 model).
+    expect(screen.getAllByRole('img', { name: /Proficiency level/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
   });
 

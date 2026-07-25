@@ -212,46 +212,75 @@ const sourceTemplate: ProfileSource = {
     { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A' },
     { name: 'AWS Accreditation — Telecom (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'TEL\nL100' },
   ],
+  // Skills carry a 1–4 proficiency level (AWS L100–L400 model). Honesty is the point: the moat
+  // (distributed systems, DevOps, granular AWS services) reaches 4; AI-native TOOLS cap at 3 (nobody is
+  // a level-4 expert in a field this new); shallow AI TOPICS sit at 1–2 so they read as keywords, not
+  // claimed expertise. Ordered moat-first. Based on the owner's LinkedIn skills (#128).
   skills: [
     {
-      label: { en: 'AI & Agentic', pt: 'IA & Agentes' },
+      label: { en: 'AWS Cloud', pt: 'AWS Cloud' },
       items: [
-        'Agentic AI Development',
-        'Applied Generative AI',
-        'Large Language Models (LLM)',
-        'AI Agents & Tool-Calling',
-        'RAG (Retrieval-Augmented Generation)',
-        'MCP (Model Context Protocol)',
-        'Context & Prompt Engineering',
-        'Agent Evaluation (LLM-as-judge)',
+        { name: 'AWS Lambda', level: 4 },
+        { name: 'Amazon API Gateway', level: 4 },
+        { name: 'Amazon S3', level: 4 },
+        { name: 'Amazon DynamoDB', level: 4 },
+        { name: 'Amazon ECS', level: 4 },
+        { name: 'Amazon EKS', level: 4 },
+        { name: 'Amazon SQS', level: 4 },
+        { name: 'Amazon SNS', level: 4 },
+        { name: 'Amazon CloudWatch', level: 4 },
+        { name: 'AWS X-Ray', level: 3 },
+        { name: 'AWS WAF', level: 3 },
+        { name: 'Amazon Cognito', level: 3 },
+        { name: 'AWS KMS', level: 3 },
+        { name: 'Amazon RDS', level: 3 },
+        { name: 'Amazon CloudFront', level: 3 },
+      ],
+    },
+    {
+      label: { en: 'Distributed Systems & DevOps', pt: 'Sistemas Distribuídos & DevOps' },
+      items: [
+        { name: 'Distributed Systems Architecture', level: 4 },
+        { name: 'Microservices', level: 4 },
+        { name: 'Serverless Computing', level: 4 },
+        { name: 'Event-Driven Architecture', level: 4 },
+        { name: 'Terraform / IaC', level: 4 },
+        { name: 'CI/CD', level: 4 },
+        { name: 'Observability', level: 4 },
+        { name: 'Platform Engineering', level: 3 },
+      ],
+    },
+    {
+      label: { en: 'AI-native Engineering', pt: 'Engenharia AI-native' },
+      items: [
+        { name: 'AI-DLC / Loop Engineering', level: 3 },
+        { name: 'Claude Code', level: 3 },
+        { name: 'Kiro', level: 3 },
+        { name: 'Context Engineering', level: 3 },
+        { name: 'Agentic AI Development', level: 3 },
+        { name: 'MCP (Model Context Protocol)', level: 3 },
+      ],
+    },
+    {
+      label: { en: 'AI Foundations', pt: 'Fundamentos de IA' },
+      items: [
+        { name: 'Large Language Models (LLM)', level: 2 },
+        { name: 'Prompt Engineering', level: 2 },
+        { name: 'Applied Generative AI', level: 2 },
+        { name: 'RAG (Retrieval-Augmented Generation)', level: 1 },
+        { name: 'Agent Evaluation (LLM-as-judge)', level: 1 },
+        { name: 'Amazon Bedrock', level: 1 },
       ],
     },
     {
       label: { en: 'Languages', pt: 'Linguagens' },
-      items: ['Python', 'TypeScript', 'JavaScript', 'Node.js', 'Java'],
-    },
-    {
-      label: { en: 'Backend & Distributed Systems', pt: 'Backend & Sistemas Distribuídos' },
       items: [
-        'Distributed Systems Architecture',
-        'Microservices',
-        'Event-Driven Architecture',
-        'Backend-for-Frontend (BFF)',
-        'API Design',
+        { name: 'Python', level: 3 },
+        { name: 'TypeScript', level: 3 },
+        { name: 'Node.js', level: 3 },
+        { name: 'Java', level: 2 },
+        { name: 'Kotlin', level: 2 },
       ],
-    },
-    {
-      label: { en: 'Cloud & Infra', pt: 'Cloud & Infra' },
-      items: [
-        'AWS (Bedrock, Lambda, ECS, EKS, S3, DynamoDB, API Gateway)',
-        'Terraform',
-        'Infrastructure as Code',
-        'CloudFormation',
-      ],
-    },
-    {
-      label: { en: 'Practices & Tooling', pt: 'Práticas & Ferramentas' },
-      items: ['AI-DLC / Loop Engineering', 'Claude Code', 'Kiro', 'CI/CD', 'Automated Testing', 'Observability'],
     },
     {
       label: { en: 'Languages (spoken)', pt: 'Idiomas' },
