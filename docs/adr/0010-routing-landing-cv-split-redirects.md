@@ -130,9 +130,51 @@ the other end. Supersedes the "permanent contract" framing in *Decision outcome*
 left intact (supersede, never rewrite): the prior amendments remain the record of what was decided when
 URLs were expected imminently.
 
+## Amendment (2026-07-25) — `/architecture`, a fifth public surface
+`/architecture` joins `/`, `/me`, `/portfolio` and `/ramp-up` as a real route with a nav entry: a
+reader-facing **blueprint of the site** — how it is built and how to replicate it from the public code.
+
+It is a **page, not a landing section**, and the distinction is the same one `/ramp-up` earns. The
+surface carries depth — a blueprint plus a "replicate it" guide — that a section folded into `/` could
+not hold without burying it; it is a standing part of the argument (the site is the pitch, so *how the
+site is built* is itself an exhibit), not a stripe on the landing.
+
+Its body is **markdown-in-repo** (`content/architecture.pt.md` · `architecture.en.md`) rendered through
+the shared `<Markdown>`, inheriting the same pipeline as the other content surfaces, so the route is
+cheap and OG/prerender-complete like every other public URL (ADR-0005).
+
+**One English slug, bilingual label and body — deliberately not a dual-slug pair.** The route is the
+single slug `/architecture`, with a **bilingual nav label** ("Arquitetura" / "Architecture") and a
+**bilingual body** authored in both languages (`architecture.pt.md` · `architecture.en.md`) under the
+`Record<Locale, string>` compile-error contract and the same-links-same-order parity guard — so, as with
+everything the reader reads, chrome and content are always in the same language. What was **not** chosen
+is a dual `/arquitetura ↔ /architecture` localized-slug pair: the route enumeration here is
+one-slug-per-route, and a dual-slug scheme would be a **new routing pattern** — a bigger decision than
+adding a surface — so it is deferred, not adopted by default. Note this reaffirms the established
+"everything the reader reads is in both languages" policy at the *body* level; it decides nothing about
+localized *URLs*, which remains a separate, unmade decision.
+
+Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
+enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or not
+at all. The E2E canonical-route drift guard (`seo.spec.ts`) was updated in the same slice — the guard
+working as designed.
+
+**No back-compat redirect — nothing to preserve (pre-launch).** Consistent with this ADR's 2026-07-24
+pre-launch amendment, no redirect is introduced: there is no `/arquitetura` (or any other) URL for this
+surface in the world to keep resolving. If an alternate slug is ever advertised externally, revisit at
+launch under that amendment's rule — a path that enters the world regains its redirect and its E2E guard.
+
+**Orientation over restatement (ADR-0001).** The page is deliberately an *orientation layer*: it **links**
+the ADR library, the two public repos, and `docs/catalog-ready.md` rather than re-stating them. The ADRs
+are the single source of the architecture story; the page points at them, so it cannot drift from them —
+if the reader wants the load-bearing "why", the link takes them to the record itself, not a paraphrase
+that ages out of sync.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
   rename + "Perfil / Profile" label, using this ADR's own redirect pattern · amended again (2026-07-24)
   to drop the back-compat redirects for the pre-launch window (premise "URLs already in the world" not yet
-  true), to be re-introduced at launch.
+  true), to be re-introduced at launch · amended (2026-07-25) for `/architecture`, a fifth public surface
+  (single English slug, bilingual label + body; orientation-over-restatement per ADR-0001; OG/prerender-
+  complete per ADR-0005), within the same enumeration contract.
