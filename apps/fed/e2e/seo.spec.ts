@@ -44,10 +44,10 @@ test.describe('SEO discovery', () => {
     for (const url of CANONICAL) {
       expect(body).toContain(`<loc>${url}</loc>`);
     }
-    // Canonical-only: the retired redirects are never advertised (they aren't prerendered either).
+    // Canonical-only: the retired paths are never advertised (they aren't prerendered either).
     expect(body).not.toContain('/articles');
     expect(body).not.toContain('/profile');
-    expect(body).not.toContain('<loc>https://tadeumendonca.io/cv</loc>'); // /cv is a redirect now, not advertised
+    expect(body).not.toContain('<loc>https://tadeumendonca.io/cv</loc>'); // /cv was dropped pre-launch (#132) — not a route, never advertised
     expect(body).not.toContain('<loc>https://tadeumendonca.io/blog</loc>');
     // Drift guard: exactly the shared enumeration, no more.
     const locCount = (body.match(/<loc>/g) ?? []).length;
