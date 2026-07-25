@@ -18,6 +18,19 @@ describe('resolveProfile', () => {
     expect(pt.location).toBe('São Paulo — Brasil');
   });
 
+  it('tells the full career arc, not only the AI-Engineer slice (#125)', () => {
+    // AI is the attention hook at the top of the summary…
+    expect(en.summary).toMatch(/^AI Engineer/);
+    expect(pt.summary).toMatch(/^AI Engineer/);
+    // …with the ~two-decade journey legible underneath as the substance: the beginnings (packaged
+    // software) and the through-line identity (distributed-applications architect) both named, so the
+    // arc reads as a journey the AI work sits on — not a fresh start. This is the point of #125.
+    expect(en.summary).toContain('packaged software');
+    expect(en.summary).toContain('distributed-applications architect');
+    expect(pt.summary).toContain('software empacotado');
+    expect(pt.summary).toContain('arquiteto de aplicações distribuídas');
+  });
+
   it('shares the facts across editions — the two CVs can never disagree', () => {
     // Dates, employers and official job titles are authored once; a translation cannot drift them.
     expect(pt.experience.map((e) => e.company)).toEqual(en.experience.map((e) => e.company));

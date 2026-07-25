@@ -37,19 +37,25 @@ const sourceTemplate: ProfileSource = {
   },
   summary: {
     en:
-      'AI Engineer applying AI-native development — Claude Code, Kiro, and AI-DLC / Loop Engineering — to ' +
-      'design, build and ship production-ready systems, anchored in {{years}} years of software engineering across ' +
-      'enterprise SDLC and distributed systems. My lane is applied GenAI and agentic development, not machine ' +
-      'learning research: I build with agentic patterns — tool-calling, RAG, memory, evaluation loops, MCP — ' +
-      'and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and backend; ' +
-      'TypeScript for the full-stack and web layer.',
+      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC / Loop Engineering — to design, ' +
+      "build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
+      'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
+      'modern product engineering building web and native-mobile apps, and spent the last years as a ' +
+      'distributed-applications architect — cloud and distributed systems on AWS, across regulated industries ' +
+      'like financial services, aerospace and energy. My lane is applied GenAI and agentic development, not ' +
+      'machine learning research: I build with agentic patterns — tool-calling, RAG, memory, evaluation loops, ' +
+      'MCP — and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and ' +
+      'backend; TypeScript for the full-stack and web layer.',
     pt:
-      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro e AI-DLC / Loop Engineering — para ' +
-      'projetar, construir e entregar sistemas prontos para produção, ancorado em {{years}} anos de engenharia de ' +
-      'software em SDLC corporativo e sistemas distribuídos. Minha faixa é GenAI aplicada e agentic development, ' +
-      'não pesquisa em machine learning: construo com padrões agênticos — tool-calling, RAG, memória, loops de ' +
-      'avaliação, MCP — e trago o rigor de SDLC que transforma trabalho de IA em software de produção. Python ' +
-      'para IA, agentes e backend; TypeScript para a camada full-stack e web.',
+      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC / Loop Engineering — para ' +
+      'projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
+      '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
+      'e software empacotado, passei para engenharia de produto moderna construindo apps web e mobile nativo, e ' +
+      'nos últimos anos atuei como arquiteto de aplicações distribuídas — cloud e sistemas distribuídos na AWS, ' +
+      'em setores regulados como serviços financeiros, aeroespacial e energia. Minha faixa é GenAI aplicada e ' +
+      'agentic development, não pesquisa em machine learning: construo com padrões agênticos — tool-calling, ' +
+      'RAG, memória, loops de avaliação, MCP — e trago o rigor de SDLC que transforma trabalho de IA em software ' +
+      'de produção. Python para IA, agentes e backend; TypeScript para a camada full-stack e web.',
   },
   location: { en: 'São Paulo — Brazil', pt: 'São Paulo — Brasil' },
   experience: [
