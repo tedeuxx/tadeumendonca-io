@@ -165,30 +165,72 @@ const sourceTemplate: ProfileSource = {
     {
       company: 'Accenture',
       title: 'Digital Business Integration Consultant',
-      start_date: '2008-03',
+      start_date: '2015-01',
       end_date: '2020-06',
       description: {
         en:
-          'Application architect for web and mobile products, designing distributed systems and integration ' +
-          'layers across large enterprise programs.',
+          'Promoted to Consultant, first as an integration architect on enterprise CRM implementation programs, ' +
+          'then — the turning point — as an application architect at Accenture Digital, building modern web and ' +
+          'native-mobile products. This is where the modern-engineering identity was forged and the ' +
+          'distributed-applications architect through-line began.',
         pt:
-          'Arquiteto de aplicações para produtos web e mobile, projetando sistemas distribuídos e camadas de ' +
-          'integração em grandes programas corporativos.',
+          'Promovido a Consultant, primeiro como arquiteto de integração em programas corporativos de ' +
+          'implantação de CRM, e então — o ponto de virada — como arquiteto de aplicações na Accenture Digital, ' +
+          'construindo produtos web e mobile nativos modernos. É aqui que a identidade de engenharia moderna se ' +
+          'formou e começou o fio condutor de arquiteto de aplicações distribuídas.',
       },
       highlights: {
         en: [
-          'Architected web and mobile products (React, Angular, Android, iOS, Flutter frontends with Node.js ' +
-            'backends), designing the integration layers connecting apps, APIs and enterprise platforms.',
-          'Built and integrated large-scale distributed systems across batch and real-time processing, ' +
-            'connecting enterprise platforms in retail, telecom and e-commerce.',
-          'Delivered across the full SDLC for enterprise clients, from requirements through production.',
+          'Architected the integration layers for enterprise CRM implementation programs, connecting apps, APIs ' +
+            'and heterogeneous enterprise platforms.',
+          'At Accenture Digital, architected and shipped modern web and native-mobile products (React, native ' +
+            'Android, iOS), leaving packaged software behind for modern product engineering — open source, ' +
+            'private-cloud infrastructure, and hands-on distributed-systems design.',
+          'Grew into the distributed-applications architect role carried through to today — solution design and ' +
+            'tech leadership on delivery teams, as a senior individual contributor.',
         ],
         pt: [
-          'Arquitetei produtos web e mobile (frontends em React, Angular, Android, iOS e Flutter com backends ' +
-            'Node.js), projetando as camadas de integração que conectam apps, APIs e plataformas corporativas.',
-          'Construí e integrei sistemas distribuídos de larga escala entre processamento batch e tempo real, ' +
-            'conectando plataformas corporativas em varejo, telecom e e-commerce.',
-          'Entreguei ao longo de todo o SDLC para clientes corporativos, de requisitos à produção.',
+          'Arquitetei as camadas de integração de programas corporativos de implantação de CRM, conectando ' +
+            'apps, APIs e plataformas corporativas heterogêneas.',
+          'Na Accenture Digital, arquitetei e entreguei produtos web e mobile nativos modernos (React, Android ' +
+            'nativo, iOS), deixando o software de pacote para trás rumo à engenharia de produto moderna — open ' +
+            'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on.',
+          'Amadureci no papel de arquiteto de aplicações distribuídas que carrego até hoje — desenho de soluções ' +
+            'e liderança técnica em times de entrega, como individual contributor sênior.',
+        ],
+      },
+    },
+    {
+      company: 'Accenture',
+      title: 'Systems Integration Analyst',
+      start_date: '2008-03',
+      end_date: '2015-01',
+      description: {
+        en:
+          'The root of the career: an enterprise integration factory. Began in web development, then built and ' +
+          'integrated large-scale distributed systems — batch (Informatica PowerCenter ETL) and online / ' +
+          'real-time (SOA) — growing from junior to senior analyst.',
+        pt:
+          'A raiz da carreira: uma fábrica de integração corporativa. Comecei em desenvolvimento web, e então ' +
+          'construí e integrei sistemas distribuídos de larga escala — batch (Informatica PowerCenter ETL) e ' +
+          'online / tempo real (SOA) — crescendo de analista júnior a sênior.',
+      },
+      highlights: {
+        en: [
+          'Started in web development and, from graduating in 2010, grew from junior to senior analyst building ' +
+            'enterprise system integrations.',
+          'Built and connected large-scale distributed systems across batch (Informatica PowerCenter ETL) and ' +
+            'online / real-time (SOA) integration, wiring heterogeneous enterprise platforms together.',
+          'Delivered across the full SDLC for enterprise clients in regulated sectors — financial services, ' +
+            'telecom, e-commerce.',
+        ],
+        pt: [
+          'Comecei em desenvolvimento web e, a partir da formatura em 2010, cresci de analista júnior a sênior ' +
+            'construindo integrações de sistemas corporativos.',
+          'Construí e conectei sistemas distribuídos de larga escala entre integração batch (Informatica ' +
+            'PowerCenter ETL) e online / tempo real (SOA), conectando plataformas corporativas heterogêneas.',
+          'Entreguei ao longo de todo o SDLC para clientes corporativos em setores regulados — serviços ' +
+            'financeiros, telecom, e-commerce.',
         ],
       },
     },
