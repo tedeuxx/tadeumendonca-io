@@ -30,10 +30,10 @@ const sourceTemplate: ProfileSource = {
   headline: {
     en:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
-      'Python · TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
+      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
     pt:
       'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering com Claude Code & Kiro | ' +
-      'Python · TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
+      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
   },
   summary: {
     en:
@@ -327,7 +327,6 @@ const sourceTemplate: ProfileSource = {
         { name: 'TypeScript', level: 3 },
         { name: 'Node.js', level: 3 },
         { name: 'Java', level: 2 },
-        { name: 'Kotlin', level: 2 },
       ],
     },
     {

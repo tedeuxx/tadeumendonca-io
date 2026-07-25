@@ -9,14 +9,14 @@ import { useT } from '../i18n';
 const SUBJECTS = [
   'Agentic AI',
   'Tool-Calling',
-  'RAG',
   'MCP',
+  'Context Engineering',
   'Evaluation Loops',
   'AI-DLC',
   'Claude Code',
   'Python',
+  'Node.js',
   'TypeScript',
-  'AWS Bedrock',
   'Distributed Systems',
 ];
 

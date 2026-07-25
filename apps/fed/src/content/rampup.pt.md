@@ -115,7 +115,7 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 
 - **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — os três acima, com folga os canais aos quais eu mais volto.
 - **[Kiro](https://www.youtube.com/channel/UCXouiHXUN8mba_K-jn1gqVg)** — IDE agentic, vale assistir mesmo usando outra.
-- **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — Bedrock e IA cloud-native.
+- **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — IA cloud-native na AWS.
 - **[Y Combinator](https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg)** — pra onde o campo está indo, pelo lado de quem constrói.
 - **[Dwarkesh Patel](https://www.youtube.com/channel/UCXl4i9dYBrFOabk0xGmbkRA)** — conversas longas com pesquisadores de IA; profundidade e alinhamento.
 - **[Chase AI](https://www.youtube.com/channel/UCoy6cTJ7Tg0dqS-DI-_REsA)** · **[Zack the AI Guy](https://www.youtube.com/channel/UCppvQz-ua7Rfi1Ca2qV9nzw)** — walkthroughs práticos de Claude/agentes.
