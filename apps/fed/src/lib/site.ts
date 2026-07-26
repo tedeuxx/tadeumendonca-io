@@ -20,7 +20,7 @@ import type { Locale } from '../i18n/config';
 export const DEFAULT_DESCRIPTION_EN =
   'A portfolio of automations and technical writing — agentic development and AI-native engineering, with the trade-offs made explicit.';
 export const DEFAULT_DESCRIPTION_PT =
-  'Um portfólio de automações e escrita técnica — desenvolvimento agêntico e engenharia AI-native, com os trade-offs explícitos.';
+  'Um portfólio de automações e escrita técnica — agentic development e engenharia AI-native, com os trade-offs explícitos.';
 
 /** The default OG/meta description in the active locale. */
 export const defaultDescription = (locale: Locale): string =>
