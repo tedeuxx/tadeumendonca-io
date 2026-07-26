@@ -11,7 +11,7 @@ I'm a software engineer in the middle of a transition — from cloud and distrib
 
 Most "how to become an AI Engineer" content is one of two things: PhD-in-ML gatekeeping, or hype threads. Neither helped me. So I'm writing the thing I wish I'd found: the real transition, with the trade-offs made explicit and the code open for you to take.
 
-And this space is more than a blog: it's the workspace where I run that transition in the open — building AI agents, sharing the artifacts as I make them, and collaborating on open source as I go. I'm not here as an authority; there's no master of AI yet — the field is too young. I write as a peer, learning alongside you, experimenting in the open and showing what works and what doesn't.
+And this space is more than a blog: it's the workspace where I run that transition in the open — building AI agents, sharing the artifacts as I make them, and collaborating on open source as I go. I'm not here as an authority; there's no master of AI yet — the field is too young. I write as a peer, learning alongside you, experimenting out loud and showing what works and what doesn't.
 
 ## What I'm not going to do
 
@@ -26,6 +26,6 @@ I won't claim years of agentic experience I don't have — the tech is new, my h
 
 ## If you're on the same path
 
-Your background isn't a deficit to overcome. It's the thing that makes you rare in this lane. Build in public, ship small, and let the artifacts do the arguing — and if any of this is useful, take it and build on it in the open.
+Your background isn't a deficit to overcome. It's the thing that makes you rare in this lane. Build in public, ship small, and let the artifacts do the arguing — and if any of this is useful, take it, improve it, and build on it in the open.
 
 That's the deal. Let's build.
