@@ -157,7 +157,7 @@ test.describe('bare-root redirect preserves the sub-path', () => {
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
 // alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
-  const LOGICAL = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/blog/building-serverless-on-aws'];
+  const LOGICAL = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/blog/meu-compromisso'];
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text();

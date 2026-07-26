@@ -254,8 +254,8 @@ test.describe('i18n — dates follow the locale', () => {
 //       its format (asserted in the dates block above), so the stable fact is the machine-readable
 //       `<time datetime>` ISO, not the human string — that is what "the date does not change" means here.
 test.describe('i18n — the blog article body follows the locale', () => {
-  const SLUG = 'building-serverless-on-aws';
-  const DATE_ISO = '2026-07-22T19:00:00.000Z'; // the shared fact, authored once across both editions
+  const SLUG = 'meu-compromisso';
+  const DATE_ISO = '2026-07-26T22:00:00.000Z'; // the shared fact, authored once across both editions
 
   // English is the canonical edition and the prerender baseline, so an en-US context lands on it.
   test.use({ locale: 'en-US' });
@@ -266,33 +266,33 @@ test.describe('i18n — the blog article body follows the locale', () => {
     await page.goto(`/blog/${SLUG}`);
 
     // --- English edition (detected) ---
-    await expect(page.getByRole('heading', { level: 1, name: /I retired my own site's backend/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /What serverless solves/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /The commitment/ })).toBeVisible();
     // No pt prose leaked into the English edition.
-    await expect(page.getByText(/dívida sem receita/)).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toHaveCount(0);
+    await expect(page.getByText(/Vamos construir/)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /Meu Compromisso/ })).toHaveCount(0);
 
     // Facts, captured on the English edition: tag, the ISO date, and the slug/URL.
-    await expect(page.getByText(/#aws/)).toBeVisible();
+    await expect(page.getByText(/#manifesto/)).toBeVisible();
     await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
     await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
 
     // --- Toggle to Portuguese: the body must flip, not just the chrome ---
     await page.getByRole('button', { name: 'PT', exact: true }).click();
-    await expect(page.getByRole('heading', { level: 1, name: /Aposentei o backend/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /O que serverless resolve/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /Meu Compromisso/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /O compromisso/ })).toBeVisible();
     // No en prose leaked into the Portuguese edition.
-    await expect(page.getByText(/debt with no revenue/)).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: /I retired my own site's backend/ })).toHaveCount(0);
+    await expect(page.getByText(/Let's build/)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /My Commitment/ })).toHaveCount(0);
 
     // The facts are unchanged by the toggle — same tag, same ISO date, same slug/URL.
-    await expect(page.getByText(/#aws/)).toBeVisible();
+    await expect(page.getByText(/#manifesto/)).toBeVisible();
     await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
     await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
 
     // --- Round-trip back to English: the English edition returns ---
     await page.getByRole('button', { name: 'EN', exact: true }).click();
-    await expect(page.getByRole('heading', { level: 1, name: /I retired my own site's backend/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toHaveCount(0);
+    await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Meu Compromisso/ })).toHaveCount(0);
   });
 });

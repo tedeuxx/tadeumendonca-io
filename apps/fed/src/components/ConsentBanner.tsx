@@ -22,6 +22,7 @@ export function ConsentBanner() {
   return (
     <div
       role="region"
+      data-print="hide"
       aria-label={t('consent.notice')}
       className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-border-strong bg-background px-[--gutter] py-4"
     >

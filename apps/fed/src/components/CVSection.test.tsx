@@ -8,7 +8,7 @@ const profile: Profile = {
   profile_id: 'me',
   name: 'Tadeu Mendonça',
   headline: 'AI Engineer',
-  summary: 'Builds agentic systems.',
+  summary: 'Builds agents.',
   location: 'Brazil',
   experience: [
     {

@@ -15,8 +15,8 @@ const CANONICAL = [
   'https://tadeumendonca.io/en',
   'https://tadeumendonca.io/pt/me',
   'https://tadeumendonca.io/en/me',
-  'https://tadeumendonca.io/pt/blog/building-serverless-on-aws',
-  'https://tadeumendonca.io/en/blog/building-serverless-on-aws',
+  'https://tadeumendonca.io/pt/blog/meu-compromisso',
+  'https://tadeumendonca.io/en/blog/meu-compromisso',
 ];
 
 test.describe('SEO discovery', () => {

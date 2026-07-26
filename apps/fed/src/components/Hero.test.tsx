@@ -26,14 +26,14 @@ describe('Hero', () => {
     renderHero('pt');
     expect(screen.getByText(/do dia a dia à produção/)).toBeInTheDocument();
     expect(screen.getByText(/vida pessoal com Claude Cowork/)).toBeInTheDocument();
-    expect(screen.getByText(/sistemas agentic em produção/)).toBeInTheDocument();
+    expect(screen.getByText(/agentic development/)).toBeInTheDocument();
   });
 
   it('renders the promise in English when the locale is en', () => {
     renderHero('en');
     expect(screen.getByText(/from everyday life to production/)).toBeInTheDocument();
     expect(screen.getByText(/personal life with Claude Cowork/)).toBeInTheDocument();
-    expect(screen.getByText(/agentic systems in production/)).toBeInTheDocument();
+    expect(screen.getByText(/agentic development/)).toBeInTheDocument();
   });
 
   it('offers the two content CTAs as landing anchors', () => {
