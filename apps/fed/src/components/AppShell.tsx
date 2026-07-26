@@ -123,7 +123,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           style={{ minHeight: 'var(--header-h)' }}
         >
           <Brand />
-          <div className="hidden items-center md:flex">
+          {/* Desktop nav switches on at `lg` (1024px), not `md` (768px): the full row — Brand + five
+              links + locale toggle, longer in pt — needs ~880px, so between 768–880px it used to overflow
+              the viewport (horizontal scroll) AND wrap the links to two lines. Keeping the hamburger until
+              `lg` guarantees the full nav only renders where it fits (#159). */}
+          <div className="hidden items-center lg:flex">
             <NavItems activeSection={activeSection} />
             <LocaleToggle />
           </div>
@@ -132,13 +136,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
-            className="p-2 text-foreground md:hidden"
+            className="p-2 text-foreground lg:hidden"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </nav>
         {menuOpen && (
-          <div data-print="hide" className="flex flex-col items-start border-b border-border bg-background px-[--gutter] py-2 md:hidden">
+          <div data-print="hide" className="flex flex-col items-start border-b border-border bg-background px-[--gutter] py-2 lg:hidden">
             <NavItems activeSection={activeSection} onNavigate={() => setMenuOpen(false)} />
             <div className="pt-1">
               <LocaleToggle />
