@@ -157,8 +157,15 @@ Links only, no embeds — deliberately. The rule on this site is that nothing th
 
 The configs and skill sets these people run, in the open — official profiles and repos only.
 
-- **[Matt Pocock](https://github.com/mattpocock)** → **[mattpocock/skills](https://github.com/mattpocock/skills)**: Claude Code skills from his own `.claude` setup — TDD, engineering guardrails, constraints that keep AI coding honest.
-- **[Garry Tan](https://github.com/garrytan)** → **[gstack](https://github.com/garrytan/gstack)** (opinionated agent stack, ships a `skills.md`) and **[gbrain](https://github.com/garrytan/gbrain)** (his agent-memory / "brain").
+**[Matt Pocock](https://github.com/mattpocock)** — the skills he actually runs, straight from his setup:
+
+https://github.com/mattpocock/skills
+
+**[Garry Tan](https://github.com/garrytan)** — the agent stack he runs, and the memory that backs it:
+
+https://github.com/garrytan/gstack
+
+https://github.com/garrytan/gbrain
 
 And the special one — **[Andrej Karpathy](https://github.com/karpathy)**, the best free way to actually understand what runs under the hood:
 
