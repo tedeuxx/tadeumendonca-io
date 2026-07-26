@@ -38,7 +38,8 @@ export const catalog: CatalogProject[] = [
       'deploy estático em S3 + CloudFront via Terraform.',
     stack: ['React', 'Vite', 'TypeScript', 'Terraform', 'Claude Code'],
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',
-    liveUrl: 'https://tadeumendonca.io',
+    // No liveUrl: this entry IS this site — the reader is already on it, so a "View live" link
+    // would just point at the page they're viewing. The GitHub link is the useful one here (#175).
     status: 'live',
   },
 ];
