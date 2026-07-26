@@ -39,8 +39,8 @@ export const repoCards: RepoCardData[] = [
     language: 'Python',
     repoUrl: 'https://github.com/karpathy/nanoGPT',
     description: {
-      en: 'The smallest repo that trains a real GPT — read it end to end and the architecture stops being a black box.',
-      pt: 'O menor repo que treina um GPT de verdade — leia de ponta a ponta e a arquitetura deixa de ser caixa-preta.',
+      en: 'The compact GPT that actually reproduces GPT-2 — read it end to end and the architecture stops being a black box.',
+      pt: 'O GPT compacto que de fato reproduz o GPT-2 — leia de ponta a ponta e a arquitetura deixa de ser caixa-preta.',
     },
   },
   {
@@ -50,7 +50,7 @@ export const repoCards: RepoCardData[] = [
     repoUrl: 'https://github.com/karpathy/llm.c',
     description: {
       en: 'LLM training in raw C/CUDA, no framework in the way — the layer beneath the layer.',
-      pt: 'Treino de LLM em C/CUDA puro, sem framework no caminho — a camada abaixo da camada.',
+      pt: 'Treino de LLM em C/CUDA puro, sem framework no meio do caminho — a camada abaixo da camada.',
     },
   },
   {
