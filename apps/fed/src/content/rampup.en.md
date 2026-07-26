@@ -159,7 +159,16 @@ The configs and skill sets these people run, in the open — official profiles a
 
 - **[Matt Pocock](https://github.com/mattpocock)** → **[mattpocock/skills](https://github.com/mattpocock/skills)**: Claude Code skills from his own `.claude` setup — TDD, engineering guardrails, constraints that keep AI coding honest.
 - **[Garry Tan](https://github.com/garrytan)** → **[gstack](https://github.com/garrytan/gstack)** (opinionated agent stack, ships a `skills.md`) and **[gbrain](https://github.com/garrytan/gbrain)** (his agent-memory / "brain").
-- **[Andrej Karpathy](https://github.com/karpathy)** → the special one: **[nanoGPT](https://github.com/karpathy/nanoGPT)**, **[llm.c](https://github.com/karpathy/llm.c)**, **[nanochat](https://github.com/karpathy/nanochat)**, **[minGPT](https://github.com/karpathy/minGPT)** — the best free way to actually understand what runs under the hood.
+
+And the special one — **[Andrej Karpathy](https://github.com/karpathy)**, the best free way to actually understand what runs under the hood:
+
+https://github.com/karpathy/nanoGPT
+
+https://github.com/karpathy/llm.c
+
+https://github.com/karpathy/nanochat
+
+https://github.com/karpathy/minGPT
 
 ---
 

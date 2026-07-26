@@ -4,11 +4,16 @@
 //
 // Video embeds: a paragraph that is nothing but a YouTube link becomes a lazy <VideoEmbed> facade.
 // That keeps videos INSIDE articles without rehype-raw or a bare iframe — the sanitizer stays on.
+// Repo cards: the same lone-URL facade, for a curated GitHub repo — a paragraph that is only a registered
+// repo URL becomes a static <RepoCard> (data/repoCards.ts). Both are opt-in by URL; anything else, and any
+// unregistered URL, stays a plain link.
 import { Children, isValidElement, type ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 import { VideoEmbed, youtubeId } from './VideoEmbed';
+import { RepoCard } from './RepoCard';
+import { repoCardFor } from '../data/repoCards';
 
 /**
  * The URL of a paragraph that is nothing but a link: either a bare URL on its own line (plain text,
@@ -32,8 +37,12 @@ const components: Components = {
     const { node, ...props } = rest;
     void node;
     const url = loneUrl(children);
-    const id = url ? youtubeId(url) : null;
-    if (id) return <VideoEmbed id={id} />;
+    if (url) {
+      const id = youtubeId(url);
+      if (id) return <VideoEmbed id={id} />;
+      const repo = repoCardFor(url);
+      if (repo) return <RepoCard repo={repo} />;
+    }
     return <p {...props}>{children}</p>;
   },
 };

@@ -66,6 +66,32 @@ describe('RampUpPage', () => {
     expect(ptSources.sections).toBeGreaterThan(0);
   });
 
+  // Karpathy's four repos render as static cards (#122 / ADR-0035), in both editions, and each card shows
+  // ITS locale's description — not the other's. The cards embed per-locale prose inside a per-locale page,
+  // so ADR-0032's "each edition renders without the other's text" invariant must reach the descriptions,
+  // not just the section headings.
+  it('renders the four Karpathy repos as cards, each in the visitor language only', () => {
+    const { container, unmount } = renderPage('en');
+    const en = [...container.querySelectorAll('[data-testid="repo-card"]')];
+    expect(en).toHaveLength(4);
+    // The English hook is present; its Portuguese counterpart is absent (no cross-locale leak).
+    expect(container).toHaveTextContent('the architecture stops being a black box');
+    expect(container).not.toHaveTextContent('a arquitetura deixa de ser caixa-preta');
+    // Each card links out to its canonical repo, and to nothing else.
+    expect(en.map((c) => c.getAttribute('href'))).toEqual([
+      'https://github.com/karpathy/nanoGPT',
+      'https://github.com/karpathy/llm.c',
+      'https://github.com/karpathy/nanochat',
+      'https://github.com/karpathy/minGPT',
+    ]);
+    unmount();
+
+    const pt = renderPage('pt');
+    expect(pt.container.querySelectorAll('[data-testid="repo-card"]')).toHaveLength(4);
+    expect(pt.container).toHaveTextContent('a arquitetura deixa de ser caixa-preta');
+    expect(pt.container).not.toHaveTextContent('the architecture stops being a black box');
+  });
+
   it('turns the YouTube links into click-to-load facades, not eager iframes', () => {
     const { container } = renderPage();
     // The property that matters: nothing third-party is loaded before the reader asks for it.
