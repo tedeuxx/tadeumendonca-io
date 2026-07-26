@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
 import { renderWithLocale } from '../test-utils';
 
@@ -20,12 +19,7 @@ const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   ...over,
 });
 
-const renderSection = () =>
-  renderWithLocale(
-    <MemoryRouter>
-      <ArticlesSection />
-    </MemoryRouter>,
-  );
+const renderSection = () => renderWithLocale(<ArticlesSection />);
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -39,7 +33,7 @@ describe('ArticlesSection', () => {
   it('lists posts with their title link and track chip', () => {
     getAllPosts.mockReturnValue([post()]);
     renderSection();
-    expect(screen.getAllByRole('link', { name: 'Building' })[0]).toHaveAttribute('href', '/blog/building');
+    expect(screen.getAllByRole('link', { name: 'Building' })[0]).toHaveAttribute('href', '/pt/blog/building');
     // "Engenharia" also labels a filter tab — the chip is the one inside the article row.
     expect(screen.getByRole('article').textContent).toContain('Engenharia');
   });

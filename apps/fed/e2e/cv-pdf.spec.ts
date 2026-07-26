@@ -28,7 +28,7 @@ test.describe('CV PDF export', () => {
   });
 
   test('offers a Download-CV link on /me pointing at the static asset', async ({ page }) => {
-    await page.goto('/me');
+    await page.goto('/en/me');
     const link = page.getByRole('link', { name: 'Download CV (PDF)' });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute('href', /\/cv\.pdf$/);
@@ -36,7 +36,7 @@ test.describe('CV PDF export', () => {
   });
 
   test('print media hides the web chrome and keeps the CV substance', async ({ page }) => {
-    await page.goto('/me');
+    await page.goto('/en/me');
     // The CV is present up front (the substance that must SURVIVE print).
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
 

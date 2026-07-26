@@ -6,13 +6,17 @@ import { test, expect } from '@playwright/test';
 // (200), and `vite preview` falls a missing path through to index.html too, so a missing file would
 // masquerade as an HTML 200. Each check fails on that masquerade (same rigor as the empty-catalog guard in
 // routes.spec.ts). The sitemap's canonical routes must match scripts/routes.mjs — the shared build source.
+//
+// Per-locale URLs (ADR-0036): the sitemap now lists each route under BOTH prefixes; the exact drift count +
+// xhtml:link alternates are asserted in per-locale.spec.ts. Here we anchor on a representative per-locale
+// set and the retired-path exclusions.
 const CANONICAL = [
-  'https://tadeumendonca.io/',
-  'https://tadeumendonca.io/me',
-  'https://tadeumendonca.io/portfolio',
-  'https://tadeumendonca.io/ramp-up',
-  'https://tadeumendonca.io/architecture',
-  'https://tadeumendonca.io/blog/building-serverless-on-aws',
+  'https://tadeumendonca.io/pt',
+  'https://tadeumendonca.io/en',
+  'https://tadeumendonca.io/pt/me',
+  'https://tadeumendonca.io/en/me',
+  'https://tadeumendonca.io/pt/blog/building-serverless-on-aws',
+  'https://tadeumendonca.io/en/blog/building-serverless-on-aws',
 ];
 
 test.describe('SEO discovery', () => {
@@ -40,27 +44,26 @@ test.describe('SEO discovery', () => {
     expect(body).toMatch(/<loc>.+<\/loc>/);
   });
 
-  test('lists every canonical public route and no redirects', async ({ request }) => {
+  test('lists every canonical per-locale route and no redirects', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text();
     for (const url of CANONICAL) {
       expect(body).toContain(`<loc>${url}</loc>`);
     }
-    // Canonical-only: the retired paths are never advertised (they aren't prerendered either).
+    // The retired / redirect paths are never advertised (they aren't prerendered either). Note the
+    // UNPREFIXED locale routes (bare /me, /portfolio) are redirects too — only the x-default root is bare.
     expect(body).not.toContain('/articles');
     expect(body).not.toContain('/profile');
-    expect(body).not.toContain('<loc>https://tadeumendonca.io/cv</loc>'); // /cv was dropped pre-launch (#132) — not a route, never advertised
+    expect(body).not.toContain('<loc>https://tadeumendonca.io/cv</loc>'); // /cv was dropped pre-launch (#132)
+    expect(body).not.toContain('<loc>https://tadeumendonca.io/me</loc>'); // bare /me redirects → never a <loc>
     expect(body).not.toContain('<loc>https://tadeumendonca.io/blog</loc>');
-    // Drift guard: exactly the shared enumeration, no more.
-    const locCount = (body.match(/<loc>/g) ?? []).length;
-    expect(locCount).toBe(CANONICAL.length);
   });
 
   test('every advertised URL resolves to a live page', async ({ page, request }) => {
     // Take a representative loc from the sitemap and prove it is a real prerendered route, not a stale
     // entry — tying discovery back to ADR-0005's coverage guarantee.
     const body = await (await request.get('/sitemap.xml')).text();
-    expect(body).toContain('<loc>https://tadeumendonca.io/me</loc>');
-    await page.goto('/me');
+    expect(body).toContain('<loc>https://tadeumendonca.io/en/me</loc>');
+    await page.goto('/en/me');
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
   });
 });

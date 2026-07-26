@@ -44,6 +44,8 @@ test.describe('static site', () => {
     await page.goto('/');
     await page.getByRole('tab', { name: 'Vida pessoal' }).click();
     await expect(page.getByRole('tab', { name: 'Vida pessoal' })).toHaveAttribute('aria-selected', 'true');
-    await expect(page).toHaveURL(/\/$/); // local state only — the canonical URL never changes
+    // Local state only — the canonical URL never changes. Per-locale URLs (ADR-0036): the pt-BR context
+    // resolves the landing to /pt, and filtering must not rewrite it.
+    await expect(page).toHaveURL(/\/pt$/);
   });
 });

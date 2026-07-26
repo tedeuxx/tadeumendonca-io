@@ -1,20 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
-import { renderWithLocale } from '../test-utils';
+import { LocaleProvider } from '../i18n';
 
 const { getPostBySlug } = vi.hoisted(() => ({ getPostBySlug: vi.fn() }));
 vi.mock('../lib/content', () => ({ getPostBySlug }));
 
 import { ArticlePage } from './ArticlePage';
 
-const renderAt = (slug: string) =>
-  renderWithLocale(
-    <MemoryRouter initialEntries={[`/blog/${slug}`]}>
-      <Routes>
-        <Route path="/blog/:slug" element={<ArticlePage />} />
-      </Routes>
+// Render under a locale-prefixed route (ADR-0036): the LocaleProvider reads the locale off the path, and
+// the :slug param comes from the matched route. Default locale pt (the suite's historical baseline).
+const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt') =>
+  render(
+    <MemoryRouter initialEntries={[`/${locale}/blog/${slug}`]}>
+      <LocaleProvider>
+        <Routes>
+          <Route path="/:locale/blog/:slug" element={<ArticlePage />} />
+        </Routes>
+      </LocaleProvider>
     </MemoryRouter>,
   );
 
@@ -41,7 +45,7 @@ describe('ArticlePage', () => {
   it('links back to the articles section and, when present, to the LinkedIn edition', () => {
     getPostBySlug.mockReturnValue(post({ linkedinUrl: 'https://linkedin.com/pulse/x' }));
     renderAt('building');
-    expect(screen.getByRole('link', { name: /Todos os artigos/ })).toHaveAttribute('href', '/#artigos');
+    expect(screen.getByRole('link', { name: /Todos os artigos/ })).toHaveAttribute('href', '/pt/#artigos');
     expect(screen.getByRole('link', { name: 'Ver no LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/pulse/x');
   });
 

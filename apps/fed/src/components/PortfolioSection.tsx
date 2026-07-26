@@ -7,7 +7,7 @@
 // it ("o que você tira disso" — the optional `proof` field).
 import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
-import { useT } from '../i18n';
+import { useLocalePath, useT } from '../i18n';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   const t = useT();
@@ -76,6 +76,7 @@ function ProjectCard({ project }: { project: CatalogProject }) {
  */
 export function PortfolioSection({ limit, showAllLink = false }: { limit?: number; showAllLink?: boolean }) {
   const t = useT();
+  const lp = useLocalePath();
   const shown = limit ? catalog.slice(0, limit) : catalog;
 
   return (
@@ -109,7 +110,7 @@ export function PortfolioSection({ limit, showAllLink = false }: { limit?: numbe
 
         {showAllLink && (
           <RouterLink
-            to="/portfolio"
+            to={lp('/portfolio')}
             className="mt-6 inline-block border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
           >
             {t('portfolio.viewAll')}

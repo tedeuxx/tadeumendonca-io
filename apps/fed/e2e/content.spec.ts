@@ -8,7 +8,7 @@ test.use({ locale: 'pt-BR' });
 // Public journey — a blog article (rendered from markdown-in-repo) with a share affordance.
 test.describe('content detail', () => {
   test('opens an article by slug, renders its markdown, and offers a share control', async ({ page }) => {
-    await page.goto('/blog/building-serverless-on-aws');
+    await page.goto('/pt/blog/building-serverless-on-aws');
     // The detail header reads "Blog".
     await expect(page.getByRole('heading', { name: 'Blog', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toBeVisible();

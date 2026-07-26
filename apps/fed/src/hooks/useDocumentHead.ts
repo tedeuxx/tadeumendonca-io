@@ -12,6 +12,20 @@ import {
   OG_IMAGE_ALT,
   absoluteUrl,
 } from '../lib/site';
+import { localePath, ogLocale, useLocale } from '../i18n';
+
+// The hreflang alternates a locale-prefixed logical path exposes: the pt + en editions plus x-default →
+// the bare, unprefixed English URL (which the client-side redirect resolves per visitor). Both editions of
+// a page advertise the SAME set, so a crawler sees reciprocal alternates and a self canonical, never a
+// cross-locale one. Root ('/') maps to the bare origin; every other path keeps its sub-path unprefixed.
+function alternatesFor(logicalPath: string): Record<'pt' | 'en' | 'x-default', string> {
+  const bare = logicalPath === '/' ? '/' : logicalPath;
+  return {
+    pt: absoluteUrl(localePath('pt', logicalPath)),
+    en: absoluteUrl(localePath('en', logicalPath)),
+    'x-default': absoluteUrl(bare),
+  };
+}
 
 export interface DocumentHead {
   /** Page title; the site name is appended unless it's already present. */
@@ -54,6 +68,19 @@ function upsertLink(rel: string, href: string) {
   el.setAttribute('href', href);
 }
 
+// Upsert a <link rel="alternate" hreflang="…">. Keyed by hreflang (not just rel) so the pt/en/x-default
+// trio coexist; the set is stable across navigation, so only the href is ever rewritten.
+function upsertAlternate(hreflang: string, href: string) {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${hreflang}"]`);
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'alternate');
+    el.setAttribute('hreflang', hreflang);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
+}
+
 function setJsonLd(json: string | undefined) {
   const existing = document.head.querySelector<HTMLScriptElement>('script[type="application/ld+json"][data-head]');
   if (!json) {
@@ -68,19 +95,32 @@ function setJsonLd(json: string | undefined) {
 }
 
 export function useDocumentHead({ title, description, canonicalPath, image, type = 'website', publishedTime, jsonLd }: DocumentHead) {
+  const { locale } = useLocale();
   // Serialize JSON-LD so the effect depends on its value, not object identity.
   const jsonLdStr = jsonLd ? JSON.stringify(jsonLd) : undefined;
 
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
-    const url = canonicalPath ? absoluteUrl(canonicalPath) : undefined;
+    // Per-locale URLs (ADR-0036): the canonical is SELF — the current locale's prefixed URL — never
+    // cross-locale. The reciprocal editions are advertised via hreflang alternates below.
+    const url = canonicalPath ? absoluteUrl(localePath(locale, canonicalPath)) : undefined;
     const img = image ? absoluteUrl(image) : DEFAULT_OG_IMAGE;
 
     document.title = fullTitle;
     if (description) upsertMeta('name', 'description', description);
     if (url) upsertLink('canonical', url);
 
+    // hreflang alternates (pt · en · x-default→bare English URL). Emitted for every real route so both
+    // editions point at the same set — the reciprocity a crawler needs to pair them.
+    if (canonicalPath) {
+      const alt = alternatesFor(canonicalPath);
+      upsertAlternate('pt', alt.pt);
+      upsertAlternate('en', alt.en);
+      upsertAlternate('x-default', alt['x-default']);
+    }
+
     upsertMeta('property', 'og:site_name', SITE_NAME);
+    upsertMeta('property', 'og:locale', ogLocale(locale));
     upsertMeta('property', 'og:title', fullTitle);
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:image', img);
@@ -111,5 +151,5 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     if (description) upsertMeta('name', 'twitter:description', description);
 
     setJsonLd(jsonLdStr);
-  }, [title, description, canonicalPath, image, type, publishedTime, jsonLdStr]);
+  }, [locale, title, description, canonicalPath, image, type, publishedTime, jsonLdStr]);
 }

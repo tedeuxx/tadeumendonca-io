@@ -1,16 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { ArchitecturePage } from './ArchitecturePage';
 import { renderWithLocale } from '../test-utils';
 
-const renderPage = (locale: 'pt' | 'en' = 'pt') =>
-  renderWithLocale(
-    <MemoryRouter>
-      <ArchitecturePage />
-    </MemoryRouter>,
-    { locale },
-  );
+const renderPage = (locale: 'pt' | 'en' = 'pt') => renderWithLocale(<ArchitecturePage />, { locale });
 
 describe('ArchitecturePage', () => {
   it('renders the page heading and the markdown body', () => {

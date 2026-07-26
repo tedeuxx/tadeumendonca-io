@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getAllPosts, type BlogPost, type Track } from '../lib/content';
 import { Empty } from './Column';
-import { dateLocale, useLocale, useT, type Locale, type MessageKey } from '../i18n';
+import { dateLocale, useLocale, useLocalePath, useT, type Locale, type MessageKey } from '../i18n';
 
 const fmtDate = (iso: string, locale: Locale) =>
   new Date(iso).toLocaleDateString(dateLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' });
@@ -38,6 +38,7 @@ function TrackChip({ track }: { track: Track }) {
 
 function ArticleRow({ post }: { post: BlogPost }) {
   const { locale, t } = useLocale();
+  const lp = useLocalePath();
   return (
     <article className="border-b border-border px-[--gutter] py-6">
       <div className="mb-2 flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
@@ -47,7 +48,7 @@ function ArticleRow({ post }: { post: BlogPost }) {
         <TrackChip track={post.track} />
       </div>
 
-      <RouterLink to={`/blog/${post.slug}`} className="block">
+      <RouterLink to={lp(`/blog/${post.slug}`)} className="block">
         <h3 className="text-[clamp(1.4rem,2.6vw,2.1rem)] font-bold leading-tight tracking-[-0.025em] transition-colors hover:text-primary">
           {post.title}
         </h3>
@@ -68,7 +69,7 @@ function ArticleRow({ post }: { post: BlogPost }) {
 
       <div className="mt-4 flex flex-wrap">
         <RouterLink
-          to={`/blog/${post.slug}`}
+          to={lp(`/blog/${post.slug}`)}
           className="-mr-px border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-wider invert-hover"
         >
           {t('articles.read')}

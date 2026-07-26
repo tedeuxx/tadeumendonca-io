@@ -8,11 +8,12 @@ import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { CVSection } from '../components/CVSection';
 import { Empty } from '../components/Column';
-import { SITE_URL } from '../lib/site';
-import { useT } from '../i18n';
+import { absoluteUrl } from '../lib/site';
+import { useLocalePath, useT } from '../i18n';
 
 export function ProfilePage() {
   const t = useT();
+  const lp = useLocalePath();
   const { data: profile } = useProfile();
 
   useDocumentHead({
@@ -25,7 +26,7 @@ export function ProfilePage() {
           '@type': 'Person',
           name: profile.name,
           jobTitle: profile.headline,
-          url: `${SITE_URL}/me`,
+          url: absoluteUrl(lp('/me')),
           sameAs: Object.values(profile.metadata),
           ...(profile.location ? { address: profile.location } : {}),
         }

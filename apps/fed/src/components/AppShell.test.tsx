@@ -1,17 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { renderWithLocale } from '../test-utils';
 import { STORAGE_KEY, type Locale } from '../i18n';
 
 const renderShell = (locale: Locale = 'pt') =>
   renderWithLocale(
-    <MemoryRouter>
-      <AppShell>
-        <div>child content</div>
-      </AppShell>
-    </MemoryRouter>,
+    <AppShell>
+      <div>child content</div>
+    </AppShell>,
     { locale },
   );
 
@@ -26,12 +23,13 @@ describe('AppShell', () => {
     expect(screen.queryByText('Entrar')).toBeNull();
   });
 
-  it('points the landing anchors at /# and keeps /me a real route', () => {
+  // Per-locale URLs (ADR-0036): the nav stays within the active locale — anchors and routes are prefixed.
+  it('prefixes the landing anchors and the /me route with the active locale', () => {
     renderShell();
-    expect(screen.getByRole('link', { name: 'Artigos' })).toHaveAttribute('href', '/#artigos');
-    expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/#portfolio');
-    expect(screen.getByRole('link', { name: 'Contato' })).toHaveAttribute('href', '/#contato');
-    expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/me');
+    expect(screen.getByRole('link', { name: 'Artigos' })).toHaveAttribute('href', '/pt/#artigos');
+    expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/pt/#portfolio');
+    expect(screen.getByRole('link', { name: 'Contato' })).toHaveAttribute('href', '/pt/#contato');
+    expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/pt/me');
   });
 
   it('toggles the mobile menu, rendering a second copy of the nav links', () => {
@@ -72,10 +70,10 @@ describe('AppShell', () => {
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
   });
 
-  it('renders English nav chrome when the active locale is en (anchors unchanged)', () => {
+  it('renders English nav chrome under the /en prefix when the active locale is en', () => {
     renderShell('en');
-    expect(screen.getByRole('link', { name: 'Articles' })).toHaveAttribute('href', '/#artigos');
-    expect(screen.getByRole('link', { name: 'Portfolio' })).toHaveAttribute('href', '/#portfolio');
-    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/#contato');
+    expect(screen.getByRole('link', { name: 'Articles' })).toHaveAttribute('href', '/en/#artigos');
+    expect(screen.getByRole('link', { name: 'Portfolio' })).toHaveAttribute('href', '/en/#portfolio');
+    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/en/#contato');
   });
 });

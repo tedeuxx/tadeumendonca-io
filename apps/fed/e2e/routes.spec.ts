@@ -4,6 +4,9 @@ import { test, expect } from '@playwright/test';
 // "Artigos", "Ver catálogo completo"). The i18n auto-detect layer (ADR-0032) makes en-US the default
 // rendered chrome, so pin the context to pt-BR to keep the routing assertions deterministic. Routing
 // itself is language-neutral; only the visible labels these checks anchor on are localized.
+//
+// Per-locale URLs (ADR-0036): every route is served under a locale prefix. These journeys drive the
+// pt-prefixed pages directly; the bare/redirect behaviour is covered in per-locale.spec.ts.
 test.use({ locale: 'pt-BR' });
 
 // Routing regression. The landing/CV split moved every route, and the back-compat redirects exist so
@@ -11,7 +14,7 @@ test.use({ locale: 'pt-BR' });
 // answers — only a real navigation can, so each route in App.tsx gets a journey here.
 test.describe('routes', () => {
   test('/portfolio serves the full catalog with its GitHub links', async ({ page }) => {
-    await page.goto('/portfolio');
+    await page.goto('/pt/portfolio');
     await expect(page).toHaveTitle(/Portfólio/);
     await expect(page.getByRole('heading', { name: 'Portfólio' })).toBeVisible();
 
@@ -26,7 +29,7 @@ test.describe('routes', () => {
   // shared <Markdown>, so this journey proves the whole chain — route answers, markdown renders, and
   // the YouTube links became click-to-load facades rather than eager third-party frames.
   test('/ramp-up serves the plan, with the videos behind a facade', async ({ page }) => {
-    await page.goto('/ramp-up');
+    await page.goto('/pt/ramp-up');
     await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
     // This file pins the context to pt-BR, and the BODY is bilingual too — so the Portuguese edition
     // is what must render here. Asserting the English heading would pass only against a stale build.
@@ -43,9 +46,9 @@ test.describe('routes', () => {
   });
 
   test('reaches the ramp-up page from the nav', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/pt');
     await page.getByRole('navigation').getByRole('link', { name: 'Ramp-up' }).click();
-    await expect(page).toHaveURL(/\/ramp-up$/);
+    await expect(page).toHaveURL(/\/pt\/ramp-up$/);
     await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
   });
 
@@ -54,7 +57,7 @@ test.describe('routes', () => {
   // it. Unlike the ramp-up page it carries no video embeds, so this journey anchors on the heading plus
   // at least one outbound canonical link (both public repos + the catalog-ready gate must be reachable).
   test('/architecture serves the blueprint, linking canonical detail out', async ({ page }) => {
-    await page.goto('/architecture');
+    await page.goto('/pt/architecture');
     await expect(page.getByRole('heading', { level: 1, name: /Arquitetura/ })).toBeVisible();
     // pt-BR context: the Portuguese body must render (asserting the English heading would pass only
     // against a stale build).
@@ -76,28 +79,29 @@ test.describe('routes', () => {
   });
 
   test('reaches the architecture page from the nav', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/pt');
     await page.getByRole('navigation').getByRole('link', { name: 'Arquitetura' }).click();
-    await expect(page).toHaveURL(/\/architecture$/);
+    await expect(page).toHaveURL(/\/pt\/architecture$/);
     await expect(page.getByRole('heading', { level: 1, name: /Arquitetura/ })).toBeVisible();
   });
 
   test('reaches the full catalog from the landing shortlist', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/pt');
     await page.getByRole('link', { name: /Ver catálogo completo/ }).click();
-    await expect(page).toHaveURL(/\/portfolio$/);
+    await expect(page).toHaveURL(/\/pt\/portfolio$/);
     await expect(page.getByRole('heading', { name: 'Portfólio' })).toBeVisible();
   });
 
-  test('keeps the retired /blog list deep-link working by redirecting to the landing', async ({ page }) => {
-    await page.goto('/blog');
-    await expect(page).toHaveURL(/\/#artigos$/);
+  test('keeps the retired /blog list deep-link working by redirecting to the landing, in-locale', async ({ page }) => {
+    await page.goto('/pt/blog');
+    await expect(page).toHaveURL(/\/pt\/#artigos$/);
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 
-  test('sends an unknown path back to the landing instead of a dead end', async ({ page }) => {
-    await page.goto('/rota-que-nao-existe');
-    await expect(page).toHaveURL(/\/$/);
+  // An in-locale unknown path falls to the locale landing (/pt), NOT bare / — avoiding a redirect loop.
+  test('sends an in-locale unknown path to the locale landing instead of a dead end', async ({ page }) => {
+    await page.goto('/pt/rota-que-nao-existe');
+    await expect(page).toHaveURL(/\/pt$/);
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 });

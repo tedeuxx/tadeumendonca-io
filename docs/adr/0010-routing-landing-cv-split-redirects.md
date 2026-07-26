@@ -154,6 +154,12 @@ adding a surface — so it is deferred, not adopted by default. Note this reaffi
 "everything the reader reads is in both languages" policy at the *body* level; it decides nothing about
 localized *URLs*, which remains a separate, unmade decision.
 
+> **Update (2026-07-26):** localized URL prefixes — the separate decision flagged here — are now made in
+> [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md): **symmetric `/pt/…` · `/en/…` prefixes on the
+> same English slug** (per-locale prerender + `hreflang` + OG-per-locale). Note the boundary ADR-0036 keeps:
+> it adopts a *locale prefix on one slug*, **not** the dual localized-slug pair (`/pt/perfil ↔ /en/me`) this
+> amendment set aside — that larger routing change stays deferred.
+
 Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
 enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or not
 at all. The E2E canonical-route drift guard (`seo.spec.ts`) was updated in the same slice — the guard
@@ -177,4 +183,7 @@ that ages out of sync.
   to drop the back-compat redirects for the pre-launch window (premise "URLs already in the world" not yet
   true), to be re-introduced at launch · amended (2026-07-25) for `/architecture`, a fifth public surface
   (single English slug, bilingual label + body; orientation-over-restatement per ADR-0001; OG/prerender-
-  complete per ADR-0005), within the same enumeration contract.
+  complete per ADR-0005), within the same enumeration contract · the "localized URLs remain a separate,
+  unmade decision" note in that amendment is **now made** in
+  [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (symmetric `/pt` · `/en` prefixes on one slug;
+  dual localized slugs still deferred).

@@ -25,8 +25,10 @@ test.describe('i18n — auto-detect + <html lang>', () => {
   test.describe('en-US context', () => {
     test.use({ locale: 'en-US' });
 
-    test('auto-detects English chrome and sets <html lang> to en', async ({ page }) => {
+    test('auto-detects English, redirects bare / to /en, and sets <html lang> to en', async ({ page }) => {
       await page.goto('/');
+      // Per-locale URLs (ADR-0036): the bare root client-redirects to the detected locale's prefix.
+      await expect(page).toHaveURL(/\/en$/);
       const nav = page.getByRole('navigation');
       await expect(nav.getByRole('link', { name: NAV.en.articles })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.en.portfolio })).toBeVisible();
@@ -42,8 +44,9 @@ test.describe('i18n — auto-detect + <html lang>', () => {
   test.describe('pt-BR context', () => {
     test.use({ locale: 'pt-BR' });
 
-    test('auto-detects pt-BR chrome and sets <html lang> to pt-BR', async ({ page }) => {
+    test('auto-detects pt-BR, redirects bare / to /pt, and sets <html lang> to pt-BR', async ({ page }) => {
       await page.goto('/');
+      await expect(page).toHaveURL(/\/pt$/);
       const nav = page.getByRole('navigation');
       await expect(nav.getByRole('link', { name: NAV.pt.articles })).toBeVisible();
       await expect(nav.getByRole('link', { name: NAV.pt.portfolio })).toBeVisible();
@@ -55,14 +58,15 @@ test.describe('i18n — auto-detect + <html lang>', () => {
   });
 });
 
-// Criterion: Toggle switches + persists + overrides — in a pt-BR context the nav EN toggle flips chrome to
-// English and <html lang> to 'en'; a reload keeps English (the localStorage override beats pt detection);
-// toggling PT restores pt-BR.
+// Criterion: Toggle NAVIGATES between prefixes + persists — in a pt-BR context the nav EN toggle navigates
+// /pt → /en, flips the chrome and <html lang>; a reload of /en stays English (the path is authoritative);
+// toggling PT navigates back to /pt. Per-locale URLs (ADR-0036).
 test.describe('i18n — the PT/EN toggle', () => {
   test.use({ locale: 'pt-BR' });
 
-  test('toggling EN switches the chrome, persists across reload, and overrides pt detection', async ({ page }) => {
+  test('toggling EN navigates /pt → /en, switches the chrome, and survives a reload', async ({ page }) => {
     await page.goto('/');
+    await expect(page).toHaveURL(/\/pt$/);
     const nav = page.getByRole('navigation');
     const enBtn = page.getByRole('button', { name: 'EN', exact: true });
     const ptBtn = page.getByRole('button', { name: 'PT', exact: true });
@@ -71,21 +75,24 @@ test.describe('i18n — the PT/EN toggle', () => {
     await expect(nav.getByRole('link', { name: NAV.pt.articles })).toBeVisible();
     await expect(ptBtn).toHaveAttribute('aria-pressed', 'true');
 
-    // Switch to English.
+    // Switch to English — the toggle navigates to the /en prefix.
     await enBtn.click();
+    await expect(page).toHaveURL(/\/en$/);
     await expect(nav.getByRole('link', { name: NAV.en.articles })).toBeVisible();
     await expect(nav.getByRole('link', { name: NAV.pt.articles })).toHaveCount(0);
     await expect(enBtn).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
-    // Reload: still English even though the browser context is pt-BR — the persisted override wins over detection.
+    // Reload: still /en, still English even though the browser context is pt-BR — the PATH is authoritative.
     await page.reload();
+    await expect(page).toHaveURL(/\/en$/);
     await expect(nav.getByRole('link', { name: NAV.en.articles })).toBeVisible();
     await expect(nav.getByRole('link', { name: NAV.pt.articles })).toHaveCount(0);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
-    // Toggle back to PT.
+    // Toggle back to PT — navigates to /pt.
     await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await expect(page).toHaveURL(/\/pt$/);
     await expect(nav.getByRole('link', { name: NAV.pt.articles })).toBeVisible();
     await expect(page.getByRole('button', { name: 'PT', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');

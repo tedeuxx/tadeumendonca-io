@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import type { CatalogProject } from '../data/catalog';
 import { renderWithLocale } from '../test-utils';
 
@@ -26,11 +25,7 @@ const sample: CatalogProject = {
 };
 
 const renderSection = (props: { limit?: number; showAllLink?: boolean } = {}) =>
-  renderWithLocale(
-    <MemoryRouter>
-      <PortfolioSection {...props} />
-    </MemoryRouter>,
-  );
+  renderWithLocale(<PortfolioSection {...props} />);
 
 describe('PortfolioSection', () => {
   beforeEach(() => {
@@ -72,7 +67,7 @@ describe('PortfolioSection', () => {
     state.catalog = [sample, { ...sample, name: 'second' }, { ...sample, name: 'third' }];
     renderSection({ limit: 2, showAllLink: true });
     expect(screen.queryByRole('link', { name: /third/ })).toBeNull();
-    expect(screen.getByRole('link', { name: /Ver catálogo completo/ })).toHaveAttribute('href', '/portfolio');
+    expect(screen.getByRole('link', { name: /Ver catálogo completo/ })).toHaveAttribute('href', '/pt/portfolio');
   });
 
   it('shows everything and no catalog link by default', () => {

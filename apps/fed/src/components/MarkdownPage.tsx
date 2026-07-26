@@ -10,6 +10,7 @@
 import { Markdown } from './Markdown';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
+import { useLocalePath } from '../i18n';
 import { ShareButton } from './ShareButton';
 
 interface MarkdownPageProps {
@@ -38,6 +39,10 @@ export function MarkdownPage({
   jsonLdType,
   body,
 }: MarkdownPageProps) {
+  // `canonicalPath` is the UNPREFIXED logical path; useDocumentHead prefixes it per locale for the
+  // canonical + hreflang. The ShareButton and JSON-LD url want the concrete locale URL, so prefix here.
+  const lp = useLocalePath();
+  const localizedPath = lp(canonicalPath);
   useDocumentHead({
     title,
     description,
@@ -47,7 +52,7 @@ export function MarkdownPage({
       '@context': 'https://schema.org',
       '@type': jsonLdType,
       headline: title,
-      url: absoluteUrl(canonicalPath),
+      url: absoluteUrl(localizedPath),
       author: { '@type': 'Person', name: 'Luiz Tadeu Mendonça' },
     },
   });
@@ -59,7 +64,7 @@ export function MarkdownPage({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
             <span>{kicker}</span>
             {/* ShareButton prepends the origin — it takes a PATH, not an absolute URL. */}
-            <ShareButton title={title} url={canonicalPath} size="sm" />
+            <ShareButton title={title} url={localizedPath} size="sm" />
           </div>
           <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
             {heading}

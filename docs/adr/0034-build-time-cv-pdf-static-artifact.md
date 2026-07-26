@@ -44,8 +44,16 @@ The `/cv.pdf` name collides with nothing: the `/cv` route redirect was **dropped
 
 **Cross-surface note — this does not retire Canva (deliberately).** This ADR records a new site **capability**: the site can now emit its own downloadable CV. It does **not** assert "the site is the single CV source" or "Canva is retired" — ADR-0024 still lists the Canva CV as a live surface, and the actual Canva teardown is an owner-driven decision outside this slice. When Canva is genuinely retired, ADR-0024's cross-surface set gets a **future amendment** recording that change; this ADR does not pre-decide it.
 
+## Amendment (2026-07-26) — the PDF source route string is now `/en/me`
+[ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) introduces symmetric per-locale URL prefixes, so the
+CV route the prerender prints from moves **`/me` → `/en/me`** (English is still the canonical print edition —
+ADR-0024). Nothing else here changes: the PDF is still Playwright-printed from the English CV page to the same
+static `/cv.pdf`, linked from the CV surface. Only the *source route string* carries the `/en` prefix now;
+the deferred `cv.pt.pdf` edition (below) would print from `/pt/me`.
+
 ## Links
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it, without yet retiring Canva).
+- Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
 - `/cv.pdf` is linked from `/me` (ADR-0010); the `/cv` redirect was dropped pre-launch, so the path is free.
 - EN-only on the English prerender baseline (ADR-0032); a pt-BR edition is a deferred follow-on.
 - Deliberately **outside** ADR-0005's HTML-route OG/SEO coverage (a static asset, not a crawlable route); exercised on the PR via `build:static` (ADR-0018).

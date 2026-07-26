@@ -11,13 +11,23 @@ export const OG_IMAGE_WIDTH = '1200';
 export const OG_IMAGE_HEIGHT = '630';
 export const OG_IMAGE_TYPE = 'image/png';
 export const OG_IMAGE_ALT = 'tadeumendonca.io — learn to build with AI, from everyday life to production';
-// English — the crawlable/OG baseline is pinned to English (i18n Slice 1; see scripts/prerender.mjs).
-// A per-locale OG description is a deferred slice (tied to per-locale prerender + hreflang).
-//
-// Reader-first: it leads with what the reader gets, not with who wrote it. The name and the job title
-// are deliberately absent — the card sells the promise, and the site's own pages carry the person.
-export const DEFAULT_DESCRIPTION =
+// Per-locale OG/meta description (ADR-0036 — per-locale prerender + hreflang). English is the canonical /
+// x-default edition (ADR-0024); pt-BR is a faithful translation. Reader-first: each leads with what the
+// reader gets, not with who wrote it — the name and job title are deliberately absent, the card sells the
+// promise and the site's own pages carry the person.
+import type { Locale } from '../i18n/config';
+
+export const DEFAULT_DESCRIPTION_EN =
   'A portfolio of automations and technical writing — agentic development and AI-native engineering, with the trade-offs made explicit.';
+export const DEFAULT_DESCRIPTION_PT =
+  'Um portfólio de automações e escrita técnica — agentic development e engenharia AI-native, com os trade-offs explícitos.';
+
+/** The default OG/meta description in the active locale. */
+export const defaultDescription = (locale: Locale): string =>
+  locale === 'pt' ? DEFAULT_DESCRIPTION_PT : DEFAULT_DESCRIPTION_EN;
+
+/** Back-compat alias — the English (canonical / x-default) baseline. */
+export const DEFAULT_DESCRIPTION = DEFAULT_DESCRIPTION_EN;
 
 /** Resolve a path (or an already-absolute URL) to an absolute URL under the site origin. */
 export const absoluteUrl = (pathOrUrl: string): string =>
