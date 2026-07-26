@@ -11,6 +11,8 @@ Sou engenheiro de software no meio de uma transição — de arquitetura de clou
 
 A maior parte do conteúdo de "como virar AI Engineer" é uma de duas coisas: gatekeeping de PhD em ML, ou thread de hype. Nenhum me ajudou. Então escrevo o que eu queria ter encontrado: a transição de verdade, com os trade-offs explícitos e o código aberto pra você pegar.
 
+E este espaço é mais que um blog: é o workspace onde eu toco essa transição em público — construindo agentes de IA, compartilhando os artefatos conforme os produzo, e colaborando em open source pelo caminho. Não estou aqui como autoridade; não existe mestre de IA ainda — a área é nova demais. Escrevo como par, aprendendo junto com você, experimentando em voz alta e mostrando o que funciona e o que não funciona.
+
 ## O que eu não vou fazer
 
 Não vou fingir anos de experiência agentic que não tenho — a tecnologia é nova, meu trabalho hands-on com IA tem meses, e eu digo isso. Não vou te vender atalho. A substância que trago não é o hype de IA; são ~duas décadas de SDLC e sistemas distribuídos — o rigor de produção sem glamour (avaliação, observabilidade, arquitetura, custo, modos de falha) que a maior parte do trabalho com IA pula. IA é a camada mais nova sobre isso, não um recomeço.
@@ -24,6 +26,6 @@ Não vou fingir anos de experiência agentic que não tenho — a tecnologia é 
 
 ## Se você está na mesma trilha
 
-Seu histórico não é um déficit a superar. É o que te torna raro nessa trilha. Construa em público, entregue pequeno, e deixe os artefatos argumentarem.
+Seu histórico não é um déficit a superar. É o que te torna raro nessa trilha. Construa em público, entregue pequeno, e deixe os artefatos argumentarem — e se algo aqui te for útil, pegue, melhore e construa em cima em público.
 
 É esse o combinado. Vamos construir.
