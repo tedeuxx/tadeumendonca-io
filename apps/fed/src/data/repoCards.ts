@@ -29,10 +29,39 @@ export interface RepoCardData {
   description: Record<Locale, string>;
 }
 
-// Andrej Karpathy's teaching repos — the "understand what actually runs under the hood" set the ramp-up
-// page points at. Owner-curated; extend as new repos earn a card (Matt Pocock / Garry Tan are a filed
-// follow-on, deliberately not folded in here — WIP=1).
+// The repos the ramp-up "sources → GitHub" section points at — the configs and skill sets these people
+// run in the open. Owner-curated; extend as new repos earn a card.
 export const repoCards: RepoCardData[] = [
+  {
+    name: 'skills',
+    owner: 'mattpocock',
+    language: 'Shell',
+    repoUrl: 'https://github.com/mattpocock/skills',
+    description: {
+      en: "Matt Pocock's own `.claude` skills — TDD and engineering guardrails that keep AI coding honest.",
+      pt: 'As skills do `.claude` do próprio Matt Pocock — TDD e guardrails de engenharia que mantêm o AI coding honesto.',
+    },
+  },
+  {
+    name: 'gstack',
+    owner: 'garrytan',
+    language: 'TypeScript',
+    repoUrl: 'https://github.com/garrytan/gstack',
+    description: {
+      en: 'An opinionated agent stack wired into Claude Code — a virtual eng team behind slash commands, shipping its own `skills.md`.',
+      pt: 'Uma stack de agente opinativa plugada no Claude Code — um time de eng virtual atrás de slash commands, com seu próprio `skills.md`.',
+    },
+  },
+  {
+    name: 'gbrain',
+    owner: 'garrytan',
+    language: 'TypeScript',
+    repoUrl: 'https://github.com/garrytan/gbrain',
+    description: {
+      en: 'The memory layer for an agent — a knowledge graph that gives it retention and context between runs.',
+      pt: 'A camada de memória de um agente — um grafo de conhecimento que dá retenção e contexto entre execuções.',
+    },
+  },
   {
     name: 'nanoGPT',
     owner: 'karpathy',

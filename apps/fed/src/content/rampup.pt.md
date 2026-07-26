@@ -157,8 +157,15 @@ Só links, sem embed — de propósito. A regra deste site é que nada de tercei
 
 As configs e os conjuntos de skills que elas usam, em aberto — só perfis e repos oficiais.
 
-- **[Matt Pocock](https://github.com/mattpocock)** → **[mattpocock/skills](https://github.com/mattpocock/skills)**: skills de Claude Code do `.claude` dele — TDD, guardrails de engenharia, restrições que mantêm o AI coding honesto.
-- **[Garry Tan](https://github.com/garrytan)** → **[gstack](https://github.com/garrytan/gstack)** (stack de agente opinativa, com `skills.md`) e **[gbrain](https://github.com/garrytan/gbrain)** (a memória/"cérebro" do agente dele).
+**[Matt Pocock](https://github.com/mattpocock)** — skills de Claude Code direto do `.claude` dele:
+
+https://github.com/mattpocock/skills
+
+**[Garry Tan](https://github.com/garrytan)** — uma stack de agente opinativa e a memória que a sustenta:
+
+https://github.com/garrytan/gstack
+
+https://github.com/garrytan/gbrain
 
 E o especial — **[Andrej Karpathy](https://github.com/karpathy)**, a melhor forma gratuita de entender de verdade o que roda por baixo:
 
