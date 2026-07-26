@@ -76,24 +76,24 @@ const sourceTemplate: ProfileSource = {
       },
       highlights: {
         en: [
-          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) to design, build and ' +
-            'ship production-ready systems, and matured these practices for how engineering teams adopt them.',
+          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +
+            'build and ship production-ready systems, and structured the practice for team-scale adoption.',
           'Built an internal knowledge platform with a bidirectional MCP server and semantic search (vector ' +
             'embeddings on Amazon Bedrock), enabling AI agents to both search and create knowledge.',
           "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
             'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
             "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
             'of the deliveries.',
-          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across six ' +
-            'platforms (iOS, Android, Tizen, webOS, Apple TV, Web) on a BFF + microservices backend, designed for ' +
-            'future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
+          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across five ' +
+            'platforms (iOS, Android, Tizen, webOS, Apple TV) plus Web, on a BFF + microservices backend, designed ' +
+            'for future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
           'Led engagements across LATAM, presenting architecture and delivery strategy to C-level and ' +
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
-          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) para projetar, ' +
-            'construir e entregar sistemas prontos para produção, e amadureci essas práticas para a forma como ' +
-            'times de engenharia as adotam.',
+          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) em 2026 para ' +
+            'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
+            'adoção em escala de time.',
           'Construí uma plataforma interna de conhecimento com um servidor MCP bidirecional e busca semântica ' +
             '(vector embeddings no Amazon Bedrock), permitindo que agentes de IA pesquisassem e criassem conhecimento.',
           'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
@@ -101,7 +101,7 @@ const sourceTemplate: ProfileSource = {
             'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
             '~2 anos que o cliente renovou pela qualidade das entregas.',
           'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
-            'nativos em seis plataformas (iOS, Android, Tizen, webOS, Apple TV, Web) sobre um backend BFF + ' +
+            'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
             'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
             'condução da entrega multi-fornecedor.',
           'Conduzi engajamentos na América Latina, apresentando arquitetura e estratégia de entrega para ' +
@@ -129,7 +129,7 @@ const sourceTemplate: ProfileSource = {
             'Istio; RDS, DynamoDB, SQS and SNS.',
           'Grew from hands-on individual contributor to tech lead of a cross-organization team of up to eight ' +
             'over ~2 years; the open-source foundation kept expanding after my rolloff.',
-          'Built reusable Terraform modules and deployment patterns other engineering teams built on, applying ' +
+          'Built reusable Terraform modules and deployment patterns other engineering teams relied on, applying ' +
             'software-engineering rigor to infrastructure as code.',
         ],
         pt: [
@@ -150,26 +150,25 @@ const sourceTemplate: ProfileSource = {
       end_date: '2021-01',
       description: {
         en:
-          'Built the observability platform for the revenue / subscription journey of a major direct-to-consumer ' +
-          'streaming service and its channels — an Angular, Salesforce and Spring Boot revenue path, ' +
-          'instrumented end to end.',
+          'Owned observability for the sales / subscription journey of a major direct-to-consumer streaming ' +
+          'service and its channels — a business-critical revenue path on Angular, Salesforce and Spring Boot.',
         pt:
-          'Construí a plataforma de observabilidade da jornada de vendas / assinatura de um grande serviço de ' +
-          'streaming direto ao consumidor e seus canais — um caminho de receita em Angular, Salesforce e Spring ' +
-          'Boot, instrumentado ponta a ponta.',
+          'Responsável pela observabilidade da jornada de vendas / assinatura de um grande serviço de streaming ' +
+          'direto ao consumidor e seus canais — um caminho de receita crítico para o negócio, em Angular, ' +
+          'Salesforce e Spring Boot.',
       },
       highlights: {
         en: [
           'Built an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix ' +
             'into a unified monitoring solution.',
-          'Instrumented the sales / subscription journey end to end — Angular frontend, Salesforce and Spring ' +
-            'Boot backends — giving a business-critical revenue path unified visibility.',
+          'Instrumented the Angular frontend and the Salesforce / Spring Boot backends so the revenue path had ' +
+            'first-class visibility across the stack.',
         ],
         pt: [
           'Construí uma plataforma de observabilidade ponta a ponta integrando AppDynamics, Grafana, Prometheus ' +
             'e Zabbix em uma solução unificada de monitoração.',
-          'Instrumentei a jornada de vendas / assinatura ponta a ponta — frontend Angular, backends Salesforce ' +
-            'e Spring Boot — dando visibilidade unificada a um caminho de receita crítico para o negócio.',
+          'Instrumentei o frontend Angular e os backends Salesforce / Spring Boot para dar ao caminho de receita ' +
+            'visibilidade de primeira classe em toda a stack.',
         ],
       },
     },
