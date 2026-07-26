@@ -11,6 +11,7 @@ const CANONICAL = [
   'https://tadeumendonca.io/me',
   'https://tadeumendonca.io/portfolio',
   'https://tadeumendonca.io/ramp-up',
+  'https://tadeumendonca.io/architecture',
   'https://tadeumendonca.io/blog/building-serverless-on-aws',
 ];
 

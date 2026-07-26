@@ -30,6 +30,7 @@ const NAV: NavEntry[] = [
   { href: '/#portfolio', labelKey: 'nav.portfolio', section: 'portfolio' },
   { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
   { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
+  { href: '/architecture', labelKey: 'nav.architecture', route: true },
   { href: '/me', labelKey: 'nav.profile', route: true },
 ];
 const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => id !== undefined);

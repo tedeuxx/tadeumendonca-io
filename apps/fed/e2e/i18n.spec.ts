@@ -179,6 +179,31 @@ test.describe('i18n — long-form content follows the locale', () => {
       await expect(page.getByRole('heading', { name: /Get the category right first/ })).toHaveCount(0);
     });
   });
+
+  // The architecture page is long-form too, so the same parity rule applies: the markdown body flips with
+  // the chrome. Each edition asserts both halves — a distinctive section heading of the target language is
+  // present AND its counterpart in the other language is absent.
+  test.describe('the architecture page follows the locale', () => {
+    test.describe('pt-BR context', () => {
+      test.use({ locale: 'pt-BR' });
+
+      test('serves the Portuguese edition of the architecture page', async ({ page }) => {
+        await page.goto('/architecture');
+        await expect(page.getByRole('heading', { name: /O registro de decisões É a documentação/ })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /The decision record IS the documentation/ })).toHaveCount(0);
+      });
+    });
+
+    test.describe('en-US context', () => {
+      test.use({ locale: 'en-US' });
+
+      test('serves the English edition of the architecture page', async ({ page }) => {
+        await page.goto('/architecture');
+        await expect(page.getByRole('heading', { name: /The decision record IS the documentation/ })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /O registro de decisões É a documentação/ })).toHaveCount(0);
+      });
+    });
+  });
 });
 
 // Criterion: Dates follow the locale — an article date on the landing renders in the active locale's format.
