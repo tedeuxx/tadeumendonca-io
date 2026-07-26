@@ -227,8 +227,8 @@ const sourceTemplate: ProfileSource = {
       },
       highlights: {
         en: [
-          'Started in web development and, from graduating in 2010, grew from junior to senior analyst building ' +
-            'enterprise system integrations.',
+          'Joined as an intern in 2008 while completing the Information Systems degree; from graduating in 2010, ' +
+            'grew from junior to senior analyst building enterprise system integrations.',
           'Built and connected large-scale distributed systems across batch (Informatica PowerCenter ETL) and ' +
             'online / real-time (SOA) integration, wiring heterogeneous enterprise platforms together.',
           'Delivered across the full SDLC for enterprise clients in regulated sectors — financial services, ' +
@@ -250,25 +250,27 @@ const sourceTemplate: ProfileSource = {
       institution: 'Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)',
       degree: { en: "Bachelor's Degree", pt: 'Bacharelado' },
       field: {
-        en: 'Information Technology / Systems Analysis',
-        pt: 'Tecnologia da Informação / Análise de Sistemas',
+        en: 'Information Systems — electives in Databases and Operating Systems',
+        pt: 'Sistemas de Informação — eletivas em Banco de Dados e Sistemas Operacionais',
       },
       start_date: '2006',
       end_date: '2010',
     },
   ],
-  // badge_image_url (the official Credly image) and credential_url are still missing; until they are
-  // filled in, the CV falls back to the typographic seal built from badge_label.
+  // Official AWS/Credly badge PNGs, self-hosted under public/badges/ (no third-party image request at
+  // runtime — the CVSection renders <img> from these). badge_label stays as the fallback seal. credential_url
+  // (the click-through to Credly verification) is still optional/pending; without it the badge renders but is
+  // not a link.
   certifications: [
-    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nPRO' },
-    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nPRA' },
-    { name: 'AI-DLC Ambassador', issuer: 'Amazon Web Services (AWS)', badge_label: 'DLC\nAMB' },
-    { name: 'AWS Accreditation — AI (L200)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL200' },
-    { name: 'AWS Accreditation — AI (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL100' },
-    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'DEV\nASC' },
-    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nASC' },
-    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A' },
-    { name: 'AWS Accreditation — Telecom (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'TEL\nL100' },
+    { name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nPRO', badge_image_url: '/badges/aws-certified-solutions-architect-professional.png' },
+    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nPRA', badge_image_url: '/badges/aws-certified-ai-practitioner.png' },
+    { name: 'AI-DLC Ambassador', issuer: 'Amazon Web Services (AWS)', badge_label: 'DLC\nAMB', badge_image_url: '/badges/aws-ai-driven-development-lifecycle-ai-dlc-ambassad.png' },
+    { name: 'AWS Accreditation — AI (L200)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL200', badge_image_url: '/badges/aws-ai-delivery-intermediate-l200-accreditation.png' },
+    { name: 'AWS Accreditation — AI (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'AI\nL100', badge_image_url: '/badges/aws-ai-foundational-l100-accreditation.png' },
+    { name: 'AWS Certified Developer – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'DEV\nASC', badge_image_url: '/badges/aws-certified-developer-associate.png' },
+    { name: 'AWS Certified Solutions Architect – Associate', issuer: 'Amazon Web Services (AWS)', badge_label: 'SA\nASC', badge_image_url: '/badges/aws-certified-solutions-architect-associate.png' },
+    { name: 'AWS Well-Architected Proficient', issuer: 'Amazon Web Services (AWS)', badge_label: 'W·A', badge_image_url: '/badges/well-architected-proficient.png' },
+    { name: 'AWS Accreditation — Telecom (L100)', issuer: 'Amazon Web Services (AWS)', badge_label: 'TEL\nL100', badge_image_url: '/badges/aws-industry-telecommunications-foundational-l100.png' },
   ],
   // Skills carry a 1–4 proficiency level (AWS L100–L400 model). Honesty is the point: the moat
   // (distributed systems, DevOps, granular AWS services) reaches 4; AI-native TOOLS cap at 3 (nobody is

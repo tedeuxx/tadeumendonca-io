@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getAllPosts, getPostBySlug, buildEditions, type BlogPost } from './content';
 
-const SLUG = 'building-serverless-on-aws';
+const SLUG = 'meu-compromisso';
 
 // Extract the ordered list of markdown links from a body, for the cross-locale parity assertion.
 const linksOf = (body: string) => [...body.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
@@ -15,12 +15,10 @@ describe('content (markdown-in-repo, per-locale)', () => {
     const pt = getPostBySlug(SLUG, 'pt');
     expect(en).toBeDefined();
     expect(pt).toBeDefined();
-    expect(en?.title).toBe("I retired my own site's backend — and why that was engineering, not laziness");
-    expect(pt?.title).toBe(
-      'Aposentei o backend do meu próprio site — e por que isso foi engenharia, não preguiça',
-    );
-    expect(en?.body).toContain('The question that decided it');
-    expect(pt?.body).toContain('A pergunta que decidiu');
+    expect(en?.title).toBe('My Commitment');
+    expect(pt?.title).toBe('Meu Compromisso');
+    expect(en?.body).toContain('The commitment');
+    expect(pt?.body).toContain('O compromisso');
     expect(en?.body).not.toContain('---'); // frontmatter fence stripped
   });
 
@@ -28,7 +26,7 @@ describe('content (markdown-in-repo, per-locale)', () => {
     const en = getPostBySlug(SLUG, 'en')!;
     const pt = getPostBySlug(SLUG, 'pt')!;
     expect(en.slug).toBe(pt.slug);
-    expect(en.date).toBe('2026-07-22T19:00:00.000Z'); // stayed a string (not a YAML Date)
+    expect(en.date).toBe('2026-07-26T22:00:00.000Z'); // stayed a string (not a YAML Date)
     expect(en.date).toBe(pt.date);
     expect(en.tag).toBe(pt.tag);
     expect(en.track).toBe(pt.track);
@@ -37,10 +35,10 @@ describe('content (markdown-in-repo, per-locale)', () => {
   it('keeps each edition free of the other locale prose (no leak)', () => {
     const en = getPostBySlug(SLUG, 'en')!;
     const pt = getPostBySlug(SLUG, 'pt')!;
-    expect(en.body).not.toContain('A pergunta que decidiu');
-    expect(pt.body).not.toContain('The question that decided it');
-    expect(en.title).not.toContain('preguiça');
-    expect(pt.title).not.toContain('laziness');
+    expect(en.body).not.toContain('O compromisso');
+    expect(pt.body).not.toContain('The commitment');
+    expect(en.title).not.toContain('Compromisso');
+    expect(pt.title).not.toContain('Commitment');
   });
 
   it('has the same links in the same order, and the same section count, across locales', () => {
@@ -69,7 +67,7 @@ describe('content (markdown-in-repo, per-locale)', () => {
   });
 
   it('filters by tag and returns [] for an unknown tag', () => {
-    expect(getAllPosts('en', { tag: 'aws' }).length).toBeGreaterThan(0);
+    expect(getAllPosts('en', { tag: 'manifesto' }).length).toBeGreaterThan(0);
     expect(getAllPosts('en', { tag: 'does-not-exist' })).toEqual([]);
   });
 

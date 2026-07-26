@@ -41,7 +41,7 @@ const strings = {
     },
     bodyStrong1: { pt: 'vida pessoal com Claude Cowork', en: 'personal life with Claude Cowork' },
     bodyConnector: { pt: 'a', en: 'to' },
-    bodyStrong2: { pt: 'sistemas agentic em produção', en: 'agentic systems in production' },
+    bodyStrong2: { pt: 'agentic development', en: 'agentic development' },
     bodyTail: {
       pt: '. Trade-offs reais e código aberto pra você aplicar, seja na sua rotina ou na sua empresa. O objetivo é te fazer construir melhor — quem escreve isso é consequência, não o ponto.',
       en: '. Real trade-offs and open source for you to apply, whether in your routine or at your company. The goal is to help you build better — who writes it is a by-product, not the point.',

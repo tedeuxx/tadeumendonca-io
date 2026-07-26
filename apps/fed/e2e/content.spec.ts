@@ -8,11 +8,11 @@ test.use({ locale: 'pt-BR' });
 // Public journey — a blog article (rendered from markdown-in-repo) with a share affordance.
 test.describe('content detail', () => {
   test('opens an article by slug, renders its markdown, and offers a share control', async ({ page }) => {
-    await page.goto('/pt/blog/building-serverless-on-aws');
+    await page.goto('/pt/blog/meu-compromisso');
     // The detail header reads "Blog".
     await expect(page.getByRole('heading', { name: 'Blog', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Aposentei o backend/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'A pergunta que decidiu' })).toBeVisible(); // markdown body rendered
+    await expect(page.getByRole('heading', { name: /Meu Compromisso/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'O compromisso' })).toBeVisible(); // markdown body rendered
     // Share is chrome (share.share): pt-BR renders "Compartilhar" under the pinned locale.
     await expect(page.getByRole('button', { name: 'Compartilhar' })).toBeVisible();
   });
