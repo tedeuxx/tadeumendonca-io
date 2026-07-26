@@ -157,11 +157,11 @@ Links only, no embeds — deliberately. The rule on this site is that nothing th
 
 The configs and skill sets these people run, in the open — official profiles and repos only.
 
-**[Matt Pocock](https://github.com/mattpocock)** — Claude Code skills straight from his own `.claude` setup:
+**[Matt Pocock](https://github.com/mattpocock)** — the skills he actually runs, straight from his setup:
 
 https://github.com/mattpocock/skills
 
-**[Garry Tan](https://github.com/garrytan)** — an opinionated agent stack and the memory that backs it:
+**[Garry Tan](https://github.com/garrytan)** — the agent stack he runs, and the memory that backs it:
 
 https://github.com/garrytan/gstack
 

@@ -157,11 +157,11 @@ Só links, sem embed — de propósito. A regra deste site é que nada de tercei
 
 As configs e os conjuntos de skills que elas usam, em aberto — só perfis e repos oficiais.
 
-**[Matt Pocock](https://github.com/mattpocock)** — skills de Claude Code direto do `.claude` dele:
+**[Matt Pocock](https://github.com/mattpocock)** — as skills que ele de fato usa, direto do setup dele:
 
 https://github.com/mattpocock/skills
 
-**[Garry Tan](https://github.com/garrytan)** — uma stack de agente opinativa e a memória que a sustenta:
+**[Garry Tan](https://github.com/garrytan)** — a stack de agente que ele usa, e a memória que a sustenta:
 
 https://github.com/garrytan/gstack
 
