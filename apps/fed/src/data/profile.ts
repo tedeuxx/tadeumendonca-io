@@ -80,10 +80,13 @@ const sourceTemplate: ProfileSource = {
             'ship production-ready systems, and matured these practices for how engineering teams adopt them.',
           'Built an internal knowledge platform with a bidirectional MCP server and semantic search (vector ' +
             'embeddings on Amazon Bedrock), enabling AI agents to both search and create knowledge.',
-          'Architected cloud-native distributed systems for enterprise programs in regulated industries — ' +
-            'financial services, aerospace, energy — navigating compliance and data-sovereignty constraints.',
-          'Developed reusable Terraform modules, deployment patterns and internal tooling that other ' +
-            'engineering teams build on.',
+          "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
+            'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
+            "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
+            'of the deliveries.',
+          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across six ' +
+            'platforms (iOS, Android, Tizen, webOS, Apple TV, Web) on a BFF + microservices backend, designed for ' +
+            'future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
           'Led engagements across LATAM, presenting architecture and delivery strategy to C-level and ' +
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
@@ -93,10 +96,14 @@ const sourceTemplate: ProfileSource = {
             'times de engenharia as adotam.',
           'Construí uma plataforma interna de conhecimento com um servidor MCP bidirecional e busca semântica ' +
             '(vector embeddings no Amazon Bedrock), permitindo que agentes de IA pesquisassem e criassem conhecimento.',
-          'Arquitetei sistemas distribuídos cloud-native para programas corporativos em setores regulados — ' +
-            'serviços financeiros, aeroespacial, energia — navegando restrições de compliance e soberania de dados.',
-          'Desenvolvi módulos Terraform reutilizáveis, padrões de deployment e ferramentas internas que outros ' +
-            'times de engenharia usam como base.',
+          'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
+            'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
+            'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
+            '~2 anos que o cliente renovou pela qualidade das entregas.',
+          'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
+            'nativos em seis plataformas (iOS, Android, Tizen, webOS, Apple TV, Web) sobre um backend BFF + ' +
+            'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
+            'condução da entrega multi-fornecedor.',
           'Conduzi engajamentos na América Latina, apresentando arquitetura e estratégia de entrega para ' +
             'stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],
@@ -117,20 +124,22 @@ const sourceTemplate: ProfileSource = {
       },
       highlights: {
         en: [
-          'Designed and shipped cloud-native applications end-to-end, from ideation through production.',
-          'Developed Terraform modules across basic and advanced infrastructure patterns for application ' +
-            'deployments on AWS.',
-          'Applied software engineering practices to infrastructure as code to standardize and accelerate ' +
-            'cloud adoption across client development teams.',
-          'Worked hands-on with serverless and container stacks: Lambda, ECS/EKS, API Gateway, DynamoDB, S3, SQS/SNS.',
+          "Stood up the cloud-native foundation of a tier-1 bank's mortgage-credit domain, migrating it off " +
+            'mainframe and ASPX to a full-stack modern platform — Angular; Kotlin/Spring Boot; EKS, ArgoCD and ' +
+            'Istio; RDS, DynamoDB, SQS and SNS.',
+          'Grew from hands-on individual contributor to tech lead of a cross-organization team of up to eight ' +
+            'over ~2 years; the open-source foundation kept expanding after my rolloff.',
+          'Built reusable Terraform modules and deployment patterns other engineering teams built on, applying ' +
+            'software-engineering rigor to infrastructure as code.',
         ],
         pt: [
-          'Projetei e entreguei aplicações cloud-native de ponta a ponta, da concepção à produção.',
-          'Desenvolvi módulos Terraform cobrindo padrões de infraestrutura básicos e avançados para deploy de ' +
-            'aplicações na AWS.',
-          'Apliquei práticas de engenharia de software à infraestrutura como código para padronizar e acelerar a ' +
-            'adoção de cloud nos times de desenvolvimento dos clientes.',
-          'Trabalhei hands-on com stacks serverless e de containers: Lambda, ECS/EKS, API Gateway, DynamoDB, S3, SQS/SNS.',
+          'Levantei a fundação cloud-native do domínio de crédito imobiliário de um banco tier-1, migrando-o de ' +
+            'mainframe e ASPX para uma plataforma moderna full-stack — Angular; Kotlin/Spring Boot; EKS, ArgoCD ' +
+            'e Istio; RDS, DynamoDB, SQS e SNS.',
+          'Cresci de individual contributor hands-on a tech lead de um time cross-organização de até oito ' +
+            'pessoas ao longo de ~2 anos; a fundação open-source seguiu crescendo após meu rolloff.',
+          'Construí módulos Terraform e padrões de deploy reutilizáveis que outros times usaram como base, ' +
+            'aplicando rigor de engenharia de software à infraestrutura como código.',
         ],
       },
     },
@@ -141,24 +150,26 @@ const sourceTemplate: ProfileSource = {
       end_date: '2021-01',
       description: {
         en:
-          'Owned the observability foundation for a large-scale direct-to-consumer streaming launch, spanning ' +
-          'frontend, backend and infrastructure layers.',
+          'Built the observability platform for the revenue / subscription journey of a major direct-to-consumer ' +
+          'streaming service and its channels — an Angular, Salesforce and Spring Boot revenue path, ' +
+          'instrumented end to end.',
         pt:
-          'Responsável pela fundação de observabilidade de um lançamento de streaming direto ao consumidor em ' +
-          'larga escala, cobrindo as camadas de frontend, backend e infraestrutura.',
+          'Construí a plataforma de observabilidade da jornada de vendas / assinatura de um grande serviço de ' +
+          'streaming direto ao consumidor e seus canais — um caminho de receita em Angular, Salesforce e Spring ' +
+          'Boot, instrumentado ponta a ponta.',
       },
       highlights: {
         en: [
           'Built an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix ' +
             'into a unified monitoring solution.',
-          'Instrumented frontend (Angular) and backend (Spring Boot) services alongside infrastructure to ' +
-            'support a high-traffic launch.',
+          'Instrumented the sales / subscription journey end to end — Angular frontend, Salesforce and Spring ' +
+            'Boot backends — giving a business-critical revenue path unified visibility.',
         ],
         pt: [
           'Construí uma plataforma de observabilidade ponta a ponta integrando AppDynamics, Grafana, Prometheus ' +
             'e Zabbix em uma solução unificada de monitoração.',
-          'Instrumentei serviços de frontend (Angular) e backend (Spring Boot) junto com a infraestrutura para ' +
-            'suportar um lançamento de alto tráfego.',
+          'Instrumentei a jornada de vendas / assinatura ponta a ponta — frontend Angular, backends Salesforce ' +
+            'e Spring Boot — dando visibilidade unificada a um caminho de receita crítico para o negócio.',
         ],
       },
     },
