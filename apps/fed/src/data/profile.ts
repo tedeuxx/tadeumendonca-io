@@ -78,8 +78,8 @@ const sourceTemplate: ProfileSource = {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and structured the practice for team-scale adoption.',
-          'Built an internal knowledge platform with a bidirectional MCP server and semantic search (vector ' +
-            'embeddings on Amazon Bedrock), enabling AI agents to both search and create knowledge.',
+          'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
+            'search (vector embeddings on Amazon Bedrock) so AI agents can both search and create knowledge; MVP in progress.',
           "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
             'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
             "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
@@ -94,8 +94,8 @@ const sourceTemplate: ProfileSource = {
           'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
             'adoção em escala de time.',
-          'Construí uma plataforma interna de conhecimento com um servidor MCP bidirecional e busca semântica ' +
-            '(vector embeddings no Amazon Bedrock), permitindo que agentes de IA pesquisassem e criassem conhecimento.',
+          'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
+            'e busca semântica (vector embeddings no Amazon Bedrock) para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
           'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
             'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
             'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
