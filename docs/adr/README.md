@@ -37,6 +37,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted · amended 2026-07-24 (CV route `/cv → /me`, "Perfil / Profile" label; `/cv`·`/profile` redirect) · amended 2026-07-25 (`/architecture`, a fifth public surface; single English slug, bilingual label + body) |
 | [0012](./0012-snake-case-content-no-mapping.md) | snake_case content/data, no mapping layer | accepted |
 | [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted |
+| [0035](./0035-static-repo-cards-in-longform.md) | Curated repos as static cards in long-form — lone-URL facade + leaf-bilingual field, no third-party fetch | accepted |
 
 ## Infrastructure
 | ADR | Title | Status |

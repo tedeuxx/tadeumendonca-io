@@ -159,7 +159,16 @@ As configs e os conjuntos de skills que elas usam, em aberto — só perfis e re
 
 - **[Matt Pocock](https://github.com/mattpocock)** → **[mattpocock/skills](https://github.com/mattpocock/skills)**: skills de Claude Code do `.claude` dele — TDD, guardrails de engenharia, restrições que mantêm o AI coding honesto.
 - **[Garry Tan](https://github.com/garrytan)** → **[gstack](https://github.com/garrytan/gstack)** (stack de agente opinativa, com `skills.md`) e **[gbrain](https://github.com/garrytan/gbrain)** (a memória/"cérebro" do agente dele).
-- **[Andrej Karpathy](https://github.com/karpathy)** → o especial: **[nanoGPT](https://github.com/karpathy/nanoGPT)**, **[llm.c](https://github.com/karpathy/llm.c)**, **[nanochat](https://github.com/karpathy/nanochat)**, **[minGPT](https://github.com/karpathy/minGPT)** — a melhor forma gratuita de entender de verdade o que roda por baixo.
+
+E o especial — **[Andrej Karpathy](https://github.com/karpathy)**, a melhor forma gratuita de entender de verdade o que roda por baixo:
+
+https://github.com/karpathy/nanoGPT
+
+https://github.com/karpathy/llm.c
+
+https://github.com/karpathy/nanochat
+
+https://github.com/karpathy/minGPT
 
 ---
 
