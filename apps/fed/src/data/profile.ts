@@ -76,27 +76,34 @@ const sourceTemplate: ProfileSource = {
       },
       highlights: {
         en: [
-          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) to design, build and ' +
-            'ship production-ready systems, and matured these practices for how engineering teams adopt them.',
+          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +
+            'build and ship production-ready systems, and structured the practice for team-scale adoption.',
           'Built an internal knowledge platform with a bidirectional MCP server and semantic search (vector ' +
             'embeddings on Amazon Bedrock), enabling AI agents to both search and create knowledge.',
-          'Architected cloud-native distributed systems for enterprise programs in regulated industries — ' +
-            'financial services, aerospace, energy — navigating compliance and data-sovereignty constraints.',
-          'Developed reusable Terraform modules, deployment patterns and internal tooling that other ' +
-            'engineering teams build on.',
+          "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
+            'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
+            "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
+            'of the deliveries.',
+          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across five ' +
+            'platforms (iOS, Android, Tizen, webOS, Apple TV) plus Web, on a BFF + microservices backend, designed ' +
+            'for future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
           'Led engagements across LATAM, presenting architecture and delivery strategy to C-level and ' +
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
-          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) para projetar, ' +
-            'construir e entregar sistemas prontos para produção, e amadureci essas práticas para a forma como ' +
-            'times de engenharia as adotam.',
+          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) em 2026 para ' +
+            'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
+            'adoção em escala de time.',
           'Construí uma plataforma interna de conhecimento com um servidor MCP bidirecional e busca semântica ' +
             '(vector embeddings no Amazon Bedrock), permitindo que agentes de IA pesquisassem e criassem conhecimento.',
-          'Arquitetei sistemas distribuídos cloud-native para programas corporativos em setores regulados — ' +
-            'serviços financeiros, aeroespacial, energia — navegando restrições de compliance e soberania de dados.',
-          'Desenvolvi módulos Terraform reutilizáveis, padrões de deployment e ferramentas internas que outros ' +
-            'times de engenharia usam como base.',
+          'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
+            'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
+            'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
+            '~2 anos que o cliente renovou pela qualidade das entregas.',
+          'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
+            'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
+            'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
+            'condução da entrega multi-fornecedor.',
           'Conduzi engajamentos na América Latina, apresentando arquitetura e estratégia de entrega para ' +
             'stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],
@@ -117,20 +124,22 @@ const sourceTemplate: ProfileSource = {
       },
       highlights: {
         en: [
-          'Designed and shipped cloud-native applications end-to-end, from ideation through production.',
-          'Developed Terraform modules across basic and advanced infrastructure patterns for application ' +
-            'deployments on AWS.',
-          'Applied software engineering practices to infrastructure as code to standardize and accelerate ' +
-            'cloud adoption across client development teams.',
-          'Worked hands-on with serverless and container stacks: Lambda, ECS/EKS, API Gateway, DynamoDB, S3, SQS/SNS.',
+          "Stood up the cloud-native foundation of a tier-1 bank's mortgage-credit domain, migrating it off " +
+            'mainframe and ASPX to a full-stack modern platform — Angular; Kotlin/Spring Boot; EKS, ArgoCD and ' +
+            'Istio; RDS, DynamoDB, SQS and SNS.',
+          'Grew from hands-on individual contributor to tech lead of a cross-organization team of up to eight ' +
+            'over ~2 years; the open-source foundation kept expanding after my rolloff.',
+          'Built reusable Terraform modules and deployment patterns other engineering teams relied on, applying ' +
+            'software-engineering rigor to infrastructure as code.',
         ],
         pt: [
-          'Projetei e entreguei aplicações cloud-native de ponta a ponta, da concepção à produção.',
-          'Desenvolvi módulos Terraform cobrindo padrões de infraestrutura básicos e avançados para deploy de ' +
-            'aplicações na AWS.',
-          'Apliquei práticas de engenharia de software à infraestrutura como código para padronizar e acelerar a ' +
-            'adoção de cloud nos times de desenvolvimento dos clientes.',
-          'Trabalhei hands-on com stacks serverless e de containers: Lambda, ECS/EKS, API Gateway, DynamoDB, S3, SQS/SNS.',
+          'Levantei a fundação cloud-native do domínio de crédito imobiliário de um banco tier-1, migrando-o de ' +
+            'mainframe e ASPX para uma plataforma moderna full-stack — Angular; Kotlin/Spring Boot; EKS, ArgoCD ' +
+            'e Istio; RDS, DynamoDB, SQS e SNS.',
+          'Cresci de individual contributor hands-on a tech lead de um time cross-organização de até oito ' +
+            'pessoas ao longo de ~2 anos; a fundação open-source seguiu crescendo após meu rolloff.',
+          'Construí módulos Terraform e padrões de deploy reutilizáveis que outros times usaram como base, ' +
+            'aplicando rigor de engenharia de software à infraestrutura como código.',
         ],
       },
     },
@@ -141,24 +150,25 @@ const sourceTemplate: ProfileSource = {
       end_date: '2021-01',
       description: {
         en:
-          'Owned the observability foundation for a large-scale direct-to-consumer streaming launch, spanning ' +
-          'frontend, backend and infrastructure layers.',
+          'Owned observability for the sales / subscription journey of a major direct-to-consumer streaming ' +
+          'service and its channels — a business-critical revenue path on Angular, Salesforce and Spring Boot.',
         pt:
-          'Responsável pela fundação de observabilidade de um lançamento de streaming direto ao consumidor em ' +
-          'larga escala, cobrindo as camadas de frontend, backend e infraestrutura.',
+          'Responsável pela observabilidade da jornada de vendas / assinatura de um grande serviço de streaming ' +
+          'direto ao consumidor e seus canais — um caminho de receita crítico para o negócio, em Angular, ' +
+          'Salesforce e Spring Boot.',
       },
       highlights: {
         en: [
           'Built an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix ' +
             'into a unified monitoring solution.',
-          'Instrumented frontend (Angular) and backend (Spring Boot) services alongside infrastructure to ' +
-            'support a high-traffic launch.',
+          'Instrumented the Angular frontend and the Salesforce / Spring Boot backends so the revenue path had ' +
+            'first-class visibility across the stack.',
         ],
         pt: [
           'Construí uma plataforma de observabilidade ponta a ponta integrando AppDynamics, Grafana, Prometheus ' +
             'e Zabbix em uma solução unificada de monitoração.',
-          'Instrumentei serviços de frontend (Angular) e backend (Spring Boot) junto com a infraestrutura para ' +
-            'suportar um lançamento de alto tráfego.',
+          'Instrumentei o frontend Angular e os backends Salesforce / Spring Boot para dar ao caminho de receita ' +
+            'visibilidade de primeira classe em toda a stack.',
         ],
       },
     },
