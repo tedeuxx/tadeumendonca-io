@@ -12,14 +12,17 @@ import { AboutCard } from '../components/AboutCard';
 import { ContactLinks } from '../components/ContactLinks';
 import { ContactFooter } from '../components/ContactFooter';
 import { PortfolioSection } from '../components/PortfolioSection';
-import { SITE_URL, DEFAULT_DESCRIPTION } from '../lib/site';
+import { absoluteUrl, defaultDescription } from '../lib/site';
+import { useLocale, useLocalePath } from '../i18n';
 
 export function LandingPage() {
   const { data: profile } = useProfile();
+  const { locale } = useLocale();
+  const lp = useLocalePath();
 
   useDocumentHead({
     title: 'tadeumendonca.io',
-    description: DEFAULT_DESCRIPTION,
+    description: defaultDescription(locale),
     canonicalPath: '/',
     jsonLd: profile
       ? {
@@ -27,7 +30,7 @@ export function LandingPage() {
           '@type': 'Person',
           name: profile.name,
           jobTitle: profile.headline,
-          url: SITE_URL,
+          url: absoluteUrl(lp('/')),
           sameAs: Object.values(profile.metadata),
           ...(profile.location ? { address: profile.location } : {}),
         }

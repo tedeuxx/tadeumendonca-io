@@ -1,28 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { AboutCard } from './AboutCard';
 import { profile } from '../data/profile';
 import { renderWithLocale } from '../test-utils';
 
 describe('AboutCard', () => {
   it('describes the site and defers the person to /me', () => {
-    const { container } = renderWithLocale(
-      <MemoryRouter>
-        <AboutCard />
-      </MemoryRouter>,
-    );
+    const { container } = renderWithLocale(<AboutCard />);
     expect(screen.getByRole('heading', { name: 'Sobre este site' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Quem escreve/ })).toHaveAttribute('href', '/me');
+    // The link stays within the active locale (ADR-0036).
+    expect(screen.getByRole('link', { name: /Quem escreve/ })).toHaveAttribute('href', '/pt/me');
     expect(container.textContent).not.toContain(profile.name); // no name on the landing
   });
 
   it('shows the avatar as decoration, not as a second link target', () => {
-    const { container } = renderWithLocale(
-      <MemoryRouter>
-        <AboutCard />
-      </MemoryRouter>,
-    );
+    const { container } = renderWithLocale(<AboutCard />);
     const avatar = container.querySelector('img');
     expect(avatar).toHaveAttribute('aria-hidden', 'true'); // the link text carries the meaning
     expect(avatar).toHaveAttribute('alt', '');
@@ -33,11 +25,7 @@ describe('AboutCard', () => {
   // pins the exception in place: if someone removes the utility, this fails rather than the circle
   // silently going square — the Tailwind scale is collapsed, so nothing else would catch it.
   it('marks the portrait with the carved round-portrait utility', () => {
-    const { container } = renderWithLocale(
-      <MemoryRouter>
-        <AboutCard />
-      </MemoryRouter>,
-    );
+    const { container } = renderWithLocale(<AboutCard />);
     expect(container.querySelector('img')).toHaveClass('avatar-round');
   });
 });

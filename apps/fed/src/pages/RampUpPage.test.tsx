@@ -1,16 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { RampUpPage } from './RampUpPage';
 import { renderWithLocale } from '../test-utils';
 
-const renderPage = (locale: 'pt' | 'en' = 'pt') =>
-  renderWithLocale(
-    <MemoryRouter>
-      <RampUpPage />
-    </MemoryRouter>,
-    { locale },
-  );
+const renderPage = (locale: 'pt' | 'en' = 'pt') => renderWithLocale(<RampUpPage />, { locale });
 
 describe('RampUpPage', () => {
   it('renders the page heading and the markdown body', () => {

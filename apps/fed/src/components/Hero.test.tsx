@@ -1,18 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { Hero } from './Hero';
 import { profile } from '../data/profile';
 import { renderWithLocale } from '../test-utils';
 
-// Hero now carries a router Link (the ramp-up CTA), so it needs a Router in the tree.
+// Hero carries a router Link (the ramp-up CTA); renderWithLocale provides the Router + locale.
 function renderHero(locale: 'pt' | 'en' = 'pt') {
-  return renderWithLocale(
-    <MemoryRouter>
-      <Hero />
-    </MemoryRouter>,
-    { locale },
-  );
+  return renderWithLocale(<Hero />, { locale });
 }
 
 describe('Hero', () => {
@@ -50,7 +44,8 @@ describe('Hero', () => {
 
   it('offers the ramp-up page as a real route (client-side nav, not a landing anchor)', () => {
     renderHero();
-    expect(screen.getByRole('link', { name: /Ramp-up/ })).toHaveAttribute('href', '/ramp-up');
+    // The route link stays within the active locale (ADR-0036); the anchors above stay bare hashes.
+    expect(screen.getByRole('link', { name: /Ramp-up/ })).toHaveAttribute('href', '/pt/ramp-up');
   });
 
   it('renders the subject marquee once for assistive tech (the loop copy is hidden)', () => {

@@ -5,10 +5,11 @@
 // portrait, while every actual surface stays radius 0. See ADR-0008's amendment.
 import { Link as RouterLink } from 'react-router-dom';
 import avatar from '../assets/avatar.jpg';
-import { useT } from '../i18n';
+import { useLocalePath, useT } from '../i18n';
 
 export function AboutCard() {
   const t = useT();
+  const lp = useLocalePath();
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
@@ -16,7 +17,7 @@ export function AboutCard() {
         <h3 className="label-mono text-foreground">{t('about.heading')}</h3>
       </div>
       <p className="text-[15px] leading-relaxed text-muted-foreground">{t('about.body')}</p>
-      <RouterLink to="/me" className="group mt-4 flex items-center gap-3">
+      <RouterLink to={lp('/me')} className="group mt-4 flex items-center gap-3">
         <img
           src={avatar}
           alt=""

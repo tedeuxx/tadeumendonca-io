@@ -7,10 +7,11 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { Marquee } from './Marquee';
 import { GridLines } from './GridLines';
-import { useT } from '../i18n';
+import { useLocalePath, useT } from '../i18n';
 
 export function Hero() {
   const t = useT();
+  const lp = useLocalePath();
   return (
     <header id="top" className="relative">
       <GridLines />
@@ -37,7 +38,7 @@ export function Hero() {
         <div className="mb-[clamp(2.2rem,5vw,3.5rem)] flex flex-wrap">
           {/* Ramp-up leads, but shares the outlined HeroLink styling with the content anchors — it is a
               real route (not a landing anchor), so it renders as a router Link for client-side nav. */}
-          <HeroLink to="/ramp-up">{t('nav.rampup')}</HeroLink>
+          <HeroLink to={lp('/ramp-up')}>{t('nav.rampup')}</HeroLink>
           <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
           <HeroLink href="#portfolio">{t('nav.portfolio')}</HeroLink>
         </div>

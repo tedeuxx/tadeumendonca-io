@@ -9,19 +9,18 @@ import '@fontsource/jetbrains-mono/700.css';
 import './styles/index.css';
 import { App } from './App';
 import { unregisterServiceWorkers } from './lib/serviceWorker';
-import { detectLocale, htmlLang, LocaleProvider } from './i18n';
+import { detectLocale, htmlLang } from './i18n';
 
 void unregisterServiceWorkers();
 
-// Resolve the locale SYNCHRONOUSLY, before createRoot, so React's first render is already in the
-// right locale (no post-mount flash) and the served/prerendered <html lang> is correct.
-const locale = detectLocale();
-document.documentElement.lang = htmlLang(locale);
+// Seed <html lang> SYNCHRONOUSLY, before createRoot, so the served/prerendered HTML is already correct
+// (no post-mount flash). Per-locale URLs (ADR-0036): the path is authoritative — `/pt/…` seeds pt, `/en/…`
+// en; a bare/unprefixed URL falls through to persisted → navigator → en (the x-default baseline) until the
+// client-side redirect prefixes it. The LocaleProvider (inside the /:locale route) owns it thereafter.
+document.documentElement.lang = htmlLang(detectLocale(window.location.pathname));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LocaleProvider initialLocale={locale}>
-      <App />
-    </LocaleProvider>
+    <App />
   </StrictMode>,
 );

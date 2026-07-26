@@ -34,9 +34,10 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0007](./0007-tailwind-no-shadcn-own-components.md) | Tailwind, no shadcn — own tokens + components | accepted |
 | [0008](./0008-brutalist-mono-identity.md) | Brutalist mono identity (colors, radius-0, visible grid) | accepted |
 | [0009](./0009-self-hosted-fonts.md) | Self-hosted fonts (Space Grotesk + JetBrains Mono) | accepted |
-| [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted · amended 2026-07-24 (CV route `/cv → /me`, "Perfil / Profile" label; `/cv`·`/profile` redirect) · amended 2026-07-25 (`/architecture`, a fifth public surface; single English slug, bilingual label + body) |
+| [0010](./0010-routing-landing-cv-split-redirects.md) | Client-side routing + landing/CV split + back-compat redirects | accepted · amended 2026-07-24 (CV route `/cv → /me`, "Perfil / Profile" label; `/cv`·`/profile` redirect) · amended 2026-07-25 (`/architecture`, a fifth public surface; single English slug, bilingual label + body) · updated 2026-07-26 (its deferred "localized URLs" question is now made in [0036](./0036-per-locale-urls-prerender-hreflang.md)) |
 | [0012](./0012-snake-case-content-no-mapping.md) | snake_case content/data, no mapping layer | accepted |
-| [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted |
+| [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted · Slice 2 completed by [0036](./0036-per-locale-urls-prerender-hreflang.md) (English-pinned prerender clause retired) |
+| [0036](./0036-per-locale-urls-prerender-hreflang.md) | Language is addressable — symmetric `/pt` · `/en` URL prefixes, per-locale prerender, hreflang + OG-per-locale (x-default = English; no edge, `iac/` untouched) | accepted |
 | [0035](./0035-static-repo-cards-in-longform.md) | Curated repos as static cards in long-form — lone-URL facade + leaf-bilingual field, no third-party fetch | accepted |
 
 ## Infrastructure
@@ -63,7 +64,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | ADR | Title | Status |
 |---|---|---|
 | [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
-| [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted |
+| [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted · amended 2026-07-26 (PDF source route string `/me → /en/me` per [0036](./0036-per-locale-urls-prerender-hreflang.md)) |
 
 ## History (superseded — reverse-engineered, kept not deleted)
 | ADR | Title | Superseded by |

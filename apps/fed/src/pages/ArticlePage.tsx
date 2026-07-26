@@ -7,7 +7,7 @@ import { absoluteUrl } from '../lib/site';
 import { Markdown } from '../components/Markdown';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
 import { ColumnHeader, Notice } from '../components/Column';
-import { dateLocale, useLocale, type Locale, type MessageKey } from '../i18n';
+import { dateLocale, useLocale, useLocalePath, type Locale, type MessageKey } from '../i18n';
 
 const fmtDate = (iso: string, locale: Locale) =>
   new Date(iso).toLocaleDateString(dateLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' });
@@ -16,6 +16,7 @@ const TRACK_KEY = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' }
 
 export function ArticlePage() {
   const { locale, t } = useLocale();
+  const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getPostBySlug(slug, locale) : undefined;
 
@@ -34,7 +35,7 @@ export function ArticlePage() {
             headline: article.title,
             datePublished: article.date,
             articleSection: article.tag,
-            url: absoluteUrl(`/blog/${article.slug}`),
+            url: absoluteUrl(lp(`/blog/${article.slug}`)),
             author: { '@type': 'Person', name: 'Luiz Tadeu Mendonça' },
           },
         }
@@ -53,7 +54,7 @@ export function ArticlePage() {
               <time dateTime={article.date}>{fmtDate(article.date, locale)}</time>
               {article.tag && <span>· #{article.tag}</span>}
               <span>· {t(TRACK_KEY[article.track])}</span>
-              <ShareButton title={article.title} url={articleShareUrl(article)} size="sm" />
+              <ShareButton title={article.title} url={lp(articleShareUrl(article))} size="sm" />
             </div>
             <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
               {article.title}
@@ -67,7 +68,7 @@ export function ArticlePage() {
           <footer className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap border-t border-border pt-5">
             {/* The /blog list is retired: "back to the articles" points at the landing's section. */}
             <RouterLink
-              to="/#artigos"
+              to={lp('/#artigos')}
               className="-mr-px border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider invert-hover"
             >
               {t('article.allArticles')}

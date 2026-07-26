@@ -14,7 +14,7 @@ import { cn } from '../lib/cn';
 import { useConsent } from '../lib/consent';
 import { analyticsConfigured } from '../lib/analytics';
 import { ConsentBanner } from './ConsentBanner';
-import { LOCALES, useLocale, type MessageKey } from '../i18n';
+import { LOCALES, useLocale, useLocalePath, type MessageKey } from '../i18n';
 
 interface NavEntry {
   href: string;
@@ -38,8 +38,9 @@ const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => 
 const linkClass = 'px-3.5 py-2 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground invert-hover';
 
 function Brand() {
+  const lp = useLocalePath();
   return (
-    <NavLink to="/" className="flex items-center gap-2 font-mono text-[0.95rem] font-bold tracking-tight">
+    <NavLink to={lp('/')} className="flex items-center gap-2 font-mono text-[0.95rem] font-bold tracking-tight">
       <span className="h-5 w-1.5 shrink-0 bg-primary" />
       <span>
         tadeumendonca<span className="text-primary">.io</span>
@@ -50,13 +51,15 @@ function Brand() {
 
 function NavItems({ activeSection, onNavigate }: { activeSection: string | null; onNavigate?: () => void }) {
   const { t } = useLocale();
+  // Links stay within the active locale (ADR-0036): the logical href is prefixed with the current locale.
+  const lp = useLocalePath();
   return (
     <>
       {NAV.map(({ href, labelKey, route, section }) =>
         route ? (
           <NavLink
             key={href}
-            to={href}
+            to={lp(href)}
             onClick={onNavigate}
             className={({ isActive }) => cn(linkClass, 'border border-border', isActive && 'text-foreground')}
           >
@@ -65,7 +68,7 @@ function NavItems({ activeSection, onNavigate }: { activeSection: string | null;
         ) : (
           <a
             key={href}
-            href={href}
+            href={lp(href)}
             onClick={onNavigate}
             aria-current={section && section === activeSection ? 'true' : undefined}
             className={cn(linkClass, section === activeSection && 'text-foreground')}
@@ -106,11 +109,12 @@ function LocaleToggle() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLocale();
+  const lp = useLocalePath();
   const { reopen } = useConsent();
   // Send a GA4 page_view on route changes (no-op until the reader has consented).
   usePageviews();
-  // Only the landing carries the anchored regions.
-  const onLanding = useLocation().pathname === '/';
+  // Only the landing carries the anchored regions — the locale landing `/pt`|`/en` (ADR-0036).
+  const onLanding = useLocation().pathname === lp('/');
   const activeSection = useActiveSection(SECTIONS, onLanding);
 
   return (
