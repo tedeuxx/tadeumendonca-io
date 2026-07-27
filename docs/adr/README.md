@@ -66,6 +66,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 |---|---|---|
 | [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
 | [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted · amended 2026-07-26 (PDF source route string `/me → /en/me` per [0036](./0036-per-locale-urls-prerender-hreflang.md)) |
+| [0038](./0038-content-distribution-linkedin-and-x.md) | Published content is distributed to LinkedIn **and** X in the same batch — medium-adapted copy, canonical URL, mechanics private | accepted |
 
 ## History (superseded — reverse-engineered, kept not deleted)
 | ADR | Title | Superseded by |
