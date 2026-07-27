@@ -18,6 +18,7 @@ import { ArchitecturePage } from './pages/ArchitecturePage';
 import { ArticlePage } from './pages/ArticlePage';
 import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale } from './i18n/config';
+import { articlePathForLocale } from './lib/content';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -27,11 +28,19 @@ const queryClient = new QueryClient({
 // sub-path, query and hash. The locale is resolved path → persisted → navigator → en (detectLocale); the
 // path carries no valid prefix here, so it falls through to the persisted/browser signal. `replace` keeps
 // the unprefixed URL out of history.
+//
+// The sub-path is preserved VERBATIM for every route except an article, whose slug is per-locale
+// (ADR-0037). Re-prefixing `/blog/my-commitment` for a pt-BR reader produced `/pt/blog/my-commitment` —
+// a route that does not exist — so they landed on the blog listing and never reached the article, while
+// an English reader got it fine (#204). `articlePathForLocale` maps the slug to the target locale's own,
+// from either direction; anything it does not recognise passes through, so an unknown slug still falls
+// to the in-locale not-found.
 function RootRedirect() {
   const { pathname, search, hash } = useLocation();
   const locale = detectLocale(pathname);
   const rest = pathWithoutLocale(pathname); // unprefixed already → returned unchanged
-  return <Navigate to={`${localePath(locale, rest === '' ? '/' : rest)}${search}${hash}`} replace />;
+  const target = articlePathForLocale(rest === '' ? '/' : rest, locale);
+  return <Navigate to={`${localePath(locale, target)}${search}${hash}`} replace />;
 }
 
 // The locale-scoped app: validates the `:locale` segment, then wraps the shell + routes in the

@@ -5,6 +5,7 @@ import {
   getEditions,
   alternateSlug,
   localizeArticlePath,
+  articlePathForLocale,
   buildEditions,
   type BlogPost,
 } from './content';
@@ -184,5 +185,30 @@ describe('per-locale slug helpers', () => {
     expect(localizeArticlePath('', 'en', 'pt')).toBe('');
     expect(localizeArticlePath('/blog', 'en', 'pt')).toBe('/blog'); // the retired list route, not an article
     expect(localizeArticlePath('/blog/unknown', 'en', 'pt')).toBe('/blog/unknown');
+  });
+
+  // #204 — the unprefixed redirect's variant. Unlike the locale toggle, it does NOT know which locale the
+  // incoming slug belongs to (`/blog/<slug>` carries no prefix), so it must resolve from either direction.
+  // Re-prefixing blindly is what dead-ended a pt-BR reader on `/pt/blog/<en-slug>`.
+  describe('articlePathForLocale (no source locale known)', () => {
+    it('maps an ENGLISH slug to the pt edition, for a pt-BR reader', () => {
+      expect(articlePathForLocale(`/blog/${EN_SLUG}`, 'pt')).toBe(`/blog/${PT_SLUG}`);
+    });
+
+    it('maps a PORTUGUESE slug to the en edition, for an English reader', () => {
+      expect(articlePathForLocale(`/blog/${PT_SLUG}`, 'en')).toBe(`/blog/${EN_SLUG}`);
+    });
+
+    it('leaves a slug that already matches the target locale alone', () => {
+      expect(articlePathForLocale(`/blog/${EN_SLUG}`, 'en')).toBe(`/blog/${EN_SLUG}`);
+      expect(articlePathForLocale(`/blog/${PT_SLUG}`, 'pt')).toBe(`/blog/${PT_SLUG}`);
+    });
+
+    it('passes non-article paths and unknown slugs through, preserving the in-locale not-found', () => {
+      expect(articlePathForLocale('/me', 'pt')).toBe('/me');
+      expect(articlePathForLocale('/', 'pt')).toBe('/');
+      expect(articlePathForLocale('/blog', 'pt')).toBe('/blog');
+      expect(articlePathForLocale('/blog/unknown', 'pt')).toBe('/blog/unknown');
+    });
   });
 });
