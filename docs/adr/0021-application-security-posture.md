@@ -20,8 +20,9 @@ server RCE, secrets at runtime) — what remains is the client bundle and its **
 1. **SAST + package-vulnerability scanning** (chosen) — SonarCloud (ADR-0020) covers SAST/security
    hotspots; a dependency-vulnerability scan (Dependabot / `npm audit`) covers vulnerable packages.
    Together with the infra floor (OIDC least-privilege ADR-0015, no secrets in the repo, the `PreToolUse`
-   guard hook) this is the whole posture. *Trade-off:* scoped to a static bundle; a future dynamic
-   surface needs more.
+   guard hook) this is the whole posture — ~~two levers~~ **three, see the amendment (2026-07-27): the
+   enumeration was incomplete, install-time script execution is a distinct lever.** *Trade-off:* scoped
+   to a static bundle; a future dynamic surface needs more.
 2. **Heavier AppSec (DAST, pentest, runtime WAF rules)** — *Why not:* there is no dynamic/authenticated
    surface to test or protect; it would be controls without a target.
 3. **SAST only** — *Why not:* leaves the most realistic static-site risk — a known-vulnerable dependency
@@ -58,6 +59,36 @@ This is calibrated to what a backendless site can actually be attacked through: 
   with expiry is the pressure-relief valve, and a real advisory is fixed by a dep bump, not by widening the gate.
 - Calibrated to static: a dynamic/authenticated surface would reopen the AppSec concerns ADR-0002 closed.
 
+## Amendment (2026-07-27) — supply-chain execution control: `npm ci --ignore-scripts`
+**Every CI dependency install runs `npm ci --ignore-scripts`** (today `.github/workflows/deploy.yml` and
+`.github/workflows/build-test.yml`). This is a **third** lever, and the decision above was wrong to call
+two the whole posture.
+
+**Why it is not already covered.** `audit-ci` blocks *known-vulnerable packages that ship in the bundle*;
+this blocks *arbitrary code execution at install time* by **any** package, vulnerable or not — including
+the devDependencies `audit-ci.jsonc`'s `skip-dev` deliberately ignores. A brand-new malicious release has
+no advisory to match, and a build-tool dep never reaches a user's browser yet still runs code on the
+runner. Different threat, different control.
+
+**Why it matters here, precisely — and stated correctly, because the first draft of the workflow comment
+was not.** In `deploy.yml` the install runs **before** `Configure AWS credentials`, so the threat is
+**persist-then-execute**, not "the install holds credentials": a malicious `postinstall` writes into
+`node_modules`, and the later `npm run build:static` executes that tree with the OIDC deploy role in the
+job environment — rights to write S3 and invalidate CloudFront (`id-token: write` is job-wide from step
+one regardless). In `build-test.yml` the point is different and does not involve credentials at all: the
+gate installs the dependency tree of **a branch anyone can open**, before any gate has inspected the diff.
+
+*Trade-off (accepted deliberately):* a future dependency that genuinely needs a lifecycle hook must get an
+**explicit, reviewed step** instead of an implicit one. That is friction on a rare path, bought in
+exchange for no unreviewed code running on a runner that later touches the deploy role.
+
+*Alternative considered, rejected for now:* `apps/fed/.npmrc` with `ignore-scripts=true` — this would make
+the invariant a **property of the repo** rather than two hand-edited workflow lines, covering Dependabot
+and local installs too. *Why not now:* it also silences hooks in **local dev**, where a future dependency
+needing one fails confusingly and far from its cause. Revisit if a third install site appears or the two
+workflow lines drift.
+
 ## Links
 - Driven by ADR-0001, ADR-0002 · SAST is ADR-0020 · infra floor is ADR-0015, ADR-0017 · package-vulnerability
-  scanning (Dependabot + `audit-ci`) delivered by Issue #52.
+  scanning (Dependabot + `audit-ci`) delivered by Issue #52 · the `--ignore-scripts` amendment delivered by
+  Issue #192 (PR #194); the deploy role it protects is ADR-0015, the gates it runs in are ADR-0018.
