@@ -10,11 +10,13 @@ import { test, expect } from '@playwright/test';
 // `lg` fixed it (AppShell.tsx). pt-BR is pinned deliberately — the Portuguese nav labels are longer, so it
 // is the worst case for the nav row width; if it fits in pt it fits in en.
 //
-// 320px is intentionally EXCLUDED: a separate, pre-existing ~4px overhang there (vw `--gutter` vs the
-// shell's `border-x-2`) is tracked in #160. Widen this sweep to include 320 when #160 lands.
+// 320px (iPhone SE class) is now IN the sweep — #160 landed. That overhang was NOT the `--gutter`/`border-x-2`
+// interaction the issue hypothesised (at 320px the `clamp` is already pinned to its 1rem floor, so no vw is in
+// play): the portfolio ProjectCard's MIN-CONTENT was 306px inside a 284px column, because the repo name is one
+// unbreakable token — and a grid item never shrinks below min-content. See the comment in PortfolioSection.tsx.
 test.use({ locale: 'pt-BR' });
 
-const WIDTHS = [360, 390, 414, 640, 768, 834, 900, 1024, 1280];
+const WIDTHS = [320, 360, 390, 414, 640, 768, 834, 900, 1024, 1280];
 // Per-locale URLs (ADR-0036): drive the pt-prefixed pages directly (pt is the worst case for nav width).
 const ROUTES = ['/pt', '/pt/ramp-up', '/pt/me', '/pt/portfolio', '/pt/architecture'];
 const HEIGHT = 900;

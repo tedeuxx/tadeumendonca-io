@@ -25,8 +25,13 @@ function ProjectCard({ project }: { project: CatalogProject }) {
   const t = useT();
   return (
     <article className="group flex flex-col gap-3 border border-border p-6 transition-colors duration-150 hover:bg-foreground hover:text-background">
+      {/* `min-w-0` + `anywhere` (#160): a repo name is one unbreakable token (`tadeumendonca.io`), so the
+          card's MIN-CONTENT was 306px inside a 284px column — and a grid item never shrinks below its
+          min-content, so the card pushed 4px past the viewport at 320px. `overflow-wrap: anywhere` is
+          deliberate over Tailwind's `break-words` (`break-word`): only `anywhere` shrinks min-content,
+          which is the sizing input that caused this. */}
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-[1.4rem] font-bold leading-tight tracking-[-0.02em]">
+        <h3 className="min-w-0 text-[1.4rem] font-bold leading-tight tracking-[-0.02em] [overflow-wrap:anywhere]">
           <a href={project.repoUrl} target="_blank" rel="noreferrer" className="hover:text-primary group-hover:hover:text-primary">
             {project.name}
           </a>
