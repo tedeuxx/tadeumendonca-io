@@ -57,7 +57,10 @@ jobs:
         # explicit step below. Any future dep that genuinely needs a hook gets an explicit step instead.
         run: npm ci --ignore-scripts
 
-      - name: Install Playwright browser (for the prerender step)
+      # Serves BOTH the prerender below and the post-deploy smoke at the end of this job — it is the only
+      # browser install here (#195). `--with-deps` needs apt/root and the network, so it is deliberately
+      # placed before anything is published: if this flakes, the deploy fails having changed nothing.
+      - name: Install Playwright browser (for the prerender and the post-deploy smoke)
         run: npx playwright install --with-deps chromium
 
       - name: Configure AWS credentials (OIDC)
@@ -107,11 +110,17 @@ jobs:
       # PR (build-test, against a preview) — this is the post-deploy health confirmation the principles ask
       # for: it exercises the real CDN + prerendered HTML and catches deploy/CloudFront-level breakage
       # the pre-merge run can't see. Config retries absorb invalidation lag.
+      #
+      # NO browser install here (#195): the step above already installed chromium in this same job, and
+      # this duplicate is what turned a successful deploy red — `--with-deps` shells out to apt, and a
+      # transient sync on Google's mirror failed the fetch AFTER the site had already published. The
+      # value of this smoke is entirely in what its RED means; every non-site reason it can go red erodes
+      # that, and setup is the one reason it must never be. Environment setup belongs before the deploy,
+      # not inside the assertion.
       - name: E2E smoke (Playwright) against production
         if: github.ref == 'refs/heads/main'
         env:
           E2E_ENV: ${{ env.ENV_NAME }}
         run: |
-          npx playwright install --with-deps chromium
           sleep 10 # let the CloudFront invalidation propagate before driving the browser
           npm run e2e
