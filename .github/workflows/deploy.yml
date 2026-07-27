@@ -113,10 +113,10 @@ jobs:
       #
       # NO browser install here (#195): the step above already installed chromium in this same job, and
       # this duplicate is what turned a successful deploy red — `--with-deps` shells out to apt, and a
-      # transient sync on Google's mirror failed the fetch AFTER the site had already published. The
-      # value of this smoke is entirely in what its RED means; every non-site reason it can go red erodes
-      # that, and setup is the one reason it must never be. Environment setup belongs before the deploy,
-      # not inside the assertion.
+      # transient sync on Google's mirror failed the fetch AFTER the site had already published. This
+      # smoke cannot roll anything back, so its worth rests mostly on what its RED means; a non-site
+      # reason to go red erodes that, and setup is the cheapest one to remove. Environment setup belongs
+      # before the deploy, not inside the assertion.
       - name: E2E smoke (Playwright) against production
         if: github.ref == 'refs/heads/main'
         env:
