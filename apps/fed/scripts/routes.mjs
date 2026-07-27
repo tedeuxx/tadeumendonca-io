@@ -67,27 +67,39 @@ export const localePath = (locale, route) => (route === '/' ? `/${locale}` : `/$
 // The absolute self-canonical URL for a (locale, logical route) — never cross-locale.
 export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, route)}`;
 
-// The hreflang alternates a logical route exposes: pt + en editions, plus x-default → the bare,
-// unprefixed English URL (the client-side redirect resolves it per visitor). Root maps to the bare origin.
-// Article routes carry a per-locale slug (ADR-0037), so a `/blog/<slug>` route (in EITHER locale) is
-// resolved through the slug→pair index to the reciprocal localized pair — both editions therefore
-// advertise the SAME alternate set, x-default → the bare ENGLISH slug. Non-article routes re-prefix as-is.
+// The hreflang alternates a logical route exposes: pt + en editions, plus x-default. Article routes carry
+// a per-locale slug (ADR-0037), so a `/blog/<slug>` route (in EITHER locale) is resolved through the
+// slug→pair index to the reciprocal localized pair — both editions therefore advertise the SAME set.
+//
+// INVARIANT (#200): x-default must point at a URL the prerender actually SNAPSHOTS. It previously pointed
+// at the bare, unprefixed URL for every route, on the reasoning that the client-side redirect resolves it
+// per visitor — but only `localizedRoutes()` targets plus the bare ROOT are snapshotted, and CloudFront
+// maps 404 → /index.html with response code 200 (iac/frontend.tf). So five of the six advertised
+// x-defaults answered 200 carrying the HOME page's OG card and canonical, which a scraper then pins
+// permanently (ADR-0005). The article case was worse still: unprefixed paths redirect PRESERVING the path,
+// and slugs are per-locale, so a pt-BR reader following `/blog/<en-slug>` landed on `/pt/blog/<en-slug>`
+// — a route that does not exist — and fell through to the blog listing.
+//
+// Hence: the ROOT keeps its bare x-default (it IS prerendered — ADR-0036 chose it as the JS-less crawler's
+// entry point); every other route advertises the ENGLISH CANONICAL, which is prerendered and self-consistent.
 export const alternatesFor = (route) => {
   const blogM = /^\/blog\/([^/]+)$/.exec(route);
   if (blogM) {
     const pair = slugPairIndex().get(blogM[1]);
     if (pair) {
+      const en = `${SITE_URL}${localePath('en', `/blog/${pair.en}`)}`;
       return {
         pt: `${SITE_URL}${localePath('pt', `/blog/${pair.pt}`)}`,
-        en: `${SITE_URL}${localePath('en', `/blog/${pair.en}`)}`,
-        'x-default': `${SITE_URL}/blog/${pair.en}`,
+        en,
+        'x-default': en,
       };
     }
   }
-  const bare = route === '/' ? '/' : route;
+  const en = `${SITE_URL}${localePath('en', route)}`;
   return {
     pt: `${SITE_URL}${localePath('pt', route)}`,
-    en: `${SITE_URL}${localePath('en', route)}`,
-    'x-default': `${SITE_URL}${bare === '/' ? '/' : bare}`,
+    en,
+    // The bare origin is the ONE unprefixed URL the prerender snapshots (dist/index.html).
+    'x-default': route === '/' ? `${SITE_URL}/` : en,
   };
 };
