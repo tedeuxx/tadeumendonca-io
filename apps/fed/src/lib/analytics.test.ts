@@ -94,6 +94,25 @@ describe('loadAnalytics', () => {
     expect((window.dataLayer ?? []).length).toBeGreaterThanOrEqual(2);
   });
 
+  // The #190 regression guard. A count assertion (the line above) CANNOT catch that bug: the broken
+  // shim was callable and did grow the queue — it just queued Arrays, and gtag.js only honours a
+  // dataLayer entry as a command when it is an `arguments` object. The queue was green while GA4
+  // received nothing, so the SHAPE is what has to be asserted, not the length.
+  it('queues gtag commands as `arguments` objects, not Arrays — gtag.js ignores Arrays', () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
+    loadAnalytics();
+
+    const shapes = (window.dataLayer ?? []).map((entry) => Object.prototype.toString.call(entry));
+    expect(shapes.length).toBeGreaterThanOrEqual(2);
+    expect(shapes).not.toContain('[object Array]');
+    for (const shape of shapes) expect(shape).toBe('[object Arguments]');
+
+    // And the queued commands are the two that actually start GA4.
+    const commands = (window.dataLayer ?? []).map((entry) => (entry as IArguments)[0]);
+    expect(commands).toContain('js');
+    expect(commands).toContain('config');
+  });
+
   it('is idempotent — a second call does not inject twice', () => {
     vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
     loadAnalytics();
