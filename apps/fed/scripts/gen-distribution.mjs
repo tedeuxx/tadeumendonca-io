@@ -8,14 +8,15 @@
 //
 // The load-bearing part is the URL, not the prose. ADR-0037 gave articles PER-LOCALE slugs
 // (/en/blog/my-commitment vs /pt/blog/meu-compromisso), and `alternatesFor()` additionally advertises a
-// BARE x-default article URL (/blog/<en-slug>) which the prerender does NOT snapshot — only
-// `localizedRoutes()` targets and the bare ROOT are. CloudFront maps 404 → /index.html with response
-// code 200 (iac/frontend.tf), so that URL answers 200 with the prerendered English LANDING page: a
-// scraper pins the HOME page's OG card onto the article, permanently (ADR-0005).
+// per-locale slug. `alternatesFor()` USED TO advertise a bare x-default article URL (/blog/<en-slug>)
+// that the prerender never snapshots; #200 fixed that at the source, so hreflang now advertises only
+// prerendered URLs. This generator predates the fix and does not depend on it: it resolves the draft URL
+// by LOOKUP in `localizedRoutes()` and FAILS if no prerendered route matches, which holds regardless of
+// what the alternate set happens to contain.
 //
-// So the draft URL is resolved by LOOKUP in `localizedRoutes()` and generation FAILS if no prerendered
-// route matches. Construction would already reject the bare URL (it lacks the `/en` prefix); what only
-// lookup catches is a slug with NO prerendered route at all — unpublished, renamed, or typo'd.
+// What lookup buys over construction: a constructed string would already differ from a bare URL (no
+// `/en` prefix), but only lookup catches a slug with NO prerendered route at all — unpublished, renamed,
+// or typo'd. A share URL for a page that does not exist is the case worth refusing.
 //
 // Output goes to the gitignored `.brand/distribution/` (owner decision): pre-publication copy in a public
 // repo would let anyone read tomorrow's post today. Existing files are never overwritten — the prose is

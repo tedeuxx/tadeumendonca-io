@@ -57,13 +57,14 @@ describe('useDocumentHead', () => {
     expect(metaContent('meta[property="og:locale"]')).toBe('en_US');
   });
 
-  // hreflang reciprocity + x-default: both editions advertise the SAME alternate set — pt, en, and
-  // x-default → the bare unprefixed English URL — so a crawler can pair them; the canonical stays self.
+  // hreflang reciprocity + x-default: both editions advertise the SAME alternate set, so a crawler can
+  // pair them; the canonical stays self. x-default is the PREFIXED English URL (#200) — the bare `/me` is
+  // never prerendered, and CloudFront answers it 200 with the home page's OG card.
   it('emits reciprocal pt/en/x-default hreflang alternates, identical across editions', () => {
     const expected = {
       pt: 'https://tadeumendonca.io/pt/me',
       en: 'https://tadeumendonca.io/en/me',
-      xDefault: 'https://tadeumendonca.io/me',
+      xDefault: 'https://tadeumendonca.io/en/me',
     };
     renderHook(() => useDocumentHead({ title: 'Perfil', canonicalPath: '/me' }), { wrapper: wrapperAt('pt') });
     expect(alternateHref('pt')).toBe(expected.pt);
@@ -78,8 +79,11 @@ describe('useDocumentHead', () => {
   });
 
   // Per-locale slugs (ADR-0037): when `alternates` carries the two localized logical paths, the hreflang
-  // set advertises each locale's OWN slug (not the shared canonicalPath re-prefixed), x-default → the bare
-  // English slug. This is what pairs `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler.
+  // set advertises each locale's OWN slug (not the shared canonicalPath re-prefixed). This is what pairs
+  // `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler. x-default is the PREFIXED
+  // English article URL (#200): the bare `/blog/<en-slug>` is not prerendered AND, because unprefixed
+  // paths redirect preserving the path while slugs are per-locale, it dead-ends a pt-BR reader on
+  // `/pt/blog/<en-slug>` — a route that does not exist.
   it('emits per-locale hreflang from `alternates` when a route’s slug differs across locales', () => {
     const alternates = { en: '/blog/my-commitment', pt: '/blog/meu-compromisso' };
     // The EN edition (self-canonical is /en/blog/my-commitment) still advertises the reciprocal pair.
@@ -89,7 +93,7 @@ describe('useDocumentHead', () => {
     );
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     // Self-canonical stays this locale's own slug.
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://tadeumendonca.io/en/blog/my-commitment',
@@ -103,7 +107,7 @@ describe('useDocumentHead', () => {
     );
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://tadeumendonca.io/pt/blog/meu-compromisso',
     );

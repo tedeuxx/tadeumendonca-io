@@ -91,10 +91,12 @@ test.describe('served-HTML is prerendered per locale', () => {
 // 4 · hreflang reciprocity + self-canonical — each locale page lists pt + en + x-default with ABSOLUTE
 // URLs; the canonical is SELF, never cross-locale; both editions advertise the SAME alternate set.
 test.describe('hreflang reciprocity + self-canonical', () => {
+  // x-default is the PREFIXED English URL (#200). It used to be the bare `/me`, which the prerender never
+  // snapshots — CloudFront answers it 200 from /index.html, i.e. with the HOME page's OG card.
   const ALT = {
     pt: `hreflang="pt" href="${SITE}/pt/me"`,
     en: `hreflang="en" href="${SITE}/en/me"`,
-    xDefault: `hreflang="x-default" href="${SITE}/me"`,
+    xDefault: `hreflang="x-default" href="${SITE}/en/me"`,
   };
 
   test('the pt edition lists the full alternate set and self-canonicals', async ({ request }) => {
@@ -116,15 +118,20 @@ test.describe('hreflang reciprocity + self-canonical', () => {
 
 // 4b · Per-locale ARTICLE slugs (ADR-0037, this issue): the two editions live at DIFFERENT slugs — EN
 // `/en/blog/my-commitment`, PT `/pt/blog/meu-compromisso`. Each prerendered edition self-canonicals to its
-// OWN slug and advertises the reciprocal hreflang pair, x-default → the bare ENGLISH slug. The old shared
-// EN URL `/en/blog/meu-compromisso` is a client-side not-found (never prerendered, never in the sitemap).
+// OWN slug and advertises the reciprocal hreflang pair. The old shared EN URL `/en/blog/meu-compromisso`
+// is a client-side not-found (never prerendered, never in the sitemap).
+//
+// x-default is the PREFIXED English article URL (#200). The bare `/blog/my-commitment` was worse than
+// merely un-snapshotted: unprefixed paths redirect PRESERVING the path and slugs are per-locale, so a
+// pt-BR reader following it landed on `/pt/blog/my-commitment` — a route that does not exist — and fell
+// through to the blog listing. It never reached the article at all.
 test.describe('per-locale article slugs', () => {
   const EN_ART = `${SITE}/en/blog/my-commitment`;
   const PT_ART = `${SITE}/pt/blog/meu-compromisso`;
   const ALT = {
     pt: `hreflang="pt" href="${PT_ART}"`,
     en: `hreflang="en" href="${EN_ART}"`,
-    xDefault: `hreflang="x-default" href="${SITE}/blog/my-commitment"`,
+    xDefault: `hreflang="x-default" href="${EN_ART}"`,
   };
 
   test('the en edition self-canonicals to its own slug and lists the reciprocal pair', async ({ request }) => {

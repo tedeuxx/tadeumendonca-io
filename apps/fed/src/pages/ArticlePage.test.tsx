@@ -72,7 +72,8 @@ describe('ArticlePage', () => {
 
   // Per-locale slugs (ADR-0037): the canonical / og:url stay THIS locale's own slug (self), while the
   // hreflang alternates advertise each locale's OWN slug from the edition group — so a crawler pairs
-  // `/en/blog/building` with `/pt/blog/construindo`, x-default → the bare English slug.
+  // `/en/blog/building` with `/pt/blog/construindo`, x-default → the PREFIXED English URL (#200 — the
+  // bare slug is not prerendered and dead-ends a pt-BR reader).
   it('wires self-canonical to this locale’s slug and hreflang to the localized pair', () => {
     getPostBySlug.mockReturnValue(post({ slug: 'construindo' })); // the pt edition (renderAt default = pt)
     getEditions.mockReturnValue({ en: post({ slug: 'building' }), pt: post({ slug: 'construindo' }) });
@@ -80,6 +81,6 @@ describe('ArticlePage', () => {
     expect(canonicalHref()).toBe('https://tadeumendonca.io/pt/blog/construindo'); // self
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/building');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/building');
   });
 });

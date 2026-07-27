@@ -58,12 +58,44 @@ test.describe('SEO discovery', () => {
     expect(body).not.toContain('<loc>https://tadeumendonca.io/blog</loc>');
   });
 
-  test('every advertised URL resolves to a live page', async ({ page, request }) => {
-    // Take a representative loc from the sitemap and prove it is a real prerendered route, not a stale
-    // entry — tying discovery back to ADR-0005's coverage guarantee.
+  test('a representative advertised URL resolves to its own prerendered page', async ({ page, request }) => {
+    // Renamed from "every advertised URL…" (#200): it checks ONE, and the title claimed all of them.
+    // The all-of-them property is the next test, which is the one that would have caught #200.
     const body = await (await request.get('/sitemap.xml')).text();
     expect(body).toContain('<loc>https://tadeumendonca.io/en/me</loc>');
     await page.goto('/en/me');
     await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
+  });
+
+  // #200: EVERY advertised hreflang alternate must serve ITS OWN metadata, not merely respond 200.
+  //
+  // That distinction is the whole bug. x-default used to point at the bare, unprefixed URL for every
+  // route; only the locale-prefixed routes plus the bare ROOT are prerendered, and CloudFront maps
+  // 404 → /index.html with response code 200 — so five of six advertised x-defaults answered 200 carrying
+  // the HOME page's og:title and canonical. A scraper pins that card permanently (ADR-0005). A
+  // reachability check passes on all of them; only comparing the served canonical to the requested URL
+  // fails. `scripts/routes.test.mjs` asserts the same invariant at build time, against the route module.
+  test('every advertised hreflang alternate serves its OWN canonical, not the home page', async ({ request }) => {
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    const advertised = [...new Set([...sitemap.matchAll(/hreflang="[^"]+" href="([^"]+)"/g)].map((m) => m[1]))];
+    expect(advertised.length).toBeGreaterThan(1);
+
+    const offenders: string[] = [];
+    for (const url of advertised) {
+      const path = new URL(url).pathname;
+      // Request the DIRECTORY form. The prerender writes dist/<locale>/<route>/index.html; CloudFront's
+      // viewer-request function rewrites a clean URL to it, but `vite preview` does not — without the
+      // trailing slash it serves the SPA fallback locally and every route would look like the home page.
+      // That is a local-harness artifact, not a production truth, so asking for the slash form keeps this
+      // assertion about the ARTIFACT rather than about which server is under it. (per-locale.spec.ts
+      // requests the same way, for the same reason.)
+      const target = path === '/' || path.endsWith('/') ? path : `${path}/`;
+      const html = await (await request.get(target)).text();
+      const canonical = /rel="canonical" href="([^"]+)"/.exec(html)?.[1];
+      // The bare origin legitimately canonicalizes to the English landing — it IS the x-default snapshot.
+      const expected = path === '/' ? 'https://tadeumendonca.io/en' : url;
+      if (canonical !== expected) offenders.push(`${path} → canonical=${canonical} (expected ${expected})`);
+    }
+    expect(offenders, `advertised URLs serving the wrong page:\n${offenders.join('\n')}`).toEqual([]);
   });
 });

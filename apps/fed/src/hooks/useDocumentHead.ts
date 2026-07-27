@@ -14,16 +14,26 @@ import {
 } from '../lib/site';
 import { localePath, ogLocale, useLocale, type Locale } from '../i18n';
 
-// The hreflang alternates a locale-prefixed logical path exposes: the pt + en editions plus x-default →
-// the bare, unprefixed English URL (which the client-side redirect resolves per visitor). Both editions of
-// a page advertise the SAME set, so a crawler sees reciprocal alternates and a self canonical, never a
-// cross-locale one. Root ('/') maps to the bare origin; every other path keeps its sub-path unprefixed.
+// The hreflang alternates a locale-prefixed logical path exposes: the pt + en editions plus x-default.
+// Both editions of a page advertise the SAME set, so a crawler sees reciprocal alternates and a self
+// canonical, never a cross-locale one.
+//
+// INVARIANT (#200): x-default must point at a URL the build actually PRERENDERS. This previously pointed
+// at the bare, unprefixed URL for every route, on the reasoning that the client-side redirect resolves it
+// per visitor. But only the locale-prefixed routes plus the bare ROOT are snapshotted, and CloudFront maps
+// 404 → /index.html with response code 200 — so five of the six advertised x-defaults answered 200
+// carrying the HOME page's OG card, which a scraper pins permanently (ADR-0005).
+//
+// Kept BYTE-IDENTICAL in behaviour to scripts/routes.mjs's alternatesFor: this hook emits the runtime
+// <link> tags while that module feeds the sitemap and prerender, so if the two disagree the served HTML
+// and the sitemap advertise different things. (The duplication itself is tracked separately.)
 function alternatesFor(logicalPath: string): Record<'pt' | 'en' | 'x-default', string> {
-  const bare = logicalPath === '/' ? '/' : logicalPath;
+  const en = absoluteUrl(localePath('en', logicalPath));
   return {
     pt: absoluteUrl(localePath('pt', logicalPath)),
-    en: absoluteUrl(localePath('en', logicalPath)),
-    'x-default': absoluteUrl(bare),
+    en,
+    // The bare origin is the ONE unprefixed URL the prerender snapshots.
+    'x-default': logicalPath === '/' ? absoluteUrl('/') : en,
   };
 }
 
@@ -43,7 +53,7 @@ export interface DocumentHead {
   /**
    * Per-locale LOGICAL paths for hreflang, when a route's path DIFFERS across locales (article slugs are
    * per-locale, ADR-0037 — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
-   * alternates prefix these localized paths and x-default is the bare English slug. When absent (the
+   * alternates prefix these localized paths and x-default is the PREFIXED English URL (#200). When absent (the
    * shared-slug routes), the alternates re-prefix `canonicalPath` for both locales, as before.
    */
   alternates?: Record<Locale, string>;
@@ -121,17 +131,20 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     if (description) upsertMeta('name', 'description', description);
     if (url) upsertLink('canonical', url);
 
-    // hreflang alternates (pt · en · x-default→bare English URL). Emitted for every real route so both
-    // editions point at the same set — the reciprocity a crawler needs to pair them. When the route's
-    // path is per-locale (article slugs, ADR-0037), `alternates` carries the two localized logical paths;
-    // otherwise the shared `canonicalPath` re-prefixes for both.
+    // hreflang alternates (pt · en · x-default). Emitted for every real route so both editions point at
+    // the same set — the reciprocity a crawler needs to pair them. When the route's path is per-locale
+    // (article slugs, ADR-0037), `alternates` carries the two localized logical paths; otherwise the
+    // shared `canonicalPath` re-prefixes for both. x-default is the PREFIXED English URL in both branches
+    // (#200): the bare `/blog/<en-slug>` is never prerendered, and — because unprefixed paths redirect
+    // preserving the path while slugs are per-locale — it also dead-ends a pt-BR reader on
+    // `/pt/blog/<en-slug>`, a route that does not exist.
     if (canonicalPath) {
       const alt =
         altPt !== undefined && altEn !== undefined
           ? {
               pt: absoluteUrl(localePath('pt', altPt)),
               en: absoluteUrl(localePath('en', altEn)),
-              'x-default': absoluteUrl(altEn),
+              'x-default': absoluteUrl(localePath('en', altEn)),
             }
           : alternatesFor(canonicalPath);
       upsertAlternate('pt', alt.pt);

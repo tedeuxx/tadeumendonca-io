@@ -160,8 +160,96 @@ so the PDF-source path is not left stale; a matching one-line note is added to A
 - **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)
   already books — this ADR only shifts the *source route string* to `/en/me`, it does not add the pt edition.
 
+## Amendment (2026-07-27) — x-default is the **prefixed English canonical** everywhere but the root; a URL may be advertised only if the build prerenders it
+**The invariant, stated generally because it is the durable part of this amendment:**
+
+> **A URL may be advertised — in `hreflang`, in the sitemap — only if the build prerenders it.**
+
+The route module already guaranteed that for the `pt` and `en` alternates: they are generated from the same
+`localizedRoutes()` enumeration the prerender consumes, so they cannot drift. **x-default was the one place
+the invariant did not hold**, and it broke.
+
+**What changed.** `hreflang="x-default"` now points at the **prefixed English canonical** for every route —
+`/en/me`, `/en/portfolio`, `/en/ramp-up`, `/en/architecture`, `/en/blog/<en-slug>` — instead of the bare,
+unprefixed path. **The root keeps its bare x-default** (`https://tadeumendonca.io/`), because the bare origin
+is the one unprefixed URL the prerender genuinely snapshots (`dist/index.html`, the bare-root English snapshot
+this ADR already decided). Changed in **both** implementations, which are duplicated by construction:
+`apps/fed/scripts/routes.mjs` (feeds sitemap + prerender) and `apps/fed/src/hooks/useDocumentHead.ts`
+(runtime `<link>` tags).
+
+**Why the decision above left room for the bug.** This ADR fixed the **semantics** of x-default (*x-default =
+English*) and, for the root, its target (*→ the English root*). It never stated the **form** x-default takes
+for a non-root route. The implementation chose the bare path, and that looked entirely reasonable given this
+ADR's own client-side redirect clause: an unprefixed path auto-detects and redirects, so a *human* landing on
+`/me` does arrive in their locale. The gap is that a **scraper does not run the redirect** — and only
+`localizedRoutes()` targets plus the bare root are prerendered, while `iac/frontend.tf` maps 403/404 to
+`/index.html` with response code **200**. Measured with JS disabled against a real `build:static` + preview:
+**five of the six advertised x-default URLs answered 200 carrying the HOME page's meta** (`og:title` =
+`tadeumendonca.io`, canonical = `https://tadeumendonca.io/en`). Only `/` was correct — because it genuinely is
+the home page. Per [ADR-0005](./0005-og-coverage-every-public-url.md) a scraper **pins** that card
+permanently, and CLAUDE.md names OG pinning the least reversible thing in this repo. A soft-404 that answers
+200 is worse than a 404: nothing fails, it just publishes the wrong page under five addresses.
+[ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment had already named this
+hazard for the article case, and made the draft generator refuse any URL absent from the prerendered list;
+this amendment fixes the source rather than the one consumer that guarded against it.
+
+**Option considered and rejected: prerender the bare URLs instead.** This is the more interesting half of the
+decision. Emitting a bare snapshot for every route would satisfy the invariant literally and keep the "clean"
+locale-neutral URL advertised. *Why not:* it fixes the scraper and **leaves the Portuguese reader in a dead
+end.** The bare-path redirect preserves the sub-path, and article slugs are **per-locale**
+([ADR-0037](./0037-localized-article-slugs.md)) — so a pt-BR reader following the advertised
+`/blog/my-commitment` is redirected to `/pt/blog/my-commitment`, a route that does not exist, and falls
+through to the blog listing. Measured: headings `["Blog"]` for pt-BR versus `["Blog", "My Commitment", …]`
+for en-US. Prerendering the bare URL would have made that failure *quieter*, not gone. Pointing x-default at
+the prefixed English canonical fixes both readers at once: the scraper reads the real English page, and the
+pt-BR reader is never handed a path that cannot resolve in their locale.
+
+**Trade-off (accepted).** x-default **no longer advertises a locale-neutral entry point for sub-paths** — it
+names the English edition explicitly. That is standard hreflang practice, and it is what
+[ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s English-canonical decision already implies; but it
+does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root.
+
+**What this costs a reader, stated rather than glossed.** The redirect clause is untouched, so a bare path
+a reader *types or is sent* still auto-detects. But the **advertised** address changed, and for the four
+static routes the old bare URL auto-detected *correctly* — a pt-BR reader following `/me` was redirected to
+`/pt/me`. Following the new advertised `/en/me` they get English and stay there, because an explicit locale
+prefix wins in `detectLocale`. So for `/me`, `/portfolio`, `/ramp-up`, `/architecture` this is a **downgrade
+for the pt-BR reader**, traded for OG cards that are correct. For **articles** it is strictly better: the old
+bare URL did not merely lose their locale, it dead-ended them on a route that does not exist.
+
+The trade is defensible — a search engine serves the `pt` alternate to a pt reader rather than x-default, and
+the front door (bare root) still auto-detects — but it is a real change in what a reader gets, not a
+no-op, and the owner ratified it as such.
+
+**Not fixed here, only un-advertised.** The bare-article dead end still exists for any URL already indexed or
+already shared. This amendment stops publishing it; it does not make it resolve. Tracked as issue #204
+(make the locale redirect slug-aware) — independent of this decision, since a bare URL would remain
+un-prerendered and therefore still wrong for a scraper even once it resolves for a human.
+
+**Clarification to [ADR-0037](./0037-localized-article-slugs.md).** Its line *"x-default = the English slug"*
+is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`. Nothing about per-locale article
+slugs changes.
+
+**How the invariant is now enforced, not just written down.**
+- `apps/fed/scripts/routes.test.mjs` (new) asserts it by **membership**: every advertised alternate — `pt`,
+  `en` **and** `x-default`, on every route — must be a member of the prerendered set. Verified to **fail**
+  against the old behaviour, naming all **six** broken URLs: the four static routes plus **both** article
+  routes. (An earlier draft of this amendment said four — that repro had reverted only the non-article
+  branch, so it missed the article case this very amendment calls the worse one. Corrected after review.)
+- `e2e/seo.spec.ts` gains a test asserting every advertised alternate serves **its own canonical**, not
+  merely a 200 — the check that would have caught the soft-404. The pre-existing test titled *"every
+  advertised URL resolves to a live page"* checked exactly **one** URL and was renamed to say so; a test
+  title that overstates its coverage is how a whole class of URLs went unverified.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
+- **Amended by** Issue [#200](https://github.com/tedeuxx/tadeumendonca-io/issues/200) — x-default pointed at
+  bare, unprefixed URLs the build does not prerender; five of six answered 200 with the home page's OG. The
+  fix pins x-default to the prefixed English canonical (root excepted) and adds the membership + own-canonical
+  gates. Related: [ADR-0005](./0005-og-coverage-every-public-url.md) (OG pinned on first fetch),
+  [ADR-0037](./0037-localized-article-slugs.md) (per-locale article slugs — the pt-BR dead end),
+  [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment (the same hazard, guarded
+  at one consumer).
 - **Completes [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s deferred Slice 2** — retires that
   ADR's "prerender baseline pinned to English" clause and its "single-locale-prerender accepted cost." Not a
   reversal: Slice 2 was always the named successor to the interim English-pinned baseline.
