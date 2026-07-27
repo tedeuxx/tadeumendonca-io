@@ -47,12 +47,14 @@ jobs:
           cache-dependency-path: apps/fed/package-lock.json
 
       - name: Install
-        # --ignore-scripts: this job holds the OIDC deploy role, so a malicious postinstall anywhere in
-        # the transitive tree would execute with credentials that can write the S3 bucket and invalidate
-        # CloudFront — the install is the widest supply-chain path into a deploy. Nothing here needs a
-        # lifecycle script: the only dep that declares one is esbuild, whose postinstall merely validates
-        # a binary the @esbuild/<platform> optional package already delivers, and the Playwright browser
-        # comes from the explicit step below, not from an install hook.
+        # --ignore-scripts: note the threat is persist-then-execute, NOT "the install holds credentials"
+        # — this step runs BEFORE Configure AWS credentials below. A malicious postinstall writes into
+        # node_modules, and `npm run build:static` then executes that tree with the OIDC deploy role
+        # exported into the job env, i.e. with rights to write the S3 bucket and invalidate CloudFront.
+        # (`id-token: write` is job-wide from step one regardless.) Nothing here needs a lifecycle hook:
+        # the only dep whose install hook actually runs is esbuild, and it merely validates a binary the
+        # @esbuild/<platform> optional package already delivers; the Playwright browser comes from the
+        # explicit step below. Any future dep that genuinely needs a hook gets an explicit step instead.
         run: npm ci --ignore-scripts
 
       - name: Install Playwright browser (for the prerender step)

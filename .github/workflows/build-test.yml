@@ -66,8 +66,10 @@ jobs:
         # install hook here runs attacker-chosen code on the runner before any gate below has looked at
         # the diff. It also keeps this install identical to deploy.yml's — the gate must exercise the
         # same tree the deploy ships, or "green here" stops meaning "safe there". No dep needs a hook:
-        # esbuild's postinstall only validates the @esbuild/<platform> binary, and the Playwright
-        # browser is installed by the explicit step below.
+        # the only one whose install hook actually runs is esbuild, and it only validates the
+        # @esbuild/<platform> binary; the Playwright browser is installed by the explicit step below.
+        # (`hasInstallScript` in the lockfile also flags fsevents — stale registry metadata: the package
+        # declares no install/postinstall, and it is darwin-only, so it is absent on this runner.)
         run: npm ci --ignore-scripts
 
       # Package-vulnerability gate (ADR-0021). Blocks the PR on HIGH/CRITICAL advisories in PRODUCTION
