@@ -69,9 +69,15 @@ export function loadAnalytics(): void {
   document.head.appendChild(script);
 
   window.dataLayer = window.dataLayer ?? [];
-  const gtag: GtagFn = (...args) => {
-    window.dataLayer!.push(args);
-  };
+  // MUST push the `arguments` object, not a rest-parameter array (#190). gtag.js only interprets a
+  // dataLayer entry as a gtag COMMAND when it is an `[object Arguments]`; a genuine Array is ignored.
+  // The tempting TypeScript spelling — `(...args) => dataLayer.push(args)` — is type-correct, callable,
+  // and grows the queue, so everything downstream looks healthy while `config` never runs and GA4
+  // receives nothing at all. That is why Google's canonical snippet uses a non-arrow function.
+  const gtag = function (): void {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer!.push(arguments);
+  } as GtagFn;
   window.gtag = gtag;
   gtag('js', new Date());
   gtag('config', id);
