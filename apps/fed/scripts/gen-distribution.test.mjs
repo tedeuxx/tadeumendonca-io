@@ -64,10 +64,16 @@ describe('sectionHeadings', () => {
 });
 
 // The criterion the whole slice exists for. `alternatesFor()` advertises a BARE x-default article URL
-// (`/blog/<en-slug>`), and prerender.mjs snapshots ONLY localizedRoutes() targets plus the bare ROOT —
-// so that bare article URL serves the SPA shell to a scraper, which then pins a generic OG card
-// permanently (ADR-0005, the least reversible thing in this repo). String-equality against a
-// canonicalFor() call would NOT catch that; membership in the prerendered route list does.
+// (`/blog/<en-slug>`), and prerender.mjs snapshots ONLY localizedRoutes() targets plus the bare ROOT.
+// CloudFront maps 404 → /index.html with response code 200 (iac/frontend.tf), so that bare URL answers
+// 200 with the prerendered English LANDING page — a scraper pins the home page's OG card on the
+// article, permanently (ADR-0005, the least reversible thing in this repo).
+//
+// Precisely what lookup buys, since the distinction matters: string-equality against a canonicalFor()
+// call WOULD also reject the bare URL (they differ by the `/en` prefix). What construction cannot catch,
+// and membership can, is a slug with NO prerendered route at all — unpublished, renamed, or typo'd.
+// That case is the third test below, and it is the one that would otherwise emit a share URL for a page
+// that does not exist.
 describe('shareUrlFor — the URL must be one the prerender actually snapshotted', () => {
   it('resolves the English prerendered route for a slug', () => {
     expect(shareUrlFor(ROUTES, 'my-commitment')).toBe(`${SITE_URL}/en/blog/my-commitment`);
@@ -98,12 +104,14 @@ describe('shareUrlFor — the URL must be one the prerender actually snapshotted
 });
 
 describe('hashtagsFor', () => {
-  it('derives from tag, stripping non-alphanumerics', () => {
-    expect(hashtagsFor({ tag: 'manifesto' })).toBe('#AIEngineering #manifesto');
+  it('leads with the owner-specified launch set, then the article tag', () => {
+    expect(hashtagsFor({ tag: 'manifesto' })).toBe(
+      '#AIEngineering #BuildInPublic #AgenticDevelopment #manifesto',
+    );
   });
 
   it('omits missing fields rather than emitting empty hashtags', () => {
-    expect(hashtagsFor({})).toBe('#AIEngineering');
+    expect(hashtagsFor({})).toBe('#AIEngineering #BuildInPublic #AgenticDevelopment');
   });
 
   // `track` is an internal pt-BR taxonomy (e.g. `engenharia`) and both surfaces post in English
@@ -111,7 +119,7 @@ describe('hashtagsFor', () => {
   // which is what ADR-0038 says to avoid. Guarded so a future "use every frontmatter field" tidy-up
   // cannot quietly reintroduce it.
   it('never derives a hashtag from the internal pt-BR track field', () => {
-    expect(hashtagsFor({ tag: 'manifesto', track: 'engenharia' })).toBe('#AIEngineering #manifesto');
+    expect(hashtagsFor({ tag: 'manifesto', track: 'engenharia' })).not.toContain('#engenharia');
   });
 });
 

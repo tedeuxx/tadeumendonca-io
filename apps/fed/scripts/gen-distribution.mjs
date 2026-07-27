@@ -9,10 +9,13 @@
 // The load-bearing part is the URL, not the prose. ADR-0037 gave articles PER-LOCALE slugs
 // (/en/blog/my-commitment vs /pt/blog/meu-compromisso), and `alternatesFor()` additionally advertises a
 // BARE x-default article URL (/blog/<en-slug>) which the prerender does NOT snapshot — only
-// `localizedRoutes()` targets and the bare ROOT are. A scraper sent to that bare article URL would get
-// the SPA shell and pin a generic OG card, permanently (ADR-0005). So the draft URL is not merely
-// derived from `canonicalFor()` — it is resolved by LOOKUP in `localizedRoutes()`, and generation FAILS
-// if no prerendered route matches. A URL that was never snapshotted cannot reach a share dialog.
+// `localizedRoutes()` targets and the bare ROOT are. CloudFront maps 404 → /index.html with response
+// code 200 (iac/frontend.tf), so that URL answers 200 with the prerendered English LANDING page: a
+// scraper pins the HOME page's OG card onto the article, permanently (ADR-0005).
+//
+// So the draft URL is resolved by LOOKUP in `localizedRoutes()` and generation FAILS if no prerendered
+// route matches. Construction would already reject the bare URL (it lacks the `/en` prefix); what only
+// lookup catches is a slug with NO prerendered route at all — unpublished, renamed, or typo'd.
 //
 // Output goes to the gitignored `.brand/distribution/` (owner decision): pre-publication copy in a public
 // repo would let anyone read tomorrow's post today. Existing files are never overwritten — the prose is
@@ -70,8 +73,16 @@ export function hashtagsFor(frontmatter) {
   const tags = [frontmatter.tag]
     .filter(Boolean)
     .map((t) => '#' + String(t).replace(/[^a-zA-Z0-9]+/g, ''));
-  return ['#AIEngineering', ...tags].join(' ');
+  return [...LAUNCH_HASHTAGS, ...tags].join(' ');
 }
+
+/**
+ * The owner's stated launch set (#178, 2026-07-26): a small, consistent set attaching every post to the
+ * right subject graphs, evolving per topic but kept coherent. Deliberately a SCAFFOLD default — the
+ * standard itself is still to be codified in a LinkedIn-publication-standard ADR (tracked in #178), and
+ * this constant is where that decision will land rather than being scattered through the copy.
+ */
+export const LAUNCH_HASHTAGS = ['#AIEngineering', '#BuildInPublic', '#AgenticDevelopment'];
 
 /**
  * The draft pair for one article. LinkedIn and X BOTH carry the English canonical: ADR-0024 makes
