@@ -3,13 +3,19 @@
 // the SPA renders the blog with NO backend call. This module is the single source of truth for the
 // articles section and /blog/:slug (the prerender / OG-image pipeline reads the same slugs).
 //
-// Every article is authored in BOTH locales — one markdown file per language, `<slug>.pt.md` /
-// `<slug>.en.md` (the reference implementation is `src/content/rampup.{pt,en}.md`). The contract is
-// UNPUBLISHABLE-if-incomplete: a slug that lacks either locale throws at module load, which fails the
-// build, the prerender and the test suite. The loader makes the single-language case impossible, not
-// merely discouraged. This mirrors the CV: prose (title/excerpt/takeaway/body) is per-locale, but
-// FACTS (slug, date, tag, track, links, media) are authored once and MUST agree across the two
-// editions — a disagreement is a mistake, so it also throws.
+// Every article is authored in BOTH locales — one markdown file per language, `<KEY>.pt.md` /
+// `<KEY>.en.md` (the reference implementation is `src/content/rampup.{pt,en}.md`). The filename base is
+// the article's stable KEY — the grouping key that pairs the two editions; it is NEVER a URL (by
+// convention it is the canonical English slug). The contract is UNPUBLISHABLE-if-incomplete: a KEY that
+// lacks either locale throws at module load, which fails the build, the prerender and the test suite. The
+// loader makes the single-language case impossible, not merely discouraged.
+//
+// Identity is the filename KEY, not the slug. Per-locale slugs (ADR-0037) mean the two editions carry
+// DIFFERENT slugs — EN `/en/blog/my-commitment`, PT `/pt/blog/meu-compromisso` — so `slug` is authored
+// once PER LOCALE (frontmatter) and left OUT of the shared-fact set. This mirrors the CV: prose
+// (title/excerpt/takeaway/body) and now the slug are per-locale, while the remaining FACTS (date, tag,
+// track, links, media) are authored once and MUST agree across the two editions — a disagreement is a
+// mistake, so it throws.
 import yaml from 'js-yaml';
 import { LOCALES, type Locale } from '../i18n/config';
 
@@ -45,8 +51,9 @@ const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
 const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 
 // Facts are authored once and shared: they identify the piece, not its prose, so the two editions
-// cannot disagree about them. Prose (title, excerpt, takeaway, body) is deliberately NOT here.
-const FACT_KEYS = ['slug', 'date', 'tag', 'track', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
+// cannot disagree about them. Prose (title, excerpt, takeaway, body) is deliberately NOT here — and
+// neither is `slug`, which is per-locale (ADR-0037): identity is the filename KEY, not the slug.
+const FACT_KEYS = ['date', 'tag', 'track', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
 
 const asTrack = (value: unknown): Track => (TRACKS.includes(value as Track) ? (value as Track) : 'engenharia');
 const asString = (value: unknown): string | undefined => (value != null ? String(value) : undefined);
@@ -144,4 +151,30 @@ export function getAllPosts(locale: Locale, filter?: { tag?: string; track?: Tra
 
 export function getPostBySlug(slug: string, locale: Locale): BlogPost | undefined {
   return byLocale[locale].find((p) => p.slug === slug);
+}
+
+/**
+ * The two editions of the article whose `locale` edition carries `slug`. Since slugs are per-locale
+ * (ADR-0037), the lookup is unambiguous: it matches on the given locale's OWN slug, then returns the
+ * whole group so callers can read the sibling locale's slug (for hreflang, the toggle, the sitemap).
+ */
+export function getEditions(slug: string, locale: Locale): Editions | undefined {
+  return Object.values(editionsBySlug).find((eds) => eds[locale].slug === slug);
+}
+
+/** The `to`-locale slug of the article whose `from`-locale slug is `slug`, or undefined if unknown. */
+export function alternateSlug(slug: string, from: Locale, to: Locale): string | undefined {
+  return getEditions(slug, from)?.[to].slug;
+}
+
+/**
+ * Map an article logical path across locales: `/blog/<fromSlug>` → `/blog/<toSlug>`. Any non-article
+ * path (or an unknown slug) passes through unchanged, so this is safe to call on every path a locale
+ * switch touches — only real article routes are rewritten.
+ */
+export function localizeArticlePath(logicalPath: string, from: Locale, to: Locale): string {
+  const m = /^\/blog\/([^/]+)$/.exec(logicalPath);
+  if (!m) return logicalPath;
+  const alt = alternateSlug(m[1], from, to);
+  return alt ? `/blog/${alt}` : logicalPath;
 }

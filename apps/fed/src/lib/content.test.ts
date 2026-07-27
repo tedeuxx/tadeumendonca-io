@@ -1,7 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { getAllPosts, getPostBySlug, buildEditions, type BlogPost } from './content';
+import {
+  getAllPosts,
+  getPostBySlug,
+  getEditions,
+  alternateSlug,
+  localizeArticlePath,
+  buildEditions,
+  type BlogPost,
+} from './content';
 
-const SLUG = 'meu-compromisso';
+// Slugs are per-locale now (ADR-0037): the EN edition and the PT edition of the one live article carry
+// DIFFERENT slugs. The filename KEY (the canonical English slug) is the grouping identity.
+const EN_SLUG = 'my-commitment';
+const PT_SLUG = 'meu-compromisso';
 
 // Extract the ordered list of markdown links from a body, for the cross-locale parity assertion.
 const linksOf = (body: string) => [...body.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
@@ -11,8 +22,8 @@ const sectionsOf = (body: string) => (body.match(/^##\s/gm) ?? []).length;
 // Exercises the real glob + frontmatter parse against the seeded markdown in content/blog.
 describe('content (markdown-in-repo, per-locale)', () => {
   it('loads the seeded post in each locale with its own prose', () => {
-    const en = getPostBySlug(SLUG, 'en');
-    const pt = getPostBySlug(SLUG, 'pt');
+    const en = getPostBySlug(EN_SLUG, 'en');
+    const pt = getPostBySlug(PT_SLUG, 'pt');
     expect(en).toBeDefined();
     expect(pt).toBeDefined();
     expect(en?.title).toBe('My Commitment');
@@ -22,10 +33,14 @@ describe('content (markdown-in-repo, per-locale)', () => {
     expect(en?.body).not.toContain('---'); // frontmatter fence stripped
   });
 
-  it('shares facts across the two editions (authored once, cannot disagree)', () => {
-    const en = getPostBySlug(SLUG, 'en')!;
-    const pt = getPostBySlug(SLUG, 'pt')!;
-    expect(en.slug).toBe(pt.slug);
+  it('carries a per-locale slug (NOT shared) while the remaining facts stay shared', () => {
+    const en = getPostBySlug(EN_SLUG, 'en')!;
+    const pt = getPostBySlug(PT_SLUG, 'pt')!;
+    // Slug is per-locale (ADR-0037): the two editions legitimately differ on it.
+    expect(en.slug).toBe('my-commitment');
+    expect(pt.slug).toBe('meu-compromisso');
+    expect(en.slug).not.toBe(pt.slug);
+    // The remaining facts are still authored once and shared.
     expect(en.date).toBe('2026-07-26T22:00:00.000Z'); // stayed a string (not a YAML Date)
     expect(en.date).toBe(pt.date);
     expect(en.tag).toBe(pt.tag);
@@ -33,8 +48,8 @@ describe('content (markdown-in-repo, per-locale)', () => {
   });
 
   it('keeps each edition free of the other locale prose (no leak)', () => {
-    const en = getPostBySlug(SLUG, 'en')!;
-    const pt = getPostBySlug(SLUG, 'pt')!;
+    const en = getPostBySlug(EN_SLUG, 'en')!;
+    const pt = getPostBySlug(PT_SLUG, 'pt')!;
     expect(en.body).not.toContain('O compromisso');
     expect(pt.body).not.toContain('The commitment');
     expect(en.title).not.toContain('Compromisso');
@@ -42,21 +57,21 @@ describe('content (markdown-in-repo, per-locale)', () => {
   });
 
   it('has the same links in the same order, and the same section count, across locales', () => {
-    const en = getPostBySlug(SLUG, 'en')!;
-    const pt = getPostBySlug(SLUG, 'pt')!;
+    const en = getPostBySlug(EN_SLUG, 'en')!;
+    const pt = getPostBySlug(PT_SLUG, 'pt')!;
     expect(linksOf(en.body)).toEqual(linksOf(pt.body));
     expect(sectionsOf(en.body)).toBe(sectionsOf(pt.body));
     expect(sectionsOf(en.body)).toBeGreaterThan(0);
   });
 
   it('parses the track and the reader-first takeaway', () => {
-    const post = getPostBySlug(SLUG, 'en')!;
+    const post = getPostBySlug(EN_SLUG, 'en')!;
     expect(post.track).toBe('engenharia');
     expect(post.takeaway).toBeTruthy();
   });
 
   it('defaults the optional fields conservatively', () => {
-    const post = getPostBySlug(SLUG, 'en')!;
+    const post = getPostBySlug(EN_SLUG, 'en')!;
     expect(post.hasVideo).toBe(false); // an absent flag is never truthy
     expect(post.linkedinUrl).toBeUndefined();
     expect(post.cover).toBeUndefined();
@@ -64,6 +79,13 @@ describe('content (markdown-in-repo, per-locale)', () => {
 
   it('returns undefined for an unknown slug', () => {
     expect(getPostBySlug('does-not-exist', 'en')).toBeUndefined();
+  });
+
+  it('does not resolve one locale slug under the other locale (slugs are per-locale)', () => {
+    // The EN slug is not a PT slug and vice-versa — this is exactly why the old shared-slug URL
+    // `/en/blog/meu-compromisso` is now a not-found.
+    expect(getPostBySlug(PT_SLUG, 'en')).toBeUndefined();
+    expect(getPostBySlug(EN_SLUG, 'pt')).toBeUndefined();
   });
 
   it('filters by tag and returns [] for an unknown tag', () => {
@@ -121,6 +143,46 @@ describe('the unpublishable contract (buildEditions)', () => {
 
 // The BlogPost shape returned to consumers stays single-language / resolved.
 it('returns a resolved single-language BlogPost', () => {
-  const post: BlogPost | undefined = getPostBySlug(SLUG, 'en');
+  const post: BlogPost | undefined = getPostBySlug(EN_SLUG, 'en');
   expect(typeof post?.body).toBe('string');
+});
+
+// Per-locale slug helpers (ADR-0037): the edition group lookup + the cross-locale slug/path mappers that
+// the toggle and hreflang depend on.
+describe('per-locale slug helpers', () => {
+  it('getEditions finds the group by a locale’s OWN slug, in either locale', () => {
+    const fromEn = getEditions(EN_SLUG, 'en');
+    const fromPt = getEditions(PT_SLUG, 'pt');
+    expect(fromEn?.en.slug).toBe(EN_SLUG);
+    expect(fromEn?.pt.slug).toBe(PT_SLUG);
+    // Looking up by either locale's slug resolves to the SAME edition group.
+    expect(fromPt).toEqual(fromEn);
+  });
+
+  it('getEditions returns undefined for an unknown slug, and for the wrong-locale slug', () => {
+    expect(getEditions('nope', 'en')).toBeUndefined();
+    // EN_SLUG is not a PT edition's slug, so a pt lookup by it finds nothing.
+    expect(getEditions(EN_SLUG, 'pt')).toBeUndefined();
+  });
+
+  it('alternateSlug maps a slug across locales in both directions', () => {
+    expect(alternateSlug(EN_SLUG, 'en', 'pt')).toBe(PT_SLUG);
+    expect(alternateSlug(PT_SLUG, 'pt', 'en')).toBe(EN_SLUG);
+    // Same-locale is the identity; an unknown slug maps to undefined.
+    expect(alternateSlug(EN_SLUG, 'en', 'en')).toBe(EN_SLUG);
+    expect(alternateSlug('nope', 'en', 'pt')).toBeUndefined();
+  });
+
+  it('localizeArticlePath rewrites a /blog/<slug> path across locales', () => {
+    expect(localizeArticlePath(`/blog/${EN_SLUG}`, 'en', 'pt')).toBe(`/blog/${PT_SLUG}`);
+    expect(localizeArticlePath(`/blog/${PT_SLUG}`, 'pt', 'en')).toBe(`/blog/${EN_SLUG}`);
+  });
+
+  it('localizeArticlePath passes non-article paths and unknown slugs through unchanged', () => {
+    expect(localizeArticlePath('/me', 'en', 'pt')).toBe('/me');
+    expect(localizeArticlePath('/', 'en', 'pt')).toBe('/');
+    expect(localizeArticlePath('', 'en', 'pt')).toBe('');
+    expect(localizeArticlePath('/blog', 'en', 'pt')).toBe('/blog'); // the retired list route, not an article
+    expect(localizeArticlePath('/blog/unknown', 'en', 'pt')).toBe('/blog/unknown');
+  });
 });

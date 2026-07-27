@@ -4,10 +4,14 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
 import { LocaleProvider } from '../i18n';
 
-const { getPostBySlug } = vi.hoisted(() => ({ getPostBySlug: vi.fn() }));
-vi.mock('../lib/content', () => ({ getPostBySlug }));
+const { getPostBySlug, getEditions } = vi.hoisted(() => ({ getPostBySlug: vi.fn(), getEditions: vi.fn() }));
+vi.mock('../lib/content', () => ({ getPostBySlug, getEditions }));
 
 import { ArticlePage } from './ArticlePage';
+
+const alternateHref = (hreflang: string) =>
+  document.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${hreflang}"]`)?.getAttribute('href');
+const canonicalHref = () => document.head.querySelector('link[rel="canonical"]')?.getAttribute('href');
 
 // Render under a locale-prefixed route (ADR-0036): the LocaleProvider reads the locale off the path, and
 // the :slug param comes from the matched route. Default locale pt (the suite's historical baseline).
@@ -22,8 +26,6 @@ const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt') =>
     </MemoryRouter>,
   );
 
-beforeEach(() => vi.clearAllMocks());
-
 const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   slug: 'building',
   title: 'Building Serverless',
@@ -32,6 +34,13 @@ const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   track: 'engenharia',
   body: '## Why\n\ncode',
   ...over,
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  document.head.innerHTML = '';
+  // A sensible default edition group so the article branch renders; the wiring test overrides it.
+  getEditions.mockReturnValue({ en: post({ slug: 'building' }), pt: post({ slug: 'building' }) });
 });
 
 describe('ArticlePage', () => {
@@ -59,5 +68,18 @@ describe('ArticlePage', () => {
     getPostBySlug.mockReturnValue(undefined);
     renderAt('nope');
     expect(screen.getByText(/não existe ou não está publicado/)).toBeInTheDocument();
+  });
+
+  // Per-locale slugs (ADR-0037): the canonical / og:url stay THIS locale's own slug (self), while the
+  // hreflang alternates advertise each locale's OWN slug from the edition group — so a crawler pairs
+  // `/en/blog/building` with `/pt/blog/construindo`, x-default → the bare English slug.
+  it('wires self-canonical to this locale’s slug and hreflang to the localized pair', () => {
+    getPostBySlug.mockReturnValue(post({ slug: 'construindo' })); // the pt edition (renderAt default = pt)
+    getEditions.mockReturnValue({ en: post({ slug: 'building' }), pt: post({ slug: 'construindo' }) });
+    renderAt('construindo', 'pt');
+    expect(canonicalHref()).toBe('https://tadeumendonca.io/pt/blog/construindo'); // self
+    expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
+    expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/building');
   });
 });

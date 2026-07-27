@@ -159,6 +159,12 @@ localized *URLs*, which remains a separate, unmade decision.
 > same English slug** (per-locale prerender + `hreflang` + OG-per-locale). Note the boundary ADR-0036 keeps:
 > it adopts a *locale prefix on one slug*, **not** the dual localized-slug pair (`/pt/perfil ↔ /en/me`) this
 > amendment set aside — that larger routing change stays deferred.
+>
+> **Update (2026-07-26):** the deferred **dual-slug** question is now **resolved for the blog surface** by
+> [ADR-0037](./0037-localized-article-slugs.md): article routes (`/blog/:slug`) carry a **per-locale slug**
+> (`/en/blog/my-commitment` ⇄ `/pt/blog/meu-compromisso`), with the filename key as the non-URL identity.
+> Non-article routes (`/me`, `/portfolio`, `/architecture`, `/ramp-up`) still use the one-slug-prefixed-twice
+> scheme of ADR-0036 — dual localized slugs there remain deferred.
 
 Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
 enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or not

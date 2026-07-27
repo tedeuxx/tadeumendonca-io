@@ -12,7 +12,7 @@ import {
   OG_IMAGE_ALT,
   absoluteUrl,
 } from '../lib/site';
-import { localePath, ogLocale, useLocale } from '../i18n';
+import { localePath, ogLocale, useLocale, type Locale } from '../i18n';
 
 // The hreflang alternates a locale-prefixed logical path exposes: the pt + en editions plus x-default →
 // the bare, unprefixed English URL (which the client-side redirect resolves per visitor). Both editions of
@@ -40,6 +40,13 @@ export interface DocumentHead {
   publishedTime?: string;
   /** JSON-LD structured data. */
   jsonLd?: Record<string, unknown>;
+  /**
+   * Per-locale LOGICAL paths for hreflang, when a route's path DIFFERS across locales (article slugs are
+   * per-locale, ADR-0037 — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
+   * alternates prefix these localized paths and x-default is the bare English slug. When absent (the
+   * shared-slug routes), the alternates re-prefix `canonicalPath` for both locales, as before.
+   */
+  alternates?: Record<Locale, string>;
 }
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
@@ -94,10 +101,14 @@ function setJsonLd(json: string | undefined) {
   if (!existing) document.head.appendChild(el);
 }
 
-export function useDocumentHead({ title, description, canonicalPath, image, type = 'website', publishedTime, jsonLd }: DocumentHead) {
+export function useDocumentHead({ title, description, canonicalPath, image, type = 'website', publishedTime, jsonLd, alternates }: DocumentHead) {
   const { locale } = useLocale();
   // Serialize JSON-LD so the effect depends on its value, not object identity.
   const jsonLdStr = jsonLd ? JSON.stringify(jsonLd) : undefined;
+  // Depend on the primitive localized paths (not the object identity) so a fresh `alternates` each render
+  // doesn't re-run the effect needlessly.
+  const altPt = alternates?.pt;
+  const altEn = alternates?.en;
 
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
@@ -111,9 +122,18 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     if (url) upsertLink('canonical', url);
 
     // hreflang alternates (pt · en · x-default→bare English URL). Emitted for every real route so both
-    // editions point at the same set — the reciprocity a crawler needs to pair them.
+    // editions point at the same set — the reciprocity a crawler needs to pair them. When the route's
+    // path is per-locale (article slugs, ADR-0037), `alternates` carries the two localized logical paths;
+    // otherwise the shared `canonicalPath` re-prefixes for both.
     if (canonicalPath) {
-      const alt = alternatesFor(canonicalPath);
+      const alt =
+        altPt !== undefined && altEn !== undefined
+          ? {
+              pt: absoluteUrl(localePath('pt', altPt)),
+              en: absoluteUrl(localePath('en', altEn)),
+              'x-default': absoluteUrl(altEn),
+            }
+          : alternatesFor(canonicalPath);
       upsertAlternate('pt', alt.pt);
       upsertAlternate('en', alt.en);
       upsertAlternate('x-default', alt['x-default']);
@@ -151,5 +171,5 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     if (description) upsertMeta('name', 'twitter:description', description);
 
     setJsonLd(jsonLdStr);
-  }, [locale, title, description, canonicalPath, image, type, publishedTime, jsonLdStr]);
+  }, [locale, title, description, canonicalPath, image, type, publishedTime, jsonLdStr, altPt, altEn]);
 }

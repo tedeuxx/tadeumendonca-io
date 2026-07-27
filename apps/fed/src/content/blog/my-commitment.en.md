@@ -1,6 +1,6 @@
 ---
 title: "My Commitment"
-slug: meu-compromisso
+slug: my-commitment
 date: '2026-07-26T22:00:00.000Z'
 tag: manifesto
 track: engenharia

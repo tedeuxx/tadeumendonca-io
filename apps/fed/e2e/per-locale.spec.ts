@@ -114,6 +114,45 @@ test.describe('hreflang reciprocity + self-canonical', () => {
   });
 });
 
+// 4b · Per-locale ARTICLE slugs (ADR-0037, this issue): the two editions live at DIFFERENT slugs — EN
+// `/en/blog/my-commitment`, PT `/pt/blog/meu-compromisso`. Each prerendered edition self-canonicals to its
+// OWN slug and advertises the reciprocal hreflang pair, x-default → the bare ENGLISH slug. The old shared
+// EN URL `/en/blog/meu-compromisso` is a client-side not-found (never prerendered, never in the sitemap).
+test.describe('per-locale article slugs', () => {
+  const EN_ART = `${SITE}/en/blog/my-commitment`;
+  const PT_ART = `${SITE}/pt/blog/meu-compromisso`;
+  const ALT = {
+    pt: `hreflang="pt" href="${PT_ART}"`,
+    en: `hreflang="en" href="${EN_ART}"`,
+    xDefault: `hreflang="x-default" href="${SITE}/blog/my-commitment"`,
+  };
+
+  test('the en edition self-canonicals to its own slug and lists the reciprocal pair', async ({ request }) => {
+    const body = await (await request.get('/en/blog/my-commitment/')).text();
+    expect(body).toMatch(/<html[^>]*lang="en"/);
+    expect(body).toContain(`rel="canonical" href="${EN_ART}"`); // self, English slug
+    expect(body).toContain(ALT.pt);
+    expect(body).toContain(ALT.en);
+    expect(body).toContain(ALT.xDefault);
+  });
+
+  test('the pt edition self-canonicals to its own slug and lists the SAME reciprocal pair', async ({ request }) => {
+    const body = await (await request.get('/pt/blog/meu-compromisso/')).text();
+    expect(body).toMatch(/<html[^>]*lang="pt-BR"/);
+    expect(body).toContain(`rel="canonical" href="${PT_ART}"`); // self, Portuguese slug
+    expect(body).toContain(ALT.pt);
+    expect(body).toContain(ALT.en);
+    expect(body).toContain(ALT.xDefault);
+  });
+
+  test('the old shared EN slug /en/blog/meu-compromisso is an in-app not-found', async ({ page }) => {
+    await page.goto('/en/blog/meu-compromisso');
+    // The article body never renders; the not-found notice does (English chrome).
+    await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toHaveCount(0);
+    await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
+  });
+});
+
 // 5 · x-default served-HTML — the bare-root snapshot is English, OG-complete, hreflang x-default → the bare
 // origin.
 test.describe('x-default root snapshot', () => {
@@ -157,25 +196,34 @@ test.describe('bare-root redirect preserves the sub-path', () => {
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
 // alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
-  const LOGICAL = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/blog/meu-compromisso'];
+  // Shared-slug routes: the same logical path under both prefixes.
+  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
+  // The one article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path.
+  const ARTICLE = { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` };
+  const LOGICAL_COUNT = SHARED.length + 1; // + the article
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text();
     expect(body).toContain('xmlns:xhtml=');
 
-    for (const route of LOGICAL) {
+    for (const route of SHARED) {
       const pt = route === '/' ? `${SITE}/pt` : `${SITE}/pt${route}`;
       const en = route === '/' ? `${SITE}/en` : `${SITE}/en${route}`;
       expect(body).toContain(`<loc>${pt}</loc>`);
       expect(body).toContain(`<loc>${en}</loc>`);
     }
+    // The article's per-locale <loc>s.
+    expect(body).toContain(`<loc>${ARTICLE.pt}</loc>`);
+    expect(body).toContain(`<loc>${ARTICLE.en}</loc>`);
+    // The old shared-slug EN URL is NEVER advertised (it is a not-found now).
+    expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // The x-default homepage entry.
     expect(body).toContain(`<loc>${SITE}/</loc>`);
 
     // Every <url> carries alternates.
     const locCount = (body.match(/<loc>/g) ?? []).length;
     const altCount = (body.match(/xhtml:link/g) ?? []).length;
-    expect(locCount).toBe(LOGICAL.length * 2 + 1); // routes × locales + x-default root
+    expect(locCount).toBe(LOGICAL_COUNT * 2 + 1); // routes × locales + x-default root
     expect(altCount).toBe(locCount * 3); // pt · en · x-default per <url>
 
     // No retired/redirect paths, and no UNPREFIXED locale routes advertised (only the x-default root is bare).

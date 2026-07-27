@@ -249,49 +249,53 @@ test.describe('i18n — dates follow the locale', () => {
 //   (1) the prose flips — the title AND a section heading render in the other language;
 //   (2) no prose leak — a distinctive body phrase of the hidden edition is absent (a fallback that
 //       rendered both files, or the wrong one, would pass a one-sided "target present" check);
-//   (3) the FACTS are shared, not translated — the tag, the article's ISO date, and the slug/URL are
-//       authored once and MUST NOT change across the toggle. Note the date's *rendered* text localizes
-//       its format (asserted in the dates block above), so the stable fact is the machine-readable
-//       `<time datetime>` ISO, not the human string — that is what "the date does not change" means here.
+//   (3) the shared FACTS (the tag, the article's ISO date) are authored once and MUST NOT change across
+//       the toggle; the SLUG, by contrast, is now per-locale (ADR-0037) and MUST MAP — EN
+//       `/en/blog/my-commitment` ↔ PT `/pt/blog/meu-compromisso` — never land on the current locale's
+//       slug under the other prefix (a not-found). Note the date's *rendered* text localizes its format
+//       (asserted in the dates block above), so the stable fact is the machine-readable `<time datetime>`
+//       ISO, not the human string — that is what "the date does not change" means here.
 test.describe('i18n — the blog article body follows the locale', () => {
-  const SLUG = 'meu-compromisso';
+  const EN_SLUG = 'my-commitment';
+  const PT_SLUG = 'meu-compromisso';
   const DATE_ISO = '2026-07-26T22:00:00.000Z'; // the shared fact, authored once across both editions
 
   // English is the canonical edition and the prerender baseline, so an en-US context lands on it.
   test.use({ locale: 'en-US' });
 
-  test('toggling PT↔EN re-renders the article body, keeps the facts, and never leaks the other language', async ({
+  test('toggling PT↔EN re-renders the body, MAPS the slug, keeps the shared facts, and never leaks the other language', async ({
     page,
   }) => {
-    await page.goto(`/blog/${SLUG}`);
+    await page.goto(`/blog/${EN_SLUG}`);
 
-    // --- English edition (detected) ---
+    // --- English edition (detected) at its OWN slug ---
+    await expect(page).toHaveURL(new RegExp(`/en/blog/${EN_SLUG}$`));
     await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /The commitment/ })).toBeVisible();
     // No pt prose leaked into the English edition.
     await expect(page.getByText(/Vamos construir/)).toHaveCount(0);
     await expect(page.getByRole('heading', { name: /Meu Compromisso/ })).toHaveCount(0);
 
-    // Facts, captured on the English edition: tag, the ISO date, and the slug/URL.
+    // Shared facts, captured on the English edition: tag + the ISO date.
     await expect(page.getByText(/#manifesto/)).toBeVisible();
     await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
-    await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
 
-    // --- Toggle to Portuguese: the body must flip, not just the chrome ---
+    // --- Toggle to Portuguese: the body flips AND the slug MAPS to the pt edition's slug (AC-5) ---
     await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/pt/blog/${PT_SLUG}$`));
     await expect(page.getByRole('heading', { level: 1, name: /Meu Compromisso/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /O compromisso/ })).toBeVisible();
     // No en prose leaked into the Portuguese edition.
     await expect(page.getByText(/Let's build/)).toHaveCount(0);
     await expect(page.getByRole('heading', { name: /My Commitment/ })).toHaveCount(0);
 
-    // The facts are unchanged by the toggle — same tag, same ISO date, same slug/URL.
+    // The shared facts are unchanged by the toggle — same tag, same ISO date.
     await expect(page.getByText(/#manifesto/)).toBeVisible();
     await expect(page.locator('time')).toHaveAttribute('datetime', DATE_ISO);
-    await expect(page).toHaveURL(new RegExp(`/blog/${SLUG}$`));
 
-    // --- Round-trip back to English: the English edition returns ---
+    // --- Round-trip back to English: the English edition returns at its own slug ---
     await page.getByRole('button', { name: 'EN', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/en/blog/${EN_SLUG}$`));
     await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /Meu Compromisso/ })).toHaveCount(0);
   });

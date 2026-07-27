@@ -1,7 +1,7 @@
 // Article detail (/frontend/markdown). Public; /blog/:slug is what OG deep-links point at. Reads the
 // post from markdown-in-repo (../lib/content) and renders its markdown body — fully static, no backend.
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { getPostBySlug } from '../lib/content';
+import { getEditions, getPostBySlug } from '../lib/content';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
 import { Markdown } from '../components/Markdown';
@@ -19,9 +19,12 @@ export function ArticlePage() {
   const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
   const article = slug ? getPostBySlug(slug, locale) : undefined;
+  // The edition GROUP (both locales) so hreflang can advertise each locale's OWN slug — the canonical /
+  // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
+  const eds = slug ? getEditions(slug, locale) : undefined;
 
   useDocumentHead(
-    article
+    article && eds
       ? {
           title: article.title,
           description: article.excerpt,
@@ -29,6 +32,7 @@ export function ArticlePage() {
           image: article.ogImage,
           type: 'article',
           publishedTime: article.date,
+          alternates: { pt: `/blog/${eds.pt.slug}`, en: `/blog/${eds.en.slug}` },
           jsonLd: {
             '@context': 'https://schema.org',
             '@type': 'Article',

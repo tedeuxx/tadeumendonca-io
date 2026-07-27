@@ -151,6 +151,11 @@ so the PDF-source path is not left stale; a matching one-line note is added to A
 - **NOT dual localized slugs.** This adopts locale **prefixes on one English slug** only. The
   `/pt/perfil ↔ /en/me` localized-slug scheme remains the separate, bigger routing decision
   [ADR-0010](./0010-routing-landing-cv-split-redirects.md) flagged; it is **not** decided here.
+  > **Update (2026-07-26):** this clause is **revised for the blog surface only** by
+  > [ADR-0037](./0037-localized-article-slugs.md): article routes (`/blog/:slug`) now carry a
+  > **per-locale slug** (`/en/blog/my-commitment` ⇄ `/pt/blog/meu-compromisso`). Everything else in this
+  > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
+  > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
 - **No edge / Accept-Language logic** — the client-side redirect covers the negotiation; `iac/` stays closed.
 - **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)
   already books — this ADR only shifts the *source route string* to `/en/me`, it does not add the pt edition.
