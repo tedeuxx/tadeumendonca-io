@@ -63,14 +63,16 @@ describe('sectionHeadings', () => {
   });
 });
 
-// The criterion the whole slice exists for. `alternatesFor()` advertises a BARE x-default article URL
-// (`/blog/<en-slug>`), and prerender.mjs snapshots ONLY localizedRoutes() targets plus the bare ROOT.
-// CloudFront maps 404 → /index.html with response code 200 (iac/frontend.tf), so that bare URL answers
-// 200 with the prerendered English LANDING page — a scraper pins the home page's OG card on the
-// article, permanently (ADR-0005, the least reversible thing in this repo).
+// The criterion the whole slice exists for: only `localizedRoutes()` targets plus the bare ROOT are
+// prerendered, and CloudFront maps 404 → /index.html with response code 200 (iac/frontend.tf) — so any
+// un-snapshotted URL answers 200 carrying the HOME page's OG card, which a scraper pins permanently
+// (ADR-0005, the least reversible thing in this repo).
+//
+// (`alternatesFor()` used to advertise a bare x-default article URL with exactly that problem; #200
+// fixed it at the source. This guard never depended on that — it constrains what THIS generator emits.)
 //
 // Precisely what lookup buys, since the distinction matters: string-equality against a canonicalFor()
-// call WOULD also reject the bare URL (they differ by the `/en` prefix). What construction cannot catch,
+// call WOULD also reject a bare URL (they differ by the `/en` prefix). What construction cannot catch,
 // and membership can, is a slug with NO prerendered route at all — unpublished, renamed, or typo'd.
 // That case is the third test below, and it is the one that would otherwise emit a share URL for a page
 // that does not exist.

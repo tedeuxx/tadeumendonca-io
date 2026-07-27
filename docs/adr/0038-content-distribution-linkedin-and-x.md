@@ -83,10 +83,13 @@ ignored:
 **Why that distinction is load-bearing, not a convenience.** The generator's whole reason to exist is
 that it resolves the share URL by **lookup in `scripts/routes.mjs`'s `localizedRoutes()`** — the same
 module the prerender and the sitemap consume. A private fork of that derivation would drift from the
-site's real routes, reintroducing exactly the risk ADR-0037's per-locale slugs created. Concretely:
-`alternatesFor()` advertises a **bare x-default article URL** (`/blog/<en-slug>`) that the prerender does
-**not** snapshot, so a scraper sent there gets the SPA shell and pins a generic OG card — permanently
-(ADR-0005; CLAUDE.md names OG pinning the least reversible thing in this repo). The generator therefore
+site's real routes, reintroducing exactly the risk ADR-0037's per-locale slugs created. Concretely: at the
+time this was written `alternatesFor()` advertised a **bare x-default article URL** (`/blog/<en-slug>`)
+that the prerender does **not** snapshot, so a scraper sent there got 200 carrying the HOME page's OG card
+— pinned permanently (ADR-0005; CLAUDE.md names OG pinning the least reversible thing in this repo).
+*(That source defect was fixed the same day by the [ADR-0036 amendment](./0036-per-locale-urls-prerender-hreflang.md)
+/ issue #200; hreflang now advertises only prerendered URLs. This generator's guarantee never depended on
+it — it constrains what the generator emits, whatever the alternate set contains.)* The generator therefore
 **refuses to emit any URL that is not a member of the prerendered route list**, and that guarantee is only
 possible because it imports the real routes module. Tooling that must not drift from the code lives with
 the code.

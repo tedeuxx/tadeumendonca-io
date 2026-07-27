@@ -207,9 +207,24 @@ pt-BR reader is never handed a path that cannot resolve in their locale.
 **Trade-off (accepted).** x-default **no longer advertises a locale-neutral entry point for sub-paths** — it
 names the English edition explicitly. That is standard hreflang practice, and it is what
 [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s English-canonical decision already implies; but it
-does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root. The bare
-paths keep working for humans (the client-side redirect clause is untouched); they are simply not *published*
-as addresses.
+does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root.
+
+**What this costs a reader, stated rather than glossed.** The redirect clause is untouched, so a bare path
+a reader *types or is sent* still auto-detects. But the **advertised** address changed, and for the four
+static routes the old bare URL auto-detected *correctly* — a pt-BR reader following `/me` was redirected to
+`/pt/me`. Following the new advertised `/en/me` they get English and stay there, because an explicit locale
+prefix wins in `detectLocale`. So for `/me`, `/portfolio`, `/ramp-up`, `/architecture` this is a **downgrade
+for the pt-BR reader**, traded for OG cards that are correct. For **articles** it is strictly better: the old
+bare URL did not merely lose their locale, it dead-ended them on a route that does not exist.
+
+The trade is defensible — a search engine serves the `pt` alternate to a pt reader rather than x-default, and
+the front door (bare root) still auto-detects — but it is a real change in what a reader gets, not a
+no-op, and the owner ratified it as such.
+
+**Not fixed here, only un-advertised.** The bare-article dead end still exists for any URL already indexed or
+already shared. This amendment stops publishing it; it does not make it resolve. Tracked as issue #204
+(make the locale redirect slug-aware) — independent of this decision, since a bare URL would remain
+un-prerendered and therefore still wrong for a scraper even once it resolves for a human.
 
 **Clarification to [ADR-0037](./0037-localized-article-slugs.md).** Its line *"x-default = the English slug"*
 is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`. Nothing about per-locale article
@@ -218,7 +233,9 @@ slugs changes.
 **How the invariant is now enforced, not just written down.**
 - `apps/fed/scripts/routes.test.mjs` (new) asserts it by **membership**: every advertised alternate — `pt`,
   `en` **and** `x-default`, on every route — must be a member of the prerendered set. Verified to **fail**
-  against the old behaviour, naming the four broken URLs.
+  against the old behaviour, naming all **six** broken URLs: the four static routes plus **both** article
+  routes. (An earlier draft of this amendment said four — that repro had reverted only the non-article
+  branch, so it missed the article case this very amendment calls the worse one. Corrected after review.)
 - `e2e/seo.spec.ts` gains a test asserting every advertised alternate serves **its own canonical**, not
   merely a 200 — the check that would have caught the soft-404. The pre-existing test titled *"every
   advertised URL resolves to a live page"* checked exactly **one** URL and was renamed to say so; a test

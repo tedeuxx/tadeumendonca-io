@@ -65,7 +65,10 @@ serves it lives alongside, in `iac/`.
   PT `/pt/blog/meu-compromisso` — while the remaining facts (date, tag, track, links, media) are still
   authored once and shared. `getPostBySlug` matches on the active locale's own slug, and the toggle maps
   `/blog/<thisSlug>` → `/blog/<otherSlug>` across locales (`localizeArticlePath`); hreflang advertises the
-  reciprocal localized pair, x-default → the bare English slug.
+  reciprocal localized pair, **x-default → the PREFIXED English URL** (`/en/blog/<en-slug>`, #200 —
+  never the bare `/blog/<slug>`, which the prerender does not snapshot and which dead-ends a pt-BR
+  reader on a route that does not exist). The rule is general: **advertise only what the build
+  prerenders** (ADR-0036 amendment).
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions
