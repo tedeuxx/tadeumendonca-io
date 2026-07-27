@@ -3,7 +3,10 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage'] },
+  // `.scratch` is the gitignored home for throwaway diagnostic probes (#193). ESLint v9 flat config does
+  // NOT read .gitignore, so without this a disposable probe reddens `npm run lint` locally — defeating
+  // the point of giving probes a home. CI never sees the directory; this is purely local ergonomics.
+  { ignores: ['dist', 'node_modules', 'coverage', '.scratch'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
