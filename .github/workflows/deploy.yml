@@ -47,7 +47,13 @@ jobs:
           cache-dependency-path: apps/fed/package-lock.json
 
       - name: Install
-        run: npm ci
+        # --ignore-scripts: this job holds the OIDC deploy role, so a malicious postinstall anywhere in
+        # the transitive tree would execute with credentials that can write the S3 bucket and invalidate
+        # CloudFront — the install is the widest supply-chain path into a deploy. Nothing here needs a
+        # lifecycle script: the only dep that declares one is esbuild, whose postinstall merely validates
+        # a binary the @esbuild/<platform> optional package already delivers, and the Playwright browser
+        # comes from the explicit step below, not from an install hook.
+        run: npm ci --ignore-scripts
 
       - name: Install Playwright browser (for the prerender step)
         run: npx playwright install --with-deps chromium
