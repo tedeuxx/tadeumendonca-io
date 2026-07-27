@@ -43,8 +43,10 @@ Chosen: **a publication is not done until it exists on both LinkedIn and X.** Bo
 positioning and the same canonical link; the copy is adapted to the medium, not re-argued. If one surface
 cannot be published, the publication is **incomplete and tracked**, not silently half-done.
 
-The **obligation** is recorded here. The **mechanics** — per-surface checklists, tooling, the copy itself —
-are private working material outside this repo, exactly as ADR-0024 established for the CV sync.
+The **obligation** is recorded here. The **mechanics** — per-surface checklists, ~~tooling~~, the copy
+itself — are private working material outside this repo, exactly as ADR-0024 established for the CV sync.
+**Narrowed by the amendment (2026-07-27): "tooling" was too broad — derivation tooling that must share the
+site's own source of truth lives in the repo; its output does not.**
 
 ## Consequences
 **Good**
@@ -61,8 +63,52 @@ are private working material outside this repo, exactly as ADR-0024 established 
 - **Partial publication is a real state.** A LinkedIn post live while X is not is the incoherence this
   ADR exists to prevent, in miniature — it must be closed, not tolerated.
 
+## Amendment (2026-07-27) — the draft **generator** is repo tooling; only its **output** is private
+A distribution **draft kit** ships in this repo: `apps/fed/scripts/gen-distribution.mjs` (plus its unit
+tests and the `gen-distribution` npm script). It scaffolds the LinkedIn long-form section and the X thread
+section for each article from the English frontmatter, and writes them to the **gitignored**
+`.brand/distribution/<key>.md`. It **posts nothing, holds no credential, and adds no CI gate** — it is
+standalone and deliberately not wired into `build` / `build:static`.
+
+**Why the decision above was too broad.** It lumped "tooling" in with the copy as private working
+material. Gitignoring the drafts satisfies "the copy itself"; it does not make the generator private, and
+the generator is tooling, in the public repo, by name. So the clause is narrowed rather than quietly
+ignored:
+
+- **Private:** the copy, and the per-surface checklists that describe how the owner actually posts.
+  Pre-publication copy in a public repo would let anyone read tomorrow's post today, which is why the
+  output directory is gitignored and never committed.
+- **In the repo:** derivation tooling that must share the **site's own source of truth**.
+
+**Why that distinction is load-bearing, not a convenience.** The generator's whole reason to exist is
+that it resolves the share URL by **lookup in `scripts/routes.mjs`'s `localizedRoutes()`** — the same
+module the prerender and the sitemap consume. A private fork of that derivation would drift from the
+site's real routes, reintroducing exactly the risk ADR-0037's per-locale slugs created. Concretely:
+`alternatesFor()` advertises a **bare x-default article URL** (`/blog/<en-slug>`) that the prerender does
+**not** snapshot, so a scraper sent there gets the SPA shell and pins a generic OG card — permanently
+(ADR-0005; CLAUDE.md names OG pinning the least reversible thing in this repo). The generator therefore
+**refuses to emit any URL that is not a member of the prerendered route list**, and that guarantee is only
+possible because it imports the real routes module. Tooling that must not drift from the code lives with
+the code.
+
+*Trade-off (accepted):* the existence and the shape of the distribution mechanism become public — a reader
+can see that drafts are generated and what skeleton they start from. That is the cost of the guarantee;
+what stays private is what is actually sensitive (the unpublished words), and the alternative — a private
+copy of the route derivation — trades a visible skeleton for an invisible, un-gated way to publish a URL
+no scraper can read.
+
+**What this does not change.**
+- **Automated posting stays rejected.** Option 4 stands in full; nothing here schedules, authenticates, or
+  writes to an external surface.
+- **The obligation is unchanged** — a publication is still not done until it exists on both surfaces.
+- **Still manual, therefore still skippable.** No gate enforces the fan-out. The draft kit lowers the cost
+  the "Bad / accepted costs" section named (two drafts per publication); it does **not** close that hole.
+- **ADR-0024's parallel clause is unaffected.** The CV sync process stays private working material; this
+  narrowing is scoped to distribution drafts only.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
   per-locale canonical article URLs: [ADR-0037](./0037-localized-article-slugs.md) ·
-  tracked in issue #186 · the distribution mechanics are private (kept outside this repo).
+  tracked in issue #186 · the draft-kit amendment delivered by issue #178 · the distribution **copy** and
+  per-surface checklists remain private (kept outside this repo).

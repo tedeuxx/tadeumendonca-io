@@ -7,11 +7,15 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}'],
+    // `scripts/` is included so build-time tooling can be unit-tested at all: with `src/**` alone a
+    // test file next to a script is silently NOT COLLECTED, so `npm test` goes green having run none
+    // of it. Only gen-distribution.mjs is added to coverage below — the other scripts stay uncovered
+    // for now rather than being swept in by a slice that did not test them.
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.mjs'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.{ts,tsx}'],
+      include: ['src/**/*.{ts,tsx}', 'scripts/gen-distribution.mjs'],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/main.tsx', // bootstrap wiring
