@@ -13,6 +13,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, type ReactN
 import { useLocation, useNavigate } from 'react-router-dom';
 import { htmlLang, localeFromPath, localePath, pathWithoutLocale, STORAGE_KEY, type Locale } from './config';
 import { translate, type MessageKey } from './messages';
+import { localizeArticlePath } from '../lib/content';
 
 interface LocaleContextValue {
   locale: Locale;
@@ -37,14 +38,17 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const locale = localeFromPath(location.pathname) ?? 'en';
 
   // The manual toggle: persist the override (drives the bare-root default next visit) and navigate to the
-  // SAME sub-path under the other locale's prefix, preserving any query + hash.
+  // SAME sub-path under the other locale's prefix, preserving any query + hash. Article routes are the one
+  // path whose slug is per-locale (ADR-0037), so we map `/blog/<thisSlug>` → `/blog/<otherSlug>` before
+  // re-prefixing — otherwise the toggle would land on the current locale's slug under the other prefix
+  // (e.g. `/pt/blog/my-commitment`), a soft not-found. Every non-article path passes through unchanged.
   const setLocale = useCallback(
     (next: Locale) => {
       window.localStorage.setItem(STORAGE_KEY, next);
-      const rest = pathWithoutLocale(location.pathname);
+      const rest = localizeArticlePath(pathWithoutLocale(location.pathname), locale, next);
       navigate(`${localePath(next, rest === '' ? '/' : rest)}${location.search}${location.hash}`);
     },
-    [navigate, location.pathname, location.search, location.hash],
+    [navigate, location.pathname, location.search, location.hash, locale],
   );
 
   // Keep <html lang> in sync with the path locale (main.tsx sets it pre-render; this tracks client-side

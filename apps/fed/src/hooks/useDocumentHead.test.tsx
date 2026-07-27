@@ -77,6 +77,38 @@ describe('useDocumentHead', () => {
     expect(alternateHref('x-default')).toBe(expected.xDefault);
   });
 
+  // Per-locale slugs (ADR-0037): when `alternates` carries the two localized logical paths, the hreflang
+  // set advertises each locale's OWN slug (not the shared canonicalPath re-prefixed), x-default → the bare
+  // English slug. This is what pairs `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler.
+  it('emits per-locale hreflang from `alternates` when a route’s slug differs across locales', () => {
+    const alternates = { en: '/blog/my-commitment', pt: '/blog/meu-compromisso' };
+    // The EN edition (self-canonical is /en/blog/my-commitment) still advertises the reciprocal pair.
+    renderHook(
+      () => useDocumentHead({ title: 'My Commitment', canonicalPath: '/blog/my-commitment', alternates }),
+      { wrapper: wrapperAt('en') },
+    );
+    expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
+    expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    // Self-canonical stays this locale's own slug.
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+      'https://tadeumendonca.io/en/blog/my-commitment',
+    );
+
+    // The PT edition (self-canonical is /pt/blog/meu-compromisso) advertises the SAME reciprocal set.
+    document.head.innerHTML = '';
+    renderHook(
+      () => useDocumentHead({ title: 'Meu Compromisso', canonicalPath: '/blog/meu-compromisso', alternates }),
+      { wrapper: wrapperAt('pt') },
+    );
+    expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
+    expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+      'https://tadeumendonca.io/pt/blog/meu-compromisso',
+    );
+  });
+
   it('maps the x-default alternate of the landing to the bare origin', () => {
     renderHook(() => useDocumentHead({ title: 'tadeumendonca.io', canonicalPath: '/' }), { wrapper: wrapperAt('en') });
     expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/');

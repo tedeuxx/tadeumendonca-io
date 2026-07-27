@@ -9,37 +9,54 @@ import { resolve, join } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content', 'blog');
 
-// Slug from frontmatter (falls back to the filename's slug segment) — must match src/lib/content.ts.
-// Files are `<slug>.<locale>.md`, so the locale segment is stripped before the frontmatter fallback.
-function slugOf(file) {
-  const raw = readFileSync(join(contentDir, file), 'utf8');
-  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
-  const fm = m ? load(m[1]) : null;
-  return (fm && fm.slug) || file.replace(/\.[^.]+\.md$/, '');
-}
-
 // Per-locale URLs (ADR-0036): every route is first-class under both prefixes.
 export const LOCALES = ['pt', 'en'];
 
-// The UNPREFIXED logical routes, in a stable order. Real routes only — redirects (/blog, /articles,
-// /cv, /profile) must never be snapshotted or advertised, so they are deliberately excluded. Each article
-// is authored per-locale (`<slug>.pt.md` / `<slug>.en.md`), so the slug set is de-duplicated: one logical
-// route per slug, prerendered once PER LOCALE.
-export function logicalRoutes() {
-  const slugs = [
-    ...new Set(
-      readdirSync(contentDir)
-        .filter((f) => f.endsWith('.md'))
-        .map(slugOf),
-    ),
-  ];
-  return ['/', '/me', '/portfolio', '/ramp-up', '/architecture', ...slugs.map((s) => `/blog/${s}`)];
+// The static (non-article) UNPREFIXED logical routes, in a stable order. Real routes only — redirects
+// (/blog, /articles, /cv, /profile) must never be snapshotted or advertised, so they are excluded.
+const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
+
+// Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
+// src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).
+// Files are `<key>.<locale>.md`; a missing frontmatter slug falls back to the key. Returns one
+// `{ pt, en }` slug pair per article.
+function blogEditions() {
+  const byKey = new Map();
+  for (const file of readdirSync(contentDir).filter((f) => f.endsWith('.md'))) {
+    const m = /^(.+)\.(pt|en)\.md$/.exec(file);
+    if (!m) continue;
+    const [, key, locale] = m;
+    const raw = readFileSync(join(contentDir, file), 'utf8');
+    const fmm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
+    const fm = fmm ? load(fmm[1]) : null;
+    const pair = byKey.get(key) ?? {};
+    pair[locale] = (fm && fm.slug) || key;
+    byKey.set(key, pair);
+  }
+  return [...byKey.values()];
 }
 
-// Every logical route under both locales: `{ locale, route (logical), url (path to navigate/write) }`.
-// The prerender walks this and the sitemap advertises it, so snapshot and sitemap can NEVER drift.
+// Index any-locale slug → its `{ pt, en }` pair, so alternatesFor() can resolve an article route (in
+// either locale) to the reciprocal localized pair. Both directions land the same pair.
+function slugPairIndex() {
+  const idx = new Map();
+  for (const pair of blogEditions()) for (const locale of LOCALES) idx.set(pair[locale], pair);
+  return idx;
+}
+
+// Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
+// static routes share a path across locales; each ARTICLE carries its locale's OWN slug (per-locale slugs,
+// ADR-0037), so `/blog/<slug>` differs by locale. The prerender walks this and the sitemap advertises it,
+// so snapshot and sitemap can NEVER drift.
 export function localizedRoutes() {
-  return LOCALES.flatMap((locale) => logicalRoutes().map((route) => ({ locale, route, url: localePath(locale, route) })));
+  const editions = blogEditions();
+  return LOCALES.flatMap((locale) => [
+    ...STATIC_ROUTES.map((route) => ({ locale, route, url: localePath(locale, route) })),
+    ...editions.map((pair) => {
+      const route = `/blog/${pair[locale]}`;
+      return { locale, route, url: localePath(locale, route) };
+    }),
+  ]);
 }
 
 export const SITE_URL = process.env.VITE_SITE_URL?.replace(/\/$/, '') ?? 'https://tadeumendonca.io';
@@ -52,7 +69,21 @@ export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, 
 
 // The hreflang alternates a logical route exposes: pt + en editions, plus x-default → the bare,
 // unprefixed English URL (the client-side redirect resolves it per visitor). Root maps to the bare origin.
+// Article routes carry a per-locale slug (ADR-0037), so a `/blog/<slug>` route (in EITHER locale) is
+// resolved through the slug→pair index to the reciprocal localized pair — both editions therefore
+// advertise the SAME alternate set, x-default → the bare ENGLISH slug. Non-article routes re-prefix as-is.
 export const alternatesFor = (route) => {
+  const blogM = /^\/blog\/([^/]+)$/.exec(route);
+  if (blogM) {
+    const pair = slugPairIndex().get(blogM[1]);
+    if (pair) {
+      return {
+        pt: `${SITE_URL}${localePath('pt', `/blog/${pair.pt}`)}`,
+        en: `${SITE_URL}${localePath('en', `/blog/${pair.en}`)}`,
+        'x-default': `${SITE_URL}/blog/${pair.en}`,
+      };
+    }
+  }
   const bare = route === '/' ? '/' : route;
   return {
     pt: `${SITE_URL}${localePath('pt', route)}`,

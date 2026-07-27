@@ -16,7 +16,7 @@ const CANONICAL = [
   'https://tadeumendonca.io/pt/me',
   'https://tadeumendonca.io/en/me',
   'https://tadeumendonca.io/pt/blog/meu-compromisso',
-  'https://tadeumendonca.io/en/blog/meu-compromisso',
+  'https://tadeumendonca.io/en/blog/my-commitment', // per-locale slug (ADR-0037): EN carries its own slug
 ];
 
 test.describe('SEO discovery', () => {
