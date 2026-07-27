@@ -35,7 +35,9 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 
 Depth lives in the plugin's `/principles/*` skills (`engineering-philosophy`, `verification-and-gates`,
 `dev-loop`, `permissions-and-environments`); for deliberate validation of a non-trivial decision, invoke the
-**`principles-guide`** subagent.
+subagent that **owns** it — **`plan-reviewer`** for a plan/spec against the principles + the ADR library,
+**`security`** for the permission floor and supply chain, **`product-manager`** for what to build next.
+(There is no `principles-guide`; `plan-reviewer` superseded it and invoking the old name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
 **static** (fully static SPA, no backend). The agent works the full inner loop unprompted (git-reversible /
