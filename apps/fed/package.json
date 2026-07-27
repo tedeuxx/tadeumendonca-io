@@ -18,6 +18,7 @@
     "prerender": "node scripts/prerender.mjs",
     "gen-sitemap": "node scripts/gen-sitemap.mjs",
     "preview": "vite preview",
+    "gen-distribution": "node scripts/gen-distribution.mjs",
     "gen-og": "node scripts/gen-og-default.mjs",
     "gen-icons": "node scripts/gen-icons.mjs",
     "audit": "audit-ci --config audit-ci.jsonc",
