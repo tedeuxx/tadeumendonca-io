@@ -39,7 +39,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 | [0032](./0032-i18n-locale-layer-english-baseline.md) | i18n — light in-repo locale layer, native auto-detect + toggle, English-pinned crawlable baseline | accepted · Slice 2 completed by [0036](./0036-per-locale-urls-prerender-hreflang.md) (English-pinned prerender clause retired) |
 | [0036](./0036-per-locale-urls-prerender-hreflang.md) | Language is addressable — symmetric `/pt` · `/en` URL prefixes, per-locale prerender, hreflang + OG-per-locale (x-default = English; no edge, `iac/` untouched) | accepted · blog-slug clause revised by [0037](./0037-localized-article-slugs.md) (localized article slugs; per-locale URLs/prerender/hreflang otherwise stand) · amended 2026-07-27 (x-default is the **prefixed** English canonical on every route but the root; invariant: a URL may be advertised only if the build prerenders it) |
 | [0035](./0035-static-repo-cards-in-longform.md) | Curated repos as static cards in long-form — lone-URL facade + leaf-bilingual field, no third-party fetch | accepted |
-| [0037](./0037-localized-article-slugs.md) | Article slugs are localized — a locale-matched slug per edition (identity = filename key, not a URL; blog surface only; `iac/` untouched) | accepted |
+| [0037](./0037-localized-article-slugs.md) | Article slugs are localized — a locale-matched slug per edition (identity = filename key, not a URL; blog surface only; `iac/` untouched) | accepted · clarified 2026-07-27 by [0036](./0036-per-locale-urls-prerender-hreflang.md)'s amendment (its "x-default = the English slug" means the **prefixed** English slug) |
 
 ## Infrastructure
 | ADR | Title | Status |
@@ -66,7 +66,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 |---|---|---|
 | [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
 | [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted · amended 2026-07-26 (PDF source route string `/me → /en/me` per [0036](./0036-per-locale-urls-prerender-hreflang.md)) |
-| [0038](./0038-content-distribution-linkedin-and-x.md) | Published content is distributed to LinkedIn **and** X in the same batch — medium-adapted copy, canonical URL, mechanics private | accepted · amended 2026-07-27 (privacy clause narrowed: the draft **generator** is repo tooling because it resolves share URLs from the prerendered route list; only its output stays private) |
+| [0038](./0038-content-distribution-linkedin-and-x.md) | Published content is distributed to LinkedIn **and** X in the same batch — medium-adapted copy, canonical URL, mechanics private | accepted · amended 2026-07-27 (privacy clause narrowed: the draft **generator** is repo tooling because it resolves share URLs from the prerendered route list; only its output stays private) · the bare-x-default hazard its amendment describes was fixed at source 2026-07-27 by [0036](./0036-per-locale-urls-prerender-hreflang.md)'s amendment (#200) |
 
 ## History (superseded — reverse-engineered, kept not deleted)
 | ADR | Title | Superseded by |
