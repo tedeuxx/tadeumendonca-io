@@ -51,10 +51,46 @@ ADR-0024). Nothing else here changes: the PDF is still Playwright-printed from t
 static `/cv.pdf`, linked from the CV surface. Only the *source route string* carries the `/en` prefix now;
 the deferred `cv.pt.pdf` edition (below) would print from `/pt/me`.
 
+## Amendment (2026-07-28) — the PDF is a one-page EDITION of `/me`, not a faithful print of it
+The original decision above books, as its first Good consequence, that "the on-screen CV and the
+downloadable CV **cannot disagree, because one *is a print of* the other**." **That is no longer true, and
+the change is deliberate** (Issue #161).
+
+Printed faithfully, `/me` is **five A4 pages**. A recruiter opens page one; the remaining four are a
+scrolling liability on the highest-stakes artifact the site emits. So the constraint now governing the
+export is **one page, recruiter-first**, and the `@media print` stylesheet is no longer only a formatter —
+it **selects** what the printed edition carries.
+
+**What the print edition omits, and why each is claim-preserving rather than a trim:**
+- **the portrait** — decorative, already `aria-hidden`; the `<h1>` beside it names the person;
+- **the Credly badge images** (and the typographic fallback seal) — artwork; the credential *name* carries
+  the claim;
+- **the proficiency meters** — a screen device; a recruiter, and an ATS, scan keywords;
+- **the experience `highlights`** — measured at 88 of 143px per role, each running 3–5 lines. Clamping them
+  to two lines truncates mid-sentence, which reads worse than dropping them. Each role's one-sentence
+  `description` survives, and the highlights stay in full on `/me`.
+
+**The invariant that replaces "it cannot disagree":** *every role, every certification and every skill
+keyword survives into the PDF.* What is dropped is elaboration and decoration — never a claim, never an
+employer, never a credential. Single-source is therefore intact in the sense ADR-0024 cares about
+(`profile.ts` remains the one place any of it is authored, and nothing is re-typed anywhere); what is
+given up is only the stronger property that the two renderings show the *same amount*.
+
+**What keeps this true:** an E2E assertion that `/cv.pdf` is exactly one page (`e2e/cv-pdf.spec.ts`,
+counted from the PDF bytes). Without it the regression is invisible — the build succeeds, the asset is a
+valid PDF, and every other assertion passes at five pages as happily as at one. And the regression arrives
+through **content** (one more role in `profile.ts`, a longer summary), not through a CSS edit anyone would
+think to re-check a PDF for. The failure message says to trim the print view, not the assertion.
+
+**Accepted cost:** body text prints at 7.4pt — legible, but denser than a typical CV. The alternative was
+cutting a role, which reads as a gap on a CV. And the print stylesheet is now **content-bearing**, so an
+edit to it is an editorial change to what a recruiter reads, not a styling change.
+
 ## Links
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it, without yet retiring Canva).
 - Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
 - `/cv.pdf` is linked from `/me` (ADR-0010); the `/cv` redirect was dropped pre-launch, so the path is free.
 - EN-only on the English prerender baseline (ADR-0032); a pt-BR edition is a deferred follow-on.
 - Deliberately **outside** ADR-0005's HTML-route OG/SEO coverage (a static asset, not a crawlable route); exercised on the PR via `build:static` (ADR-0018).
-- Implements Issue #140.
+- Implements Issue #140; amended by Issue #161 (one-page edition — the "cannot disagree" consequence above
+  is superseded by the "every claim survives" invariant).

@@ -257,6 +257,13 @@ body {
   [data-print='cv'] section img {
     display: none !important;
   }
+  /* The seal is the FALLBACK for a certification with no Credly artwork — a 68x62px clip-path hexagon,
+     and a <span>, so hiding `img` alone misses it. Dormant today (all nine credentials carry an image),
+     which is exactly why it is worth closing now: the first certification added without one would put
+     nine hexagons back on the sheet, and the page-count guard would report it as a mystery overflow. */
+  [data-print='cv'] [data-print-block='03'] > div:last-child span[aria-hidden='true'] {
+    display: none !important;
+  }
   [data-print='cv'] [data-print-block='03'] > div:last-child > div {
     display: block !important;
   }
@@ -323,6 +330,13 @@ body {
     content: ':';
     padding-right: 0.45em;
   }
+  /* Dropping the trailing dot leaves the last skill of one category touching the next category's
+     heading ("Amazon CloudFrontDISTRIBUTED SYSTEMS"). The categories are what the flex COLUMN separated
+     before it was reflowed inline, so the gap has to come back explicitly — on every category but the
+     first, which needs no lead-in. */
+  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div:not(:first-child) > div:first-child {
+    padding-left: 0.9em !important;
+  }
 
   /* Experience (01): every role stays — a dropped role reads as a gap on a CV. What goes is the
      HIGHLIGHT list, and the choice is measured rather than taste. On A4 a role costs 143px, of which 88
@@ -337,7 +351,8 @@ body {
   [data-print='cv'] [data-print-block='01'] > div:last-child > div > div > p {
     margin-top: 0.14rem !important;
   }
-  /* The bullet list is the only thing left in a role, so it sits tight under the title line. */
+  /* With the highlights gone, a role is four short lines — the generous screen padding is now the
+     largest thing separating one job from the next. */
   [data-print='cv'] [data-print-block='01'] > div:last-child > div > div {
     padding-top: 0.18rem !important;
     padding-bottom: 0.18rem !important;
