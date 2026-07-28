@@ -143,6 +143,20 @@ const strings = {
     level1: { pt: 'básico', en: 'foundational' },
     level2: { pt: 'intermediário', en: 'working' },
   },
+  // The locale OFFER (#172), shown when the URL's locale is not the visitor's own language. Every string
+  // here is rendered in the SUGGESTED language, not the page's — it is addressed to a reader who may not
+  // read the page's language at all, so writing it in that language would defeat the purpose. The region
+  // therefore also carries its own `lang`, or a screen reader pronounces it with the wrong voice.
+  localeSuggestion: {
+    message: {
+      pt: 'Esta página está em inglês. Prefere ler em português?',
+      en: 'This page is in Portuguese. Would you rather read it in English?',
+    },
+    accept: { pt: 'Ler em português', en: 'Read in English' },
+    dismiss: { pt: 'Continuar em inglês', en: 'Keep reading in Portuguese' },
+    // aria-label for the region.
+    notice: { pt: 'Sugestão de idioma', en: 'Language suggestion' },
+  },
   column: {
     loading: { pt: 'Carregando', en: 'Loading' },
     back: { pt: 'Voltar', en: 'Back' },

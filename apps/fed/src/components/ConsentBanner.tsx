@@ -19,12 +19,15 @@ export function ConsentBanner() {
 
   if (!analyticsConfigured() || status !== 'undecided') return null;
 
+  // Positioning lives in AppShell's shared bottom stack (#172): the locale offer can sit above this bar,
+  // and hard-coding `fixed bottom-0` on both would have overlapped them or needed a magic height. As a
+  // normal block inside the stack, stacking and reflow-on-dismiss come for free.
   return (
     <div
       role="region"
       data-print="hide"
       aria-label={t('consent.notice')}
-      className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-border-strong bg-background px-[--gutter] py-4"
+      className="border-t-2 border-border-strong bg-background px-[--gutter] py-4"
     >
       <div className="mx-auto flex w-full max-w-screen flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="max-w-2xl text-sm text-muted-foreground">

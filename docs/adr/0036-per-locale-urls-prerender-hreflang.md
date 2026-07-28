@@ -251,6 +251,72 @@ slugs changes.
   advertised URL resolves to a live page"* checked exactly **one** URL and was renamed to say so; a test
   title that overstates its coverage is how a whole class of URLs went unverified.
 
+## Amendment (2026-07-28) — the path stays authoritative, so the reader's own language is **offered**, never imposed; and the prerender is not a visitor
+**The invariant, stated generally because it outlives this feature:**
+
+> **The prerender is not a visitor.** `scripts/prerender.mjs` snapshots every route in a single **en-US**
+> browser and that HTML is served to **everyone**, so any component that renders off the **visitor**
+> (`navigator.language`, storage, viewport, time zone) rather than the **route** must **opt out of the
+> snapshot explicitly**.
+
+**What shipped.** This ADR made the URL path authoritative: a shared `/en/…` link pins English for whoever
+opens it, including a pt-BR native. That is the right trade for the sharer — the link works exactly as sent —
+but it left the reader with no in-page way out. When the path locale differs from the visitor's browser/OS
+language, the site now shows a **dismissible notice offering the visitor's edition**. Accepting persists
+through the **same `locale` localStorage key as the PT/EN toggle** (so it overrides detection thereafter) and
+navigates to the **sibling per-locale URL for the same logical route** — not the landing.
+
+**Considered and rejected: auto-redirect on language mismatch.** It is the shorter path for the reader and it
+is what an edge Accept-Language negotiation would have done. *Why not:* it silently breaks the sharer's link.
+The whole point of this ADR is that a URL **is** an edition; a redirect makes `/en/me` mean "whatever the
+opener's browser says", so a link sent deliberately in one language cannot be trusted to arrive in it.
+**Offer, never redirect** — the path still wins; the reader opts in. *Trade-off (accepted):* a pt-BR reader
+who wants Portuguese pays one extra click, and there is now a notice on the page for a reader who wanted
+neither.
+
+**A second persisted key — `locale-suggestion-dismissed`, independent of `locale`.** The two mean different
+things and must not be conflated: **`locale` records a CHOICE** (the toggle, or accepting the offer) and
+drives which edition is served; **`locale-suggestion-dismissed`** records only that the offer was **declined**,
+so it is never repeated. *Trade-off:* a second key is more client state to reason about, and a reader who
+clears storage is offered once again — accepted over overloading `locale` with a sentinel, which would have
+made "declined the offer" indistinguishable from "chose this language".
+
+**The suppression case worth recording.** The offer stays silent in four cases; three are obvious (page
+already in the reader's language · already dismissed · nothing to offer). The fourth is not: it is silent
+when the reader **explicitly chose the locale the URL pins** (stored `locale` === path locale) — a pt-BR
+speaker reading the English edition **on purpose** must not be second-guessed. It deliberately does **not**
+suppress when the stored choice is the **other** locale: they chose `pt`, then followed a shared `/en` link;
+the path still wins per this ADR, and the offer stands. That is the case the feature exists for. The decision
+is a pure function (`src/lib/localeSuggestion.ts`) precisely so every branch is exercisable without a DOM.
+
+**The prerender consequence — measured, not reasoned.** On a `/pt` route the snapshot browser looks like an
+English speaker, so every render condition held and the offer **baked into the Portuguese HTML**: `dist/pt/**`
+shipped an offer to read in English, shown to every Portuguese reader until hydration removed it. The obvious
+fix — render client-only behind a **post-mount flag** — **does not work here**, and the first implementation
+used exactly that and still leaked: this prerender snapshots a **live, already-hydrated page**
+(`page.content()` after the head settles), so effects have run and `mounted` is long since true. The signal
+must be about **who** is rendering, not **when** — hence `window.__PRERENDER__`, set by the snapshot browser
+via `addInitScript` and checked by the component. *Trade-off:* a build-only global is a seam between the
+snapshot harness and app code, and any future visitor-dependent component must remember to check it; the
+alternative (making the prerender a non-hydrating render) would be a much larger change to
+[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s build-time-render mechanism for one component's sake.
+Enforced rather than written down: `e2e/per-locale.spec.ts` asserts the **shipped** HTML for both editions
+carries no offer — asserted against the artifact because every unit test passed while `dist/pt/**` was wrong.
+Verified by mutation.
+
+**Two smaller decisions, recorded so they are not re-litigated.**
+- The notice carries **its own `lang`** — the **suggested** locale, not the page's — because the text is
+  written in the language being offered; without it a screen reader pronounces Portuguese with an English
+  voice, or the reverse.
+- Both bottom notices (consent bar + locale offer) now share **one fixed container** in `AppShell` and sit in
+  it as normal blocks. Positioning each `fixed bottom-0` would overlap them, and offsetting one by the other's
+  height would hard-code a number that changes with the copy.
+
+**Nothing in the decision above changes.** Per-locale prefixes, per-locale prerender, hreflang, OG-per-locale
+and x-default all stand; this amendment adds a client-side **offer** on top of an unchanged URL contract, and
+records the prerender invariant it exposed. `iac/` is untouched — the negotiation is still client-side, so
+[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s no-edge invariant holds.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
 - **Amended by** Issue [#200](https://github.com/tedeuxx/tadeumendonca-io/issues/200) — x-default pointed at
@@ -260,6 +326,14 @@ slugs changes.
   [ADR-0037](./0037-localized-article-slugs.md) (per-locale article slugs — the pt-BR dead end),
   [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment (the same hazard, guarded
   at one consumer).
+- **Amended by** Issue [#172](https://github.com/tedeuxx/tadeumendonca-io/issues/172) — the authoritative path
+  left a reader no in-page way to their own edition; a dismissible **offer** (never a redirect) now proposes
+  the visitor's locale, persisting through the same `locale` key as the toggle, with a second key
+  (`locale-suggestion-dismissed`) recording only a decline. Exposed the general rule that **the prerender is
+  not a visitor** — `window.__PRERENDER__`, not a post-mount flag, is what keeps visitor-dependent rendering
+  out of the shipped HTML. Consistent with
+  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (the persisted toggle overriding detection) and
+  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (still no edge negotiation).
 - **Completes [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s deferred Slice 2** — retires that
   ADR's "prerender baseline pinned to English" clause and its "single-locale-prerender accepted cost." Not a
   reversal: Slice 2 was always the named successor to the interim English-pinned baseline.

@@ -17,4 +17,10 @@ type GtagFn = (...args: unknown[]) => void;
 interface Window {
   dataLayer?: unknown[];
   gtag?: GtagFn;
+  /**
+   * Set by `scripts/prerender.mjs` (via `addInitScript`) in the build-time snapshot browser only —
+   * never in a real visitor's page. Anything that renders off the VISITOR rather than the route must
+   * check it, because the snapshot is pinned to en-US and its HTML is served to everyone (#172).
+   */
+  __PRERENDER__?: boolean;
 }

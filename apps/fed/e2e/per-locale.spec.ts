@@ -228,6 +228,58 @@ test.describe('bare-root redirect preserves the sub-path', () => {
   });
 });
 
+// 7 · The locale OFFER (#172). A shared link pins the sharer's language (ADR-0036), so a pt-BR reader can
+// land on `/en/...` with no obvious way back. The offer surfaces the switch WITHOUT taking the decision:
+// the link keeps working as sent, and the reader opts in.
+test.describe('locale offer on a link that pins the other language', () => {
+  test.describe('a pt-BR reader on an English link', () => {
+    test.use({ locale: 'pt-BR' });
+
+    test('is offered Portuguese, and accepting lands on the sibling URL', async ({ page }) => {
+      await page.goto('/en/me/');
+      const offer = page.getByRole('region', { name: 'Sugestão de idioma' });
+      await expect(offer).toBeVisible();
+      // Written in the reader's language, not the page's — the whole point is that they may not read
+      // the page's language.
+      await expect(offer).toHaveAttribute('lang', 'pt-BR');
+
+      await offer.getByRole('button', { name: 'Ler em português' }).click();
+      await expect(page).toHaveURL(/\/pt\/me\/?$/);
+      // Same logical route, not the landing.
+      await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
+      // Not re-offered on the edition just chosen.
+      await expect(page.getByRole('region', { name: /idioma|Language suggestion/ })).toHaveCount(0);
+    });
+
+    test('is not offered again after dismissing, on this or another page', async ({ page }) => {
+      await page.goto('/en/me/');
+      await page.getByRole('button', { name: 'Continuar em inglês' }).click();
+      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+      await page.goto('/en/portfolio/');
+      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+    });
+
+    // The branch the plan-review flagged as most likely to regress silently: a reader who CHOSE the
+    // English edition with the toggle is reading it on purpose, and must not be second-guessed. Driven
+    // through the real toggle rather than by seeding localStorage, so it exercises the same write the
+    // product does.
+    test('is not offered when the reader chose this edition with the toggle', async ({ page }) => {
+      await page.goto('/pt/me/');
+      await page.getByRole('group', { name: 'Idioma' }).getByRole('button', { name: 'EN' }).click();
+      await expect(page).toHaveURL(/\/en\/me\/?$/);
+      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+    });
+  });
+
+  test.describe('an en-US reader on the English edition', () => {
+    test.use({ locale: 'en-US' });
+    test('is offered nothing — the page is already their language', async ({ page }) => {
+      await page.goto('/en/me/');
+      await expect(page.getByRole('region', { name: /Language suggestion|Sugestão de idioma/ })).toHaveCount(0);
+    });
+  });
+});
+
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
 // alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
@@ -272,6 +324,25 @@ test.describe('sitemap advertises every per-locale URL', () => {
 
 // 9 · PDF single-source — one downloadable CV, the English canonical (ADR-0024/0034). Both /me editions
 // point at the SAME static /cv.pdf asset (not a per-locale PDF), and it is a real PDF.
+// The prerender snapshots every route in an en-US browser, so anything rendering off the VISITOR rather
+// than the route leaks that browser's identity into HTML served to everyone. The locale offer (#172) is
+// the first such component, and it did leak: the initial implementation gated on a post-mount flag, which
+// this prerender defeats by construction — it snapshots a live, already-hydrated page.
+//
+// Asserted against the SHIPPED HTML rather than in a component test, because that is where the defect
+// existed: every unit test passed while `dist/pt/**` carried an offer to read in English.
+test.describe('the prerendered HTML carries nothing visitor-specific', () => {
+  test('no locale-suggestion offer is baked into either edition', async ({ request }) => {
+    for (const path of ['/pt/', '/en/', '/pt/me/', '/en/me/']) {
+      const html = await (await request.get(path)).text();
+      // Both directions: the pt snapshot must not offer English, and the en snapshot must not offer
+      // Portuguese. Matching the aria-label catches the region whatever the button copy becomes.
+      expect(html, `${path} carries a baked locale offer`).not.toContain('Sugestão de idioma');
+      expect(html, `${path} carries a baked locale offer`).not.toContain('Language suggestion');
+    }
+  });
+});
+
 test.describe('the CV PDF is a single English-canonical asset', () => {
   test('both /me editions link the one shared /cv.pdf', async ({ page }) => {
     await page.goto('/en/me');
