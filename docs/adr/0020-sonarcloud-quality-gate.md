@@ -17,18 +17,33 @@ must be provable by the harness, not asserted.
 
 ## Considered options
 1. **SonarCloud quality gate, blocking** (chosen) — the scan runs inside `build-test` with
-   `sonar.qualitygate.wait=true`, so a failed gate fails the check and blocks the merge. Scoped today to
-   `apps/fed/src` (`projectBaseDir` + `sonar.sources`). *Trade-off:* that scope leaves `iac/` and the
-   workflows **unscanned** — a known limitation, with a comprehensive-scope expansion planned in the
-   dev-loop.
+   `sonar.qualitygate.wait=true`, so a failed gate fails the check and blocks the merge. Scoped to
+   `apps/fed/src` ~~only~~ **+ `apps/fed/scripts` (widened 2026-07-28, #201)**. *Trade-off:* that scope
+   still leaves `iac/` and the workflows **unscanned** — a known limitation, with a comprehensive-scope
+   expansion planned in the dev-loop.
 2. **No quality gate** — *Why not:* smells, bugs and security hotspots accumulate with nothing enforcing
    the bar.
 3. **Local-only linting** — *Why not:* not enforced (bypassable), and not SAST.
 
 ## Decision outcome
 Chosen: **SonarCloud as a blocking gate on new code.** It is the authoritative quality/SAST check on the
-PR. The current `apps/fed/src` scope is an acknowledged gap — broadening it to `iac/` and the workflows
-(and making that blocking) is a dev-loop follow-up, not silently claimed as covered.
+PR. The scope is an acknowledged gap — broadening it to `iac/` and the workflows (and making that
+blocking) is a dev-loop follow-up, not silently claimed as covered.
+
+**Amendment (2026-07-28, #201) — `apps/fed/scripts` is now in scope.** The original scope was `src`
+alone, which left the build tooling outside the index entirely: the blocking gate analysed **zero lines**
+of `routes.mjs` (the single source of truth for every public URL), `prerender.mjs` (which produces the
+served HTML and its OG tags) and `gen-sitemap.mjs` (what Google reads). Some of the most consequential
+code in the repo was the code no static analysis looked at — and, unlike `iac/`, it was not recorded here
+as a gap, because "src" read as "the app" rather than as "half of what ships".
+
+The widening was **measured, not assumed**: the scanner went from 92 to 101 indexed files, exactly the 9
+files in that directory. The first scan to ever see them found two `S1121` code smells, which were fixed
+at cause rather than suppressed — the gate's first honest report on that code.
+
+*Consequence worth recording:* four of those scripts have no tests, so `main`'s **overall** coverage
+number drops when they enter the index. Nothing breaks — every gate condition is `new_*` — and the lower
+number is the accurate one. It should not be read as a regression.
 
 ## Consequences
 **Good**
@@ -36,8 +51,10 @@ PR. The current `apps/fed/src` scope is an acknowledged gap — broadening it to
 - Free for public repos; no infra.
 
 **Bad / accepted costs**
-- **Scoped to `apps/fed/src`** — `iac/` and `.github/workflows` are not scanned today (the workflow
-  SonarLint findings this session, e.g. action SHA-pinning, were never CI-enforced for this reason).
+- **Scoped to `apps/fed/src` + `apps/fed/scripts`** — `iac/` and `.github/workflows` are still not
+  scanned (the workflow SonarLint findings from the ADR's own session, e.g. action SHA-pinning, were
+  never CI-enforced for this reason). The `scripts` half of this gap was closed by #201; what remains is
+  the two directories named here.
 - An external dependency (SonarCloud availability) sits in the gate.
 
 ## Links
