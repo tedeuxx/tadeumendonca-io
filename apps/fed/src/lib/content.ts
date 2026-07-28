@@ -21,7 +21,9 @@ import { LOCALES, type Locale } from '../i18n/config';
 
 /** Audience track. `pessoal` = everyday-life automation (no code); `engenharia` = AI in production. */
 export type Track = 'pessoal' | 'engenharia';
-const TRACKS: Track[] = ['pessoal', 'engenharia'];
+// A Set, not an array: its only use is a membership test, and `Set` says that at the declaration rather
+// than at the call site. Two elements, so this is about intent, not lookup cost.
+const TRACKS: ReadonlySet<Track> = new Set(['pessoal', 'engenharia']);
 
 export interface BlogPost {
   slug: string;
@@ -55,7 +57,7 @@ const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 // neither is `slug`, which is per-locale (ADR-0037): identity is the filename KEY, not the slug.
 const FACT_KEYS = ['date', 'tag', 'track', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
 
-const asTrack = (value: unknown): Track => (TRACKS.includes(value as Track) ? (value as Track) : 'engenharia');
+const asTrack = (value: unknown): Track => (TRACKS.has(value as Track) ? (value as Track) : 'engenharia');
 const asString = (value: unknown): string | undefined => (value != null ? String(value) : undefined);
 
 function parse(fileSlug: string, raw: string): BlogPost {
