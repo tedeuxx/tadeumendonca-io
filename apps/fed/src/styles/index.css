@@ -121,7 +121,9 @@ body {
      (`bg-primary` / the cert seal) — which paint via background/border — survive into the PDF. */
 @media print {
   @page {
-    margin: 1.5cm;
+    /* Matches the margin `page.pdf()` passes in scripts/prerender.mjs — the two must agree, or a
+       browser-printed page and the build-time PDF lay out differently (#161). */
+    margin: 1cm;
   }
   [data-print='hide'] {
     display: none !important;
@@ -139,6 +141,209 @@ body {
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  /* ── The CV fits ONE A4 sheet (#161) ────────────────────────────────────────────────────────────
+     The PDF is the artefact that reaches a recruiter, and it ran to FIVE pages. The cause is not
+     "too much content" — it is that `vw` resolves against the SHEET in print, so every
+     `clamp(min, Nvw, max)` in the web layout lands at or near its MAX on A4. The page is styled for a
+     viewport that can be small; paper never is. So the responsive scale, which is correct on screen,
+     silently becomes the largest possible spacing on paper.
+
+     Everything below overrides through the ONE `[data-print="cv"]` hook rather than reaching for
+     Tailwind utility classes, which would break the moment the web view is restyled. `!important` is
+     needed because the values it overrides are utilities of equal specificity.
+
+     Owner decision (2026-07-28): one page, recruiter-first. The full career arc lives on /me — the PDF
+     is the door, the site is where the story breathes. */
+  [data-print='cv'] {
+    /* 7.6pt is the honest floor for this content on one sheet. Measured, not chosen by feel: at 8pt the
+       page overflows by ~100px with everything already compacted. Below ~7pt a printed CV stops being
+       comfortably readable, so this is the last notch before the trade-off would have to come out of
+       content instead of type. */
+    font-size: 7.4pt;
+    line-height: 1.25;
+  }
+  /* Kill the vw-driven scale: fixed, small, paper-appropriate spacing everywhere. */
+  [data-print='cv'] header,
+  [data-print='cv'] section > div {
+    padding: 0 !important;
+  }
+  [data-print='cv'] section {
+    border-top-width: 1px;
+    margin-top: 0.06rem;
+    padding-top: 0.06rem;
+    /* A section must not be split across a page break if it can be helped. */
+    break-inside: avoid;
+  }
+  /* Header: the portrait is decorative (the h1 beside it names the person), so it shrinks hard rather
+     than eating a fifth of the sheet. */
+  /* The portrait is dropped from the PDF, not shrunk. It is decorative by the component's own reckoning
+     — the <h1> beside it names the person, and it carries `aria-hidden` — so on a sheet where every
+     100px is contested it is the cheapest thing to remove: it costs no claim, no keyword and no date.
+     It stays in full colour on /me, which is where a reader who wants a face will look. */
+  [data-print='cv'] header img {
+    display: none !important;
+  }
+  [data-print='cv'] h1 {
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+  }
+  [data-print='cv'] header > div:first-child {
+    gap: 0.7rem !important;
+  }
+  [data-print='cv'] header p {
+    margin-top: 0.18rem !important;
+    max-width: none !important;
+  }
+  /* The block label sits above its content on paper, so the gap that separated two grid columns on
+     screen is now vertical dead space. */
+  [data-print='cv'] section > div:first-child {
+    margin-bottom: 0.05rem !important;
+  }
+  [data-print='cv'] section > div:last-child > div {
+    gap: 0.16rem !important;
+  }
+  /* The numbered block label: the 3.4rem index is a screen device, not information. And the index
+     STACKED above its heading is the single largest piece of pure chrome on the sheet — 30px per block,
+     120px over four blocks, on a page whose whole budget is 1047px. Collapsed to one baseline-aligned
+     line ("01 EXPERIENCE"), it costs half that and reads the same. */
+  [data-print='cv'] section > div:first-child > div {
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 0.4em !important;
+  }
+  [data-print='cv'] section > div:first-child span {
+    font-size: 0.85rem !important;
+  }
+  [data-print='cv'] section > div:first-child h2 {
+    margin-top: 0 !important;
+  }
+  /* The 12-col sticky grid becomes a label above its content — sticky positioning means nothing on
+     paper, and the 3-col rail wastes a quarter of the width. */
+  [data-print='cv'] section {
+    display: block !important;
+  }
+  [data-print='cv'] section > div:last-child {
+    border-left: 0 !important;
+    padding-left: 0 !important;
+  }
+  /* Experience: keep the substance (description + highlights), tighten everything around it. */
+  [data-print='cv'] section li,
+  [data-print='cv'] section p {
+    max-width: none !important;
+  }
+  [data-print='cv'] section > div:last-child > div > div {
+    padding-top: 0.24rem !important;
+    padding-bottom: 0.24rem !important;
+    padding-left: 0.6rem !important;
+  }
+  [data-print='cv'] section > div:last-child ul {
+    margin-top: 0.12rem !important;
+    padding-left: 0.85rem !important;
+  }
+  [data-print='cv'] section > div:last-child li {
+    font-size: 0.95em !important;
+    margin-top: 0 !important;
+    line-height: 1.24 !important;
+  }
+  /* Education (02) is two entries; the 1rem stack between them is screen rhythm, not information. */
+  [data-print='cv'] [data-print-block='02'] > div:last-child > div {
+    gap: 0.22rem !important;
+  }
+  /* Certifications (03): nine 64px Credly images cost more than a page on their own. The credential is
+     the claim; the artwork is decoration. Seals go, and the entries reflow as a dense inline list
+     instead of nine bordered rows. */
+  [data-print='cv'] section img {
+    display: none !important;
+  }
+  [data-print='cv'] [data-print-block='03'] > div:last-child > div {
+    display: block !important;
+  }
+  [data-print='cv'] [data-print-block='03'] a[href],
+  [data-print='cv'] [data-print-block='03'] > div:last-child > div > div {
+    display: inline-flex !important;
+    border: 0 !important;
+    padding: 0 !important;
+    gap: 0.25rem !important;
+  }
+  [data-print='cv'] [data-print-block='03'] a[href]:not(:last-child)::after,
+  [data-print='cv'] [data-print-block='03'] > div:last-child > div > div:not(:last-child)::after {
+    content: ' · ';
+    color: hsl(var(--muted-foreground));
+    padding: 0 0.28rem;
+  }
+  /* The name/issuer wrapper is a flex COLUMN on screen, so left alone it stacks the issuer under the
+     name mid-sentence in an inline list. Both shapes are matched — a certification with a
+     `credential_url` renders as <a>, one without as <div>, and targeting only the link left every
+     unlinked credential printing a stray "AMAZON WEB SERVICES" on its own line. */
+  [data-print='cv'] [data-print-block='03'] span > span:first-child {
+    display: inline !important;
+  }
+  [data-print='cv'] [data-print-block='03'] span > span:last-child {
+    display: none !important; /* issuer + date — the credential name carries the claim */
+  }
+
+  /* Skills (04): the single tallest block on the sheet at 658px, because each entry is a row with a
+     4-square proficiency meter. The meter is a screen device; a recruiter (and an ATS) scans the
+     keywords. Reflowed inline, meters dropped. */
+  [data-print='cv'] [data-print-block='04'] > div:last-child * {
+    display: inline !important;
+    /* The chips are bordered boxes on screen. Reflowed inline they keep their borders and the negative
+       -mb-px/-mr-px that tiled them into a grid, so the rules overlap the text and strike through the
+       band. Inline keywords need no box. */
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  [data-print='cv'] [data-print-block='04'] span[role='img'] {
+    display: none !important;
+  }
+  /* Reflowed inline, this is a keyword band rather than prose — it reads at a smaller size than the
+     body without costing the scan anything, and it is the last block that can give height back
+     without losing a keyword. */
+  [data-print='cv'] [data-print-block='04'] > div:last-child {
+    font-size: 0.9em !important;
+    line-height: 1.15 !important;
+  }
+  /* Zeroing the chip margins removes the box, and with it the only thing separating one keyword from the
+     next — "AWS Lambda" and "Amazon API Gateway" print as one word. The band gets an explicit separator
+     (the same mono dot the certifications use) on every skill, and the category label gets one too so it
+     reads as a lead-in rather than as a keyword glued to the first entry. */
+  /* Four levels down, not three: the body div holds a flex COLUMN, whose children are the categories,
+     each of which holds a label div and a wrap div, and only then the skill spans. Off by one, the
+     separator silently matched nothing and the colon landed after the last skill of a category instead
+     of after its heading. */
+  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div > div > span:not(:last-child)::after {
+    content: ' · ';
+    color: hsl(var(--muted-foreground));
+    padding: 0 0.3em;
+  }
+  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div > div:first-child::after {
+    content: ':';
+    padding-right: 0.45em;
+  }
+
+  /* Experience (01): every role stays — a dropped role reads as a gap on a CV. What goes is the
+     HIGHLIGHT list, and the choice is measured rather than taste. On A4 a role costs 143px, of which 88
+     is two highlights: each runs 3–5 lines, because they are written for a page with room. Keeping two
+     of them and cutting the rest fits nothing; clamping them to two lines each truncates mid-sentence,
+     which reads worse than it saves.
+     The `description` is one coherent sentence per role — it survives compression without lying, and it
+     is what a scan wants first. The highlights stay in full on /me, which the PDF links back to. */
+  [data-print='cv'] [data-print-block='01'] ul {
+    display: none !important;
+  }
+  [data-print='cv'] [data-print-block='01'] > div:last-child > div > div > p {
+    margin-top: 0.14rem !important;
+  }
+  /* The bullet list is the only thing left in a role, so it sits tight under the title line. */
+  [data-print='cv'] [data-print-block='01'] > div:last-child > div > div {
+    padding-top: 0.18rem !important;
+    padding-bottom: 0.18rem !important;
+  }
+  [data-print='cv'] [data-print-block='01'] span.text-lg {
+    font-size: 1.02em !important;
   }
 }
 

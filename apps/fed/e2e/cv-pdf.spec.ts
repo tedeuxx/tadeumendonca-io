@@ -27,6 +27,21 @@ test.describe('CV PDF export', () => {
     expect(head).not.toContain('<html');
   });
 
+  // The one-page constraint (#161) is the whole point of the print stylesheet, and it is invisible: the
+  // build succeeds, the asset is a valid PDF, and every other assertion here passes at five pages just
+  // as happily as at one. Nothing but a page count catches the regression, and the regression arrives
+  // through CONTENT — one more role in profile.ts, a longer summary — not through a CSS edit anyone
+  // would think to re-check the PDF for.
+  //
+  // Counted straight out of the bytes rather than with a PDF library: `/Type /Page` (excluding the
+  // `/Pages` tree node) is stable in Chromium's output, and a dependency for one integer is not worth
+  // the supply-chain surface on a repo that pins and audits them.
+  test('fits on a single A4 page', async ({ request }) => {
+    const body = (await (await request.get('/cv.pdf')).body()).toString('latin1');
+    const pages = body.match(/\/Type\s*\/Page(?![s/\w])/g) ?? [];
+    expect(pages, 'the CV PDF must stay on one page — trim the print view, not this assertion').toHaveLength(1);
+  });
+
   test('offers a Download-CV link on /me pointing at the static asset', async ({ page }) => {
     await page.goto('/en/me');
     const link = page.getByRole('link', { name: 'Download CV (PDF)' });

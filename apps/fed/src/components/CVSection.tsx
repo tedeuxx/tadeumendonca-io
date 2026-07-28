@@ -22,7 +22,10 @@ const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'Linke
 
 function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
   return (
-    <section className="border-t border-border md:grid md:grid-cols-12">
+    // `data-print-block` gives the print stylesheet a stable per-section hook (#161). Targeting
+    // `section:nth-of-type(n)` instead would silently re-target the moment a block is added or reordered,
+    // and the failure would only show up in a PDF nobody re-reads.
+    <section data-print-block={index} className="border-t border-border md:grid md:grid-cols-12">
       <div className="px-[--gutter] pb-4 pt-[clamp(2rem,4vw,3.5rem)] md:col-span-3 md:pr-6">
         <div className="md:sticky md:top-[calc(var(--header-h)+2rem)]">
           <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
@@ -92,7 +95,10 @@ export function CVSection({ profile }: { profile: Profile }) {
   const hasCertifications = profile.certifications.length > 0;
 
   return (
-    <div>
+    // `data-print="cv"` is the single stable hook the print stylesheet targets to compact this page onto
+    // one A4 sheet (#161). One hook, like `data-print="hide"` — the print rules never reach for Tailwind
+    // utility classes, which would break on any restyle of the web view.
+    <div data-print="cv">
       <header className="px-[--gutter] pb-[clamp(1.5rem,3vw,2.5rem)] pt-[clamp(2rem,5vw,4rem)]">
         {/* The portrait sits beside the name — full colour here, unlike the small greyscale one on
             the landing's aside. It is decorative: the <h1> right next to it already names the person. */}
