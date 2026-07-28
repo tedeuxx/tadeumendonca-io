@@ -58,6 +58,30 @@ describe('CVSection', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
+  // The print edition drops the issuer line to fit one page (#161) — free for "AWS Certified …", a real
+  // loss for a credential whose name does not name its issuer, which unattributed reads as a self-styled
+  // title. So the issuer is carried into the NAME exactly where the name lacks it. Print-only, hence the
+  // class assertions: jsdom has no print media, so visibility here is expressed by `hidden print:inline`.
+  it('attributes only the credentials whose name does not already name the issuer', () => {
+    const p: Profile = {
+      ...profile,
+      certifications: [
+        // Acronym in parentheses, present in the name → no attribution added.
+        { name: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services (AWS)' },
+        // Same issuer, but the name never says AWS → attributed.
+        { name: 'AI-DLC Ambassador', issuer: 'Amazon Web Services (AWS)' },
+        // No parentheses → falls back to the issuer's first word, which the name carries.
+        { name: 'Google Cloud Architect', issuer: 'Google Cloud' },
+      ],
+    };
+    renderWithLocale(<CVSection profile={p} />);
+    const attributed = screen.getByText('— Amazon Web Services (AWS)', { exact: false });
+    expect(attributed).toHaveClass('print:inline');
+    expect(attributed.parentElement?.textContent).toContain('AI-DLC Ambassador');
+    // Exactly one of the three is attributed.
+    expect(document.querySelectorAll('.print\\:inline')).toHaveLength(1);
+  });
+
   it('renders the official Credly image when the data carries one', () => {
     const withBadge: Profile = {
       ...profile,

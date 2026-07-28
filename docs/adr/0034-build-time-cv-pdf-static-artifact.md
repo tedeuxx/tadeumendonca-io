@@ -70,13 +70,34 @@ it **selects** what the printed edition carries.
   to two lines truncates mid-sentence, which reads worse than dropping them. Each role's one-sentence
   `description` survives, and the highlights stay in full on `/me`.
 
+**And one thing the print edition now ADDS.** The original `/cv.pdf` hid the whole metadata row, reasoning
+that "the PDF is generated FROM this page, so it must not carry a link back to itself." That was sound
+while the PDF was a print of a page the reader was already standing on, and exactly wrong for a detached
+one-page edition: the artifact carried **no contact of any kind and no URL** — it made the AI-Engineer
+claim and stripped every pointer to the proof, on the surface that travels furthest, while this repo's
+whole thesis is that *the argument is the code it links to*. The print edition now carries a plain-text
+line with the site and the profile URLs. Plain text, not links: a printed `<a>` is a dead string, so the
+URL has to be readable and typeable. **This is what makes the omissions above defensible** — the
+elaboration is not lost, it is one URL away.
+
+Relatedly, the issuer line is dropped **by meaning rather than in bulk**: seven of the nine credential
+names already contain "AWS", so the attribution is free to drop — but `AI-DLC Ambassador` does not, and
+unattributed, the credential closest to the repositioning reads as a self-styled title. The issuer is
+printed exactly where the name does not already carry it.
+
 **The invariant that replaces "it cannot disagree":** *every role, every certification and every skill
 keyword survives into the PDF.* What is dropped is elaboration and decoration — never a claim, never an
 employer, never a credential. Single-source is therefore intact in the sense ADR-0024 cares about
 (`profile.ts` remains the one place any of it is authored, and nothing is re-typed anywhere); what is
 given up is only the stronger property that the two renderings show the *same amount*.
 
-**What keeps this true:** an E2E assertion that `/cv.pdf` is exactly one page (`e2e/cv-pdf.spec.ts`,
+**What keeps the invariant true:** an E2E assertion that counts roles, certifications and skill keywords
+on screen and again under print media, and requires the two to agree (`e2e/cv-pdf.spec.ts`). It is the
+more important of the two guards, because the page-count test would pass happily on a stylesheet that
+fits by deleting a job. Counted rather than enumerated, so it does not need editing every time
+`profile.ts` grows — an assertion nobody maintains is one somebody eventually weakens to make it pass.
+
+**What keeps the one page true:** an E2E assertion that `/cv.pdf` is exactly one page (`e2e/cv-pdf.spec.ts`,
 counted from the PDF bytes). Without it the regression is invisible — the build succeeds, the asset is a
 valid PDF, and every other assertion passes at five pages as happily as at one. And the regression arrives
 through **content** (one more role in `profile.ts`, a longer summary), not through a CSS edit anyone would

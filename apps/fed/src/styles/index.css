@@ -157,7 +157,7 @@ body {
      Owner decision (2026-07-28): one page, recruiter-first. The full career arc lives on /me — the PDF
      is the door, the site is where the story breathes. */
   [data-print='cv'] {
-    /* 7.6pt is the honest floor for this content on one sheet. Measured, not chosen by feel: at 8pt the
+    /* 7.4pt is the honest floor for this content on one sheet. Measured, not chosen by feel: at 8pt the
        page overflows by ~100px with everything already compacted. Below ~7pt a printed CV stops being
        comfortably readable, so this is the last notch before the trade-off would have to come out of
        content instead of type. */
@@ -247,7 +247,7 @@ body {
     margin-top: 0 !important;
     line-height: 1.24 !important;
   }
-  /* Education (02) is two entries; the 1rem stack between them is screen rhythm, not information. */
+  /* The 1rem stack between education entries is screen rhythm, not information. */
   [data-print='cv'] [data-print-block='02'] > div:last-child > div {
     gap: 0.22rem !important;
   }
@@ -284,11 +284,15 @@ body {
      name mid-sentence in an inline list. Both shapes are matched — a certification with a
      `credential_url` renders as <a>, one without as <div>, and targeting only the link left every
      unlinked credential printing a stray "AMAZON WEB SERVICES" on its own line. */
-  [data-print='cv'] [data-print-block='03'] span > span:first-child {
+  [data-print='cv'] [data-print-block='03'] span > span {
     display: inline !important;
   }
-  [data-print='cv'] [data-print-block='03'] span > span:last-child {
-    display: none !important; /* issuer + date — the credential name carries the claim */
+  /* The issuer/date line — dropped because the credential NAME carries the claim. Hooked on an explicit
+     attribute rather than on `span:last-child`: the name span now itself contains a span (the issuer,
+     printed only where the name does not already say "AWS"), so a positional selector would hide the
+     one attribution the print edition exists to keep. */
+  [data-print='cv'] [data-print-block='03'] [data-print-issuer] {
+    display: none !important;
   }
 
   /* Skills (04): the single tallest block on the sheet at 658px, because each entry is a row with a
