@@ -37,7 +37,11 @@ let editionsCache;
 // is false the moment the cache is removed. Counting fs reads would need a module mock that the other
 // tests in this file share; reference identity proves the same property with no shared state.
 export function blogEditions() {
-  return (editionsCache ??= readBlogEditions());
+  // Assignment as a statement, not inside the `return` expression (S1121): the compact
+  // `return (cache ??= f())` hides that the line has a side effect, which is the one thing a reader
+  // needs to notice about a memo.
+  editionsCache ??= readBlogEditions();
+  return editionsCache;
 }
 
 /** Test seam (#184): drop the memo so a test can observe a re-read. Never called by the build. */
@@ -131,7 +135,8 @@ let indexCache;
 // Exported for the same reason as blogEditions: the memo has to be observable, and identity on the
 // returned Map is false the moment the cache is removed.
 export function slugPairIndex() {
-  return (indexCache ??= slugPairIndexOf(blogEditions()));
+  indexCache ??= slugPairIndexOf(blogEditions()); // statement, not expression — see blogEditions (S1121)
+  return indexCache;
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
