@@ -72,5 +72,14 @@ describe('spa-rewrite (CloudFront viewer-request)', () => {
     it('does NOT rewrite a route whose last segment contains a dot (known constraint)', () => {
       expect(rewrite('/en/blog/v1.2-release')).toBe('/en/blog/v1.2-release');
     });
+
+    // The assertion that pins the heuristic ITSELF. The function compares the last '.' against the last
+    // '/', so a dot in a NON-final segment is still a route. Without this row the whole suite passes
+    // against a naive `!uri.includes('.')` implementation — every other assertion survives that mutation,
+    // so the suite would guard the function's advertised contract while not distinguishing it from a
+    // strictly worse one.
+    it('DOES rewrite a route with a dot in a non-final segment', () => {
+      expect(rewrite('/v1.2/me')).toBe('/v1.2/me/index.html');
+    });
   });
 });
