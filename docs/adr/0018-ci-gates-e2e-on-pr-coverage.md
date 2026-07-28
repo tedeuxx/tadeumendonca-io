@@ -92,8 +92,10 @@ at all** — the position #205 was filed for, and the last unguarded link in #20
 
 **Narrowed:** the division is by what a file *is*. Terraform is gated by `infra-plan`; a
 **behaviour-bearing file under `iac/`** is additionally unit-gated by `build-test`, whose filter now
-includes `iac/cloudfront-functions/**`. The two are complementary and cannot contradict each other —
-they assert different properties of the same file, and neither can pass while the other's property fails.
+includes `iac/cloudfront-functions/**`. The two are complementary: they assert **different** properties of
+the same file, so **neither one's green covers the other's** — which is why both are named here rather
+than one being treated as sufficient. A green `infra-plan` on this file means the Terraform is valid, and
+nothing about whether the function routes correctly; that gap is the whole reason #205 existed.
 
 *Trade-off (accepted):* two workflows now fire on one path, which costs a little CI time and means a
 reader must know both gates exist to know what covered a change. The alternative was leaving a file whose
