@@ -20,7 +20,11 @@
 // The mount flag is kept anyway, for a different reason: it makes the offer decide against a real
 // `navigator`, never a value read during the initial synchronous render.
 //
-// ConsentBanner needs none of this — it self-gates on `analyticsConfigured()`, false in the prerender.
+// ConsentBanner needs none of this, but NOT for the reason it is tempting to give: `analyticsConfigured()`
+// is TRUE in every shipped build (build:static and both workflows set a measurement id), so the consent
+// bar IS baked into the snapshot — `dist/pt/index.html` contains it. It is exempt because it is the same
+// for every visitor: consent starts undecided for everyone, and the bar renders in the ROUTE's locale.
+// That is the general exemption — "identical for every visitor" — not "it happens not to render".
 // `e2e/per-locale.spec.ts` asserts the prerendered HTML stays clean, because this failure is invisible
 // in dev and visible only in the shipped artifact.
 import { useEffect, useState } from 'react';
@@ -74,10 +78,14 @@ export function LocaleSuggestion() {
           </button>
           <button
             type="button"
-            // Switching persists the choice through the same store the toggle uses, so it overrides
-            // detection from here on — and dismisses, so the offer does not reappear on the new edition.
+            // Persist the choice through the same store the toggle uses, so it overrides detection from
+            // here on. Deliberately does NOT write the dismissal key: that key means "declined", and
+            // writing it here would permanently retire the feature for a reader who ACCEPTED it — the
+            // next shared wrong-language link would put them back where #172 found them. Nothing needs
+            // it: on the new edition the visitor's language and the path's now agree, which is
+            // `localeToOffer`'s first and cheapest silence. `setDismissed` only covers the render
+            // between the click and the navigation.
             onClick={() => {
-              storeDismissal();
               setDismissed(true);
               setLocale(offer);
             }}

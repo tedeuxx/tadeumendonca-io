@@ -258,6 +258,12 @@ slugs changes.
 > browser and that HTML is served to **everyone**, so any component that renders off the **visitor**
 > (`navigator.language`, storage, viewport, time zone) rather than the **route** must **opt out of the
 > snapshot explicitly**.
+>
+> **The exemption is "identical for every visitor", not "does not render".** `ConsentBanner` reads storage
+> and IS baked into the snapshot — `analyticsConfigured()` is true in every shipped build, so
+> `dist/pt/index.html` contains it. That is fine, and the reason has to be stated precisely or the
+> invariant reads as violated: consent starts *undecided* for everyone, and the bar renders in the
+> ROUTE's locale. What must never enter the snapshot is a render that differs **between visitors**.
 
 **What shipped.** This ADR made the URL path authoritative: a shared `/en/…` link pins English for whoever
 opens it, including a pt-BR native. That is the right trade for the sharer — the link works exactly as sent —
@@ -280,6 +286,13 @@ drives which edition is served; **`locale-suggestion-dismissed`** records only t
 so it is never repeated. *Trade-off:* a second key is more client state to reason about, and a reader who
 clears storage is offered once again — accepted over overloading `locale` with a sentinel, which would have
 made "declined the offer" indistinguishable from "chose this language".
+
+**Declined only — accepting must NOT write it.** The distinction is load-bearing rather than tidy. The
+dismissal is checked before everything else, so writing it on an *accept* would permanently retire the
+feature for the reader who just used it: the next shared wrong-language link would leave them exactly
+where this amendment found them. Nothing needs the write — on the edition they switched to, the visitor's
+language and the path's now agree, which is the first and cheapest silence. (The first implementation did
+write it, every test passed, and the review caught it; the absence is now asserted.)
 
 **The suppression case worth recording.** The offer stays silent in four cases; three are obvious (page
 already in the reader's language · already dismissed · nothing to offer). The fourth is not: it is silent

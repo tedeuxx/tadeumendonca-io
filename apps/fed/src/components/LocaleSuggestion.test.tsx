@@ -60,15 +60,26 @@ describe('LocaleSuggestion', () => {
   });
 
   // Accepting persists through the SAME key the PT/EN toggle uses, so the choice overrides detection
-  // from here on — and it also records the dismissal, or the offer would reappear on the new edition
-  // suggesting the language the reader just left.
-  it('persists the chosen locale and does not re-offer on the new edition', () => {
+  // from here on. It must NOT write the dismissal key: that key means "declined", and writing it on an
+  // ACCEPT would permanently retire the feature for the reader who liked it — the next shared
+  // wrong-language link would find them back where #172 started. Asserted as an absence, because the
+  // first implementation did write it and every other test still passed.
+  it('persists the chosen locale without marking the offer as declined', () => {
     withBrowserLanguage('pt-BR');
     renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
     fireEvent.click(screen.getByRole('button', { name: 'Ler em português' }));
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe('pt');
-    expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBe('1');
+    expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBeNull();
     expect(screen.queryByRole('region')).toBeNull();
+  });
+
+  // The consequence of the above, stated as its own journey: a reader who accepted once is still offered
+  // the switch the next time a shared link drops them on the other edition.
+  it('offers again when a later link pins the other locale', () => {
+    withBrowserLanguage('pt-BR');
+    window.localStorage.setItem(STORAGE_KEY, 'pt'); // as if they had accepted earlier
+    renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
+    expect(screen.getByRole('region', { name: 'Sugestão de idioma' })).toBeInTheDocument();
   });
 
   it('is hidden in print', () => {
