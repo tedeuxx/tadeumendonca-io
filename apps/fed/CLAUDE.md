@@ -66,9 +66,12 @@ serves it lives alongside, in `iac/`.
   authored once and shared. `getPostBySlug` matches on the active locale's own slug, and the toggle maps
   `/blog/<thisSlug>` → `/blog/<otherSlug>` across locales (`localizeArticlePath`); hreflang advertises the
   reciprocal localized pair, **x-default → the PREFIXED English URL** (`/en/blog/<en-slug>`, #200 —
-  never the bare `/blog/<slug>`, which the prerender does not snapshot and which dead-ends a pt-BR
-  reader on a route that does not exist). The rule is general: **advertise only what the build
-  prerenders** (ADR-0036 amendment).
+  never the bare `/blog/<slug>`, which the prerender does not snapshot, so a scraper there reads the
+  HOME page's OG card). The rule is general: **advertise only what the build prerenders** (ADR-0036
+  amendment). **Resolving ≠ advertising:** the bare form *does* now reach the article in both editions
+  (#204 — the unprefixed redirect maps the slug via `articlePathForLocale`, since re-prefixing it
+  verbatim dead-ended a pt-BR reader), but it is still un-prerendered and must **not** be re-added to
+  hreflang or the sitemap.
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions

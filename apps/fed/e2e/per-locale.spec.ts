@@ -158,6 +158,34 @@ test.describe('per-locale article slugs', () => {
     await expect(page.getByRole('heading', { level: 1, name: /My Commitment/ })).toHaveCount(0);
     await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
   });
+
+  // #204 — the UNPREFIXED article URL must reach the article in BOTH locales. It is the "clean" form a
+  // human types or shares, and it is what was advertised as x-default until #200. Because the redirect
+  // re-prefixed the path verbatim while slugs are per-locale, a pt-BR reader following the English slug
+  // landed on `/pt/blog/my-commitment` — nonexistent — and fell through to the landing. An English reader
+  // got the article, so the bug was invisible to the person most likely to test it.
+  test('a bare article URL reaches the article for a pt-BR reader, mapping the slug', async ({ browser }) => {
+    const ctx = await browser.newContext({ locale: 'pt-BR' });
+    const page = await ctx.newPage();
+    await page.goto('/blog/my-commitment'); // the ENGLISH slug, unprefixed
+    await expect(page).toHaveURL(/\/pt\/blog\/meu-compromisso$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Meu Compromisso' })).toBeVisible();
+    await ctx.close();
+  });
+
+  test('a bare article URL reaches the article for an English reader, mapping the slug', async ({ browser }) => {
+    const ctx = await browser.newContext({ locale: 'en-US' });
+    const page = await ctx.newPage();
+    await page.goto('/blog/meu-compromisso'); // the PORTUGUESE slug, unprefixed
+    await expect(page).toHaveURL(/\/en\/blog\/my-commitment$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'My Commitment' })).toBeVisible();
+    await ctx.close();
+  });
+
+  test('a bare article URL with an unknown slug still falls to the in-locale not-found', async ({ page }) => {
+    await page.goto('/blog/no-such-article');
+    await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
+  });
 });
 
 // 5 · x-default served-HTML — the bare-root snapshot is English, OG-complete, hreflang x-default → the bare

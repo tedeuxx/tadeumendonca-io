@@ -178,3 +178,25 @@ export function localizeArticlePath(logicalPath: string, from: Locale, to: Local
   const alt = alternateSlug(m[1], from, to);
   return alt ? `/blog/${alt}` : logicalPath;
 }
+
+/**
+ * Map an article path to `to`'s slug WITHOUT knowing which locale the incoming slug belongs to (#204).
+ *
+ * The locale toggle always knows its `from` (it is on a prefixed route), so `localizeArticlePath` fits
+ * there. The unprefixed redirect does not: `/blog/<slug>` carries no prefix, and the slug may belong to
+ * either edition. Re-prefixing it blindly is what dead-ended a pt-BR reader on `/pt/blog/<en-slug>` — a
+ * route that does not exist — dropping them on the blog listing instead of the article.
+ *
+ * Tries each locale as the source and returns the first match, so it resolves an EN slug for a pt reader
+ * and a PT slug for an en reader alike. An unknown slug passes through unchanged, keeping the in-locale
+ * not-found behaviour intact.
+ */
+export function articlePathForLocale(logicalPath: string, to: Locale): string {
+  const m = /^\/blog\/([^/]+)$/.exec(logicalPath);
+  if (!m) return logicalPath;
+  for (const from of LOCALES) {
+    const alt = alternateSlug(m[1], from, to);
+    if (alt) return `/blog/${alt}`;
+  }
+  return logicalPath;
+}

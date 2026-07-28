@@ -226,6 +226,16 @@ already shared. This amendment stops publishing it; it does not make it resolve.
 (make the locale redirect slug-aware) — independent of this decision, since a bare URL would remain
 un-prerendered and therefore still wrong for a scraper even once it resolves for a human.
 
+> **Addendum (2026-07-27) — the deferral above is discharged.** Issue #204 shipped: the unprefixed redirect
+> now maps the article slug to the reader's locale (`articlePathForLocale`), so a bare `/blog/<slug>` reaches
+> the article in **both** editions instead of dead-ending a pt-BR reader on a route that does not exist.
+>
+> **The decision this amendment records is unchanged.** Resolving is not advertising: the bare URL is still
+> **not prerendered**, so it still answers a scraper with the home page's OG card, and it must **not** be
+> re-added to hreflang or the sitemap. The invariant stands as written — *a URL may be advertised only if the
+> build prerenders it*. What changed is that the bare form now works for a **human** who was sent one; it did
+> not become an address the site publishes.
+
 **Clarification to [ADR-0037](./0037-localized-article-slugs.md).** Its line *"x-default = the English slug"*
 is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`. Nothing about per-locale article
 slugs changes.
