@@ -66,9 +66,22 @@ it **selects** what the printed edition carries.
 - **the Credly badge images** (and the typographic fallback seal) — artwork; the credential *name* carries
   the claim;
 - **the proficiency meters** — a screen device; a recruiter, and an ATS, scan keywords;
-- **the experience `highlights`** — measured at 88 of 143px per role, each running 3–5 lines. Clamping them
-  to two lines truncates mid-sentence, which reads worse than dropping them. Each role's one-sentence
-  `description` survives, and the highlights stay in full on `/me`.
+- **the experience `highlights`, all but one** — measured at 88 of 143px per role, each running 3–5 lines.
+  Clamping them to two lines truncates mid-sentence, which reads worse than dropping them. Each role's
+  one-sentence `description` survives, and the rest stay in full on `/me`.
+
+**The one highlight that survives, and why the count is one.** Dropping the lists wholesale left every AI
+statement in the PDF as either self-description or a certification, while the surviving role bodies read
+landing zones, mainframe migration, observability and CRM integration — the repositioning **asserted
+rather than shown**, which is the exact ratio the owner's own framing rules exist to prevent. Exactly one
+highlight is kept: the one that shows something agentic actually **built**. It also restores the
+"MVP in progress" qualifier that kept "ship production-ready systems" calibrated.
+
+It is named in the DATA (`ExperienceSource.print_highlight_index`), not selected by an `nth-child` in the
+stylesheet. An index is positional but the intent is semantic, and a stylesheet rule would silently point
+at different prose the first time the list is reordered — the failure would surface only in a PDF nobody
+re-reads. The index is locale-independent because the two highlight arrays are parallel, so the entry is
+still authored once and the editions cannot drift.
 
 **And one thing the print edition now ADDS.** The original `/cv.pdf` hid the whole metadata row, reasoning
 that "the PDF is generated FROM this page, so it must not carry a link back to itself." That was sound

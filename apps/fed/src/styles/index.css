@@ -348,9 +348,29 @@ body {
      of them and cutting the rest fits nothing; clamping them to two lines each truncates mid-sentence,
      which reads worse than it saves.
      The `description` is one coherent sentence per role — it survives compression without lying, and it
-     is what a scan wants first. The highlights stay in full on /me, which the PDF links back to. */
-  [data-print='cv'] [data-print-block='01'] ul {
+     is what a scan wants first. The rest stay in full on /me, which the printed contact line now points
+     to — that pointer is what makes the omission a deferral rather than a loss.
+     ONE highlight survives, marked in the data (`print_highlight_index`, #161): dropping the lists
+     wholesale left every AI statement in the PDF as self-description or a certification, while the role
+     bodies read landing zones and CRM integration — the positioning asserted rather than shown. The kept
+     entry is the only place the CV shows something agentic actually BUILT. */
+  [data-print='cv'] [data-print-block='01'] li {
     display: none !important;
+  }
+  [data-print='cv'] [data-print-block='01'] li[data-print-keep] {
+    display: list-item !important;
+  }
+  /* A role with no kept highlight would still render an empty <ul>, contributing its margin and padding
+     as unexplained whitespace between jobs. Four of the five roles are in that case. */
+  [data-print='cv'] [data-print-block='01'] ul:not(:has(li[data-print-keep])) {
+    display: none !important;
+  }
+  /* The list carries a literal `text-[15px]`, which survives the print scale and would print the one
+     kept highlight half again larger than the roles around it. */
+  [data-print='cv'] [data-print-block='01'] ul {
+    margin-top: 0.14rem !important;
+    font-size: 1em !important;
+    line-height: inherit !important;
   }
   [data-print='cv'] [data-print-block='01'] > div:last-child > div > div > p {
     margin-top: 0.14rem !important;

@@ -194,7 +194,13 @@ export function CVSection({ profile }: { profile: Profile }) {
                 {item.highlights && item.highlights.length > 0 && (
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-foreground/90">
                     {item.highlights.map((h, j) => (
-                      <li key={j}>{h}</li>
+                      // `data-print-keep` marks the one highlight the print edition keeps (#161). The
+                      // stylesheet hides the list and un-hides this; the flag is authored in the data
+                      // (see `print_highlight_index`) so it points at a MEANING, not at a position that
+                      // silently shifts when the list is reordered.
+                      <li key={j} data-print-keep={j === item.print_highlight_index ? '' : undefined}>
+                        {h}
+                      </li>
                     ))}
                   </ul>
                 )}

@@ -58,6 +58,26 @@ describe('CVSection', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
+  // The one-page PDF (#161) keeps exactly one highlight — the one showing something agentic actually
+  // BUILT — because dropping the lists wholesale left every AI statement in the CV as self-description
+  // or a certification. The stylesheet finds it by this attribute; the attribute comes from the DATA,
+  // so it names a meaning rather than a position that shifts when the list is reordered.
+  it('marks only the authored highlight for the print edition', () => {
+    const p: Profile = {
+      ...profile,
+      experience: [
+        { ...profile.experience[0], highlights: ['adopted a thing', 'BUILT a thing'], print_highlight_index: 1 },
+        // A role that names none keeps its highlights on screen and marks nothing for print.
+        { ...profile.experience[0], company: 'Elsewhere', highlights: ['also relevant'] },
+      ],
+    };
+    renderWithLocale(<CVSection profile={p} />);
+    expect(screen.getByText('adopted a thing')).not.toHaveAttribute('data-print-keep');
+    expect(screen.getByText('also relevant')).not.toHaveAttribute('data-print-keep');
+    expect(screen.getByText('BUILT a thing')).toHaveAttribute('data-print-keep');
+    expect(document.querySelectorAll('[data-print-keep]')).toHaveLength(1);
+  });
+
   // The print edition drops the issuer line to fit one page (#161) — free for "AWS Certified …", a real
   // loss for a credential whose name does not name its issuer, which unattributed reads as a self-styled
   // title. So the issuer is carried into the NAME exactly where the name lacks it. Print-only, hence the
