@@ -15,6 +15,7 @@ on:
       - "apps/fed/**"
       - "packages/shared/**"
       - ".github/workflows/build-test.yml"
+      - "iac/cloudfront-functions/**" # unit-tested here, not by infra-plan (#205)
 
 permissions:
   contents: read
@@ -51,6 +52,12 @@ jobs:
               - 'apps/fed/**'
               - 'packages/shared/**'
               - '.github/workflows/build-test.yml'
+              # The CloudFront viewer-request function is IaC by path but its behaviour is unit-tested
+              # here (#205): it is what turns an advertised slash-less URL into the prerendered artifact,
+              # and `infra-plan` validates Terraform, not behaviour. Without this line an edit to the
+              # function alone would skip the only gate that exercises it — the test would exist and
+              # never run on the change it guards.
+              - 'iac/cloudfront-functions/**'
 
       - name: Setup Node
         if: steps.changes.outputs.code == 'true'
