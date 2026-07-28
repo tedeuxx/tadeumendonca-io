@@ -100,7 +100,10 @@ type Editions = Record<Locale, BlogPost>;
  * not edge-driven — it is what keeps a URL readable and unambiguous, and it costs nothing to require at
  * authoring time. `spa-rewrite.test.mjs` pins the CloudFront behaviour this constrains against.
  */
-const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Exported so `scripts/routes.test.mjs` can assert its own copy is IDENTICAL to this one. That module
+// re-derives slugs independently (it runs in Node and cannot import this file at build time), so the two
+// patterns can drift — and a drift means the sitemap rejects a slug the app accepts, or the reverse.
+export const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function assertSlugsAreUrlSafe(resolved: Record<string, Editions>): void {
   for (const [fileSlug, editions] of Object.entries(resolved)) {

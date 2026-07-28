@@ -9,7 +9,7 @@ import {
   SITE_URL,
   SLUG_SHAPE,
 } from './routes.mjs';
-import { getAllPosts, getEditions } from '../src/lib/content';
+import { getAllPosts, getEditions, SLUG_SHAPE as CONTENT_SLUG_SHAPE } from '../src/lib/content';
 
 // The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
 // unprefixed URL prerender.mjs writes, as dist/index.html).
@@ -102,8 +102,12 @@ describe('alternatesFor — reciprocity and per-locale slugs', () => {
     }
   });
 
+  // Compared against content.ts's ACTUAL pattern, not a string literal. A literal only guards this side:
+  // change content.ts's regex and a literal-based test stays green while the sitemap starts rejecting a
+  // slug the app accepts. The title claims the two cannot diverge, so the test has to read both.
   it('uses the SAME pattern as content.ts, so the two derivations cannot diverge on what they accept', () => {
-    expect(SLUG_SHAPE.source).toBe('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+    expect(SLUG_SHAPE.source).toBe(CONTENT_SLUG_SHAPE.source);
+    expect(SLUG_SHAPE.flags).toBe(CONTENT_SLUG_SHAPE.flags);
   });
 
   it('accepts one article reusing the same slug in both editions', () => {

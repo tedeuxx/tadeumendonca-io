@@ -146,6 +146,18 @@ describe('the unpublishable contract (buildEditions)', () => {
     ).toThrow(/dot makes CloudFront treat the URL as a FILE/);
   });
 
+  // The message written for the Portuguese author — the reader most likely to hit this rule. Asserted on
+  // its own text, not merely on "it throws": "ó" IS a lowercase letter, so the generic message would tell
+  // them the validator is wrong. Half the content is pt, so this branch must say why.
+  it('throws on a non-ASCII slug, explaining the encoding mismatch rather than "lowercase"', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/demo.pt.md': fm({ slug: 'codigo-limpo-nao' }),
+        '../content/blog/demo.en.md': fm({ slug: 'código-limpo' }),
+      }),
+    ).toThrow(/percent-encodes/);
+  });
+
   it.each([
     ['UPPERCASE', 'Node-Patterns'],
     ['a space', 'node patterns'],
