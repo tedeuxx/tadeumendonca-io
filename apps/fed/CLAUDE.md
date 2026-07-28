@@ -87,9 +87,12 @@ npm run lint       # eslint
 npm run typecheck  # tsc --noEmit
 npm run build      # tsc + vite build
 npm run build:static  # build + prerender (the deploy artifact)
-npm run e2e:local        # builds, THEN runs Playwright against a preview — the local gate
-npm run e2e:local:built  # skips the build; use right after one (CI does), or after build:static
-                         # to test the PRERENDERED artifact — `vite build` empties dist/
+npm run e2e:local        # build:static (build + PRERENDER), THEN Playwright against a preview.
+                         # This is the local gate and it now matches CI exactly (#189). It used to run
+                         # plain `build`, so 9 specs that assert the prerendered artifact — /cv.pdf, the
+                         # per-locale HTML, hreflang, x-default — failed by construction on a healthy
+                         # branch. A gate that is only correct if you read the docs is not a gate.
+npm run e2e:local:built  # skips the build; use right after one (CI does) — `vite build` empties dist/
 npm run e2e              # bare: now FAILS FAST with guidance if no target is set — no silent default (#88).
                          #   the deploy job sets E2E_ENV for its post-deploy smoke; locally use e2e:local.
 npm run e2e:production   # ⚠️ drives the LIVE apex on purpose (E2E_ENV=production)

@@ -115,7 +115,10 @@ jobs:
         # dist/cv.pdf never exists in the PR gate and the new E2E would have nothing to check.
         # A TEST measurement id so the E2E can exercise the consent banner without touching the real GA
         # property — the Playwright suite blocks the googletagmanager request, so no hit ever leaves CI.
-        # build:static does not inject the id the way e2e:local does, so it is set here for the build.
+        # Set explicitly here rather than relying on build:static's own `${VITE_GA_MEASUREMENT_ID:-…}`
+        # default: the gate should state the id it tests with instead of inheriting one. (The previous
+        # comment claimed build:static does not inject it — it always did, and #189 removed the second,
+        # dead copy from e2e:local.)
         env:
           VITE_GA_MEASUREMENT_ID: G-TEST00000000
         run: npm run build:static
