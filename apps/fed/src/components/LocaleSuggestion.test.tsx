@@ -18,7 +18,7 @@ describe('LocaleSuggestion', () => {
     withBrowserLanguage('pt-BR');
     renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
     expect(screen.getByRole('region', { name: 'Sugestão de idioma' })).toBeInTheDocument();
-    expect(screen.getByText(/Prefere ler em português/)).toBeInTheDocument();
+    expect(screen.getByText(/Esta página está em inglês/)).toBeInTheDocument();
   });
 
   // The copy is addressed to someone who may not read the page's language at all, so it is written in the

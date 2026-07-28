@@ -148,12 +148,23 @@ const strings = {
   // read the page's language at all, so writing it in that language would defeat the purpose. The region
   // therefore also carries its own `lang`, or a screen reader pronounces it with the wrong voice.
   localeSuggestion: {
+    //
+    // Register follows the rest of this catalog, which is first-person and informal ("pra", "me conta",
+    // "te fazer construir melhor") — "Prefere ler em português?" read a notch more deferential than the
+    // person who writes everything else on the page.
+    //
+    // The question names no language: between them the two buttons already do, and in a ten-word notice
+    // each edition was otherwise named twice. The buttons carry the nouns, the question carries the ask.
     message: {
-      pt: 'Esta página está em inglês. Prefere ler em português?',
-      en: 'This page is in Portuguese. Would you rather read it in English?',
+      pt: 'Esta página está em inglês. Quer trocar?',
+      en: 'This page is in Portuguese. Want to switch?',
     },
+    // Accept states its consequence rather than merely closing the notice — it also PERSISTS the choice,
+    // overriding detection from then on, and a control that changes state should say what it changes to.
     accept: { pt: 'Ler em português', en: 'Read in English' },
-    dismiss: { pt: 'Continuar em inglês', en: 'Keep reading in Portuguese' },
+    // Dismiss names the language too, for the same reason. "Continue", not "keep reading": a large share
+    // of these readers arrive cold from a shared link and have not read anything yet.
+    dismiss: { pt: 'Continuar em inglês', en: 'Continue in Portuguese' },
     // aria-label for the region.
     notice: { pt: 'Sugestão de idioma', en: 'Language suggestion' },
   },
