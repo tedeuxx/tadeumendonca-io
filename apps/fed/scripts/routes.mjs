@@ -20,9 +20,12 @@ const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 // src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).
 // Files are `<key>.<locale>.md`; a missing frontmatter slug falls back to the key. Returns one
 // `{ pt, en }` slug pair per article.
-// Memoised (#184). `blogEditions` is called from `localizedRoutes`, from `slugPairIndex`, and AGAIN on
-// every `alternatesFor` invocation — and `gen-sitemap` calls the last one per route, so the directory was
-// re-read and re-parsed once per URL. Correct but O(articles × calls); the cache makes it O(articles).
+// Memoised (#184). BEFORE the memo, `blogEditions` was called from `localizedRoutes`, from
+// `slugPairIndex`, and again on every `alternatesFor` invocation — and `gen-sitemap` calls that once per
+// route, so the directory was re-read and re-parsed once per URL. Now the read and the YAML parse happen
+// once per process. The slug→pair index is memoised separately (below): caching only this one left the
+// index still rebuilding per call, so the per-URL cost was reduced, not removed — #220 said otherwise
+// and #221 corrected it.
 //
 // A module-level memo is safe precisely because this module is build-only: each `node scripts/*.mjs`
 // process is short-lived and the content cannot change under it. It would NOT be safe in a watch server,
@@ -40,6 +43,9 @@ export function blogEditions() {
 /** Test seam (#184): drop the memo so a test can observe a re-read. Never called by the build. */
 export function clearBlogEditionsCacheForTest() {
   editionsCache = undefined;
+  // The index is derived FROM the editions, so clearing one without the other would leave a stale index
+  // built over a discarded parse — a cache-invalidation bug planted by the test seam itself.
+  indexCache = undefined;
 }
 
 function readBlogEditions() {
@@ -112,8 +118,20 @@ export function slugPairIndexOf(pairs) {
   return idx;
 }
 
-function slugPairIndex() {
-  return slugPairIndexOf(blogEditions());
+// Memoised alongside the parse (#184). Caching only `blogEditions` left this rebuilding a fresh Map on
+// EVERY `alternatesFor` call, and gen-sitemap calls that once per route — so the fs read became
+// once-per-process while the index stayed once-per-URL.
+//
+// NOTE the widened surface: every caller now shares ONE Map. Mutating it (`.set`/`.delete`) would corrupt
+// `alternatesFor` for the rest of the process, where before each caller got its own. Acceptable here —
+// build-only module, no external consumer — but it is real, and it is on the ledger in #222 alongside the
+// test-only exports.
+let indexCache;
+
+// Exported for the same reason as blogEditions: the memo has to be observable, and identity on the
+// returned Map is false the moment the cache is removed.
+export function slugPairIndex() {
+  return (indexCache ??= slugPairIndexOf(blogEditions()));
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The

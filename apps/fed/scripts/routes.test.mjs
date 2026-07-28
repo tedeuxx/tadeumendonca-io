@@ -6,6 +6,7 @@ import {
   canonicalFor,
   clearBlogEditionsCacheForTest,
   localizedRoutes,
+  slugPairIndex,
   slugPairIndexOf,
   LOCALES,
   SITE_URL,
@@ -180,5 +181,21 @@ describe('the blog directory is parsed once per process (#184)', () => {
     const after = blogEditions();
     expect(after).not.toBe(before); // a genuinely fresh read…
     expect(after).toEqual(before); // …that parses to the same thing
+  });
+
+  // The slug→pair index is memoised too. Caching only the parse left this rebuilding a fresh Map on
+  // every alternatesFor call — and gen-sitemap calls that once per route, so the index stayed
+  // once-per-URL while the read became once-per-process. Identity is the assertion for the same reason
+  // as the parse: without the memo each call constructs a new Map.
+  it('builds the slug→pair index once', () => {
+    expect(slugPairIndex()).toBe(slugPairIndex());
+  });
+
+  // Clearing must drop BOTH caches: the index is derived from the editions, so invalidating one alone
+  // would leave an index built over a discarded parse — a stale-cache bug planted by the test seam.
+  it('clearing drops the index too, not just the parse', () => {
+    const before = slugPairIndex();
+    clearBlogEditionsCacheForTest();
+    expect(slugPairIndex()).not.toBe(before);
   });
 });
