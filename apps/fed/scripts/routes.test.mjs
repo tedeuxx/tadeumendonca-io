@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { alternatesFor, canonicalFor, localizedRoutes, SITE_URL } from './routes.mjs';
+import { alternatesFor, canonicalFor, localizedRoutes, slugPairIndexOf, LOCALES, SITE_URL } from './routes.mjs';
+import { getAllPosts, getEditions } from '../src/lib/content';
 
 // The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
 // unprefixed URL prerender.mjs writes, as dist/index.html).
@@ -53,5 +54,69 @@ describe('alternatesFor — reciprocity and per-locale slugs', () => {
 
   it('points x-default at the English canonical for a non-root route', () => {
     expect(alternatesFor('/me')['x-default']).toBe(canonicalFor('en', '/me'));
+  });
+
+  // The throw is THE change of #211 — the sitemap path was the one place a duplicate slug resolved by
+  // last-write-wins, silently. Tested through the pure seam because the real content is always
+  // collision-free, so an assertion against the live glob could never reach it. Same seam and same
+  // reasoning as `buildEditions` in src/lib/content.ts, whose collision throws are tested the same way.
+  it('throws when two different articles claim the same slug', () => {
+    const a = { pt: 'a-pt', en: 'a-en' };
+    const b = { pt: 'a-pt', en: 'b-en' }; // b reuses a's pt slug
+    expect(() => slugPairIndexOf([a, b])).toThrow(/claimed by two different articles/);
+  });
+
+  it('throws on a collision ACROSS locales — A’s pt slug equal to B’s en slug', () => {
+    const a = { pt: 'roadmap', en: 'a-en' };
+    const b = { pt: 'b-pt', en: 'roadmap' };
+    expect(() => slugPairIndexOf([a, b])).toThrow(/slug "roadmap" is claimed by two different articles/);
+  });
+
+  it('accepts one article reusing the same slug in both editions', () => {
+    const idx = slugPairIndexOf([{ pt: 'manifesto', en: 'manifesto' }]);
+    expect(idx.get('manifesto')).toEqual({ pt: 'manifesto', en: 'manifesto' });
+  });
+
+  it('tolerates a trailing slash, like content.ts does (#211)', () => {
+    const article = localizedRoutes().find((r) => r.locale === 'en' && r.route.startsWith('/blog/'));
+    if (!article) return;
+    expect(alternatesFor(`${article.route}/`)).toEqual(alternatesFor(article.route));
+  });
+});
+
+// #211 — this module re-derives slugs INDEPENDENTLY of src/lib/content.ts. It runs in Node at build time
+// and cannot import the app's Vite-glob module, so the duplication is forced by the runtime split, not a
+// choice. What is not forced is letting the two drift: `routes.mjs` feeds the sitemap and the prerender,
+// `content.ts` feeds the served HTML, and if they disagree the site advertises a different URL set than it
+// serves — which is the exact class of defect #200 turned out to be.
+//
+// So the guarantee is not "one implementation", it is "two implementations that provably agree".
+describe('routes.mjs and content.ts derive the SAME slugs', () => {
+  it('agrees on every locale’s article slug set', () => {
+    for (const locale of LOCALES) {
+      const fromRoutes = localizedRoutes()
+        .filter((r) => r.locale === locale && r.route.startsWith('/blog/'))
+        .map((r) => r.route.replace('/blog/', ''))
+        .sort();
+      const fromContent = getAllPosts(locale)
+        .map((p) => p.slug)
+        .sort();
+      expect(fromRoutes, `${locale}: routes.mjs and content.ts disagree on the article slugs`).toEqual(
+        fromContent,
+      );
+    }
+  });
+
+  it('agrees on the reciprocal PAIRING, not merely on the slug set', () => {
+    // Identical slug sets would still be wrong if the two derivations paired the editions differently —
+    // routes.mjs could hand article A's en slug article B's pt slug and the set assertion above would
+    // still pass. So compare the pairing itself, resolved through content.ts's own edition group.
+    for (const post of getAllPosts('en')) {
+      const expected = getEditions(post.slug, 'en');
+      expect(expected, `content.ts has no edition group for "${post.slug}"`).toBeDefined();
+      const alt = alternatesFor(`/blog/${post.slug}`);
+      expect(alt.pt).toBe(`${SITE_URL}/pt/blog/${expected.pt.slug}`);
+      expect(alt.en).toBe(`${SITE_URL}/en/blog/${expected.en.slug}`);
+    }
   });
 });

@@ -36,12 +36,39 @@ function blogEditions() {
   return [...byKey.values()];
 }
 
-// Index any-locale slug → its `{ pt, en }` pair, so alternatesFor() can resolve an article route (in
-// either locale) to the reciprocal localized pair. Both directions land the same pair.
-function slugPairIndex() {
+/**
+ * Index any-locale slug → its `{ pt, en }` pair, so alternatesFor() can resolve an article route (in
+ * either locale) to the reciprocal localized pair. Both directions land the same pair.
+ *
+ * A slug must identify ONE article (#208/#211). `src/lib/content.ts` enforces this for the app, but this
+ * module re-derives slugs independently — it runs in Node at build time and cannot import the Vite-glob
+ * module — so the guarantee has to be asserted here too. Without it a duplicate silently overwrote (last
+ * write wins) and the SITEMAP advertised the wrong pairing, with no error on the one path that tells
+ * Google what exists.
+ *
+ * Exported as a pure function over the pair list so the throw can be tested with a synthetic collision —
+ * the real content is always collision-free, so a test against the glob could never reach it. Same seam,
+ * and same reason, as `buildEditions` in src/lib/content.ts.
+ */
+export function slugPairIndexOf(pairs) {
   const idx = new Map();
-  for (const pair of blogEditions()) for (const locale of LOCALES) idx.set(pair[locale], pair);
+  for (const pair of pairs) {
+    for (const locale of LOCALES) {
+      const seen = idx.get(pair[locale]);
+      if (seen && seen !== pair) {
+        throw new Error(
+          `routes: slug "${pair[locale]}" is claimed by two different articles — a slug must identify ` +
+            'one article, or the sitemap and hreflang advertise the wrong pairing.',
+        );
+      }
+      idx.set(pair[locale], pair);
+    }
+  }
   return idx;
+}
+
+function slugPairIndex() {
+  return slugPairIndexOf(blogEditions());
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
@@ -83,7 +110,9 @@ export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, 
 // Hence: the ROOT keeps its bare x-default (it IS prerendered — ADR-0036 chose it as the JS-less crawler's
 // entry point); every other route advertises the ENGLISH CANONICAL, which is prerendered and self-consistent.
 export const alternatesFor = (route) => {
-  const blogM = /^\/blog\/([^/]+)$/.exec(route);
+  // Trailing slash tolerated, matching `articleSlugOf` in src/lib/content.ts (#211) — the two
+  // derivations must accept the same shapes or the served HTML and the sitemap describe different sets.
+  const blogM = /^\/blog\/([^/]+)\/?$/.exec(route);
   if (blogM) {
     const pair = slugPairIndex().get(blogM[1]);
     if (pair) {
