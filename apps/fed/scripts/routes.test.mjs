@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { alternatesFor, canonicalFor, localizedRoutes, slugPairIndexOf, LOCALES, SITE_URL } from './routes.mjs';
-import { getAllPosts, getEditions } from '../src/lib/content';
+import {
+  alternatesFor,
+  assertSlugIsUrlSafe,
+  canonicalFor,
+  localizedRoutes,
+  slugPairIndexOf,
+  LOCALES,
+  SITE_URL,
+  SLUG_SHAPE,
+} from './routes.mjs';
+import { getAllPosts, getEditions, SLUG_SHAPE as CONTENT_SLUG_SHAPE } from '../src/lib/content';
 
 // The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
 // unprefixed URL prerender.mjs writes, as dist/index.html).
@@ -70,6 +79,35 @@ describe('alternatesFor — reciprocity and per-locale slugs', () => {
     const a = { pt: 'roadmap', en: 'a-en' };
     const b = { pt: 'b-pt', en: 'roadmap' };
     expect(() => slugPairIndexOf([a, b])).toThrow(/slug "roadmap" is claimed by two different articles/);
+  });
+
+  // #213 — the shape contract, asserted on THIS derivation too. content.ts covers the app, the tests and
+  // the prerender; this module feeds the sitemap, and a slug it accepts but content.ts rejects (or the
+  // reverse) is the drift #211 exists to prevent. Same pattern, asserted in both places.
+  it('rejects a slug with a dot, naming the CloudFront consequence', () => {
+    expect(() => assertSlugIsUrlSafe('node.js-patterns', 'demo.en.md')).toThrow(
+      /CloudFront serve the home page/,
+    );
+  });
+
+  it('rejects the other unusable shapes', () => {
+    for (const bad of ['Node-Patterns', 'node patterns', 'node/patterns', '-node', 'node-', 'node--x', 'codigo-límpo']) {
+      expect(() => assertSlugIsUrlSafe(bad, 'demo.en.md'), `expected "${bad}" to be rejected`).toThrow();
+    }
+  });
+
+  it('accepts the shapes real slugs take', () => {
+    for (const ok of ['my-commitment', 'meu-compromisso', 'adr-0018', 'ai']) {
+      expect(() => assertSlugIsUrlSafe(ok, 'demo.en.md')).not.toThrow();
+    }
+  });
+
+  // Compared against content.ts's ACTUAL pattern, not a string literal. A literal only guards this side:
+  // change content.ts's regex and a literal-based test stays green while the sitemap starts rejecting a
+  // slug the app accepts. The title claims the two cannot diverge, so the test has to read both.
+  it('uses the SAME pattern as content.ts, so the two derivations cannot diverge on what they accept', () => {
+    expect(SLUG_SHAPE.source).toBe(CONTENT_SLUG_SHAPE.source);
+    expect(SLUG_SHAPE.flags).toBe(CONTENT_SLUG_SHAPE.flags);
   });
 
   it('accepts one article reusing the same slug in both editions', () => {
