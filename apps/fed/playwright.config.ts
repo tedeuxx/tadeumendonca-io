@@ -37,9 +37,10 @@ export default defineConfig({
   //
   // dist/ must exist AND be current. Staleness is the failure that actually happens — a suite run
   // against a previous build passes for the wrong reason, which cost a false 26/26 green during the
-  // ramp-up slice. Hence `npm run e2e:local` rebuilds first. Use `e2e:local:built` when dist/ is
-  // already what you want tested: CI (it just built), or after `build:static` when you specifically
-  // want the PRERENDERED artifact — `vite build` empties outDir, so `e2e:local` would destroy it.
+  // ramp-up slice. Hence `npm run e2e:local` rebuilds first — via `build:static`, so it PRODUCES the
+  // prerendered artifact (#189). It used to run plain `vite build`, which emptied outDir and left the
+  // 9 specs that assert the prerender failing on a healthy branch. Use `e2e:local:built` when dist/ is
+  // already what you want tested: CI (it just built), or a re-run right after a local build.
   //
   // reuseExistingServer did NOT cause that failure: `vite preview` reads dist/ from disk per request
   // (sirv with dev:true stats each file; indexHtmlMiddleware re-reads index.html), so an
