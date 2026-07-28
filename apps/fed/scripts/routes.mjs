@@ -58,7 +58,7 @@ function readBlogEditions() {
     const fmm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
     const fm = fmm ? load(fmm[1]) : null;
     const pair = byKey.get(key) ?? {};
-    pair[locale] = (fm && fm.slug) || key;
+    pair[locale] = fm?.slug || key;
     assertSlugIsUrlSafe(pair[locale], file);
     byKey.set(key, pair);
   }
@@ -179,9 +179,14 @@ export const alternatesFor = (route) => {
   if (blogM) {
     const pair = slugPairIndex().get(blogM[1]);
     if (pair) {
-      const en = `${SITE_URL}${localePath('en', `/blog/${pair.en}`)}`;
+      // The logical route is hoisted per locale rather than interpolated inline: a template literal
+      // nested inside another is a Sonar smell (S4624) and, more to the point, it hides which locale's
+      // slug is being used at exactly the line where getting that wrong is the #200 bug.
+      const ptRoute = `/blog/${pair.pt}`;
+      const enRoute = `/blog/${pair.en}`;
+      const en = `${SITE_URL}${localePath('en', enRoute)}`;
       return {
-        pt: `${SITE_URL}${localePath('pt', `/blog/${pair.pt}`)}`,
+        pt: `${SITE_URL}${localePath('pt', ptRoute)}`,
         en,
         'x-default': en,
       };
