@@ -132,6 +132,59 @@ describe('the unpublishable contract (buildEditions)', () => {
     expect(() => buildEditions({ '../content/blog/demo.md': fm() })).toThrow(/unexpected blog filename/);
   });
 
+  // #213 — a slug becomes a URL segment, and the edge constrains it. The binding case is the DOT:
+  // spa-rewrite.js reads a dot in the last segment as a FILE, so the URL is not rewritten to the
+  // prerendered index.html, 404s, and custom_error_response answers 200 with the HOME page — its OG card
+  // pinned permanently on the article (ADR-0005). Invisible locally, because vite preview serves the SPA
+  // fallback for everything.
+  it('throws on a slug containing a dot, naming the CloudFront consequence', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/demo.pt.md': fm({ slug: 'node.js-patterns' }),
+        '../content/blog/demo.en.md': fm({ slug: 'node.js-patterns' }),
+      }),
+    ).toThrow(/dot makes CloudFront treat the URL as a FILE/);
+  });
+
+  it.each([
+    ['UPPERCASE', 'Node-Patterns'],
+    ['a space', 'node patterns'],
+    ['a slash', 'node/patterns'],
+    ['a leading hyphen', '-node'],
+    ['a trailing hyphen', 'node-'],
+    ['a doubled hyphen', 'node--patterns'],
+  ])('throws on %s', (_label, slug) => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/demo.pt.md': fm({ slug }),
+        '../content/blog/demo.en.md': fm({ slug }),
+      }),
+    ).toThrow(/unusable/);
+  });
+
+  // Not a validation case: an omitted or empty `slug:` is null in YAML, so `?? fileSlug` falls back to
+  // the filename KEY. Asserted because it is the reason the empty string is unreachable through
+  // frontmatter — and because the fallback is itself validated: a key with a dot would be rejected too.
+  it('falls back to the filename key when the slug is omitted, and validates THAT', () => {
+    const noSlug = "---\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n---\nbody";
+    const editions = buildEditions({
+      '../content/blog/demo.pt.md': noSlug,
+      '../content/blog/demo.en.md': noSlug,
+    });
+    expect(editions.demo.pt.slug).toBe('demo');
+  });
+
+  it('accepts the shapes real slugs take', () => {
+    for (const slug of ['my-commitment', 'meu-compromisso', 'adr-0018', 'ai']) {
+      expect(() =>
+        buildEditions({
+          '../content/blog/demo.pt.md': fm({ slug }),
+          '../content/blog/demo.en.md': fm({ slug }),
+        }),
+      ).not.toThrow();
+    }
+  });
+
   // #208 — the slug is what every lookup resolves on (`.find` in getPostBySlug/getEditions), so a slug
   // shared by two KEYS silently shadows: one article unreachable, and the cross-locale mappers able to
   // hand a reader the wrong piece with no error. Both collision shapes are the same defect.

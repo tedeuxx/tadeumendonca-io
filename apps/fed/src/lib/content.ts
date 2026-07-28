@@ -96,6 +96,43 @@ type Editions = Record<Locale, BlogPost>;
  * completeness and fact-agreement contracts, and adding a fourth pushed its cognitive complexity past the
  * repo's Sonar threshold. Each contract reads better named.
  */
+/**
+ * The shape a slug may take (#213). A slug is not free text — it becomes a URL segment, and the edge that
+ * serves that URL constrains it.
+ *
+ * The binding constraint is the DOT. `iac/cloudfront-functions/spa-rewrite.js` decides "file vs route" by
+ * comparing the last `.` against the last `/`, so a slug containing a dot (`node.js-patterns`,
+ * `v1.2-release`) is read as a FILE: the request is not rewritten to the prerendered `index.html`, it
+ * 404s at the origin, and `custom_error_response` answers **200 with the home page** — carrying the home
+ * page's OG card, permanently pinned by the first scraper (ADR-0005). A published article silently
+ * serving the home page to every crawler and every unfurl.
+ *
+ * That failure is invisible in local dev — `vite preview` serves the SPA fallback for everything, so the
+ * article renders fine on the author's machine and breaks only once deployed. Which is exactly why it has
+ * to be a build-time error rather than something to remember.
+ *
+ * The rest of the shape (lowercase, no slash, no whitespace, no leading/trailing or doubled hyphen) is
+ * not edge-driven — it is what keeps a URL readable and unambiguous, and it costs nothing to require at
+ * authoring time. `spa-rewrite.test.mjs` pins the CloudFront behaviour this constrains against.
+ */
+const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function assertSlugsAreUrlSafe(resolved: Record<string, Editions>): void {
+  for (const [fileSlug, editions] of Object.entries(resolved)) {
+    for (const locale of LOCALES) {
+      const { slug } = editions[locale];
+      if (SLUG_SHAPE.test(slug)) continue;
+      const why = slug.includes('.')
+        ? 'a dot makes CloudFront treat the URL as a FILE, so it serves the home page with a 200 (#213)'
+        : 'expected lowercase letters, digits and single hyphens';
+      throw new Error(
+        `content: article "${fileSlug}" has an unusable ${locale} slug "${slug}" — ${why}. ` +
+          'A slug becomes a URL segment; keep it to ^[a-z0-9]+(-[a-z0-9]+)*$.',
+      );
+    }
+  }
+}
+
 function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void {
   const slugOwner = new Map<string, string>();
   for (const [fileSlug, editions] of Object.entries(resolved)) {
@@ -158,6 +195,7 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
     resolved[fileSlug] = editions as Editions;
   }
 
+  assertSlugsAreUrlSafe(resolved);
   assertSlugsIdentifyOneArticle(resolved);
   return resolved;
 }
