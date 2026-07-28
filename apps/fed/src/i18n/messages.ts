@@ -134,6 +134,14 @@ const strings = {
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
+    // Print-only proficiency wording for the one-page CV (#161). On screen the 4-square meter carries
+    // this; reflowed inline for print the meter is dropped, which printed a level-1 keyword beside a
+    // level-4 one as equals — flattening a deliberate honesty device into an over-claim. Only the low
+    // levels are worded, because they are the ones the flattening exaggerated; 3–4 print bare.
+    // Two labels rather than one: collapsing 1 and 2 into "basic" would under-claim level 2, which is
+    // the same distortion in the other direction.
+    level1: { pt: 'básico', en: 'foundational' },
+    level2: { pt: 'intermediário', en: 'working' },
   },
   column: {
     loading: { pt: 'Carregando', en: 'Loading' },

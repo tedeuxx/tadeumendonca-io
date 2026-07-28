@@ -78,6 +78,30 @@ describe('CVSection', () => {
     expect(document.querySelectorAll('[data-print-keep]')).toHaveLength(1);
   });
 
+  // Reflowed inline for print, the 4-square meter is dropped — which printed a level-1 keyword beside a
+  // level-4 one as equals, flattening a deliberate honesty device into an over-claim. The low levels get
+  // print-only wording; 3 and 4 stay bare, because they are not what the flattening exaggerated.
+  it('words only the low proficiency levels for print', () => {
+    const p: Profile = {
+      ...profile,
+      skills: {
+        cloud: [
+          { name: 'AWS Lambda', level: 4 },
+          { name: 'Terraform', level: 3 },
+          { name: 'Prompt Engineering', level: 2 },
+          { name: 'Amazon Bedrock', level: 1 },
+        ],
+      },
+    };
+    // English: the PDF is printed from the English canonical edition (ADR-0024).
+    renderWithLocale(<CVSection profile={p} />, { locale: 'en' });
+    // Leading space is part of the node — it separates the wording from the skill name in print.
+    expect(screen.getByText('(working)', { exact: false })).toHaveClass('print:inline');
+    expect(screen.getByText('(foundational)', { exact: false })).toHaveClass('print:inline');
+    // Two wordings for four skills — the levels that already read honestly are left alone.
+    expect(document.querySelectorAll('.print\\:inline')).toHaveLength(2);
+  });
+
   // The print edition drops the issuer line to fit one page (#161) — free for "AWS Certified …", a real
   // loss for a credential whose name does not name its issuer, which unattributed reads as a self-styled
   // title. So the issuer is carried into the NAME exactly where the name lacks it. Print-only, hence the

@@ -254,6 +254,11 @@ export function CVSection({ profile }: { profile: Profile }) {
                       className="-mb-px -mr-px inline-flex items-center gap-2 border border-border px-2.5 py-1.5 font-mono text-xs"
                     >
                       {skill.name}
+                      {/* Print-only proficiency wording, low levels only — see the `cv.level1/2`
+                          comment in the message catalog for why it exists and why 3–4 stay bare. */}
+                      {skill.level === 1 || skill.level === 2 ? (
+                        <span className="hidden print:inline"> ({t(`cv.level${skill.level}`)})</span>
+                      ) : null}
                       {skill.level ? <LevelMeter level={skill.level} /> : null}
                     </span>
                   ))}

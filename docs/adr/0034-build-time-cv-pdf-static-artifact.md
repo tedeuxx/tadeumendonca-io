@@ -65,7 +65,13 @@ it **selects** what the printed edition carries.
 - **the portrait** — decorative, already `aria-hidden`; the `<h1>` beside it names the person;
 - **the Credly badge images** (and the typographic fallback seal) — artwork; the credential *name* carries
   the claim;
-- **the proficiency meters** — a screen device; a recruiter, and an ATS, scan keywords;
+- **the proficiency meters** — a screen device; a recruiter, and an ATS, scan keywords. But the meters are
+  a deliberate *honesty* device, not decoration: level 1 marks a keyword, level 4 the moat. Reflowed
+  inline, `Amazon Bedrock` printed beside `AWS Lambda` as an equal, which converts a calibrated claim into
+  a flat one. So the **graphic** goes and the **calibration stays**, as print-only wording on the low
+  levels only (`foundational` / `working`) — 3 and 4 print bare, because they are not what the flattening
+  exaggerated. Two labels rather than one: collapsing 1 and 2 into "basic" would under-claim level 2,
+  which is the same distortion in the other direction;
 - **the experience `highlights`, all but one** — measured at 88 of 143px per role, each running 3–5 lines.
   Clamping them to two lines truncates mid-sentence, which reads worse than dropping them. Each role's
   one-sentence `description` survives, and the rest stay in full on `/me`.
