@@ -97,6 +97,13 @@ npm run e2e              # bare: now FAILS FAST with guidance if no target is se
                          #   the deploy job sets E2E_ENV for its post-deploy smoke; locally use e2e:local.
 npm run e2e:production   # ⚠️ drives the LIVE apex on purpose (E2E_ENV=production)
 ```
+**One spec is post-deploy-only and SKIPS locally** — `e2e/edge-rewrite.spec.ts` (#216). It requests the
+advertised **slash-less** URLs and compares the served canonical to the requested one, which is the only
+thing that catches the CloudFront rewrite function being **detached, stale, or rejected by the JS 2.0
+runtime** (the unit test at `scripts/spa-rewrite.test.mjs` proves the logic, never that the edge runs it).
+`vite preview` does not rewrite, so locally it would fail for a harness reason rather than a site reason —
+which #195's rule for the post-deploy step forbids. It runs in the deploy smoke (`E2E_ENV` → the apex) and
+reports **skipped**, not passed, anywhere else: a check that did not run must not read like one that did.
 
 ## Workflow (see platform)
 - **Trunk-based**: branch from `main`; PR required (0 approvals). Merge to `main` → **automatic deploy**
