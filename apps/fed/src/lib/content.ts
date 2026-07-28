@@ -81,6 +81,39 @@ function parse(fileSlug: string, raw: string): BlogPost {
 /** A slug resolved to its two editions, keyed by locale. */
 type Editions = Record<Locale, BlogPost>;
 
+/**
+ * Slug uniqueness (#208). Identity is the filename KEY, but the SLUG is what every lookup resolves on —
+ * `getPostBySlug`, `getEditions` and the route params all match on it, with `.find`. So a slug shared by
+ * two different KEYS silently shadows: one article becomes unreachable, and the cross-locale mappers can
+ * hand a reader the wrong article with no error and no not-found.
+ *
+ * One map covers both shapes, because they are the same defect — a slug that does not identify one
+ * article: two articles sharing a slug *within* a locale, and article A's pt slug equal to article B's en
+ * slug *across* locales. The SAME key reusing one slug in both editions is legal (a title that needs no
+ * translation), so the comparison is against the key, not the string.
+ *
+ * Extracted rather than inlined into buildEditions: that function already carries the filename, locale,
+ * completeness and fact-agreement contracts, and adding a fourth pushed its cognitive complexity past the
+ * repo's Sonar threshold. Each contract reads better named.
+ */
+function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void {
+  const slugOwner = new Map<string, string>();
+  for (const [fileSlug, editions] of Object.entries(resolved)) {
+    for (const locale of LOCALES) {
+      const { slug } = editions[locale];
+      const owner = slugOwner.get(slug);
+      if (owner !== undefined && owner !== fileSlug) {
+        throw new Error(
+          `content: slug "${slug}" is claimed by two different articles — "${owner}" and "${fileSlug}". ` +
+            'Slugs are what every lookup resolves on, so a shared one makes an article unreachable and ' +
+            'can route a reader to the wrong piece. Give each article a distinct slug in every locale.',
+        );
+      }
+      slugOwner.set(slug, fileSlug);
+    }
+  }
+}
+
 // Group the raw glob by slug and enforce the unpublishable contract. Exported so tests can feed it a
 // synthetic set (one locale missing, a locale outside LOCALES, disagreeing facts) and assert it throws
 // — the real glob below is always a complete, agreeing pair, so the throws never fire in production.
@@ -124,6 +157,8 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
     }
     resolved[fileSlug] = editions as Editions;
   }
+
+  assertSlugsIdentifyOneArticle(resolved);
   return resolved;
 }
 
@@ -167,15 +202,27 @@ export function alternateSlug(slug: string, from: Locale, to: Locale): string | 
   return getEditions(slug, from)?.[to].slug;
 }
 
+// The one place the article-path shape is defined, so the two mappers below cannot drift (#208). The
+// trailing slash is OPTIONAL and deliberately so: `/blog/<slug>/` is a form browsers and link-handlers
+// produce constantly, and without it that URL fell through unmapped — re-prefixed verbatim, i.e. the
+// exact dead end #204 fixed, surviving on a punctuation difference.
+const ARTICLE_PATH = /^\/blog\/([^/]+)\/?$/;
+
+/** The slug in an article logical path, or undefined when the path is not an article route. */
+function articleSlugOf(logicalPath: string): string | undefined {
+  return ARTICLE_PATH.exec(logicalPath)?.[1];
+}
+
 /**
  * Map an article logical path across locales: `/blog/<fromSlug>` → `/blog/<toSlug>`. Any non-article
  * path (or an unknown slug) passes through unchanged, so this is safe to call on every path a locale
- * switch touches — only real article routes are rewritten.
+ * switch touches — only real article routes are rewritten. A trailing slash is accepted and normalised
+ * away, so the reader lands on the canonical form.
  */
 export function localizeArticlePath(logicalPath: string, from: Locale, to: Locale): string {
-  const m = /^\/blog\/([^/]+)$/.exec(logicalPath);
-  if (!m) return logicalPath;
-  const alt = alternateSlug(m[1], from, to);
+  const slug = articleSlugOf(logicalPath);
+  if (slug === undefined) return logicalPath;
+  const alt = alternateSlug(slug, from, to);
   return alt ? `/blog/${alt}` : logicalPath;
 }
 
@@ -187,15 +234,19 @@ export function localizeArticlePath(logicalPath: string, from: Locale, to: Local
  * either edition. Re-prefixing it blindly is what dead-ended a pt-BR reader on `/pt/blog/<en-slug>` — a
  * route that does not exist — dropping them on the blog listing instead of the article.
  *
- * Tries each locale as the source and returns the first match, so it resolves an EN slug for a pt reader
- * and a PT slug for an en reader alike. An unknown slug passes through unchanged, keeping the in-locale
- * not-found behaviour intact.
+ * Tries `to` FIRST, then the other locales (#208). Order matters: a slug that is already valid in the
+ * target locale is the answer that cannot be wrong, so it must win before any cross-locale guess. Trying
+ * declaration order instead made resolution depend on how LOCALES happens to be written — invisible, and
+ * wrong the moment two articles collide on a slug. `buildEditions` now rejects such a collision at build
+ * time, so this is defence in depth rather than the only guard.
+ *
+ * An unknown slug passes through unchanged, keeping the in-locale not-found behaviour intact.
  */
 export function articlePathForLocale(logicalPath: string, to: Locale): string {
-  const m = /^\/blog\/([^/]+)$/.exec(logicalPath);
-  if (!m) return logicalPath;
-  for (const from of LOCALES) {
-    const alt = alternateSlug(m[1], from, to);
+  const slug = articleSlugOf(logicalPath);
+  if (slug === undefined) return logicalPath;
+  for (const from of [to, ...LOCALES.filter((l) => l !== to)]) {
+    const alt = alternateSlug(slug, from, to);
     if (alt) return `/blog/${alt}`;
   }
   return logicalPath;

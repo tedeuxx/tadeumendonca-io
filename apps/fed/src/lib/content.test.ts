@@ -109,7 +109,7 @@ describe('content (markdown-in-repo, per-locale)', () => {
 // real glob is always a complete, agreeing pair, so these are the only way to prove the throws are real.
 describe('the unpublishable contract (buildEditions)', () => {
   const fm = (over: Partial<Record<string, string>> = {}) =>
-    `---\nslug: demo\ntitle: ${over.title ?? 'T'}\ndate: '2026-01-01T00:00:00.000Z'\ntag: ${over.tag ?? 'aws'}\ntrack: engenharia\n---\nbody`;
+    `---\nslug: ${over.slug ?? 'demo'}\ntitle: ${over.title ?? 'T'}\ndate: '2026-01-01T00:00:00.000Z'\ntag: ${over.tag ?? 'aws'}\ntrack: engenharia\n---\nbody`;
 
   it('accepts a complete, agreeing pt/en pair', () => {
     const editions = buildEditions({
@@ -130,6 +130,40 @@ describe('the unpublishable contract (buildEditions)', () => {
 
   it('throws when the filename is not <slug>.<locale>.md', () => {
     expect(() => buildEditions({ '../content/blog/demo.md': fm() })).toThrow(/unexpected blog filename/);
+  });
+
+  // #208 — the slug is what every lookup resolves on (`.find` in getPostBySlug/getEditions), so a slug
+  // shared by two KEYS silently shadows: one article unreachable, and the cross-locale mappers able to
+  // hand a reader the wrong piece with no error. Both collision shapes are the same defect.
+  it('throws when two different articles claim the same slug WITHIN a locale', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/one.pt.md': fm({ slug: 'shared' }),
+        '../content/blog/one.en.md': fm({ slug: 'one-en' }),
+        '../content/blog/two.pt.md': fm({ slug: 'shared' }),
+        '../content/blog/two.en.md': fm({ slug: 'two-en' }),
+      }),
+    ).toThrow(/slug "shared" is claimed by two different articles/);
+  });
+
+  it('throws when article A’s pt slug collides with article B’s en slug', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/one.pt.md': fm({ slug: 'roadmap' }),
+        '../content/blog/one.en.md': fm({ slug: 'one-en' }),
+        '../content/blog/two.pt.md': fm({ slug: 'two-pt' }),
+        '../content/blog/two.en.md': fm({ slug: 'roadmap' }),
+      }),
+    ).toThrow(/slug "roadmap" is claimed by two different articles/);
+  });
+
+  it('ALLOWS one article reusing the same slug in both editions — a title needing no translation', () => {
+    const editions = buildEditions({
+      '../content/blog/manifesto.pt.md': fm({ slug: 'manifesto' }),
+      '../content/blog/manifesto.en.md': fm({ slug: 'manifesto' }),
+    });
+    expect(editions.manifesto.pt.slug).toBe('manifesto');
+    expect(editions.manifesto.en.slug).toBe('manifesto');
   });
 
   it('throws when the two editions disagree on a fact', () => {
@@ -209,6 +243,23 @@ describe('per-locale slug helpers', () => {
       expect(articlePathForLocale('/', 'pt')).toBe('/');
       expect(articlePathForLocale('/blog', 'pt')).toBe('/blog');
       expect(articlePathForLocale('/blog/unknown', 'pt')).toBe('/blog/unknown');
+    });
+
+    // #208 — a trailing slash is a form browsers and link handlers produce constantly. Without tolerating
+    // it, `/blog/<slug>/` fell through unmapped and re-prefixed verbatim: the exact #204 dead end,
+    // surviving on a punctuation difference. Normalised away, so the reader lands on the canonical form.
+    it('maps a path with a trailing slash, and normalises the slash away', () => {
+      expect(articlePathForLocale(`/blog/${EN_SLUG}/`, 'pt')).toBe(`/blog/${PT_SLUG}`);
+      expect(articlePathForLocale(`/blog/${PT_SLUG}/`, 'en')).toBe(`/blog/${EN_SLUG}`);
+      expect(localizeArticlePath(`/blog/${EN_SLUG}/`, 'en', 'pt')).toBe(`/blog/${PT_SLUG}`);
+    });
+
+    // #208 — resolution must not depend on how LOCALES happens to be declared. A slug already valid in
+    // the TARGET locale is the answer that cannot be wrong, so it wins before any cross-locale guess.
+    // buildEditions now rejects a real collision at build time; this is the second layer.
+    it('resolves target-locale-first, so a valid target slug is authoritative', () => {
+      expect(articlePathForLocale(`/blog/${PT_SLUG}`, 'pt')).toBe(`/blog/${PT_SLUG}`);
+      expect(articlePathForLocale(`/blog/${EN_SLUG}`, 'en')).toBe(`/blog/${EN_SLUG}`);
     });
   });
 });
