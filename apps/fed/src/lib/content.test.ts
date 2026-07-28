@@ -120,6 +120,25 @@ describe('the unpublishable contract (buildEditions)', () => {
     expect(editions.demo.en.title).toBe('EN');
   });
 
+  // `asTrack` accepts a known track and falls back to 'engenharia' for anything else. Nothing pinned
+  // that: every fixture and every real article carries `track: engenharia`, which is ALSO the fallback,
+  // so both branches of the ternary returned the same value and the suite could not tell a working
+  // membership test from one that always answered false. `pessoal` is the only input that distinguishes
+  // them, which is why it has to be asserted explicitly rather than left to the corpus.
+  it('keeps a known track and falls back to engenharia for an unknown one', () => {
+    const withTrack = (track: string) =>
+      `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: ${track}\n---\nbody`;
+    const parsed = (track: string) =>
+      buildEditions({
+        '../content/blog/demo.pt.md': withTrack(track),
+        '../content/blog/demo.en.md': withTrack(track),
+      }).demo.en.track;
+
+    expect(parsed('pessoal')).toBe('pessoal'); // fails if TRACKS never matches
+    expect(parsed('engenharia')).toBe('engenharia');
+    expect(parsed('nonsense')).toBe('engenharia'); // fails if TRACKS matches everything
+  });
+
   it('throws when a slug is missing a locale', () => {
     expect(() => buildEditions({ '../content/blog/demo.pt.md': fm() })).toThrow(/missing the en edition/);
   });
