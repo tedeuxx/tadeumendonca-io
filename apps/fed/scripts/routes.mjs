@@ -40,6 +40,9 @@ export function blogEditions() {
 /** Test seam (#184): drop the memo so a test can observe a re-read. Never called by the build. */
 export function clearBlogEditionsCacheForTest() {
   editionsCache = undefined;
+  // The index is derived FROM the editions, so clearing one without the other would leave a stale index
+  // built over a discarded parse — a cache-invalidation bug planted by the test seam itself.
+  indexCache = undefined;
 }
 
 function readBlogEditions() {
@@ -112,8 +115,17 @@ export function slugPairIndexOf(pairs) {
   return idx;
 }
 
-function slugPairIndex() {
-  return slugPairIndexOf(blogEditions());
+// Memoised alongside the parse (#184). Caching only `blogEditions` left this rebuilding a fresh Map on
+// EVERY `alternatesFor` call, and gen-sitemap calls that once per route — so the fs read became
+// once-per-process while the index stayed once-per-URL. The previous comment claimed the fix took this
+// from O(articles × calls) to O(articles); that was only true of the read, not of the index. Now it is
+// true of both.
+let indexCache;
+
+// Exported for the same reason as blogEditions: the memo has to be observable, and identity on the
+// returned Map is false the moment the cache is removed.
+export function slugPairIndex() {
+  return (indexCache ??= slugPairIndexOf(blogEditions()));
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
