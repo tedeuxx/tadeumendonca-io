@@ -81,6 +81,39 @@ function parse(fileSlug: string, raw: string): BlogPost {
 /** A slug resolved to its two editions, keyed by locale. */
 type Editions = Record<Locale, BlogPost>;
 
+/**
+ * Slug uniqueness (#208). Identity is the filename KEY, but the SLUG is what every lookup resolves on —
+ * `getPostBySlug`, `getEditions` and the route params all match on it, with `.find`. So a slug shared by
+ * two different KEYS silently shadows: one article becomes unreachable, and the cross-locale mappers can
+ * hand a reader the wrong article with no error and no not-found.
+ *
+ * One map covers both shapes, because they are the same defect — a slug that does not identify one
+ * article: two articles sharing a slug *within* a locale, and article A's pt slug equal to article B's en
+ * slug *across* locales. The SAME key reusing one slug in both editions is legal (a title that needs no
+ * translation), so the comparison is against the key, not the string.
+ *
+ * Extracted rather than inlined into buildEditions: that function already carries the filename, locale,
+ * completeness and fact-agreement contracts, and adding a fourth pushed its cognitive complexity past the
+ * repo's Sonar threshold. Each contract reads better named.
+ */
+function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void {
+  const slugOwner = new Map<string, string>();
+  for (const [fileSlug, editions] of Object.entries(resolved)) {
+    for (const locale of LOCALES) {
+      const { slug } = editions[locale];
+      const owner = slugOwner.get(slug);
+      if (owner !== undefined && owner !== fileSlug) {
+        throw new Error(
+          `content: slug "${slug}" is claimed by two different articles — "${owner}" and "${fileSlug}". ` +
+            'Slugs are what every lookup resolves on, so a shared one makes an article unreachable and ' +
+            'can route a reader to the wrong piece. Give each article a distinct slug in every locale.',
+        );
+      }
+      slugOwner.set(slug, fileSlug);
+    }
+  }
+}
+
 // Group the raw glob by slug and enforce the unpublishable contract. Exported so tests can feed it a
 // synthetic set (one locale missing, a locale outside LOCALES, disagreeing facts) and assert it throws
 // — the real glob below is always a complete, agreeing pair, so the throws never fire in production.
@@ -125,31 +158,7 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
     resolved[fileSlug] = editions as Editions;
   }
 
-  // Slug uniqueness (#208). Identity is the filename KEY, but the SLUG is what every lookup resolves on
-  // — getPostBySlug, getEditions and the route params all match on it, with `.find`. So a slug shared by
-  // two different KEYS silently shadows: one article becomes unreachable, and the cross-locale mappers
-  // can hand a reader the wrong article with no error and no not-found.
-  //
-  // One map covers both shapes, because both are the same defect: a slug that does not identify one
-  // article. Within a locale (two articles, same slug) and across locales (article A's pt slug equals
-  // article B's en slug) are caught by the same check. The SAME key legitimately reusing one slug in both
-  // editions is fine — an article whose title needs no translation — so the comparison is against the key.
-  const slugOwner = new Map<string, string>();
-  for (const [fileSlug, editions] of Object.entries(resolved)) {
-    for (const locale of LOCALES) {
-      const { slug } = editions[locale];
-      const owner = slugOwner.get(slug);
-      if (owner !== undefined && owner !== fileSlug) {
-        throw new Error(
-          `content: slug "${slug}" is claimed by two different articles — "${owner}" and "${fileSlug}". ` +
-            'Slugs are what every lookup resolves on, so a shared one makes an article unreachable and ' +
-            'can route a reader to the wrong piece. Give each article a distinct slug in every locale.',
-        );
-      }
-      slugOwner.set(slug, fileSlug);
-    }
-  }
-
+  assertSlugsIdentifyOneArticle(resolved);
   return resolved;
 }
 
