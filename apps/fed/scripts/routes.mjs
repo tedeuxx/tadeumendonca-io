@@ -20,7 +20,29 @@ const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 // src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).
 // Files are `<key>.<locale>.md`; a missing frontmatter slug falls back to the key. Returns one
 // `{ pt, en }` slug pair per article.
-function blogEditions() {
+// Memoised (#184). `blogEditions` is called from `localizedRoutes`, from `slugPairIndex`, and AGAIN on
+// every `alternatesFor` invocation — and `gen-sitemap` calls the last one per route, so the directory was
+// re-read and re-parsed once per URL. Correct but O(articles × calls); the cache makes it O(articles).
+//
+// A module-level memo is safe precisely because this module is build-only: each `node scripts/*.mjs`
+// process is short-lived and the content cannot change under it. It would NOT be safe in a watch server,
+// which is why the cache lives here rather than in `src/lib/content.ts` (that one is a Vite glob, already
+// resolved once at module load).
+let editionsCache;
+
+// Exported so the memo is OBSERVABLE: a test asserts two calls return the same array reference, which
+// is false the moment the cache is removed. Counting fs reads would need a module mock that the other
+// tests in this file share; reference identity proves the same property with no shared state.
+export function blogEditions() {
+  return (editionsCache ??= readBlogEditions());
+}
+
+/** Test seam (#184): drop the memo so a test can observe a re-read. Never called by the build. */
+export function clearBlogEditionsCacheForTest() {
+  editionsCache = undefined;
+}
+
+function readBlogEditions() {
   const byKey = new Map();
   for (const file of readdirSync(contentDir).filter((f) => f.endsWith('.md'))) {
     const m = /^(.+)\.(pt|en)\.md$/.exec(file);
