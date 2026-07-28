@@ -31,9 +31,32 @@ function blogEditions() {
     const fm = fmm ? load(fmm[1]) : null;
     const pair = byKey.get(key) ?? {};
     pair[locale] = (fm && fm.slug) || key;
+    assertSlugIsUrlSafe(pair[locale], file);
     byKey.set(key, pair);
   }
   return [...byKey.values()];
+}
+
+/**
+ * The same slug-shape contract `src/lib/content.ts` enforces (#213), asserted here too because this
+ * module re-derives slugs independently — it runs in Node at build time and cannot import the Vite-glob
+ * module. Same reason `slugPairIndexOf` re-asserts uniqueness (#208/#211).
+ *
+ * Keep the pattern identical to SLUG_SHAPE in content.ts. `routes.test.mjs` asserts the two derivations
+ * agree on the slugs they produce, so a divergence in what they ACCEPT would surface there.
+ *
+ * The binding constraint is the dot: `cloudfront-functions/spa-rewrite.js` reads a dot in the last path
+ * segment as a FILE, so such a URL is never rewritten to its prerendered index.html — it 404s and
+ * `custom_error_response` answers 200 with the home page's OG card, pinned permanently (ADR-0005).
+ */
+export const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export function assertSlugIsUrlSafe(slug, file) {
+  if (SLUG_SHAPE.test(slug)) return;
+  throw new Error(
+    `routes: "${file}" has an unusable slug "${slug}" — a slug becomes a URL segment and must match ` +
+      `${SLUG_SHAPE.source}. A dot in particular makes CloudFront serve the home page with a 200 (#213).`,
+  );
 }
 
 /**

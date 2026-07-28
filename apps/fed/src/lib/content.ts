@@ -82,21 +82,6 @@ function parse(fileSlug: string, raw: string): BlogPost {
 type Editions = Record<Locale, BlogPost>;
 
 /**
- * Slug uniqueness (#208). Identity is the filename KEY, but the SLUG is what every lookup resolves on —
- * `getPostBySlug`, `getEditions` and the route params all match on it, with `.find`. So a slug shared by
- * two different KEYS silently shadows: one article becomes unreachable, and the cross-locale mappers can
- * hand a reader the wrong article with no error and no not-found.
- *
- * One map covers both shapes, because they are the same defect — a slug that does not identify one
- * article: two articles sharing a slug *within* a locale, and article A's pt slug equal to article B's en
- * slug *across* locales. The SAME key reusing one slug in both editions is legal (a title that needs no
- * translation), so the comparison is against the key, not the string.
- *
- * Extracted rather than inlined into buildEditions: that function already carries the filename, locale,
- * completeness and fact-agreement contracts, and adding a fourth pushed its cognitive complexity past the
- * repo's Sonar threshold. Each contract reads better named.
- */
-/**
  * The shape a slug may take (#213). A slug is not free text — it becomes a URL segment, and the edge that
  * serves that URL constrains it.
  *
@@ -122,9 +107,19 @@ function assertSlugsAreUrlSafe(resolved: Record<string, Editions>): void {
     for (const locale of LOCALES) {
       const { slug } = editions[locale];
       if (SLUG_SHAPE.test(slug)) continue;
-      const why = slug.includes('.')
-        ? 'a dot makes CloudFront treat the URL as a FILE, so it serves the home page with a 200 (#213)'
-        : 'expected lowercase letters, digits and single hyphens';
+      // Each branch names WHY, not just what — the rules are not guessable from the pattern, and the
+      // non-ASCII one is the least obvious: "ó" IS a lowercase letter, so a pt author would otherwise
+      // read the generic message and conclude the validator is wrong.
+      let why: string;
+      if (slug.includes('.')) {
+        why = 'a dot makes CloudFront treat the URL as a FILE, so it serves the home page with a 200 (#213)';
+      } else if (/[^\x20-\x7E]/.test(slug)) {
+        why =
+          'a non-ASCII character percent-encodes in the URL while the prerender writes the raw byte as ' +
+          'the S3 key, so the advertised URL and the artifact stop matching (de-accent it: "código" → "codigo")';
+      } else {
+        why = 'expected lowercase letters, digits and single hyphens';
+      }
       throw new Error(
         `content: article "${fileSlug}" has an unusable ${locale} slug "${slug}" — ${why}. ` +
           'A slug becomes a URL segment; keep it to ^[a-z0-9]+(-[a-z0-9]+)*$.',
@@ -133,6 +128,21 @@ function assertSlugsAreUrlSafe(resolved: Record<string, Editions>): void {
   }
 }
 
+/**
+ * Slug uniqueness (#208). Identity is the filename KEY, but the SLUG is what every lookup resolves on —
+ * `getPostBySlug`, `getEditions` and the route params all match on it, with `.find`. So a slug shared by
+ * two different KEYS silently shadows: one article becomes unreachable, and the cross-locale mappers can
+ * hand a reader the wrong article with no error and no not-found.
+ *
+ * One map covers both shapes, because they are the same defect — a slug that does not identify one
+ * article: two articles sharing a slug *within* a locale, and article A's pt slug equal to article B's en
+ * slug *across* locales. The SAME key reusing one slug in both editions is legal (a title that needs no
+ * translation), so the comparison is against the key, not the string.
+ *
+ * Extracted rather than inlined into buildEditions: that function already carries the filename, locale,
+ * completeness and fact-agreement contracts, and adding a fourth pushed its cognitive complexity past the
+ * repo's Sonar threshold. Each contract reads better named.
+ */
 function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void {
   const slugOwner = new Map<string, string>();
   for (const [fileSlug, editions] of Object.entries(resolved)) {
