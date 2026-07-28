@@ -53,7 +53,7 @@ design, calibrated to strategy* — and every other ADR is read through it.
 ## SDLC, quality & security
 | ADR | Title | Status |
 |---|---|---|
-| [0018](./0018-ci-gates-e2e-on-pr-coverage.md) | CI gates (build-test + infra-plan + lint-workflows) — E2E on the PR, unit coverage ≥85% | accepted · amended 2026-07-23 (`lint-workflows`; why a filtered workflow cannot be required) |
+| [0018](./0018-ci-gates-e2e-on-pr-coverage.md) | CI gates (build-test + infra-plan + lint-workflows) — E2E on the PR, unit coverage ≥85% | accepted · amended 2026-07-23 (`lint-workflows`; why a filtered workflow cannot be required) · amended 2026-07-28 (gate ownership is by what a file IS, not its directory: a behaviour-bearing file under `iac/` is unit-gated by `build-test`) |
 | [0019](./0019-complete-functional-regression.md) | Complete automated functional regression (E2E now; API when a backend exists) | accepted |
 | [0020](./0020-sonarcloud-quality-gate.md) | SonarCloud quality gate (SAST + coverage + smells), blocking | accepted |
 | [0021](./0021-application-security-posture.md) | Security posture — minimal by no-backend; Sonar SAST + package-vulnerability scanning | accepted · amended 2026-07-27 (third lever: supply-chain execution control — `npm ci --ignore-scripts` in every CI install) |

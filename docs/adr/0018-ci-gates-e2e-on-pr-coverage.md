@@ -79,6 +79,35 @@ check and still exiting 0 — and passing `-shellcheck <path>` does **not** chan
 invalid path still just disables the rule). The job asserts the executable itself before trusting the
 result.
 
+## Amendment (2026-07-28) — gate ownership is by WHAT a file is, not by which directory it sits in
+The chosen option splits the gates by path: `build-test` for the app, `infra-plan` (checkov + `plan`) for
+`iac/`. That reads as a directory rule, and one file breaks it.
+
+`iac/cloudfront-functions/spa-rewrite.js` lives under `iac/` because Terraform ships it
+(`frontend.tf` reads it with `file()`), but it is **behaviour, not infrastructure** — it is what turns an
+advertised slash-less URL into its prerendered artifact. `infra-plan` validates that the Terraform is
+well-formed and plannable; it cannot say whether the function *routes correctly*. So under a strict
+directory rule the one file in `iac/` whose correctness is a runtime behaviour had **no behavioural gate
+at all** — the position #205 was filed for, and the last unguarded link in #200's chain.
+
+**Narrowed:** the division is by what a file *is*. Terraform is gated by `infra-plan`; a
+**behaviour-bearing file under `iac/`** is additionally unit-gated by `build-test`, whose filter now
+includes `iac/cloudfront-functions/**`. The two are complementary: they assert **different** properties of
+the same file, so **neither one's green covers the other's** — which is why both are named here rather
+than one being treated as sufficient. A green `infra-plan` on this file means the Terraform is valid, and
+nothing about whether the function routes correctly; that gap is the whole reason #205 existed.
+
+*Trade-off (accepted):* two workflows now fire on one path, which costs a little CI time and means a
+reader must know both gates exist to know what covered a change. The alternative was leaving a file whose
+regression would silently revert #200 — every advertised URL serving the home page's OG card — guarded by
+a `plan` that never executes it.
+
+*Limit worth stating:* the unit test proves behaviour under Node, **not** acceptance by the CloudFront
+Functions JS 2.0 runtime. A rewrite using `?.`, `??` or `const` would pass green and be rejected at
+`aws_cloudfront_function` create time — i.e. in `infra-apply`, after the merge. The gate narrows the
+failure window; it does not close it.
+
 ## Links
 - Driven by ADR-0003 · the regression it runs is ADR-0019 · the quality gate is ADR-0020 · post-deploy
   smoke is ADR-0023 · the loop model is the plugin's `trunk-single-env`.
+- Amended by issue #205 (PR #215) — behaviour-bearing files under `iac/` are unit-gated by `build-test`.
