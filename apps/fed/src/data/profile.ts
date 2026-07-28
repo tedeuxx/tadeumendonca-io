@@ -74,6 +74,12 @@ const sourceTemplate: ProfileSource = {
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC / Loop Engineering.',
       },
+      // The internal knowledge platform (MCP server + semantic search on Bedrock) is the one highlight
+      // the one-page PDF keeps (#161): it is the only place in the whole CV that shows something AGENTIC
+      // actually built, rather than adopted or certified. Highlight 0 is adoption, which the description
+      // above already carries. It also restores "MVP in progress" to the sheet — the calibration that
+      // kept "ship production-ready systems" honest, and that the print edition had dropped along with it.
+      print_highlight_index: 1,
       highlights: {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +

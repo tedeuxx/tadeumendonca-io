@@ -10,6 +10,7 @@
 import { type ReactNode } from 'react';
 import type { CertificationItem, Profile } from '../types/profile';
 import { useT } from '../i18n';
+import { SITE_URL } from '../lib/site';
 
 // "2021 – Atual"; when there's no start (e.g. only a graduation year), show just the end. `present`
 // is the localized "ongoing" label (Atual / Present) — the section chrome localizes; the CV *data*
@@ -22,7 +23,10 @@ const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'Linke
 
 function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
   return (
-    <section className="border-t border-border md:grid md:grid-cols-12">
+    // `data-print-block` gives the print stylesheet a stable per-section hook (#161). Targeting
+    // `section:nth-of-type(n)` instead would silently re-target the moment a block is added or reordered,
+    // and the failure would only show up in a PDF nobody re-reads.
+    <section data-print-block={index} className="border-t border-border md:grid md:grid-cols-12">
       <div className="px-[--gutter] pb-4 pt-[clamp(2rem,4vw,3.5rem)] md:col-span-3 md:pr-6">
         <div className="md:sticky md:top-[calc(var(--header-h)+2rem)]">
           <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
@@ -49,6 +53,17 @@ function LevelMeter({ level }: { level: number }) {
   );
 }
 
+// Does the credential's own NAME already identify who issued it? "AWS Certified Solutions Architect"
+// does; "AI-DLC Ambassador" does not. The print edition suppresses the issuer line to fit one page
+// (#161), which is free for the seven names carrying "AWS" and a real loss for the one that doesn't —
+// unattributed, the credential closest to the AI-Engineer positioning reads as a self-styled title.
+// So the issuer is dropped by MEANING rather than in bulk: matched on the acronym in parentheses
+// ("Amazon Web Services (AWS)" → AWS), falling back to the issuer's first word.
+const nameCarriesIssuer = (cert: CertificationItem): boolean => {
+  const token = /\(([^)]+)\)/.exec(cert.issuer)?.[1] ?? cert.issuer.split(' ')[0];
+  return cert.name.toLowerCase().includes(token.toLowerCase());
+};
+
 function CertBadge({ cert }: { cert: CertificationItem }) {
   const seal = cert.badge_image_url ? (
     <img src={cert.badge_image_url} alt="" aria-hidden="true" loading="lazy" className="h-16 w-16 shrink-0 object-contain" />
@@ -66,8 +81,15 @@ function CertBadge({ cert }: { cert: CertificationItem }) {
     <>
       {seal}
       <span className="flex min-w-0 flex-col gap-1">
-        <span className="font-medium leading-tight">{cert.name}</span>
-        <span className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-muted-foreground">
+        <span className="font-medium leading-tight">
+          {cert.name}
+          {/* Print-only, and only where the name does not already say who issued it. */}
+          {!nameCarriesIssuer(cert) && <span className="hidden font-normal print:inline"> — {cert.issuer}</span>}
+        </span>
+        <span
+          data-print-issuer=""
+          className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-muted-foreground"
+        >
           {cert.issuer}
           {cert.issued_date ? ` · ${cert.issued_date}` : ''}
         </span>
@@ -92,7 +114,10 @@ export function CVSection({ profile }: { profile: Profile }) {
   const hasCertifications = profile.certifications.length > 0;
 
   return (
-    <div>
+    // `data-print="cv"` is the single stable hook the print stylesheet targets to compact this page onto
+    // one A4 sheet (#161). One hook, like `data-print="hide"` — the print rules never reach for Tailwind
+    // utility classes, which would break on any restyle of the web view.
+    <div data-print="cv">
       <header className="px-[--gutter] pb-[clamp(1.5rem,3vw,2.5rem)] pt-[clamp(2rem,5vw,4rem)]">
         {/* The portrait sits beside the name — full colour here, unlike the small greyscale one on
             the landing's aside. It is decorative: the <h1> right next to it already names the person. */}
@@ -114,9 +139,23 @@ export function CVSection({ profile }: { profile: Profile }) {
           {profile.location ? ` · ${profile.location}` : ''}
         </p>
         {profile.summary && <p className="mt-5 max-w-prose leading-relaxed text-foreground/90">{profile.summary}</p>}
+        {/* Print-only contact line. The PDF used to hide the whole metadata row on the reasoning that
+            "the PDF is generated FROM this page, so it must not carry a link back to itself" — sound
+            while the PDF was a print of a page the reader was already standing on, and exactly wrong
+            now that it is a one-page edition (#161) designed to be detached, attached to an email and
+            dropped into an ATS. That artifact carried no email, no profile, and no URL: it made the
+            AI-Engineer claim and stripped every pointer to the proof, on the surface that travels
+            furthest. A self-link is redundant on screen and is the only route home on paper.
+            Rendered as TEXT, not as links — a printed <a> is a dead string, so the URL has to be
+            readable and typeable rather than clickable. */}
+        <p aria-hidden="true" className="hidden font-mono text-[0.92em] print:block">
+          {SITE_URL.replace(/^https?:\/\//, '')}
+          {Object.values(profile.metadata).map((url) => ` · ${url.replace(/^https?:\/\/(www\.)?/, '')}`)}
+        </p>
         {/* Metadata/contact row + the Download-CV control. Both are web chrome, hidden in the print
-            render (#140) — the PDF is generated FROM this page, so it must not carry a link back to
-            itself. The download is a plain static <a> to the build-time asset (no runtime JS, ADR-0002). */}
+            render (#140) — on paper they are replaced by the plain-text line above (an unclickable
+            bordered button is noise). The download is a plain static <a> to the build-time asset
+            (no runtime JS, ADR-0002). */}
         <div className="mt-5 flex flex-wrap items-stretch" data-print="hide">
           {Object.entries(profile.metadata).map(([key, url]) => (
             <a
@@ -155,7 +194,13 @@ export function CVSection({ profile }: { profile: Profile }) {
                 {item.highlights && item.highlights.length > 0 && (
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-foreground/90">
                     {item.highlights.map((h, j) => (
-                      <li key={j}>{h}</li>
+                      // `data-print-keep` marks the one highlight the print edition keeps (#161). The
+                      // stylesheet hides the list and un-hides this; the flag is authored in the data
+                      // (see `print_highlight_index`) so it points at a MEANING, not at a position that
+                      // silently shifts when the list is reordered.
+                      <li key={j} data-print-keep={j === item.print_highlight_index ? '' : undefined}>
+                        {h}
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -209,6 +254,11 @@ export function CVSection({ profile }: { profile: Profile }) {
                       className="-mb-px -mr-px inline-flex items-center gap-2 border border-border px-2.5 py-1.5 font-mono text-xs"
                     >
                       {skill.name}
+                      {/* Print-only proficiency wording, low levels only — see the `cv.level1/2`
+                          comment in the message catalog for why it exists and why 3–4 stay bare. */}
+                      {skill.level === 1 || skill.level === 2 ? (
+                        <span className="hidden print:inline"> ({t(`cv.level${skill.level}`)})</span>
+                      ) : null}
                       {skill.level ? <LevelMeter level={skill.level} /> : null}
                     </span>
                   ))}

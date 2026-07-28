@@ -58,6 +58,74 @@ describe('CVSection', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
+  // The one-page PDF (#161) keeps exactly one highlight — the one showing something agentic actually
+  // BUILT — because dropping the lists wholesale left every AI statement in the CV as self-description
+  // or a certification. The stylesheet finds it by this attribute; the attribute comes from the DATA,
+  // so it names a meaning rather than a position that shifts when the list is reordered.
+  it('marks only the authored highlight for the print edition', () => {
+    const p: Profile = {
+      ...profile,
+      experience: [
+        { ...profile.experience[0], highlights: ['adopted a thing', 'BUILT a thing'], print_highlight_index: 1 },
+        // A role that names none keeps its highlights on screen and marks nothing for print.
+        { ...profile.experience[0], company: 'Elsewhere', highlights: ['also relevant'] },
+      ],
+    };
+    renderWithLocale(<CVSection profile={p} />);
+    expect(screen.getByText('adopted a thing')).not.toHaveAttribute('data-print-keep');
+    expect(screen.getByText('also relevant')).not.toHaveAttribute('data-print-keep');
+    expect(screen.getByText('BUILT a thing')).toHaveAttribute('data-print-keep');
+    expect(document.querySelectorAll('[data-print-keep]')).toHaveLength(1);
+  });
+
+  // Reflowed inline for print, the 4-square meter is dropped — which printed a level-1 keyword beside a
+  // level-4 one as equals, flattening a deliberate honesty device into an over-claim. The low levels get
+  // print-only wording; 3 and 4 stay bare, because they are not what the flattening exaggerated.
+  it('words only the low proficiency levels for print', () => {
+    const p: Profile = {
+      ...profile,
+      skills: {
+        cloud: [
+          { name: 'AWS Lambda', level: 4 },
+          { name: 'Terraform', level: 3 },
+          { name: 'Prompt Engineering', level: 2 },
+          { name: 'Amazon Bedrock', level: 1 },
+        ],
+      },
+    };
+    // English: the PDF is printed from the English canonical edition (ADR-0024).
+    renderWithLocale(<CVSection profile={p} />, { locale: 'en' });
+    // Leading space is part of the node — it separates the wording from the skill name in print.
+    expect(screen.getByText('(working)', { exact: false })).toHaveClass('print:inline');
+    expect(screen.getByText('(foundational)', { exact: false })).toHaveClass('print:inline');
+    // Two wordings for four skills — the levels that already read honestly are left alone.
+    expect(document.querySelectorAll('.print\\:inline')).toHaveLength(2);
+  });
+
+  // The print edition drops the issuer line to fit one page (#161) — free for "AWS Certified …", a real
+  // loss for a credential whose name does not name its issuer, which unattributed reads as a self-styled
+  // title. So the issuer is carried into the NAME exactly where the name lacks it. Print-only, hence the
+  // class assertions: jsdom has no print media, so visibility here is expressed by `hidden print:inline`.
+  it('attributes only the credentials whose name does not already name the issuer', () => {
+    const p: Profile = {
+      ...profile,
+      certifications: [
+        // Acronym in parentheses, present in the name → no attribution added.
+        { name: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services (AWS)' },
+        // Same issuer, but the name never says AWS → attributed.
+        { name: 'AI-DLC Ambassador', issuer: 'Amazon Web Services (AWS)' },
+        // No parentheses → falls back to the issuer's first word, which the name carries.
+        { name: 'Google Cloud Architect', issuer: 'Google Cloud' },
+      ],
+    };
+    renderWithLocale(<CVSection profile={p} />);
+    const attributed = screen.getByText('— Amazon Web Services (AWS)', { exact: false });
+    expect(attributed).toHaveClass('print:inline');
+    expect(attributed.parentElement?.textContent).toContain('AI-DLC Ambassador');
+    // Exactly one of the three is attributed.
+    expect(document.querySelectorAll('.print\\:inline')).toHaveLength(1);
+  });
+
   it('renders the official Credly image when the data carries one', () => {
     const withBadge: Profile = {
       ...profile,

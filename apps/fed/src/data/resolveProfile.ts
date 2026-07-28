@@ -35,6 +35,7 @@ export function resolveProfile(source: ProfileSource, locale: Locale): Profile {
       end_date: item.end_date,
       description: item.description && pick(item.description, locale),
       highlights: item.highlights && pick(item.highlights, locale),
+      print_highlight_index: item.print_highlight_index,
     })),
     education: source.education.map((item) => ({
       institution: item.institution,

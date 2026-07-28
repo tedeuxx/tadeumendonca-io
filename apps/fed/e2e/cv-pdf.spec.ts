@@ -27,6 +27,62 @@ test.describe('CV PDF export', () => {
     expect(head).not.toContain('<html');
   });
 
+  // The one-page constraint (#161) is the whole point of the print stylesheet, and it is invisible: the
+  // build succeeds, the asset is a valid PDF, and every other assertion here passes at five pages just
+  // as happily as at one. Nothing but a page count catches the regression, and the regression arrives
+  // through CONTENT — one more role in profile.ts, a longer summary — not through a CSS edit anyone
+  // would think to re-check the PDF for.
+  //
+  // Counted straight out of the bytes rather than with a PDF library: `/Type /Page` (excluding the
+  // `/Pages` tree node) is stable in Chromium's output, and a dependency for one integer is not worth
+  // the supply-chain surface on a repo that pins and audits them.
+  test('fits on a single A4 page', async ({ request }) => {
+    const body = (await (await request.get('/cv.pdf')).body()).toString('latin1');
+    const pages = body.match(/\/Type\s*\/Page(?![s/\w])/g) ?? [];
+    expect(pages, 'the CV PDF must stay on one page — trim the print view, not this assertion').toHaveLength(1);
+  });
+
+  // ADR-0034's 2026-07-28 amendment gave up "the PDF cannot disagree with /me" and replaced it with a
+  // narrower promise: every ROLE, every CERTIFICATION and every SKILL keyword survives into print —
+  // what the one-page edition drops is elaboration and decoration, never a claim. That invariant was
+  // unguarded, and it is the more dangerous of the two: the page-count test would happily pass on a
+  // print stylesheet that fits by deleting a job.
+  //
+  // Counted rather than enumerated — screen first, print second, and the two must agree. A hardcoded
+  // list would have to be edited every time profile.ts grows, and an assertion nobody maintains is one
+  // somebody eventually weakens to make it pass.
+  test('print drops no role, no certification and no skill', async ({ page }) => {
+    await page.goto('/en/me');
+    // `goto` resolves at 'load', which here is the SPA shell — the CV blocks are not in the DOM yet, and
+    // a raw querySelectorAll at that moment counts zero of everything. The other tests in this file never
+    // hit it because `toBeVisible()` auto-waits; this one reads the DOM directly, so it has to wait
+    // explicitly or it would compare nothing to nothing and pass.
+    await expect(page.locator('[data-print-block="04"]')).toBeVisible();
+
+    const countVisible = (selector: string) =>
+      page.evaluate(
+        // Serialized into the browser page — `document`/`getComputedStyle` are the page's, not Node's.
+        (sel) => [...document.querySelectorAll(sel)].filter((el) => getComputedStyle(el).display !== 'none').length,
+        selector,
+      );
+    // Roles, certification entries (link or plain), and skill keywords.
+    const SELECTORS = [
+      '[data-print-block="01"] > div:last-child > div > div',
+      '[data-print-block="03"] > div:last-child > div > *',
+      '[data-print-block="04"] > div:last-child > div > div > div:last-child > span',
+    ];
+
+    const onScreen = await Promise.all(SELECTORS.map(countVisible));
+    // Sanity: the counts must be non-zero, or the selectors have drifted and this test would "pass" by
+    // comparing nothing to nothing — the exact failure mode it exists to prevent.
+    for (const [i, n] of onScreen.entries()) expect(n, `nothing matched ${SELECTORS[i]}`).toBeGreaterThan(0);
+
+    await page.emulateMedia({ media: 'print' });
+    const inPrint = await Promise.all(SELECTORS.map(countVisible));
+
+    expect(inPrint, 'the print edition may drop elaboration and decoration — never a claim').toEqual(onScreen);
+  });
+
   test('offers a Download-CV link on /me pointing at the static asset', async ({ page }) => {
     await page.goto('/en/me');
     const link = page.getByRole('link', { name: 'Download CV (PDF)' });

@@ -65,7 +65,11 @@ try {
         path: join(dist, 'cv.pdf'),
         printBackground: true,
         format: 'A4',
-        margin: { top: '1.5cm', bottom: '1.5cm', left: '1.5cm', right: '1.5cm' },
+        // 1cm, not the 1.5cm this used to carry: on A4 that recovers ~75px of usable height, which is a
+        // meaningful fraction of the single sheet the CV has to fit (#161). Still inside what any printer
+        // renders and what a reader reads as a margin. Must match the `@page` rule in styles/index.css,
+        // or a browser-printed page and the build-time PDF lay out differently.
+        margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' },
       });
       console.log('  emitted dist/cv.pdf');
     }

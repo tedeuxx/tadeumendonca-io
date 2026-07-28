@@ -18,6 +18,18 @@ export interface ExperienceItem {
   end_date: string | null;
   description?: string;
   highlights?: string[];
+  /**
+   * Index into `highlights` of the ONE the print edition keeps (#161). The one-page CV drops the
+   * highlight lists wholesale, which left every AI statement in the PDF as self-description or a
+   * certification while the role bodies read landing zones and CRM integration — the positioning
+   * asserted rather than shown. This names the single highlight that carries built evidence.
+   *
+   * An index, not a copy of the text: the highlight is authored once, bilingually, and the two
+   * editions cannot drift. Positional in the array but SEMANTIC in intent — which is why it lives in
+   * the data beside the highlights it points into, rather than as an `nth-child` in the stylesheet
+   * that would silently point at different prose the first time the list is reordered.
+   */
+  print_highlight_index?: number;
 }
 
 export interface EducationItem {
@@ -69,6 +81,8 @@ export interface ExperienceSource {
   end_date: string | null;
   description?: Localized<string>;
   highlights?: Localized<string[]>;
+  /** See `ExperienceItem.print_highlight_index` — locale-independent, the arrays are parallel. */
+  print_highlight_index?: number;
 }
 
 export interface EducationSource {
