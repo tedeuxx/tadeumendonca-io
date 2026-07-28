@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   alternatesFor,
   assertSlugIsUrlSafe,
+  blogEditions,
   canonicalFor,
+  clearBlogEditionsCacheForTest,
   localizedRoutes,
   slugPairIndexOf,
   LOCALES,
@@ -156,5 +158,27 @@ describe('routes.mjs and content.ts derive the SAME slugs', () => {
       expect(alt.pt).toBe(`${SITE_URL}/pt/blog/${expected.pt.slug}`);
       expect(alt.en).toBe(`${SITE_URL}/en/blog/${expected.en.slug}`);
     }
+  });
+});
+
+// #184 — blogEditions was called from localizedRoutes, from slugPairIndex, and AGAIN on every
+// alternatesFor invocation. gen-sitemap calls the last one per route, so the content directory was
+// re-read and re-parsed once per URL: O(articles × calls) where O(articles) will do.
+//
+// Reference identity is the assertion because it is exactly the property the cache provides, and it is
+// false the instant the cache is removed — without the memo every call builds a fresh array. Counting fs
+// reads would need a node:fs mock shared with every other test in this file; identity needs no shared
+// state and discriminates just as sharply.
+describe('the blog directory is parsed once per process (#184)', () => {
+  it('returns the SAME array on repeated calls', () => {
+    expect(blogEditions()).toBe(blogEditions());
+  });
+
+  it('re-reads after the cache is cleared, and produces an equal result', () => {
+    const before = blogEditions();
+    clearBlogEditionsCacheForTest();
+    const after = blogEditions();
+    expect(after).not.toBe(before); // a genuinely fresh read…
+    expect(after).toEqual(before); // …that parses to the same thing
   });
 });
