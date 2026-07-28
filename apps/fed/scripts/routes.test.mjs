@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alternatesFor, canonicalFor, localizedRoutes, LOCALES, SITE_URL } from './routes.mjs';
+import { alternatesFor, canonicalFor, localizedRoutes, slugPairIndexOf, LOCALES, SITE_URL } from './routes.mjs';
 import { getAllPosts, getEditions } from '../src/lib/content';
 
 // The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
@@ -54,6 +54,27 @@ describe('alternatesFor — reciprocity and per-locale slugs', () => {
 
   it('points x-default at the English canonical for a non-root route', () => {
     expect(alternatesFor('/me')['x-default']).toBe(canonicalFor('en', '/me'));
+  });
+
+  // The throw is THE change of #211 — the sitemap path was the one place a duplicate slug resolved by
+  // last-write-wins, silently. Tested through the pure seam because the real content is always
+  // collision-free, so an assertion against the live glob could never reach it. Same seam and same
+  // reasoning as `buildEditions` in src/lib/content.ts, whose collision throws are tested the same way.
+  it('throws when two different articles claim the same slug', () => {
+    const a = { pt: 'a-pt', en: 'a-en' };
+    const b = { pt: 'a-pt', en: 'b-en' }; // b reuses a's pt slug
+    expect(() => slugPairIndexOf([a, b])).toThrow(/claimed by two different articles/);
+  });
+
+  it('throws on a collision ACROSS locales — A’s pt slug equal to B’s en slug', () => {
+    const a = { pt: 'roadmap', en: 'a-en' };
+    const b = { pt: 'b-pt', en: 'roadmap' };
+    expect(() => slugPairIndexOf([a, b])).toThrow(/slug "roadmap" is claimed by two different articles/);
+  });
+
+  it('accepts one article reusing the same slug in both editions', () => {
+    const idx = slugPairIndexOf([{ pt: 'manifesto', en: 'manifesto' }]);
+    expect(idx.get('manifesto')).toEqual({ pt: 'manifesto', en: 'manifesto' });
   });
 
   it('tolerates a trailing slash, like content.ts does (#211)', () => {

@@ -15,7 +15,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.{ts,tsx}', 'scripts/gen-distribution.mjs'],
+      include: ['src/**/*.{ts,tsx}', 'scripts/gen-distribution.mjs', 'scripts/routes.mjs'],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/main.tsx', // bootstrap wiring

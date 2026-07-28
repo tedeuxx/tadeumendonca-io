@@ -36,17 +36,24 @@ function blogEditions() {
   return [...byKey.values()];
 }
 
-// Index any-locale slug → its `{ pt, en }` pair, so alternatesFor() can resolve an article route (in
-// either locale) to the reciprocal localized pair. Both directions land the same pair.
-function slugPairIndex() {
+/**
+ * Index any-locale slug → its `{ pt, en }` pair, so alternatesFor() can resolve an article route (in
+ * either locale) to the reciprocal localized pair. Both directions land the same pair.
+ *
+ * A slug must identify ONE article (#208/#211). `src/lib/content.ts` enforces this for the app, but this
+ * module re-derives slugs independently — it runs in Node at build time and cannot import the Vite-glob
+ * module — so the guarantee has to be asserted here too. Without it a duplicate silently overwrote (last
+ * write wins) and the SITEMAP advertised the wrong pairing, with no error on the one path that tells
+ * Google what exists.
+ *
+ * Exported as a pure function over the pair list so the throw can be tested with a synthetic collision —
+ * the real content is always collision-free, so a test against the glob could never reach it. Same seam,
+ * and same reason, as `buildEditions` in src/lib/content.ts.
+ */
+export function slugPairIndexOf(pairs) {
   const idx = new Map();
-  for (const pair of blogEditions()) {
+  for (const pair of pairs) {
     for (const locale of LOCALES) {
-      // A slug must identify ONE article (#208/#211). `src/lib/content.ts` enforces this for the app,
-      // but this module re-derives slugs independently — it runs in Node at build time and cannot import
-      // the Vite-glob module — so the guarantee has to be asserted here too. Without it a duplicate
-      // silently overwrote (last write wins) and the SITEMAP advertised the wrong pairing, with no error
-      // on the one path that tells Google what exists.
       const seen = idx.get(pair[locale]);
       if (seen && seen !== pair) {
         throw new Error(
@@ -58,6 +65,10 @@ function slugPairIndex() {
     }
   }
   return idx;
+}
+
+function slugPairIndex() {
+  return slugPairIndexOf(blogEditions());
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
