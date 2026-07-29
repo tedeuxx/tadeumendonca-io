@@ -46,6 +46,28 @@ describe('AppShell', () => {
     expect(screen.getAllByRole('link', { name: 'Artigos' })).toHaveLength(1); // closes on navigate
   });
 
+  // #230 — the bottom notices must come BEFORE the header in the DOM, however they look on screen.
+  // `position: fixed` ignores document order; assistive technology does not. Rendered last, a screen
+  // reader reached them only after the whole page — worst possible ordering for the locale offer, whose
+  // value is arriving early for someone who may not read the page's language.
+  //
+  // Asserted on document order rather than on a class, because the classes could stay identical while a
+  // refactor moves the container back below the footer and nothing would notice — which is how it was
+  // written in the first place.
+  it('renders the bottom notices before the header in the DOM, despite sitting last on screen', () => {
+    const { container } = renderShell();
+    const stack = container.querySelector('.fixed.bottom-0');
+    const header = container.querySelector('header');
+    // Narrowed by a throw rather than `expect(...).not.toBeNull()`, which does not narrow for TypeScript
+    // — and `e2e/`-style non-null assertions would hide a missing node behind a confusing crash.
+    if (!stack || !header) throw new Error('AppShell must render both the bottom stack and the header');
+
+    // Node.DOCUMENT_POSITION_FOLLOWING === 4: `header` comes after `stack`.
+    expect(stack.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // And the two notices stay together in one container, so the stacking survives the move (#172).
+    expect(stack.parentElement).toBe(header.parentElement);
+  });
+
   it('carries no PWA chrome — the offline banner and install prompt are retired', () => {
     renderShell();
     expect(screen.queryByText(/Você está offline/)).toBeNull();
