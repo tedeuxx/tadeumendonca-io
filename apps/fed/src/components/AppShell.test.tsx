@@ -1,8 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppShell } from './AppShell';
+import { ConsentProvider } from '../lib/consent';
 import { renderWithLocale } from '../test-utils';
 import { STORAGE_KEY, type Locale } from '../i18n';
+
+// The offer's aria-label is in the SUGGESTED language, not the page's, so it is one of the two.
+const OFFER_LABEL = /Language suggestion|Sugestão de idioma/;
 
 const renderShell = (locale: Locale = 'pt') =>
   renderWithLocale(
@@ -13,6 +17,8 @@ const renderShell = (locale: Locale = 'pt') =>
   );
 
 beforeEach(() => window.localStorage.removeItem(STORAGE_KEY));
+// The env stub is per-test; leaking it would silently enable the consent bar in every later render.
+afterEach(() => vi.unstubAllEnvs());
 
 describe('AppShell', () => {
   it('renders the brand, children and the static nav (no auth, no feed)', () => {
@@ -44,6 +50,67 @@ describe('AppShell', () => {
 
     fireEvent.click(screen.getAllByRole('link', { name: 'Artigos' })[1]);
     expect(screen.getAllByRole('link', { name: 'Artigos' })).toHaveLength(1); // closes on navigate
+  });
+
+  // #230 — the bottom notices must come BEFORE the header in the DOM, however they look on screen.
+  // `position: fixed` ignores document order; assistive technology does not. Rendered last, a screen
+  // reader reached them only after the whole page — worst possible ordering for the locale offer, whose
+  // value is arriving early for someone who may not read the page's language.
+  //
+  // Asserted on document order rather than on a class, because the classes could stay identical while a
+  // refactor moves the container back below the footer and nothing would notice — which is how it was
+  // written in the first place.
+  it('renders the bottom notices before the header in the DOM, despite sitting last on screen', () => {
+    const { container } = renderShell();
+    const stack = container.querySelector('.fixed.bottom-0');
+    const header = container.querySelector('header');
+    // Narrowed by a throw rather than `expect(...).not.toBeNull()`, which does not narrow for TypeScript
+    // — and `e2e/`-style non-null assertions would hide a missing node behind a confusing crash.
+    if (!stack || !header) throw new Error('AppShell must render both the bottom stack and the header');
+
+    // Node.DOCUMENT_POSITION_FOLLOWING === 4: `header` comes after `stack`.
+    expect(stack.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    // The container is a direct sibling of the header — a refactor cannot satisfy the ordering by
+    // nesting the stack deeper or relocating it under main/footer.
+    expect(stack.parentElement).toBe(header.parentElement);
+
+    // There is exactly ONE bottom container, and a real notice is inside it. Both halves are load-bearing:
+    // without the count, splitting the notices into two containers passes (querySelector takes the first);
+    // without the containment, an EMPTY container in the right place passes and the ordering asserts
+    // nothing about the notices it exists to order.
+    expect(container.querySelectorAll('.fixed.bottom-0')).toHaveLength(1);
+    expect(screen.getByRole('region', { name: OFFER_LABEL }).parentElement).toBe(stack);
+  });
+
+  // The other half of #230's guarantee: BOTH notices in the one container, in the order #172 fixed.
+  //
+  // It needs its own render because in the default tree NEITHER of ConsentBanner's two conditions holds:
+  // there is no `.env*` in apps/fed so the measurement id is unset, AND `useConsent()` falls back to
+  // 'denied' with no ConsentProvider mounted. Either one alone is enough to render it null, so both have
+  // to be supplied here. Worth spelling out because supplying only one looks like it should work and
+  // silently does not — the guard would then assert nothing about the consent bar while appearing to.
+  //
+  // Wrapping in ConsentProvider is not a contrivance: it is what `App.tsx` wraps AppShell in for real, so
+  // this tree is closer to production than the bare one above.
+  it('keeps both notices in the one stack, offer above consent, for an undecided reader', () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST12345');
+    const { container } = renderWithLocale(
+      <ConsentProvider>
+        <AppShell>
+          <div>child content</div>
+        </AppShell>
+      </ConsentProvider>,
+    );
+    const stack = container.querySelector('.fixed.bottom-0');
+    if (!stack) throw new Error('AppShell must render the bottom stack');
+
+    const offer = screen.getByRole('region', { name: OFFER_LABEL });
+    const consent = screen.getByRole('region', { name: 'Aviso de cookies' });
+    expect(offer.parentElement).toBe(stack);
+    expect(consent.parentElement).toBe(stack);
+    // The offer sits ABOVE the consent bar, so it precedes it inside the container.
+    expect(offer.compareDocumentPosition(consent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('carries no PWA chrome — the offline banner and install prompt are retired', () => {
