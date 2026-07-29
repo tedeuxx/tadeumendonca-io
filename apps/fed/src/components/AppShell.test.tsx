@@ -64,8 +64,20 @@ describe('AppShell', () => {
 
     // Node.DOCUMENT_POSITION_FOLLOWING === 4: `header` comes after `stack`.
     expect(stack.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // And the two notices stay together in one container, so the stacking survives the move (#172).
+
+    // The container is a direct sibling of the header — a refactor cannot satisfy the ordering by
+    // nesting the stack deeper or relocating it under main/footer.
     expect(stack.parentElement).toBe(header.parentElement);
+
+    // There is exactly ONE bottom container, and a real notice is inside it. Both halves are load-bearing:
+    // without the count, splitting the notices into two containers passes (querySelector takes the first);
+    // without the containment, an EMPTY container in the right place passes and the ordering asserts
+    // nothing about the notices it exists to order. This is as far as the guard reaches here —
+    // `analyticsConfigured()` is false under Vitest, so ConsentBanner renders null and only the locale
+    // offer is observable in this tree. That the two share the container is asserted structurally
+    // (one container) rather than by finding both.
+    expect(container.querySelectorAll('.fixed.bottom-0')).toHaveLength(1);
+    expect(screen.getByRole('region', { name: /Language suggestion|Sugestão de idioma/ }).parentElement).toBe(stack);
   });
 
   it('carries no PWA chrome — the offline banner and install prompt are retired', () => {
