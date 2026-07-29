@@ -80,8 +80,17 @@ function ProjectCard({ project }: { project: CatalogProject }) {
 /**
  * `limit` truncates the grid (the landing shows a shortlist and links to the full catalog);
  * `showAllLink` renders that link. The /portfolio page passes neither and shows everything.
+ * `showBar` publishes the curation standard — the dedicated page opts in, the landing does not (#246).
  */
-export function PortfolioSection({ limit, showAllLink = false }: { limit?: number; showAllLink?: boolean }) {
+export function PortfolioSection({
+  limit,
+  showAllLink = false,
+  showBar = false,
+}: {
+  limit?: number;
+  showAllLink?: boolean;
+  showBar?: boolean;
+}) {
   const t = useT();
   const lp = useLocalePath();
   const shown = limit ? catalog.slice(0, limit) : catalog;
@@ -95,21 +104,32 @@ export function PortfolioSection({ limit, showAllLink = false }: { limit?: numbe
           </span>
           <h2 className="mt-2 label-mono text-foreground">{t('portfolio.heading')}</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t('portfolio.intro')}</p>
-          {/* The bar (#246). Its own sentence rather than a clause spliced into `intro`, because the link
-              has to sit at the end and splitting a translated string around an anchor is how the two
-              editions start drifting. The target is the repo file itself — the checkable artifact, not a
-              description of it. */}
-          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-            {t('portfolio.bar')}{' '}
-            <a
-              href="https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md"
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono text-[0.9em] underline invert-hover"
-            >
-              {t('portfolio.barLink')}
-            </a>
-          </p>
+          {/* The bar (#246), on the dedicated page only — owner decision, PR #251. On the landing this
+              block is a four-item TEASER, so a curation standard answers a question the visitor has not
+              asked yet; by /portfolio they have seen the shelf. The landing is also where a correction
+              costs most (CloudFront, plus the OG card LinkedIn/X pin on first fetch).
+
+              Opt-IN rather than opt-out, which inverts this file's other flags (`showAllLink` defaults
+              off, `limit` off). Deliberate: those change layout, this publishes a CLAIM about how the
+              catalog is curated, and a claim should be switched on by a caller that meant it rather than
+              inherited by whoever renders the component next.
+
+              Its own sentence rather than a clause spliced into `intro`, because the link has to sit at
+              the end and splitting a translated string around an anchor is how the two editions drift.
+              The target is the repo file itself — the checkable artifact, not a description of it. */}
+          {showBar && (
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              {t('portfolio.bar')}{' '}
+              <a
+                href="https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[0.9em] underline invert-hover"
+              >
+                {t('portfolio.barLink')}
+              </a>
+            </p>
+          )}
         </div>
       </div>
 

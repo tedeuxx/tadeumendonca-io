@@ -104,18 +104,28 @@ const strings = {
     // that cleared the bar", which is a different claim to someone deciding whether the list is thin or
     // selective. It costs nothing to keep true: `docs/catalog-ready.md` already exists and is public, so
     // the sentence points at something checkable rather than making a promise to maintain.
-    // The term is NOT free per edition: `/architecture` already names this same standard — en "The bar",
-    // pt "A régua" — and an adjacent surface calling it something else is the inconsistency this copy was
-    // supposed to remove, not add. The first draft said "clarear a barra", which is worse than
-    // inconsistent: `clarear` means to lighten, so it is a calque of "clear the bar" that does not carry
-    // "pass a threshold" in pt-BR at all.
+    // Three drafts, and each one failed differently — worth recording, because the failures are the
+    // reasoning:
     //
-    // Both editions must also assert the SAME thing. The draft's pt read "entra depois de passar" —
-    // temporal, i.e. sequence — while en asserted merit. #246's criterion is that inclusion is EARNED, so
-    // sequence is the weaker claim and only one edition was making the argument.
+    // 1. "clarear a barra" was not Portuguese. `clarear` means to lighten; it was a calque of "clear the
+    //    bar" carrying nothing of crossing a threshold.
+    // 2. "conquista seu lugar passando pela régua" fixed the language and matched `/architecture`'s NOUN
+    //    (pt "A régua", en "The bar") but not its construction — there the verb takes the DOCUMENT
+    //    ("passa por catalog-ready.md"). So the surfaces shared a word, not a shape. `passar pela régua`
+    //    is also not the BR form (that is `passar na régua`), and `conquista seu lugar` sat a register
+    //    above this section's voice, which is second-person and warm two lines up.
+    // 3. Both of those asserted an AUDIT — "each project earned its place" quantifies over the catalog's
+    //    contents, so a reader can falsify it by checking the one item against the linked checklist. They
+    //    can, today: #252. A sentence whose job is to RAISE scrutiny has to survive being scrutinised.
+    //
+    // So this states the GOVERNANCE, not the audit: a standard exists and nothing is listed without
+    // passing it. That still does #246's work — it turns "the only item" into "an item that got through a
+    // filter" — while claiming only what is true whatever the shelf currently holds. The verb attaches to
+    // the document in each language exactly as `/architecture` does (passa por · clears), and dropping the
+    // noun removes the collocation mismatch rather than papering over it.
     bar: {
-      pt: 'Cada projeto conquista seu lugar passando pela régua:',
-      en: 'Each project earns its place by clearing the bar:',
+      pt: 'Nada entra no portfólio sem passar por:',
+      en: 'Nothing enters the portfolio without clearing:',
     },
     // The link text is the filename, deliberately untranslated — it names the artifact rather than
     // describing it, so there is nothing to keep in sync between editions.

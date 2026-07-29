@@ -103,11 +103,11 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-driven SDLC'); // description
     expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
-    expect(body).toContain('Each project earns its place by clearing the bar'); // the bar (#246)
+    expect(body).toContain('Nothing enters the portfolio without clearing'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
-    expect(body).not.toContain('conquista seu lugar passando pela régua');
+    expect(body).not.toContain('Nada entra no portfólio sem passar por');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
@@ -115,10 +115,10 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
     expect(body).toContain('se fecha na prática'); // proof
-    expect(body).toContain('conquista seu lugar passando pela régua'); // the bar (#246)
+    expect(body).toContain('Nada entra no portfólio sem passar por'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
-    expect(body).not.toContain('Each project earns its place by clearing the bar');
+    expect(body).not.toContain('Nothing enters the portfolio without clearing');
   });
 
   // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
@@ -133,19 +133,19 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
-  // The bar reaches the LANDING too, and that is a second public surface #246 did not scope. It follows
-  // from PortfolioSection being shared — the landing renders it with `limit={4}` — so it is not an
-  // accident, but it is also not something the issue decided. Asserted rather than left implicit: an
-  // unstated side effect on the storefront is exactly the kind of thing that gets discovered by a reader.
+  // The LANDING must NOT carry it — owner decision, PR #251. `PortfolioSection` is shared, so the bar
+  // reached the storefront for free and the default had to be flipped to opt-in to stop it. This is the
+  // assertion that makes that decision durable: it is one prop away from regressing, and the landing is
+  // the surface where a correction costs most (CloudFront, plus the OG card scrapers pin on first fetch).
   //
-  // It is arguably where the sentence earns the most: the landing shows a SHORTLIST, so "the only item"
-  // reads even thinner there than on the full page.
-  for (const locale of ['pt', 'en'] as const) {
-    const sentence = locale === 'pt' ? 'conquista seu lugar passando pela régua' : 'earns its place by clearing the bar';
-    test(`/${locale} (the landing) carries the bar in its own edition`, async ({ request }) => {
-      const body = await (await request.get(`/${locale}/`)).text();
-      expect(body).toContain(sentence);
-      expect(body).toContain(BAR_HREF);
+  // Asserted on the served artifact rather than in the unit test alone, because the bare `/` snapshot is
+  // what the JS-less crawler reads and it is prerendered separately from the locale landings.
+  for (const path of ['/', '/pt/', '/en/'] as const) {
+    test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
+      const body = await (await request.get(path)).text();
+      expect(body).not.toContain('Nada entra no portfólio sem passar por');
+      expect(body).not.toContain('Nothing enters the portfolio without clearing');
+      expect(body).not.toContain(BAR_HREF);
     });
   }
 });

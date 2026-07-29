@@ -73,25 +73,35 @@ describe('PortfolioSection', () => {
   });
 
   // #246 — with one item, and that item being this site, the page reads as a catalog that has not
-  // started unless it says inclusion is EARNED. Asserted in both editions, and on the href, because the
-  // link is what makes the claim checkable rather than a promise.
+  // started unless it says something governs what gets listed. Asserted in both editions, and on the
+  // href, because the link is what makes the claim checkable rather than a promise.
   it('states the bar and links the checkable artifact, in both editions', () => {
     state.catalog = [sample];
     const bar = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
 
-    const { unmount } = renderWithLocale(<PortfolioSection />, { locale: 'pt' });
-    expect(screen.getByText(/conquista seu lugar passando pela régua/)).toBeInTheDocument();
+    const { unmount } = renderWithLocale(<PortfolioSection showBar />, { locale: 'pt' });
+    expect(screen.getByText(/Nada entra no portfólio sem passar por/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
     unmount();
 
-    renderWithLocale(<PortfolioSection />, { locale: 'en' });
-    expect(screen.getByText(/Each project earns its place by clearing the bar/)).toBeInTheDocument();
+    renderWithLocale(<PortfolioSection showBar />, { locale: 'en' });
+    expect(screen.getByText(/Nothing enters the portfolio without clearing/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
   });
 
   it('states the bar even when the catalog is empty — the standard is not conditional on having items', () => {
+    renderWithLocale(<PortfolioSection showBar />, { locale: 'pt' });
+    expect(screen.getByText(/Nada entra no portfólio sem passar por/)).toBeInTheDocument();
+  });
+
+  // The default is silent, and that is the owner's decision (PR #251) rather than an implementation
+  // detail: the landing renders this same component and must NOT carry the curation claim. Asserted on
+  // the LINK too, because a future refactor could drop the sentence and leave the anchor behind.
+  it('says nothing about the bar unless the caller asks for it — the landing must not carry the claim', () => {
+    state.catalog = [sample];
     renderWithLocale(<PortfolioSection />, { locale: 'pt' });
-    expect(screen.getByText(/conquista seu lugar passando pela régua/)).toBeInTheDocument();
+    expect(screen.queryByText(/Nada entra no portfólio sem passar por/)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'catalog-ready.md' })).toBeNull();
   });
 
   it('omits the live link when the project has none', () => {
