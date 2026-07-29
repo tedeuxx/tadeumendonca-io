@@ -120,6 +120,27 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-screen flex-col border-x-2 border-border-strong">
+      {/* Bottom stack — FIRST in the DOM, last on the screen (#230).
+
+          Both notices are independently present or absent, so they share ONE fixed container and sit in
+          it as normal blocks: the locale offer above, the consent bar flush with the bottom. Positioning
+          each `fixed bottom-0` would have overlapped them, and offsetting one by the other's height would
+          have hard-coded a number that changes with the copy (#172).
+
+          It sits at the TOP of the tree because `position: fixed` ignores document order but assistive
+          technology does not. Rendered last, a screen-reader user reached these notices only after
+          traversing the whole page — the worst possible ordering for the LOCALE OFFER, whose entire value
+          is arriving early for a reader who may not read the page's language. The move costs nothing
+          visually and keeps the stacking, because the container moves as a unit.
+
+          Accepted cost: a keyboard user now tabs into the notice before the nav. Same trade a skip-link
+          makes — a dismissible notice addressed to you is a reasonable first stop, and either control
+          dismisses it in one press. */}
+      <div className="fixed inset-x-0 bottom-0 z-30" data-print="hide">
+        <LocaleSuggestion />
+        <ConsentBanner />
+      </div>
+
       {/* Chrome hidden in print (#140): the print PDF of /me is a CV, not a page screenshot. */}
       <header data-print="hide" className="sticky top-0 z-20 bg-background">
         <nav
@@ -174,15 +195,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </div>
       </footer>
-
-      {/* Bottom stack. Both notices are independently present or absent, so they share ONE fixed
-          container and sit in it as normal blocks: the locale offer above, the consent bar flush with
-          the bottom. Positioning each `fixed bottom-0` would have overlapped them, and offsetting one by
-          the other's height would have hard-coded a number that changes with the copy (#172). */}
-      <div className="fixed inset-x-0 bottom-0 z-30" data-print="hide">
-        <LocaleSuggestion />
-        <ConsentBanner />
-      </div>
     </div>
   );
 }
