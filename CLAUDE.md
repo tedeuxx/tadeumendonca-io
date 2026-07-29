@@ -144,6 +144,15 @@ Two consequences worth stating outright, because they are what the other model g
   this guide's merge rules is boundary by construction, whatever the diff looks like.
   A green CI is **not** a substitute for the review — CI proves nothing broke, the reviewer judges
   whether the change is right.
+- **How a ratification is proven, and what no longer needs one** — the rule lives in
+  **[ADR-0003](./docs/adr/0003-trunk-based-single-environment.md)'s 2026-07-29 amendment**, not here, so it
+  is inside the decision record where the next sweep can audit it. In short: the owner ratifies by
+  **commenting on the PR** and the reviewer **verifies that comment itself** (`gh pr view --json comments`
+  — author, OWNER association, and that it post-dates the head); a relay is a notification, never the
+  authority (#217). And **record correction is safe class** — a change that only makes the record match
+  decisions already ratified, asserting nothing beyond a pointer to the ADR that superseded it, the
+  reviewer merges. A discharge that asserts a new **fact** or reinterprets **scope** is still boundary.
+  Read the amendment before classifying; the table there is the operative text.
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
