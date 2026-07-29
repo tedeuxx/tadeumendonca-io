@@ -15,6 +15,11 @@ output "cloudfront_distribution_id" {
   value       = module.cloudfront.cloudfront_distribution_id
 }
 
+output "spa_rewrite_function_name" {
+  description = "CloudFront Function name, so CI can verify the LIVE stage carries the repo's code (#237)."
+  value       = aws_cloudfront_function.spa_rewrite.name
+}
+
 output "frontend_url" {
   description = "Public SPA URL (custom domain fronted by CloudFront)."
   value       = "https://${local.frontend_host}"

@@ -111,8 +111,13 @@ advertised **slash-less** URLs and compares the served canonical to the requeste
 thing that catches the CloudFront rewrite function being **detached, stale, or rejected by the JS 2.0
 runtime** (the unit test at `scripts/spa-rewrite.test.mjs` proves the logic, never that the edge runs it).
 `vite preview` does not rewrite, so locally it would fail for a harness reason rather than a site reason —
-which #195's rule for the post-deploy step forbids. It runs in the deploy smoke (`E2E_ENV` → the apex) and
-reports **skipped**, not passed, anywhere else: a check that did not run must not read like one that did.
+which #195's rule for the post-deploy step forbids. It reports **skipped**, not passed, anywhere it cannot
+run: a check that did not run must not read like one that did.
+
+**It runs in `infra-apply`, not in `deploy`** (#237). `infra-apply` is the workflow that changes the
+function; `deploy` is path-filtered to `apps/fed`, so it never fired on the change this guards, and moving
+the trigger there instead would have raced the apply and asserted against the *previous* function. `deploy`
+still runs it as part of the full smoke, which is legitimate redundancy on an `apps/fed`-only merge.
 
 ## Workflow (see platform)
 - **Trunk-based**: branch from `main`; PR required (0 approvals). Merge to `main` → **automatic deploy**

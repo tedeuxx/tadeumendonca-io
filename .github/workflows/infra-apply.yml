@@ -97,17 +97,38 @@ jobs:
           TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
         run: terraform apply -input=false -auto-approve -var-file=env/stg.tfvars
 
-      # `terraform apply` returning is NOT the edge serving the new function: a distribution update is
-      # asynchronous and takes minutes. Asserting straight after the apply would reintroduce, inside one
-      # workflow, exactly the race that makes the deploy.yml approach wrong. The distribution id comes from
-      # the apply's own output rather than SSM — it is the value this run just reconciled.
+      # Two different changes, two different synchronisations — conflating them is how a wait ends up
+      # guaranteeing nothing (caught in review on this very PR).
+      #
+      # (a) DISTRIBUTION config changes (frontend.tf) are asynchronous, and `wait_for_deployment = false`
+      #     in frontend.tf means terraform does not even wait for them. So this wait is required — but it
+      #     covers the SECONDARY case.
+      # (b) A change to `cloudfront-functions/spa-rewrite.js` publishes a new function version and does
+      #     NOT touch the distribution at all: the association is by UNQUALIFIED ARN, so the distribution
+      #     never leaves `Deployed` and the wait above returns instantly. It synchronises nothing for the
+      #     exact case #216/#237 exist for.
+      #
+      # For (b) the right check is not a wait but a COMPARISON: `publish = true` makes the publish
+      # synchronous, so by the time apply returns the LIVE stage should already carry the repo's code.
+      # Asserting that directly catches "stale association" and "never accepted" at their source, without
+      # depending on how fast the edge propagates.
       - name: Wait for the CloudFront distribution to finish deploying
-        id: dist
         run: |
           id="$(terraform output -raw cloudfront_distribution_id)"
-          echo "id=$id" >> "$GITHUB_OUTPUT"
           echo "waiting for distribution $id to reach Deployed…"
           aws cloudfront wait distribution-deployed --id "$id"
+
+      - name: Verify the LIVE function stage carries the repo's code
+        run: |
+          name="$(terraform output -raw spa_rewrite_function_name)"
+          aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
+          if diff -q cloudfront-functions/spa-rewrite.js live-function.js >/dev/null; then
+            echo "LIVE stage of $name matches the repo."
+          else
+            echo "::error::the LIVE CloudFront Function does not match iac/cloudfront-functions/spa-rewrite.js"
+            diff cloudfront-functions/spa-rewrite.js live-function.js || true
+            exit 1
+          fi
 
       # Runs on EVERY infra apply, not only when cloudfront-functions/ changed. Deliberate: an edge that
       # stopped rewriting is worth catching whatever mutated it, and a filter here would be one more place

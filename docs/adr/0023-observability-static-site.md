@@ -41,3 +41,9 @@ the served HTML, and how it is used, all without a server.
 ## Links
 - Driven by ADR-0002 · the post-deploy smoke is the E2E run in the deploy workflow (ADR-0018 context) ·
   the prerender smoke guards ADR-0005's per-route OG coverage.
+- **Amended 2026-07-29 (#237):** post-deploy assertion is no longer *only* the deploy workflow's smoke.
+  `infra-apply` now carries the edge-rewrite assertion (`e2e/edge-rewrite.spec.ts`, #216), because it is
+  the workflow that changes the CloudFront Function — `deploy` is path-filtered to `apps/fed` and never
+  fired on that change, and asserting from `deploy` would race the apply. The general form: **a
+  post-deploy assertion belongs to the workflow that performs the change it observes**, not to whichever
+  workflow already had a browser.

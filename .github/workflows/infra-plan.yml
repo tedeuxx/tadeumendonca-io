@@ -49,6 +49,11 @@ jobs:
             iac:
               - 'iac/**'
               - '.github/workflows/infra-plan.yml'
+              # infra-apply triggers a real apply on ITSELF changing (its own paths include this file),
+              # so without this line a change to the applying workflow reaches production with no plan
+              # ever reviewed — while CLAUDE.md instructs "merge that touches iac/ → confirm the plan".
+              # Same defect shape as #237: the gate did not cover the file that drives it.
+              - '.github/workflows/infra-apply.yml'
 
       # Static analysis — hard-fail gate. Suppressions curated in iac/.checkov.yaml + inline #checkov:skip.
       - name: Checkov
