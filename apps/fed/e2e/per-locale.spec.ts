@@ -94,19 +94,27 @@ test.describe('served-HTML is prerendered per locale', () => {
 // `catalog.ts` typed its prose as plain strings. So a head-only check would have passed on the defect;
 // this asserts the BODY, in both directions, on the built artifact where the bug actually lived.
 test.describe('the portfolio body is per-locale', () => {
+  // One assertion per prose field, both directions. `proof` is covered explicitly because the first
+  // version of this guard asserted only `tagline` and `description` — so a `proof` that regressed to
+  // Portuguese on /en would have matched no negative and left the E2E green, one layer above where the
+  // unit test catches it. Partial coverage of a three-field defect is how the three days happened.
   test('/en/portfolio serves English copy and no Portuguese', async ({ request }) => {
     const body = await (await request.get('/en/portfolio/')).text();
-    expect(body).toContain('This site — a static React/Vite SPA');
-    expect(body).toContain('agent-driven SDLC');
+    expect(body).toContain('This site — a static React/Vite SPA'); // tagline
+    expect(body).toContain('agent-driven SDLC'); // description
+    expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
+    expect(body).not.toContain('se fecha na prática');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
     const body = await (await request.get('/pt/portfolio/')).text();
-    expect(body).toContain('Este site — SPA estático');
-    expect(body).toContain('entregue por um SDLC');
+    expect(body).toContain('Este site — SPA estático'); // tagline
+    expect(body).toContain('entregue por um SDLC'); // description
+    expect(body).toContain('se fecha na prática'); // proof
     expect(body).not.toContain('This site — a static React/Vite SPA');
+    expect(body).not.toContain('how an agent-driven SDLC actually closes');
   });
 });
 
