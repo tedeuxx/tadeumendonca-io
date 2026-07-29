@@ -28,7 +28,7 @@ The MIT licence above applies to the **software** in this repository: the
 application source, the Terraform under `iac/`, the build and prerender
 scripts, the CI workflows, the tests, and the configuration. Fork it, adapt it,
 ship it commercially — that is the intent, and `/architecture` says so out
-loud: *"fork the two repos, read the ADRs, adopt the skills plugin as your
+loud: *"fork the two repos, read the ADRs … adopt the skills plugin as your
 loop, then swap in your own content and positioning."*
 
 It does **not** cover the **editorial content**: the author's writing, the
