@@ -7,7 +7,7 @@
 // it ("o que você tira disso" — the optional `proof` field).
 import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
-import { useLocalePath, useT } from '../i18n';
+import { useLocale, useLocalePath, useT } from '../i18n';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   const t = useT();
@@ -23,6 +23,8 @@ function StatusBadge({ status }: { status: CatalogProject['status'] }) {
 // nesting anchors is invalid. The whole surface still reacts as one via the group hover.
 function ProjectCard({ project }: { project: CatalogProject }) {
   const t = useT();
+  // The prose fields are per-locale (#235); the facts (name, stack, urls) are not.
+  const { locale } = useLocale();
   return (
     <article className="group flex flex-col gap-3 border border-border p-6 transition-colors duration-150 hover:bg-foreground hover:text-background">
       {/* `min-w-0` + `anywhere` (#160): a repo name is one unbreakable token (`tadeumendonca.io`), so the
@@ -39,15 +41,15 @@ function ProjectCard({ project }: { project: CatalogProject }) {
         <StatusBadge status={project.status} />
       </div>
 
-      <p className="font-medium leading-snug">{project.tagline}</p>
-      <p className="text-[15px] leading-relaxed opacity-70">{project.description}</p>
+      <p className="font-medium leading-snug">{project.tagline[locale]}</p>
+      <p className="text-[15px] leading-relaxed opacity-70">{project.description[locale]}</p>
 
       {project.proof && (
         <p className="text-[15px] leading-relaxed">
           <span className="mb-0.5 block font-mono text-[0.64rem] uppercase tracking-[0.1em] text-primary">
             {t('portfolio.payoff')}
           </span>
-          {project.proof}
+          {project.proof[locale]}
         </p>
       )}
 

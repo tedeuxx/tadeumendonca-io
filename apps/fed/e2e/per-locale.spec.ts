@@ -89,6 +89,27 @@ test.describe('served-HTML is prerendered per locale', () => {
   });
 });
 
+// 3b · The PORTFOLIO body is per-locale too (#235). The head was already right — og:locale, canonical,
+// hreflang all localized — while the page's own copy was Portuguese in both editions, because
+// `catalog.ts` typed its prose as plain strings. So a head-only check would have passed on the defect;
+// this asserts the BODY, in both directions, on the built artifact where the bug actually lived.
+test.describe('the portfolio body is per-locale', () => {
+  test('/en/portfolio serves English copy and no Portuguese', async ({ request }) => {
+    const body = await (await request.get('/en/portfolio/')).text();
+    expect(body).toContain('This site — a static React/Vite SPA');
+    expect(body).toContain('agent-driven SDLC');
+    expect(body).not.toContain('Este site — SPA estático');
+    expect(body).not.toContain('entregue por um SDLC');
+  });
+
+  test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
+    const body = await (await request.get('/pt/portfolio/')).text();
+    expect(body).toContain('Este site — SPA estático');
+    expect(body).toContain('entregue por um SDLC');
+    expect(body).not.toContain('This site — a static React/Vite SPA');
+  });
+});
+
 // 4 · hreflang reciprocity + self-canonical — each locale page lists pt + en + x-default with ABSOLUTE
 // URLs; the canonical is SELF, never cross-locale; both editions advertise the SAME alternate set.
 test.describe('hreflang reciprocity + self-canonical', () => {

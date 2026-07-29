@@ -13,11 +13,14 @@ vi.mock('../data/catalog', () => ({
 
 import { PortfolioSection } from './PortfolioSection';
 
+// Distinct pt/en strings per prose field (#235): identical fixtures would render the same either way,
+// so the locale resolution would be untested — the shape of defect that let /en/portfolio ship
+// Portuguese copy in the first place.
 const sample: CatalogProject = {
   name: 'demo-project',
-  tagline: 'A demo automation.',
-  description: 'Does a thing.',
-  proof: 'como encadear um agente com ferramentas.',
+  tagline: { pt: 'Uma automação de exemplo.', en: 'A demo automation.' },
+  description: { pt: 'Faz uma coisa.', en: 'Does a thing.' },
+  proof: { pt: 'como encadear um agente com ferramentas.', en: 'how to chain an agent with tools.' },
   stack: ['Python'],
   repoUrl: 'https://github.com/tedeuxx/demo',
   liveUrl: 'https://example.com',
@@ -42,13 +45,31 @@ describe('PortfolioSection', () => {
     state.catalog = [sample];
     renderSection();
     expect(screen.getByRole('link', { name: /demo-project/ })).toHaveAttribute('href', sample.repoUrl);
-    expect(screen.getByText('A demo automation.')).toBeInTheDocument();
+    expect(screen.getByText('Uma automação de exemplo.')).toBeInTheDocument();
     expect(screen.getByText('Python')).toBeInTheDocument();
     expect(screen.getByText('O que você tira disso')).toBeInTheDocument();
     expect(screen.getByText(/como encadear um agente/)).toBeInTheDocument();
     expect(screen.getByText('Live')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Ver no GitHub/ })).toHaveAttribute('href', sample.repoUrl);
     expect(screen.getByRole('link', { name: /Ver ao vivo/ })).toHaveAttribute('href', sample.liveUrl);
+  });
+
+  // The bug this file's bilingual shape exists to prevent (#235): /en/portfolio served Portuguese copy
+  // because the prose fields were plain strings. Asserted in BOTH directions — each edition must show
+  // its own prose AND not leak the other's, which is the same parity contract the blog editions carry.
+  it('renders each edition in its own language, with no leak from the other', () => {
+    state.catalog = [sample];
+    const { unmount } = renderWithLocale(<PortfolioSection />, { locale: 'en' });
+    expect(screen.getByText('A demo automation.')).toBeInTheDocument();
+    expect(screen.getByText('Does a thing.')).toBeInTheDocument();
+    expect(screen.getByText(/how to chain an agent/)).toBeInTheDocument();
+    expect(screen.queryByText('Uma automação de exemplo.')).toBeNull();
+    unmount();
+
+    renderWithLocale(<PortfolioSection />, { locale: 'pt' });
+    expect(screen.getByText('Uma automação de exemplo.')).toBeInTheDocument();
+    expect(screen.getByText('Faz uma coisa.')).toBeInTheDocument();
+    expect(screen.queryByText('A demo automation.')).toBeNull();
   });
 
   it('omits the live link when the project has none', () => {
