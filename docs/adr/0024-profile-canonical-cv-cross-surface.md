@@ -85,8 +85,47 @@ prevent, appearing here as a *number* rather than as a claim.
 site derives. That is a *deliberate temporary incoherence* against the obligation above, tracked in
 issue #82 until the batch lands.
 
+## Amendment (2026-07-28) — the Canva CV is retired; the site is the only CV surface
+The hand-maintained designed CV (Canva) is **no longer a surface**. `profile.ts` is the single authored
+source; **`/me`** is the full interactive edition and **`/cv.pdf`** — printed from `/me` at build time
+([ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)) — is the downloadable one. **No CV artifact is
+maintained by re-typing any more.**
+
+**Why now, and why not at ADR-0034.** ADR-0034 deliberately declined to assert this (its "this does not
+retire Canva" note, which named *this* ADR as where the teardown would be recorded when it came — this
+amendment is that recording). At the time the site's PDF was a strictly *better copy of the same CV*, so
+which one was canonical did not much matter. ADR-0034's **2026-07-28 amendment** changed that: `/cv.pdf`
+became a **selective one-page edition**, a genuinely different artifact. Three editions of one person then
+existed at once and "which is canonical" acquired an answer that matters (Issue #225).
+
+**What it closes.** The private surface inventory recorded the Canva CV carrying a **different years figure
+and a different summary** from what the site publishes — drift as a *document* rather than as a claim,
+which is the failure mode this ADR exists to prevent and the one ADR-0034's Context paragraph describes.
+Retiring the document removes **the class of drift**, rather than resyncing it once.
+
+**Accepted costs (what is given up).**
+- The Canva CV was a **designed artifact** with typographic polish a print stylesheet does not match. The
+  replacement's design is the brutalist-mono print view (ADR-0008) — consistent, not equivalent.
+- Canva was **editable without a deploy**. `/cv.pdf` is **build-frozen** (ADR-0034's accepted cost): it
+  regenerates only on merge to `main`.
+- Both accepted, because a **second authoring surface** is precisely what produced the drift above.
+
+**The cross-surface set after this.** The surface list in the Context above loses Canva. What remains: the
+**site** (`/me` + `/cv.pdf`), **LinkedIn**, the **GitHub catalog**, **X**, the **newsletter**. Note the
+obligation is reduced, not discharged: **LinkedIn is still hand-maintained**, so it remains the surface that
+can drift.
+
+**Open action — this ADR does not complete the retirement.** The Canva design still exists in the owner's
+Canva account and must be **deleted or unpublished by him**, and any place linking to it (e.g. a LinkedIn
+Featured item) **repointed at `https://tadeumendonca.io/cv.pdf`**. Nothing in this repo points at Canva —
+verified by grep over `apps/fed/src` and `apps/fed/public`; the site never linked to it.
+
 ## Links
 - Driven by ADR-0001, ADR-0006 · the CV lives at `/cv` (ADR-0010) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23
   amendment.
+- Canva retired by the 2026-07-28 amendment (Issue #225), completing the teardown
+  [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md) deferred; the downloadable CV is `/cv.pdf` per
+  that ADR and its 2026-07-28 one-page-edition amendment. The Canva-account deletion and any external
+  relink remain an open owner action.
