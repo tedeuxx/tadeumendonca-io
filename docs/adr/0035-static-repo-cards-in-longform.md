@@ -44,7 +44,8 @@ The card's **description is a leaf-level `{pt,en}` field** living in the registr
 **Scope boundaries (deliberate)**
 - **Only the four Karpathy repos** get cards in this slice. The other GitHub links in the same section (Matt Pocock, Garry Tan) stay plain links — a filed follow-on, not folded in (WIP=1).
 - **Not a general provider registry.** One concrete `githubRepoUrl`-style match beside `youtubeId`, not a pluggable abstraction for a single provider (ADR-0001).
-- **Prerender/OG unchanged.** The cards are in the served HTML (the anchors prerender on the English baseline, ADR-0032); no new route, no sitemap change.
+- **Prerender/OG unchanged.** The cards are in the served HTML (the anchors prerender in **both** locales — [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md);
+  this cited ADR-0032's English baseline, retired 2026-07-26, #234); no new route, no sitemap change.
 
 ## Links
 - Driven by ADR-0004 (build-time, no runtime fetch — rules out the OG-image/API options), ADR-0032 (leaf `{pt,en}` shape + parity), ADR-0024 (facts-once / prose-per-locale), ADR-0008 (identity the card obeys), ADR-0012 (typed data module).

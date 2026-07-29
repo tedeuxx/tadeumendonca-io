@@ -65,6 +65,10 @@ Chosen: **option 1 — article `slug` becomes per-locale.**
   `meu-compromisso` unchanged). **No redirect** for the retired `/en/blog/meu-compromisso` — pre-launch, the
   LinkedIn post is not yet published, there are no external inbound links, and the SPA already soft-handles an
   unknown slug as an in-app not-found. (A one-slug redirect map would be the workaround the consistency rule rejects.)
+  *(The "pre-launch, not yet published" premise expired on 2026-07-26 — the site launched and ADR-0038 makes
+  LinkedIn + X distribution standing. The DECISION stands unchanged: the URL never circulated, so there is
+  nothing to redirect. Recorded rather than rewritten, because the same reasoning applied to a slug that HAS
+  circulated would give the opposite answer. #234.)*
 
 ## Consequences
 - **+** A clean, in-language, shareable URL per edition; the English LinkedIn strategy links `/en/blog/<en-slug>`;

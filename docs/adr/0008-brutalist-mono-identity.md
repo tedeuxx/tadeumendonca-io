@@ -46,6 +46,10 @@ absence of shadow/gradient are the point — the structure is visible.
 The **portrait** (the `/cv` header image and the small greyscale one in the landing's aside) is now a
 circle. Nothing else changes: cards, buttons, inputs, badges and rules stay **radius 0**.
 
+*(`/cv` is the route as it was named when this amendment was written; it is `/me` — `/pt/me` · `/en/me` —
+since ADR-0010's 2026-07-24 amendment and ADR-0036. Left as written per supersede-never-rewrite, and
+flagged here because that convention is declared inside ADR-0010 and is invisible from this file. #234.)*
+
 The reasoning is that "radius 0" is a rule about **surfaces** — the visible structure this ADR exists to
 expose. A face is not a surface; a circular crop is the convention for a portrait, the way a rule is the
 convention for a boundary. Applying the surface rule to a photograph was over-reach, not identity.

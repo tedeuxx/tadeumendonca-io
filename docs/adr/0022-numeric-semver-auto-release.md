@@ -41,11 +41,16 @@ Release, automatically.
   the tag went through, orphaning `v0.1.39`. Every later run then died on "tag already exists" — **four
   consecutive merges shipped no version and no Release**, and the break was self-perpetuating rather than
   self-healing. Fixed with `--atomic` plus a fetch/reset/retry loop.
-  The pattern across both incidents is the real cost being accepted here: **this pipeline is the one
+  The pattern across both incidents is the real cost being accepted here: ~~**this pipeline is the one
   piece of automation with no gate of its own.** `build-test` is path-filtered to `apps/fed`, so a change
   to `.github/workflows/**` is verified by nothing and first executes on the live release path. That gap
   is tracked separately; until it closes, "the pipeline needs its own care" means a human reading the
-  diff, which is exactly the kind of assurance this repo otherwise refuses to rely on.
+  diff, which is exactly the kind of assurance this repo otherwise refuses to rely on.~~
+  **→ Closed 2026-07-23 (#79).** `lint-workflows` is that gate: actionlint + shellcheck over
+  `.github/workflows/**`, on **every** PR, filtering inside the job so it can be a required check
+  ([ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)'s amendment). The struck text is kept as the record
+  of the gap that motivated it — but it named a condition that has been met, on the ADR whose own incident
+  motivated the fix, which is the worst place to leave a stale "tracked separately" (#234).
 
 ## Links
 - Driven by ADR-0003 · rules in the plugin's `/workflow/versioning` · `version-main` runs on merge.
