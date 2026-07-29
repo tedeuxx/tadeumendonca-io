@@ -18,5 +18,14 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts"]
+  // `e2e` is IN, deliberately (#231). It was outside, so `npm run typecheck` — the only typecheck any
+  // gate runs — never saw the E2E suite: a mistyped key, a bad fixture destructure, a locator built from
+  // an `undefined` constant all reached CI as a runtime failure at best, and as a silently weaker
+  // assertion at worst. The suite is this repo's functional-regression proof (ADR-0019) and should meet
+  // the bar of the code it verifies.
+  //
+  // `playwright.config.ts` stays OUT: it reads `process.env`, and typing it needs `@types/node`, which
+  // this app does not depend on. Adding a dependency to typecheck one config file is a worse trade than
+  // leaving that file where it already was — the specs are where the assertions live, and they are in.
+  "include": ["src", "e2e", "vite.config.ts", "vitest.config.ts"]
 }
