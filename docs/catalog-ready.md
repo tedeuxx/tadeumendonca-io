@@ -11,43 +11,60 @@ for its own sake: someone who opens the repo should immediately see an AI Engine
 
 ## What this bar governs — and the one repo it does not
 
-It governs **projects that graduate into the catalog** — things you **install and run**. Four boxes
-carry that scope: *a clean clone runs from the README alone* · *config via `.env.example`* · *a README
-with the run block* · *one honest limitation before you depend on it*. Note what this does **not** claim:
-the other boxes — no secrets, no client references, a LICENSE, green on its own basics, every choice
-stated with its trade-off — apply to any published repo, and the platform passes them.
+It governs **projects that graduate into the catalog** — things you install and run. `tadeumendonca-io`,
+the platform repo, is listed in the catalog because it **is** the site, not because it graduated onto
+its own shelf, and it is measured differently.
 
-**`tadeumendonca-io` — the platform repo — is measured differently, and it is listed in the catalog
-because it is the site itself, not because it graduated onto its own shelf.** The line is not
-adopted-vs-not: this repo is very much meant to be taken from — *"fork the two repos … adopt the skills
-plugin as your loop"* is the invitation `/architecture` makes, and `/portfolio` says the catalog is
-there *"to study, clone and use."* The line is **what** you take. `/architecture` already names it:
-**"Take the pattern, not the specifics."** You adopt a catalog project by installing it; you adopt this
-one by reading it and building your own. A checklist about clone-and-run is asking the wrong questions
-of the second case, and it would still be asking them if this repo passed every box.
+**Where the line actually falls.** Not adopted-vs-not: this repo is emphatically meant to be taken from
+— *"fork the two repos … adopt the skills plugin as your loop"* is the invitation `/architecture` makes,
+and `/portfolio` says the catalog is there *"to study, clone and use."* A reader really does clone this
+and run it. **What they end up running is their own site, not this one.** That is the difference the
+checklist cannot see: for a catalog project the artifact *is* the deliverable, so *does it install, does
+it run, what breaks* are the whole question. Here the structure is the deliverable and the artifact is
+one worked example of it — which is what `/architecture` means by **"Take the pattern, not the
+specifics."**
+
+**The twelve boxes, accounted for — all of them, because a partial partition is how this section would
+become the thing it argues against.**
+
+| box | platform |
+|---|---|
+| Solves a real problem from my own workflow | **passes** |
+| Demonstrates an agentic / AI-native pattern | **fails** — see below |
+| Python-first where it fits | **n/a** — the bar's own text calls it "the preference, not a hard gate" |
+| A clean clone runs from the README alone | **scoped out** — a clone runs, and produces *your* site |
+| Config via `.env.example` | **scoped out** — nothing to configure; there are no keys and no backend |
+| No secrets in history | **passes** |
+| No client references | **passes** |
+| A LICENSE | **passes** |
+| A README in the new framing (run block · honest limitation · the agentic pattern) | **scoped out** for the run block; the limitation is published on `/architecture` |
+| Every choice stated with its trade-off | **passes** — that is what the ADR library is |
+| Green on its own basics | **passes**, and by a stricter mechanism (below) |
+| Newsletter-ready: there's a story | **passes** |
+
+Three scoped out, one failed, seven passed, one not applicable. Nothing is claimed for boxes that are not
+listed, because they are all listed.
+
+**The failed box, said plainly rather than dissolved into a scoping question:** *demonstrates an agentic
+/ AI-native pattern.* This site's shipped artifact is a static SPA, and a static SPA is not an agentic
+tool. The repo is **built** agent-first — a claim about its process, not about what it hands you — and
+the agentic artifact of this work is the reusable loop in
+**[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)**, a different repo. Scoping
+does not rescue that box, and pretending the question does not apply would be exactly the move this
+section exists to avoid.
 
 That is a **scoping** statement, not an exemption, and saying so matters because changing a standard so
 the one item measured against it passes is otherwise indistinguishable from convenience. What the
-platform is held to instead is **not lighter, and heavier on a different axis**: an ADR library
-recording every decision and the trade-off it cost, the blocking CI gates (see
-[ADR-0018](./adr/0018-ci-gates-e2e-on-pr-coverage.md) — enumerating them here would be a fourth copy of
-a list that already drifts), and `/architecture`, which publishes how the site is built **including its
-own honest limitation**. Those are checkable: the ADRs are public and so is the CI config.
-
-Being precise rather than flattering, because two things here are easy to overstate:
-
-Those substitutes are rigor **of construction**; this checklist measures legibility **to an adopter**.
-Different axes, not points on one scale — so *"held to more"* is only true where the comparison is
-like-for-like. It is: this bar accepts *"green on its own basics **or a documented 'how I verified
-it'"*** — a prose claim — where the platform is held to blocking CI. On the adopter-facing four, the
-platform would simply lose, and that is the case for scoping it out rather than a case for claiming
-it wins.
-
-And one box it would lose on its merits, said plainly rather than dissolved into a scoping question:
-**demonstrates an agentic / AI-native pattern.** A static SPA is not an agentic tool. This repo is
-*built* agent-first — which is a claim about its process, not its artifact — and the agentic artifact
-is the skills plugin, a different repo. Scoping does not rescue that box, and pretending the question
-does not apply would be the exact move this section exists to avoid.
+platform is held to instead is **heavier on the axis of construction rigor, and simply different on the
+axis this checklist measures** — which is legibility to an adopter. Those are not points on one scale,
+so a bare *"held to more"* would be flattery. Where the comparison **is** like-for-like it holds and is
+checkable: this bar accepts *"green on its own basics **or a documented 'how I verified it'"*** — a prose
+claim — where the platform is held to blocking CI. The substitutes are an ADR library recording every
+**load-bearing** decision and the trade-off it cost, those gates (see
+[ADR-0018](./adr/0018-ci-gates-e2e-on-pr-coverage.md) — enumerating them here would be a fourth copy of a
+list that has already drifted once), and `/architecture`, which publishes how the site is built including
+its own honest limitation. The ADRs are public and so is the CI config, so none of that has to be taken
+on trust.
 
 Two consequences, so this cannot be read as the bar getting easier:
 
@@ -79,8 +96,11 @@ what stands on its own.
 **Safe to be public**
 - [ ] **No secrets** in history (tokens, keys, endpoints). Scan before the first push; if one ever
       landed, rotate it and scrub the history — don't just delete the file.
-- [ ] **No client/employer references** — abstract any war-story to a generic problem (the public-writing
-      rule). Past private work stays private.
+- [ ] **No client references, and no war-story that identifies an employer** — abstract any to a generic
+      problem (the public-writing rule). Past private work stays private. Stating your own employment
+      history is not that: a CV names employers, and always has. The line is between *where you worked*
+      and *what you did there for whom* — the first is a fact about you, the second is someone else's
+      to disclose.
 - [ ] A **LICENSE** (MIT unless there's a reason otherwise).
 
 **Presentable**
