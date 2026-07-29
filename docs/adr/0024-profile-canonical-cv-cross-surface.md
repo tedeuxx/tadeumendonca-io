@@ -88,8 +88,10 @@ issue #82 until the batch lands.
 ## Amendment (2026-07-28) — the Canva CV is retired; the site is the only CV surface
 The hand-maintained designed CV (Canva) is **no longer a surface**. `profile.ts` is the single authored
 source; **`/me`** is the full interactive edition and **`/cv.pdf`** — printed from `/me` at build time
-([ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)) — is the downloadable one. **No CV artifact is
-maintained by re-typing any more.**
+([ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)) — is the downloadable one. **No CV *document* is
+maintained by re-typing any more** — deliberately not "no CV artifact": LinkedIn is still hand-maintained
+(see the cross-surface set below), and overstating that here is how a record gets quoted into a claim it
+does not support.
 
 **Why now, and why not at ADR-0034.** ADR-0034 deliberately declined to assert this (its "this does not
 retire Canva" note, which named *this* ADR as where the teardown would be recorded when it came — this
@@ -124,9 +126,8 @@ throw away the only copy of a document that may still be sitting in someone's in
 
 **Nothing points at it, so the retirement takes effect immediately and carries no follow-up.** The site
 never linked to Canva (grep over `apps/fed/src` and `apps/fed/public`), and there is **no Featured item or
-other link to it on LinkedIn** (owner, on this MR — an earlier draft of this amendment assumed one and named
-repointing it as an open action; that action does not exist). No reader can reach the old edition through a
-surface anyone maintains.
+other link to it on LinkedIn** (owner, 2026-07-28). No reader can reach the old edition through a surface
+anyone maintains.
 
 **The residual risk is therefore only this:** the retained document carries a **different years figure and a
 different summary** from what the site publishes, and the retirement is a **convention, enforced by nobody**.

@@ -42,7 +42,7 @@ The `/cv.pdf` name collides with nothing: the `/cv` route redirect was **dropped
 - **Not a crawlable route.** `/cv.pdf` is a static binary object, not an HTML page, so it is kept **out of `scripts/routes.mjs`** and out of the sitemap. ADR-0005 governs OG/SEO completeness for **HTML routes**; a PDF asset is not one, so the "every public URL is OG-complete" contract does not reach it and must not be stretched to.
 - **The CI `build-test` gate was switched to `build:static`** so the artifact is actually produced and exercised on the PR — not only at deploy — keeping the gate honest (ADR-0018): the PR verifies what merge will ship.
 
-**Cross-surface note — this does not retire Canva (deliberately).** This ADR records a new site **capability**: the site can now emit its own downloadable CV. It does **not** assert "the site is the single CV source" or "Canva is retired" — ADR-0024 still lists the Canva CV as a live surface, and the actual Canva teardown is an owner-driven decision outside this slice. When Canva is genuinely retired, ADR-0024's cross-surface set gets a **future amendment** recording that change; this ADR does not pre-decide it.
+**Cross-surface note — this does not retire Canva (deliberately).** This ADR records a new site **capability**: the site can now emit its own downloadable CV. It does **not** assert "the site is the single CV source" or "Canva is retired" — ADR-0024 still lists the Canva CV as a live surface, and the actual Canva teardown is an owner-driven decision outside this slice. When Canva is genuinely retired, ADR-0024's cross-surface set gets a **future amendment** recording that change; this ADR does not pre-decide it. **→ Discharged 2026-07-28**: Canva **was** retired (logically — the design is kept but is no longer a surface), recorded in [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s 2026-07-28 amendment (Issue #225). The paragraph above is left as written because it is an accurate record of what this slice deliberately did *not* decide — but the state it describes is no longer current.
 
 ## Amendment (2026-07-26) — the PDF source route string is now `/en/me`
 [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) introduces symmetric per-locale URL prefixes, so the
@@ -127,7 +127,7 @@ cutting a role, which reads as a gap on a CV. And the print stylesheet is now **
 edit to it is an editorial change to what a recruiter reads, not a styling change.
 
 ## Links
-- Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it, without yet retiring Canva).
+- Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it; the Canva retirement it deferred was taken by 0024's 2026-07-28 amendment, #225).
 - Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
 - `/cv.pdf` is linked from `/me` (ADR-0010); the `/cv` redirect was dropped pre-launch, so the path is free.
 - EN-only on the English prerender baseline (ADR-0032); a pt-BR edition is a deferred follow-on.
