@@ -1,0 +1,53 @@
+MIT License
+
+Copyright (c) 2026 Luiz Tadeu Mendonça
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## What the MIT grant above covers, and what it does not
+
+The MIT licence above applies to the **software** in this repository: the
+application source, the Terraform under `iac/`, the build and prerender
+scripts, the CI workflows, the tests, and the configuration. Fork it, adapt it,
+ship it commercially — that is the intent, and `/architecture` says so out
+loud: *"fork the two repos, read the ADRs, adopt the skills plugin as your
+loop, then swap in your own content and positioning."*
+
+It does **not** cover the **editorial content** — the author's writing and
+professional record, which are published here to be read, not relicensed:
+
+- `apps/fed/src/content/**` — the articles, the ramp-up plan, the architecture
+  page
+- `apps/fed/src/data/profile.ts` — the CV
+- `apps/fed/src/data/catalog.ts` and `apps/fed/src/data/repoCards.ts` — the
+  portfolio copy
+- `apps/fed/src/i18n/messages.ts` — the site's UI copy
+- `apps/fed/public/**` and the images — including the OG cards and the portrait
+
+Those are **© 2026 Luiz Tadeu Mendonça, all rights reserved**. Quote them with
+attribution as you would any published writing; do not republish them wholesale
+or present them as your own.
+
+The split is not an afterthought — it is the same sentence `/architecture`
+closes on: **the structure carries; the words are yours.** The structure is
+what is being given away. The words are not, because a CV and a body of writing
+under a permissive software licence could be reposted verbatim by anyone,
+including under someone else's name.

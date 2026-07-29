@@ -5,16 +5,30 @@ the owner's proof-of-engineering: an interactive CV, a portfolio that links to a
 and agentic tools, and a blog. It backs a repositioning to **AI Engineer** (agentic development / AI-native
 automations), anchored in SDLC and distributed systems.
 
-Three surfaces:
+**Every public URL carries a locale prefix** — `/pt/…` and `/en/…` — and the path is authoritative, so a
+shared link keeps its language regardless of the reader's browser (ADR-0036). The bare root `/` is the one
+deliberate exception: it is prerendered in English as the `x-default` entry for a JS-less crawler.
 
-1. **Interactive CV** (`/`) — canonical reference of the owner's experience.
-2. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code.
-3. **Blog** (`/blog`) — long-form engineering writing with explicit trade-offs.
+Five surfaces:
+
+1. **Landing** (`/`) — the storefront; it also hosts the articles list (`#artigos`).
+2. **Interactive CV** (`/me`) — canonical reference of the owner's experience, and the only CV surface.
+   `/cv.pdf` is the one-page recruiter edition printed from it at build time.
+3. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code.
+4. **Ramp-up** (`/ramp-up`) — the open plan for the AI-Engineer transition.
+5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and both public repos.
+
+Long-form writing lives at `/blog/:slug`, with a **per-locale slug** (ADR-0037). There is no `/blog` list
+page — it was retired, and `/blog` redirects to the landing's `#artigos`.
 
 ## Stack
 
-- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), **no PWA**. Content (CV, articles) is **markdown in the repo**; the build **prerenders each route** (Playwright)
-  so OG/SEO tags land in the served HTML. UI copy is pt-BR.
+- **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), **no PWA**. Content ships
+  in the repo in two shapes — **markdown** for long-form (articles, ramp-up, architecture) and **typed
+  TypeScript** for structured data (`src/data/profile.ts` is the CV). The build **prerenders each route in
+  both locales** (Playwright) so OG/SEO tags land in the served HTML, and prints `/cv.pdf` in the same pass.
+  **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
+  translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
 - **Infra** (`iac`): Terraform for the frontend only — S3 + CloudFront (with a viewer-request URL-rewrite
   function), custom email via iCloud, and the GitHub OIDC deploy roles. State in Terraform Cloud, **local**
   execution; `apply`/`destroy` are **pipeline-only**.
@@ -27,9 +41,19 @@ on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's i
 ```
 apps/
   fed/    # the static SPA (React + Vite + Tailwind, no PWA)
+docs/
+  adr/    # the decision library — the architecture documentation; start at 0001
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
+          # plus one account-wide cost budget, deliberately not scoped to this project
+LICENSE   # MIT on the code; the editorial content is reserved — see the file
 VERSION   # single version (numeric SemVer)
 ```
+
+## Licence
+
+**MIT on the software, editorial content reserved.** The code — the SPA, `iac/`, the build scripts, the
+workflows — is yours to fork and ship. The writing and the CV are not: they are published to be read, not
+relicensed. `LICENSE` states the split and which paths fall on each side.
 
 ## Workflow (trunk-based)
 
@@ -39,7 +63,10 @@ VERSION   # single version (numeric SemVer)
 
 ## CI (`.github/workflows/`)
 
-`build-test` (lint + typecheck + test ≥85% + build + E2E + SonarCloud, path-filtered to `apps/fed`); `infra-plan`
+`build-test` (dependency audit + lint + typecheck + test ≥85% + build + E2E + SonarCloud; path-filtered to
+`apps/fed/**`, `packages/shared/**` **and `iac/cloudfront-functions/**`** — that last path is load-bearing,
+not a stray: the CloudFront rewrite function is JS with behaviour, so it is unit-gated here rather than by
+`infra-plan`); `infra-plan`
 (checkov + `plan`, path-filtered to `iac/`); `lint-workflows` (actionlint + shellcheck over
 `.github/workflows/**`). Each runs on **every** PR and applies its path filter inside the job, then reports
 whether it skipped, failed part-way, or ran in full — a check that matched nothing must not read like one
