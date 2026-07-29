@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { LOCALE_OFFER_LABEL } from './locale-offer-labels';
 
 // Horizontal-overflow regression guard (#159). The page body must NEVER scroll sideways — on a fixed-
 // canvas brutalist layout a horizontal scrollbar is a visible defect. This is the exact check that found
@@ -45,7 +46,7 @@ test.describe('no horizontal overflow at any width', () => {
   test('the locale offer does not overflow at the narrowest width', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: HEIGHT });
     await page.goto('/en/me/');
-    await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toBeVisible();
+    await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt })).toBeVisible();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

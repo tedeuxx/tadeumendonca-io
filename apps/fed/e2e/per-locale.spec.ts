@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { LOCALE_OFFER_LABEL, LOCALE_OFFER_LABELS } from './locale-offer-labels';
 
 // Per-locale URLs (ADR-0036). Every public route is served under a first-class locale prefix — /pt/… and
 // /en/… — each with its own prerendered, self-canonical, OG-complete HTML and reciprocal hreflang
@@ -237,7 +238,7 @@ test.describe('locale offer on a link that pins the other language', () => {
 
     test('is offered Portuguese, and accepting lands on the sibling URL', async ({ page }) => {
       await page.goto('/en/me/');
-      const offer = page.getByRole('region', { name: 'Sugestão de idioma' });
+      const offer = page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt });
       await expect(offer).toBeVisible();
       // Written in the reader's language, not the page's — the whole point is that they may not read
       // the page's language.
@@ -248,15 +249,15 @@ test.describe('locale offer on a link that pins the other language', () => {
       // Same logical route, not the landing.
       await expect(page.getByRole('heading', { level: 1, name: 'Luiz Tadeu Mendonça' })).toBeVisible();
       // Not re-offered on the edition just chosen.
-      await expect(page.getByRole('region', { name: /idioma|Language suggestion/ })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: new RegExp(LOCALE_OFFER_LABELS.join('|')) })).toHaveCount(0);
     });
 
     test('is not offered again after dismissing, on this or another page', async ({ page }) => {
       await page.goto('/en/me/');
       await page.getByRole('button', { name: 'Continuar em inglês' }).click();
-      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt })).toHaveCount(0);
       await page.goto('/en/portfolio/');
-      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt })).toHaveCount(0);
     });
 
     // The branch the plan-review flagged as most likely to regress silently: a reader who CHOSE the
@@ -267,7 +268,7 @@ test.describe('locale offer on a link that pins the other language', () => {
       await page.goto('/pt/me/');
       await page.getByRole('group', { name: 'Idioma' }).getByRole('button', { name: 'EN' }).click();
       await expect(page).toHaveURL(/\/en\/me\/?$/);
-      await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt })).toHaveCount(0);
     });
   });
 
@@ -275,7 +276,7 @@ test.describe('locale offer on a link that pins the other language', () => {
     test.use({ locale: 'en-US' });
     test('is offered nothing — the page is already their language', async ({ page }) => {
       await page.goto('/en/me/');
-      await expect(page.getByRole('region', { name: /Language suggestion|Sugestão de idioma/ })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: new RegExp(LOCALE_OFFER_LABELS.join('|')) })).toHaveCount(0);
     });
   });
 });
@@ -332,13 +333,28 @@ test.describe('sitemap advertises every per-locale URL', () => {
 // Asserted against the SHIPPED HTML rather than in a component test, because that is where the defect
 // existed: every unit test passed while `dist/pt/**` carried an offer to read in English.
 test.describe('the prerendered HTML carries nothing visitor-specific', () => {
-  test('no locale-suggestion offer is baked into either edition', async ({ request }) => {
+  test.use({ locale: 'pt-BR' });
+
+  test('no locale-suggestion offer is baked into either edition', async ({ page, request }) => {
+    // FIRST prove the label is still live (#231). This assertion is negative, and a negative assertion
+    // never fails on a bad selector: rename `localeSuggestion.notice` and the greps below would search
+    // for a string that exists nowhere — and pass, having checked nothing. So the guard earns its
+    // negative half by demonstrating the positive one on a page where the offer MUST appear: a pt-BR
+    // reader on the English edition. If the copy changed, this line goes red, loudly, instead of the
+    // real check silently going vacuous.
+    await page.goto('/en/me/');
+    await expect(
+      page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt }),
+      'the offer label changed — update e2e/locale-offer-labels.ts, or the check below verifies nothing',
+    ).toBeVisible();
+
     for (const path of ['/pt/', '/en/', '/pt/me/', '/en/me/']) {
       const html = await (await request.get(path)).text();
       // Both directions: the pt snapshot must not offer English, and the en snapshot must not offer
       // Portuguese. Matching the aria-label catches the region whatever the button copy becomes.
-      expect(html, `${path} carries a baked locale offer`).not.toContain('Sugestão de idioma');
-      expect(html, `${path} carries a baked locale offer`).not.toContain('Language suggestion');
+      for (const label of LOCALE_OFFER_LABELS) {
+        expect(html, `${path} carries a baked locale offer`).not.toContain(label);
+      }
     }
   });
 });
