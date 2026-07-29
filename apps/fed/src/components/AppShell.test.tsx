@@ -1,8 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { AppShell } from './AppShell';
+import { ConsentProvider } from '../lib/consent';
 import { renderWithLocale } from '../test-utils';
 import { STORAGE_KEY, type Locale } from '../i18n';
+
+// The offer's aria-label is in the SUGGESTED language, not the page's, so it is one of the two.
+const OFFER_LABEL = /Language suggestion|Sugestão de idioma/;
 
 const renderShell = (locale: Locale = 'pt') =>
   renderWithLocale(
@@ -13,6 +17,8 @@ const renderShell = (locale: Locale = 'pt') =>
   );
 
 beforeEach(() => window.localStorage.removeItem(STORAGE_KEY));
+// The env stub is per-test; leaking it would silently enable the consent bar in every later render.
+afterEach(() => vi.unstubAllEnvs());
 
 describe('AppShell', () => {
   it('renders the brand, children and the static nav (no auth, no feed)', () => {
@@ -72,12 +78,39 @@ describe('AppShell', () => {
     // There is exactly ONE bottom container, and a real notice is inside it. Both halves are load-bearing:
     // without the count, splitting the notices into two containers passes (querySelector takes the first);
     // without the containment, an EMPTY container in the right place passes and the ordering asserts
-    // nothing about the notices it exists to order. This is as far as the guard reaches here —
-    // `analyticsConfigured()` is false under Vitest, so ConsentBanner renders null and only the locale
-    // offer is observable in this tree. That the two share the container is asserted structurally
-    // (one container) rather than by finding both.
+    // nothing about the notices it exists to order.
     expect(container.querySelectorAll('.fixed.bottom-0')).toHaveLength(1);
-    expect(screen.getByRole('region', { name: /Language suggestion|Sugestão de idioma/ }).parentElement).toBe(stack);
+    expect(screen.getByRole('region', { name: OFFER_LABEL }).parentElement).toBe(stack);
+  });
+
+  // The other half of #230's guarantee: BOTH notices in the one container, in the order #172 fixed.
+  //
+  // It needs its own render, and the reason is worth stating because the obvious one is wrong: the
+  // consent bar is absent from the default tree not because analytics is unconfigured under Vitest, but
+  // because `useConsent()` falls back to **'denied'** with no ConsentProvider mounted, and ConsentBanner
+  // returns null on `status !== 'undecided'` before the measurement id is ever read. Both conditions have
+  // to be supplied — the provider AND the id.
+  //
+  // Wrapping in ConsentProvider is not a contrivance: it is what `App.tsx` wraps AppShell in for real, so
+  // this tree is closer to production than the bare one above.
+  it('keeps both notices in the one stack, offer above consent, for an undecided reader', () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST12345');
+    const { container } = renderWithLocale(
+      <ConsentProvider>
+        <AppShell>
+          <div>child content</div>
+        </AppShell>
+      </ConsentProvider>,
+    );
+    const stack = container.querySelector('.fixed.bottom-0');
+    if (!stack) throw new Error('AppShell must render the bottom stack');
+
+    const offer = screen.getByRole('region', { name: OFFER_LABEL });
+    const consent = screen.getByRole('region', { name: 'Aviso de cookies' });
+    expect(offer.parentElement).toBe(stack);
+    expect(consent.parentElement).toBe(stack);
+    // The offer sits ABOVE the consent bar, so it precedes it inside the container.
+    expect(offer.compareDocumentPosition(consent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('carries no PWA chrome — the offline banner and install prompt are retired', () => {
