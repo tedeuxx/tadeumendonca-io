@@ -4,11 +4,17 @@
 This repo is the public presence for **tadeumendonca.io**: an interactive CV, a portfolio that links to a
 curated **catalog** of automations / agentic tools, and a blog. It was formerly a backend-ful monorepo (a
 Hono/Lambda BFF, Cognito, API Gateway, DynamoDB, SES); that backend was **retired** and the site is now static —
-content ships as **markdown in the repo**, prerendered at build time for OG/SEO.
+content ships **in the repo** — markdown for long-form, typed TypeScript for structured data — prerendered
+at build time, in both locales, for OG/SEO.
 
 > Convention: everything **published on GitHub** (this file, READMEs, descriptions, commit/PR text, issues) is
-> written in **English**. The site's UI copy is **bilingual (pt-BR + en, ADR-0032** — auto-detect + toggle,
-> English prerender baseline); that's content, not GitHub publication.
+> written in **English**. The site's copy is **bilingual (pt-BR + en, ADR-0032)** — chrome, CV and
+> long-form alike — and **both locales are prerendered**, each route snapshotted with its own head
+> (ADR-0036 retired 0032's English-pinned prerender clause; only the bare `/` snapshot is still English,
+> as the x-default entry). That's content, not GitHub publication.
+> **One known exception, and it is a bug, not a policy:** `src/data/catalog.ts` is authored in Portuguese
+> only, so `/en/portfolio` currently serves Portuguese copy (#235). The rule stands; the file does not
+> follow it yet.
 
 ## Engineering principles (always-on floor — non-negotiable)
 This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;
@@ -48,14 +54,36 @@ apply`/`destroy`, direct cloud mutation, force-push, `rm -rf`, secret writes); *
 ## Purpose (why it exists)
 tadeumendonca.io is the owner's **proof-of-engineering** public presence, backing a repositioning to
 **AI Engineer** (agentic development / AI-native automations), anchored in SDLC + distributed-systems
-experience. The site is the storefront; the **argument is the code it links to**. Three surfaces:
-1. **Interactive CV** (`/me`) — the canonical reference of the owner's experience, and now the **only** CV
+experience. The site is the storefront; the **argument is the code it links to**.
+
+**Public URLs carry a locale prefix** — `/pt/…` and `/en/…` (ADR-0036). The path is **authoritative**:
+`/pt/me` renders the Portuguese edition regardless of the visitor's browser, which is what makes a shared
+link keep its language. Sub-paths without a prefix (`/me`, `/portfolio`) exist only as a client-side
+redirect to the reader's edition; they are **not** prerendered and must never be advertised in hreflang or
+the sitemap. **The bare root `/` is the one exception, deliberately**: it *is* prerendered (the English
+landing), *is* in the sitemap, and *is* the advertised `x-default` — it is the JS-less crawler's entry
+point. `apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set; read it before
+assuming a route exists.
+
+**Five public surfaces** — `STATIC_ROUTES` in `apps/fed/scripts/routes.mjs` is
+`['/', '/me', '/portfolio', '/ramp-up', '/architecture']` — plus the article route, which is **not** in
+that list:
+1. **Landing** (`/`) — the storefront. It also **hosts the articles list** (`#artigos`), which is why there
+   is no separate blog index (below).
+2. **Interactive CV** (`/me`) — the canonical reference of the owner's experience, and now the **only** CV
    surface: the Canva CV was retired (ADR-0024 amendment) once `/cv.pdf` became a real artifact rather than
    a capability. `/me` is the full edition; `/cv.pdf` is the one-page recruiter edition printed from it at
    build time (ADR-0034). Both derive from `profile.ts` — nothing is maintained by re-typing. LinkedIn is
    the one CV-bearing surface still hand-maintained, so it is the one that can still drift.
-2. **Portfolio** (`/portfolio`) — a curated **catalog** of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code. The bar a project must clear to be published is `docs/catalog-ready.md`.
-3. **Blog** (`/blog`) — long-form engineering writing with explicit trade-offs (distributed-systems / AI patterns).
+3. **Portfolio** (`/portfolio`) — a curated **catalog** of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code. The bar a project must clear to be published is `docs/catalog-ready.md`.
+4. **Ramp-up** (`/ramp-up`) — the open plan for the AI-Engineer transition. Markdown-in-repo, both locales.
+5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and the two public repos.
+   Markdown-in-repo, both locales.
+
+**Blog** — long-form engineering writing with explicit trade-offs (distributed-systems / AI patterns) — is
+**not a static route**. There is no `/blog` list page: it was retired, and `/blog` redirects to the
+landing's `#artigos`. The only real article route is `/blog/:slug`, and the slug is **per-locale**
+(ADR-0037), so the two editions of one article carry different URLs.
 
 **Operating rules (not flavor):** defensible decisions with documented trade-offs (the code is public and IS
 the pitch); **no over-engineering** (simplest thing that solves it), but **not a playground** (it must work);
@@ -63,13 +91,24 @@ the pitch); **no over-engineering** (simplest thing that solves it), but **not a
 
 ## Architecture (static — read before changing infra)
 A **fully static SPA** (React + Vite + TypeScript, no PWA) built to `dist/` and served from
-**S3 + CloudFront**; a **CloudFront Function** (viewer-request) rewrites clean URLs. Content (CV, articles) is
-**markdown in the repo** (frontmatter + react-markdown), and the build **prerenders each route** (Playwright
-snapshot of `vite preview`) so OG/SEO tags land in the served HTML. There is **no backend** — no API, no
-database, no auth, no Lambda.
+**S3 + CloudFront**; a **CloudFront Function** (viewer-request) rewrites clean URLs. Content is **in the
+repo**, in two shapes: **markdown** for long-form (articles, ramp-up, architecture — frontmatter +
+react-markdown) and **typed TypeScript** for structured data (`src/data/profile.ts` is the CV,
+`catalog.ts` the portfolio). The build **prerenders each route in both locales** (Playwright snapshot of
+`vite preview`) so OG/SEO tags land in the served HTML, and prints `/cv.pdf` from `/en/me` in the same
+pass. There is **no backend** — no API, no database, no auth, no Lambda.
 
-`iac/` provisions only the frontend: S3 (`storage.tf`), CloudFront + the URL-rewrite function (`frontend.tf`),
-custom email via iCloud (MX/DKIM/SPF, `email.tf`), and the GitHub OIDC deploy roles (`iam.tf`). Cost is
+**The prerender is not a visitor** (ADR-0036 amendment): it snapshots in a single en-US browser and that
+HTML is served to everyone, so anything rendering off the **visitor** (language, storage, viewport) rather
+than the **route** must opt out via `window.__PRERENDER__`. A post-mount flag does not do it — the
+snapshot is taken from an already-hydrated page. The exemption is *"identical for every visitor"*, not
+*"does not render"*.
+
+`iac/` is **frontend infra plus one account-wide guardrail**: S3 (`storage.tf`), CloudFront + the
+URL-rewrite function (`frontend.tf`), custom email via iCloud (MX/DKIM/SPF, `email.tf`), the GitHub OIDC
+deploy roles (`iam.tf`), and an **account-level cost budget** (`budget.tf`) — deliberately *not* scoped to
+this project's tags, so it catches spend this repo did not create. Plus the usual Terraform scaffolding
+(`data.tf`, `locals.tf`, `outputs.tf`, `variables.tf`, `versions.tf`, `providers.tf`, `env/`). Cost is
 **near-zero / scale-to-zero** (static objects on CloudFront `PriceClass_100`; no always-on compute). The
 security surface is minimal (no server, no auth); the CI OIDC roles are least-privilege and pinned to the
 repo's **immutable OIDC subject** (`repo:<org>@<org_id>/<repo>@<repo_id>:*` — see `iam.tf` `local.github_oidc_sub`).
@@ -83,8 +122,12 @@ staging-backed local dev) **does not apply here**. If a principles skill and thi
 file wins.
 
 Two consequences worth stating outright, because they are what the other model gets wrong:
-- **The PR to `main` carries the entire gate.** There is no downstream tier to defer a check to, so
-  `build-test` blocking on the PR is the whole verification story — a gate skipped there never runs.
+- **The PR to `main` carries the gate.** There is no downstream *environment* to defer a check to, so a
+  check skipped on the PR is a check that never runs — with **one deliberate exception**: assertions that
+  are **unsatisfiable before the deploy exists** (today, that the CloudFront Function is attached and
+  accepted at the edge — #216). Those live in the post-deploy smoke and **skip** elsewhere rather than
+  going red for a harness reason. The test is not "is it convenient to defer" but "can this be true
+  before merge at all"; if it can, it belongs on the PR.
 - **`main` is the working branch, not a protected production mirror.** Never add tooling that blocks
   edits or commits by branch context; it would break every slice.
 
@@ -94,7 +137,8 @@ Two consequences worth stating outright, because they are what the other model g
   **every** PR before merging, unprompted; it verifies the MR Definition of Done with real evidence and
   then either **approves-and-merges the safe class itself** (docs, dependency bumps, tests, in-pattern
   work implementing an already-approved spec) or **escalates the boundary class to the owner** (`iac/`,
-  contract/schema, reader-facing content **by path** — see the ⚠️ section — anything that creates or
+  contract/schema, reader-facing content — see the ⚠️ section for the rule, which is by what the file
+  IS, not by a path list — anything that creates or
   changes an ADR decision, anything irreversible). *Significance beats in-pattern:* when the class is
   unclear, it is boundary. **The reviewer never merges an expansion of its own authority** — a change to
   this guide's merge rules is boundary by construction, whatever the diff looks like.
@@ -107,8 +151,15 @@ Two consequences worth stating outright, because they are what the other model g
 
 ## Structure
 - **`apps/fed/`** — the static SPA (React + Vite + Tailwind, no PWA). Own guide in `apps/fed/CLAUDE.md`.
-- **`iac/`** — Terraform for the frontend infra (S3, CloudFront + URL-rewrite function, email, OIDC roles).
-  State in Terraform Cloud, **Local** execution; `apply`/`destroy` are **pipeline-only**.
+- **`iac/`** — Terraform for the frontend infra (S3, CloudFront + URL-rewrite function, email, OIDC roles)
+  plus the account cost budget. State in Terraform Cloud, **Local** execution; `apply`/`destroy` are
+  **pipeline-only**. Note `iac/cloudfront-functions/` holds **application logic in JS**, unit-gated by
+  `build-test` rather than by `infra-plan` — gate ownership is by what a file IS, not its directory
+  (ADR-0018 amendment).
+- **`docs/`** — **`docs/adr/`** is the decision library (38 records; `docs/adr/README.md` is the index and
+  the reading order). Also `docs/catalog-ready.md` — the bar a project must clear to be published in the
+  portfolio — and `docs/iac-deploy-policy.{md,json}`. **Read the relevant ADR before changing anything it
+  decides**; the ADRs *are* the architecture documentation, this file is the map.
 - **`.brand/`** — **gitignored, local-only, never published.** See below.
 
 ## Single workspace for the public presence
@@ -137,18 +188,54 @@ Working rules that follow from that:
 
 ## ⚠️ Destructive / requires explicit confirmation
 - **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.
-- **Merge to `main` that changes reader-facing CONTENT** — boundary **by path, not by directory**. The
-  copy lives inside `apps/fed`, so "it's only `apps/fed`" is not a safety argument:
-  `src/content/**` (articles, the ramp-up page), `src/data/profile.ts` (the CV),
-  `src/i18n/messages.ts` (UI copy), `public/og-*` and `index.html`'s meta. The words are the product,
-  **and they are the least reversible thing here** — CloudFront caches, and OG scrapers (LinkedIn, X,
-  WhatsApp) pin the card they first fetch, so a bad unfurl outlives the next merge.
-  *App code and config* under `apps/fed` (components, hooks, tests, build scripts) is safe class.
+- **Merge to `main` that changes reader-facing CONTENT** — boundary **by what the file IS, not by its
+  directory, and not by a list**. The copy lives inside `apps/fed`, so "it's only `apps/fed`" is not a
+  safety argument. The words are the product, **and they are the least reversible thing here** —
+  CloudFront caches, and OG scrapers (LinkedIn, X, WhatsApp) pin the card they first fetch, so a bad
+  unfurl outlives the next merge.
+
+  **The rule, which is what you apply:** *if a diff changes **words or images** a reader or a crawler will
+  see, it is boundary* — whatever file they live in, whether prose, a data field, a meta tag, alt text, an
+  OG card, a credential badge, or `robots.txt`. "Words" alone would have excluded the OG images the list
+  already names.
+
+  **Today that means** — an aid, deliberately **not** the definition: `src/content/**` (articles,
+  ramp-up, architecture) · `src/data/profile.ts` (the CV) · `src/data/catalog.ts` (portfolio copy —
+  taglines, descriptions, the "proof" lines) · `src/data/repoCards.ts` (ADR-0035) ·
+  `src/i18n/messages.ts` (UI copy) · **`src/lib/site.ts`** (`DEFAULT_DESCRIPTION_*`, `OG_IMAGE_ALT` — the
+  meta/OG description on **every** page, in both locales) · `src/components/contactChannels.ts` (the
+  public e-mail and the prefilled WhatsApp message) · `public/og-*` · `index.html`'s meta.
+
+  **Why a rule and not just the list:** an enumeration **fails open** — anything unlisted reads as safe
+  class and merges without the owner. Two proofs, both found while writing this section (#233):
+  `catalog.ts` was missing, so an edit to the portfolio's published copy classified as safe. And
+  `index.html` was listed while `src/lib/site.ts` was not — `index.html`'s own comment says *"keep in sync
+  with `DEFAULT_DESCRIPTION` in `src/lib/site.ts`"*, so **the list named the derived copy and missed the
+  authoritative one**. A list will always lag; the rule already covers whatever comes next.
+
+  **Could a check enforce this? No — and that is the point** (#233 asked; this is the answer). A test
+  could assert every *listed* path still exists, catching a rename. It cannot catch the failure that
+  actually happens, which is **omission**: no check knows about a file nobody thought to list. The
+  enforcement has to live in how the rule is *phrased*, which is why it is phrased to fail closed. The
+  same holds for the rest of this guide — the route set and workflow names are machine-comparable, but
+  a guide is prose about intent, and the drift that matters is a claim that quietly stopped being true,
+  not a literal that stopped resolving. **This file is audited by reading it against the code, and the
+  moment to do that is when an ADR is amended** — which is where every one of #233's ten discrepancies
+  came from.
+
+  *App code and config* under `apps/fed` (components, hooks, tests, build scripts) is safe class — right
+  up to the point where a component contains a literal string a reader sees, at which point that diff is
+  boundary and the file's directory is irrelevant.
 - `terraform apply`/`destroy`; changing DNS / CloudFront / S3 — confirm.
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 
 ## CI (`.github/workflows/`)
-- **`build-test`** (PR): lint + typecheck + test ≥85% + build + E2E + SonarCloud, path-filtered to `apps/fed`.
+- **`build-test`** (PR **and push to `main`**): dependency audit (ADR-0021 — high/critical prod advisories
+  block) → lint → typecheck → test ≥85% → `build:static` → E2E → SonarCloud. Filtered to `apps/fed/**`,
+  `packages/shared/**`, **`iac/cloudfront-functions/**`** and its own workflow file. That third path is
+  load-bearing, not a stray: the CloudFront rewrite function is JS with behaviour, so it is unit-gated
+  here rather than by `infra-plan` (ADR-0018 amendment). "Path-filtered to `apps/fed`" would read as if an
+  `iac/` change never reaches this gate — it does.
 - **`infra-plan`** (PR): checkov + `fmt`/`validate`/`plan`, path-filtered to `iac/`.
 - **`lint-workflows`** (PR): `actionlint` + `shellcheck` over `.github/workflows/**` — the gate that
   did not exist, so a workflow change reported PASS having verified nothing (#79). Note the shape:
@@ -158,6 +245,11 @@ Working rules that follow from that:
   cases happened — *nothing matched, so nothing was verified* · *a step failed, so the rest never ran* ·
   *the gate ran, with the list*. A check that matched nothing must not read like one that passed, and a
   notice that prints the full list after a failure is the same overstatement on the red path.
-- **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform.
+- **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform. `deploy`
+  also runs a **post-deploy E2E smoke against the live apex**, and that is where `e2e/edge-rewrite.spec.ts`
+  runs — the only check proving the CloudFront Function is actually **attached and accepted at the edge**
+  (#216). It is post-deploy **by construction**: `vite preview` does not rewrite, so the assertion is
+  unsatisfiable locally and the spec skips there rather than going red for a harness reason. This is the
+  one exception noted under *Branching* above.
 - **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
 - **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.
