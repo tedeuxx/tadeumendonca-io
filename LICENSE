@@ -31,23 +31,44 @@ ship it commercially — that is the intent, and `/architecture` says so out
 loud: *"fork the two repos, read the ADRs, adopt the skills plugin as your
 loop, then swap in your own content and positioning."*
 
-It does **not** cover the **editorial content** — the author's writing and
-professional record, which are published here to be read, not relicensed:
+It does **not** cover the **editorial content**: the author's writing, the
+images of him, and his professional record — published here to be read, not
+relicensed. **The rule is what governs, not the list.** Anything that is the
+author's own words or likeness is reserved wherever in the tree it lives; the
+paths below are an illustrative aid and are deliberately not exhaustive, because
+a list always lags the next file nobody thought to add.
 
 - `apps/fed/src/content/**` — the articles, the ramp-up plan, the architecture
   page
 - `apps/fed/src/data/profile.ts` — the CV
-- `apps/fed/src/data/catalog.ts` and `apps/fed/src/data/repoCards.ts` — the
+- `apps/fed/src/data/catalog.ts`, `apps/fed/src/data/repoCards.ts` — the
   portfolio copy
-- `apps/fed/src/i18n/messages.ts` — the site's UI copy
-- `apps/fed/public/**` and the images — including the OG cards and the portrait
+- `apps/fed/src/i18n/messages.ts` — the site's UI **strings** (the surrounding
+  module — its keys, types and the `satisfies` check that makes a missing
+  translation a compile error — is software, and is MIT like the rest)
+- `apps/fed/src/lib/site.ts`, `apps/fed/src/components/contactChannels.ts`,
+  `apps/fed/index.html`'s meta tags — the meta/OG copy and the public contact
+  details
+- `apps/fed/public/og-default.png` and any portrait of the author
 
-Those are **© 2026 Luiz Tadeu Mendonça, all rights reserved**. Quote them with
+Those are **© 2026 Luiz Tadeu Mendonça**, all rights reserved. Quote them with
 attribution as you would any published writing; do not republish them wholesale
 or present them as your own.
 
-The split is not an afterthought — it is the same sentence `/architecture`
-closes on: **the structure carries; the words are yours.** The structure is
-what is being given away. The words are not, because a CV and a body of writing
-under a permissive software licence could be reposted verbatim by anyone,
-including under someone else's name.
+**Two things under `apps/fed/public/` are neither granted nor reserved here,
+because they are not the author's to grant or reserve.** The certification
+badges in `apps/fed/public/badges/` are the **issuers' trademarks and
+artwork** — AWS's, reproduced under the issuers' own terms. They identify
+credentials held by the author; they are not part of this repository's licence
+in either direction, and a forker should delete them rather than reuse them.
+Everything else in that directory — `robots.txt`, `favicon.svg`, the touch
+icon — is functional and is MIT with the rest of the software.
+
+The split follows the principle stated at the end of `/architecture`'s
+*"Replicate it for your own context"* section: *"fork the two repos, read the
+ADRs … then swap in your own content and positioning. The structure carries;
+the words are yours."* That line is an invitation, not a licence — this file is
+the licence — but it names the same boundary. The structure is what is being
+given away. The words are not, because a CV and a body of writing under a
+permissive software licence could be reposted verbatim by anyone, including
+under someone else's name.

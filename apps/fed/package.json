@@ -4,7 +4,7 @@
   "description": "Static SPA for tadeumendonca.io — React + Vite + Tailwind.",
   "type": "module",
   "private": true,
-  "license": "MIT",
+  "license": "SEE LICENSE IN ../../LICENSE",
   "engines": {
     "node": ">=22"
   },

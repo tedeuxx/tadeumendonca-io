@@ -29,9 +29,11 @@ page — it was retired, and `/blog` redirects to the landing's `#artigos`.
   both locales** (Playwright) so OG/SEO tags land in the served HTML, and prints `/cv.pdf` in the same pass.
   **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
   translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
-- **Infra** (`iac`): Terraform for the frontend only — S3 + CloudFront (with a viewer-request URL-rewrite
-  function), custom email via iCloud, and the GitHub OIDC deploy roles. State in Terraform Cloud, **local**
-  execution; `apply`/`destroy` are **pipeline-only**.
+- **Infra** (`iac`): Terraform for the frontend infra **plus one account-wide guardrail** — S3 + CloudFront
+  (with a viewer-request URL-rewrite function), custom email via iCloud, the GitHub OIDC deploy roles, and
+  an **account-level cost budget** (`budget.tf`) deliberately *not* scoped to this project's tags, so it
+  catches spend this repo did not create. State in Terraform Cloud, **local** execution; `apply`/`destroy`
+  are **pipeline-only**.
 
 There is **no backend** — no API, database, auth, or Lambda. Cost is near-zero / scale-to-zero (static objects
 on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's immutable OIDC subject.
@@ -64,9 +66,9 @@ relicensed. `LICENSE` states the split and which paths fall on each side.
 ## CI (`.github/workflows/`)
 
 `build-test` (dependency audit + lint + typecheck + test ≥85% + build + E2E + SonarCloud; path-filtered to
-`apps/fed/**`, `packages/shared/**` **and `iac/cloudfront-functions/**`** — that last path is load-bearing,
-not a stray: the CloudFront rewrite function is JS with behaviour, so it is unit-gated here rather than by
-`infra-plan`); `infra-plan`
+`apps/fed/**` **and `iac/cloudfront-functions/**`** — that second path is load-bearing, not a stray: the
+CloudFront rewrite function is JS with behaviour, so it is unit-gated here rather than by `infra-plan`);
+`infra-plan`
 (checkov + `plan`, path-filtered to `iac/`); `lint-workflows` (actionlint + shellcheck over
 `.github/workflows/**`). Each runs on **every** PR and applies its path filter inside the job, then reports
 whether it skipped, failed part-way, or ran in full — a check that matched nothing must not read like one
