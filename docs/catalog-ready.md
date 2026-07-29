@@ -3,7 +3,8 @@
 The **catalog** is the "além do SPA" surface of the public presence: a curated set of public GitHub
 repos — automations, agents, MCP servers, AI-native tools — that back the **AI Engineer / agentic
 development** positioning with real code. The portfolio on `tadeumendonca.io` links to them
-(`apps/fed/src/data/catalog.ts`), and each graduated project seeds a **LinkedIn newsletter** edition.
+(`apps/fed/src/data/catalog.ts`), and each graduated project seeds a **newsletter edition, distributed to
+LinkedIn and X together** (ADR-0038).
 
 Most raw material starts as a Claude cowork project. This doc is the bar it must clear to **graduate**
 from cowork to a public catalog repo. The gate is deliberately about *proof of engineering*, not polish
@@ -25,25 +26,32 @@ one worked example of it — which is what `/architecture` means by **"Take the 
 specifics."**
 
 **The twelve boxes, accounted for — all of them, because a partial partition is how this section would
-become the thing it argues against.**
+become the thing it argues against.** Row titles are the box titles verbatim; if the checklist below
+changes and a row does not, the row is wrong.
 
 | box | platform |
 |---|---|
-| Solves a real problem from my own workflow | **passes** |
+| Solves a real problem from my own workflow | **passes** — and the box's other half, *not a toy or a tutorial reproduction*, is the half it clears outright |
 | Demonstrates an agentic / AI-native pattern | **fails** — see below |
-| Python-first where it fits | **n/a** — the bar's own text calls it "the preference, not a hard gate" |
-| A clean clone runs from the README alone | **scoped out** — a clone runs, and produces *your* site |
-| Config via `.env.example` | **scoped out** — nothing to configure; there are no keys and no backend |
+| Python-first where it fits | **passes** on the box's own terms: *"a sharp TS/MCP tool qualifies"* |
+| A clean clone runs by following the README only | **scoped out** — what a clone produces is *your* site, not a copy of this one |
+| Config via env vars with a committed `.env.example` | **passes** — `apps/fed/.env.example`, added because writing this row is what revealed it was missing |
 | No secrets in history | **passes** |
-| No client references | **passes** |
-| A LICENSE | **passes** |
-| A README in the new framing (run block · honest limitation · the agentic pattern) | **scoped out** for the run block; the limitation is published on `/architecture` |
-| Every choice stated with its trade-off | **passes** — that is what the ADR library is |
-| Green on its own basics | **passes**, and by a stricter mechanism (below) |
+| No client references, and no war-story that identifies a client | **passes** |
+| A LICENSE | **passes** — MIT on the code, editorial content reserved |
+| A README in the new framing | **partly substituted.** *What it does · the real problem · the stack* are in the root README. *The agentic pattern* is the failed box above. *How to run* is scoped out with the box above it. *One honest limitation* is published on `/architecture` instead of in the README — a substitution, not a satisfaction |
+| Names each explicit choice and its trade-off | **passes** — that is what the ADR library is |
+| Green on its own basics | **passes**, by a stricter mechanism than the box asks for (below) |
 | Newsletter-ready: there's a story | **passes** |
 
-Three scoped out, one failed, seven passed, one not applicable. Nothing is claimed for boxes that are not
-listed, because they are all listed.
+Nine pass, one fails, two are scoped out. Nothing is claimed for boxes that are not listed, because they
+are all listed.
+
+*(This table is an enumeration, and two paragraphs down this document warns against keeping a fourth copy
+of a list that drifts. The difference is distance: the source of these rows is forty lines below them in
+this same file, so a diff that changes a box and not its row is visible in one screen. The CI-gate list
+this doc declines to copy lives in another repo's workflow file. If this table ever moves away from the
+checklist, it becomes the thing being warned about.)*
 
 **The failed box, said plainly rather than dissolved into a scoping question:** *demonstrates an agentic
 / AI-native pattern.* This site's shipped artifact is a static SPA, and a static SPA is not an agentic
@@ -96,11 +104,14 @@ what stands on its own.
 **Safe to be public**
 - [ ] **No secrets** in history (tokens, keys, endpoints). Scan before the first push; if one ever
       landed, rotate it and scrub the history — don't just delete the file.
-- [ ] **No client references, and no war-story that identifies an employer** — abstract any to a generic
-      problem (the public-writing rule). Past private work stays private. Stating your own employment
-      history is not that: a CV names employers, and always has. The line is between *where you worked*
-      and *what you did there for whom* — the first is a fact about you, the second is someone else's
-      to disclose.
+- [ ] **No client references, and no war-story that identifies a client** — abstract any to a generic
+      problem (the public-writing rule), and never publish an employer's non-public internals. Past
+      private work stays private.
+
+      Describing **your own work at a named employer** is not that, and the box would be wrong to forbid
+      it: a CV names employers and always has. The line is **who the work was for**, not what it was.
+      "Cut deploy time on a payments platform" is yours to tell; naming the client it was delivered to
+      is not.
 - [ ] A **LICENSE** (MIT unless there's a reason otherwise).
 
 **Presentable**
@@ -118,8 +129,13 @@ what stands on its own.
 2. **Apply the bar** above; fix every unchecked box.
 3. **Publish** as a public repo under `github.com/tedeuxx` with the README + LICENSE + `.env.example`.
 4. **Link it** in the portfolio: add an entry to `apps/fed/src/data/catalog.ts` (name · tagline ·
-      description · stack · repoUrl · optional liveUrl · status).
-5. **Write the newsletter** edition from the README's story; publish on LinkedIn linking the repo.
+      description · **proof** · stack · repoUrl · optional liveUrl · status). The prose fields —
+      `tagline`, `description`, `proof` — are `Record<Locale, string>`: **both editions or it does not
+      compile** (#235). `proof` is the reader-first payoff line rendered under *"What you take away"*,
+      and it is the field most worth writing carefully.
+5. **Distribute it** — the newsletter edition written from the README's story, published to **LinkedIn
+      *and* X in the same batch** with the repo as the canonical link (ADR-0038). One surface is not the
+      standard: the rule is both, together, or the distribution is half-done.
 6. Keep the list **curated** — a short shelf of strong items beats a long shelf of weak ones.
 
 ## README template (drop into each catalog repo)
@@ -155,3 +171,5 @@ cp .env.example .env   # fill in your keys
 - The bar is a floor, not a ceiling — clearing it makes a repo *safe and legible* to publish; strong
   items go further.
 - First graduated item = the first newsletter edition. Pick the one with the best story-to-effort ratio.
+  Note this is about the first item to **graduate**, which is not the same as the catalog's first entry:
+  entry #1 is the site itself, which never graduated (see the scoping section above).
