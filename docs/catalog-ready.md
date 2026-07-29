@@ -35,7 +35,7 @@ changes and a row does not, the row is wrong.
 | Demonstrates an agentic / AI-native pattern | **fails** — see below |
 | Python-first where it fits | **passes** on the box's own terms: *"a sharp TS/MCP tool qualifies"* |
 | A clean clone runs by following the README only | **scoped out** — what a clone produces is *your* site, not a copy of this one |
-| Config via env vars with a committed `.env.example` | **passes** — `apps/fed/.env.example`, added because writing this row is what revealed it was missing |
+| Config via env vars with a committed `.env.example` | **passes** — `apps/fed/.env.example`, added because writing this row is what revealed it was missing. It serves the row above rather than contradicting it: what a forker configures is *their* site's origin and analytics, which is the point |
 | No secrets in history | **passes** |
 | No client references, and no war-story that identifies a client | **passes** |
 | A LICENSE | **passes** — MIT on the code, editorial content reserved |
@@ -44,14 +44,15 @@ changes and a row does not, the row is wrong.
 | Green on its own basics | **passes**, by a stricter mechanism than the box asks for (below) |
 | Newsletter-ready: there's a story | **passes** |
 
-Nine pass, one fails, two are scoped out. Nothing is claimed for boxes that are not listed, because they
-are all listed.
+Nine pass, one fails, one is scoped out, one is partly substituted. Nothing is claimed for boxes that are
+not listed, because they are all listed.
 
 *(This table is an enumeration, and two paragraphs down this document warns against keeping a fourth copy
-of a list that drifts. The difference is distance: the source of these rows is forty lines below them in
-this same file, so a diff that changes a box and not its row is visible in one screen. The CI-gate list
-this doc declines to copy lives in another repo's workflow file. If this table ever moves away from the
-checklist, it becomes the thing being warned about.)*
+of a list that drifts. The difference is **diff visibility**: the source of these rows is forty lines
+below them in this same file, so a change to a box that does not update its row shows up in one hunk, to
+the person making it. The CI-gate list this doc declines to copy lives in a workflow file nobody editing
+this document has open. If this table is ever moved away from the checklist, it becomes the thing being
+warned about.)*
 
 **The failed box, said plainly rather than dissolved into a scoping question:** *demonstrates an agentic
 / AI-native pattern.* This site's shipped artifact is a static SPA, and a static SPA is not an agentic
@@ -110,8 +111,16 @@ what stands on its own.
 
       Describing **your own work at a named employer** is not that, and the box would be wrong to forbid
       it: a CV names employers and always has. The line is **who the work was for**, not what it was.
-      "Cut deploy time on a payments platform" is yours to tell; naming the client it was delivered to
-      is not.
+
+      **The test is "could a reader work out *which* client?", not "did I type the name?"** Those are
+      different acts, and on a presence that publishes employer, role and dates, the second is far
+      weaker than it looks — layer one described engagement on top of a public CV and the shortlist is
+      often one. Specificity is what identifies: a sector plus a scale, a named programme, a regulatory
+      deadline, a superlative.
+      - ✅ *"Cut deploy time on a payments platform."* Sector, no entity.
+      - ❌ *"Cut deploy time at the second-largest private bank in the country, during their
+        core-banking migration."* Names nobody. Identifies exactly one company, and passes any rule
+        written against typing the name.
 - [ ] A **LICENSE** (MIT unless there's a reason otherwise).
 
 **Presentable**
