@@ -14,6 +14,6 @@ export function PortfolioPage() {
   });
 
   // `showBar` is opted into here and nowhere else: the curation standard belongs on the dedicated page,
-  // not on the landing's four-item teaser (owner decision, PR #251).
+  // not on the landing's four-item teaser (the shape proposed in PR #251, where it is ratified).
   return <PortfolioSection showBar />;
 }

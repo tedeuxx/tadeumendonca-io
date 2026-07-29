@@ -104,7 +104,12 @@ export function PortfolioSection({
           </span>
           <h2 className="mt-2 label-mono text-foreground">{t('portfolio.heading')}</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t('portfolio.intro')}</p>
-          {/* The bar (#246), on the dedicated page only — owner decision, PR #251. On the landing this
+          {/* The bar (#246), on the dedicated page only — the owner chose this in session and PR #251
+              carries the ratification; until that comment exists, read this as the proposed shape. The
+              distinction is not pedantry: ADR-0003's amendment makes a relayed answer a notification, not
+              the authority, and a code comment asserting a decision outlives whoever could correct it.
+
+              On the landing this
               block is a four-item TEASER, so a curation standard answers a question the visitor has not
               asked yet; by /portfolio they have seen the shelf. The landing is also where a correction
               costs most (CloudFront, plus the OG card LinkedIn/X pin on first fetch).

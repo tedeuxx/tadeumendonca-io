@@ -103,7 +103,7 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-driven SDLC'); // description
     expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
-    expect(body).toContain('Nothing enters the portfolio without clearing'); // the bar (#246)
+    expect(body).toContain('Nothing gets listed here without passing'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
@@ -118,7 +118,7 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Nada entra no portfólio sem passar por'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
-    expect(body).not.toContain('Nothing enters the portfolio without clearing');
+    expect(body).not.toContain('Nothing gets listed here without passing');
   });
 
   // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
@@ -133,7 +133,7 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
-  // The LANDING must NOT carry it — owner decision, PR #251. `PortfolioSection` is shared, so the bar
+  // The LANDING must NOT carry it — the shape proposed in PR #251. `PortfolioSection` is shared, so the bar
   // reached the storefront for free and the default had to be flipped to opt-in to stop it. This is the
   // assertion that makes that decision durable: it is one prop away from regressing, and the landing is
   // the surface where a correction costs most (CloudFront, plus the OG card scrapers pin on first fetch).
@@ -144,7 +144,7 @@ test.describe('the portfolio body is per-locale', () => {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
       expect(body).not.toContain('Nada entra no portfólio sem passar por');
-      expect(body).not.toContain('Nothing enters the portfolio without clearing');
+      expect(body).not.toContain('Nothing gets listed here without passing');
       expect(body).not.toContain(BAR_HREF);
     });
   }

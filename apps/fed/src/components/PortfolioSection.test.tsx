@@ -85,7 +85,7 @@ describe('PortfolioSection', () => {
     unmount();
 
     renderWithLocale(<PortfolioSection showBar />, { locale: 'en' });
-    expect(screen.getByText(/Nothing enters the portfolio without clearing/)).toBeInTheDocument();
+    expect(screen.getByText(/Nothing gets listed here without passing/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
   });
 
@@ -94,8 +94,8 @@ describe('PortfolioSection', () => {
     expect(screen.getByText(/Nada entra no portfólio sem passar por/)).toBeInTheDocument();
   });
 
-  // The default is silent, and that is the owner's decision (PR #251) rather than an implementation
-  // detail: the landing renders this same component and must NOT carry the curation claim. Asserted on
+  // The default is silent, and that is a product call (PR #251) rather than an implementation detail:
+  // the landing renders this same component and must NOT carry the curation claim. Asserted on
   // the LINK too, because a future refactor could drop the sentence and leave the anchor behind.
   it('says nothing about the bar unless the caller asks for it — the landing must not carry the claim', () => {
     state.catalog = [sample];

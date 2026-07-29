@@ -118,14 +118,23 @@ const strings = {
     //    contents, so a reader can falsify it by checking the one item against the linked checklist. They
     //    can, today: #252. A sentence whose job is to RAISE scrutiny has to survive being scrutinised.
     //
-    // So this states the GOVERNANCE, not the audit: a standard exists and nothing is listed without
-    // passing it. That still does #246's work — it turns "the only item" into "an item that got through a
-    // filter" — while claiming only what is true whatever the shelf currently holds. The verb attaches to
-    // the document in each language exactly as `/architecture` does (passa por · clears), and dropping the
-    // noun removes the collocation mismatch rather than papering over it.
+    // So this states the GOVERNANCE rather than the audit — the rule, not a verdict on each item.
+    //
+    // Be precise about what that buys, because an earlier version of this comment overclaimed it: it is
+    // NOT logically weaker. "Nothing enters without passing X" is the contrapositive of "everything here
+    // passed X" — same truth conditions, falsified by the same single counterexample. What it buys is
+    // rhetorical: it foregrounds the standard instead of inviting an item-by-item audit, and it drops a
+    // merit claim that read as self-congratulation with a one-item shelf. The claim still has to be TRUE
+    // on the day it ships, which is why #252 comes first.
+    //
+    // en went through one more pass than pt. `clear` wants a threshold noun — you clear a bar, a hurdle —
+    // and with the noun dropped it was left governing a bare filename, with a colon stranding a transitive
+    // verb before the break. `/architecture` gets away with `clears docs/catalog-ready.md` only because an
+    // appositive supplies the noun right after. So en uses a verb that natively takes a document as its
+    // object, and `gets listed` for the flat, un-Latinate register `entrar` already has in pt.
     bar: {
       pt: 'Nada entra no portfólio sem passar por:',
-      en: 'Nothing enters the portfolio without clearing:',
+      en: 'Nothing gets listed here without passing:',
     },
     // The link text is the filename, deliberately untranslated — it names the artifact rather than
     // describing it, so there is nothing to keep in sync between editions.
