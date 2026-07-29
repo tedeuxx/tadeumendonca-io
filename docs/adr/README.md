@@ -64,8 +64,8 @@ design, calibrated to strategy* — and every other ADR is read through it.
 ## Presence / cross-surface
 | ADR | Title | Status |
 |---|---|---|
-| [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, Canva) | accepted |
-| [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted · amended 2026-07-26 (PDF source route string `/me → /en/me` per [0036](./0036-per-locale-urls-prerender-hreflang.md)) |
+| [0024](./0024-profile-canonical-cv-cross-surface.md) | `profile.ts` as canonical structured CV; cross-surface coherence (LinkedIn, catalog, X, newsletter) | accepted · amended 2026-07-28 (Canva CV **logically retired** — kept, but no longer a surface; `/me` + `/cv.pdf` are the only CV editions. Decision deferred by [0034](./0034-build-time-cv-pdf-static-artifact.md); nothing links to it, so no follow-up) |
+| [0034](./0034-build-time-cv-pdf-static-artifact.md) | Downloadable CV = build-time PDF printed from `/me` to a static asset | accepted · amended 2026-07-26 (PDF source route string `/me → /en/me` per [0036](./0036-per-locale-urls-prerender-hreflang.md)) · amended 2026-07-28 (one-page recruiter edition, #161) · its "does not retire Canva" note discharged 2026-07-28 by [0024](./0024-profile-canonical-cv-cross-surface.md)'s amendment (#225) |
 | [0038](./0038-content-distribution-linkedin-and-x.md) | Published content is distributed to LinkedIn **and** X in the same batch — medium-adapted copy, canonical URL, mechanics private | accepted · amended 2026-07-27 (privacy clause narrowed: the draft **generator** is repo tooling because it resolves share URLs from the prerendered route list; only its output stays private) · the bare-x-default hazard its amendment describes was fixed at source 2026-07-27 by [0036](./0036-per-locale-urls-prerender-hreflang.md)'s amendment (#200) |
 
 ## History (superseded — reverse-engineered, kept not deleted)

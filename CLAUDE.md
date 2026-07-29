@@ -49,7 +49,11 @@ apply`/`destroy`, direct cloud mutation, force-push, `rm -rf`, secret writes); *
 tadeumendonca.io is the owner's **proof-of-engineering** public presence, backing a repositioning to
 **AI Engineer** (agentic development / AI-native automations), anchored in SDLC + distributed-systems
 experience. The site is the storefront; the **argument is the code it links to**. Three surfaces:
-1. **Interactive CV** (`/`) — canonical reference of the owner's experience (richer than a PDF; aligned with LinkedIn + the Canva CV).
+1. **Interactive CV** (`/me`) — the canonical reference of the owner's experience, and now the **only** CV
+   surface: the Canva CV was retired (ADR-0024 amendment) once `/cv.pdf` became a real artifact rather than
+   a capability. `/me` is the full edition; `/cv.pdf` is the one-page recruiter edition printed from it at
+   build time (ADR-0034). Both derive from `profile.ts` — nothing is maintained by re-typing. LinkedIn is
+   the one CV-bearing surface still hand-maintained, so it is the one that can still drift.
 2. **Portfolio** (`/portfolio`) — a curated **catalog** of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code. The bar a project must clear to be published is `docs/catalog-ready.md`.
 3. **Blog** (`/blog`) — long-form engineering writing with explicit trade-offs (distributed-systems / AI patterns).
 
@@ -109,7 +113,7 @@ Two consequences worth stating outright, because they are what the other model g
 
 ## Single workspace for the public presence
 This repo is the **one place** the owner's professional presence is maintained from — the site is one
-surface among several (LinkedIn, the Canva CV, the GitHub catalog, the newsletter). The positioning,
+surface among several (LinkedIn, the GitHub catalog, X, the newsletter). The positioning,
 the copy canonically published on each surface, and the playbook that keeps them in sync live in
 **`.brand/`**, which is **gitignored and never published** (this repo is public).
 
