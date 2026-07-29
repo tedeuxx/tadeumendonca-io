@@ -72,6 +72,28 @@ describe('PortfolioSection', () => {
     expect(screen.queryByText('A demo automation.')).toBeNull();
   });
 
+  // #246 — with one item, and that item being this site, the page reads as a catalog that has not
+  // started unless it says inclusion is EARNED. Asserted in both editions, and on the href, because the
+  // link is what makes the claim checkable rather than a promise.
+  it('states the bar and links the checkable artifact, in both editions', () => {
+    state.catalog = [sample];
+    const bar = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
+
+    const { unmount } = renderWithLocale(<PortfolioSection />, { locale: 'pt' });
+    expect(screen.getByText(/Cada projeto entra depois de clarear a barra/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
+    unmount();
+
+    renderWithLocale(<PortfolioSection />, { locale: 'en' });
+    expect(screen.getByText(/Each project earns its place by clearing the bar/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
+  });
+
+  it('states the bar even when the catalog is empty — the standard is not conditional on having items', () => {
+    renderWithLocale(<PortfolioSection />, { locale: 'pt' });
+    expect(screen.getByText(/clarear a barra/)).toBeInTheDocument();
+  });
+
   it('omits the live link when the project has none', () => {
     state.catalog = [{ ...sample, liveUrl: undefined }];
     renderSection();

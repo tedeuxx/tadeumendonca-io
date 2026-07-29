@@ -95,6 +95,21 @@ export function PortfolioSection({ limit, showAllLink = false }: { limit?: numbe
           </span>
           <h2 className="mt-2 label-mono text-foreground">{t('portfolio.heading')}</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t('portfolio.intro')}</p>
+          {/* The bar (#246). Its own sentence rather than a clause spliced into `intro`, because the link
+              has to sit at the end and splitting a translated string around an anchor is how the two
+              editions start drifting. The target is the repo file itself — the checkable artifact, not a
+              description of it. */}
+          <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+            {t('portfolio.bar')}{' '}
+            <a
+              href="https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md"
+              target="_blank"
+              rel="noreferrer"
+              className="font-mono text-[0.9em] underline invert-hover"
+            >
+              {t('portfolio.barLink')}
+            </a>
+          </p>
         </div>
       </div>
 

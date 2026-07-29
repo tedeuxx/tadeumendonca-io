@@ -99,6 +99,18 @@ const strings = {
       pt: 'Código aberto pra você estudar, clonar e usar. Cresce conforme as automações graduam.',
       en: 'Open source for you to study, clone and use. It grows as the automations graduate.',
     },
+    // The BAR (#246). With one item in the catalog — and that item being this site — the page reads as a
+    // catalog that has not started. Saying inclusion is earned turns "the only item" into "the first item
+    // that cleared the bar", which is a different claim to someone deciding whether the list is thin or
+    // selective. It costs nothing to keep true: `docs/catalog-ready.md` already exists and is public, so
+    // the sentence points at something checkable rather than making a promise to maintain.
+    bar: {
+      pt: 'Cada projeto entra depois de clarear a barra:',
+      en: 'Each project earns its place by clearing the bar:',
+    },
+    // The link text is the filename, deliberately untranslated — it names the artifact rather than
+    // describing it, so there is nothing to keep in sync between editions.
+    barLink: { pt: 'catalog-ready.md', en: 'catalog-ready.md' },
     payoff: { pt: 'O que você tira disso', en: 'What you take away' },
     statusLive: { pt: 'Live', en: 'Live' },
     statusWip: { pt: 'WIP', en: 'WIP' },
