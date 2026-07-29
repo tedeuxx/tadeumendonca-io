@@ -135,7 +135,8 @@ It can be reopened and exported by mistake, and any copy already sent stays sent
 have fixed either. The rule is simply that any CV comes from `/cv.pdf`.
 
 ## Links
-- Driven by ADR-0001, ADR-0006 · the CV lives at `/cv` (ADR-0010) · the sync process itself is private
+- Driven by ADR-0001, ADR-0006 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
+  prefixes; the `/cv` route this line used to name was dropped pre-launch (ADR-0010, #234) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23
   amendment.

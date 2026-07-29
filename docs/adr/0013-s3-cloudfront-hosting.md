@@ -7,9 +7,11 @@
 
 ## Context & problem
 A fully static site (ADR-0002) is a set of objects that need hosting with HTTPS, a global CDN, and
-**clean URLs** — the prerendered routes live at `dist/<route>/index.html`, but visitors and crawlers
-request `/cv`, `/portfolio`, `/blog/:slug` without the `/index.html` suffix. Something must map the
-directory route to its prerendered file.
+**clean URLs** — the prerendered routes live at `dist/<locale>/<route>/index.html`, but visitors and
+crawlers request `/en/me`, `/pt/portfolio`, `/en/blog/<slug>` without the `/index.html` suffix. Something
+must map the directory route to its prerendered file. *(Written before ADR-0036 as `/cv`, `/portfolio`,
+`/blog/:slug`; the mapping problem is unchanged, only the URL shape — and `iac/` needed no change for it,
+which is ADR-0036's own point. #234.)*
 
 ## Decision drivers
 - ADR-0001: near-zero cost, own the AWS/Terraform engineering (the argument is the code).

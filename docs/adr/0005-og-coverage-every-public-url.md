@@ -33,8 +33,11 @@ URLs.
 
 ## Decision outcome
 Chosen: **full OG/crawler coverage on every public route**. This is the *policy* that ADR-0004's
-build-time prerender exists to satisfy — the prerender must snapshot **every** public route (`/`, `/cv`,
-`/portfolio`, each `/blog/:slug`) with complete meta in the served HTML. It is the inverse of the
+build-time prerender exists to satisfy — the prerender must snapshot **every** public route ~~(`/`, `/cv`,
+`/portfolio`, each `/blog/:slug`)~~ with complete meta in the served HTML. *(The enumeration is struck
+because it drifted, #234: `/cv` was dropped pre-launch (ADR-0010) and every public URL is now
+locale-prefixed (ADR-0036). **`STATIC_ROUTES` / `localizedRoutes()` in `apps/fed/scripts/routes.mjs` is the
+source of truth** — cite the module, do not re-list here, or this line drifts again.)* It is the inverse of the
 external-link unfurl we gave up (ADR-0004): we cannot unfurl *other* people's URLs, but we make *ours*
 maximally unfurlable.
 

@@ -38,8 +38,9 @@ written, not a change of mind.
   plus an x-default.
 - **English stays canonical** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md),
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)): canonicality is a statement about which edition
-  is *authoritative* (LinkedIn, the Canva CV, the exported `profile` constant), independent of which edition
-  a given visitor is served. x-default resolves to English.
+  is *authoritative* (LinkedIn, `/cv.pdf`, the exported `profile` constant), independent of which edition
+  a given visitor is served. x-default resolves to English. *(This named the Canva CV until #234 — it was
+  retired 2026-07-28, ADR-0024's amendment.)*
 - **`iac/` is untouched, deliberately** ([ADR-0013](./0013-s3-cloudfront-hosting.md)): the CloudFront Function
   is locale-agnostic (clean-URL rewrite only); a URL scheme that needs no edge locale logic keeps the infra
   boundary closed and this slice code-only.

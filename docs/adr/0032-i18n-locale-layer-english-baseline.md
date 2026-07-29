@@ -51,11 +51,14 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   Slice 3, shipped 2026-07-23:** the CV content localizes too, so chrome and content are always in the
   same language. English remains the **canonical** edition (ADR-0024), which is a statement about which
   edition is authoritative — not about which one a pt visitor sees.
-- **The prerender / crawlable + OG baseline is pinned to ENGLISH.** `scripts/prerender.mjs` forces the
+- ~~**The prerender / crawlable + OG baseline is pinned to ENGLISH.** `scripts/prerender.mjs` forces the
   browser locale to `en-US` during the snapshot, so Google / LinkedIn / WhatsApp discovery + unfurl are
   **English** — serving the CV-sync driver and [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) —
   while the **live SPA still auto-detects native**. *Consequence:* a pt-BR visitor sharing the blog gets
-  English **chrome** in the unfurl (the article **body** stays pt-BR).
+  English **chrome** in the unfurl (the article **body** stays pt-BR).~~
+  **RETIRED 2026-07-26 by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)** — every route is now
+  snapshotted in **both** locales, each with its own head; only the bare `/` snapshot is still English, as
+  the x-default entry. See the 2026-07-29 amendment at the foot of this file.
 - **`LocaleProvider` is a LANGUAGE context, explicitly NOT the forbidden visual `ThemeProvider`.**
   `apps/fed/CLAUDE.md`'s "no `ThemeProvider` / single fixed theme" rule is about the **visual** theme
   (brutalist mono is fixed, [ADR-0008](./0008-brutalist-mono-identity.md)). This locale context is a
@@ -64,10 +67,11 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
 ### Slice split
 - **Slice 1 (this ADR, shipping now):** client-side PT/EN toggle + native auto-detect + English-pinned
   prerender.
-- **Slice 2 (deferred):** route-prefixed `/en` · `/pt` + **per-locale prerender** + `hreflang` / per-locale
+- ~~**Slice 2 (deferred):** route-prefixed `/en` · `/pt` + **per-locale prerender** + `hreflang` / per-locale
   canonical + per-locale OG. This interacts with [ADR-0005](./0005-og-coverage-every-public-url.md)
   (OG coverage) and [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) — it is the
-  slice that makes **pt-BR discovery** first-class.
+  slice that makes **pt-BR discovery** first-class.~~
+  **SHIPPED 2026-07-26 as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md).** Not deferred work.
 - ~~**Slice 3 (deferred):** a translated pt-BR `profile` object, so PT mode wraps a pt-BR CV instead of the
   English one.~~ **RESOLVED (2026-07-23):** `profile.ts` is now authored bilingually (`ProfileSource` +
   `resolveProfile`), so PT mode renders a real pt-BR CV. English stays the canonical edition and the facts
@@ -90,12 +94,15 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   section count, and each edition must render *without* the other's text present. That catches a stale
   translation and a fallback rendering both; it cannot catch a translation that is merely bad.
 
-  **Still true:** the **prerender baseline stays English** (verified: the `/ramp-up` snapshot contains
+  ~~**Still true:** the **prerender baseline stays English** (verified: the `/ramp-up` snapshot contains
   the English body and none of the Portuguese), so OG/SEO discovery is unchanged and the client
-  re-resolves after hydration. Per-locale prerender remains Slice 2.
+  re-resolves after hydration. Per-locale prerender remains Slice 2.~~ **No longer true — see the RETIRED
+  note above and the 2026-07-29 amendment.**
 
-  **Debt this creates:** the existing pt-BR article has no English edition, so the rule is not yet
-  satisfied repo-wide — tracked separately rather than silently ignored.
+  ~~**Debt this creates:** the existing pt-BR article has no English edition, so the rule is not yet
+  satisfied repo-wide — tracked separately rather than silently ignored.~~ **DISCHARGED:** both editions
+  exist (`src/content/blog/my-commitment.{pt,en}.md`), and the pair is now a **build invariant** —
+  `lib/content.ts` throws at module load if either is missing (ADR-0037).
 
 ## Consequences
 **Good**
@@ -107,11 +114,30 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   Accept-Language edge logic.
 
 **Bad / accepted costs**
-- A **single-locale prerender** means only the **English** snapshot ships OG/SEO; **pt-BR discovery is
-  deferred to Slice 2**.
+- ~~A **single-locale prerender** means only the **English** snapshot ships OG/SEO; **pt-BR discovery is
+  deferred to Slice 2**.~~ **No longer a cost — retired by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md).**
 - **PT mode wraps an English CV** until Slice 3 translates the `profile` object.
-- A brief **static-shell flash** for a non-baseline (pt-BR) browser until the bundle renders and re-detects —
-  mitigated by detect-before-first-render, and **fully removed only by Slice 2's per-locale prerender**.
+- ~~A brief **static-shell flash** for a non-baseline (pt-BR) browser until the bundle renders and re-detects —
+  mitigated by detect-before-first-render, and **fully removed only by Slice 2's per-locale prerender**.~~
+  **Gone** — Slice 2 shipped ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
+
+## Amendment (2026-07-29) — this ADR's English-pinned half is fully retired; read 0036 first
+[ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) shipped what this ADR called **Slice 2**, and in
+doing so retired its **English-pinned prerender** clause and every consequence hanging off it. Those
+statements are struck through above rather than deleted (supersede, never rewrite) — but they had been
+sitting unmarked, and this file is the one someone reads to learn how the locale layer works. Read
+end-to-end, it said pt-BR was invisible to crawlers and that per-locale prerender was open work. Both
+false since 2026-07-26 (#234).
+
+**What is actually current:** every route is snapshotted in **both** locales, each with its own head,
+canonical and OG (`localizedRoutes()` in `scripts/routes.mjs`); only the bare `/` snapshot is English, as
+the x-default entry for the JS-less crawler. hreflang advertises the reciprocal pair.
+
+**What this ADR still owns, unchanged:** the light in-repo locale layer itself — the typed pt/en catalog,
+`LocaleProvider`, `useT()`/`useLocale()`, native auto-detect, the persisted toggle, and the rule that
+`LocaleProvider` is a LANGUAGE context and not the forbidden visual `ThemeProvider`. English also remains
+the **canonical edition** (ADR-0024) — a statement about which edition is authoritative, never about which
+one a visitor is served.
 
 ## Links
 - **Supersedes** [ADR-0011](./0011-ui-ptbr-i18n-deferred.md) (UI in pt-BR; i18n deferred) — this is the i18n
