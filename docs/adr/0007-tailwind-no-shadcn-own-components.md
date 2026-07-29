@@ -38,9 +38,12 @@ depends on owning the primitives.
 - Small, owned component set; no library to override or track.
 
 **Bad / accepted costs**
-- Every UI primitive (loading/empty/error states, forms) is hand-built (`Column.tsx`; the original also named `Form.tsx`, which existed when this was written and was **deleted
-the same day with the admin compose/auth pages** in the ADR-0002 dead-code sweep — the static site has
-nothing to submit, so there are no forms left to hand-build, #234).
+- Every UI primitive (loading/empty/error states, forms) is hand-built (`Column.tsx`; the original also named `Form.tsx` — added 2026-06-10 with the admin compose/auth pages
+(`682e174`) and deleted 2026-07-22 **16:47** in the brutalist-redesign dead-code sweep (`3e44736`), orphaned
+alongside `LinkPreviewCard`. This ADR was committed at **21:27 the same day**, so the reference was
+**already false when written** — not a claim that drifted, which is a fourth shape #234 did not anticipate
+and the only one no later sweep could have prevented. The static site has nothing to submit, so there are
+no forms left to hand-build.).
 - No off-the-shelf accessibility/behavior from a component kit — a11y is the `ux` concern's job, done by hand.
 
 ## Links

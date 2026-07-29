@@ -121,7 +121,10 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
 **Bad / accepted costs**
 - ~~A **single-locale prerender** means only the **English** snapshot ships OG/SEO; **pt-BR discovery is
   deferred to Slice 2**.~~ **No longer a cost — retired by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md).**
-- **PT mode wraps an English CV** until Slice 3 translates the `profile` object.
+- ~~**PT mode wraps an English CV** until Slice 3 translates the `profile` object.~~ **Paid off
+  2026-07-23** — Slice 3 shipped; `profile.ts` is authored bilingually, so PT renders a real pt-BR CV. (This
+  sat unstruck between two bullets that WERE struck in the #234 sweep, contradicting the Good bullet eleven
+  lines above it.)
 - ~~A brief **static-shell flash** for a non-baseline (pt-BR) browser until the bundle renders and re-detects —
   mitigated by detect-before-first-render, and **fully removed only by Slice 2's per-locale prerender**.~~
   **Gone** — Slice 2 shipped ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).

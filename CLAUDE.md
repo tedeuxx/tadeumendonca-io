@@ -150,15 +150,18 @@ Two consequences worth stating outright, because they are what the other model g
   decision; it is the record lagging one the owner already took. Escalating it asks him to ratify the same
   thing twice.
 
-  **The test, and it is narrow:** *does anything here become true that was not already true by an earlier
-  ratification?* If yes → boundary, however small. If no → safe.
+  **The test is what the correction ASSERTS, not whether it decides.** "Makes no decision" was the first
+  formulation and it is not sufficient: a discharge carries facts of its own, and those can be false. On
+  the very PR that established this rule, three discharges asserted new facts and **two were wrong** — one
+  of them wrong in three consecutive rounds of review. A correction is safe when its own content is
+  trivially checkable, not when its intent is modest.
 
-  | Safe — merge it | Boundary — still his |
+  | Safe — the reviewer merges | Boundary — still his |
   |---|---|
-  | Discharging a stale claim an accepted ADR falsified | An amendment that **chooses** something (the one-page CV, offer-never-redirect) |
-  | Fixing a route/file/workflow literal that no longer resolves | Any new or reversed decision, however narrow |
-  | Correcting a guide's description of what the code now does | Reader-facing copy, `iac/` that mutates, anything irreversible |
-  | Marking a forward promise discharged when it demonstrably was | A change to **these merge rules** — always boundary |
+  | A **purely referential** discharge: `→ discharged <date> by ADR-00NN`, where 00NN is already accepted and visibly supersedes the struck text. Asserts nothing beyond the pointer; verifiable by reading two files | A discharge that asserts a **new fact** — a date, a cause, a file's history, "this never existed", "the premise expired". Facts need checking, and these are where the errors were |
+  | Fixing a route/file/workflow literal that no longer resolves, where the correct value is mechanically checkable (`routes.mjs`, the workflow, the file tree) | A discharge that **reinterprets scope** — "what this ADR still owns", "EN-only by choice rather than by limit". Neither reverses a decision; both are judgments about what the record means |
+  | Correcting a guide's description of what the code now does | An amendment that **chooses** something (the one-page CV, offer-never-redirect) · reader-facing copy · `iac/` that mutates · anything irreversible |
+  | | A change to **these merge rules** — always, by construction |
 
   **Why this exists:** six of seven slices on 2026-07-29 were boundary, and three of those created no
   decision at all. In a repo whose product is substantially ADRs, guides and positioning, "boundary" was
@@ -166,10 +169,11 @@ Two consequences worth stating outright, because they are what the other model g
   what the human's attention is for"*. The correction is not to lower the bar but to stop spending his
   attention re-confirming what he already decided.
 
-  **The failure mode to watch, stated so it is not discovered later:** a "correction" that quietly decides
-  something. Re-wording a stale claim is where a new constraint is easiest to smuggle in unnoticed —
-  precisely because the diff looks janitorial. When a correction requires *choosing* wording that changes
-  what the record commits to, it is a decision wearing a correction's clothes, and it is boundary.
+  **The failure mode, stated so it is not discovered later:** a "correction" that quietly decides
+  something, or that asserts a fact nobody checked. Both hide in the same place — a diff that looks
+  janitorial. When a correction requires *choosing* wording that changes what the record commits to, it is
+  a decision wearing a correction's clothes; when it states *why* or *when* something changed, it is a
+  claim that has to be verified like any other. Neither is safe class.
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
