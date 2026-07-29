@@ -14,6 +14,24 @@ it (the replacement does not depend on the superseded one's number).
 **Reading order:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md) is the keystone — *lean by
 design, calibrated to strategy* — and every other ADR is read through it.
 
+**How a statement that stopped being true is marked** (settled by the #234 sweep, 2026-07-29). *Supersede,
+never rewrite* is the rule; it has **three** shapes, and which one applies depends on whether the original
+was a decision, a premise, or a passing reference:
+- **Strike + discharge** — for a **decision or accepted cost** that was reversed. The reader must still see
+  what was decided. `~~old text~~ **→ discharged <date> by ADR-00NN**`.
+- **Rewrite + parenthetical** — for an **incidental reference** (a route name, a file, a cross-ADR
+  citation) whose only job is to point somewhere. Striking these buries the working pointer under a dead
+  one, so the text is corrected and the original noted in a parenthetical.
+- **Leave + flag** — where another ADR has already claimed the reference as deliberate history (e.g.
+  ADR-0010's carve-out for `/cv`). The text stays; a note says so, because that carve-out is invisible
+  from the file that carries the reference.
+
+**Enforcement: none, and deliberately** (#234's open question). A check can assert that a *listed* path
+resolves; it cannot know a claim quietly stopped being true — which is every finding in the #234 sweep.
+So the library is **audited by reading**, and the moment is **when an ADR is amended**: an amendment is
+where one record changes what another asserts, and every one of the thirteen findings originated exactly
+there. Same answer, and the same reason, as the root `CLAUDE.md` records for itself (#233).
+
 ## Foundations
 | ADR | Title | Status |
 |---|---|---|

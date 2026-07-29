@@ -1,4 +1,8 @@
-# 0032. Internationalize the site — light in-repo locale layer, English-pinned crawlable baseline
+# 0032. Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~
+
+> **The title's second half is RETIRED** (2026-07-26, [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
+> Both locales are prerendered. What this ADR still owns is the locale layer — read the 2026-07-29
+> amendment at the foot before acting on anything here (#234).
 
 - **Status:** accepted
 - **Date:** 2026-07-23
@@ -106,8 +110,9 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
 
 ## Consequences
 **Good**
-- The site presents the CV in **English**, coherent with LinkedIn + Canva ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md));
-  the CV-sync driver is served.
+- ~~The site presents the CV in **English**, coherent with LinkedIn + Canva~~ — the CV is presented in the
+  reader's locale (both editions are authored and prerendered); English remains the **canonical** edition
+  ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)), and the Canva CV was retired 2026-07-28. #234
 - **Native-language visitors still get their language live** (auto-detect + persisted manual toggle).
 - **No new dependency** — a typed catalog + two hooks; the "simplest thing" floor ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) holds.
 - The **static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) is intact — no server, no
@@ -145,8 +150,10 @@ one a visitor is served.
 - **Driven by / consistent with** [ADR-0024](./0024-profile-canonical-cv-cross-surface.md): the English CV
   stays canonical — no contradiction; only chrome localizes.
 - **Interacts with** [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) and
-  [ADR-0005](./0005-og-coverage-every-public-url.md) (OG coverage on every public URL) — the deferred Slice 2
-  makes per-locale prerender + `hreflang` first-class.
+  [ADR-0005](./0005-og-coverage-every-public-url.md) (OG coverage on every public URL) — ~~the deferred Slice 2
+  makes~~ **Slice 2 shipped as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) and made** per-locale
+  prerender + `hreflang` first-class. #234
 - Also **supersedes the earlier i18n sketch** in `docs/redesign/redesign-plan.md` (pt default + a
-  CloudFront-Function Accept-Language approach) — that plan section is now stale and will be updated
-  separately.
+  CloudFront-Function Accept-Language approach) — ~~that plan section is now stale and will be updated
+  separately.~~ **Still stale, and deliberately not updated:** `docs/redesign/` is the *pre-build* design
+  record, superseded by the ADRs rather than maintained alongside them. Read it as history. #234

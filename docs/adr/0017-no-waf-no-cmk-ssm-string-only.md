@@ -48,4 +48,4 @@ the application half (Sonar SAST + package-vulnerability scanning) is its own AD
 ## Links
 - Driven by ADR-0001, ADR-0002 · supersedes the shared regional WAF (History index) · the application
   security posture (Sonar SAST + package-vuln) is a separate ADR — **[ADR-0021](./0021-application-security-posture.md),
-  accepted the same day this was written and amended twice since** (this line read "(pending)" until #234).
+  accepted the same day this was written and amended since** (this line read "(pending)" until #234).

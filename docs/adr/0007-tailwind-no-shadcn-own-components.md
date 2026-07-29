@@ -38,8 +38,9 @@ depends on owning the primitives.
 - Small, owned component set; no library to override or track.
 
 **Bad / accepted costs**
-- Every UI primitive (loading/empty/error states, forms) is hand-built (`Column.tsx`; the original also named a `Form.tsx` that never existed — there is no form on the site,
-since ADR-0002 leaves nothing to submit, #234).
+- Every UI primitive (loading/empty/error states, forms) is hand-built (`Column.tsx`; the original also named `Form.tsx`, which existed when this was written and was **deleted
+the same day with the admin compose/auth pages** in the ADR-0002 dead-code sweep — the static site has
+nothing to submit, so there are no forms left to hand-build, #234).
 - No off-the-shelf accessibility/behavior from a component kit — a11y is the `ux` concern's job, done by hand.
 
 ## Links

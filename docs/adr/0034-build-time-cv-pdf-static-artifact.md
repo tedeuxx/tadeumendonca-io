@@ -35,7 +35,7 @@ The `/cv.pdf` name collides with nothing: the `/cv` route redirect was **dropped
 
 **Bad / accepted costs**
 - **The PDF is build-frozen** (inherited from ADR-0004) — it regenerates only on deploy, exactly like the OG images and prerendered HTML. A `profile.ts` edit is not reflected in `/cv.pdf` until the next build ships. Consistent with the build-time-render cost the site already accepts.
-- **EN-only for now.** The PDF is printed from the English prerender baseline ([ADR-0032](./0032-i18n-locale-layer-english-baseline.md)) — the canonical edition (ADR-0024). A pt-BR edition (`cv.pt.pdf`) is a clean follow-on that reuses the same pipeline against the pt route; it is deliberately deferred, not designed out.
+- **EN-only for now.** The PDF is printed from the **English edition** of `/me` ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md) — English is canonical). *(This said "the English prerender baseline (ADR-0032)"; that baseline was retired 2026-07-26 by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) — both locales prerender now, so the PDF is EN-only by CHOICE of source route, not because the prerender only produces English. #234.)* — the canonical edition (ADR-0024). A pt-BR edition (`cv.pt.pdf`) is a clean follow-on that reuses the same pipeline against the pt route; it is deliberately deferred, not designed out.
 - **The build owns one more headless-browser step** — a second Playwright pass (print, alongside the HTML snapshot). A small addition to the build-time cost ADR-0004 already books.
 
 **Scope boundaries (deliberate)**
@@ -130,7 +130,7 @@ edit to it is an editorial change to what a recruiter reads, not a styling chang
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it; the Canva retirement it deferred was taken by 0024's 2026-07-28 amendment, #225).
 - Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
 - `/cv.pdf` is linked from `/me` (ADR-0010); the `/cv` redirect was dropped pre-launch, so the path is free.
-- EN-only on the English prerender baseline (ADR-0032); a pt-BR edition is a deferred follow-on.
+- EN-only because it prints from the English canonical edition (ADR-0024), not because the prerender is English — that baseline was retired by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (#234); a pt-BR edition is a deferred follow-on.
 - Deliberately **outside** ADR-0005's HTML-route OG/SEO coverage (a static asset, not a crawlable route); exercised on the PR via `build:static` (ADR-0018).
 - Implements Issue #140; amended by Issue #161 (one-page edition — the "cannot disagree" consequence above
   is superseded by the "every claim survives" invariant).
