@@ -107,6 +107,32 @@ Functions JS 2.0 runtime. A rewrite using `?.`, `??` or `const` would pass green
 `aws_cloudfront_function` create time — i.e. in `infra-apply`, after the merge. The gate narrows the
 failure window; it does not close it.
 
+## Amendment (2026-07-29) — the 85% is a GLOBAL AVERAGE, not a per-file floor (#228)
+The gate above says "coverage ≥85%" without saying **of what**. It is a global average across everything
+in `vitest.config.ts`'s `include`, so a green coverage check means *the average clears the bar* — never
+*every included file does*. Nothing in the output distinguishes the two.
+
+That is not academic. When `scripts/` joined the include (ADR-0020's amendment), its subtotal sat at
+**81.66% branch** and passed, carried by `src/` at 98%. The pressure is one-directional and therefore a
+slow leak rather than a fixed cost: `src/` is large and well covered, `scripts/` is small and harder to
+cover, so **every new build script dilutes the tooling subtotal while the global barely moves**, and
+nothing objects at any point.
+
+**Owner decision (2026-07-29):** raise the tooling's coverage rather than declare it a lower
+per-directory threshold. `scripts/` now clears 85 standalone (89.47% branch). The two options not taken:
+per-directory thresholds, rejected because a lower *stated* bar for tooling is a second number to
+maintain; and accepting the gap with a note, rejected because it leaves the misreading in place.
+
+**The residual, stated because the choice does not remove it.** The reading is now wrong one level down
+rather than gone: `scripts/gen-distribution.mjs` sits at **80% branch — below the bar — and passes**,
+because the *directory* clears it. The same shape, from directory-vs-global to file-vs-directory. And
+option (2)'s own cost stands: nothing prevents the next script from reopening the gap, because no
+mechanism enforces the subtotal — only the habit of looking at the per-file table when adding tooling.
+
+Recorded here rather than in the PR body precisely because that habit needs somewhere to live. The
+failure this ADR already names twice — *"a green check that verified nothing, indistinguishable from one
+that verified everything"* — is what a coverage percentage is, read without this paragraph.
+
 ## Links
 - Driven by ADR-0003 · the regression it runs is ADR-0019 · the quality gate is ADR-0020 · post-deploy
   smoke is ADR-0023 · the loop model is the plugin's `trunk-single-env`.

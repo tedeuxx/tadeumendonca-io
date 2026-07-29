@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildDrafts,
+  formatResults,
   hashtagsFor,
   parseArticle,
   renderDraft,
@@ -204,5 +205,43 @@ describe('writeDrafts', () => {
     );
     expect(results.map((r) => r.status)).toEqual(['kept', 'written']);
     expect([...fs.written.keys()]).toEqual(['/out/new.md']);
+  });
+});
+
+// The run report (#228). Extracted from main() because it carries the generator's one safety property —
+// an existing draft is NEVER overwritten, and "kept" is the only place the reader is told so. A
+// generator that silently clobbered a draft the owner had already edited would look identical to a
+// working one, so the wording of that line is the guard.
+describe('formatResults', () => {
+  it('names a kept draft as not overwritten, and excludes it from the new-draft count', () => {
+    const lines = formatResults(
+      [
+        { key: 'my-commitment', status: 'kept' },
+        { key: 'second-piece', status: 'written', url: 'https://tadeumendonca.io/en/blog/second-piece' },
+      ],
+      '.brand/distribution',
+    );
+    expect(lines[0]).toContain('kept');
+    expect(lines[0]).toContain('not overwritten');
+    expect(lines[1]).toContain('drafted');
+    expect(lines[1]).toContain('https://tadeumendonca.io/en/blog/second-piece');
+    // ONE new draft, not two — a kept draft must never be counted as produced.
+    expect(lines.at(-1)).toContain('1 new draft(s)');
+  });
+
+  it('reports zero when everything was kept, and still names the output directory', () => {
+    const lines = formatResults([{ key: 'only', status: 'kept' }], '.brand/distribution');
+    expect(lines.at(-1)).toContain('0 new draft(s)');
+    expect(lines.at(-1)).toContain('.brand/distribution');
+    // "nothing is published" is part of the line, not a comment: it is the reassurance that the drafts
+    // stayed on the machine, and ADR-0038 makes that the generator's whole privacy claim.
+    expect(lines.at(-1)).toContain('nothing is published');
+  });
+
+  it('handles an empty run without inventing output', () => {
+    const lines = formatResults([], '.brand/distribution');
+    expect(lines.filter((l) => l.startsWith('kept'))).toEqual([]);
+    expect(lines.filter((l) => l.startsWith('drafted'))).toEqual([]);
+    expect(lines.at(-1)).toContain('0 new draft(s)');
   });
 });
