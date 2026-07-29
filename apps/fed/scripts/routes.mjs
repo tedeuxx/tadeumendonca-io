@@ -52,13 +52,26 @@ export function clearBlogEditionsCacheForTest() {
   indexCache = undefined;
 }
 
-function readBlogEditions() {
+/**
+ * The PURE half of the blog scan: filenames + a reader → the slug pairs. Split out so the parsing rules
+ * are testable without touching the filesystem, which is the same injected-reader shape
+ * `buildDrafts(files, routes, readFile)` already uses in `gen-distribution.mjs` — one pattern in this
+ * directory rather than a per-module improvisation.
+ *
+ * Three behaviours live here that nothing pinned before (#228), and each silently changes a PUBLISHED URL
+ * if it breaks:
+ *  - a file that is not `<key>.<locale>.md` is skipped, not guessed at;
+ *  - a file with no frontmatter falls back to the filename key as the slug;
+ *  - frontmatter without a `slug` does the same — `|| key`, not `?? key`, so an empty string also falls
+ *    back rather than producing `/blog/`.
+ */
+export function buildBlogEditions(files, readFile) {
   const byKey = new Map();
-  for (const file of readdirSync(contentDir).filter((f) => f.endsWith('.md'))) {
+  for (const file of files.filter((f) => f.endsWith('.md'))) {
     const m = /^(.+)\.(pt|en)\.md$/.exec(file);
     if (!m) continue;
     const [, key, locale] = m;
-    const raw = readFileSync(join(contentDir, file), 'utf8');
+    const raw = readFile(file);
     const fmm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
     const fm = fmm ? load(fmm[1]) : null;
     const pair = byKey.get(key) ?? {};
@@ -66,6 +79,11 @@ function readBlogEditions() {
     assertSlugIsUrlSafe(pair[locale], file);
     byKey.set(key, pair);
   }
+  return byKey;
+}
+
+function readBlogEditions() {
+  const byKey = buildBlogEditions(readdirSync(contentDir), (file) => readFileSync(join(contentDir, file), 'utf8'));
   return [...byKey.values()];
 }
 
