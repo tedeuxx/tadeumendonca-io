@@ -170,6 +170,23 @@ export function writeDrafts(drafts, dir, fs) {
   return results;
 }
 
+/**
+ * The run report, as data. Extracted from `main()` so it is testable without a filesystem (#228) — and
+ * because it carries the generator's one safety property: **an existing draft is never overwritten**, and
+ * "kept" is the only place the reader is told that happened. A silent generator that clobbered a draft
+ * the owner had already edited would look identical to one that worked.
+ */
+export function formatResults(results, outputDir) {
+  const lines = results.map((r) =>
+    r.status === 'kept'
+      ? `kept    ${r.key}.md (already exists — not overwritten)`
+      : `drafted ${r.key}.md → ${r.url}`,
+  );
+  const written = results.filter((r) => r.status === 'written').length;
+  lines.push('', `${written} new draft(s) in ${outputDir} (gitignored — nothing is published).`);
+  return lines;
+}
+
 function main() {
   const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
   const drafts = buildDrafts(files, localizedRoutes(), (f) => readFileSync(join(contentDir, f), 'utf8'));
@@ -180,12 +197,7 @@ function main() {
     write: (p, content) => writeFileSync(p, content, 'utf8'),
   });
 
-  for (const r of results) {
-    if (r.status === 'kept') console.log(`kept    ${r.key}.md (already exists — not overwritten)`);
-    else console.log(`drafted ${r.key}.md → ${r.url}`);
-  }
-  const written = results.filter((r) => r.status === 'written').length;
-  console.log(`\n${written} new draft(s) in ${outputDir} (gitignored — nothing is published).`);
+  for (const line of formatResults(results, outputDir)) console.log(line);
 }
 
 // Only run as a CLI, so the unit tests can import the pure pieces.
