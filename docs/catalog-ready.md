@@ -9,6 +9,32 @@ Most raw material starts as a Claude cowork project. This doc is the bar it must
 from cowork to a public catalog repo. The gate is deliberately about *proof of engineering*, not polish
 for its own sake: someone who opens the repo should immediately see an AI Engineer who ships.
 
+## What this bar governs — and the one repo it does not
+
+It governs **projects that graduate into the catalog**: a tool someone else might adopt. Every box below
+is a question that only makes sense about a tool — *what problem does it solve, how do I run it, what is
+the honest limitation before I depend on it.*
+
+**`tadeumendonca-io` — the platform repo — is not one of those, and is not measured by this.** It is
+listed in the catalog because it is the site itself, not because it graduated onto its own shelf. Nobody
+adopts someone else's presence, and "the real problem it solves" has no honest answer for a portfolio
+that exists to be read.
+
+That is a **scoping** statement, not an exemption, and the distinction matters because changing a
+standard so the one item measured against it passes is otherwise indistinguishable from convenience.
+What the platform is held to instead is **stricter, not lighter**: an ADR library recording every
+decision and the trade-off it cost, blocking CI gates (lint · typecheck · coverage ≥85% · build · E2E ·
+SonarCloud · dependency audit), and `/architecture`, which publishes how it is built **including its own
+honest limitation**. The content this checklist asks for exists — it lives where a reader of a *site*
+looks for it rather than in a README where a reader of a *tool* would.
+
+Two consequences, so this cannot be read as the bar getting easier:
+
+- **Nothing below is weakened for catalogued projects.** If a future edit softens a box, it has gone
+  wrong; this section changed *who* is measured, never *what* is demanded.
+- **A future catalog entry does not inherit the exception.** The platform is the only repo that hosts
+  the catalog. Anything else that appears on the shelf graduated onto it, and clears every box.
+
 ## The single triage question
 > Does this repo help or hurt someone who opened my GitHub expecting an **AI Engineer, agentic**?
 
