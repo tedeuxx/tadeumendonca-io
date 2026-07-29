@@ -103,9 +103,11 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-driven SDLC'); // description
     expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
+    expect(body).toContain('Each project earns its place by clearing the bar'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
+    expect(body).not.toContain('conquista seu lugar passando pela régua');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
@@ -113,9 +115,39 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
     expect(body).toContain('se fecha na prática'); // proof
+    expect(body).toContain('conquista seu lugar passando pela régua'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
+    expect(body).not.toContain('Each project earns its place by clearing the bar');
   });
+
+  // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
+  // claims the standard is checkable, and a claim whose link never shipped is the claim failing, not a
+  // cosmetic miss. Asserted in both editions because the href is authored once and shared: a defect here
+  // would be identical in both, which is exactly the kind that a single-edition check reports as fine.
+  const BAR_HREF = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
+  for (const locale of ['pt', 'en'] as const) {
+    test(`/${locale}/portfolio serves the bar's link, not just its sentence`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      expect(body).toContain(BAR_HREF);
+    });
+  }
+
+  // The bar reaches the LANDING too, and that is a second public surface #246 did not scope. It follows
+  // from PortfolioSection being shared — the landing renders it with `limit={4}` — so it is not an
+  // accident, but it is also not something the issue decided. Asserted rather than left implicit: an
+  // unstated side effect on the storefront is exactly the kind of thing that gets discovered by a reader.
+  //
+  // It is arguably where the sentence earns the most: the landing shows a SHORTLIST, so "the only item"
+  // reads even thinner there than on the full page.
+  for (const locale of ['pt', 'en'] as const) {
+    const sentence = locale === 'pt' ? 'conquista seu lugar passando pela régua' : 'earns its place by clearing the bar';
+    test(`/${locale} (the landing) carries the bar in its own edition`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/`)).text();
+      expect(body).toContain(sentence);
+      expect(body).toContain(BAR_HREF);
+    });
+  }
 });
 
 // 4 · hreflang reciprocity + self-canonical — each locale page lists pt + en + x-default with ABSOLUTE

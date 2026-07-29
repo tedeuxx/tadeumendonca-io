@@ -104,8 +104,17 @@ const strings = {
     // that cleared the bar", which is a different claim to someone deciding whether the list is thin or
     // selective. It costs nothing to keep true: `docs/catalog-ready.md` already exists and is public, so
     // the sentence points at something checkable rather than making a promise to maintain.
+    // The term is NOT free per edition: `/architecture` already names this same standard — en "The bar",
+    // pt "A régua" — and an adjacent surface calling it something else is the inconsistency this copy was
+    // supposed to remove, not add. The first draft said "clarear a barra", which is worse than
+    // inconsistent: `clarear` means to lighten, so it is a calque of "clear the bar" that does not carry
+    // "pass a threshold" in pt-BR at all.
+    //
+    // Both editions must also assert the SAME thing. The draft's pt read "entra depois de passar" —
+    // temporal, i.e. sequence — while en asserted merit. #246's criterion is that inclusion is EARNED, so
+    // sequence is the weaker claim and only one edition was making the argument.
     bar: {
-      pt: 'Cada projeto entra depois de clarear a barra:',
+      pt: 'Cada projeto conquista seu lugar passando pela régua:',
       en: 'Each project earns its place by clearing the bar:',
     },
     // The link text is the filename, deliberately untranslated — it names the artifact rather than

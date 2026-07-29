@@ -80,7 +80,7 @@ describe('PortfolioSection', () => {
     const bar = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
 
     const { unmount } = renderWithLocale(<PortfolioSection />, { locale: 'pt' });
-    expect(screen.getByText(/Cada projeto entra depois de clarear a barra/)).toBeInTheDocument();
+    expect(screen.getByText(/conquista seu lugar passando pela régua/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
     unmount();
 
@@ -91,7 +91,7 @@ describe('PortfolioSection', () => {
 
   it('states the bar even when the catalog is empty — the standard is not conditional on having items', () => {
     renderWithLocale(<PortfolioSection />, { locale: 'pt' });
-    expect(screen.getByText(/clarear a barra/)).toBeInTheDocument();
+    expect(screen.getByText(/conquista seu lugar passando pela régua/)).toBeInTheDocument();
   });
 
   it('omits the live link when the project has none', () => {
