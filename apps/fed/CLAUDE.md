@@ -57,9 +57,14 @@ in `iac/`.
   LinkedIn carries, what `/cv.pdf` is printed from, and what `profile` (the resolved constant) exports;
   pt-BR is a translation of it, and facts (dates, employers, official job titles, certification names) are
   authored **once** and shared, so the two editions cannot disagree.
-- **EVERYTHING the reader reads is authored in both languages** — chrome, CV, and **long-form prose**.
-  There is no category where chrome and body may disagree (owner rule, 2026-07-23; supersedes ADR-0032's
-  long-form deferral). **Long-form uses one markdown file per locale** — `<name>.pt.md` / `<name>.en.md`,
+- **EVERYTHING the reader reads is authored in both languages** — chrome, CV, catalog copy, and
+  **long-form prose**. There is no category where chrome and body may disagree (owner rule, 2026-07-23;
+  supersedes ADR-0032's long-form deferral). **In every reader-facing module a missing translation is a
+  COMPILE error, not a runtime surprise** — `profile.ts` via `ProfileSource`, `src/i18n/messages.ts` via
+  its `satisfies`, `data/repoCards.ts` and `data/catalog.ts` via a leaf `Record<Locale, string>`, and the
+  blog loader by throwing at module load. `catalog.ts` was the one module typed as a plain string, and it
+  shipped Portuguese to `/en/portfolio` for three days because nothing objected (#235). **Long-form uses
+  one markdown file per locale** — `<name>.pt.md` / `<name>.en.md`,
   selected through a `Record<Locale, string>` so a missing translation is a **compile error**
   (`src/content/rampup.*.md` is the reference implementation). This is deliberately NOT the key-first
   `{ pt, en }` shape used for the catalog and the CV: a paragraph is not a leaf, and interleaving two

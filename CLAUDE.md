@@ -11,10 +11,9 @@ at build time, in both locales, for OG/SEO.
 > written in **English**. The site's copy is **bilingual (pt-BR + en, ADR-0032)** — chrome, CV and
 > long-form alike — and **both locales are prerendered**, each route snapshotted with its own head
 > (ADR-0036 retired 0032's English-pinned prerender clause; only the bare `/` snapshot is still English,
-> as the x-default entry). That's content, not GitHub publication.
-> **One known exception, and it is a bug, not a policy:** `src/data/catalog.ts` is authored in Portuguese
-> only, so `/en/portfolio` currently serves Portuguese copy (#235). The rule stands; the file does not
-> follow it yet.
+> as the x-default entry). That's content, not GitHub publication. **No exceptions** — `src/data/catalog.ts`
+> was the last one (it served Portuguese on `/en/portfolio` until #235) and now carries the same
+> leaf-bilingual type as everything else, so a missing translation is a compile error.
 
 ## Engineering principles (always-on floor — non-negotiable)
 This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;
