@@ -85,11 +85,11 @@ describe('AppShell', () => {
 
   // The other half of #230's guarantee: BOTH notices in the one container, in the order #172 fixed.
   //
-  // It needs its own render, and the reason is worth stating because the obvious one is wrong: the
-  // consent bar is absent from the default tree not because analytics is unconfigured under Vitest, but
-  // because `useConsent()` falls back to **'denied'** with no ConsentProvider mounted, and ConsentBanner
-  // returns null on `status !== 'undecided'` before the measurement id is ever read. Both conditions have
-  // to be supplied — the provider AND the id.
+  // It needs its own render because in the default tree NEITHER of ConsentBanner's two conditions holds:
+  // there is no `.env*` in apps/fed so the measurement id is unset, AND `useConsent()` falls back to
+  // 'denied' with no ConsentProvider mounted. Either one alone is enough to render it null, so both have
+  // to be supplied here. Worth spelling out because supplying only one looks like it should work and
+  // silently does not — the guard would then assert nothing about the consent bar while appearing to.
   //
   // Wrapping in ConsentProvider is not a contrivance: it is what `App.tsx` wraps AppShell in for real, so
   // this tree is closer to production than the bare one above.
