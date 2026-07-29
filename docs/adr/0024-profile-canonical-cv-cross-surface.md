@@ -120,20 +120,18 @@ risk.** The design is **kept** in the owner's Canva account. It stops being a su
 synced, not linked, not a source of truth. It is not destroyed.
 
 That is the right call — the artifact is a record of what has already circulated, and deleting it would
-throw away the only copy of copy that may still be in someone's inbox. But it means the retirement is a
-**convention, enforced by nobody**, and the retained document carries a **different years figure and a
-different summary** from what the site publishes. Two consequences worth naming rather than discovering:
+throw away the only copy of a document that may still be sitting in someone's inbox.
 
-- **A retained artifact can be re-shared.** Nothing prevents the old PDF being attached or the design being
-  reopened and exported. The retirement removes the *obligation* to keep it in sync; it does not remove the
-  document's ability to contradict the site. Anyone reaching for a CV goes to `/cv.pdf`.
-- **Links are what actually matter, and they are the real open action.** Anywhere still pointing at the
-  Canva artifact keeps serving the stale edition to a real reader, retirement or not. The likely candidate
-  is a **LinkedIn Featured item**; it must be **repointed at `https://tadeumendonca.io/cv.pdf`**. Until
-  that is done, "retired" is true in this repo and false to a visitor.
+**Nothing points at it, so the retirement takes effect immediately and carries no follow-up.** The site
+never linked to Canva (grep over `apps/fed/src` and `apps/fed/public`), and there is **no Featured item or
+other link to it on LinkedIn** (owner, on this MR — an earlier draft of this amendment assumed one and named
+repointing it as an open action; that action does not exist). No reader can reach the old edition through a
+surface anyone maintains.
 
-Nothing in this repo points at Canva — verified by grep over `apps/fed/src` and `apps/fed/public`; the site
-never linked to it. So the open action is entirely on the external surfaces.
+**The residual risk is therefore only this:** the retained document carries a **different years figure and a
+different summary** from what the site publishes, and the retirement is a **convention, enforced by nobody**.
+It can be reopened and exported by mistake, and any copy already sent stays sent — which no deletion would
+have fixed either. The rule is simply that any CV comes from `/cv.pdf`.
 
 ## Links
 - Driven by ADR-0001, ADR-0006 · the CV lives at `/cv` (ADR-0010) · the sync process itself is private
@@ -144,5 +142,5 @@ never linked to it. So the open action is entirely on the external surfaces.
   [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md) deferred; the downloadable CV is `/cv.pdf` per
   that ADR and its 2026-07-28 one-page-edition amendment. **Logical retirement, not deletion** — the design
   is kept and simply stops being a surface, so the residual risk is a retained artifact that still
-  contradicts the site. **Repointing any external link at `/cv.pdf` is the open owner action**, and until
-  it is done "retired" is true in this repo and false to a visitor.
+  contradicts the site. **No follow-up action** — nothing links to it from the site or from LinkedIn, so
+  the retirement takes effect on merge.
