@@ -333,21 +333,33 @@ test.describe('sitemap advertises every per-locale URL', () => {
 // Asserted against the SHIPPED HTML rather than in a component test, because that is where the defect
 // existed: every unit test passed while `dist/pt/**` carried an offer to read in English.
 test.describe('the prerendered HTML carries nothing visitor-specific', () => {
-  test.use({ locale: 'pt-BR' });
+  // The LIVENESS legs. The guard's real assertion is negative, and a negative assertion never fails on a
+  // bad selector: rename `localeSuggestion.notice` and the greps below search for a string that exists
+  // nowhere, and pass having checked nothing (#231). So each label is first proven live on a page where
+  // the offer MUST appear, matching the exact value the grep will use.
+  //
+  // BOTH directions, deliberately. The first version of this proved only `pt`, which left the `en` label
+  // in exactly the state this exists to fix — and English is the canonical edition (ADR-0024), so an
+  // English-only copy edit is the MORE likely one, and it was the one still unguarded.
+  const STALE = 'the offer label changed — update e2e/locale-offer-labels.ts, or the absence check below verifies nothing';
 
-  test('no locale-suggestion offer is baked into either edition', async ({ page, request }) => {
-    // FIRST prove the label is still live (#231). This assertion is negative, and a negative assertion
-    // never fails on a bad selector: rename `localeSuggestion.notice` and the greps below would search
-    // for a string that exists nowhere — and pass, having checked nothing. So the guard earns its
-    // negative half by demonstrating the positive one on a page where the offer MUST appear: a pt-BR
-    // reader on the English edition. If the copy changed, this line goes red, loudly, instead of the
-    // real check silently going vacuous.
-    await page.goto('/en/me/');
-    await expect(
-      page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt }),
-      'the offer label changed — update e2e/locale-offer-labels.ts, or the check below verifies nothing',
-    ).toBeVisible();
+  test.describe('a pt-BR reader on the English edition', () => {
+    test.use({ locale: 'pt-BR' });
+    test('still sees the Portuguese offer label', async ({ page }) => {
+      await page.goto('/en/me/');
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.pt }), STALE).toBeVisible();
+    });
+  });
 
+  test.describe('an en-US reader on the Portuguese edition', () => {
+    test.use({ locale: 'en-US' });
+    test('still sees the English offer label', async ({ page }) => {
+      await page.goto('/pt/me/');
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.en }), STALE).toBeVisible();
+    });
+  });
+
+  test('no locale-suggestion offer is baked into either edition', async ({ request }) => {
     for (const path of ['/pt/', '/en/', '/pt/me/', '/en/me/']) {
       const html = await (await request.get(path)).text();
       // Both directions: the pt snapshot must not offer English, and the en snapshot must not offer
