@@ -245,11 +245,17 @@ Working rules that follow from that:
   cases happened — *nothing matched, so nothing was verified* · *a step failed, so the rest never ran* ·
   *the gate ran, with the list*. A check that matched nothing must not read like one that passed, and a
   notice that prints the full list after a failure is the same overstatement on the red path.
-- **`deploy`** / **`infra-apply`** (merge to `main`): deploy the static site / apply Terraform. `deploy`
-  also runs a **post-deploy E2E smoke against the live apex**, and that is where `e2e/edge-rewrite.spec.ts`
-  runs — the only check proving the CloudFront Function is actually **attached and accepted at the edge**
-  (#216). It is post-deploy **by construction**: `vite preview` does not rewrite, so the assertion is
-  unsatisfiable locally and the spec skips there rather than going red for a harness reason. This is the
-  one exception noted under *Branching* above.
+- **`deploy`** (merge to `main`, paths under `apps/fed`): publishes the static site, then runs a
+  **post-deploy E2E smoke against the live apex**. Post-deploy assertions are the *one* exception noted
+  under *Branching* above — they are unsatisfiable before the deploy exists.
+- **`infra-apply`** (merge to `main`, paths under `iac/`): applies Terraform, waits for the CloudFront
+  distribution to finish deploying, then runs **`e2e/edge-rewrite.spec.ts`** — the only check proving the
+  CloudFront Function is actually **attached, current, and accepted by the JS 2.0 runtime** (#216).
+  It lives **here and not in `deploy`** (#237): this is the workflow that changes the function, and the two
+  workflows have **different concurrency groups and no ordering**, so asserting from `deploy` would race
+  the apply and — CloudFront taking minutes to propagate — almost certainly report green having measured
+  the *previous* function. The wait is not optional for the same reason, one workflow in.
+  Its Playwright setup sits **before** the apply, per #195: a red must mean the edge is broken, and an apt
+  flake after infrastructure has already been mutated is the ambiguity that rule exists to remove.
 - **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
 - **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.

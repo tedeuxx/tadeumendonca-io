@@ -45,6 +45,42 @@ jobs:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: us-east-1
 
+      # ---- Edge-assertion setup, deliberately BEFORE the apply (#237) ----
+      #
+      # The CloudFront Function is the one piece of `iac/` that carries application BEHAVIOUR, and
+      # `apps/fed/e2e/edge-rewrite.spec.ts` is the only check that proves the edge is actually running the
+      # version in the repo (#216: detached · stale association · rejected by the JS 2.0 runtime). That
+      # assertion has to run AFTER whatever changes the function, which is this workflow — not `deploy`.
+      #
+      # Adding `iac/cloudfront-functions/**` to deploy.yml's paths was the obvious fix and is WRONG: the two
+      # workflows have different concurrency groups and no ordering, so deploy's smoke would race
+      # terraform apply and — given CloudFront takes minutes to propagate — almost certainly assert against
+      # the PREVIOUS function and report green. That is worse than the gap it closes: a check that passes
+      # having measured the state the change replaced.
+      #
+      # Setup sits before the apply for the reason #195 records: `--with-deps` shells out to apt, and a
+      # transient mirror failure must not go red AFTER infrastructure has been mutated. If this flakes,
+      # the job fails having changed nothing. The cost is that a Playwright install now gates every infra
+      # apply, including ones nowhere near the edge — accepted, because the alternative is a red whose
+      # meaning is ambiguous.
+      - name: Setup Node (for the post-apply edge assertion)
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+
+      - name: Install
+        # --ignore-scripts, same threat model as deploy.yml: persist-then-execute. This job holds the
+        # INFRA OIDC role, which is strictly more powerful than the deploy role, so the argument is
+        # stronger here, not weaker.
+        working-directory: apps/fed
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright browser
+        working-directory: apps/fed
+        run: npx playwright install --with-deps chromium
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
@@ -60,3 +96,28 @@ jobs:
         env:
           TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
         run: terraform apply -input=false -auto-approve -var-file=env/stg.tfvars
+
+      # `terraform apply` returning is NOT the edge serving the new function: a distribution update is
+      # asynchronous and takes minutes. Asserting straight after the apply would reintroduce, inside one
+      # workflow, exactly the race that makes the deploy.yml approach wrong. The distribution id comes from
+      # the apply's own output rather than SSM — it is the value this run just reconciled.
+      - name: Wait for the CloudFront distribution to finish deploying
+        id: dist
+        run: |
+          id="$(terraform output -raw cloudfront_distribution_id)"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "waiting for distribution $id to reach Deployed…"
+          aws cloudfront wait distribution-deployed --id "$id"
+
+      # Runs on EVERY infra apply, not only when cloudfront-functions/ changed. Deliberate: an edge that
+      # stopped rewriting is worth catching whatever mutated it, and a filter here would be one more place
+      # to keep in sync with the thing it guards — which is the defect this issue is about.
+      #
+      # Scoped to the edge spec alone. The full production smoke belongs to `deploy`, which owns publishing
+      # the artifact; running it here would duplicate a gate and give a second workflow a reason to go red
+      # for something it did not change.
+      - name: Assert the edge is running the rewrite function
+        working-directory: apps/fed
+        env:
+          E2E_ENV: production
+        run: npx playwright test e2e/edge-rewrite.spec.ts --reporter=list
