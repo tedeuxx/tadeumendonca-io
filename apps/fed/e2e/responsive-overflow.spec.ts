@@ -36,4 +36,19 @@ test.describe('no horizontal overflow at any width', () => {
       }
     });
   }
+
+  // The sweep above drives pt-BR readers on /pt routes — precisely where the locale offer (#172) stays
+  // silent, so it never measured the notice at all. The offer only appears on the OTHER locale's routes,
+  // and it is the widest piece of chrome the site has: two uppercase mono buttons with letter-spacing,
+  // `shrink-0`, beside a sentence. "CONTINUAR EM INGLÊS" next to "LER EM PORTUGUÊS" at 320px is the worst
+  // case, and no existing assertion could reach it.
+  test('the locale offer does not overflow at the narrowest width', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: HEIGHT });
+    await page.goto('/en/me/');
+    await expect(page.getByRole('region', { name: 'Sugestão de idioma' })).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, `the locale offer overflows by ${overflow}px at 320px wide`).toBeLessThanOrEqual(0);
+  });
 });

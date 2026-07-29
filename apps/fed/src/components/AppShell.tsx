@@ -14,6 +14,7 @@ import { cn } from '../lib/cn';
 import { useConsent } from '../lib/consent';
 import { analyticsConfigured } from '../lib/analytics';
 import { ConsentBanner } from './ConsentBanner';
+import { LocaleSuggestion } from './LocaleSuggestion';
 import { LOCALES, useLocale, useLocalePath, type MessageKey } from '../i18n';
 
 interface NavEntry {
@@ -174,7 +175,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </footer>
 
-      <ConsentBanner />
+      {/* Bottom stack. Both notices are independently present or absent, so they share ONE fixed
+          container and sit in it as normal blocks: the locale offer above, the consent bar flush with
+          the bottom. Positioning each `fixed bottom-0` would have overlapped them, and offsetting one by
+          the other's height would have hard-coded a number that changes with the copy (#172). */}
+      <div className="fixed inset-x-0 bottom-0 z-30" data-print="hide">
+        <LocaleSuggestion />
+        <ConsentBanner />
+      </div>
     </div>
   );
 }

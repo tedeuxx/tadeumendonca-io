@@ -31,6 +31,19 @@ const browser = await chromium.launch();
 // English browser context: it only matters for the bare-root x-default capture (which follows the client
 // redirect); the prefixed routes derive their locale from the path, independent of this.
 const context = await browser.newContext({ locale: 'en-US' });
+// Mark the snapshot browser (#172). Anything whose render depends on the VISITOR — not on the route —
+// must opt out here, because this context is not a visitor: it is pinned to en-US and its output is
+// served to everyone. The locale-suggestion notice is the case that forced this: on a `/pt` route the
+// snapshot browser looks like an English speaker, so the offer rendered and BAKED into the Portuguese
+// HTML, suggesting English to every pt reader until hydration removed it.
+//
+// A post-mount flag does NOT solve that here, which is the non-obvious part: this prerender snapshots a
+// LIVE, already-hydrated page (`page.content()` after the head settles), so effects have run and any
+// `mounted` gate is long since true. The signal has to be about WHO is rendering, not WHEN.
+await context.addInitScript(() => {
+  // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+  window.__PRERENDER__ = true;
+});
 const page = await context.newPage();
 
 // Snapshot the page currently loaded once its canonical matches `expectedCanonical`, writing to `outDir`.
