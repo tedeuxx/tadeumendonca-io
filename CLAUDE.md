@@ -4,7 +4,8 @@
 This repo is the public presence for **tadeumendonca.io**: an interactive CV, a portfolio that links to a
 curated **catalog** of automations / agentic tools, and a blog. It was formerly a backend-ful monorepo (a
 Hono/Lambda BFF, Cognito, API Gateway, DynamoDB, SES); that backend was **retired** and the site is now static —
-content ships as **markdown in the repo**, prerendered at build time for OG/SEO.
+content ships **in the repo** — markdown for long-form, typed TypeScript for structured data — prerendered
+at build time, in both locales, for OG/SEO.
 
 > Convention: everything **published on GitHub** (this file, READMEs, descriptions, commit/PR text, issues) is
 > written in **English**. The site's copy is **bilingual (pt-BR + en, ADR-0032)** — chrome, CV and
@@ -193,8 +194,10 @@ Working rules that follow from that:
   CloudFront caches, and OG scrapers (LinkedIn, X, WhatsApp) pin the card they first fetch, so a bad
   unfurl outlives the next merge.
 
-  **The rule, which is what you apply:** *if a diff changes words a reader or a crawler will see, it is
-  boundary* — whatever file they live in, whether prose, a data field, a meta tag or alt text.
+  **The rule, which is what you apply:** *if a diff changes **words or images** a reader or a crawler will
+  see, it is boundary* — whatever file they live in, whether prose, a data field, a meta tag, alt text, an
+  OG card, a credential badge, or `robots.txt`. "Words" alone would have excluded the OG images the list
+  already names.
 
   **Today that means** — an aid, deliberately **not** the definition: `src/content/**` (articles,
   ramp-up, architecture) · `src/data/profile.ts` (the CV) · `src/data/catalog.ts` (portfolio copy —
@@ -209,6 +212,16 @@ Working rules that follow from that:
   `index.html` was listed while `src/lib/site.ts` was not — `index.html`'s own comment says *"keep in sync
   with `DEFAULT_DESCRIPTION` in `src/lib/site.ts`"*, so **the list named the derived copy and missed the
   authoritative one**. A list will always lag; the rule already covers whatever comes next.
+
+  **Could a check enforce this? No — and that is the point** (#233 asked; this is the answer). A test
+  could assert every *listed* path still exists, catching a rename. It cannot catch the failure that
+  actually happens, which is **omission**: no check knows about a file nobody thought to list. The
+  enforcement has to live in how the rule is *phrased*, which is why it is phrased to fail closed. The
+  same holds for the rest of this guide — the route set and workflow names are machine-comparable, but
+  a guide is prose about intent, and the drift that matters is a claim that quietly stopped being true,
+  not a literal that stopped resolving. **This file is audited by reading it against the code, and the
+  moment to do that is when an ADR is amended** — which is where every one of #233's ten discrepancies
+  came from.
 
   *App code and config* under `apps/fed` (components, hooks, tests, build scripts) is safe class — right
   up to the point where a component contains a literal string a reader sees, at which point that diff is

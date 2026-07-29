@@ -1,8 +1,9 @@
 # tadeumendonca-fed
 
 The public **static SPA** of **tadeumendonca.io** — interactive CV, portfolio catalog and blog.
-No backend: content is markdown in the repo, prerendered at build time for OG/SEO. The Terraform that
-serves it lives alongside, in `iac/`.
+No backend: content is in the repo — markdown for long-form, typed TypeScript for structured data —
+prerendered at build time, in both locales, for OG/SEO. The Terraform that serves it lives alongside,
+in `iac/`.
 
 ## Stack
 - **React 18 + Vite + TypeScript**, **Tailwind v3** (preflight on).
@@ -15,8 +16,14 @@ serves it lives alongside, in `iac/`.
 
 ## Architecture (fully static)
 - **No backend, no auth, no XHR at runtime.** Everything the page needs ships in the bundle or in the
-  prerendered HTML. Content (CV, articles) is markdown in the repo, read through `src/lib/content.ts`.
-- `scripts/prerender.mjs` snapshots each route off `vite preview` so OG/SEO tags land in the served HTML.
+  prerendered HTML. Content is in the repo in **two shapes**: **markdown** for long-form (articles,
+  ramp-up, architecture — read through `src/lib/content.ts`) and **typed TypeScript** for structured data
+  (`src/data/profile.ts` is the CV, `catalog.ts` the portfolio, `repoCards.ts` the embedded cards).
+- `scripts/prerender.mjs` snapshots each route **in both locales** off `vite preview`, so OG/SEO tags land
+  in the served HTML, and prints `/cv.pdf` from `/en/me` in the same pass. **The prerender is not a
+  visitor** (ADR-0036 amendment): it runs one en-US browser and its HTML is served to everyone, so
+  anything rendering off the visitor rather than the route must opt out via `window.__PRERENDER__` — a
+  post-mount flag does not do it, because the snapshot comes from an already-hydrated page.
 - **No PWA** — no service worker, no manifest, no offline shell. `src/lib/serviceWorker.ts` only
   unregisters the retired worker for returning visitors; delete it once it can no longer be in the wild.
 
@@ -40,14 +47,16 @@ serves it lives alongside, in `iac/`.
   pt/en catalog, `LocaleProvider`, `useT()`/`useLocale()`; **ADR-0032**, supersedes ADR-0011). It
   **auto-detects the visitor's native language** and offers a **PT/EN toggle** (persisted, overrides
   detection). **Add every new UI-chrome string to the `src/i18n/` catalog in both locales — never hardcode
-  a UI string.** Dates use the active locale. The **crawlable/OG prerender baseline is pinned to English**
-  (`scripts/prerender.mjs` forces the snapshot locale to en-US). **The CV content localizes too**:
-  `src/data/profile.ts` is authored bilingually (`ProfileSource`, same key-first shape as the message
-  catalog) and flattened per locale by `resolveProfile`, so chrome and content are always in the same
-  language. **English stays the canonical edition** (ADR-0024) — it is what LinkedIn carries, what the
-  prerender serves, and what `profile` (the resolved constant) exports; pt-BR is a translation of it, and
-  facts (dates, employers, official job titles, certification names) are authored **once** and shared, so
-  the two editions cannot disagree.
+  a UI string.** Dates use the active locale. **Both locales are prerendered** — ADR-0036 **retired**
+  0032's English-pinned crawlable baseline: every route is snapshotted in each locale with its own head,
+  and the en-US browser context in `scripts/prerender.mjs` is the *browser*, not a content baseline. The
+  one bare-root snapshot is still English, as the x-default entry for the JS-less crawler.
+  **The CV content localizes too**: `src/data/profile.ts` is authored bilingually (`ProfileSource`, same
+  key-first shape as the message catalog) and flattened per locale by `resolveProfile`, so chrome and
+  content are always in the same language. **English stays the canonical edition** (ADR-0024) — it is what
+  LinkedIn carries, what `/cv.pdf` is printed from, and what `profile` (the resolved constant) exports;
+  pt-BR is a translation of it, and facts (dates, employers, official job titles, certification names) are
+  authored **once** and shared, so the two editions cannot disagree.
 - **EVERYTHING the reader reads is authored in both languages** — chrome, CV, and **long-form prose**.
   There is no category where chrome and body may disagree (owner rule, 2026-07-23; supersedes ADR-0032's
   long-form deferral). **Long-form uses one markdown file per locale** — `<name>.pt.md` / `<name>.en.md`,
