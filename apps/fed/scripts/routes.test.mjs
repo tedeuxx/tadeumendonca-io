@@ -3,6 +3,7 @@ import {
   alternatesFor,
   assertSlugIsUrlSafe,
   blogEditions,
+  buildBlogEditions,
   canonicalFor,
   clearBlogEditionsCacheForTest,
   localizedRoutes,
@@ -197,5 +198,54 @@ describe('the blog directory is parsed once per process (#184)', () => {
     const before = slugPairIndex();
     clearBlogEditionsCacheForTest();
     expect(slugPairIndex()).not.toBe(before);
+  });
+});
+
+// The blog-scan parsing rules, exercised through the injected-reader seam (#228). Each of these silently
+// changes a PUBLISHED URL if it breaks, and none was pinned before: the real content directory always
+// holds a complete, well-formed pair, so the corpus can never reach these branches.
+describe('buildBlogEditions — the parsing rules', () => {
+  const read = (byFile) => (file) => byFile[file];
+
+  it('pairs the two locale editions under the filename KEY', () => {
+    const pairs = buildBlogEditions(
+      ['demo.pt.md', 'demo.en.md'],
+      read({
+        'demo.pt.md': '---\nslug: ola-mundo\n---\ncorpo',
+        'demo.en.md': '---\nslug: hello-world\n---\nbody',
+      }),
+    );
+    expect(pairs.get('demo')).toEqual({ pt: 'ola-mundo', en: 'hello-world' });
+  });
+
+  it('skips a file that is not <key>.<locale>.md rather than guessing at it', () => {
+    // `readme.md` and a bad locale are both ignored — a filename the convention does not describe must
+    // not become a route by accident.
+    const pairs = buildBlogEditions(
+      ['readme.md', 'demo.fr.md', 'notes.txt', 'demo.pt.md'],
+      read({ 'demo.pt.md': '---\nslug: ola\n---\nx', 'readme.md': 'x', 'demo.fr.md': 'x' }),
+    );
+    expect([...pairs.keys()]).toEqual(['demo']);
+    expect(pairs.get('demo')).toEqual({ pt: 'ola' });
+  });
+
+  it('falls back to the filename key when the file has no frontmatter at all', () => {
+    const pairs = buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': 'just a body, no fence' }));
+    expect(pairs.get('demo')).toEqual({ en: 'demo' });
+  });
+
+  it('falls back to the key when frontmatter carries no slug — and when it carries an EMPTY one', () => {
+    // `|| key`, not `?? key`: an empty slug must fall back too, or the URL becomes `/blog/`.
+    const noSlug = buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': '---\ntag: aws\n---\nbody' }));
+    expect(noSlug.get('demo')).toEqual({ en: 'demo' });
+
+    const emptySlug = buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': "---\nslug: ''\n---\nbody" }));
+    expect(emptySlug.get('demo')).toEqual({ en: 'demo' });
+  });
+
+  it('still enforces the slug shape on a frontmatter slug', () => {
+    expect(() =>
+      buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': '---\nslug: node.js-patterns\n---\nbody' })),
+    ).toThrow(/dot/);
   });
 });
