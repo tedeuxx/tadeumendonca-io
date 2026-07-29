@@ -144,6 +144,32 @@ Two consequences worth stating outright, because they are what the other model g
   this guide's merge rules is boundary by construction, whatever the diff looks like.
   A green CI is **not** a substitute for the review — CI proves nothing broke, the reviewer judges
   whether the change is right.
+- **RECORD CORRECTION IS SAFE CLASS** (owner decision, 2026-07-29). A change that **creates or alters no
+  decision** — one that only makes the written record match decisions the owner **already ratified** — the
+  reviewer merges itself. ADR-0032 saying "Slice 2 is deferred" after ADR-0036 shipped is not a new
+  decision; it is the record lagging one the owner already took. Escalating it asks him to ratify the same
+  thing twice.
+
+  **The test, and it is narrow:** *does anything here become true that was not already true by an earlier
+  ratification?* If yes → boundary, however small. If no → safe.
+
+  | Safe — merge it | Boundary — still his |
+  |---|---|
+  | Discharging a stale claim an accepted ADR falsified | An amendment that **chooses** something (the one-page CV, offer-never-redirect) |
+  | Fixing a route/file/workflow literal that no longer resolves | Any new or reversed decision, however narrow |
+  | Correcting a guide's description of what the code now does | Reader-facing copy, `iac/` that mutates, anything irreversible |
+  | Marking a forward promise discharged when it demonstrably was | A change to **these merge rules** — always boundary |
+
+  **Why this exists:** six of seven slices on 2026-07-29 were boundary, and three of those created no
+  decision at all. In a repo whose product is substantially ADRs, guides and positioning, "boundary" was
+  the norm rather than the exception — which inverts the point of the floor above, where *"the boundary is
+  what the human's attention is for"*. The correction is not to lower the bar but to stop spending his
+  attention re-confirming what he already decided.
+
+  **The failure mode to watch, stated so it is not discovered later:** a "correction" that quietly decides
+  something. Re-wording a stale claim is where a new constraint is easiest to smuggle in unnoticed —
+  precisely because the diff looks janitorial. When a correction requires *choosing* wording that changes
+  what the record commits to, it is a decision wearing a correction's clothes, and it is boundary.
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
