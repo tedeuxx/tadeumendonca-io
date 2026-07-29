@@ -24,11 +24,19 @@
 // against tree-state copy would go red on a legitimate copy change before the deploy — failing for a
 // setup reason, which #195 forbids of the post-deploy step. One hand-copied constant with a liveness
 // proof is the smaller cost.
-// Typed rather than `as const`: `e2e/` is outside `tsconfig.json`'s `include`, so `npm run typecheck`
-// does not cover this file and ESLint here is not type-aware. Without the annotation a mistyped key
-// (`LOCALE_OFFER_LABEL.ptBR`) is silently `undefined`, and `getByRole('region', { name: undefined })`
-// matches ANY region — so the liveness proof below would pass on any page. A string literal could not
-// fail that way; the indirection introduces the risk, so the indirection carries the guard.
+// The risk this shape guards, stated correctly — an earlier version of this comment got it wrong.
+//
+// A mistyped key (`LOCALE_OFFER_LABEL.enUS`) resolves to `undefined`, and
+// `getByRole('region', { name: undefined })` matches **any** region — so a liveness proof would pass on
+// any page carrying one. A string literal could not fail that way; moving to a constant created the risk.
+//
+// What actually catches it is the **typecheck covering `e2e/`** (`tsconfig.json`'s `include`, #231) —
+// not the annotation. `as const` rejects an unknown key just as this `Record` does; the earlier comment
+// claimed otherwise and was wrong. The annotation is neutral on that risk and kept for readability: it
+// states the contract at the declaration instead of leaving it inferred.
+//
+// Before `e2e/` was in `include`, NO gate typechecked this file at all, so a mistyped key was caught by
+// an editor and nowhere else. That is the hole that mattered.
 export const LOCALE_OFFER_LABEL: Record<'pt' | 'en', string> = {
   pt: 'Sugestão de idioma',
   en: 'Language suggestion',
