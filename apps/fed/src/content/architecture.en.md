@@ -27,7 +27,7 @@ It's all public — two repos, no secrets:
 - **[tadeumendonca-io](https://github.com/tedeuxx/tadeumendonca-io)** — this site and its infrastructure (`iac/`: Terraform for S3/CloudFront/OIDC).
 - **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — the reusable dev-loop plugin: the principles, the agent personas, the permission guards.
 
-**The bar:** a project only earns the portfolio when it clears **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — the proof-of-engineering gate. This site is the one entry that did not graduate onto that shelf, because it *is* the shelf; the bar says so, and says what holds it instead. Hold your own work to it.
+**The bar:** a project only earns the portfolio when it clears **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — the proof-of-engineering gate. This site is the one entry that did not come through it, because it *is* the shelf; what holds it up is on this page — the ADRs above, the gates, and the limitation it states about itself below. Hold your own work to it.
 
 **Start here:** fork the two repos, read the ADRs (start at 0001), adopt the skills plugin as your loop, then swap in your own content and positioning. The structure carries; the words are yours.
 

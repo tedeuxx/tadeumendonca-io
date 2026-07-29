@@ -11,22 +11,43 @@ for its own sake: someone who opens the repo should immediately see an AI Engine
 
 ## What this bar governs — and the one repo it does not
 
-It governs **projects that graduate into the catalog**: a tool someone else might adopt. Every box below
-is a question that only makes sense about a tool — *what problem does it solve, how do I run it, what is
-the honest limitation before I depend on it.*
+It governs **projects that graduate into the catalog** — things you **install and run**. Four boxes
+carry that scope: *a clean clone runs from the README alone* · *config via `.env.example`* · *a README
+with the run block* · *one honest limitation before you depend on it*. Note what this does **not** claim:
+the other boxes — no secrets, no client references, a LICENSE, green on its own basics, every choice
+stated with its trade-off — apply to any published repo, and the platform passes them.
 
-**`tadeumendonca-io` — the platform repo — is not one of those, and is not measured by this.** It is
-listed in the catalog because it is the site itself, not because it graduated onto its own shelf. Nobody
-adopts someone else's presence, and "the real problem it solves" has no honest answer for a portfolio
-that exists to be read.
+**`tadeumendonca-io` — the platform repo — is measured differently, and it is listed in the catalog
+because it is the site itself, not because it graduated onto its own shelf.** The line is not
+adopted-vs-not: this repo is very much meant to be taken from — *"fork the two repos … adopt the skills
+plugin as your loop"* is the invitation `/architecture` makes, and `/portfolio` says the catalog is
+there *"to study, clone and use."* The line is **what** you take. `/architecture` already names it:
+**"Take the pattern, not the specifics."** You adopt a catalog project by installing it; you adopt this
+one by reading it and building your own. A checklist about clone-and-run is asking the wrong questions
+of the second case, and it would still be asking them if this repo passed every box.
 
-That is a **scoping** statement, not an exemption, and the distinction matters because changing a
-standard so the one item measured against it passes is otherwise indistinguishable from convenience.
-What the platform is held to instead is **stricter, not lighter**: an ADR library recording every
-decision and the trade-off it cost, blocking CI gates (lint · typecheck · coverage ≥85% · build · E2E ·
-SonarCloud · dependency audit), and `/architecture`, which publishes how it is built **including its own
-honest limitation**. The content this checklist asks for exists — it lives where a reader of a *site*
-looks for it rather than in a README where a reader of a *tool* would.
+That is a **scoping** statement, not an exemption, and saying so matters because changing a standard so
+the one item measured against it passes is otherwise indistinguishable from convenience. What the
+platform is held to instead is **not lighter, and heavier on a different axis**: an ADR library
+recording every decision and the trade-off it cost, the blocking CI gates (see
+[ADR-0018](./adr/0018-ci-gates-e2e-on-pr-coverage.md) — enumerating them here would be a fourth copy of
+a list that already drifts), and `/architecture`, which publishes how the site is built **including its
+own honest limitation**. Those are checkable: the ADRs are public and so is the CI config.
+
+Being precise rather than flattering, because two things here are easy to overstate:
+
+Those substitutes are rigor **of construction**; this checklist measures legibility **to an adopter**.
+Different axes, not points on one scale — so *"held to more"* is only true where the comparison is
+like-for-like. It is: this bar accepts *"green on its own basics **or a documented 'how I verified
+it'"*** — a prose claim — where the platform is held to blocking CI. On the adopter-facing four, the
+platform would simply lose, and that is the case for scoping it out rather than a case for claiming
+it wins.
+
+And one box it would lose on its merits, said plainly rather than dissolved into a scoping question:
+**demonstrates an agentic / AI-native pattern.** A static SPA is not an agentic tool. This repo is
+*built* agent-first — which is a claim about its process, not its artifact — and the agentic artifact
+is the skills plugin, a different repo. Scoping does not rescue that box, and pretending the question
+does not apply would be the exact move this section exists to avoid.
 
 Two consequences, so this cannot be read as the bar getting easier:
 
