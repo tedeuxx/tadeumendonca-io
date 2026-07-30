@@ -120,6 +120,42 @@ any other.
 test that narrows it is the `critical-reviewer`'s refinement, adopted here because the evidence for it is
 this ADR's own driving issue — and it makes the class **narrower**, never wider.
 
+## Amendment, 2026-07-30 — the owner's boundary narrows to three things
+
+**Owner decision.** Reader-facing content is **no longer** boundary class. The whole `product` backlog,
+including copy a reader sees, is the reviewer's to merge. What still reaches the owner is exactly:
+
+1. **`iac/`**, and anything that threatens the site's continuity.
+2. **A change to the dev-loop's own rules** — this ADR, `CLAUDE.md`'s merge sections, an ADR that
+   decides how work is decided. (This amendment is itself in that class, and is ratified as such.)
+3. **Publishing an article** — the `content` backlog.
+
+**The owner's reasoning, in their words:** the goal is set at the start; anything they would adjust
+afterwards, during their own validation of the finished product, costs them nothing. A page whose
+wording they would tune is not a decision they need to gate — it is a revision they will make.
+
+**What this supersedes.** `CLAUDE.md`'s rule since #233 — *"if a diff changes words or images a reader
+or a crawler will see, it is boundary"* — is retired. Its reasoning about **enumerations failing open**
+is not: that argument still governs every list in the guide, and the list-vs-rule section is kept for
+it. Supersede, never rewrite.
+
+**The residue, accepted knowingly rather than overlooked.** The agent raised, and the owner accepted,
+that one part of the reader-facing surface is not freely revisable: OG scrapers (LinkedIn, X, WhatsApp)
+pin the card they first fetch, so a wrong unfurl on an already-shared post stays wrong *on that post*
+and is right everywhere after. That is a bounded per-post cost, not a continuity threat, so it falls
+inside class (1)'s exclusion rather than outside it.
+
+**What does NOT change, and this is the half that makes the narrowing safe.** `brand-guardian` and
+`editor` still run on every reader-facing diff. Narrowing what reaches the *owner* does not narrow what
+gets *reviewed* — and those two lenses catch precisely the class the owner is least able to catch by
+reading a finished page: calques, positioning drift, cross-surface contradiction with copy on other
+surfaces. In one session they caught a pt-BR calque in the visible heading of a shipped component, an
+`earns` that undid a four-draft decision recorded in a sibling file, and a cost figure understated by
+ten times. None of those would have been visible to a reader validating the product.
+
+The `reader-facing` label on the `product` queue therefore becomes an **ordering and lens** signal —
+which reviewers to dispatch — and stops being a gate.
+
 ## Consequences
 **Good**
 - Minimal branching/ops overhead; the pipeline mirrors the site's actual size.

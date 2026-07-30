@@ -37,7 +37,7 @@ there. Same answer, and the same reason, as the root `CLAUDE.md` records for its
 |---|---|---|
 | [0001](./0001-lean-by-design-calibrated-to-strategy.md) | Lean by design — calibrated to the strategic priority | accepted |
 | [0002](./0002-fully-static-spa-no-backend.md) | Fully static SPA, no backend | accepted |
-| [0003](./0003-trunk-based-single-environment.md) | Trunk-based delivery, single environment | accepted · amended 2026-07-23 (the `critical-reviewer` holds the merge gate) · **amended 2026-07-29** (#217 — ratification is an artifact the reviewer VERIFIES, never a relay it trusts; and **record correction is safe class**, tested by what the correction asserts) |
+| [0003](./0003-trunk-based-single-environment.md) | Trunk-based delivery, single environment | accepted · amended 2026-07-23 (the `critical-reviewer` holds the merge gate) · **amended 2026-07-29** (#217 — ratification is an artifact the reviewer VERIFIES, never a relay it trusts; and **record correction is safe class**, tested by what the correction asserts) · **amended 2026-07-30** (the owner's boundary narrows to three: `iac`/continuity, a change to the dev-loop's own rules, and publishing an article — reader-facing content is safe class; `brand-guardian`/`editor` still run) |
 
 ## Content, SEO & OG
 | ADR | Title | Status |
