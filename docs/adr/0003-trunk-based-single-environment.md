@@ -176,7 +176,9 @@ silently.
 **And the redundancy is gone.** Under the retired rule the owner was a *second* backstop behind
 `brand-guardian`. They are now the *only* one on reader-facing copy. That is the actual cost of this
 narrowing, and it is accepted rather than hidden — the lenses are better at this class than a human
-reading a finished page, but there is no longer anything behind them. Narrowing what reaches the *owner* does not narrow what
+reading a finished page, but there is no longer anything behind them.
+
+Narrowing what reaches the *owner* does not narrow what
 gets *reviewed* — and those two lenses catch precisely the class the owner is least able to catch by
 reading a finished page: calques, positioning drift, cross-surface contradiction with copy on other
 surfaces. In one session they caught a pt-BR calque in the visible heading of a shipped component, an
