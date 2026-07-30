@@ -16,10 +16,14 @@ export const LOCALES = ['pt', 'en'];
 // source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
 // a route exists.
 //
-// Real routes only. `App.tsx` declares one redirect — `/blog` → the landing's #artigos — and a `*`
-// catch-all; neither is a destination, so neither is snapshotted or advertised. (Until #262 this
-// comment also named /articles, /cv and /profile. Those redirects were dropped pre-launch in #234 and
-// the comment outlived them, which made an archaeology list read as load-bearing exclusion.)
+// Real routes only. Everything else `App.tsx` declares is a non-destination and is excluded: `/blog`
+// → the landing's #artigos, the in-locale `*` → the locale landing, and the outer `*` → `RootRedirect`,
+// which sends an unprefixed path to the reader's edition. Four `<Route>`s that redirect, none of them a
+// place to snapshot or advertise.
+//
+// (Until #262 this comment named /articles, /cv and /profile instead. Those were dropped pre-launch in
+// #234 and the comment outlived them, which made archaeology read as load-bearing exclusion — someone
+// asking why /cv is excluded would go looking for a /cv to exclude.)
 const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
