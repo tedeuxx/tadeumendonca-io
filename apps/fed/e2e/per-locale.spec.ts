@@ -161,6 +161,30 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
+  // The /architecture OG description, and the reason it is here is uncomfortable enough to write down:
+  // the slice that added the assertion above then changed THIS string with no assertion at all, one page
+  // over, in a diff whose stated rationale was that the vocabulary split had landed "in the surface with
+  // the worst correction cost". Same defect, same surface class, immediately after fixing it.
+  //
+  // The pt marker is the term UNTRANSLATED. `agent-led verification` stays English in both locales, like
+  // `agentic` and `AI-native` (#245) — this string used to translate it while `architecture.pt.md` kept
+  // it with a gloss, so a pt reader met the canonical term in the body and never in the share card.
+  // The negative is the translated form it replaced, so a silent revert fails rather than passes — and it
+  // is scoped to the TAG, not the document. The pt BODY legitimately carries the gloss
+  // ("agent-led verification, human-residual (verificação liderada pelo agente…)") because that is where
+  // there is room to teach the term; a document-wide negative would forbid the gloss the page needs.
+  const ARCHITECTURE_OG = { pt: 'dev-loop de agent-led verification', en: 'agent-led verification dev-loop' };
+  for (const locale of ['pt', 'en'] as const) {
+    test(`/${locale}/architecture serves the canonical term in its og:description, untranslated`, async ({
+      request,
+    }) => {
+      const body = await (await request.get(`/${locale}/architecture/`)).text();
+      const og = /property="og:description" content="([^"]*)"/.exec(body)?.[1] ?? '';
+      expect(og).toContain(ARCHITECTURE_OG[locale]);
+      expect(og).not.toContain('verificação liderada pelo agente');
+    });
+  }
+
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
