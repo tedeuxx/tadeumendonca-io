@@ -217,16 +217,19 @@ Working rules that follow from that:
   invalidation, and that cost is theirs to accept, which they did.
 
   **This supersedes the previous rule** — *"if a diff changes words or images a reader or a crawler
-  will see, it is boundary"* — which stood from #233 until 2026-07-30. It is superseded, not deleted:
-  ADR-0003's amendment carries the argument, and the old rule's reasoning about **enumerations failing
-  open** still holds for every list in this guide. Supersede, never rewrite.
+  will see, it is boundary"* — which stood from #233 until 2026-07-30. Where the boundary sits changed;
+  **how any list in this guide fails did not.** That argument is restated in full inside ADR-0003's
+  2026-07-30 amendment rather than left as a pointer, because it governs every enumeration here and
+  outlives the rule it was written for. Supersede, never rewrite — including the reasoning.
 
   **The one residue, stated so it is a known cost rather than an oversight:** OG scrapers (LinkedIn,
   X, WhatsApp) pin the card they first fetch, so a wrong unfurl on an already-shared post is not
   fixed by the next merge — it stays wrong *on that post* and right everywhere after. The owner was
   shown this and accepted it. It is a bounded, per-post cost, not a threat to the site.
 
-  **`brand-guardian` and `editor` still run on reader-facing diffs.** Narrowing what reaches the
+  **`brand-guardian` and `editor` are still dispatched on reader-facing diffs — by the reviewer's own
+  instructions, not by any check.** Nothing mechanical enforces it, and the owner is no longer a second
+  backstop behind them, so a lens that is not dispatched now fails silently. Narrowing what reaches the
   owner does not narrow what gets reviewed — those lenses catch calques, positioning drift and
   cross-surface contradiction, which is exactly the class the owner is *not* well placed to catch by
   reading the finished page. They advise the reviewer; they no longer wake the owner.

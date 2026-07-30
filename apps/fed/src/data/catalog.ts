@@ -14,8 +14,10 @@
 // `repoCards.ts`'s leaf-bilingual `description`); this file was the one that did not, so nothing
 // objected. Same leaf-bilingual shape as ADR-0035's `repoCards.ts`: prose per locale, FACTS once.
 //
-// BOUNDARY-BY-PATH: these are published positioning words, so a copy change here is ratified by the
-// owner via the critical-reviewer — not merged as safe app-data.
+// READER-FACING BY PATH: these are published positioning words, so a change here is copy, not app data.
+// It is NOT an owner gate — ADR-0003's 2026-07-30 amendment made reader-facing content safe class. What
+// it is: the trigger for `brand-guardian`, which since that amendment is the only lens on this file
+// rather than the first of two.
 import type { Locale } from '../i18n';
 export interface CatalogProject {
   /** Repo / project name as shown on the card — a FACT, identical in every edition. */
