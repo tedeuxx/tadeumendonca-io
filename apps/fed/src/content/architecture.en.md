@@ -55,6 +55,24 @@ Every page's content — the CV, this page, the articles — is markdown or type
 
 The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
+"Human-residual" is the load-bearing word, and it is the one a flowchart usually loses. So the point of drawing it is not the steps — it is *where the human is standing*:
+
+```mermaid
+flowchart LR
+  accTitle: Where the human sits in the loop
+  accDescr: An issue becomes a plan, reviewed before implementation. The agent builds the slice and runs the mechanical gates, looping back on red. A fresh-context reviewer then judges the change. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to the one human decision point, which is the only thing standing between the change and production.
+  I["Issue"] --> P["Plan, reviewed before code"]
+  P --> B["Agent builds the slice"]
+  B --> G["Mechanical gates"]
+  G -- "red" --> B
+  G -- "green" --> R["Fresh-context reviewer"]
+  R -- "safe class" --> M["Merge = deploy"]
+  R -- "boundary class" --> H["Human go / no-go"]
+  H --> M
+```
+
+One human node, and note what it is *not* attached to: it is not on the gates, not on the plan, not on every change. It sits on one edge, the one into production, and only boundary-class work is routed down it. Everything else the reviewer merges on its own authority. That is what the phrase means, and drawing it is the only way to show that the human's position is a **choice about blast radius** rather than a rung in an approval ladder.
+
 ## The decision record IS the documentation
 
 No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, read through the keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.

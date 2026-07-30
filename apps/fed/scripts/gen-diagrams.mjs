@@ -48,31 +48,44 @@ const THEME = {
   themeVariables: {
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: '15px',
-    primaryColor: '#F5F4EF',
-    primaryTextColor: '#0A0A0A',
-    primaryBorderColor: '#0A0A0A',
-    lineColor: '#0A0A0A',
-    secondaryColor: '#F5F4EF',
-    tertiaryColor: '#F5F4EF',
-    background: '#F5F4EF',
-    mainBkg: '#F5F4EF',
-    clusterBkg: '#F5F4EF',
-    clusterBorder: '#0A0A0A',
-    edgeLabelBackground: '#F5F4EF',
-    textColor: '#0A0A0A',
-    nodeTextColor: '#0A0A0A',
-    titleColor: '#0A0A0A',
-    arrowheadColor: '#0A0A0A',
+    // The page is NEAR-BLACK, not off-white — `--background: #0A0A0A`, `--foreground: #F5F4EF`. The first
+    // version of this theme had it backwards and set lineColor to the near-black, which drew every arrow
+    // in the page's own background colour. The diagram rendered with boxes and no visible edges.
+    //
+    // Nothing caught it, and that is the useful part: the palette assertion checks MEMBERSHIP, not
+    // CONTRAST. Every colour was legal and the picture was unreadable. It took rendering the page and
+    // looking at it — which is exactly why the layout decision was reserved to be taken against a draft.
+    primaryColor: '#0A0A0A',
+    primaryTextColor: '#F5F4EF',
+    primaryBorderColor: '#F5F4EF',
+    lineColor: '#F5F4EF',
+    secondaryColor: '#0A0A0A',
+    tertiaryColor: '#0A0A0A',
+    background: '#0A0A0A',
+    mainBkg: '#0A0A0A',
+    clusterBkg: '#0A0A0A',
+    clusterBorder: '#F5F4EF',
+    edgeLabelBackground: '#0A0A0A',
+    textColor: '#F5F4EF',
+    nodeTextColor: '#F5F4EF',
+    titleColor: '#F5F4EF',
+    arrowheadColor: '#F5F4EF',
     // mermaid emits its error styles into every diagram's <style> block whether or not anything failed,
     // and their defaults are off-palette. Pinned so the palette assertion reads the diagram rather than
     // dead CSS — and so a diagram that DOES error still looks like this site.
-    errorBkgColor: '#F5F4EF',
-    errorTextColor: '#0A0A0A',
+    errorBkgColor: '#0A0A0A',
+    errorTextColor: '#F5F4EF',
   },
   // Real <text>, not <foreignObject> HTML: selectable, translatable, and survives being read as SVG.
   flowchart: { htmlLabels: false, curve: 'linear', padding: 12 },
   securityLevel: 'strict',
 };
+
+// Before either write path, not just the happy one. The zero-fence early exit below used to write
+// straight to outFile while this sat fifty lines lower, after the render loop — so on a tree where
+// `generated/` had been removed it threw ENOENT instead of writing an empty artifact. Loud rather than
+// wrong, but wrong for a reason that reads as a mermaid problem.
+mkdirSync(join(root, 'src', 'content', 'generated'), { recursive: true });
 
 const fences = collectFences(contentDir);
 if (fences.length === 0) {
@@ -139,6 +152,5 @@ if (failed > 0) {
   process.exit(1);
 }
 
-mkdirSync(join(root, 'src', 'content', 'generated'), { recursive: true });
 writeFileSync(outFile, `${JSON.stringify(out, null, 2)}\n`);
 console.log(`Wrote ${relative(root, outFile)} with ${Object.keys(out).length} diagram(s).`);

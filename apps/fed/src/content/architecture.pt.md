@@ -55,6 +55,24 @@ O conteúdo de cada página — o CV, esta página, os artigos — é markdown o
 
 A parte interessante não é a stack — é como ele é construído: **agent-led verification, human-residual** (verificação liderada pelo agente, humano no resíduo). O agente prova o "pronto" com gates mecânicos e evidência real (lint, tipos, testes ≥85%, um build verde, SonarCloud, E2E funcional, um revisor de contexto fresco); o humano fica com as decisões irreversíveis e arquiteturais. Esse loop vive num plugin reutilizável à parte — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — então é uma metodologia que você pode adotar, não algo sob medida só pra este site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) os gates de CI)*
 
+"Human-residual" é a palavra que sustenta o peso, e é justamente a que um fluxograma costuma perder. Então o motivo de desenhar isto não são as etapas — é *onde o humano está de pé*:
+
+```mermaid
+flowchart LR
+  accTitle: Onde o humano fica no loop
+  accDescr: Uma issue vira um plano, revisado antes da implementação. O agente constrói a fatia e roda os gates mecânicos, voltando atrás no vermelho. Um revisor de contexto fresco então julga a mudança. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar um artigo — passa pelo único ponto de decisão humano, que é a única coisa entre a mudança e a produção.
+  I["Issue"] --> P["Plano, revisado antes do código"]
+  P --> B["Agente constrói a fatia"]
+  B --> G["Gates mecânicos"]
+  G -- "vermelho" --> B
+  G -- "verde" --> R["Revisor de contexto fresco"]
+  R -- "classe segura" --> M["Merge = deploy"]
+  R -- "classe de fronteira" --> H["Go / no-go humano"]
+  H --> M
+```
+
+Um nó humano — e repare no que ele *não* está ligado: não está nos gates, não está no plano, não está em toda mudança. Ele fica numa aresta só, a que entra em produção, e só o que é classe de fronteira desce por ali. Todo o resto o revisor mergeia por conta própria. É isso que a expressão quer dizer, e desenhar é o único jeito de mostrar que a posição do humano é uma **escolha sobre raio de dano**, não um degrau numa escada de aprovação.
+
 ## O registro de decisões É a documentação
 
 Nada de doc de arquitetura separado que descola da realidade. Toda decisão que sustenta peso — e as revertidas, mantidas como histórico — é um **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, lido através do keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.

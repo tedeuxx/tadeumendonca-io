@@ -29,8 +29,12 @@ function graphOf(source) {
       .replace(/"[^"]*"/g, '')
       .replace(/\[[^\]]*\]/g, '')
       .replace(/\{[^}]*\}/g, '');
-    const m = /([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/.exec(clean);
-    if (m) edges.push([m[1], m[2]]);
+    // matchAll, not exec: `exec` takes the FIRST arrow per line, so a chained `A --> B --> C` would
+    // contribute only A→B and the rest of the line would vanish silently. Neither fence chains today,
+    // which is exactly why this is worth fixing now rather than when one does.
+    for (const m of clean.matchAll(/([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/g)) {
+      edges.push([m[1], m[2]]);
+    }
   }
   const nodes = [...new Set(edges.flat())].sort();
   return { nodes, edges: edges.map((e) => e.join('->')).sort() };
@@ -120,5 +124,44 @@ describe('the infrastructure diagram earns its place', () => {
   it('names the rewrite as the step that changes the uri', () => {
     expect(en[0].source).toMatch(/index\.html/);
     expect(pt[0].source).toMatch(/index\.html/);
+  });
+});
+
+// The owner's constraint on the SECOND diagram, and it is a harder one to make mechanical: "it has to
+// show the human's position, not just the steps — where the agent proves 'done' and where the owner's
+// go/no-go actually sits. A flow that shows only boxes is the corporate flowchart the page's voice is
+// arguing against."
+//
+// The falsifiable form of that is not "a human node exists" — a flowchart with a human box at every
+// stage satisfies that and means the opposite. It is that there is EXACTLY ONE, and that it sits on the
+// edge into production. That is the claim "human-residual" makes, and it is the one a diagram can lie
+// about most easily.
+describe('the dev-loop diagram shows where the human stands', () => {
+  const graph = graphOf(en[1].source);
+
+  it('has exactly one human decision point', () => {
+    expect(graph.nodes).toContain('H');
+    // Named by role, not by label, so rewording does not break it — and counted, because "a human
+    // appears" is satisfied by an approval ladder, which is the thing this is arguing against.
+    expect(graph.nodes.filter((n) => n === 'H')).toHaveLength(1);
+  });
+
+  it('puts the human on the edge into production, not on the gates or the plan', () => {
+    expect(graph.edges).toContain('H->M');
+    // The gates loop back to the build, not through a person; the plan is not gated by one either.
+    expect(graph.edges.filter((e) => e.startsWith('G->') && e.endsWith('->H'))).toEqual([]);
+    expect(graph.edges).not.toContain('P->H');
+  });
+
+  // The other half of "human-residual": most work does NOT pass the human. If every path to merge went
+  // through H the diagram would still satisfy the assertions above and would describe a different
+  // system entirely.
+  it('shows a path to production that does not pass the human', () => {
+    expect(graph.edges).toContain('R->M');
+    expect(reaches(graph, 'I', 'M')).toBe(true);
+  });
+
+  it('shows the gates looping back rather than terminating', () => {
+    expect(graph.edges).toContain('G->B');
   });
 });
