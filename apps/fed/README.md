@@ -72,7 +72,11 @@ the two editions cannot disagree.
 
 ## Conventions
 
-- **camelCase** frontmatter keys in markdown (`title`, `slug`, `date`, `tag`, `track`, `excerpt`, `takeaway`).
+- **The key convention is split, and the split is real** (ADR-0012's 2026-07-30 amendment). Blog
+  frontmatter and the catalog modules are **camelCase** — `linkedinUrl`, `hasVideo`, `ogImage` in
+  `src/lib/content.ts`; `repoUrl`, `liveUrl` in `src/data/catalog.ts`. `src/data/profile.ts` is still
+  **snake_case** — `profile_id`, `start_date`, `print_highlight_index`. Follow the file you are in, and
+  do not normalise one to the other without amending that ADR.
 - Explicit UI states (loading/empty/error) via primitives in `src/components/Column.tsx`. There is no form
   component — the site has no inputs; contact is a set of links.
 - The blog's canonical route is `/blog/:slug`; the list lives on the landing under `#artigos`.
@@ -89,7 +93,8 @@ npm test               # vitest run --coverage — ≥85% is a gate, as a GLOBAL
                        # (ADR-0018 amendment): a weak file passes if the whole clears it
 npm run lint           # eslint
 npm run typecheck      # tsc --noEmit
-npm run build          # tsc + vite build
+npm run build          # tsc --noEmit + vite build + gen-sitemap (the sitemap is a published artifact,
+                       # not a side effect — same genre of understatement as the build-test line below)
 npm run build:static   # build + prerender both locales + print /cv.pdf — the deploy artifact
 npm run e2e:local      # build:static, THEN Playwright against a preview. This is the local gate and it
                        # matches CI exactly
