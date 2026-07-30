@@ -120,15 +120,31 @@ describe('loadAnalytics', () => {
   // reader is precisely the population the campaign tagging exists to count, so the under-count would
   // be both invisible and concentrated exactly where it matters. The assertion is on the third argument
   // because dropping it produces no error, no warning, and a plausible-looking smaller number.
-  it('sends the ARRIVAL url as page_location, not whatever the url is when consent lands', () => {
+  it('sends the ARRIVAL url as page_location, not whatever the url is when consent lands', async () => {
+    // The URL is CHANGED between module load and loadAnalytics(), and that is the entire test. Reading
+    // window.location.href at assertion time instead would leave the mutation this is named for —
+    // inlining `page_location: window.location.href` at the config call — green, because in a test that
+    // never navigates the two are the same string. That is the round-1 mistake repeated in a unit test.
+    history.pushState({}, '', '/pt/blog/meu-compromisso?utm_source=whatsapp&utm_campaign=reader-share');
+    const arrival = window.location.href;
+
+    // Re-evaluate the module so the capture happens while the tagged URL is current — this is a
+    // module-load constant by design, so a plain import would have captured the suite's own URL.
+    vi.resetModules();
+    const analytics = await import('./analytics');
+
+    // Now the reader reads, navigates within the SPA, and only THEN accepts. The tagged URL is gone.
+    history.pushState({}, '', '/pt/ramp-up');
+    expect(window.location.href).not.toBe(arrival);
+
     vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
-    loadAnalytics();
+    analytics.loadAnalytics();
 
     const config = (window.dataLayer ?? [])
       .map((entry) => entry as IArguments)
       .find((entry) => entry[0] === 'config');
     expect(config, 'a config command must be queued').toBeDefined();
-    expect(config![2]).toEqual({ page_location: window.location.href });
+    expect(config![2]).toEqual({ page_location: arrival });
   });
 
   it('is idempotent — a second call does not inject twice', () => {

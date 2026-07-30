@@ -30,6 +30,33 @@ describe('ShareButton', () => {
     expect(await screen.findByText('Copiado')).toBeInTheDocument();
   });
 
+  // #272, and this exists because the defect it guards ALREADY SHIPPED once — caught by a reviewer,
+  // not by a gate. The component decides between the two paths at call time, so tagging once above the
+  // branch stamps `share-sheet` on a desktop copy-paste: a value naming a mechanism the code has just
+  // established did not happen, which is the fabricated dimension ADR-0039 refuses. Nothing else in the
+  // suite sees it — utm.ts is tested in isolation and ShareLinks covers only the anchors — so hoisting
+  // the tag back above the branch left all 336 tests green.
+  //
+  // Asserted per branch, because the whole failure is that ONE value was serving both.
+  it('tags each path with the source that actually happened, not one value for both', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { share });
+    const { unmount } = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, {
+      locale: 'pt',
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
+    await waitFor(() => expect(share).toHaveBeenCalled());
+    expect(new URL(share.mock.calls[0][0].url).searchParams.get('utm_source')).toBe('share-sheet');
+    unmount();
+
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } }); // no navigator.share → the copy path
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'pt' });
+    fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    expect(new URL(writeText.mock.calls[0][0]).searchParams.get('utm_source')).toBe('copy-link');
+  });
+
   it('labels the button in English when the locale is en', () => {
     vi.stubGlobal('navigator', { share: vi.fn() });
     renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'en' });
