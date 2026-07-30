@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { withShareUtm, SHARE_MEDIUM, SHARE_CAMPAIGN, OWNER_CAMPAIGN } from './utm';
+import { withShareUtm, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN } from './utm';
 
 const ARTICLE = 'https://tadeumendonca.io/pt/blog/meu-compromisso';
 
@@ -23,7 +23,7 @@ describe('withShareUtm', () => {
   it('pins the medium and campaign to the values GA4 actually groups on', () => {
     expect(SHARE_MEDIUM).toBe('social');
     expect(SHARE_CAMPAIGN).toBe('reader-share');
-    expect(OWNER_CAMPAIGN).toBe('owner-post');
+    expect(AUTHOR_CAMPAIGN).toBe('author-post');
   });
 
   it('keeps the path and origin untouched — it tags, it does not rewrite', () => {
@@ -36,8 +36,8 @@ describe('withShareUtm', () => {
   // separation IS the measurement. Today the owner's drafts emit a clean URL so it holds by accident;
   // this proves the reserved value works the day that changes.
   it('accepts the reserved owner campaign, so owner posts stay separable from reader shares', () => {
-    const url = new URL(withShareUtm(ARTICLE, 'linkedin', OWNER_CAMPAIGN));
-    expect(url.searchParams.get('utm_campaign')).toBe('owner-post');
+    const url = new URL(withShareUtm(ARTICLE, 'linkedin', AUTHOR_CAMPAIGN));
+    expect(url.searchParams.get('utm_campaign')).toBe('author-post');
   });
 
   it('is idempotent — tagging twice does not duplicate a parameter', () => {

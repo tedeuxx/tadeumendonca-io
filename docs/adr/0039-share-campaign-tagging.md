@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -28,7 +28,7 @@ rename migrates nothing — it silently splits one series into two, and the spli
 reporting. These strings get chosen once.
 
 ## Decision drivers
-- **Separate reader-share from owner-post**, which is the entire point of the exercise.
+- **Separate reader-share from author-post**, which is the entire point of the exercise.
 - **Land in GA4's *Organic Social* channel**, so the sessions aggregate with the rest of social rather than
   sitting in *Unassigned* where nobody reads them.
 - **Choose values that never need renaming**, because renaming is not available — see above.
@@ -58,28 +58,42 @@ reporting. These strings get chosen once.
    the blind spot the rejection creates.
 
 ### The literal values
-- **`utm_source` ∈ `whatsapp` | `x` | `linkedin` | `share-sheet`.**
+- **`utm_source` ∈ `whatsapp` | `x` | `linkedin` | `share-sheet` | `copy-link`.**
 - **`utm_medium` = `social`** — and **not** `social-share` or `share`. GA4's default channel grouping places
   a session in *Organic Social* by matching the medium against its social regex; `social` matches, the other
   two do **not** and fall to *Unassigned*. This bites hardest on **X**, which is not in GA4's built-in
   source-category list (it still knows `twitter`), so the medium is the **only** thing keeping X in the same
   bucket as WhatsApp and LinkedIn. This string is not improvable; it is load-bearing.
-- **`utm_campaign` = `reader-share`**, with **`owner-post` reserved** for the owner's own ADR-0038
-  distribution drafts should they ever be tagged. The campaign names a **mechanism** ("a reader sent this"),
+- **`utm_campaign` = `reader-share`**, with **`author-post` reserved** for the site author's own ADR-0038
+  distribution drafts should they ever be tagged. `author-`, not `owner-`: `reader` is a role toward the
+  *content*, and its matched counterpart is the person who wrote it, whereas `owner` is a role toward the
+  *property* — a recipient glancing at that value under a personal essay reads a proprietor, which is the
+  one register the positioning keeps off every surface. Settled while the value was still reserved and no
+  link carried it; the day it is first used it joins the immutable set. The campaign names a **mechanism**
+  ("a reader sent this"),
   not a moment and not an article — a value that never needs renaming cannot be renamed wrongly. *Rejected:*
   a per-article or per-launch campaign, which reads better in one report and destroys the series in every
   later one.
 
-### `share-sheet` as a source
+### `share-sheet` and `copy-link` as sources
 Chosen: **the OS share sheet is its own `utm_source` value**, not a platform name and not untagged.
 The sheet genuinely does not tell the page where the reader sent the link, so naming a platform would be a
 **fabricated dimension**. *Rejected — leaving the sheet untagged:* worse, and not neutral. The sheet is the
 **phone** affordance, phone is where WhatsApp sharing actually happens, so an untagged sheet biases the
 count against exactly the channel the pt-BR audience uses most.
 
+**`copy-link` exists because that same rule turned on the first draft of this decision.** `ShareButton`
+branches at call time — the Web Share API where it exists, a clipboard copy where it does not — and the
+first implementation tagged the URL *once, above the branch*. That stamped `share-sheet` on a desktop
+copy-paste: a value naming a mechanism the code had just established did not happen, which is precisely
+the fabricated dimension the paragraph above refuses. Caught by `brand-guardian` on the MR, and worth
+recording rather than quietly fixing, because the failure was the decision not being applied to its own
+fallback path. Two branches, two truthful sources; and by the immutability argument below, had it shipped,
+the copy-paste population would have been mixed into the sheet population permanently.
+
 ## Decision outcome
 Chosen: **three parameters, with the literal values above, defined in one module and nowhere else** —
-`apps/fed/src/lib/utm.ts` (`SHARE_MEDIUM`, `SHARE_CAMPAIGN`, `OWNER_CAMPAIGN`, `ShareSource`,
+`apps/fed/src/lib/utm.ts` (`SHARE_MEDIUM`, `SHARE_CAMPAIGN`, `AUTHOR_CAMPAIGN`, `ShareSource`,
 `withShareUtm`), consumed by `ShareLinks.tsx` and `ShareButton.tsx`. `utm_content` is **not** emitted.
 
 **One code change beyond the tagging was required, and it is part of the decision.** GA4 reads `utm_*` from
@@ -120,6 +134,14 @@ share before, so the first reading *is* the baseline.
 **Bad / accepted costs**
 - **The shared link is uglier, and it carries the reader's name with it** into their feed or chat. The owner
   accepted this explicitly in choosing full UTM over a clean-URL share-click event.
+- **Pageview attribution shifts for one reader, and someone will read a number against it.** `config` now
+  reports the URL the reader *arrived* on rather than the URL they were on when the script loaded, and
+  `usePageviews` still skips its own first run. So the reader who lands on A, navigates to B and only then
+  accepts has A recorded and **B never counted at all**. That is the right trade — A is the shared article
+  whose reach is being measured, and attributing the session to B would lose the campaign entirely — but it
+  means a late-consenting reader's landing page is over-counted relative to the page they were actually
+  reading when they accepted. Stated here because a pageview count is read months later by someone who was
+  not present for this decision.
 - **A drop in *attempted* shares caused by that ugliness is unmeasurable** — because the share-click event
   was rejected, a reader who backed out of an ugly URL reads identically to a reader who never wanted to
   share. **Nobody should later read a low number as "readers don't share."** That inference is not available
@@ -145,7 +167,7 @@ share before, so the first reading *is* the baseline.
   exactly; the arrival-URL capture is what makes attribution survive the gate without weakening it.
 - **Refines [ADR-0023](./0023-observability-static-site.md)** — a third thing the static site observes,
   alongside pageviews and the client error surface.
-- **Reserves `owner-post` for [ADR-0038](./0038-content-distribution-linkedin-and-x.md)** — the owner's
+- **Reserves `author-post` for [ADR-0038](./0038-content-distribution-linkedin-and-x.md)** — the author's
   LinkedIn/X drafts emit a clean URL today, so reader-vs-owner separation currently holds *by accident*;
   the reservation is written down so tagging them later cannot collide with `reader-share`.
 - **Avoids an [ADR-0037](./0037-localized-article-slugs.md) trap** — per-locale slugs would have made a

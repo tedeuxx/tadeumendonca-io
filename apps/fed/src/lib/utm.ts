@@ -13,12 +13,19 @@
  *  this string. */
 export const SHARE_MEDIUM = 'social';
 
-/** The campaign is the ONLY slot that separates a link a READER sent from a link the OWNER posted, and
- *  that separation is the whole measurement. `owner-post` is reserved for the owner's own distribution
- *  drafts (ADR-0038) should they ever be tagged; today they emit a clean URL, so the separation holds —
- *  by accident rather than by construction, which is why the reservation is written down. */
+/** The campaign is the ONLY slot that separates a link a READER sent from a link the AUTHOR posted, and
+ *  that separation is the whole measurement. `author-post` is reserved for the site author's own
+ *  distribution drafts (ADR-0038) should they ever be tagged; today they emit a clean URL, so the
+ *  separation holds — by accident rather than by construction, which is why the reservation is written
+ *  down.
+ *
+ *  `author-`, not `owner-`: `reader` is a role toward the CONTENT, and its matched counterpart is the
+ *  person who wrote it. `owner` is a role toward the PROPERTY, and a recipient glancing at the URL under
+ *  a personal essay would read a proprietor rather than an author — the one register the positioning
+ *  keeps off every surface. Chosen now because the value is still reserved: the day it is first used it
+ *  joins the immutable set with everything else here. */
 export const SHARE_CAMPAIGN = 'reader-share';
-export const OWNER_CAMPAIGN = 'owner-post';
+export const AUTHOR_CAMPAIGN = 'author-post';
 
 /**
  * Where a share came FROM, as GA4 will read it.
@@ -28,8 +35,14 @@ export const OWNER_CAMPAIGN = 'owner-post';
  * sheet untagged was the alternative, and it is worse — the sheet is the PHONE affordance, phone is
  * where WhatsApp sharing actually happens, so an untagged sheet biases the count against exactly the
  * channel the pt-BR audience uses most (#272).
+ *
+ * `copy-link` exists because the same rule turned on this module's first version. `ShareButton` builds
+ * ONE url and then branches: the Web Share API when it exists, the clipboard when it does not. Tagging
+ * before the branch stamped `share-sheet` on a desktop copy-paste — a value naming a mechanism the code
+ * had just established did not happen, which is precisely the fabricated dimension the paragraph above
+ * refuses. Two branches, two truthful sources.
  */
-export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet';
+export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-link';
 
 /**
  * Append the campaign parameters to an absolute article URL.

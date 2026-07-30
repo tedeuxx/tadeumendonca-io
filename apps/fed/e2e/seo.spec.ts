@@ -100,31 +100,35 @@ test.describe('SEO discovery', () => {
   });
 
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
-  // it is query-free by construction today. This asserts it, because this slice is what makes it matter:
-  // until now no URL on this site ever carried a query string, so sourcing the canonical from the
-  // location would have been a harmless-looking refactor. Now it would split every shared article into a
-  // duplicate of itself in a crawler's index, per campaign parameter.
+  // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on
+  // this site ever carried a query string, so sourcing the canonical from the location would have been a
+  // harmless-looking refactor. Now it would split every shared article into a duplicate of itself in a
+  // crawler's index, once per campaign parameter.
   //
-  // Deliberately requested WITH the parameters rather than trusting the implementation — the point is
-  // what the served page says when a real reader arrives from a shared link.
-  test('a UTM-tagged arrival still advertises the clean canonical, og:url and hreflang', async ({ request }) => {
+  // Driven with page.goto rather than request.get, and that is the whole point of the test. A raw fetch
+  // returns the PRERENDERED file, which was snapshotted at a query-free URL and whose head therefore
+  // cannot contain a UTM whatever the client code does — so the refactor this guards against would leave
+  // a request-level assertion GREEN. Only the hydrated page has ever seen the query string.
+  test('a UTM-tagged arrival still advertises the clean canonical, og:url and hreflang', async ({ page, request }) => {
     const sitemap = await (await request.get('/sitemap.xml')).text();
     const article = [...sitemap.matchAll(/<loc>([^<]*\/blog\/[^<]+)<\/loc>/g)].map((m) => m[1])[0];
     expect(article, 'the sitemap must advertise at least one article to assert against').toBeTruthy();
 
     const path = new URL(article).pathname;
-    const tagged = `${path}/?utm_source=whatsapp&utm_medium=social&utm_campaign=reader-share`;
-    const html = await (await request.get(tagged)).text();
+    await page.goto(`${path}/?utm_source=whatsapp&utm_medium=social&utm_campaign=reader-share`);
+    // Proves the query string genuinely reached the running app — otherwise the assertions below would
+    // hold vacuously, which is the failure mode this test was rewritten to escape.
+    expect(new URL(page.url()).searchParams.get('utm_campaign')).toBe('reader-share');
 
-    // Not a substring scan of the whole document: the share ANCHORS legitimately contain utm_ and would
-    // make a naive `expect(html).not.toContain('utm_')` fail for the right behaviour. Only the
-    // identity-declaring tags are checked.
-    const declared = [
-      ...[...html.matchAll(/rel="canonical" href="([^"]+)"/g)].map((m) => m[1]),
-      ...[...html.matchAll(/property="og:url" content="([^"]+)"/g)].map((m) => m[1]),
-      ...[...html.matchAll(/hreflang="[^"]+" href="([^"]+)"/g)].map((m) => m[1]),
-    ];
-    expect(declared.length, 'the article must declare a canonical, an og:url and hreflang').toBeGreaterThan(2);
+    // Read from the LIVE head, not the response body: the share anchors legitimately contain utm_, so a
+    // document-wide `not.toContain('utm_')` would fail on correct behaviour.
+    const declared = await page.evaluate(() =>
+      [
+        ...document.querySelectorAll('link[rel="canonical"], link[rel="alternate"][hreflang]'),
+      ].map((el) => el.getAttribute('href') ?? '')
+        .concat([document.querySelector('meta[property="og:url"]')?.getAttribute('content') ?? '']),
+    );
+    expect(declared.filter(Boolean).length, 'the article must declare a canonical, an og:url and hreflang').toBeGreaterThan(2);
     expect(declared.filter((u) => u.includes('utm_'))).toEqual([]);
   });
 });

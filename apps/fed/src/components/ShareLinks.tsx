@@ -48,10 +48,6 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
   const t = useT();
   const { locale } = useLocale();
   const url = `${SITE_URL}${path}`;
-  // Tagged PER TARGET, and the tagging happens BEFORE the href builder encodes it (#272). Encoding
-  // first and appending after would put a raw `&` inside WhatsApp's single `text=` field, which
-  // WhatsApp reads as its own parameter and truncates the message at — the link still opens and still
-  // looks right to a substring assertion, so the tests below assert on the DECODED inner URL.
 
   return (
     <nav aria-label={t('share.linksLabel')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -61,6 +57,11 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
       {TARGETS.map(({ key, label, nameKey, href }) => (
         <a
           key={key}
+          // Tagged PER TARGET, and BEFORE the href builder encodes it (#272). Appending after encoding
+          // puts a raw `&` inside WhatsApp's single `text=` field, which WhatsApp reads as its own
+          // parameter and truncates the message at — the link still opens and still looks right, so the
+          // test asserts on the DECODED inner URL. Verified by mutation: the wrong order leaves every
+          // other assertion in ShareLinks.test.tsx green.
           href={href(withShareUtm(url, key), title)}
           target="_blank"
           rel="noreferrer"
