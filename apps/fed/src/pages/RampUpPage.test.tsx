@@ -35,7 +35,7 @@ describe('RampUpPage', () => {
   // recorded in ADR-0032 rather than implied away.
   //
   // Videos need their own extraction: a facade renders a <button>, not an <a>, so a link-only
-  // comparison is blind to exactly the three sources that were hand-verified against their channels.
+  // comparison is blind to exactly the sources that were hand-verified against their channels.
   it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.
@@ -55,7 +55,7 @@ describe('RampUpPage', () => {
     expect(ptSources).toEqual(enSources);
     // Guard against two empty renders comparing equal.
     expect(ptSources.links.length).toBeGreaterThan(0);
-    expect(ptSources.videos).toHaveLength(3);
+    expect(ptSources.videos).toHaveLength(4);
     expect(ptSources.sections).toBeGreaterThan(0);
   });
 
@@ -99,13 +99,14 @@ describe('RampUpPage', () => {
     // Count facades by their accessible role, not by the thumbnail host — the CDN hostname is an
     // internal of VideoEmbed, and pinning it would fail a rename that changes no behavior.
     const facades = screen.getAllByRole('button', { name: /Reproduzir vídeo/ });
-    expect(facades).toHaveLength(3);
+    expect(facades).toHaveLength(4);
 
-    // Pin WHICH videos: these three were each chosen and verified against the channel, so a wrong or
-    // silently-swapped id is the failure worth catching. A host-shaped assertion would miss it.
+    // Pin WHICH videos: each was chosen and verified against the channel it is attributed to, so a
+    // wrong or silently-swapped id is the failure worth catching. A host-shaped assertion would miss
+    // it. I4B37S1dyQQ is the Y Combinator talk added by #165 — a source, not a starting pick.
     const thumbs = [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src') ?? '');
-    expect(thumbs).toHaveLength(3);
-    ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg'].forEach((id) =>
+    expect(thumbs).toHaveLength(4);
+    ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg', 'I4B37S1dyQQ'].forEach((id) =>
       expect(thumbs.some((src) => src.includes(`/vi/${id}/`))).toBe(true),
     );
     // The one request the facade does make must not block the page.

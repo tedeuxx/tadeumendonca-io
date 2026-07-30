@@ -126,6 +126,10 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 - **[Brock Mesarich](https://www.youtube.com/@BrockMesarich)** — IA pra quem não é técnico; boa rampa se você está começando do zero.
 - **[Systems Made Better](https://www.youtube.com/channel/UCNZd3Osk_AIOxz2aydFYhHg)** — sistemas e automação de workflow com IA.
 
+**Jensen Huang: The Mindset That Built NVIDIA** — no canal do Y Combinator, entra aqui como fonte, não como uma das indicações de começo lá em cima.
+
+https://www.youtube.com/watch?v=I4B37S1dyQQ
+
 ### X / Twitter
 
 - **[@AnthropicAI](https://x.com/AnthropicAI)** · **[@ClaudeDevs](https://x.com/ClaudeDevs)** · **[@bcherny](https://x.com/bcherny)** (Boris Cherny, Claude Code) — o mais perto da fonte em ferramental de dev agentic.
