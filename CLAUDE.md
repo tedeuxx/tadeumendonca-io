@@ -193,20 +193,13 @@ Working rules that follow from that:
 - **CI OIDC roles** pinned to the **immutable OIDC subject**; role ARNs are **environment secrets**, tooling
   tokens are **repository** secrets (see `/workflow/github-actions`).
 - **No client/employer references** in public writing.
-- **The vocabulary for the practice is fixed, and it lives in `.brand/positioning.md`** — not here
-  (owner decision, #245). The presence carried several names for what a reader meets as one practice,
-  across the CV, the portfolio and `/architecture` — the surface set a hiring manager traverses in one
-  sitting. The hierarchy that resolves it, and which term is authoritative in which slot, is recorded
-  with the rest of the positioning.
+- **The vocabulary for the practice is fixed, and it lives in `.brand/positioning.md`** — read it before
+  writing copy that names the practice (owner decision, #245). The hierarchy, and which term is
+  authoritative in which slot, is recorded there with the rest of the positioning and is **not** repeated
+  here.
 
-  **Why there and not here:** `.brand/positioning.md` is already the source of truth for positioning, and
-  this file already says to read it before writing any public-facing copy. Recording public wording in a
-  second place — a public one — would create exactly the two-sources-of-truth failure the private layer
-  exists to prevent. One consequence, accepted: a reader of this repo alone does not see the hierarchy.
-  Neither do they see the rest of the positioning, so that is consistent rather than a gap.
-
-  **`agent-driven` is retired from reader-facing site copy** (#245), which is the part that is a repo
-  fact rather than a positioning one. It survives in historical records — an ADR, the redesign comp —
+  **`agent-driven` is retired from reader-facing site copy** — the one part of that decision that is a
+  repo fact rather than a positioning one. It survives in historical records (an ADR, the redesign comp)
   and those are not rewritten: supersede, never rewrite.
 
 ## ⚠️ Destructive / requires explicit confirmation
