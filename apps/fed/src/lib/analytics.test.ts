@@ -113,6 +113,24 @@ describe('loadAnalytics', () => {
     expect(commands).toContain('config');
   });
 
+  // #272. GA4 reads utm_* from `page_location` on the FIRST hit of a session, and here that hit is this
+  // `config` call — which by ADR-0033 fires only after the reader accepts. Without an explicit
+  // page_location, gtag.js reads document.location AT CONSENT TIME, and a new reader who arrived from a
+  // shared link, read, navigated within the SPA and only then accepted is attributed `(direct)`. That
+  // reader is precisely the population the campaign tagging exists to count, so the under-count would
+  // be both invisible and concentrated exactly where it matters. The assertion is on the third argument
+  // because dropping it produces no error, no warning, and a plausible-looking smaller number.
+  it('sends the ARRIVAL url as page_location, not whatever the url is when consent lands', () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
+    loadAnalytics();
+
+    const config = (window.dataLayer ?? [])
+      .map((entry) => entry as IArguments)
+      .find((entry) => entry[0] === 'config');
+    expect(config, 'a config command must be queued').toBeDefined();
+    expect(config![2]).toEqual({ page_location: window.location.href });
+  });
+
   it('is idempotent — a second call does not inject twice', () => {
     vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
     loadAnalytics();

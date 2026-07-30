@@ -5,11 +5,17 @@ import { useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useT } from '../i18n';
+import { withShareUtm } from '../lib/utm';
 
 export function ShareButton({ title, url, size = 'md' }: { title: string; url: string; size?: 'sm' | 'md' }) {
   const t = useT();
   const [copied, setCopied] = useState(false);
-  const fullUrl = `${window.location.origin}${url}`;
+  // Tagged `share-sheet` rather than left clean (#272). The sheet genuinely does not tell the page
+  // where the reader sent the link, so naming a platform here would be a fabricated dimension — but
+  // leaving it untagged is worse than a fourth source value: this is the PHONE affordance, phone is
+  // where WhatsApp sharing actually happens, so an untagged sheet biases the whole count against the
+  // channel the pt-BR audience uses most. A hole that skews one channel beats no hole only in theory.
+  const fullUrl = withShareUtm(`${window.location.origin}${url}`, 'share-sheet');
 
   const share = async () => {
     if (navigator.share) {

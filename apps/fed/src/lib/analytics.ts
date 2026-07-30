@@ -9,6 +9,13 @@
 
 export type ConsentChoice = 'granted' | 'denied';
 
+// The URL the reader ARRIVED on, captured at module load — before any navigation, and long before
+// consent. Read `loadAnalytics` for why this cannot be read at consent time instead; in short, by then
+// a reader who arrived from a shared link may already have navigated away from the tagged URL, and the
+// campaign attribution is gone with it. Captured as a plain string, never stored, never sent unless
+// the reader accepts.
+const landingLocation = typeof window === 'undefined' ? '' : window.location.href;
+
 /** localStorage key holding the reader's consent choice ('granted' | 'denied'), or absent if undecided. */
 export const CONSENT_KEY = 'analytics-consent';
 
@@ -80,7 +87,19 @@ export function loadAnalytics(): void {
   } as GtagFn;
   window.gtag = gtag;
   gtag('js', new Date());
-  gtag('config', id);
+  // `page_location` is sent EXPLICITLY, from the URL captured at module load, and without it the
+  // campaign measurement (#272) silently under-counts exactly the population it exists to count.
+  //
+  // GA4 reads utm_* from `page_location` on the FIRST hit of a session. Here that hit is this `config`
+  // call, which by ADR-0033 fires only after the reader accepts. A RETURNING reader who already
+  // granted is fine — consent runs in the mount effect while the URL still carries the parameters. A
+  // NEW reader arriving from a shared link is not: they see the banner, read, navigate within the SPA,
+  // and accept later, by which point `document.location` is a different, untagged URL and the session
+  // is attributed `(direct)`. That reader is the entire point of the tagging.
+  //
+  // Nothing is stored and nothing is transmitted before consent — the value sits in a module variable
+  // and is discarded if consent never arrives, so ADR-0033's hard gate is preserved exactly.
+  gtag('config', id, { page_location: landingLocation });
 }
 
 /** Send a page_view for an SPA route change. No-op until gtag is loaded (i.e. before consent). */

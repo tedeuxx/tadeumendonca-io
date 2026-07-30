@@ -16,6 +16,7 @@
 import { useLocale, useT } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
 import { SITE_URL } from '../lib/site';
+import { withShareUtm, type ShareSource } from '../lib/utm';
 
 /**
  * One platform's share endpoint. `u` is the absolute article URL, `t` its title.
@@ -24,7 +25,7 @@ import { SITE_URL } from '../lib/site';
  * preposition with the platform's article ("no WhatsApp"), so the phrase cannot be assembled from parts.
  */
 const TARGETS: ReadonlyArray<{
-  key: string;
+  key: ShareSource;
   label: string;
   nameKey: MessageKey;
   href: (u: string, t: string) => string;
@@ -47,6 +48,10 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
   const t = useT();
   const { locale } = useLocale();
   const url = `${SITE_URL}${path}`;
+  // Tagged PER TARGET, and the tagging happens BEFORE the href builder encodes it (#272). Encoding
+  // first and appending after would put a raw `&` inside WhatsApp's single `text=` field, which
+  // WhatsApp reads as its own parameter and truncates the message at — the link still opens and still
+  // looks right to a substring assertion, so the tests below assert on the DECODED inner URL.
 
   return (
     <nav aria-label={t('share.linksLabel')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -56,7 +61,7 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
       {TARGETS.map(({ key, label, nameKey, href }) => (
         <a
           key={key}
-          href={href(url, title)}
+          href={href(withShareUtm(url, key), title)}
           target="_blank"
           rel="noreferrer"
           // The accessible name says WHAT is being shared and WHERE. "LinkedIn" alone, repeated on every
