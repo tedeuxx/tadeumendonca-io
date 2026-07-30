@@ -5,17 +5,29 @@ name: deploy
 # to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; the
 # trust pins the IMMUTABLE subject repo:<org>@<org_id>/<repo>@<repo_id>:* — see iac/iam.tf, and note
 # that a repo rename does not change it). Post-deploy E2E (Playwright) runs on the trunk.
+# TRIGGERED BY THE VERSION BUMP, NOT BY THE MERGE (#298). `version-main` pushes `bump: X → Y` and tags
+# vY on top of every merge, so the bump commit is the ONLY commit on main whose tree carries the version
+# it is tagged with. Building the merge commit builds a tree whose VERSION still names the PREVIOUS
+# release — which is exactly what shipped a footer linking the wrong Release.
+#
+# The surface filter did not disappear; it MOVED into the `gate` job, where it diffs vN-1..vN. Tags are
+# dense on main (one bump+tag per merge), so that range is losslessly "one merge's content plus its
+# bump" — verified against real history before this was written.
+#
+# ACCEPTED COST, stated because it is inherent to bump-before-deploy and cannot be designed away:
+# `version-main` becomes load-bearing for deployment. A wedged version-main (it wedged once, for four
+# merges) now stops the site from shipping rather than merely stopping the tagging. `workflow_dispatch`
+# below is the unconditional manual deploy, and version-main fails loudly with a diagnosis.
 on:
   push:
     branches: [main]
     paths:
-      - "apps/fed/**"
-      - "packages/shared/**"
-      - ".github/workflows/deploy.yml"
+      - "VERSION"
   workflow_dispatch:
 
+# Read-only by DEFAULT. `id-token: write` now lives on the one job that assumes a role, so the deciding
+# job never holds a credential — on a release that touched nothing we serve, no token is ever issued.
 permissions:
-  id-token: write # OIDC → AWS
   contents: read
 
 concurrency:
@@ -26,10 +38,66 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
+  # Decides only. No AWS, no OIDC, installs nothing.
+  gate:
+    # `workflow_dispatch` must be named explicitly: `github.event.head_commit` is null on dispatch, so
+    # the startsWith alone coerces to false and would silently disable every manual deploy — including
+    # the rollback path this change relies on.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.event.head_commit.message, 'bump:')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      deploy: ${{ steps.changes.outputs.deploy }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the filter below diffs this release against the previous TAG
+
+      - name: Assert this tree carries its own tag
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          want="v$(cat VERSION)"
+          have="$(git rev-parse "$want^{commit}" 2>/dev/null || true)"
+          if [ "$have" != "$(git rev-parse HEAD)" ]; then
+            echo "::error::VERSION says $want but that tag does not point at this commit. Refusing to publish a build whose footer would link a Release that does not describe it."
+            exit 1
+          fi
+
+      - name: Did this release touch the deployed surface?
+        id: changes
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::manual dispatch — publishing unconditionally, NO surface filter applied"
+            exit 0
+          fi
+          prev="$(git describe --tags --abbrev=0 HEAD^)"
+          # Plain path prefixes, not globs: a git pathspec naming a directory already means everything
+          # under it, so `apps/fed/**` would go through fnmatch for no gain.
+          hits="$(git diff --name-only "$prev..HEAD" -- \
+            apps/fed packages/shared .github/workflows/deploy.yml)"
+          if [ -z "$hits" ]; then
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$prev..v$(cat VERSION) touched no deployed surface — NOTHING was published and nothing was verified"
+            exit 0
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+          echo "::notice::publishing v$(cat VERSION) — surface changes since $prev: $(echo "$hits" | tr '\n' ' ')"
+
   deploy:
-    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: staging
+    permissions:
+      id-token: write # OIDC → AWS, only in the job that touches AWS
+      contents: read
     defaults:
       run:
         working-directory: apps/fed

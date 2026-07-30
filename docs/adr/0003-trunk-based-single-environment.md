@@ -188,6 +188,89 @@ ten times. None of those would have been visible to a reader validating the prod
 The `reader-facing` label on the `product` queue therefore becomes an **ordering and lens** signal —
 which reviewers to dispatch — and stops being a gate.
 
+## Amendment, 2026-07-30 — the deploy fires on the BUMP commit, not on the merge commit
+
+**The merge is still the deploy and still the go/no-go.** Nothing above changes. What changes is the
+*mechanism* — which commit on `main` the deploy workflow triggers from — because the original mechanism
+shipped a tree that could not describe itself.
+
+### The defect
+
+`version-main` runs on push to `main` and bumps **then** tags, so tag `vN` points at the `bump:` commit,
+which sits **on top of** the merge it describes. `deploy` triggered on push to `main` filtered to
+`apps/fed/**`, `packages/shared/**` and `.github/workflows/deploy.yml` — root `VERSION` was **not** among
+them — and additionally skipped the bump commit. So every deploy built a tree whose `VERSION` had not yet
+been incremented.
+
+Latent until #298 put the version in the footer; then the served site **named the release preceding the
+code it was serving**. The link resolved, so nothing signalled it — which is worse than a 404. A wrong
+answer that renders is the failure mode this ADR's "no pre-production tier" cost is most exposed to.
+
+### The change
+
+`deploy` now triggers on `paths: VERSION` — i.e. on the **bump commit**, the only commit on `main` whose
+tree carries the version it is tagged with.
+
+The surface filter did not disappear; it **moved** out of the trigger and into a credential-free `gate`
+job that runs `git diff --name-only vN-1..vN -- apps/fed packages/shared .github/workflows/deploy.yml`.
+Tags are dense on `main` (one bump + tag per merge), so that range is exactly one merge's content plus its
+bump. Verified against real history in **both** directions before writing, because a filter is only proven
+by its negative case: `v0.1.143..v0.1.144` (a fed release) returns the fed files; `v0.1.139..v0.1.140`
+(the dependabot merge touching only `.github/workflows/claude.yml`) returns **empty**, so it correctly
+would not deploy.
+
+**A security improvement, not a footnote — permissions tightened rather than loosened.** `id-token: write`
+moved from the workflow level to the single job that assumes a role; the workflow default is now
+`contents: read`; the **deciding** job holds no credential at all. A release that touched nothing we serve
+now never issues a token.
+
+### The accepted cost — stated as the owner was shown it before approving
+
+**`version-main` becomes load-bearing for deployment.** Before, a wedged `version-main` (it wedged once,
+2026-07-23, for four merges) left deploys working and merely stopped tagging. Now it stops the site from
+shipping. This is **inherent to "bump before deploy" and cannot be designed away** — only mitigated:
+
+- `workflow_dispatch` remains an unconditional manual deploy, and is the rollback path.
+- `version-main` fails loudly with a diagnosis rather than silently.
+- The change **self-verifies on its own merge**: its bump's range contains `.github/workflows/deploy.yml`,
+  so the filter must match or the deploy visibly does not happen.
+
+### Named residual gap — recorded rather than fixed
+
+GitHub keeps only **one** pending run per concurrency group. Three bump-deploys queuing inside one deploy's
+runtime drops the middle one. Site *content* stays correct (the surviving run publishes the whole tree),
+but the dropped run's **filter decision** is lost — so if the fed merge was the middle one and the last was
+docs-only, the fed code sits undeployed until the next fed merge.
+
+WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one click, so the airtight variant
+— computing the range from the last run that actually **published**, costing `actions: read` — was
+**rejected as not worth paying for now**. Recorded so the next person meets a known limit, not a surprise.
+
+### Alternatives rejected, and why each lost
+
+1. **`deploy` computes the next version itself** — it **predicts**, and the prediction breaks under
+   interleaving: two merges seconds apart both compute the same next version while `version-main` hands out
+   different ones. Same defect class, rarer and harder to spot — **strictly worse** than a bug that fails
+   consistently.
+2. **`workflow_run` on `version-main`** — no `paths` support; fires on `completed` regardless of
+   conclusion; and runs the workflow file from the **default branch** rather than the triggering ref, which
+   makes a change to the workflow itself untestable in the usual way.
+3. **Bump on the PR instead of after the merge** — theoretically the cleanest (the tag would point at the
+   merge, and the loop guard could disappear), but two open PRs both compute the same next version and the
+   second merge collides with the first's tag — reproducing the exact wedge class `version-main` now
+   carries 15 lines of diagnosis for. It would also make the version machinery depend on **WIP=1 as a
+   correctness invariant** rather than a working agreement.
+4. **Fold the bump into `deploy`** — rejected on **supply-chain** grounds: `deploy` runs
+   `npm run build:static` with the OIDC deploy role in the job env; adding `contents: write` plus the bump
+   PAT there means one compromised build-time dependency holds both S3/CloudFront write **and** a repo-write
+   token with `workflows: write`. (ADR-0021's third lever exists for this class of reasoning.)
+5. **Show the commit SHA instead of a version** — genuinely the **cheapest correct answer**: always exact,
+   zero workflow change, zero coupling. It lost to the owner's ruling that the footer should carry the
+   *version*. The coupling in "the accepted cost" above is the price of that ruling, and is recorded as
+   bought rather than overlooked.
+
+Root `CLAUDE.md`'s CI section is updated in the same MR to match.
+
 ## Consequences
 **Good**
 - Minimal branching/ops overhead; the pipeline mirrors the site's actual size.
