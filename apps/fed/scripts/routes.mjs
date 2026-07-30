@@ -16,10 +16,15 @@ export const LOCALES = ['pt', 'en'];
 // source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
 // a route exists.
 //
-// Real routes only. Everything else `App.tsx` declares is a non-destination and is excluded: `/blog`
-// → the landing's #artigos, the in-locale `*` → the locale landing, and the outer `*` → `RootRedirect`,
-// which sends an unprefixed path to the reader's edition. Four `<Route>`s that redirect, none of them a
-// place to snapshot or advertise.
+// `App.tsx` declares ten `<Route>`s and this list holds five of them. The other five, accounted for so
+// the comparison closes:
+//   - `blog/:slug` — a destination, and prerendered: the article half of `localizedRoutes()` below adds
+//     it per locale, from the markdown, because its slug is content rather than a literal.
+//   - `:locale/*` — the wrapper that renders `LocaleApp`. Not a route to a page; it is how every route
+//     above is reached.
+//   - three that REDIRECT, and are therefore never snapshotted or advertised: `/blog` → the landing's
+//     #artigos, the in-locale `*` → the locale landing, and the outer `*` → `RootRedirect`, which sends
+//     an unprefixed path to the reader's edition.
 //
 // (Until #262 this comment named /articles, /cv and /profile instead. Those were dropped pre-launch in
 // #234 and the comment outlived them, which made archaeology read as load-bearing exclusion — someone
