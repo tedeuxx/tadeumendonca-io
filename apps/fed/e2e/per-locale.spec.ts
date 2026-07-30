@@ -103,9 +103,11 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-driven SDLC'); // description
     expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
+    expect(body).toContain('The bar for getting listed here'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
+    expect(body).not.toContain('A régua pra entrar aqui');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
@@ -113,9 +115,60 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
     expect(body).toContain('se fecha na prática'); // proof
+    expect(body).toContain('A régua pra entrar aqui'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
+    expect(body).not.toContain('The bar for getting listed here');
   });
+
+  // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
+  // claims the standard is checkable, and a claim whose link never shipped is the claim failing, not a
+  // cosmetic miss. Asserted in both editions because the href is authored once and shared: a defect here
+  // would be identical in both, which is exactly the kind that a single-edition check reports as fine.
+  const BAR_HREF = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
+  for (const locale of ['pt', 'en'] as const) {
+    test(`/${locale}/portfolio serves the bar's link, not just its sentence`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      expect(body).toContain(BAR_HREF);
+    });
+  }
+
+  // The LANDING must NOT carry it — the shape proposed in PR #251. `PortfolioSection` is shared, so the bar
+  // reached the storefront for free and the default had to be flipped to opt-in to stop it. This is the
+  // assertion that makes that decision durable: it is one prop away from regressing, and the landing is
+  // the surface where a correction costs most (CloudFront, plus the OG card scrapers pin on first fetch).
+  //
+  // Asserted on the served artifact rather than in the unit test alone, because the bare `/` snapshot is
+  // what the JS-less crawler reads and it is prerendered separately from the locale landings.
+  // The /portfolio OG DESCRIPTION, per locale. This is the string LinkedIn, X and WhatsApp pin on first
+  // fetch, so it is the least reversible copy on the page — and until now it had no assertion at any
+  // level, while the body sentence beneath it had nine. The proportionality was inverted against this
+  // slice's own risk model, and it was caught by mutation: reverting this string to the copy it replaced
+  // left every unit test and every E2E green.
+  //
+  // `/me` has carried this assertion since #182 (above). `/portfolio` is the surface whose description
+  // actually changed, and it did not.
+  const PORTFOLIO_OG = {
+    pt: 'a régua que decide o que entra',
+    en: 'the bar that decides what gets listed',
+  };
+  for (const locale of ['pt', 'en'] as const) {
+    const other = locale === 'pt' ? 'en' : 'pt';
+    test(`/${locale}/portfolio serves its own og:description, not the other edition's`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      expect(body).toMatch(new RegExp(`property="og:description" content="[^"]*${PORTFOLIO_OG[locale]}`));
+      expect(body).not.toContain(PORTFOLIO_OG[other]);
+    });
+  }
+
+  for (const path of ['/', '/pt/', '/en/'] as const) {
+    test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
+      const body = await (await request.get(path)).text();
+      expect(body).not.toContain('A régua pra entrar aqui');
+      expect(body).not.toContain('The bar for getting listed here');
+      expect(body).not.toContain(BAR_HREF);
+    });
+  }
 });
 
 // 4 · hreflang reciprocity + self-canonical — each locale page lists pt + en + x-default with ABSOLUTE
