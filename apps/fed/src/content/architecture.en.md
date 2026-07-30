@@ -55,23 +55,27 @@ Every page's content — the CV, this page, the articles — is markdown or type
 
 The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
-"Human-residual" is the load-bearing word, and it is the one a flowchart usually loses. So the point of drawing it is not the steps — it is *where the human is standing*:
-
 ```mermaid
 flowchart LR
   accTitle: Where the human sits in the loop
-  accDescr: An issue becomes a plan, reviewed before implementation. The agent builds the slice and runs the mechanical gates, looping back on red. A fresh-context reviewer then judges the change. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to the one human decision point, which is the only thing standing between the change and production.
-  I["Issue"] --> P["Plan, reviewed before code"]
+  accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates, which loop back on red. A fresh-context reviewer then judges the change and can send it back. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to a human go or no-go, which is the last thing before production and can also return the work.
+  I["Issue"] --> P["Plan, aligned with the human"]
   P --> B["Agent builds the slice"]
   B --> G["Mechanical gates"]
   G -- "red" --> B
   G -- "green" --> R["Fresh-context reviewer"]
+  R -- "changes" --> B
   R -- "safe class" --> M["Merge = deploy"]
   R -- "boundary class" --> H["Human go / no-go"]
-  H --> M
+  H -- "go" --> M
+  H -- "no-go" --> B
 ```
 
-One human node, and note what it is *not* attached to: it is not on the gates, not on the plan, not on every change. It sits on one edge, the one into production, and only boundary-class work is routed down it. Everything else the reviewer merges on its own authority. That is what the phrase means, and drawing it is the only way to show that the human's position is a **choice about blast radius** rather than a rung in an approval ladder.
+The human appears twice, and the two appearances are different jobs. At the plan, deciding what is worth building and how — the architectural calls are never made solo. At the end, on boundary-class work only, deciding whether it ships. In between the agent builds and the machine proves, and most changes reach production without a person in that path at all.
+
+What the picture cannot show is that **the routing itself is the artifact**. Which edge the human sits on, what counts as a class boundary, where a gate is worth its cost — that is the engineering this page is offering, more than any box in the figure.
+
+And the cost, since the rest of this page states its own: a change mis-classified as safe reaches production with no human in front of it, and the thing doing the classifying is the same kind of thing that wrote the change. What makes that acceptable here is blast radius, not confidence — this is a static site, and a revert is a merge.
 
 ## The decision record IS the documentation
 
@@ -105,4 +109,4 @@ The part I would be nervous seeing someone copy without the rest is **merging st
 
 This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
 
-And the loop this page calls the interesting part is the one thing on it still carried entirely by prose. How a request is served is drawn above; where the agent proves "done", and where a human's go/no-go actually sits, you have to take my word for.
+And both diagrams above show the **shape** of a thing, not a run of it. That the request path is what the edge actually does is checkable — the function, its tests and the post-deploy comparison are linked. That the loop is followed the way it is drawn is not: nothing on this page proves any particular change took the route in the picture. The diagram is a claim about how I work, and it is the one claim here you still have to take on trust.

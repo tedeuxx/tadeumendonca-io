@@ -136,32 +136,48 @@ describe('the infrastructure diagram earns its place', () => {
 // stage satisfies that and means the opposite. It is that there is EXACTLY ONE, and that it sits on the
 // edge into production. That is the claim "human-residual" makes, and it is the one a diagram can lie
 // about most easily.
+// WHAT THIS FILE CAN AND CANNOT GUARANTEE, said plainly because the first version of it overstated
+// both. Node ids are an authoring convention: the test knows a node is CALLED `H`, never that it is a
+// human. So this pins the shape the author declared — a real drift guard across edits and between the
+// two editions — and it is not "the diagram cannot lie about where the human is". The `H`-prefix rule
+// below is what makes the convention enforceable rather than decorative.
+const humanNodes = (graph) => graph.nodes.filter((n) => /^H/.test(n));
+
 describe('the dev-loop diagram shows where the human stands', () => {
   const graph = graphOf(en[1].source);
 
-  it('has exactly one human decision point', () => {
-    expect(graph.nodes).toContain('H');
-    // Named by role, not by label, so rewording does not break it — and counted, because "a human
-    // appears" is satisfied by an approval ladder, which is the thing this is arguing against.
-    expect(graph.nodes.filter((n) => n === 'H')).toHaveLength(1);
+  // Counted over the PREFIX, not over `nodes` filtered to a single id. The first version asserted
+  // `nodes.filter(n => n === 'H').length === 1` against a list built from a Set — which cannot contain
+  // 'H' twice, so it could never fail, while its comment claimed it caught an approval ladder. It did
+  // not: adding `P --> H2` left every assertion green. This version fails on that mutation.
+  it('has exactly one human decision point in the merge path', () => {
+    expect(humanNodes(graph)).toEqual(['H']);
   });
 
-  it('puts the human on the edge into production, not on the gates or the plan', () => {
+  it('puts the human on the edge into production', () => {
     expect(graph.edges).toContain('H->M');
-    // The gates loop back to the build, not through a person; the plan is not gated by one either.
-    expect(graph.edges.filter((e) => e.startsWith('G->') && e.endsWith('->H'))).toEqual([]);
-    expect(graph.edges).not.toContain('P->H');
+    // Not on the gates: verification is mechanical, and a human standing on it would make the gates
+    // an opinion rather than a proof.
+    expect(graph.edges).not.toContain('G->H');
   });
 
-  // The other half of "human-residual": most work does NOT pass the human. If every path to merge went
-  // through H the diagram would still satisfy the assertions above and would describe a different
-  // system entirely.
+  // The other half of "human-residual", and the half the previous version only claimed to test: most
+  // work does NOT pass the human. `reaches(I, M)` on the full graph is vacuous — it is satisfied by a
+  // path THROUGH H. Removing H first is what turns it into the property the name promises.
   it('shows a path to production that does not pass the human', () => {
-    expect(graph.edges).toContain('R->M');
-    expect(reaches(graph, 'I', 'M')).toBe(true);
+    const withoutHuman = {
+      nodes: graph.nodes.filter((n) => !/^H/.test(n)),
+      edges: graph.edges.filter((e) => !/(^|>)H/.test(e)),
+    };
+    expect(reaches(withoutHuman, 'I', 'M'), 'every route to production passes a human').toBe(true);
   });
 
-  it('shows the gates looping back rather than terminating', () => {
+  // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a reviewer
+  // drawn as a pure fork: this very review is the counterexample, and a diagram that cannot show work
+  // coming back describes a loop that never rejects anything.
+  it('lets work come back — from the gates, from the reviewer, and from the human', () => {
     expect(graph.edges).toContain('G->B');
+    expect(graph.edges).toContain('R->B');
+    expect(graph.edges).toContain('H->B');
   });
 });

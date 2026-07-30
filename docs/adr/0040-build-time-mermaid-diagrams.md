@@ -219,3 +219,84 @@ rendered draft rather than in the abstract.
   `apps/fed/src/content/diagrams.ts`, `apps/fed/src/content/generated/diagrams.json`,
   `apps/fed/src/components/Diagram.tsx`, `apps/fed/src/components/Markdown.tsx`,
   `apps/fed/src/content/architecture.{en,pt}.md`.
+
+## Amendment (2026-07-30) — slice two shipped; and the "asserted mechanically" claim was PARTIAL, demonstrated by a defect that reached production
+Everything above stands as the decision. Five things about it are now stale or incomplete, and the third
+is the one worth reading.
+
+**1. There is no slice two any more.** *"This is slice one of two"* (in **Decision outcome**) and
+*"Implements #170 (slice one of two)"* (in **Links**) are superseded, not corrected: this slice ships the
+**dev-loop diagram** — the one the owner called *"the harder one and the one that matters"*, because it must
+show the human's position, where the agent proves done and where the go/no-go sits — and
+[#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170) closes with it. The mechanism decided above
+carried the second diagram unchanged: a fence, the same generator, the same guards, no new decision.
+
+**2. The layout question was answered, and the deferral's premise is spent.** The text above records the
+"both diagrams full width vs the infrastructure one collapsed into a detail" call as **deliberately
+deferred by the owner, to be answered against the rendered draft**. Both diagrams now ship **full width**,
+both were rendered and shown, and the owner said proceed. The *collapse* remains open as a future
+refinement — but it is now an ordinary layout preference, no longer blocked on a draft that did not exist.
+
+**3. THE IMPORTANT ONE — "identity conformance is asserted mechanically, not by discipline" was true of
+membership and false of legibility, and the counterexample shipped.** The claim above (**Decision outcome**),
+and the consequence *"the identity now holds on generated output by assertion, not by anyone remembering"*,
+both read stronger than what the assertions actually check.
+
+The theme set `lineColor: '#0A0A0A'` while the page's `--background` **is** `#0A0A0A`
+(`apps/fed/src/styles/index.css:9-10`). **Every arrow in the infrastructure diagram was drawn in the page's
+own background colour.** The diagram was **live on the apex with invisible edges from the moment slice one
+merged until this slice** — a picture whose entire job is a path with a branch on it, served with no visible
+path. Every palette assertion passed for the whole of that window, and would still pass today, because they
+check **membership and presence, never contrast**: a diagram drawn wholly in `#0A0A0A` on a `#0A0A0A` canvas
+satisfies both `used ⊆ palette` and `palette ⊆ used`. It was found by **rendering the page and looking at
+it** — the one method this ADR had implicitly claimed to make unnecessary.
+
+**What this slice added, and precisely how far it reaches.** `e2e/routes.spec.ts` now reads the **computed
+stroke** of every `path.flowchart-link` and compares it to the **computed background** of `.diagram-canvas`,
+failing if they are equal. That closes **this** hole — a diagram drawn in the canvas colour is now a red
+test — and it closes **only** this hole. **A contrast check is not a legibility check.** Nothing mechanical
+here will catch a diagram that is perfectly legible and wrong-looking: bad contrast that is not *equal*,
+overlapping labels, an arrowhead pointing the wrong way, a layout that reads as a box list. The honest
+version of the original claim is: *membership, presence and background-equality are asserted; looking at it
+is still required.*
+
+**The trap, recorded because it is the same class of error and whoever next touches this will meet it:**
+the **first** version of that very assertion read the background from the `<figure>`, which has no
+background of its own and computes to `rgba(0, 0, 0, 0)`. It therefore **passed on the exact defect it was
+written for.** It was fixed only because the mutation was actually run. An assertion that is never seen to
+fail is not evidence — it is the second copy of the first mistake, wearing the clothes of a guard. The spec
+now also asserts the canvas colour is not transparent, so that failure mode is itself red.
+
+**4. A new accepted cost the record did not carry — the print path is latent, and it is failure mode #3
+again.** `apps/fed/src/styles/index.css:134-135` **inverts** the identity tokens under `@media print`
+(near-black ink on an off-white sheet), while the diagram SVG's colours are **baked at build time** and
+cannot invert with it. On a printed `/architecture`, the off-white strokes land on a white sheet — the same
+mistake as above, with the canvas assumed rather than the colour. **Nothing shipping today is affected:**
+`/cv.pdf` prints from `/en/me` (ADR-0034), which carries no diagram, and no other print path exists. So this
+is **accepted, not fixed** — but it is now *latent and named* rather than unknown, which is the difference
+that matters if a diagram ever reaches a printed surface.
+
+**5. What the diagram-claim tests can and cannot guarantee.** `apps/fed/scripts/architecture-diagrams.test.mjs`
+pins **the shape the author declared**. Node ids are an **authoring convention**: the test knows a node is
+*called* `H`, never that it *is* a human. That makes it a real drift guard — between the two locale editions
+and across future edits, and the mechanism by which the owner's "must not be a labelled box list" constraint
+is falsifiable at all — and it does **not** make it *"the diagram cannot lie"*. The `H`-prefix counting rule
+is what makes the convention enforceable: it is why adding a second human node fails instead of passing.
+
+Recorded because the **first** version of that test asserted `nodes.filter(n => n === 'H').length === 1`
+against a list built from a **Set** — which cannot contain `'H'` twice, so the assertion could never fail —
+while carrying a comment claiming it caught an approval ladder. It did not: adding `P --> H2` left every
+assertion green. Two of the five items in this amendment are the same failure, found twice in one slice:
+**a green that was never observed to go red is not a gate.**
+
+**Links added by this amendment**
+- **Closes** Issue [#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170) — the "slice one of two"
+  wording in **Links** above is superseded by this amendment.
+- **Narrows the conformance claim made to [ADR-0008](./0008-brutalist-mono-identity.md)** — the identity is
+  still asserted on generated output; the assertions cover palette membership, presence and
+  background-equality, not legibility.
+- **Interacts with [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)** for item 4 — the print path is
+  unaffected today only because the PDF prints from `/en/me`.
+- Implementation added by this slice: `apps/fed/e2e/routes.spec.ts` (the stroke-vs-canvas assertion),
+  `apps/fed/scripts/architecture-diagrams.test.mjs` (the dev-loop claims and the `H`-prefix rule),
+  `apps/fed/scripts/gen-diagrams.mjs` (`lineColor` corrected to `#F5F4EF`).

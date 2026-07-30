@@ -55,23 +55,27 @@ O conteúdo de cada página — o CV, esta página, os artigos — é markdown o
 
 A parte interessante não é a stack — é como ele é construído: **agent-led verification, human-residual** (verificação liderada pelo agente, humano no resíduo). O agente prova o "pronto" com gates mecânicos e evidência real (lint, tipos, testes ≥85%, um build verde, SonarCloud, E2E funcional, um revisor de contexto fresco); o humano fica com as decisões irreversíveis e arquiteturais. Esse loop vive num plugin reutilizável à parte — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — então é uma metodologia que você pode adotar, não algo sob medida só pra este site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) os gates de CI)*
 
-"Human-residual" é a palavra que sustenta o peso, e é justamente a que um fluxograma costuma perder. Então o motivo de desenhar isto não são as etapas — é *onde o humano está de pé*:
-
 ```mermaid
 flowchart LR
   accTitle: Onde o humano fica no loop
-  accDescr: Uma issue vira um plano, revisado antes da implementação. O agente constrói a fatia e roda os gates mecânicos, voltando atrás no vermelho. Um revisor de contexto fresco então julga a mudança. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar um artigo — passa pelo único ponto de decisão humano, que é a única coisa entre a mudança e a produção.
-  I["Issue"] --> P["Plano, revisado antes do código"]
+  accDescr: Uma issue vira um plano que o humano alinha antes de existir código. O agente constrói a fatia e roda os gates mecânicos, que voltam para a construção no vermelho. Um revisor de contexto fresco então julga a mudança e pode devolvê-la. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar um artigo — passa por um go ou no-go humano, que é a última coisa antes da produção e também pode devolver o trabalho.
+  I["Issue"] --> P["Plano, alinhado com o humano"]
   P --> B["Agente constrói a fatia"]
   B --> G["Gates mecânicos"]
   G -- "vermelho" --> B
   G -- "verde" --> R["Revisor de contexto fresco"]
+  R -- "mudanças" --> B
   R -- "classe segura" --> M["Merge = deploy"]
   R -- "classe de fronteira" --> H["Go / no-go humano"]
-  H --> M
+  H -- "go" --> M
+  H -- "no-go" --> B
 ```
 
-Um nó humano — e repare no que ele *não* está ligado: não está nos gates, não está no plano, não está em toda mudança. Ele fica numa aresta só, a que entra em produção, e só o que é classe de fronteira desce por ali. Todo o resto o revisor mergeia por conta própria. É isso que a expressão quer dizer, e desenhar é o único jeito de mostrar que a posição do humano é uma **escolha sobre raio de dano**, não um degrau numa escada de aprovação.
+O humano aparece duas vezes, e as duas aparições são trabalhos diferentes. No plano, decidindo o que vale ser construído e como — as decisões de arquitetura nunca são tomadas sozinhas. No fim, só no que é classe de fronteira, decidindo se aquilo sobe. No meio, o agente constrói e a máquina prova, e a maior parte das mudanças chega à produção sem ninguém nesse caminho.
+
+O que a figura não consegue mostrar é que **o roteamento é o artefato**. Em qual aresta o humano senta, o que conta como fronteira de classe, onde um gate vale o que custa — é essa a engenharia que esta página está oferecendo, mais do que qualquer caixa do desenho.
+
+E o custo, já que o resto desta página assume os seus: uma mudança classificada errado como segura chega à produção sem ninguém na frente dela, e quem classifica é o mesmo tipo de coisa que escreveu a mudança. O que torna isso aceitável aqui é raio de impacto, não confiança — isto é um site estático, e reverter é um merge.
 
 ## O registro de decisões É a documentação
 
@@ -105,4 +109,4 @@ O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto p
 
 Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
 
-E o loop que esta página chama de parte interessante é a única coisa aqui que continua inteiramente por conta do texto. Como uma requisição é servida está desenhado acima; onde o agente prova o "pronto", e de quem é o go/no-go, você tem que acreditar na minha palavra.
+E os dois desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Que o caminho da requisição é o que a borda de fato faz dá pra conferir — a função, os testes dela e a comparação pós-deploy estão linkados. Que o loop é seguido do jeito que está desenhado, não: nada nesta página prova que alguma mudança específica percorreu aquele trajeto. O desenho é uma afirmação sobre como eu trabalho, e é a única afirmação daqui que você ainda precisa aceitar na confiança.
