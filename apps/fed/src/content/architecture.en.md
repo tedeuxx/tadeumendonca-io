@@ -10,15 +10,19 @@ A fully static SPA — React + Vite + TypeScript — served from **S3 behind Clo
 
 ## What it actually costs: about USD 0.65 a month
 
-"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked, so here is the bill, read from the account rather than estimated:
+"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the run rate, read from the account's daily cost in **late July 2026** rather than estimated. Read it as a measurement with a date on it, not a standing fact — no invoice has closed at this rate yet:
 
 - **Route 53** — USD 0.50/month, fixed. The hosted zone, whether or not anyone visits.
 - **S3** — about USD 0.15/month, and it is deploy *writes*, not reads.
 - **CloudFront** — effectively USD 0.00 at this traffic.
 
-Note the shape, because it is the honest one for a static site: **the domain costs more than serving the site does.** There is no compute line at all — that is what "no backend" buys, and it is why the figure barely moves whether ten people visit or ten thousand. CloudFront on `PriceClass_100` and objects on S3 have no idle cost to pay.
+Note the shape, because it is the honest one for a static site: **the domain costs more than serving the site does.** There is no compute line at all — that is what "no backend" buys, and it is why the figure barely moves whether ten people visit or ten thousand.
 
-The guardrail is an account-wide budget in `iac/budget.tf`, deliberately **not** scoped to this project's tags — so it catches spend this repo did not create. That is not paranoia: this account was carrying roughly **USD 12.80 a month** of leftovers from the retired backend era — WAF web ACLs and idle public IPv4 addresses attached to nothing — which is twenty times the site's own cost. Infrastructure you stop using does not stop billing, and nothing tells you except the bill. *(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf))*
+### What the guardrail is actually for
+
+The same reading turned up roughly **USD 12.80 a month** the site was not using: WAF web ACLs and idle public IPv4 addresses attached to nothing, left behind when the backend was retired. Twenty times what the site itself costs. **Those are gone** — removed in July 2026, and the daily cost series confirms the charges stop rather than an empty console implying it. Not all of it: a smaller leftover from the same era is still accruing while I work out what it holds, which is the honest state of this at the time of writing.
+
+I found them by reading the bill, which is late. So what watches now is an account-wide budget in `iac/budget.tf`, deliberately **not** scoped to this project's tags — otherwise it would only ever see spend this repo created, and this spend was exactly the kind it did not. That is the transferable part: infrastructure you stop using does not stop billing, and the thing that catches it has to be looking wider than the thing you are building. *(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf))*
 
 ## Content is markdown in the repo, resolved at build
 
@@ -47,15 +51,15 @@ Roughly an evening, most of it waiting on DNS and a certificate.
 
 1. **Fork both repos.** Read the ADRs first, starting at 0001 — the decisions are the part worth taking, and several of them will not fit your context.
 2. **Register the domain and create its Route 53 hosted zone.** That USD 0.50 is your cost floor from this moment on, before a single visitor. Request an ACM certificate **in `us-east-1`** — CloudFront reads certificates from that region only, wherever the rest of your stack lives.
-3. **Create a Terraform Cloud organization and one workspace**, execution mode **Local**, then point `iac/versions.tf` at your names. State lives there; the plan runs in CI.
-4. **Bootstrap the OIDC roles once, from your own credentials.** This is the one honest exception to *apply is pipeline-only*, and it is a genuine chicken-and-egg: CI assumes roles that Terraform creates, so the first apply cannot come from CI. After it lands, take the local credentials away and never apply from a laptop again.
-5. **Wire the GitHub secrets, and mind which scope each one takes.** Role ARNs — `AWS_FED_OIDC_ROLE_ARN`, `AWS_INFRA_OIDC_ROLE_ARN` — are **environment** secrets; tooling tokens — `TFC_API_TOKEN`, `SONAR_TOKEN`, `VERSION_BUMP_TOKEN`, `BUDGET_ALERT_EMAIL` — are **repository** secrets. The split is what keeps a token that lints your code from being able to touch your account.
+3. **Create a Terraform Cloud organization and one workspace**, execution mode **Local**, then point `iac/versions.tf` at your names — **and the `TF_WORKSPACE` in the two infra workflows**, which is where the workspace is actually selected. Change only the first and CI still talks to mine. This is what the repo uses, not a recommendation: state lives there, but plan and apply run in my CI, where the credentials are short-lived OIDC roles. Remote mode would keep credentials in the workspace — and then there are two places infrastructure can change from.
+4. **Bootstrap by hand what CI cannot bootstrap for itself**, and be precise about which pieces those are, because "run it once locally" is not the whole story. Terraform here creates the **deploy** role that publishes the site. It does **not** create the GitHub OIDC provider, and it does **not** create the infra role that runs Terraform itself — that one cannot live in the state it manages, and its policy is applied out-of-band; [`docs/iac-deploy-policy.md`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/iac-deploy-policy.md) is its runbook. Get those two in place first, or your first CI run has nothing to assume. This is the one honest exception to *apply is pipeline-only* — and afterwards, take the local credentials away and never apply from a laptop again.
+5. **Wire the GitHub secrets, and mind which scope each one takes.** Anything that names AWS — `AWS_FED_OIDC_ROLE_ARN`, `AWS_INFRA_OIDC_ROLE_ARN`, and the budget alert address `BUDGET_ALERT_EMAIL` — is an **environment** secret; the tooling tokens — `TFC_API_TOKEN`, `SONAR_TOKEN`, `VERSION_BUMP_TOKEN` — are **repository** secrets. The split is what keeps a token that lints your code from reaching anything in your account.
 6. **Fix the trust policy's subject, and expect this one to bite.** The roles trust an *immutable* subject — `repo:<org>@<org_id>/<repo>@<repo_id>:*`, by numeric ID, not by name. The plain `repo:<org>/<repo>:*` form is a name, and a name can be transferred to someone else; the IDs cannot. The cost of the safer form is that it is not copy-pasteable — you have to look your IDs up.
 7. **Replace the content and the positioning.** `src/content/` for the long-form, `src/data/profile.ts` for the CV, `src/data/catalog.ts` for the portfolio, `src/i18n/messages.ts` for the chrome. Every reader-facing module is typed so that a missing translation is a **compile error** rather than a page that quietly serves the wrong language.
-8. **Merge to `main`.** The merge *is* the deploy — there is no promote step and no second environment to catch what the pull request missed. That is the trade this whole shape makes, and it is only safe because the gates run on the PR.
+8. **Merge to `main`.** The merge *is* the deploy — there is no promote step and no second environment to catch what the pull request missed. That is the trade the whole architecture makes, and it is only safe because the gates run on the PR.
 
-**If you take one thing, take step 8 with its gates attached.** Trunk-based with a single environment is fast and unforgiving in equal measure; without the checks in front of it, it is only the second.
+The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
 ## One honest limitation
 
-This is a single-author site, tuned to one person's positioning — not a general-purpose template, and not battle-tested across many hands yet. Take the pattern, not the specifics. What's next, deferred on purpose: a richer visual blueprint — the walkthrough above is now written, but it is still prose describing a system, not a diagram of one.
+This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics. What's next, deferred on purpose: a richer visual blueprint — the walkthrough above is prose describing a system, and prose is not a diagram.

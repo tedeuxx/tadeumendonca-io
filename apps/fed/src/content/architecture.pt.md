@@ -10,15 +10,19 @@ Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir 
 
 ## Quanto custa de verdade: cerca de USD 0,65 por mês
 
-"Custo quase zero" é a afirmação mais fácil desta página de fazer e a mais fácil de deixar sem conferir. Então segue a conta, lida da AWS e não estimada:
+Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue o ritmo de gasto, lido do custo diário da conta no **fim de julho de 2026**, não estimado. Leia como medição com data, não como fato permanente — nenhuma fatura fechou nesse ritmo ainda:
 
 - **Route 53** — USD 0,50/mês, fixo. A hosted zone, com ou sem visitante.
 - **S3** — cerca de USD 0,15/mês, e são *escritas* de deploy, não leituras.
 - **CloudFront** — na prática USD 0,00 neste tráfego.
 
-Repare no formato, porque ele é o honesto para um site estático: **o domínio custa mais do que servir o site.** Não existe linha de computação nenhuma — é isso que "sem backend" compra, e é por isso que o número quase não se mexe com dez ou dez mil visitantes. CloudFront em `PriceClass_100` e objetos no S3 não têm custo ocioso a pagar.
+Repare no desenho disso, porque ele é o honesto para um site estático: **o domínio custa mais do que servir o site.** Não existe linha de computação nenhuma — é isso que "sem backend" compra, e é por isso que o número quase não se mexe com dez ou dez mil visitantes.
 
-O guarda-corpo é um orçamento no nível da conta, em `iac/budget.tf`, de propósito **não** escopado às tags deste projeto — assim ele pega gasto que este repo não criou. Isso não é paranoia: a conta carregava cerca de **USD 12,80 por mês** de sobras da era com backend — web ACLs de WAF e endereços IPv4 públicos ociosos, anexados a nada — vinte vezes o custo do próprio site. Infraestrutura que você para de usar não para de cobrar, e nada te avisa além da fatura. *(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf))*
+### Pra que serve o guardrail, na prática
+
+A mesma leitura mostrou cerca de **USD 12,80 por mês** que o site não estava usando: web ACLs de WAF e endereços IPv4 públicos ociosos, anexados a nada, esquecidos quando o backend foi aposentado. Vinte vezes o que o site custa. **Esses já saíram** — removidos em julho de 2026, e é a série diária de custo que confirma as cobranças pararem, não um console vazio dando a entender isso. Não é tudo: sobrou um resíduo menor da mesma época, ainda cobrando enquanto eu descubro o que ele guarda — esse é o estado honesto disto na hora em que escrevo.
+
+Eu descobri lendo a fatura, o que é tarde. Então quem vigia agora é um orçamento no nível da conta, em `iac/budget.tf`, de propósito **não** escopado às tags deste projeto — se fosse, ele só enxergaria gasto que este repo criou, e este gasto era justamente do tipo que ele não criou. É essa a parte que se leva embora: infraestrutura que você para de usar não para de cobrar, e quem pega isso precisa estar olhando mais largo do que aquilo que você está construindo. *(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf))*
 
 ## O conteúdo é markdown no repo, resolvido no build
 
@@ -43,19 +47,19 @@ Está tudo público — dois repos, sem segredos:
 
 ### O passo a passo
 
-Umas quatro horas, e a maior parte é esperar DNS e certificado.
+Uma noite, e a maior parte dela é esperar DNS e certificado.
 
 1. **Faça fork dos dois repos.** Leia os ADRs antes, começando no 0001 — as decisões são a parte que vale levar, e várias delas não vão servir pro seu contexto.
 2. **Registre o domínio e crie a hosted zone dele no Route 53.** Aqueles USD 0,50 viram seu piso de custo a partir desse instante, antes de qualquer visitante. Peça um certificado no ACM **em `us-east-1`** — o CloudFront só lê certificado dessa região, onde quer que o resto da sua stack viva.
-3. **Crie uma organização e um workspace no Terraform Cloud**, modo de execução **Local**, e aponte o `iac/versions.tf` pros seus nomes. O estado mora lá; o plan roda no CI.
-4. **Faça o bootstrap dos papéis OIDC uma vez, com as suas credenciais.** Esta é a única exceção honesta ao *apply é só de pipeline*, e é um ovo-e-galinha de verdade: o CI assume papéis que o Terraform cria, então o primeiro apply não tem como vir do CI. Depois que ele entra, tire as credenciais locais e nunca mais dê apply de um laptop.
-5. **Configure os secrets do GitHub, e repare em qual escopo cada um vai.** Os ARNs dos papéis — `AWS_FED_OIDC_ROLE_ARN`, `AWS_INFRA_OIDC_ROLE_ARN` — são secrets de **environment**; os tokens de ferramenta — `TFC_API_TOKEN`, `SONAR_TOKEN`, `VERSION_BUMP_TOKEN`, `BUDGET_ALERT_EMAIL` — são secrets de **repositório**. Essa separação é o que impede um token que roda o lint de conseguir encostar na sua conta.
-6. **Acerte o subject da trust policy — e conte com esse aqui te morder.** Os papéis confiam num subject *imutável*: `repo:<org>@<org_id>/<repo>@<repo_id>:*`, por ID numérico, não por nome. A forma simples `repo:<org>/<repo>:*` é um nome, e nome pode ser transferido pra outra pessoa; os IDs não. O preço da forma segura é que ela não é copiável — você tem que ir buscar os seus IDs.
-7. **Troque o conteúdo e o posicionamento.** `src/content/` pro texto longo, `src/data/profile.ts` pro CV, `src/data/catalog.ts` pro portfólio, `src/i18n/messages.ts` pra chrome. Todo módulo que o leitor vê é tipado de modo que uma tradução faltando é **erro de compilação**, não uma página servindo o idioma errado em silêncio.
-8. **Faça merge na `main`.** O merge **é** o deploy — não existe passo de promoção nem um segundo ambiente pra pegar o que o pull request deixou passar. É essa a troca que este formato inteiro faz, e ela só é segura porque os gates rodam no PR.
+3. **Crie uma organização e um workspace no Terraform Cloud**, modo de execução **Local**, e aponte o `iac/versions.tf` pros seus nomes — **e o `TF_WORKSPACE` nos dois workflows de infra**, que é onde o workspace é de fato selecionado. Mude só o primeiro e o CI continua falando com o meu. É o que este repo usa, não uma recomendação: o estado mora lá, mas o plan e o apply rodam no meu CI, onde as credenciais são papéis OIDC de vida curta. Modo Remoto guardaria credencial no workspace — e aí passa a existir um segundo lugar de onde a infraestrutura pode mudar.
+4. **Faça na mão o que o CI não consegue fazer por si**, e seja preciso sobre quais peças são essas, porque "roda uma vez local" não conta a história toda. O Terraform daqui cria o papel de **deploy**, que publica o site. Ele **não** cria o provedor OIDC do GitHub, e **não** cria o papel de infra que roda o próprio Terraform — esse não pode morar no estado que ele mesmo gerencia, e a policy dele é aplicada por fora; o runbook é o [`docs/iac-deploy-policy.md`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/iac-deploy-policy.md). Coloque esses dois de pé antes, ou a sua primeira execução no CI não tem o que assumir. Esta é a única exceção honesta ao *apply é só de pipeline* — e, depois dela, tire as credenciais locais e nunca mais dê apply de um laptop.
+5. **Configure os secrets do GitHub, e repare em qual escopo cada um vai.** Tudo que nomeia a AWS — `AWS_FED_OIDC_ROLE_ARN`, `AWS_INFRA_OIDC_ROLE_ARN` e o e-mail de alerta do orçamento, `BUDGET_ALERT_EMAIL` — é secret de **environment**; os tokens de ferramenta — `TFC_API_TOKEN`, `SONAR_TOKEN`, `VERSION_BUMP_TOKEN` — são secrets de **repositório**. Essa separação é o que impede um token que roda o lint de alcançar qualquer coisa na sua conta.
+6. **Acerte o subject da trust policy — e é esse que vai te custar tempo.** Os papéis confiam num subject *imutável*: `repo:<org>@<org_id>/<repo>@<repo_id>:*`, por ID numérico, não por nome. A forma simples `repo:<org>/<repo>:*` é um nome, e nome pode ser transferido pra outra pessoa; os IDs não. O preço da forma segura é que ela não sai por copiar e colar — você tem que ir buscar os seus IDs.
+7. **Troque o conteúdo e o posicionamento.** `src/content/` pro texto longo, `src/data/profile.ts` pro CV, `src/data/catalog.ts` pro portfólio, `src/i18n/messages.ts` pros textos de interface. Todo módulo que o leitor vê é tipado de modo que uma tradução faltando é **erro de compilação**, não uma página servindo o idioma errado em silêncio.
+8. **Faça merge na `main`.** O merge **é** o deploy — não existe passo de promoção nem um segundo ambiente pra pegar o que o pull request deixou passar. É essa a troca que a arquitetura inteira faz, e ela só é segura porque os gates rodam no PR.
 
-**Se for levar uma coisa só, leve o passo 8 com os gates junto.** Trunk-based com ambiente único é rápido e implacável na mesma medida; sem as verificações na frente, ele é só a segunda coisa.
+O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
 
 ## Uma limitação honesta
 
-Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e ainda não foi testado no campo por muitas mãos. Pegue o padrão, não os detalhes. O que vem a seguir, adiado de propósito: uma planta visual mais rica — o passo a passo acima já está escrito, mas ainda é texto descrevendo um sistema, não um desenho dele.
+Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes. O que vem a seguir, adiado de propósito: uma planta visual mais rica — o passo a passo acima é texto descrevendo um sistema, e texto não é desenho.
