@@ -1,6 +1,6 @@
-// Share button (/frontend/design-system) — public. Shares a URL (a relative path like /p/<code> or
-// /blog/<slug>; the origin is prepended) via the native share sheet (Web Share API) when available,
-// falling back to copying to the clipboard. Generic over what's shared — posts and articles both use it.
+// Share button (/frontend/design-system) — public. Shares a URL (a relative path like
+// /pt/blog/<slug>; the origin is prepended) via the native share sheet (Web Share API) when
+// available, falling back to copying to the clipboard. Generic over the path it is handed.
 import { useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { cn } from '../lib/cn';
@@ -45,9 +45,8 @@ export function ShareButton({ title, url, size = 'md' }: { title: string; url: s
   );
 }
 
-// Build the share path for a post / article: the short code when present (/p/<code>), else the
-// canonical URL (/posts/<id> or /blog/<slug>).
-export const postShareUrl = (p: { post_id: string; short_code?: string }) =>
-  p.short_code ? `/p/${p.short_code}` : `/posts/${p.post_id}`;
-export const articleShareUrl = (a: { slug: string; short_code?: string }) =>
-  a.short_code ? `/p/${a.short_code}` : `/blog/${a.slug}`;
+// The article's share path. It is just the canonical route — there is no short-code form and no
+// redirect service behind one (#268): `/p/<code>` was the retired Hono/Lambda BFF's shape, and on a
+// static site nothing can mint or resolve one. Kept as a function rather than inlined at the call
+// site so the ONE place that decides a share path stays one place.
+export const articleShareUrl = (a: { slug: string }) => `/blog/${a.slug}`;

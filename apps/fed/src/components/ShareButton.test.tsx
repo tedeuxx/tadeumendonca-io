@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { ShareButton, postShareUrl, articleShareUrl } from './ShareButton';
+import { ShareButton, articleShareUrl } from './ShareButton';
 import { renderWithLocale } from '../test-utils';
 
 afterEach(() => {
@@ -12,11 +12,11 @@ describe('ShareButton', () => {
   it('uses the native share sheet with the absolute URL when available', async () => {
     const share = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal('navigator', { share });
-    renderWithLocale(<ShareButton title="Hello" url="/p/aB3xK9q" />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     await waitFor(() => expect(share).toHaveBeenCalled());
     expect(share.mock.calls[0][0].title).toBe('Hello');
-    expect(share.mock.calls[0][0].url).toContain('/p/aB3xK9q');
+    expect(share.mock.calls[0][0].url).toContain('/pt/blog/meu-compromisso');
     expect(share.mock.calls[0][0].url).toMatch(/^https?:\/\//); // origin prepended
   });
 
@@ -32,19 +32,17 @@ describe('ShareButton', () => {
 
   it('labels the button in English when the locale is en', () => {
     vi.stubGlobal('navigator', { share: vi.fn() });
-    renderWithLocale(<ShareButton title="Hello" url="/p/aB3xK9q" />, { locale: 'en' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'en' });
     expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
   });
 });
 
 describe('share URL helpers', () => {
-  it('postShareUrl prefers the short code, else /posts/<id>', () => {
-    expect(postShareUrl({ post_id: 'p1', short_code: 'aB3xK9q' })).toBe('/p/aB3xK9q');
-    expect(postShareUrl({ post_id: 'p1' })).toBe('/posts/p1');
-  });
-
-  it('articleShareUrl prefers the short code, else /blog/<slug>', () => {
-    expect(articleShareUrl({ slug: 'my-slug', short_code: 'cD4yL0r' })).toBe('/p/cD4yL0r');
+  // The share path is the canonical route and nothing else (#268). The previous test asserted a
+  // `/p/<short_code>` form — green, and about a route that has never existed on the static site: it
+  // would have fallen through to the `*` catch-all and redirected the reader to the home page, which
+  // is the worst outcome for a shared link because the sender sees a working URL.
+  it('is the canonical article route — there is no short-code form to prefer', () => {
     expect(articleShareUrl({ slug: 'my-slug' })).toBe('/blog/my-slug');
   });
 });

@@ -19,7 +19,6 @@ export interface Post {
   link_previews?: LinkPreview[];
   reaction_counts?: Record<string, number>; // emoji → count (public reactions)
   comment_count?: number;
-  short_code?: string; // share URL: /p/<short_code>
   published: boolean;
   author_sub?: string;
   created_at: string;
@@ -52,7 +51,6 @@ export interface ArticleFeedItem {
   tag: string;
   title: string;
   excerpt?: string;
-  short_code?: string; // share URL: /p/<short_code> → /blog/<slug>
   link_previews?: LinkPreview[]; // server-derived rich previews of curated body URLs
   created_at: string;
 }

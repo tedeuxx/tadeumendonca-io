@@ -10,7 +10,6 @@ export interface Article {
   excerpt?: string;
   published: boolean;
   author_sub?: string;
-  short_code?: string; // share URL: /p/<short_code> → /blog/<slug>
   link_previews?: LinkPreview[]; // server-derived rich previews of curated body URLs
   created_at: string;
   updated_at?: string;
