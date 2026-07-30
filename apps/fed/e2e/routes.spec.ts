@@ -38,7 +38,18 @@ test.describe('routes', () => {
     // The property the facade exists to protect: no third-party frame until the reader asks.
     await expect(page.locator('iframe')).toHaveCount(0);
     const facades = page.getByRole('button', { name: /Reproduzir vídeo/ });
-    await expect(facades).toHaveCount(3);
+    await expect(facades).toHaveCount(4);
+
+    // Pin WHICH videos on the SERVED build, not only in the unit parity test: each id was verified
+    // against the channel it is attributed to, and on this page the attribution is the claim. A count
+    // alone passes a silent swap — one wrong id keeps the count and republishes someone else's video
+    // under a verified name.
+    const thumbs = await page.locator('img[src*="/vi/"]').evaluateAll((imgs) =>
+      imgs.map((img) => img.getAttribute('src') ?? ''),
+    );
+    for (const id of ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg', 'I4B37S1dyQQ']) {
+      expect(thumbs.some((src) => src.includes(`/vi/${id}/`))).toBe(true);
+    }
 
     // Clicking one swaps in the privacy-preserving player.
     await facades.first().click();
