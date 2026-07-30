@@ -33,23 +33,17 @@ const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 // resolved once at module load).
 let editionsCache;
 
-// Exported so the memo is OBSERVABLE: a test asserts two calls return the same array reference, which
-// is false the moment the cache is removed. Counting fs reads would need a module mock that the other
-// tests in this file share; reference identity proves the same property with no shared state.
-export function blogEditions() {
+// Private (#222). The memo is asserted by COUNTING PARSE CALLS from a fresh module instance
+// (`vi.resetModules()` + dynamic import), not by reference identity — identity needed an export, and it
+// was a weaker assertion anyway: it stays green for a memo caching the wrong thing as long as it returns
+// the same object. #184's justification for exporting — that the alternative was an fs mock shared with
+// every other test in the file — was a strawman; module isolation is what removes the sharing.
+function blogEditions() {
   // Assignment as a statement, not inside the `return` expression (S1121): the compact
   // `return (cache ??= f())` hides that the line has a side effect, which is the one thing a reader
   // needs to notice about a memo.
   editionsCache ??= readBlogEditions();
   return editionsCache;
-}
-
-/** Test seam (#184): drop the memo so a test can observe a re-read. Never called by the build. */
-export function clearBlogEditionsCacheForTest() {
-  editionsCache = undefined;
-  // The index is derived FROM the editions, so clearing one without the other would leave a stale index
-  // built over a discarded parse — a cache-invalidation bug planted by the test seam itself.
-  indexCache = undefined;
 }
 
 /**
@@ -144,15 +138,23 @@ export function slugPairIndexOf(pairs) {
 // EVERY `alternatesFor` call, and gen-sitemap calls that once per route — so the fs read became
 // once-per-process while the index stayed once-per-URL.
 //
-// NOTE the widened surface: every caller now shares ONE Map. Mutating it (`.set`/`.delete`) would corrupt
-// `alternatesFor` for the rest of the process, where before each caller got its own. Acceptable here —
-// build-only module, no external consumer — but it is real, and it is on the ledger in #222 alongside the
-// test-only exports.
+// The shared-Map widening this used to carry is closed (#222): the memo is still one Map, but the
+// function is private again, so the only callers are inside this module and none of them mutates it.
+// While it was exported, any importer calling `.set`/`.delete` would have corrupted `alternatesFor` for
+// the rest of the process — a capability the private function never had, created purely so a test could
+// observe the cache.
 let indexCache;
 
-// Exported for the same reason as blogEditions: the memo has to be observable, and identity on the
-// returned Map is false the moment the cache is removed.
-export function slugPairIndex() {
+// Private (#222) — and UNLIKE the parse memo above, this one is NOT observed by any test in isolation.
+// Removing `indexCache ??=` on its own leaves the whole suite green: rebuilding the index runs
+// `slugPairIndexOf` over an already-parsed array, so it touches neither the filesystem nor the YAML
+// parser, and the parse counter cannot see it. (Removing BOTH memos does go red — so it is guarded in
+// combination, unguarded alone.)
+//
+// Shipped that way deliberately: the alternative was keeping this exported, which handed every importer
+// a shared mutable Map. The memo is pure, so losing it would cost performance and never correctness.
+// The fix, if it ever matters, is an injected seam like `buildBlogEditions` has — tracked in #264.
+function slugPairIndex() {
   indexCache ??= slugPairIndexOf(blogEditions()); // statement, not expression — see blogEditions (S1121)
   return indexCache;
 }
