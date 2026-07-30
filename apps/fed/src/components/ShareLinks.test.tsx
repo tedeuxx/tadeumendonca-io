@@ -64,6 +64,29 @@ describe('ShareLinks', () => {
     expect(href).toContain(encodeURIComponent(`${TITLE}\n${SITE_URL}${PT_PATH}`));
   });
 
+  // #272. Asserted on the DECODED inner URL, per target, and this is not a stylistic choice — it is the
+  // only shape that discriminates. The defect worth catching is appending the UTMs AFTER encoding,
+  // which puts a raw `&` inside WhatsApp's single `text=` field; WhatsApp then reads it as its own
+  // parameter and truncates the message there. The link still opens, the platform is still right, and
+  // `toContain('utm_source')` passes — so a substring assertion is blind to exactly this bug. Verified
+  // by mutation: swapping the tag/encode order leaves the pre-existing assertions in this file green.
+  it('tags each deeplink with its own campaign parameters, surviving the encoding boundary', () => {
+    renderWithLocale(<ShareLinks title={TITLE} path={PT_PATH} />, { locale: 'pt' });
+    const expected = (source: string) =>
+      `${SITE_URL}${PT_PATH}?utm_source=${source}&utm_medium=social&utm_campaign=reader-share`;
+
+    // X and LinkedIn carry the URL in their own parameter; WhatsApp has one `text` field, so its URL
+    // travels inside the message after the title — a different extraction for a different contract.
+    const inner = (name: RegExp, param: string) => {
+      const href = screen.getByRole('link', { name }).getAttribute('href') ?? '';
+      return new URL(href).searchParams.get(param) ?? '';
+    };
+
+    expect(inner(/X:/, 'url')).toBe(expected('x'));
+    expect(inner(/LinkedIn/, 'url')).toBe(expected('linkedin'));
+    expect(inner(/WhatsApp/, 'text')).toBe(`${TITLE}\n${expected('whatsapp')}`);
+  });
+
   it('labels the group and each link in the active edition', () => {
     const { unmount } = renderWithLocale(<ShareLinks title={TITLE} path={PT_PATH} />, { locale: 'pt' });
     expect(screen.getByRole('navigation', { name: 'Compartilhar este artigo' })).toBeInTheDocument();

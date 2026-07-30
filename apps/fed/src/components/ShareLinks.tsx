@@ -16,6 +16,7 @@
 import { useLocale, useT } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
 import { SITE_URL } from '../lib/site';
+import { withShareUtm, type ShareSource } from '../lib/utm';
 
 /**
  * One platform's share endpoint. `u` is the absolute article URL, `t` its title.
@@ -24,7 +25,7 @@ import { SITE_URL } from '../lib/site';
  * preposition with the platform's article ("no WhatsApp"), so the phrase cannot be assembled from parts.
  */
 const TARGETS: ReadonlyArray<{
-  key: string;
+  key: ShareSource;
   label: string;
   nameKey: MessageKey;
   href: (u: string, t: string) => string;
@@ -56,7 +57,12 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
       {TARGETS.map(({ key, label, nameKey, href }) => (
         <a
           key={key}
-          href={href(url, title)}
+          // Tagged PER TARGET, and BEFORE the href builder encodes it (#272). Appending after encoding
+          // puts a raw `&` inside WhatsApp's single `text=` field, which WhatsApp reads as its own
+          // parameter and truncates the message at — the link still opens and still looks right, so the
+          // test asserts on the DECODED inner URL. Verified by mutation: the wrong order leaves every
+          // other assertion in ShareLinks.test.tsx green.
+          href={href(withShareUtm(url, key), title)}
           target="_blank"
           rel="noreferrer"
           // The accessible name says WHAT is being shared and WHERE. "LinkedIn" alone, repeated on every

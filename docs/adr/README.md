@@ -78,6 +78,7 @@ there. Same answer, and the same reason, as the root `CLAUDE.md` records for its
 | [0022](./0022-numeric-semver-auto-release.md) | Numeric SemVer, auto-bump + release on merge | accepted · its "no gate of its own" cost closed 2026-07-23 by `lint-workflows` ([0018](./0018-ci-gates-e2e-on-pr-coverage.md), #234) |
 | [0023](./0023-observability-static-site.md) | Observability = GA + client error surface + prerender smoke | accepted · refined by [0033](./0033-ga4-consent-gated-analytics.md) (GA4, consent gate) · amended 2026-07-29 (#237 — a post-deploy assertion belongs to the workflow that performs the change it observes; the edge-rewrite check moved to `infra-apply`) |
 | [0033](./0033-ga4-consent-gated-analytics.md) | GA4, consent-gated — hard opt-in gate, not Consent Mode v2 | accepted |
+| [0039](./0039-share-campaign-tagging.md) | Reader shares are campaign-tagged — three immutable UTM parameters (`utm_medium=social`, `utm_campaign=reader-share`), no `utm_content`; arrival URL captured at module load so the consent gate does not cost the attribution | accepted |
 
 ## Presence / cross-surface
 | ADR | Title | Status |
