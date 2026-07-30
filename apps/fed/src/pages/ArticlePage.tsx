@@ -6,6 +6,7 @@ import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
 import { Markdown } from '../components/Markdown';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
+import { ShareLinks } from '../components/ShareLinks';
 import { ColumnHeader, Notice } from '../components/Column';
 import { dateLocale, useLocale, useLocalePath, type Locale, type MessageKey } from '../i18n';
 
@@ -69,7 +70,15 @@ export function ArticlePage() {
             <Markdown>{article.body}</Markdown>
           </div>
 
-          <footer className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap border-t border-border pt-5">
+          {/* The deeplinks sit at the END of the article, not in the header (#183). A reader who has
+              just finished is the one with something to say about it; offering the share before the text
+              asks them to recommend what they have not read. The header's ShareButton stays — it is the
+              phone affordance, and a phone reader shares mid-scroll. */}
+          <div className="mt-[clamp(2rem,4vw,3rem)] border-t border-border pt-5">
+            <ShareLinks title={article.title} path={lp(`/blog/${article.slug}`)} />
+          </div>
+
+          <footer className="mt-5 flex flex-wrap border-t border-border pt-5">
             {/* The /blog list is retired: "back to the articles" points at the landing's section. */}
             <RouterLink
               to={lp('/#artigos')}
