@@ -144,3 +144,35 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/en/#contato');
   });
 });
+
+// The skip link (#250). The defect it guards is not "the link is missing" — it is a link that exists,
+// looks right, and leaves focus behind, so the next Tab returns to the nav it was supposed to skip.
+describe('skip link', () => {
+  it('is the FIRST focusable element in the document, ahead of the notices and the nav', () => {
+    const { container } = renderShell('pt');
+    const focusable = container.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])');
+    expect(focusable.length).toBeGreaterThan(1); // otherwise "first" is vacuous
+    expect(focusable[0]).toHaveAttribute('href', '#main');
+    expect(focusable[0]).toHaveTextContent('Pular para o conteúdo');
+  });
+
+  it('targets a main region that can HOLD focus, not just receive a scroll', () => {
+    const { container } = renderShell('pt');
+    const main = container.querySelector('main');
+    // Without tabIndex the browser scrolls and focus stays on the link — the failure that makes a skip
+    // link look present and do nothing. Asserting the attribute is asserting the behaviour's precondition.
+    expect(main).toHaveAttribute('id', 'main');
+    expect(main).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('renders its own edition, with no leak from the other', () => {
+    const { unmount } = renderShell('pt');
+    expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Skip to content' })).toBeNull();
+    unmount();
+
+    renderShell('en');
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Pular para o conteúdo' })).toBeNull();
+  });
+});

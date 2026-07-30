@@ -13,6 +13,12 @@ export interface Entry {
 }
 
 const strings = {
+  a11y: {
+    // The skip link's visible text (#250). "Pular para o conteúdo" is the settled pt-BR form for this
+    // control — not a translation of "skip to main content", which would drag "principal" along and say
+    // less; pt names the destination, not its rank.
+    skipToContent: { pt: 'Pular para o conteúdo', en: 'Skip to content' },
+  },
   nav: {
     articles: { pt: 'Artigos', en: 'Articles' },
     portfolio: { pt: 'Portfólio', en: 'Portfolio' },
