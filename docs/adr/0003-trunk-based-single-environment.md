@@ -38,8 +38,10 @@ human confirms.~~ **Amended 2026-07-23:** the merge is still the go/no-go — wh
 it**. The `critical-reviewer` subagent does, per methodology ADR-0004: it verifies the MR Definition of
 Done and then **merges the safe class itself** (docs, dependency bumps, tests, in-pattern work against an
 already-approved spec) or **escalates the boundary class to the owner** — `iac/`, contract/schema,
-positioning or public-facing **content by path** (not by directory: the CV and article markdown live under
-`apps/fed`), anything creating or changing an ADR decision, anything irreversible. *Significance beats
+~~positioning or public-facing **content by path** (not by directory: the CV and article markdown live
+under `apps/fed`)~~ (retired by the 2026-07-30 amendment: reader-facing content is safe class; only
+publishing an *article* still escalates), anything creating or changing an ADR decision, anything
+irreversible. *Significance beats
 in-pattern.* A blanket human confirmation on every merge spent the owner's attention on in-pattern work,
 which devalues it at the boundary where it is actually needed. See `CLAUDE.md` §Branching.
 
@@ -107,7 +109,7 @@ its intent is modest.
 |---|---|
 | A **purely referential** discharge: `→ discharged <date> by ADR-00NN`, where 00NN is already accepted and visibly supersedes the struck text. Asserts nothing beyond the pointer; two files confirm it | A discharge asserting a **new fact** — a date, a cause, a file's history, "this never existed", "the premise expired". Facts need checking, and facts are where the errors landed |
 | A route/file/workflow literal corrected against a mechanically checkable source (`routes.mjs`, the workflow, the file tree) | A discharge that **reinterprets scope** — "what this ADR still owns", "EN-only by choice rather than by limit". Neither reverses a decision; both judge what the record *means* |
-| A guide's description of what the code now does | An amendment that **chooses** something · reader-facing copy · `iac/` that mutates · anything irreversible |
+| A guide's description of what the code now does | An amendment that **chooses** something · ~~reader-facing copy~~ (safe class since the 2026-07-30 amendment below) · `iac/` that mutates · anything irreversible |
 | | A change to **these merge rules** — always, by construction |
 
 **The failure mode, recorded so it is not discovered later:** a "correction" that quietly decides something,
@@ -119,6 +121,72 @@ any other.
 **Attribution, precisely:** the owner decided that record correction is safe class. The *"what it asserts"*
 test that narrows it is the `critical-reviewer`'s refinement, adopted here because the evidence for it is
 this ADR's own driving issue — and it makes the class **narrower**, never wider.
+
+## Amendment, 2026-07-30 — the owner's boundary narrows to three things
+
+**Owner decision.** Reader-facing content is **no longer** boundary class. The whole `product` backlog,
+including copy a reader sees, is the reviewer's to merge. What still reaches the owner is exactly:
+
+1. **`iac/`**, and anything that threatens the site's continuity.
+2. **A change to the dev-loop's own rules** — this ADR, `CLAUDE.md`'s merge sections, an ADR that
+   decides how work is decided. (This amendment is itself in that class, and is ratified as such.)
+3. **Publishing an article** — the `content` backlog.
+
+**The owner's reasoning, in their words:** the goal is set at the start; anything they would adjust
+afterwards, during their own validation of the finished product, costs them nothing. A page whose
+wording they would tune is not a decision they need to gate — it is a revision they will make.
+
+**What this supersedes.** `CLAUDE.md`'s rule since #233 — *"if a diff changes words or images a reader
+or a crawler will see, it is boundary"* — is retired.
+
+**Its reasoning is not, and is restated here in full rather than pointed at**, because it governs every
+enumeration in that guide and is independent of where the boundary sits. The first draft of this
+amendment claimed the argument survived in `CLAUDE.md` while the same diff deleted it from there — the
+reviewer caught a pair of mutually-deferring pointers, which is the failure the argument describes,
+committed against itself:
+
+> **Why a rule and not just a list:** an enumeration **fails open** — anything unlisted reads as safe
+> class and merges without review. Two proofs, both found while writing the original section (#233):
+> `catalog.ts` was missing from the list, so an edit to the portfolio's published copy classified as
+> safe. And `index.html` was listed while `src/lib/site.ts` was not — `index.html`'s own comment says
+> *"keep in sync with `DEFAULT_DESCRIPTION` in `src/lib/site.ts`"*, so **the list named the derived copy
+> and missed the authoritative one**. A list will always lag.
+>
+> **And no check can close that gap.** A test can assert every *listed* path still exists, catching a
+> rename. It cannot catch the failure that actually happens, which is **omission**: no check knows about
+> a file nobody thought to list. The enforcement has to live in how a rule is *phrased*, which is why a
+> rule of this kind is phrased to fail closed.
+
+That reasoning now governs the three classes this amendment defines, and every other list in the guide.
+Supersede, never rewrite — including the reasoning.
+
+**The residue, accepted knowingly rather than overlooked.** The agent raised, and the owner accepted,
+that one part of the reader-facing surface is not freely revisable: OG scrapers (LinkedIn, X, WhatsApp)
+pin the card they first fetch, so a wrong unfurl on an already-shared post stays wrong *on that post*
+and is right everywhere after. That is a bounded per-post cost, not a continuity threat, so it falls
+inside class (1)'s exclusion rather than outside it.
+
+**What does NOT change — and the guarantee is weaker than "does not change" suggests, so it is stated
+precisely.** `brand-guardian` and `editor` are still dispatched on every reader-facing diff, but that
+obligation lives in the `critical-reviewer` persona's own instructions, in the plugin repo. **No check,
+no job and no hook enforces it** — it is prose, in a different repository, and this amendment does not
+change that. It is a real practice with a real failure mode: a lens that is not dispatched now fails
+silently.
+
+**And the redundancy is gone.** Under the retired rule the owner was a *second* backstop behind
+`brand-guardian`. They are now the *only* one on reader-facing copy. That is the actual cost of this
+narrowing, and it is accepted rather than hidden — the lenses are better at this class than a human
+reading a finished page, but there is no longer anything behind them.
+
+Narrowing what reaches the *owner* does not narrow what
+gets *reviewed* — and those two lenses catch precisely the class the owner is least able to catch by
+reading a finished page: calques, positioning drift, cross-surface contradiction with copy on other
+surfaces. In one session they caught a pt-BR calque in the visible heading of a shipped component, an
+`earns` that undid a four-draft decision recorded in a sibling file, and a cost figure understated by
+ten times. None of those would have been visible to a reader validating the product.
+
+The `reader-facing` label on the `product` queue therefore becomes an **ordering and lens** signal —
+which reviewers to dispatch — and stops being a gate.
 
 ## Consequences
 **Good**

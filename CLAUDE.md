@@ -135,10 +135,13 @@ Two consequences worth stating outright, because they are what the other model g
   and **the `critical-reviewer` subagent is who holds it**, not a human prompt on every PR. Run it on
   **every** PR before merging, unprompted; it verifies the MR Definition of Done with real evidence and
   then either **approves-and-merges the safe class itself** (docs, dependency bumps, tests, in-pattern
-  work implementing an already-approved spec) or **escalates the boundary class to the owner** (`iac/`,
-  contract/schema, reader-facing content — see the ⚠️ section for the rule, which is by what the file
-  IS, not by a path list — anything that creates or
-  changes an ADR decision, anything irreversible). *Significance beats in-pattern:* when the class is
+  work implementing an already-approved spec, **and the whole `product` backlog including
+  reader-facing copy**) or **escalates the boundary class to the owner** — which since 2026-07-30 is
+  three things and no longer includes reader-facing content: **`iac/`** and anything that threatens
+  the site's continuity, **a change to the dev-loop's own rules** (this section, the ⚠️ section, an
+  ADR that decides how work is decided), and **publishing an article** (the `content` backlog — the
+  owner's voice). Contract/schema still escalates as `iac/`-adjacent. *Significance beats
+  in-pattern:* when the class is
   unclear, it is boundary. **The reviewer never merges an expansion of its own authority** — a change to
   this guide's merge rules is boundary by construction, whatever the diff looks like.
   A green CI is **not** a substitute for the review — CI proves nothing broke, the reviewer judges
@@ -204,44 +207,35 @@ Working rules that follow from that:
 
 ## ⚠️ Destructive / requires explicit confirmation
 - **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.
-- **Merge to `main` that changes reader-facing CONTENT** — boundary **by what the file IS, not by its
-  directory, and not by a list**. The copy lives inside `apps/fed`, so "it's only `apps/fed`" is not a
-  safety argument. The words are the product, **and they are the least reversible thing here** —
-  CloudFront caches, and OG scrapers (LinkedIn, X, WhatsApp) pin the card they first fetch, so a bad
-  unfurl outlives the next merge.
+- **Publishing an ARTICLE** — the `content` backlog. Boundary because it is the owner's *voice*: what
+  the piece argues, in whose words, is not a thing an agent supplies. This is the one content class
+  that still routes to the owner, and the label is the boundary (owner decision, 2026-07-30).
 
-  **The rule, which is what you apply:** *if a diff changes **words or images** a reader or a crawler will
-  see, it is boundary* — whatever file they live in, whether prose, a data field, a meta tag, alt text, an
-  OG card, a credential badge, or `robots.txt`. "Words" alone would have excluded the OG images the list
-  already names.
+  **Everything in the `product` backlog is safe class, including what a reader sees.** Prose on a
+  page, the CV, portfolio copy, UI strings, OG cards, alt text — the reviewer merges them. The owner
+  validates the product as a whole and adjusts afterwards; a correction costs a merge and an
+  invalidation, and that cost is theirs to accept, which they did.
 
-  **Today that means** — an aid, deliberately **not** the definition: `src/content/**` (articles,
-  ramp-up, architecture) · `src/data/profile.ts` (the CV) · `src/data/catalog.ts` (portfolio copy —
-  taglines, descriptions, the "proof" lines) · `src/data/repoCards.ts` (ADR-0035) ·
-  `src/i18n/messages.ts` (UI copy) · **`src/lib/site.ts`** (`DEFAULT_DESCRIPTION_*`, `OG_IMAGE_ALT` — the
-  meta/OG description on **every** page, in both locales) · `src/components/contactChannels.ts` (the
-  public e-mail and the prefilled WhatsApp message) · `public/og-*` · `index.html`'s meta.
+  **This supersedes the previous rule** — *"if a diff changes words or images a reader or a crawler
+  will see, it is boundary"* — which stood from #233 until 2026-07-30. Where the boundary sits changed;
+  **how any list in this guide fails did not.** That argument is restated in full inside ADR-0003's
+  2026-07-30 amendment rather than left as a pointer, because it governs every enumeration here and
+  outlives the rule it was written for. Supersede, never rewrite — including the reasoning.
 
-  **Why a rule and not just the list:** an enumeration **fails open** — anything unlisted reads as safe
-  class and merges without the owner. Two proofs, both found while writing this section (#233):
-  `catalog.ts` was missing, so an edit to the portfolio's published copy classified as safe. And
-  `index.html` was listed while `src/lib/site.ts` was not — `index.html`'s own comment says *"keep in sync
-  with `DEFAULT_DESCRIPTION` in `src/lib/site.ts`"*, so **the list named the derived copy and missed the
-  authoritative one**. A list will always lag; the rule already covers whatever comes next.
+  **The one residue, stated so it is a known cost rather than an oversight:** OG scrapers (LinkedIn,
+  X, WhatsApp) pin the card they first fetch, so a wrong unfurl on an already-shared post is not
+  fixed by the next merge — it stays wrong *on that post* and right everywhere after. The owner was
+  shown this and accepted it. It is a bounded, per-post cost, not a threat to the site.
 
-  **Could a check enforce this? No — and that is the point** (#233 asked; this is the answer). A test
-  could assert every *listed* path still exists, catching a rename. It cannot catch the failure that
-  actually happens, which is **omission**: no check knows about a file nobody thought to list. The
-  enforcement has to live in how the rule is *phrased*, which is why it is phrased to fail closed. The
-  same holds for the rest of this guide — the route set and workflow names are machine-comparable, but
-  a guide is prose about intent, and the drift that matters is a claim that quietly stopped being true,
-  not a literal that stopped resolving. **This file is audited by reading it against the code, and the
-  moment to do that is when an ADR is amended** — which is where every one of #233's ten discrepancies
-  came from.
+  **`brand-guardian` and `editor` are still dispatched on reader-facing diffs — by the reviewer's own
+  instructions, not by any check.** Nothing mechanical enforces it, and the owner is no longer a second
+  backstop behind them, so a lens that is not dispatched now fails silently. Narrowing what reaches the
+  owner does not narrow what gets reviewed — those lenses catch calques, positioning drift and
+  cross-surface contradiction, which is exactly the class the owner is *not* well placed to catch by
+  reading the finished page. They advise the reviewer; they no longer wake the owner.
 
-  *App code and config* under `apps/fed` (components, hooks, tests, build scripts) is safe class — right
-  up to the point where a component contains a literal string a reader sees, at which point that diff is
-  boundary and the file's directory is irrelevant.
+  The `reader-facing` label on the `product` queue is now an **ordering and lens** signal — which
+  reviewers to dispatch — not a gate.
 - `terraform apply`/`destroy`; changing DNS / CloudFront / S3 — confirm.
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 

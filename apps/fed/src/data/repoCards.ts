@@ -6,10 +6,12 @@
 // (the same opt-in shape as the YouTube VideoEmbed facade — see Markdown.tsx). This is fully static and
 // owner-curated, exactly like the portfolio `catalog.ts`.
 //
-// BOUNDARY-BY-PATH: the `description` field is reader-facing bilingual prose (the owner's voice), so this
-// file is a content boundary despite living under `src/data/` — a change to a description is ratified by
-// the owner via the critical-reviewer, not merged as safe app-data (ADR-0035; mirrors CLAUDE.md's
-// content-by-path rule). The FACTS below (name, owner, language, repoUrl) are authored once and carry no
+// READER-FACING BY PATH: the `description` field is reader-facing bilingual prose, so despite living under
+// `src/data/` a change to one is copy, not app data. It is NOT an owner gate — ADR-0003's 2026-07-30
+// amendment made reader-facing content safe class and retired the content-by-path list this comment used
+// to mirror. What it still is: the trigger for `brand-guardian`, now the only lens on these words.
+//
+// The FACTS below (name, owner, language, repoUrl) are authored once and carry no
 // locale — a repo's name and primary language are the same in every edition (the facts-once / prose-per-
 // locale split from ADR-0024 / content.ts).
 import type { Locale } from '../i18n';
