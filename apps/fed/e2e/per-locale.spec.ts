@@ -102,11 +102,11 @@ test.describe('the portfolio body is per-locale', () => {
     const body = await (await request.get('/en/portfolio/')).text();
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-first SDLC'); // description
-    expect(body).toContain('how an agent-first SDLC actually closes'); // proof
+    expect(body).toContain('where to start reading the repo, and what to lift'); // proof
     expect(body).toContain('The bar for getting listed here'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
-    expect(body).not.toContain('se fecha na prática');
+    expect(body).not.toContain('onde começar a ler o repo, e o que copiar');
     expect(body).not.toContain('A régua pra entrar aqui');
   });
 
@@ -114,10 +114,10 @@ test.describe('the portfolio body is per-locale', () => {
     const body = await (await request.get('/pt/portfolio/')).text();
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
-    expect(body).toContain('se fecha na prática'); // proof
+    expect(body).toContain('onde começar a ler o repo, e o que copiar'); // proof
     expect(body).toContain('A régua pra entrar aqui'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
-    expect(body).not.toContain('how an agent-first SDLC actually closes');
+    expect(body).not.toContain('where to start reading the repo, and what to lift');
     expect(body).not.toContain('The bar for getting listed here');
   });
 

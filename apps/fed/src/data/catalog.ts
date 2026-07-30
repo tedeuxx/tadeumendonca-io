@@ -52,12 +52,14 @@ export const catalog: CatalogProject[] = [
       en: 'This site — a static React/Vite SPA, built in an agent-first loop with Claude Code.',
     },
     description: {
-      // `agent-first`, not `agent-driven` (#245). The presence carried FOUR names for what is, to a
-      // reader, one practice — and `agent-driven` was the one with no surface where it was the most
-      // precise word available: "who moves the work" is not a distinct claim from "the agent drafts and
-      // the human reviews", which is what `agent-first` already says. Retiring it takes the count to
-      // three, and the remaining three each answer a different question (see the vocabulary note in the
-      // root CLAUDE.md).
+      // `agent-first`, not `agent-driven` (#245). "Who moves the work through the SDLC" is not a
+      // distinct claim from "the agent drafts and the human reviews", which is what `agent-first`
+      // already says — and it was the one term with no surface where it was the most precise word
+      // available. The full hierarchy lives in the private positioning source, not here (owner
+      // decision); `CLAUDE.md` points at it.
+      //
+      // Retired from reader-facing site copy only. It survives in an ADR and the redesign comp, and
+      // those are not rewritten — supersede, never rewrite.
       pt:
         'Uma SPA estática (sem backend) servida em S3 + CloudFront e provisionada com Terraform, ' +
         'entregue por um SDLC agent-first: plan-first, CI com gates e deploy no merge. O repo é a fonte da verdade.',
@@ -68,15 +70,21 @@ export const catalog: CatalogProject[] = [
         'through an agent-first SDLC: plan-first, blocking CI gates, deploy on merge. The repo is the source of truth.',
     },
     // Rendered under "O que você tira disso" / "What you take away", so it must answer THAT question.
-    // Both editions used to re-list the stack — an inventory `description` already gives, with
-    // "plan-first, CI gated" repeated verbatim a line apart. A payoff is what a reader can LIFT.
+    //
+    // This line was ALREADY retired once for repeating `description` — "plan-first, CI gated" verbatim a
+    // line apart — and the repetition came straight back with the new word: `agent-first SDLC` sat in
+    // both fields, and so did `plan-first`, across roughly sixty words on one card. Renaming a term does
+    // not fix a structural defect, it just re-dresses it.
+    //
+    // The label belongs in `description`, which is where a reader learns WHAT this is. The payoff opens
+    // on what they can LIFT — which is the ADRs, and the fact that each one carries its cost.
     proof: {
       pt:
-        'como um SDLC agent-first se fecha na prática, do plan-first ao deploy — e por onde começar a ' +
-        'ler o repo: os ADRs registram cada decisão e o trade-off que ela custou.',
+        'onde começar a ler o repo, e o que copiar: os ADRs registram cada decisão do plan-first ao ' +
+        'deploy — e o trade-off que cada uma custou.',
       en:
-        'how an agent-first SDLC actually closes, from plan-first to deploy — and where to start reading ' +
-        'the repo: the ADRs record every decision and the trade-off it cost.',
+        'where to start reading the repo, and what to lift: the ADRs record every decision from plan-first ' +
+        'to deploy — and the trade-off each one cost.',
     },
     stack: ['React', 'Vite', 'TypeScript', 'Terraform', 'Claude Code'],
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',

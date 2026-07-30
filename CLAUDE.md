@@ -193,28 +193,21 @@ Working rules that follow from that:
 - **CI OIDC roles** pinned to the **immutable OIDC subject**; role ARNs are **environment secrets**, tooling
   tokens are **repository** secrets (see `/workflow/github-actions`).
 - **No client/employer references** in public writing.
-- **The vocabulary is a hierarchy, not a synonym set** (#245). The presence carried **four** names for
-  what a reader meets as one practice — `AI-native`, `agent-first`, `agent-driven`, `agent-led
-  verification` — across the CV, the portfolio and `/architecture`, which is the surface set a hiring
-  manager traverses in one sitting. Three survive, and each answers a **different question**:
+- **The vocabulary for the practice is fixed, and it lives in `.brand/positioning.md`** — not here
+  (owner decision, #245). The presence carried several names for what a reader meets as one practice,
+  across the CV, the portfolio and `/architecture` — the surface set a hiring manager traverses in one
+  sitting. The hierarchy that resolves it, and which term is authoritative in which slot, is recorded
+  with the rest of the positioning.
 
-  | term | answers | where it belongs |
-  |---|---|---|
-  | **AI-native** | *what kind of development is this?* | the approach — broadest, the one a non-engineer parses. The CV headline and LinkedIn carry it |
-  | **agent-first** | *who drafts, and who reviews?* | the ordering — the agent drafts, the human reviews, not the reverse |
-  | **agent-led verification** | *who proves it is done?* | the spine — the agent produces the evidence; the human keeps the irreversible call. The narrowest and the most falsifiable |
+  **Why there and not here:** `.brand/positioning.md` is already the source of truth for positioning, and
+  this file already says to read it before writing any public-facing copy. Recording public wording in a
+  second place — a public one — would create exactly the two-sources-of-truth failure the private layer
+  exists to prevent. One consequence, accepted: a reader of this repo alone does not see the hierarchy.
+  Neither do they see the rest of the positioning, so that is consistent rather than a gap.
 
-  Read as a hierarchy they narrow cleanly: an **AI-native** practice that is **agent-first** in its
-  ordering, whose verification is **agent-led**.
-
-  **`agent-driven` is retired.** *"Who moves the work through the SDLC"* is not a distinct claim from
-  *"the agent drafts and the human reviews"* — it is `agent-first` restated, and it was the one term with
-  no surface where it was the most precise word available.
-
-  **`agent-led verification` is the least negotiable**, and the reason is worth keeping: it is the only
-  one of the three a technical reader can check. Not *"AI helped build this"* but *"the agent produced
-  the evidence that this is done"* — which is the claim the ADR library actually backs. Diluting it into
-  the broader terms would trade the site's strongest claim for its vaguest.
+  **`agent-driven` is retired from reader-facing site copy** (#245), which is the part that is a repo
+  fact rather than a positioning one. It survives in historical records — an ADR, the redesign comp —
+  and those are not rewritten: supersede, never rewrite.
 
 ## ⚠️ Destructive / requires explicit confirmation
 - **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.

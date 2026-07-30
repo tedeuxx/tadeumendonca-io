@@ -89,7 +89,12 @@ const strings = {
     title: { pt: 'Como este site é construído', en: 'How this site is built' },
     kicker: { pt: 'A planta · aberta', en: 'The blueprint · open' },
     metaDescription: {
-      pt: 'Como este site é construído: a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, o dev-loop de verificação liderada pelo agente, e os ADRs que registram cada decisão — com links para replicar.',
+      // `agent-led verification` stays English in both locales, like `agentic` and `AI-native` (#245).
+      // This string translated it while `architecture.pt.md` keeps the term with a gloss — so the pt
+      // reader met the canonical term in the body and NEVER in the OG card, which is the text a scraper
+      // pins. One term, two treatments, and the split landed in the surface with the worst correction
+      // cost. The gloss stays in the body, where there is room to teach it.
+      pt: 'Como este site é construído: a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, o dev-loop de agent-led verification, e os ADRs que registram cada decisão — com links para replicar.',
       en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record every decision — with links to replicate it.',
     },
   },
