@@ -1,13 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   alternatesFor,
   assertSlugIsUrlSafe,
-  blogEditions,
   buildBlogEditions,
   canonicalFor,
-  clearBlogEditionsCacheForTest,
   localizedRoutes,
-  slugPairIndex,
   slugPairIndexOf,
   LOCALES,
   SITE_URL,
@@ -167,38 +164,103 @@ describe('routes.mjs and content.ts derive the SAME slugs', () => {
 // alternatesFor invocation. gen-sitemap calls the last one per route, so the content directory was
 // re-read and re-parsed once per URL: O(articles × calls) where O(articles) will do.
 //
-// Reference identity is the assertion because it is exactly the property the cache provides, and it is
-// false the instant the cache is removed — without the memo every call builds a fresh array. Counting fs
-// reads would need a node:fs mock shared with every other test in this file; identity needs no shared
-// state and discriminates just as sharply.
+// #222 removed the three exports that existed only for this block — `blogEditions`, `slugPairIndex` and
+// a `clearBlogEditionsCacheForTest` mutator the build never called. That forced a better assertion, and
+// the forcing is the point: with the memo unreachable by reference, the only thing left to measure is
+// the property the memo actually delivers — **the content directory is read and parsed once per
+// process, however many times the public API is called.**
+//
+// Reference identity was a proxy for that, and a leaky one: it went green for a memo that cached the
+// wrong thing, as long as it returned the same object. Counting parse calls cannot.
+//
+// `vi.resetModules()` is what makes a per-test mock possible at all — it lives in this module registry
+// only, so it is NOT shared with the rest of the file. That sharing was the objection raised when the
+// exports were introduced, and it argued for the wrong fix: isolation is what removes it.
+//
+// One test went away with the seam rather than being ported — "clearing drops the index too". It
+// guarded a stale-cache bug that existed only BECAUSE a test could clear one cache and not the other.
+// No seam, no bug, nothing to guard.
 describe('the blog directory is parsed once per process (#184)', () => {
-  it('returns the SAME array on repeated calls', () => {
-    expect(blogEditions()).toBe(blogEditions());
+  // The counter is on `js-yaml`'s `load`, not on `node:fs`. Two reasons, and the second is the one
+  // worth remembering: node built-ins expose non-configurable named exports, so `vi.spyOn` throws
+  // "Cannot redefine property" and a `doMock` of `node:fs` did not intercept this module's import at
+  // all — it produced a spy with **zero** calls, which made one assertion fail loudly and its sibling
+  // (comparing a count before and after) pass while comparing 0 to 0. A vacuous green.
+  //
+  // `load` is also the better subject: the YAML parse is the expensive half of the memo, it is called
+  // once per article file, and it is userland so the mock is reliable.
+  //
+  // `vi.doMock` rather than `vi.mock` because doMock is NOT hoisted: it applies from this call onward,
+  // to this freshly reset registry only, which is what keeps the mock out of every other test in the
+  // file. The implementation delegates to the real parser, so the module does real work and only the
+  // CALL COUNT is instrumentation.
+  const withCountedParse = async () => {
+    vi.resetModules();
+    const load = vi.fn();
+    vi.doMock('js-yaml', async (importOriginal) => {
+      const actual = await importOriginal();
+      load.mockImplementation(actual.load);
+      return { ...actual, load };
+    });
+    const routes = await import('./routes.mjs');
+    return { routes, load };
+  };
+
+  afterEach(() => vi.doUnmock('js-yaml'));
+
+  it('parses each article once, no matter how many times the routes are asked for', async () => {
+    const { routes, load } = await withCountedParse();
+
+    routes.localizedRoutes();
+    const afterFirst = load.mock.calls.length;
+
+    // Guards the guard: if the parse never ran, every count below is vacuously equal and this block
+    // would pass having measured nothing — which is exactly how the previous version of this test
+    // went green against a mock that was not intercepting.
+    expect(afterFirst).toBeGreaterThan(0);
+
+    routes.localizedRoutes();
+    routes.alternatesFor('/me');
+    routes.alternatesFor('/portfolio');
+    routes.alternatesFor('/ramp-up');
+
+    // Before the memo this was O(articles × calls) — and gen-sitemap calls alternatesFor once per URL.
+    expect(load).toHaveBeenCalledTimes(afterFirst);
   });
 
-  it('re-reads after the cache is cleared, and produces an equal result', () => {
-    const before = blogEditions();
-    clearBlogEditionsCacheForTest();
-    const after = blogEditions();
-    expect(after).not.toBe(before); // a genuinely fresh read…
-    expect(after).toEqual(before); // …that parses to the same thing
+  // Resolving an ARTICLE route goes through the slug index, so this covers a path the static routes
+  // above do not.
+  //
+  // Be exact about what it proves, because the obvious reading is wrong: it proves **at least one of the
+  // two memos survives**, not the parse memo specifically. Mutation-checked — with only the parse memo
+  // removed this test stays GREEN, shielded by the index memo; it goes red only when both are gone. The
+  // test above is the one that discriminates the parse memo alone.
+  it('resolves an article route repeatedly without re-parsing', async () => {
+    const { routes, load } = await withCountedParse();
+
+    const first = routes.alternatesFor('/blog/my-commitment');
+    const afterFirst = load.mock.calls.length;
+    expect(afterFirst).toBeGreaterThan(0); // same anti-vacuity guard as above
+
+    const second = routes.alternatesFor('/blog/my-commitment');
+    expect(load).toHaveBeenCalledTimes(afterFirst);
+    expect(second).toEqual(first);
   });
 
-  // The slug→pair index is memoised too. Caching only the parse left this rebuilding a fresh Map on
-  // every alternatesFor call — and gen-sitemap calls that once per route, so the index stayed
-  // once-per-URL while the read became once-per-process. Identity is the assertion for the same reason
-  // as the parse: without the memo each call constructs a new Map.
-  it('builds the slug→pair index once', () => {
-    expect(slugPairIndex()).toBe(slugPairIndex());
-  });
-
-  // Clearing must drop BOTH caches: the index is derived from the editions, so invalidating one alone
-  // would leave an index built over a discarded parse — a stale-cache bug planted by the test seam.
-  it('clearing drops the index too, not just the parse', () => {
-    const before = slugPairIndex();
-    clearBlogEditionsCacheForTest();
-    expect(slugPairIndex()).not.toBe(before);
-  });
+  // WHAT IS NO LONGER COVERED, and it is a real cost of #222 rather than an oversight.
+  //
+  // The slug→pair index has its own memo (`indexCache`). It used to be asserted by reference identity
+  // on the exported `slugPairIndex`. With that export gone, the memo is unobservable from outside: the
+  // parse memo masks it, because rebuilding the index calls `slugPairIndexOf` over an already-parsed
+  // array and touches neither the filesystem nor the YAML parser. Mutation-checked — removing
+  // `indexCache ??=` leaves this whole block green.
+  //
+  // So the index memo now has NO test. That is stated rather than papered over, because #222's own
+  // acceptance asked that both memos keep failing when removed, and one of them no longer does.
+  // The trade taken deliberately: a permanently exported mutable Map is a worse thing to carry than an
+  // untested micro-optimisation in a build-only module, and the index memo is pure — removing it costs
+  // performance, never correctness. The tighter fix, if it ever matters, is to make `slugPairIndexOf`
+  // count its own invocations through an injected seam, the way `buildBlogEditions` already does.
 });
 
 // The blog-scan parsing rules, exercised through the injected-reader seam (#228). Each of these silently
