@@ -16,4 +16,28 @@ test.describe('content detail', () => {
     // Share is chrome (share.share): pt-BR renders "Compartilhar" under the pinned locale.
     await expect(page.getByRole('button', { name: 'Compartilhar' })).toBeVisible();
   });
+
+  // The share deeplinks (#183), asserted on the SERVED artifact rather than only in the unit test.
+  //
+  // The defect worth catching here is not "the button is missing" — it is a link that works, opens the
+  // right platform, and hands it the wrong URL. That ships silently: nothing looks broken, and the reader
+  // only finds out when someone follows it. So the assertion is on the href's contents.
+  //
+  // Two things it pins that a component test cannot: the URL is absolute against the CANONICAL origin
+  // (these anchors are prerendered, so `window.location.origin` would have baked in the preview host),
+  // and the pt article carries the pt slug — the editions have different ones (ADR-0037), and a link
+  // built from the wrong edition sends a Portuguese reader an English article.
+  test('the share deeplinks carry the canonical URL of THIS edition', async ({ request }) => {
+    const body = await (await request.get('/pt/blog/meu-compromisso/')).text();
+    const encoded = encodeURIComponent('https://tadeumendonca.io/pt/blog/meu-compromisso');
+
+    expect(body).toContain(`https://wa.me/?text=`);
+    expect(body).toContain(`linkedin.com/sharing/share-offsite/?url=${encoded}`);
+    expect(body).toContain(`x.com/intent/tweet`);
+    expect(body).toContain(encoded);
+
+    // Never the other edition's slug, and never a preview origin.
+    expect(body).not.toContain(encodeURIComponent('/en/blog/my-commitment'));
+    expect(body).not.toContain('wa.me/?text=http%3A%2F%2Flocalhost');
+  });
 });

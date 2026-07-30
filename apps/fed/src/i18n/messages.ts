@@ -264,6 +264,12 @@ const strings = {
   share: {
     share: { pt: 'Compartilhar', en: 'Share' },
     copied: { pt: 'Copiado', en: 'Copied' },
+    // The share deeplinks (#183). `shareOn` is both the visible label and the start of each link's
+    // accessible name, so it has to read naturally in front of a platform name in either edition.
+    shareOn: { pt: 'Compartilhar em', en: 'Share on' },
+    // aria-label for the group. Not "Share" — the page already has a ShareButton with that name, and two
+    // controls whose accessible names are indistinguishable is the defect, not the duplication itself.
+    linksLabel: { pt: 'Compartilhar este artigo', en: 'Share this article' },
   },
   video: {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },
