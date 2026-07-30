@@ -114,8 +114,18 @@ test.describe('skip link', () => {
   test('one Tab reaches it, it is visible, and activating it moves focus into the content', async ({ page }) => {
     await page.goto('/pt/');
 
-    await page.keyboard.press('Tab');
+    // SETTLE BEFORE THE FIRST KEYPRESS (#286). `goto` resolves on the navigation, not on the document
+    // being ready to receive input — so on a COLD preview server the first `Tab` of the run can land
+    // before anything is listening, and the keypress goes nowhere. Observed twice: red on a fresh
+    // build-and-serve, green on the warm run against the same artifacts, across 314 executions where
+    // the cold profile was the only one that failed.
+    //
+    // Awaiting a locator is the settle: it retries until the element is in the DOM, which cannot be true
+    // before the page is live. It is not a sleep — there is no interval to tune and nothing to go stale.
     const skip = page.getByRole('link', { name: 'Pular para o conteúdo' });
+    await expect(skip).toBeAttached();
+
+    await page.keyboard.press('Tab');
     await expect(skip).toBeFocused();
 
     // Revealed, and asserted on the BOX rather than on `toBeVisible()`. Playwright's visibility is
@@ -141,7 +151,9 @@ test.describe('skip link', () => {
 
   test('serves the English edition its own label', async ({ page }) => {
     await page.goto('/en/');
+    const skip = page.getByRole('link', { name: 'Skip to content' });
+    await expect(skip).toBeAttached(); // same cold-start settle as above (#286)
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+    await expect(skip).toBeFocused();
   });
 });
