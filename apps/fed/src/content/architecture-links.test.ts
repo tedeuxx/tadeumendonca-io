@@ -15,12 +15,20 @@ import { describe, it, expect } from 'vitest';
 import architectureEn from './architecture.en.md?raw';
 import architecturePt from './architecture.pt.md?raw';
 
-// The real docs/ tree, enumerated at build time. Keys are relative to THIS file
+// The real repo trees this page links into, enumerated at build time. Keys are relative to THIS file
 // (apps/fed/src/content/ → four levels up to the repo root), e.g. '../../../../docs/adr/0001-….md'.
-const DOCS_GLOB_PREFIX = '../../../../docs/';
-const docModules = import.meta.glob('../../../../docs/**/*.md', { eager: true, query: '?raw' });
+//
+// `docs/` was the only tree until the cost section linked `iac/budget.tf` (#171). That link made the
+// guard go RED rather than skip — which is the behaviour to keep: an in-repo URL this test cannot
+// resolve is exactly the link-rot it exists to catch, so the fix is to teach it the tree, never to
+// narrow the regex to the trees it already knows.
+const REPO_PREFIX = '../../../../';
+const repoModules = {
+  ...import.meta.glob('../../../../docs/**/*.md', { eager: true, query: '?raw' }),
+  ...import.meta.glob('../../../../iac/**/*.tf', { eager: true, query: '?raw' }),
+};
 const existingDocPaths = new Set(
-  Object.keys(docModules).map((key) => 'docs/' + key.slice(DOCS_GLOB_PREFIX.length)),
+  Object.keys(repoModules).map((key) => key.slice(REPO_PREFIX.length)),
 );
 
 // Pull every in-repo file link out of a markdown body: a GitHub blob URL for THIS repo, on the main
@@ -33,9 +41,10 @@ const localTargetsIn = (markdown: string): string[] =>
 
 describe('architecture page — outbound file links resolve in the repo (#153)', () => {
   // The glob itself must have found the docs tree — otherwise every assertion below passes vacuously.
-  it('sees the real docs/ tree', () => {
+  it('sees the real docs/ and iac/ trees', () => {
     expect(existingDocPaths.has('docs/adr/0001-lean-by-design-calibrated-to-strategy.md')).toBe(true);
     expect(existingDocPaths.has('docs/adr/README.md')).toBe(true);
+    expect(existingDocPaths.has('iac/budget.tf')).toBe(true);
   });
 
   it.each([
