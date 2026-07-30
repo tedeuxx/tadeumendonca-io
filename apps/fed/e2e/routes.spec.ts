@@ -117,8 +117,19 @@ test.describe('skip link', () => {
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Pular para o conteúdo' });
     await expect(skip).toBeFocused();
-    // Revealed, not merely present: sr-only alone would pass "is focused" and still be invisible.
-    await expect(skip).toBeVisible();
+
+    // Revealed, and asserted on the BOX rather than on `toBeVisible()`. Playwright's visibility is
+    // "non-empty bounding box and not visibility:hidden", and Tailwind's `sr-only` leaves a 1x1 CLIPPED
+    // box — so `toBeVisible()` passes on the exact off-screen ghost this control must never be. Verified
+    // by mutation: reducing the class list to `sr-only` alone left both these tests green.
+    //
+    // A readable control is what the criterion actually says, so that is what is measured: real
+    // dimensions, and `clip: auto` — the property `sr-only` sets and `not-sr-only` restores.
+    const box = await skip.boundingBox();
+    expect(box, 'the focused skip link must occupy a real box').not.toBeNull();
+    expect(box!.width).toBeGreaterThan(60);
+    expect(box!.height).toBeGreaterThan(20);
+    await expect(skip).toHaveCSS('clip', 'auto');
 
     await page.keyboard.press('Enter');
 
