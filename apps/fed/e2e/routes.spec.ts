@@ -114,9 +114,12 @@ test.describe('routes', () => {
       expect(await figure.locator('svg text').count()).toBeGreaterThan(3);
       await expect(figure.locator('foreignObject')).toHaveCount(0);
 
-      // Contrast, which the palette assertions cannot see: they check MEMBERSHIP, so a diagram drawn
-      // entirely in the canvas colour satisfies them and shows nothing. The strokes must not be the
-      // background — the exact defect that reached production in slice one.
+      // BACKGROUND-EQUALITY, not contrast — and the distinction is the point rather than pedantry.
+      // The palette assertions check MEMBERSHIP, so a diagram drawn entirely in the canvas colour
+      // satisfies them and shows nothing; that is the defect that reached production in slice one, and
+      // this catches exactly it. It does NOT catch #0B0B0B on #0A0A0A. A legibility check this is not,
+      // and saying so here matters because the previous round's finding was a comment claiming more
+      // than its assertion did.
       const strokes = await figure.locator('svg path.flowchart-link').evaluateAll((els) =>
         els.map((el) => getComputedStyle(el).stroke),
       );

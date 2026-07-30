@@ -231,11 +231,23 @@ show the human's position, where the agent proves done and where the go/no-go si
 [#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170) closes with it. The mechanism decided above
 carried the second diagram unchanged: a fence, the same generator, the same guards, no new decision.
 
-**2. The layout question was answered, and the deferral's premise is spent.** The text above records the
-"both diagrams full width vs the infrastructure one collapsed into a detail" call as **deliberately
-deferred by the owner, to be answered against the rendered draft**. Both diagrams now ship **full width**,
-both were rendered and shown, and the owner said proceed. The *collapse* remains open as a future
-refinement — but it is now an ordinary layout preference, no longer blocked on a draft that did not exist.
+**2. The layout deferral's premise is spent; the decision itself is NOT recorded here as ratified.** The
+text above records the "both diagrams full width vs the infrastructure one collapsed into a detail" call
+as **deliberately deferred by the owner, to be answered against the rendered draft**. That draft now
+exists: both diagrams ship **full width** and were rendered and shown, so the reason the question could
+not be answered is gone.
+
+**What this amendment deliberately does not claim is that it was answered.** An earlier draft of this
+paragraph said "the owner said proceed", sourced from a chat exchange. That is a relay, and
+[ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-29 amendment is explicit that a relay is
+a notification and never the authority — ratification is a comment on the PR, which the reviewer
+verifies as an artifact. Writing an unverifiable ratification into the permanent record is worse than
+recording an open question, because the next reader has no way to tell the two apart. Caught by the
+`critical-reviewer` on the MR that shipped slice two.
+
+So: **the collapse question remains the owner's and remains open.** It is no longer *blocked* — it is
+now an ordinary layout preference answerable at any time, which is a different state from where slice
+one left it.
 
 **3. THE IMPORTANT ONE — "identity conformance is asserted mechanically, not by discipline" was true of
 membership and false of legibility, and the counterexample shipped.** The claim above (**Decision outcome**),
