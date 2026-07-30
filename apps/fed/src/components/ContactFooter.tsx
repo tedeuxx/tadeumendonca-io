@@ -4,6 +4,7 @@
 // built. The mailto stays in the same tab; the outbound links open in a new one.
 import { CONTACT_CHANNELS } from './contactChannels';
 import { useT } from '../i18n';
+import { SITE_VERSION, releaseUrl } from '../lib/version';
 
 // Re-exported for callers/tests that reference the site's own contact address.
 export { CONTACT_EMAIL } from './contactChannels';
@@ -35,6 +36,22 @@ export function ContactFooter() {
         <span className="label-mono">tadeumendonca.io</span>
         <span className="label-mono">Built agent-first · Claude Code</span>
         <span className="label-mono">São Paulo — BR</span>
+        {/* The running build, linked to its own release. A bare number is inert; linked, it is the same
+            "here is the artifact, check it yourself" move the rest of the site makes — and it is the
+            smallest possible one, since knowing WHICH build you are reading is the precondition for
+            checking any other claim on the site.
+
+            Deliberately unlabelled: `v0.1.144` needs no translation, and a label would need one in the
+            i18n catalog for a string that adds nothing. The number is baked in at build time, so it
+            moves on deploy and only on deploy. */}
+        <a
+          href={releaseUrl()}
+          target="_blank"
+          rel="noreferrer"
+          className="label-mono hover:text-primary hover:underline"
+        >
+          v{SITE_VERSION}
+        </a>
       </div>
     </footer>
   );
