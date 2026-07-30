@@ -140,6 +140,27 @@ test.describe('the portfolio body is per-locale', () => {
   //
   // Asserted on the served artifact rather than in the unit test alone, because the bare `/` snapshot is
   // what the JS-less crawler reads and it is prerendered separately from the locale landings.
+  // The /portfolio OG DESCRIPTION, per locale. This is the string LinkedIn, X and WhatsApp pin on first
+  // fetch, so it is the least reversible copy on the page — and until now it had no assertion at any
+  // level, while the body sentence beneath it had nine. The proportionality was inverted against this
+  // slice's own risk model, and it was caught by mutation: reverting this string to the copy it replaced
+  // left every unit test and every E2E green.
+  //
+  // `/me` has carried this assertion since #182 (above). `/portfolio` is the surface whose description
+  // actually changed, and it did not.
+  const PORTFOLIO_OG = {
+    pt: 'a régua que decide o que entra',
+    en: 'the bar that decides what gets listed',
+  };
+  for (const locale of ['pt', 'en'] as const) {
+    const other = locale === 'pt' ? 'en' : 'pt';
+    test(`/${locale}/portfolio serves its own og:description, not the other edition's`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      expect(body).toMatch(new RegExp(`property="og:description" content="[^"]*${PORTFOLIO_OG[locale]}`));
+      expect(body).not.toContain(PORTFOLIO_OG[other]);
+    });
+  }
+
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
