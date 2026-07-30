@@ -111,7 +111,7 @@ https://www.youtube.com/watch?v=fl1DSmwQKKY
 
 https://www.youtube.com/watch?v=P1-8da1GgBg
 
-O resto do que assisto, ranqueado por quanto eu realmente assisto — não por número de seguidor:
+Os canais que assisto, ranqueados por quanto eu realmente assisto — não por número de seguidor:
 
 - **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — os três acima, com folga os canais aos quais eu mais volto.
 - **[Kiro](https://www.youtube.com/channel/UCXouiHXUN8mba_K-jn1gqVg)** — IDE agentic, vale assistir mesmo usando outra.

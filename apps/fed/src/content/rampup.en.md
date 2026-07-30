@@ -111,7 +111,7 @@ https://www.youtube.com/watch?v=fl1DSmwQKKY
 
 https://www.youtube.com/watch?v=P1-8da1GgBg
 
-The rest of what I watch, ranked by how much I actually watch it — not by follower count:
+The channels I watch, ranked by how much I actually watch them — not by follower count:
 
 - **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — the three above, by a wide margin the ones I return to.
 - **[Kiro](https://www.youtube.com/channel/UCXouiHXUN8mba_K-jn1gqVg)** — agentic IDE, worth watching even if you use something else.
