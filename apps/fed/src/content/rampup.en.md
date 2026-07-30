@@ -118,7 +118,7 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[AWS](https://www.youtube.com/channel/UCd6MoB9NC6uYN2grvUNT-Zg)** · **[AWS Developers](https://www.youtube.com/channel/UCT-nPlVzJI-ccQXlxjSvJmw)** · **[AWS Events](https://www.youtube.com/channel/UCdoadna9HFHsxXWhafhNvKw)** — cloud-native AI on AWS.
 - **[Y Combinator](https://www.youtube.com/channel/UCcefcZRL2oaA_uBNeo5UOWg)** — where the field is heading, builder-side.
 - **[Dwarkesh Patel](https://www.youtube.com/channel/UCXl4i9dYBrFOabk0xGmbkRA)** — long-form with AI researchers; depth and alignment thinking.
-- **[Andrej Karpathy](https://www.youtube.com/@AndrejKarpathy)** — foundational LLM deep-dives; the clearest "what's actually under the hood" long-form there is.
+- **[Andrej Karpathy](https://www.youtube.com/@AndrejKarpathy)** — foundational LLM deep-dives; the clearest "what's actually under the hood" long-form there is. Nothing new since February 2025 — this is an archive, and still the best of its kind.
 - **[Chase AI](https://www.youtube.com/channel/UCoy6cTJ7Tg0dqS-DI-_REsA)** · **[Zack the AI Guy](https://www.youtube.com/channel/UCppvQz-ua7Rfi1Ca2qV9nzw)** — hands-on Claude/agent walkthroughs.
 - **[IBM Technology](https://www.youtube.com/channel/UCKWaEZ-_VweaEx1j62do_vQ)** — clean whiteboard explainers on core concepts.
 - **[Matt Pocock](https://www.youtube.com/@mattpocockuk)** · **[bycloud](https://www.youtube.com/channel/UCgfe2ooZD3VJPB6aJAnuQng)** · **[Shaw Talebi](https://www.youtube.com/channel/UCa9gErQ9AE5jT2DZLjXBIdA)** — hands-on AI coding and agent tutorials.
@@ -133,9 +133,9 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — practitioners posting techniques and tools worth stealing.
 - **[@virattt](https://x.com/virattt)** — AI applied to finance, if that's your domain.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — founder/investor lens on where AI is heading.
-- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — the industry lens: where AI compute and the frontier are heading, from the person building the hardware under it.
+- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — joined X in July 2026 and has posted one open letter on open-weight models so far. Listed for who is writing rather than for a body of work: he builds the hardware everything above runs on.
 - **[@karpathy](https://x.com/karpathy)** (Andrej Karpathy) — foundational LLM education and frontier takes from one of the field's clearest teachers.
-- PT-BR: **[@AkitaOnRails](https://x.com/AkitaOnRails)** (Fabio Akita) · **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — Brazilian dev voices going deep on this.
+- PT-BR: **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos, Principal Software Engineer at Itaú, ex-Microsoft MVP) — a Brazilian dev voice going deep on this.
 
 Treat X as signal, not truth — it's where you spot what's new, then you go verify it in the books.
 
@@ -148,7 +148,6 @@ What survived, and why:
 - **[@lucasmontano](https://www.instagram.com/lucasmontano/)** — PT-BR, the short-form counterpart of the channel I already watch long-form.
 - **[@codewithbrij](https://www.instagram.com/codewithbrij/)** — the clearest short breakdown I've seen of Claude Code as a layered system: `CLAUDE.md` → skills → hooks → subagents → plugins. It matches the architecture I actually run in my own repos, which is why I trust it.
 - **[@brunobracaioli](https://www.instagram.com/brunobracaioli/)** — PT-BR on MCP, and the best one-line framing of it I've read: without MCP the model is a genius locked in an empty room.
-- **[@allesinisgalli](https://www.instagram.com/allesinisgalli/)** — PT-BR, Claude Code skills, concrete and ungated.
 - **[@oleg.build](https://www.instagram.com/oleg.build/)** — MCP servers worth wiring up; useful as a scan of what exists.
 
 Links only, no embeds — deliberately. The rule on this site is that nothing third-party loads until you ask for it: the videos above stay behind a click-to-load facade. Instagram's embed doesn't offer that — its script runs the moment the page opens — so it doesn't get in.
