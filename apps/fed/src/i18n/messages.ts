@@ -95,10 +95,74 @@ const strings = {
   },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
+    // `se formam`, not `graduam`: in BR Portuguese this sense of `graduar` is pronominal, so the bare
+    // form is the English intransitive wearing a Portuguese ending — the same defect class as the
+    // "clarear a barra" draft this section's bar line went through. Shipped copy, found only because
+    // the line above it was under review.
+    // Dropped the definite article in both editions too: "as automações" / "the automations"
+    // presupposes a set the reader has not been shown.
     intro: {
-      pt: 'Código aberto pra você estudar, clonar e usar. Cresce conforme as automações graduam.',
-      en: 'Open source for you to study, clone and use. It grows as the automations graduate.',
+      pt: 'Código aberto pra você estudar, clonar e usar. Cresce conforme automações se formam.',
+      en: 'Open source for you to study, clone and use. It grows as automations graduate.',
     },
+    // The BAR (#246). With one item in the catalog — and that item being this site — the page reads as a
+    // catalog that has not started. Saying inclusion is earned turns "the only item" into "the first item
+    // that cleared the bar", which is a different claim to someone deciding whether the list is thin or
+    // selective. It costs nothing to keep true: `docs/catalog-ready.md` already exists and is public, so
+    // the sentence points at something checkable rather than making a promise to maintain.
+    // Three drafts, and each one failed differently — worth recording, because the failures are the
+    // reasoning:
+    //
+    // 1. "clarear a barra" was not Portuguese. `clarear` means to lighten; it was a calque of "clear the
+    //    bar" carrying nothing of crossing a threshold.
+    // 2. "conquista seu lugar passando pela régua" fixed the language and matched `/architecture`'s NOUN
+    //    (pt "A régua", en "The bar") but not its construction — there the verb takes the DOCUMENT
+    //    ("passa por catalog-ready.md"). So the surfaces shared a word, not a shape. `passar pela régua`
+    //    is also not the BR form (that is `passar na régua`), and `conquista seu lugar` sat a register
+    //    above this section's voice, which is second-person and warm two lines up.
+    // 3. Both of those asserted an AUDIT — "each project earned its place" quantifies over the catalog's
+    //    contents, so a reader can falsify it by checking the one item against the linked checklist. They
+    //    can, today: #252. A sentence whose job is to RAISE scrutiny has to survive being scrutinised.
+    //
+    // So this states the GOVERNANCE rather than the audit — the rule, not a verdict on each item.
+    //
+    // Be precise about what that buys, because an earlier version of this comment overclaimed it: it is
+    // NOT logically weaker. "Nothing enters without passing X" is the contrapositive of "everything here
+    // passed X" — same truth conditions, falsified by the same single counterexample. What it buys is
+    // rhetorical: it foregrounds the standard instead of inviting an item-by-item audit, and it drops a
+    // merit claim that read as self-congratulation with a one-item shelf. The claim still has to be TRUE
+    // on the day it ships, which is why #252 comes first.
+    //
+    // en went through one more pass than pt. `clear` wants a threshold noun — you clear a bar, a hurdle —
+    // and with the noun dropped it was left governing a bare filename, with a colon stranding a transitive
+    // verb before the break. `/architecture` gets away with `clears docs/catalog-ready.md` only because an
+    // appositive supplies the noun right after. So en uses a verb that natively takes a document as its
+    // object, and `gets listed` for the flat, un-Latinate register `entrar` already has in pt.
+    // FOURTH draft, and the third failure was the interesting one — it was not about language.
+    //
+    // "Nothing gets listed here without passing X" is a universal over the shelf's CONTENTS, and
+    // /architecture publishes, in both editions, that "this site is the one entry that did not come
+    // through it". With a one-item shelf, that item IS the exception — so a reader visiting both
+    // surfaces meets a contradiction, and the link makes it worse rather than better, because clicking
+    // it lands them on the section that spells the exception out.
+    //
+    // The scoping work in #255/#256/#258 did not rescue the universal; it made it harder to stand
+    // behind, by putting the carve-out into published copy.
+    //
+    // So this names the STANDARD and quantifies nothing: there is a bar for getting listed, here it is,
+    // go read it. It still does #246's job — it turns "the only item" into "a shelf with an entry
+    // requirement" — and it is true whatever the shelf currently holds, including while the shelf holds
+    // its own exception. It also matches /architecture's label exactly (pt "A régua", en "The bar"),
+    // which is the cross-surface consistency the earlier drafts kept missing.
+    bar: {
+      pt: 'A régua pra entrar aqui:',
+      en: 'The bar for getting listed here:',
+    },
+    // The link text is the filename, deliberately untranslated — it names the artifact rather than
+    // describing it, so there is nothing to keep in sync between editions.
+    // Path form, matching how `/architecture` names the same artifact. These are the two surfaces most
+    // likely to be read together, and one document with two names across them is a small, avoidable drift.
+    barLink: { pt: 'docs/catalog-ready.md', en: 'docs/catalog-ready.md' },
     payoff: { pt: 'O que você tira disso', en: 'What you take away' },
     statusLive: { pt: 'Live', en: 'Live' },
     statusWip: { pt: 'WIP', en: 'WIP' },
@@ -107,9 +171,20 @@ const strings = {
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },
     viewAll: { pt: '→ Ver catálogo completo', en: '→ View the full catalog' },
+    // This is the /portfolio OG description — the string LinkedIn, X and WhatsApp pin on FIRST fetch,
+    // so it is the least reversible copy on the page.
+    //
+    // It used to promise "automações, agentes e projetos": three plural categories over a shelf holding
+    // ONE item, and that item is none of the three — it is a static site. Same defect the bar sentence
+    // was rewritten three times to remove, sitting in the meta description the whole while, and worse
+    // there: a reader arriving from an unfurl that promised three kinds of thing and finding one is the
+    // bait the body copy was being audited against.
+    //
+    // So it states the shelf's PURPOSE and its entry rule instead of enumerating a stock. True at one
+    // item, true at twenty, and it does not need rewriting when the shelf grows.
     metaDescription: {
-      pt: 'Automações, agentes e projetos — o catálogo no GitHub.',
-      en: 'Automations, agents and projects — the catalog on GitHub.',
+      pt: 'Código aberto pra estudar e clonar — e a régua que decide o que entra.',
+      en: 'Open source to study and clone — and the bar that decides what gets listed.',
     },
   },
   contact: {
