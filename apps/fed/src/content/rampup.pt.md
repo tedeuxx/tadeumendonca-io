@@ -133,9 +133,9 @@ O resto do que assisto, ranqueado por quanto eu realmente assisto — não por n
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — praticantes postando técnicas e ferramentas que valem roubar.
 - **[@virattt](https://x.com/virattt)** — IA aplicada a finanças, se esse for seu domínio.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — a lente de fundador/investidor sobre onde a IA está indo.
-- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — quem dirige a empresa que fabrica o hardware onde este campo inteiro roda. Publica pouco: uma carta aberta sobre modelos de pesos abertos, em julho de 2026.
+- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — quem dirige a empresa que fabrica o hardware onde este campo inteiro roda.
 - **[@karpathy](https://x.com/karpathy)** (Andrej Karpathy) — educação fundamental de LLM e takes de fronteira de um dos professores mais claros do campo.
-- PT-BR: **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos, Itaú) — voz brasileira de dev indo fundo nisso.
+- PT-BR: **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos) — voz brasileira de dev indo fundo nisso.
 
 Trate X como sinal, não como verdade — é onde você descobre o que é novo, e daí vai verificar nos livros.
 
