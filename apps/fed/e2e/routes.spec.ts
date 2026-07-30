@@ -89,6 +89,26 @@ test.describe('routes', () => {
     );
   });
 
+  // #170. The diagram is compiled to inline SVG at BUILD time, so the properties worth asserting are the
+  // ones that distinguish that from every cheaper thing it could have been.
+  test('/architecture renders its diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
+    await page.goto('/pt/architecture');
+    const figure = page.getByRole('img', { name: /Como uma requisição vira uma página/ });
+    await expect(figure).toBeVisible();
+
+    // NOT `toBeVisible` alone, which passes on a 0x0 SVG and on a viewBox-less one — an element that is
+    // present, "visible", and shows the reader nothing. A diagram that does not size is the failure this
+    // whole slice could ship silently.
+    const box = await figure.boundingBox();
+    expect(box, 'the diagram must occupy a real box').not.toBeNull();
+    expect(box!.width).toBeGreaterThan(300);
+    expect(box!.height).toBeGreaterThan(100);
+
+    // Real <text>, not <foreignObject> HTML and not an <img>: the reason inline SVG was chosen at all.
+    expect(await figure.locator('svg text').count()).toBeGreaterThan(3);
+    await expect(figure.locator('foreignObject')).toHaveCount(0);
+  });
+
   test('reaches the architecture page from the nav', async ({ page }) => {
     await page.goto('/pt');
     await page.getByRole('navigation').getByRole('link', { name: 'Arquitetura' }).click();

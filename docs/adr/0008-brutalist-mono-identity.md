@@ -68,7 +68,43 @@ so a later reader does not mistake it for drift — or, worse, cite it as preced
 *Accepted cost:* `object-cover` crops harder inside a circle than a square, so the portrait loses more of
 its edges; the framing is chosen for the round crop now.
 
+## Amendment (2026-07-30) — the identity has a GENERATED surface now, and conformance on it is mechanical
+[ADR-0040](./0040-build-time-mermaid-diagrams.md) introduces the first pixels on this site **no human
+authors**: diagrams compiled from a ` ```mermaid ` fence to inline SVG at build time
+([#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170)). Every previous surface was hand-written
+markup wearing the tokens; this one is markup a library emits.
+
+**That matters here because a default mermaid theme violates essentially every clause of this ADR** — its
+own palette, rounded node corners, drop-shadow filters, gradients. Left alone it would not be a *drifting*
+surface, it would be a **foreign** one, shipped whole on the page whose job is to exhibit how this site is
+built.
+
+**The rule is unchanged; only its reach is.** The identity binds generated output exactly as it binds
+hand-written output. `gen-diagrams.mjs` therefore leaves nothing to mermaid's defaults: the palette
+(`#0A0A0A` / `#F5F4EF`, one accent), the type pairing (ADR-0009), `htmlLabels: false` and
+`securityLevel: 'strict'` are all pinned — **including mermaid's error colours**, which it emits into every
+diagram's `<style>` whether or not anything failed, so that a diagram which *does* error still looks like
+this site.
+
+**And the conformance is asserted, not trusted — the same shape as the guard in *accepted costs* above.**
+Radius-0 is enforced by collapsing the Tailwind `borderRadius` scale, so a stray `rounded-*` renders
+square rather than relying on anyone noticing. The generated surface gets the equivalent: unit tests read
+the **rendered SVG** and assert palette-only colours, `rx`/`ry` = 0, no `filter`/gradient references, and
+real `<text>` rather than `<foreignObject>` HTML. A mermaid upgrade that changes a default is then a red
+test, not a slowly uglier page.
+
+*Implementation note worth carrying, because it is where the assertion nearly went wrong:* mermaid's
+boilerplate `<style>`/`<defs>` is stripped before those checks. It contains selectors for shapes the
+diagram does not use and drop-shadow filters nothing references, so asserting the palette over the whole
+string fails on **correct** output — and a test that fails on correct output is a test someone deletes.
+The check reads the drawing, not the library's dead CSS.
+
+This is a *widening of scope*, not an exception like the portrait: nothing is carved out, and every clause
+of this ADR applies to the diagrams as written.
+
 ## Links
 - Driven by ADR-0001 · drives ADR-0007 (own components) and ADR-0009 (fonts) · supersedes the
   Borussia-Dortmund identity (History index) · a fixed decision (see repo `CLAUDE.md`) · amended above
-  for the portrait, within the same guard.
+  for the portrait, within the same guard · amended (2026-07-30) for the **generated** surface introduced
+  by [ADR-0040](./0040-build-time-mermaid-diagrams.md) — same rule, wider reach, conformance asserted
+  mechanically.

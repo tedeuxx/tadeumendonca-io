@@ -8,6 +8,22 @@ For a proof-of-engineering site, the code is the pitch — so the honest thing i
 
 A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No backend: no server, no database, no auth. Cost near-zero, attack surface minimal, nothing to keep running at 3am. *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
+The sentence above lists the pieces. What it cannot show is the part that is easy to get wrong — where a clean URL becomes a file, and that it happens at the edge rather than in an application:
+
+```mermaid
+flowchart LR
+  accTitle: How a request becomes a page
+  accDescr: A reader requests a slash-less URL. CloudFront runs the spa-rewrite function on viewer-request, which appends index.html. A cache hit answers from the edge; a miss fetches the prerendered object from the S3 origin.
+  R["Reader asks for /pt/me"] --> V["CloudFront viewer-request"]
+  V --> F["spa-rewrite function"]
+  F -- "uri becomes /pt/me/index.html" --> C{"Cached at the edge?"}
+  C -- "hit" --> R
+  C -- "miss" --> S["S3 origin: prerendered dist/"]
+  S --> C
+```
+
+There is no application in that path. The rewrite is ~20 lines of JavaScript running at the edge on every request, and it is the only logic between a reader and a file — which is why it has its own unit tests and its own post-deploy assertion that the live function matches this repo.
+
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
 "Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the whole bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
@@ -67,4 +83,4 @@ The part I would be nervous seeing someone copy without the rest is **merging st
 
 ## One honest limitation
 
-This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics. What's next, deferred on purpose: a richer visual blueprint — the walkthrough above is prose describing a system, and prose is not a diagram.
+This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics. What's next: the diagram above shows how a request is served; the loop that produces the site — where the agent proves "done" and where a human's go/no-go actually sits — is still only described in words above, and that is the one this page most needs to draw.

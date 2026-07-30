@@ -8,6 +8,22 @@ Para um site de prova de engenharia, o código é o pitch — então o honesto �
 
 Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir de **S3 atrás do CloudFront**, com uma pequena CloudFront Function reescrevendo URLs limpas. Sem backend: sem servidor, sem banco, sem auth. Custo quase zero, superfície de ataque mínima, nada rodando às 3 da manhã. *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) totalmente estático / sem backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
+A frase acima lista as peças. O que ela não mostra é justamente a parte fácil de errar — onde uma URL limpa vira um arquivo, e que isso acontece na borda, não numa aplicação:
+
+```mermaid
+flowchart LR
+  accTitle: Como uma requisição vira uma página
+  accDescr: Um leitor pede uma URL sem barra final. O CloudFront roda a função spa-rewrite no viewer-request, que acrescenta index.html. Um acerto de cache responde na borda; um erro busca o objeto pré-renderizado na origem S3.
+  R["Leitor pede /pt/me"] --> V["CloudFront viewer-request"]
+  V --> F["função spa-rewrite"]
+  F -- "uri vira /pt/me/index.html" --> C{"Está em cache na borda?"}
+  C -- "acerto" --> R
+  C -- "erro" --> S["Origem S3: dist/ pré-renderizado"]
+  S --> C
+```
+
+Não existe aplicação nesse caminho. A reescrita são ~20 linhas de JavaScript rodando na borda a cada requisição, e é a única lógica entre um leitor e um arquivo — por isso ela tem testes unitários próprios e uma verificação pós-deploy de que a função no ar é a deste repositório.
+
 ## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
 
 Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta inteira: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
@@ -67,4 +83,4 @@ O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto p
 
 ## Uma limitação honesta
 
-Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes. O que vem a seguir, adiado de propósito: uma planta visual mais rica — o passo a passo acima é texto descrevendo um sistema, e texto não é desenho.
+Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes. O que vem a seguir: o desenho acima mostra como uma requisição é servida; o loop que produz o site — onde o agente prova o "pronto" e onde o go/no-go de um humano de fato senta — continua só descrito em palavras aqui em cima, e é esse o que esta página mais precisa desenhar.
