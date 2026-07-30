@@ -37,7 +37,17 @@ test.describe('content detail', () => {
     expect(body).toContain(encoded);
 
     // Never the other edition's slug, and never a preview origin.
-    expect(body).not.toContain(encodeURIComponent('/en/blog/my-commitment'));
-    expect(body).not.toContain('wa.me/?text=http%3A%2F%2Flocalhost');
+    //
+    // Both of these are deliberately loose, because both were written tight and were UNFALSIFIABLE:
+    //   - `/en/blog/my-commitment` never appears even when the English slug IS wrongly used, because
+    //     `lp()` still prefixes it with the ACTIVE locale — the bug produces `/pt/blog/my-commitment`.
+    //     So the assertion has to be on the slug alone, independent of the prefix.
+    //   - `wa.me/?text=http…localhost` cannot match, because WhatsApp's single `text` field starts with
+    //     the encoded TITLE; the origin appears further in. Anchoring on the parameter's first character
+    //     asserted a string shape that never occurs, passing under the mutation it was written for.
+    // Each was covered by its positive counterpart above, which is what made the gap invisible: the test
+    // was red under both mutations, so nothing pointed at the two assertions doing no work.
+    expect(body).not.toContain(encodeURIComponent('/my-commitment'));
+    expect(body).not.toContain('localhost');
   });
 });
