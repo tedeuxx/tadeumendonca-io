@@ -1,6 +1,8 @@
 // Profile (/me) — the canonical reference of the owner's experience, and the only place the personal
 // name and bio appear (the landing is the brand, not the person). Static profile (../data/profile),
-// so there is no loading or error path. The route is /me; /cv and /profile redirect here (back-compat).
+// so there is no loading or error path. The route is /me, per-locale (/pt/me, /en/me). There are no
+// /cv or /profile back-compat redirects — they were dropped pre-launch in #234 (ADR-0010's 2026-07-24
+// amendment); this comment claimed otherwise until #262.
 //
 // The experience is rendered by CVSection: numbered sticky blocks, separate Formação and Certificações,
 // certifications as badges.

@@ -12,8 +12,23 @@ const contentDir = join(root, 'src', 'content', 'blog');
 // Per-locale URLs (ADR-0036): every route is first-class under both prefixes.
 export const LOCALES = ['pt', 'en'];
 
-// The static (non-article) UNPREFIXED logical routes, in a stable order. Real routes only — redirects
-// (/blog, /articles, /cv, /profile) must never be snapshotted or advertised, so they are excluded.
+// The static (non-article) UNPREFIXED logical routes, in a stable order. This list is the build-time
+// source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
+// a route exists.
+//
+// `App.tsx` declares ten `<Route>`s and this list holds five of them. The other five, accounted for so
+// the comparison closes:
+//   - `blog/:slug` — a destination, and prerendered: the article half of `localizedRoutes()` below adds
+//     it per locale, from the markdown, because its slug is content rather than a literal.
+//   - `:locale/*` — the wrapper that renders `LocaleApp`. Not a route to a page; it is how every route
+//     above is reached.
+//   - three that REDIRECT, and are therefore never snapshotted or advertised: `/blog` → the landing's
+//     #artigos, the in-locale `*` → the locale landing, and the outer `*` → `RootRedirect`, which sends
+//     an unprefixed path to the reader's edition.
+//
+// (Until #262 this comment named /articles, /cv and /profile instead. Those were dropped pre-launch in
+// #234 and the comment outlived them, which made archaeology read as load-bearing exclusion — someone
+// asking why /cv is excluded would go looking for a /cv to exclude.)
 const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
