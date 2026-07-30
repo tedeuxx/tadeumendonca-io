@@ -105,3 +105,43 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 });
+
+// The skip link (#250). A unit test can prove the anchor is first in the DOM and that `main` is
+// focusable; only a real browser proves the two together do what a keyboard visitor needs — that one
+// Tab reaches it, that it is VISIBLE while focused (an off-screen ghost is useless to a sighted
+// keyboard user), and that activating it leaves focus inside the content rather than on the link.
+test.describe('skip link', () => {
+  test('one Tab reaches it, it is visible, and activating it moves focus into the content', async ({ page }) => {
+    await page.goto('/pt/');
+
+    await page.keyboard.press('Tab');
+    const skip = page.getByRole('link', { name: 'Pular para o conteúdo' });
+    await expect(skip).toBeFocused();
+
+    // Revealed, and asserted on the BOX rather than on `toBeVisible()`. Playwright's visibility is
+    // "non-empty bounding box and not visibility:hidden", and Tailwind's `sr-only` leaves a 1x1 CLIPPED
+    // box — so `toBeVisible()` passes on the exact off-screen ghost this control must never be. Verified
+    // by mutation: reducing the class list to `sr-only` alone left both these tests green.
+    //
+    // A readable control is what the criterion actually says, so that is what is measured: real
+    // dimensions, and `clip: auto` — the property `sr-only` sets and `not-sr-only` restores.
+    const box = await skip.boundingBox();
+    expect(box, 'the focused skip link must occupy a real box').not.toBeNull();
+    expect(box!.width).toBeGreaterThan(60);
+    expect(box!.height).toBeGreaterThan(20);
+    await expect(skip).toHaveCSS('clip', 'auto');
+
+    await page.keyboard.press('Enter');
+
+    // The assertion that matters: focus is INSIDE main. Without tabIndex the browser scrolls and
+    // leaves focus on the link, so this is what separates a working skip link from a decorative one.
+    const focusedIsMain = await page.evaluate(() => document.activeElement?.id === 'main');
+    expect(focusedIsMain).toBe(true);
+  });
+
+  test('serves the English edition its own label', async ({ page }) => {
+    await page.goto('/en/');
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  });
+});

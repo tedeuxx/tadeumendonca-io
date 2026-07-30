@@ -136,6 +136,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           Accepted cost: a keyboard user now tabs into the notice before the nav. Same trade a skip-link
           makes — a dismissible notice addressed to you is a reasonable first stop, and either control
           dismisses it in one press. */}
+      {/* SKIP LINK (#250) — the first focusable element on every route, and the counterpart to the
+          notice ordering above: that block ADDS tab stops before the nav, this one offers a way past all
+          of them. Deliberately NOT `sr-only` alone — a sighted keyboard user has to SEE where focus went,
+          so the revealed state is a real square control in the brand's own palette, not an off-screen
+          ghost.
+
+          It moves FOCUS, not just scroll: `#main` carries `tabIndex={-1}`, without which the browser
+          scrolls to the target and leaves focus on the link, so the next Tab returns to the nav — the
+          failure that makes a skip link look present and do nothing. */}
+      <a
+        href="#main"
+        data-print="hide"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-[--gutter] focus:top-2 focus:z-40 focus:border-2 focus:border-border-strong focus:bg-background focus:px-3.5 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-wider focus:text-foreground"
+      >
+        {t('nav.skipToContent')}
+      </a>
+
       <div className="fixed inset-x-0 bottom-0 z-30" data-print="hide">
         <LocaleSuggestion />
         <ConsentBanner />
@@ -177,7 +194,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main className="flex-1">{children}</main>
+      {/* tabIndex={-1} is what makes the skip link move FOCUS rather than only scrolling (#250). */}
+      <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+        {children}
+      </main>
 
       <footer data-print="hide" className="border-t-2 border-border-strong px-[--gutter] py-4">
         <div className="mx-auto flex w-full max-w-screen items-center justify-between gap-3">
