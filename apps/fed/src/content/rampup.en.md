@@ -126,7 +126,7 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[Brock Mesarich](https://www.youtube.com/@BrockMesarich)** — AI for non-technical folks; a soft on-ramp if you're starting from zero.
 - **[Systems Made Better](https://www.youtube.com/channel/UCNZd3Osk_AIOxz2aydFYhHg)** — AI-driven systems and workflow automation.
 
-**Jensen Huang: The Mindset That Built NVIDIA** — on Y Combinator's channel, filed here as a source rather than as one of the starting picks above.
+**Jensen Huang: The Mindset That Built NVIDIA** — Y Combinator's channel.
 
 https://www.youtube.com/watch?v=I4B37S1dyQQ
 
