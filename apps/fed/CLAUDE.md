@@ -90,7 +90,9 @@ in `iac/`.
 
 ## Conventions
 - Explicit UI states (loading/empty/error) via the primitives in `src/components/Column.tsx`.
-- "Blog" is the articles feature (canonical route `/blog/:slug`; `/articles*` kept for deep-link compat).
+- "Blog" is the articles feature. The only article route is `/blog/:slug`, per-locale (ADR-0037);
+  `/blog` itself redirects to the landing's `#artigos`. There is no `/articles` compat route — it was
+  dropped pre-launch (#234) and `e2e/seo.spec.ts` asserts the site never advertises one.
 - Reader-first copy: the product is the reader learning something; self-promotion is a by-product.
 
 ## Commands

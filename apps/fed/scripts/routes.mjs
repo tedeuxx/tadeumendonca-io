@@ -12,8 +12,14 @@ const contentDir = join(root, 'src', 'content', 'blog');
 // Per-locale URLs (ADR-0036): every route is first-class under both prefixes.
 export const LOCALES = ['pt', 'en'];
 
-// The static (non-article) UNPREFIXED logical routes, in a stable order. Real routes only — redirects
-// (/blog, /articles, /cv, /profile) must never be snapshotted or advertised, so they are excluded.
+// The static (non-article) UNPREFIXED logical routes, in a stable order. This list is the build-time
+// source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
+// a route exists.
+//
+// Real routes only. `App.tsx` declares one redirect — `/blog` → the landing's #artigos — and a `*`
+// catch-all; neither is a destination, so neither is snapshotted or advertised. (Until #262 this
+// comment also named /articles, /cv and /profile. Those redirects were dropped pre-launch in #234 and
+// the comment outlived them, which made an archaeology list read as load-bearing exclusion.)
 const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
