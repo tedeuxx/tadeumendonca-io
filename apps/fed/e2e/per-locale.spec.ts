@@ -103,11 +103,11 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
     expect(body).toContain('agent-driven SDLC'); // description
     expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
-    expect(body).toContain('Nothing gets listed here without passing'); // the bar (#246)
+    expect(body).toContain('The bar for getting listed here'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
-    expect(body).not.toContain('Nada entra no portfólio sem passar por');
+    expect(body).not.toContain('A régua para entrar aqui');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
@@ -115,10 +115,10 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
     expect(body).toContain('se fecha na prática'); // proof
-    expect(body).toContain('Nada entra no portfólio sem passar por'); // the bar (#246)
+    expect(body).toContain('A régua para entrar aqui'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
-    expect(body).not.toContain('Nothing gets listed here without passing');
+    expect(body).not.toContain('The bar for getting listed here');
   });
 
   // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
@@ -143,8 +143,8 @@ test.describe('the portfolio body is per-locale', () => {
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
-      expect(body).not.toContain('Nada entra no portfólio sem passar por');
-      expect(body).not.toContain('Nothing gets listed here without passing');
+      expect(body).not.toContain('A régua para entrar aqui');
+      expect(body).not.toContain('The bar for getting listed here');
       expect(body).not.toContain(BAR_HREF);
     });
   }

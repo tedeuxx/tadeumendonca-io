@@ -132,9 +132,25 @@ const strings = {
     // verb before the break. `/architecture` gets away with `clears docs/catalog-ready.md` only because an
     // appositive supplies the noun right after. So en uses a verb that natively takes a document as its
     // object, and `gets listed` for the flat, un-Latinate register `entrar` already has in pt.
+    // FOURTH draft, and the third failure was the interesting one — it was not about language.
+    //
+    // "Nothing gets listed here without passing X" is a universal over the shelf's CONTENTS, and
+    // /architecture publishes, in both editions, that "this site is the one entry that did not come
+    // through it". With a one-item shelf, that item IS the exception — so a reader visiting both
+    // surfaces meets a contradiction, and the link makes it worse rather than better, because clicking
+    // it lands them on the section that spells the exception out.
+    //
+    // The scoping work in #255/#256/#258 did not rescue the universal; it made it harder to stand
+    // behind, by putting the carve-out into published copy.
+    //
+    // So this names the STANDARD and quantifies nothing: there is a bar for getting listed, here it is,
+    // go read it. It still does #246's job — it turns "the only item" into "a shelf with an entry
+    // requirement" — and it is true whatever the shelf currently holds, including while the shelf holds
+    // its own exception. It also matches /architecture's label exactly (pt "A régua", en "The bar"),
+    // which is the cross-surface consistency the earlier drafts kept missing.
     bar: {
-      pt: 'Nada entra no portfólio sem passar por:',
-      en: 'Nothing gets listed here without passing:',
+      pt: 'A régua para entrar aqui:',
+      en: 'The bar for getting listed here:',
     },
     // The link text is the filename, deliberately untranslated — it names the artifact rather than
     // describing it, so there is nothing to keep in sync between editions.
