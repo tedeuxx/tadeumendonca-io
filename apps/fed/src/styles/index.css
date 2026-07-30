@@ -444,6 +444,10 @@ body {
   background: hsl(var(--muted));
   padding: 0.1em 0.35em;
   border-radius: 0;
+  /* INLINE code is one unbreakable token by default, and a long one (an OIDC subject, a URL, a
+     path) pushes the whole PAGE sideways at 320px — the failure the overflow sweep exists to catch.
+     `anywhere` lets it wrap mid-token; a block `pre` keeps its own scroll instead, below. */
+  overflow-wrap: anywhere;
 }
 .markdown pre {
   background: hsl(var(--muted));
