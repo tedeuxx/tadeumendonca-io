@@ -29,6 +29,11 @@ env:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    # Published so `checkov` can gate at the JOB level. A step-level `if` cannot prevent a container
+    # action's image from being pulled — GitHub pulls it during job setup, before any step runs — so on
+    # a PR that touches no iac/ this job spent ~46s downloading a scanner it then skipped (#281).
+    outputs:
+      iac: ${{ steps.changes.outputs.iac }}
     # The `staging` GitHub Environment only scopes AWS_INFRA_OIDC_ROLE_ARN (an environment secret) — it
     # has no required reviewers, so it is not an approval gate.
     environment: staging
@@ -54,17 +59,6 @@ jobs:
               # ever reviewed — while CLAUDE.md instructs "merge that touches iac/ → confirm the plan".
               # Same defect shape as #237: the gate did not cover the file that drives it.
               - '.github/workflows/infra-apply.yml'
-
-      # Static analysis — hard-fail gate. Suppressions curated in iac/.checkov.yaml + inline #checkov:skip.
-      - name: Checkov
-        if: steps.changes.outputs.iac == 'true'
-        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.1347.0
-        with:
-          directory: iac/
-          framework: terraform
-          config_file: iac/.checkov.yaml
-          soft_fail: false
-          output_format: cli
 
       - name: Configure AWS credentials (OIDC)
         if: steps.changes.outputs.iac == 'true'
@@ -154,11 +148,38 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ steps.changes.outputs.iac }}" != "true" ]; then
-            echo "::notice::no iac/ changes — checkov, fmt, validate and plan did NOT run (nothing was verified)"
+            echo "::notice::no iac/ changes — fmt, validate and plan did NOT run (nothing was verified); checkov is its own job and was skipped"
             exit 0
           fi
           if [ "${{ job.status }}" != "success" ]; then
             echo "::notice::iac/ gate did NOT complete — a step failed, so the checks after it never ran. Read the failing step, not this line."
             exit 0
           fi
-          echo "::notice::iac/ gate ran — checkov, fmt, validate, plan"
+          echo "::notice::iac/ gate ran — fmt, validate, plan (checkov reports separately)"
+
+  # SEPARATE JOB, not a step, and the reason is mechanical rather than tidiness: a container action's
+  # image is pulled during JOB SETUP, before any step's `if` is evaluated. As a step inside `plan` this
+  # cost ~46s of image pull on every PR that touches no iac/ — 77% of that job's wall clock spent
+  # downloading a scanner it had already decided to skip. A skipped JOB never sets up, so nothing is
+  # pulled.
+  #
+  # It is also what #281 asked for on purpose rather than on time: a job should state the subtree it
+  # guards. `plan` owns iac/ Terraform; this owns iac/ static analysis; `build-test` owns apps/fed —
+  # and each says so in its own shape instead of in a condition repeated down its steps.
+  checkov:
+    needs: plan
+    if: needs.plan.outputs.iac == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Hard-fail gate. Suppressions curated in iac/.checkov.yaml + inline #checkov:skip.
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.1347.0
+        with:
+          directory: iac/
+          framework: terraform
+          config_file: iac/.checkov.yaml
+          soft_fail: false
+          output_format: cli
