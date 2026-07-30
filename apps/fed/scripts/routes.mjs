@@ -33,11 +33,11 @@ const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
 // resolved once at module load).
 let editionsCache;
 
-// Private (#222). The memo is still asserted by reference identity, but the test reaches it through a
-// FRESH MODULE INSTANCE (`vi.resetModules()` + dynamic import) rather than through an export. That gives
-// the same observability with no production surface — and it is what should have been done in #184: the
-// justification then was that the alternative was an fs mock shared with every other test in the file,
-// which was a strawman. Module isolation needs no mock.
+// Private (#222). The memo is asserted by COUNTING PARSE CALLS from a fresh module instance
+// (`vi.resetModules()` + dynamic import), not by reference identity — identity needed an export, and it
+// was a weaker assertion anyway: it stays green for a memo caching the wrong thing as long as it returns
+// the same object. #184's justification for exporting — that the alternative was an fs mock shared with
+// every other test in the file — was a strawman; module isolation is what removes the sharing.
 function blogEditions() {
   // Assignment as a statement, not inside the `return` expression (S1121): the compact
   // `return (cache ??= f())` hides that the line has a side effect, which is the one thing a reader
@@ -145,7 +145,15 @@ export function slugPairIndexOf(pairs) {
 // observe the cache.
 let indexCache;
 
-// Private (#222) — the memo is observed through a fresh module instance, not through an export.
+// Private (#222) — and UNLIKE the parse memo above, this one is NOT observed by any test in isolation.
+// Removing `indexCache ??=` on its own leaves the whole suite green: rebuilding the index runs
+// `slugPairIndexOf` over an already-parsed array, so it touches neither the filesystem nor the YAML
+// parser, and the parse counter cannot see it. (Removing BOTH memos does go red — so it is guarded in
+// combination, unguarded alone.)
+//
+// Shipped that way deliberately: the alternative was keeping this exported, which handed every importer
+// a shared mutable Map. The memo is pure, so losing it would cost performance and never correctness.
+// The fix, if it ever matters, is an injected seam like `buildBlogEditions` has — tracked in #264.
 function slugPairIndex() {
   indexCache ??= slugPairIndexOf(blogEditions()); // statement, not expression — see blogEditions (S1121)
   return indexCache;

@@ -171,11 +171,11 @@ describe('routes.mjs and content.ts derive the SAME slugs', () => {
 // process, however many times the public API is called.**
 //
 // Reference identity was a proxy for that, and a leaky one: it went green for a memo that cached the
-// wrong thing, as long as it returned the same object. Counting the fs calls cannot.
+// wrong thing, as long as it returned the same object. Counting parse calls cannot.
 //
-// `vi.resetModules()` is what makes a per-test `node:fs` mock possible — the mock lives in this module
-// registry only, so it is NOT shared with the rest of the file. That was the objection raised when the
-// exports were introduced, and it was wrong: isolation is exactly what removes the sharing.
+// `vi.resetModules()` is what makes a per-test mock possible at all — it lives in this module registry
+// only, so it is NOT shared with the rest of the file. That sharing was the objection raised when the
+// exports were introduced, and it argued for the wrong fix: isolation is what removes it.
 //
 // One test went away with the seam rather than being ported — "clearing drops the index too". It
 // guarded a stale-cache bug that existed only BECAUSE a test could clear one cache and not the other.
@@ -229,7 +229,12 @@ describe('the blog directory is parsed once per process (#184)', () => {
   });
 
   // Resolving an ARTICLE route goes through the slug index, so this covers a path the static routes
-  // above do not. What it proves is still the PARSE memo — repeated resolution re-parses nothing.
+  // above do not.
+  //
+  // Be exact about what it proves, because the obvious reading is wrong: it proves **at least one of the
+  // two memos survives**, not the parse memo specifically. Mutation-checked — with only the parse memo
+  // removed this test stays GREEN, shielded by the index memo; it goes red only when both are gone. The
+  // test above is the one that discriminates the parse memo alone.
   it('resolves an article route repeatedly without re-parsing', async () => {
     const { routes, load } = await withCountedParse();
 
