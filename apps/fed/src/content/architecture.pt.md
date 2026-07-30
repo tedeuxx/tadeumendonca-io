@@ -27,7 +27,7 @@ Está tudo público — dois repos, sem segredos:
 - **[tadeumendonca-io](https://github.com/tedeuxx/tadeumendonca-io)** — este site e sua infraestrutura (`iac/`: Terraform para S3/CloudFront/OIDC).
 - **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — o plugin reutilizável do dev-loop: os princípios, as personas dos agentes, os guardas de permissão.
 
-**A régua:** um projeto só entra no portfólio quando passa por **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — o gate de prova de engenharia. Este site é a única entrada que não graduou para essa prateleira, porque ele *é* a prateleira; a régua diz isso, e diz o que vale no lugar. Segure o seu próprio trabalho nessa régua.
+**A régua:** um projeto só entra no portfólio quando **cumpre** a **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — o gate de prova de engenharia. Este site é a única entrada que não veio por ela, porque ele *é* a prateleira; o que o sustenta está nesta página — os ADRs acima, os gates, e a limitação que ele assume logo abaixo. Meça o seu próprio trabalho por essa régua.
 
 **Comece aqui:** faça fork dos dois repos, leia os ADRs (comece no 0001), adote o plugin de skills como seu loop, e depois troque pelo seu próprio conteúdo e posicionamento. A estrutura se sustenta; as palavras são suas.
 
