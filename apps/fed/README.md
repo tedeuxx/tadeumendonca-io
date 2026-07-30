@@ -80,6 +80,9 @@ the two editions cannot disagree.
 
 ## Commands
 
+Copy `.env.example` to `.env` first if you want analytics or a non-default origin — both variables are
+optional and the app builds and serves without either.
+
 ```bash
 npm run dev            # vite dev server (localhost:5173)
 npm test               # vitest run --coverage — ≥85% is a gate, as a GLOBAL AVERAGE, not per file
