@@ -93,7 +93,7 @@ test.describe('routes', () => {
   // ones that distinguish that from every cheaper thing it could have been.
   test('/architecture renders its diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
     await page.goto('/pt/architecture');
-    const figure = page.getByRole('img', { name: /Como uma requisição vira uma página/ });
+    const figure = page.getByRole('figure', { name: /Como uma requisição vira uma página/ });
     await expect(figure).toBeVisible();
 
     // NOT `toBeVisible` alone, which passes on a 0x0 SVG and on a viewBox-less one — an element that is

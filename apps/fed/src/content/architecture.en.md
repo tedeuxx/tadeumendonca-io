@@ -8,21 +8,23 @@ For a proof-of-engineering site, the code is the pitch — so the honest thing i
 
 A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No backend: no server, no database, no auth. Cost near-zero, attack surface minimal, nothing to keep running at 3am. *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
-The sentence above lists the pieces. What it cannot show is the part that is easy to get wrong — where a clean URL becomes a file, and that it happens at the edge rather than in an application:
+What that sentence cannot place is where a clean URL becomes a file:
 
 ```mermaid
 flowchart LR
   accTitle: How a request becomes a page
   accDescr: A reader requests a slash-less URL. CloudFront runs the spa-rewrite function on viewer-request, which appends index.html. A cache hit answers from the edge; a miss fetches the prerendered object from the S3 origin.
-  R["Reader asks for /pt/me"] --> V["CloudFront viewer-request"]
+  R["Reader asks for /en/me"] --> V["CloudFront viewer-request"]
   V --> F["spa-rewrite function"]
-  F -- "uri becomes /pt/me/index.html" --> C{"Cached at the edge?"}
+  F -- "uri becomes /en/me/index.html" --> C{"Cached at the edge?"}
   C -- "hit" --> R
   C -- "miss" --> S["S3 origin: prerendered dist/"]
   S --> C
 ```
 
-There is no application in that path. The rewrite is ~20 lines of JavaScript running at the edge on every request, and it is the only logic between a reader and a file — which is why it has its own unit tests and its own post-deploy assertion that the live function matches this repo.
+There is no application in that path — so the only logic between a reader and a file is [nineteen lines of JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), and it carries [its own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) plus a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/infra-apply.yml) that the live function still matches this repo. It runs on every *page* request; assets and OG images are separate behaviours that never invoke it.
+
+That check is the price of putting logic at the edge, not a nicety: a function version is published independently of the distribution, so nothing about deploying the site proves which one is actually running.
 
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
@@ -81,6 +83,8 @@ Roughly an evening, most of it waiting on DNS and a certificate.
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
-## One honest limitation
+## Two honest limitations
 
-This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics. What's next: the diagram above shows how a request is served; the loop that produces the site — where the agent proves "done" and where a human's go/no-go actually sits — is still only described in words above, and that is the one this page most needs to draw.
+This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
+
+And the loop this page calls the interesting part is the one thing on it still carried entirely by prose. How a request is served is drawn above; where the agent proves "done", and where a human's go/no-go actually sits, you have to take my word for.

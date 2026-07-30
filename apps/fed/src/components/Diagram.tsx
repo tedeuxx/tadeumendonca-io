@@ -18,13 +18,18 @@ import { diagramSvg } from '../content/diagrams';
  */
 export function Diagram({ source, caption }: { source: string; caption: string }) {
   return (
-    <figure className="diagram my-8">
+    <figure className="diagram my-8" aria-label={caption}>
+      {/* No role and no aria-label on this wrapper, deliberately. `role="img"` is a LEAF role: assistive
+          technology presents the whole subtree as one graphic, so the SVG's own <title> and — worse —
+          its entire <desc>, authored per locale as the fence's accDescr, become unreachable. A screen
+          reader would get the caption and nothing else, while a test three files away asserts accDescr
+          is present. The generated SVG already carries role="graphics-document" with aria-labelledby and
+          aria-describedby pointing at both; the <figure> and its <figcaption> name it for everyone else.
+
+          Wide diagrams scroll INSIDE this box — the page body must never scroll sideways, which the
+          320px width sweep asserts and this would otherwise be the first thing to break. */}
       <div
         className="diagram-canvas overflow-x-auto border border-border bg-background p-4"
-        // Wide diagrams scroll INSIDE this box. The page body must never scroll sideways — asserted at
-        // 320px by the existing width sweep, which this would otherwise be the first thing to break.
-        role="img"
-        aria-label={caption}
         dangerouslySetInnerHTML={{ __html: diagramSvg(source) }}
       />
       <figcaption className="mt-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">

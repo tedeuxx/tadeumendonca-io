@@ -8,12 +8,23 @@ const contentDir = join(root, 'src', 'content');
 const artifact = JSON.parse(readFileSync(join(contentDir, 'generated', 'diagrams.json'), 'utf8'));
 const fences = collectFences(contentDir);
 
-// The rendered half of the SVG. mermaid emits a boilerplate <style> block and unused <defs> into every
-// diagram — selectors for shapes this diagram does not use (.katex, [data-look="neo"]) and drop-shadow
-// filters nothing references. Asserting the palette over the whole string would therefore fail on
-// correct output, which is how a rule gets weakened until it says nothing. Strip them and assert on what
-// a reader actually sees.
-const rendered = (svg) => svg.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<defs[\s\S]*?<\/defs>/g, '');
+// The rendered half of the SVG.
+//
+// mermaid emits boilerplate into every diagram: CSS rules for shapes this one does not use, and <defs>
+// nothing references. Asserting the palette over the whole string would fail on CORRECT output, which is
+// how a rule gets weakened until it says nothing.
+//
+// But the first version of this dropped the entire <style> block, and that was too generous in exactly
+// the way the caller feared: `#F5F4EF` — the fill of EVERY node box — is declared only there, so the
+// assertion named "uses only the palette" could not see the primary fill. Regressing it to magenta left
+// the test green. Caught by the critical-reviewer; the fix is to drop only the two selector families
+// that are genuinely dead here, and keep the rules that decide what a reader sees.
+//
+// Dead by inspection, not by assumption: the markup renders `data-look="classic"`, so every
+// `[data-look="neo"]` rule is unreachable, and there is no KaTeX in a flowchart.
+const DEAD_SELECTORS = /[^{}]*(?:\[data-look=|\.katex)[^{}]*\{[^}]*\}/g;
+const rendered = (svg) =>
+  svg.replace(/<style[\s\S]*?<\/style>/g, (block) => block.replace(DEAD_SELECTORS, '')).replace(/<defs[\s\S]*?<\/defs>/g, '');
 
 describe('mermaid source extraction', () => {
   it('finds a fence and ignores an indented one inside another code block', () => {
@@ -62,6 +73,10 @@ describe('every compiled diagram is in the site’s visual language and carries 
     const used = [...new Set([...rendered(svg).matchAll(/#[0-9a-fA-F]{3,8}/g)].map((m) => m[0].toUpperCase()))];
     // Near-black, off-white, and the one accent (ADR-0008). A default mermaid theme fails on the first.
     expect(used.filter((c) => !['#0A0A0A', '#F5F4EF', '#FF5A00'].includes(c))).toEqual([]);
+    // POSITIVE too, not only negative. "No forbidden colour" is satisfied by a diagram that lost the
+    // colour entirely — including by this very filter over-stripping again. Both palette members that
+    // actually appear must still be there.
+    expect(used).toEqual(expect.arrayContaining(['#0A0A0A', '#F5F4EF']));
   });
 
   it.each(entries.map(([, svg], i) => [i, svg]))('diagram %i has square corners and no depth', (_i, svg) => {

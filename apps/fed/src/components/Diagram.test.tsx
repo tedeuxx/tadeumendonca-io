@@ -9,12 +9,24 @@ const REAL_SOURCE = diagramSources()[0];
 describe('Diagram', () => {
   it('inlines the compiled SVG and labels it for a screen reader and for the eye', () => {
     render(<Diagram source={REAL_SOURCE} caption="A caption" />);
-    const fig = screen.getByRole('img', { name: 'A caption' });
+    const fig = screen.getByRole('figure', { name: 'A caption' });
     expect(fig.querySelector('svg')).not.toBeNull();
-    // The <figcaption> is not redundant with the aria-label: mermaid's accTitle becomes an SVG <title>,
+    // The <figcaption> is not redundant with the label: mermaid's accTitle becomes an SVG <title>,
     // which a screen reader announces and a sighted reader never sees. A diagram labelled only there is
     // labelled for the audit rather than for the audience.
     expect(screen.getByText('A caption').tagName).toBe('FIGCAPTION');
+  });
+
+  // `role="img"` on the wrapper is a LEAF role — assistive technology collapses the subtree to a single
+  // graphic, so the SVG's <title> and its whole <desc> (the fence's per-locale accDescr) stop being
+  // reachable. That was the first version here, and it made a test three files away assert a property
+  // this component discarded. Asserted structurally so it cannot come back by convenience.
+  it('does not collapse the SVG behind a leaf role — title and desc must stay reachable', () => {
+    const { container } = render(<Diagram source={REAL_SOURCE} caption="A caption" />);
+    expect(container.querySelector('[role="img"]')).toBeNull();
+    const svg = container.querySelector('svg')!;
+    expect(svg.querySelector('title')?.textContent).toBeTruthy();
+    expect(svg.querySelector('desc')?.textContent).toBeTruthy();
   });
 
   // The alternative was a render-time fallback — an error card, an empty box, the raw source. On a
@@ -30,7 +42,7 @@ describe('Diagram', () => {
     expect(normaliseDiagramSource('flowchart LR  \r\n  A --> B\t\n\n')).toBe('flowchart LR\n  A --> B');
     // Whitespace-only edits must not orphan a diagram; a guard that fails on re-indentation gets disabled.
     render(<Diagram source={`\n  ${REAL_SOURCE}  \n`} caption="Padded" />);
-    expect(screen.getByRole('img', { name: 'Padded' }).querySelector('svg')).not.toBeNull();
+    expect(screen.getByRole('figure', { name: 'Padded' }).querySelector('svg')).not.toBeNull();
   });
 });
 
@@ -38,7 +50,7 @@ describe('Markdown mermaid fences', () => {
   it('turns a ```mermaid fence into a diagram, taking its caption from accTitle', () => {
     render(<Markdown>{`\`\`\`mermaid\n${REAL_SOURCE}\n\`\`\``}</Markdown>);
     const caption = /^\s*accTitle:\s*(.+)$/m.exec(REAL_SOURCE)![1].trim();
-    expect(screen.getByRole('img', { name: caption })).toBeInTheDocument();
+    expect(screen.getByRole('figure', { name: caption })).toBeInTheDocument();
   });
 
   // Hooked on `pre`, not `code`: react-markdown delivers a fence as <pre><code class="language-…">, so a

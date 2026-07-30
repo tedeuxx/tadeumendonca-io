@@ -110,7 +110,12 @@ test.describe('SEO discovery', () => {
     ]) {
       const html = await (await request.get(path)).text();
       expect(html, `${path} must carry inline SVG`).toContain('<svg');
-      expect(html, `${path} must expose the diagram as an image role`).toContain('role="img"');
+      // The SVG carries its own accessible structure — a <title> from accTitle and a <desc> from
+      // accDescr — and the <figure> carries the visible caption. Asserted rather than a role, because
+      // the wrapper deliberately has none: role="img" is a leaf role and would hide both from a screen
+      // reader, which is the opposite of why this is inline SVG at all.
+      expect(html, `${path} must carry the diagram's own title/desc`).toMatch(/<title id="chart-title/);
+      expect(html, `${path} must carry a visible caption`).toContain('<figcaption');
       expect(html, `${path} must render label text`).toContain(mine);
       expect(html, `${path} is serving the other edition's diagram`).not.toContain(theirs);
     }
