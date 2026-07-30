@@ -13,13 +13,15 @@ export interface Entry {
 }
 
 const strings = {
-  a11y: {
-    // The skip link's visible text (#250). "Pular para o conteúdo" is the settled pt-BR form for this
-    // control — not a translation of "skip to main content", which would drag "principal" along and say
-    // less; pt names the destination, not its rank.
-    skipToContent: { pt: 'Pular para o conteúdo', en: 'Skip to content' },
-  },
   nav: {
+    // The skip link (#250). It lives here, not in an a11y group, because this catalog groups by WHERE a
+    // string appears rather than why it exists — `nav.openMenu`, `locale.switch`, `share.linksLabel` and
+    // `consent.notice` are all accessibility-only strings sitting in their surface group. A second axis
+    // would give the next aria-label two plausible homes and make neither reliable to search.
+    //
+    // BOTH editions name the destination without ranking it — "content", not "main content". That is a
+    // catalog-wide choice, not a translation note: en dropped "main" too.
+    skipToContent: { pt: 'Pular para o conteúdo', en: 'Skip to content' },
     articles: { pt: 'Artigos', en: 'Articles' },
     portfolio: { pt: 'Portfólio', en: 'Portfolio' },
     contact: { pt: 'Contato', en: 'Contact' },

@@ -150,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         data-print="hide"
         className="sr-only focus:not-sr-only focus:absolute focus:left-[--gutter] focus:top-2 focus:z-40 focus:border-2 focus:border-border-strong focus:bg-background focus:px-3.5 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-wider focus:text-foreground"
       >
-        {t('a11y.skipToContent')}
+        {t('nav.skipToContent')}
       </a>
 
       <div className="fixed inset-x-0 bottom-0 z-30" data-print="hide">
