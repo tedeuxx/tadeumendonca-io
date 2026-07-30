@@ -67,11 +67,26 @@ describe('ShareLinks', () => {
   it('labels the group and each link in the active edition', () => {
     const { unmount } = renderWithLocale(<ShareLinks title={TITLE} path={PT_PATH} />, { locale: 'pt' });
     expect(screen.getByRole('navigation', { name: 'Compartilhar este artigo' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: `Compartilhar em LinkedIn: ${TITLE}` })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: `Compartilhar no LinkedIn: ${TITLE}` })).toBeInTheDocument();
     unmount();
 
     renderWithLocale(<ShareLinks title={TITLE} path="/en/blog/my-commitment" />, { locale: 'en' });
     expect(screen.getByRole('navigation', { name: 'Share this article' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: `Share on LinkedIn: ${TITLE}` })).toBeInTheDocument();
+  });
+
+  // The calque this repo already shipped once: pt-BR contracts the preposition with the platform's
+  // definite article, so "Compartilhar EM WhatsApp" is English grammar in Portuguese words. It is not a
+  // wording nit — it was the visible heading row as well as the accessible name, and English survives the
+  // same construction, so the defect would have been invisible in the edition most likely to be reviewed.
+  //
+  // Asserted per platform rather than once, because the contraction is a property of the PAIR: a shared
+  // prefix cannot be right for all three, and that is precisely what a single assertion would hide.
+  it('contracts the preposition in pt-BR — "no WhatsApp", never "em WhatsApp"', () => {
+    renderWithLocale(<ShareLinks title={TITLE} path={PT_PATH} />, { locale: 'pt' });
+    for (const platform of ['WhatsApp', 'X', 'LinkedIn']) {
+      expect(screen.getByRole('link', { name: `Compartilhar no ${platform}: ${TITLE}` })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: new RegExp(`Compartilhar em ${platform}`) })).toBeNull();
+    }
   });
 });

@@ -264,9 +264,18 @@ const strings = {
   share: {
     share: { pt: 'Compartilhar', en: 'Share' },
     copied: { pt: 'Copiado', en: 'Copied' },
-    // The share deeplinks (#183). `shareOn` is both the visible label and the start of each link's
-    // accessible name, so it has to read naturally in front of a platform name in either edition.
-    shareOn: { pt: 'Compartilhar em', en: 'Share on' },
+    // The share deeplinks (#183). The heading stands alone and each target carries its OWN accessible
+    // name — deliberately not one fragment concatenated in front of a platform name.
+    //
+    // pt-BR contracts the preposition with the platform's definite article: "no WhatsApp", "no X",
+    // "no LinkedIn". A shared `'Compartilhar em'` + name yields "Compartilhar em WhatsApp", which is
+    // English grammar wearing Portuguese words — and no rewording of the fragment fixes it, because the
+    // contraction belongs to the pair, not to either half. English survives the same concatenation, which
+    // is exactly why the defect would have shipped in one edition only.
+    linksHeading: { pt: 'Compartilhar', en: 'Share' },
+    onWhatsapp: { pt: 'Compartilhar no WhatsApp', en: 'Share on WhatsApp' },
+    onX: { pt: 'Compartilhar no X', en: 'Share on X' },
+    onLinkedin: { pt: 'Compartilhar no LinkedIn', en: 'Share on LinkedIn' },
     // aria-label for the group. Not "Share" — the page already has a ShareButton with that name, and two
     // controls whose accessible names are indistinguishable is the defect, not the duplication itself.
     linksLabel: { pt: 'Compartilhar este artigo', en: 'Share this article' },
