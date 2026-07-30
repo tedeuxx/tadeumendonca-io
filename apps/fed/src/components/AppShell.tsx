@@ -16,6 +16,7 @@ import { analyticsConfigured } from '../lib/analytics';
 import { ConsentBanner } from './ConsentBanner';
 import { LocaleSuggestion } from './LocaleSuggestion';
 import { LOCALES, useLocale, useLocalePath, type MessageKey } from '../i18n';
+import { SITE_VERSION, releaseUrl } from '../lib/version';
 
 interface NavEntry {
   href: string;
@@ -201,7 +202,24 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <footer data-print="hide" className="border-t-2 border-border-strong px-[--gutter] py-4">
         <div className="mx-auto flex w-full max-w-screen items-center justify-between gap-3">
-          <span className="font-mono text-xs text-muted-foreground">tadeumendonca.io</span>
+          <span className="font-mono text-xs text-muted-foreground">
+            tadeumendonca.io{' '}
+            {/* The running build, linked to its own release — here rather than in the landing's
+                colophon, because THIS is the footer every route renders. Knowing which build you are
+                reading is the precondition for checking any other claim on the site, and /architecture
+                is the page that most needs it.
+
+                Unlabelled on purpose: the number needs no translation, and a label would need one in
+                the i18n catalog for a string that adds nothing to a row this terse. */}
+            <a
+              href={releaseUrl()}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground hover:underline"
+            >
+              v{SITE_VERSION}
+            </a>
+          </span>
           {/* Withdrawal must be as reachable as granting: this re-opens the banner to re-decide. Shown
               only when analytics is configured — otherwise there is no cookie choice to manage. */}
           {analyticsConfigured() && (
