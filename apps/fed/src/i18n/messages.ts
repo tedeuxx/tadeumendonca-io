@@ -95,9 +95,15 @@ const strings = {
   },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
+    // `se formam`, not `graduam`: in BR Portuguese this sense of `graduar` is pronominal, so the bare
+    // form is the English intransitive wearing a Portuguese ending — the same defect class as the
+    // "clarear a barra" draft this section's bar line went through. Shipped copy, found only because
+    // the line above it was under review.
+    // Dropped the definite article in both editions too: "as automações" / "the automations"
+    // presupposes a set the reader has not been shown.
     intro: {
-      pt: 'Código aberto pra você estudar, clonar e usar. Cresce conforme as automações graduam.',
-      en: 'Open source for you to study, clone and use. It grows as the automations graduate.',
+      pt: 'Código aberto pra você estudar, clonar e usar. Cresce conforme automações se formam.',
+      en: 'Open source for you to study, clone and use. It grows as automations graduate.',
     },
     // The BAR (#246). With one item in the catalog — and that item being this site — the page reads as a
     // catalog that has not started. Saying inclusion is earned turns "the only item" into "the first item
@@ -149,12 +155,14 @@ const strings = {
     // its own exception. It also matches /architecture's label exactly (pt "A régua", en "The bar"),
     // which is the cross-surface consistency the earlier drafts kept missing.
     bar: {
-      pt: 'A régua para entrar aqui:',
+      pt: 'A régua pra entrar aqui:',
       en: 'The bar for getting listed here:',
     },
     // The link text is the filename, deliberately untranslated — it names the artifact rather than
     // describing it, so there is nothing to keep in sync between editions.
-    barLink: { pt: 'catalog-ready.md', en: 'catalog-ready.md' },
+    // Path form, matching how `/architecture` names the same artifact. These are the two surfaces most
+    // likely to be read together, and one document with two names across them is a small, avoidable drift.
+    barLink: { pt: 'docs/catalog-ready.md', en: 'docs/catalog-ready.md' },
     payoff: { pt: 'O que você tira disso', en: 'What you take away' },
     statusLive: { pt: 'Live', en: 'Live' },
     statusWip: { pt: 'WIP', en: 'WIP' },
@@ -163,9 +171,20 @@ const strings = {
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },
     viewAll: { pt: '→ Ver catálogo completo', en: '→ View the full catalog' },
+    // This is the /portfolio OG description — the string LinkedIn, X and WhatsApp pin on FIRST fetch,
+    // so it is the least reversible copy on the page.
+    //
+    // It used to promise "automações, agentes e projetos": three plural categories over a shelf holding
+    // ONE item, and that item is none of the three — it is a static site. Same defect the bar sentence
+    // was rewritten three times to remove, sitting in the meta description the whole while, and worse
+    // there: a reader arriving from an unfurl that promised three kinds of thing and finding one is the
+    // bait the body copy was being audited against.
+    //
+    // So it states the shelf's PURPOSE and its entry rule instead of enumerating a stock. True at one
+    // item, true at twenty, and it does not need rewriting when the shelf grows.
     metaDescription: {
-      pt: 'Automações, agentes e projetos — o catálogo no GitHub.',
-      en: 'Automations, agents and projects — the catalog on GitHub.',
+      pt: 'Código aberto pra estudar e clonar — e a régua que decide o que entra.',
+      en: 'Open source to study and clone — and the bar that decides what gets listed.',
     },
   },
   contact: {

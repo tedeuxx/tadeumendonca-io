@@ -107,7 +107,7 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
     expect(body).not.toContain('se fecha na prática');
-    expect(body).not.toContain('A régua para entrar aqui');
+    expect(body).not.toContain('A régua pra entrar aqui');
   });
 
   test('/pt/portfolio serves Portuguese copy and no English', async ({ request }) => {
@@ -115,7 +115,7 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('Este site — SPA estático'); // tagline
     expect(body).toContain('entregue por um SDLC'); // description
     expect(body).toContain('se fecha na prática'); // proof
-    expect(body).toContain('A régua para entrar aqui'); // the bar (#246)
+    expect(body).toContain('A régua pra entrar aqui'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
     expect(body).not.toContain('how an agent-driven SDLC actually closes');
     expect(body).not.toContain('The bar for getting listed here');
@@ -143,7 +143,7 @@ test.describe('the portfolio body is per-locale', () => {
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
-      expect(body).not.toContain('A régua para entrar aqui');
+      expect(body).not.toContain('A régua pra entrar aqui');
       expect(body).not.toContain('The bar for getting listed here');
       expect(body).not.toContain(BAR_HREF);
     });

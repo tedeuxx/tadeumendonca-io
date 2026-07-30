@@ -80,18 +80,18 @@ describe('PortfolioSection', () => {
     const bar = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md';
 
     const { unmount } = renderWithLocale(<PortfolioSection showBar />, { locale: 'pt' });
-    expect(screen.getByText(/A régua para entrar aqui/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
+    expect(screen.getByText(/A régua pra entrar aqui/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'docs/catalog-ready.md' })).toHaveAttribute('href', bar);
     unmount();
 
     renderWithLocale(<PortfolioSection showBar />, { locale: 'en' });
     expect(screen.getByText(/The bar for getting listed here/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'catalog-ready.md' })).toHaveAttribute('href', bar);
+    expect(screen.getByRole('link', { name: 'docs/catalog-ready.md' })).toHaveAttribute('href', bar);
   });
 
   it('states the bar even when the catalog is empty — the standard is not conditional on having items', () => {
     renderWithLocale(<PortfolioSection showBar />, { locale: 'pt' });
-    expect(screen.getByText(/A régua para entrar aqui/)).toBeInTheDocument();
+    expect(screen.getByText(/A régua pra entrar aqui/)).toBeInTheDocument();
   });
 
   // The default is silent, and that is a product call (PR #251) rather than an implementation detail:
@@ -100,8 +100,8 @@ describe('PortfolioSection', () => {
   it('says nothing about the bar unless the caller asks for it — the landing must not carry the claim', () => {
     state.catalog = [sample];
     renderWithLocale(<PortfolioSection />, { locale: 'pt' });
-    expect(screen.queryByText(/A régua para entrar aqui/)).toBeNull();
-    expect(screen.queryByRole('link', { name: 'catalog-ready.md' })).toBeNull();
+    expect(screen.queryByText(/A régua pra entrar aqui/)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'docs/catalog-ready.md' })).toBeNull();
   });
 
   it('omits the live link when the project has none', () => {
