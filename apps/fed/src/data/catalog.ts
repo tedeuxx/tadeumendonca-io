@@ -52,33 +52,36 @@ export const catalog: CatalogProject[] = [
       en: 'This site — a static React/Vite SPA, built in an agent-first loop with Claude Code.',
     },
     description: {
-      // `agent-driven` is retired (#245) — "who moves the work through the SDLC" is not a distinct claim
-      // from "the agent drafts and the human reviews", which is what `agent-first` already says. The full
-      // hierarchy lives in the private positioning source; `CLAUDE.md` points at it.
+      // `agent-driven` is retired (#245). The vocabulary that replaced it — which term is authoritative
+      // where — lives in the private positioning source; `CLAUDE.md` points at it and this comment does
+      // not restate it.
       //
-      // But the rename does NOT put `agent-first` here: the tagline one line above already carries it,
-      // so swapping the word in would have collapsed two distinct terms into the same word twenty words
+      // The rename does NOT put `agent-first` here: the tagline one line above already carries it, so
+      // swapping the word in would have collapsed two distinct terms into the same word twenty words
       // apart — re-creating, one field higher, the repetition this card was already retired for once.
-      // The tagline says what it is built like; this says what it is and how it ships. The term belongs
-      // in one of them, and the tagline is where a reader meets it first.
+      //
+      // Delivery gets its OWN sentence rather than sitting after a colon. Removing the term took away
+      // the noun the colon governed (`um SDLC agent-first`), which the list then unpacked — without it
+      // the colon yoked hosting to process and asserted a relation that is not there: an SPA served from
+      // S3 is not "plan-first".
       pt:
-        'Uma SPA estática (sem backend) servida em S3 + CloudFront e provisionada com Terraform: ' +
-        'plan-first, CI com gates e deploy no merge. O repo é a fonte da verdade.',
+        'Uma SPA estática (sem backend) servida em S3 + CloudFront e provisionada com Terraform. ' +
+        'A entrega é plan-first, com CI de gates e deploy no merge. O repo é a fonte da verdade.',
       // "CI gates", not "gated CI" — the site's own published English already says CI gates
       // (`content/architecture.en.md`), and one presence should not carry two names for one thing.
       en:
-        'A static SPA (no backend) served from S3 + CloudFront and provisioned with Terraform: ' +
-        'plan-first, blocking CI gates, deploy on merge. The repo is the source of truth.',
+        'A static SPA (no backend) served from S3 + CloudFront and provisioned with Terraform. ' +
+        'Delivery is plan-first, with blocking CI gates and deploy on merge. The repo is the source of truth.',
     },
     // Rendered under "O que você tira disso" / "What you take away", so it must answer THAT question.
     //
-    // This line was ALREADY retired once for repeating `description` — "plan-first, CI gated" verbatim a
-    // line apart — and the repetition came straight back with the new word: `agent-first SDLC` sat in
-    // both fields, and so did `plan-first`, across roughly sixty words on one card. Renaming a term does
-    // not fix a structural defect, it just re-dresses it.
+    // This line has been re-broken twice by editors following the comments above it, so read this one
+    // as current: it was retired once for repeating `description` verbatim a line apart, and the
+    // repetition came straight back with the renamed term. Renaming does not fix a structural defect.
     //
-    // The label belongs in `description`, which is where a reader learns WHAT this is. The payoff opens
-    // on what they can LIFT — which is the ADRs, and the fact that each one carries its cost.
+    // What this field carries that no other does: WHERE to start and WHAT is reusable. It does not
+    // restate the label — that lives in the tagline (see the note in `description`) — and it does not
+    // re-list the stack, which the chips already give.
     proof: {
       // "as decisões que sustentam peso" / "the load-bearing decisions", NOT "every decision" — the first
       // draft of this line said `cada decisão` / `every decision`, which `/architecture` deliberately
