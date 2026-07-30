@@ -111,7 +111,7 @@ https://www.youtube.com/watch?v=fl1DSmwQKKY
 
 https://www.youtube.com/watch?v=P1-8da1GgBg
 
-The rest of what I watch, ranked by how much I actually watch it — not by follower count:
+The channels I watch, ranked by how much I actually watch them — not by follower count:
 
 - **[Anthropic](https://www.youtube.com/channel/UCrDwWp7EBBv4NwvScIpBDOA)** · **[Claude](https://www.youtube.com/channel/UCV03SRZXJEz-hchIAogeJOg)** · **[Lucas Montano](https://www.youtube.com/channel/UCyHOBY6IDZF9zOKJPou2Rgg)** — the three above, by a wide margin the ones I return to.
 - **[Kiro](https://www.youtube.com/channel/UCXouiHXUN8mba_K-jn1gqVg)** — agentic IDE, worth watching even if you use something else.
@@ -125,6 +125,10 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[Jeff Su](https://www.youtube.com/@JeffSu)** · **[Fireship](https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA)** — AI-for-work and fast frontier context.
 - **[Brock Mesarich](https://www.youtube.com/@BrockMesarich)** — AI for non-technical folks; a soft on-ramp if you're starting from zero.
 - **[Systems Made Better](https://www.youtube.com/channel/UCNZd3Osk_AIOxz2aydFYhHg)** — AI-driven systems and workflow automation.
+
+**Jensen Huang: The Mindset That Built NVIDIA** — Y Combinator's channel.
+
+https://www.youtube.com/watch?v=I4B37S1dyQQ
 
 ### X / Twitter
 
