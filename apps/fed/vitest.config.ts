@@ -15,7 +15,19 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.{ts,tsx}', 'scripts/gen-distribution.mjs', 'scripts/routes.mjs'],
+      include: [
+        'src/**/*.{ts,tsx}',
+        'scripts/gen-distribution.mjs',
+        'scripts/routes.mjs',
+        // #170. The decision half of the diagram pipeline — which fences exist, how they are normalised,
+        // and whether the committed artifact still matches them. It is unit-tested, and leaving it off
+        // this list did not merely lose a number: SonarCloud reads the lcov and saw 0% on new code, so
+        // the local "99% coverage" was an average over a set that excluded the slice being reviewed.
+        //
+        // gen-diagrams.mjs is deliberately NOT here. It drives a browser and has no unit-testable
+        // surface left once the logic is factored out — which is exactly why the logic was factored out.
+        'scripts/diagram-source.mjs',
+      ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/main.tsx', // bootstrap wiring

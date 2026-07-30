@@ -8,6 +8,24 @@ Para um site de prova de engenharia, o código é o pitch — então o honesto �
 
 Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir de **S3 atrás do CloudFront**, com uma pequena CloudFront Function reescrevendo URLs limpas. Sem backend: sem servidor, sem banco, sem auth. Custo quase zero, superfície de ataque mínima, nada rodando às 3 da manhã. *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) totalmente estático / sem backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
+O que essa frase não consegue situar é onde uma URL limpa vira um arquivo:
+
+```mermaid
+flowchart LR
+  accTitle: Como uma requisição vira uma página
+  accDescr: Um leitor pede uma URL sem barra final. O CloudFront roda a função spa-rewrite no viewer-request, que acrescenta index.html. Um hit de cache responde na borda; um miss busca o objeto pré-renderizado na origem S3.
+  R["Leitor pede /pt/me"] --> V["CloudFront viewer-request"]
+  V --> F["função spa-rewrite"]
+  F -- "uri vira /pt/me/index.html" --> C{"Está em cache na borda?"}
+  C -- "hit" --> R
+  C -- "miss" --> S["Origem S3: dist/ pré-renderizado"]
+  S --> C
+```
+
+Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dezenove linhas de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/infra-apply.yml) de que a função no ar continua sendo a deste repositório. Ela roda a cada requisição de *página*; assets e imagens de OG são behaviors separados, que nunca a invocam.
+
+Essa verificação é o preço de colocar lógica na borda, não um capricho: a versão de uma função é publicada independentemente da distribuição, então nada no deploy do site prova qual delas está de fato rodando.
+
 ## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
 
 Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta inteira: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
@@ -65,6 +83,8 @@ Grosso modo, uma noite — e a maior parte dela é esperar DNS e certificado.
 
 O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
 
-## Uma limitação honesta
+## Duas limitações honestas
 
-Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes. O que vem a seguir, adiado de propósito: uma planta visual mais rica — o passo a passo acima é texto descrevendo um sistema, e texto não é desenho.
+Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
+
+E o loop que esta página chama de parte interessante é a única coisa aqui que continua inteiramente por conta do texto. Como uma requisição é servida está desenhado acima; onde o agente prova o "pronto", e de quem é o go/no-go, você tem que acreditar na minha palavra.

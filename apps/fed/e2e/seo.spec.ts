@@ -99,6 +99,28 @@ test.describe('SEO discovery', () => {
     expect(offenders, `advertised URLs serving the wrong page:\n${offenders.join('\n')}`).toEqual([]);
   });
 
+  // #170. The point of compiling at build time rather than in the browser is that a crawler with no
+  // JavaScript sees the diagram. That is only provable with a RAW fetch of the prerendered artifact —
+  // page.goto would run the app and pass whether or not the SVG was ever prerendered. Each edition is
+  // checked for a label only IT has, which is what catches the en diagram being served on /pt.
+  test('a JS-less crawler receives the architecture diagram, in the right language', async ({ request }) => {
+    for (const [path, mine, theirs] of [
+      ['/pt/architecture/', 'Leitor', 'Reader'],
+      ['/en/architecture/', 'Reader', 'Leitor'],
+    ]) {
+      const html = await (await request.get(path)).text();
+      expect(html, `${path} must carry inline SVG`).toContain('<svg');
+      // The SVG carries its own accessible structure — a <title> from accTitle and a <desc> from
+      // accDescr — and the <figure> carries the visible caption. Asserted rather than a role, because
+      // the wrapper deliberately has none: role="img" is a leaf role and would hide both from a screen
+      // reader, which is the opposite of why this is inline SVG at all.
+      expect(html, `${path} must carry the diagram's own title/desc`).toMatch(/<title id="chart-title/);
+      expect(html, `${path} must carry a visible caption`).toContain('<figcaption');
+      expect(html, `${path} must render label text`).toContain(mine);
+      expect(html, `${path} is serving the other edition's diagram`).not.toContain(theirs);
+    }
+  });
+
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
   // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on
   // this site ever carried a query string, so sourcing the canonical from the location would have been a

@@ -182,6 +182,51 @@ are the single source of the architecture story; the page points at them, so it 
 if the reader wants the load-bearing "why", the link takes them to the record itself, not a paraphrase
 that ages out of sync.
 
+## Amendment (2026-07-30) — `/architecture` now makes a statement, not only pointers; the orientation claim is narrowed, not withdrawn
+The 2026-07-25 amendment above ends with *"the page points at them, so it cannot drift from them."* That
+sentence is now **too strong, and it has to be narrowed rather than left standing**, because
+[ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a **diagram** on the page ([#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170)).
+
+**State the objection at full strength first, because it is a real one.** Every other element on
+`/architecture` is a pointer — a link to an ADR, to a repo, to `docs/catalog-ready.md` — and a pointer
+cannot be wrong about the system; at worst it is a dead link, which is *visibly* broken. A diagram is the
+**first thing on that page that is a statement about the system rather than a reference to one**. It
+asserts that a request reaches a rewrite function before the origin. That assertion **can become false
+independently of every ADR it sits next to** — `iac/` changes, ADR-0013 gets amended, and the picture keeps
+drawing yesterday's path. Worse, it fails in the direction prose does not: **nobody re-reads a picture to
+check it.** A paragraph that has aged reads slightly off; a diagram that has aged reads *authoritative*.
+So the honest reading is that the orientation principle bought the page an anti-drift guarantee, and this
+change spends part of it.
+
+**Three things are what make the trade acceptable, and none of them is "a diagram is basically a pointer."**
+
+1. **The diagram is admitted only where a pointer is not available at all.** The owner's own constraint on
+   the Issue is this same rule applied, stated as a rejection: the infra diagram "must not restate the prose
+   … it earns its place only by showing what a sentence cannot — the request path and where the rewrite
+   happens. If it ends up as a labelled box list, it is decoration and should be cut." *Orientation over
+   restatement* is therefore **unchanged as the governing rule** — a diagram that restates is still
+   forbidden, on exactly the grounds this amendment's predecessor gives. What is admitted is a narrow
+   exception for a **topology** the prose form genuinely cannot carry: a path with a branch on it.
+2. **That constraint is mechanically falsifiable, so it does not decay into taste.**
+   `scripts/architecture-diagrams.test.mjs` asserts a *directed path* from the reader, through the rewrite,
+   to the origin, and that the answer returns. A labelled box list has nodes and no path, and fails. The
+   rule the owner stated in prose is a red test, not an intention.
+3. **The residual drift is named and owned by ADR-0040, not left implicit here.** It is recorded there as
+   a first-class accepted cost: the diagram is a *third* place every infrastructure change must land
+   (prose, ADR, diagram), and a stale diagram is worse than an absent one. Staleness of the *artifact*
+   against the *source* is caught at build time; staleness of the *source* against **reality** is not
+   catchable by any check and is carried as a known cost.
+
+**The narrowed claim, which is what this ADR now asserts about the page:** `/architecture` is still an
+orientation layer — it **links** the load-bearing "why" rather than paraphrasing it, and no ADR's reasoning
+is restated on it. The exception is bounded to **diagrams**, each of which must show what a sentence
+cannot, and each of which carries a build-time guard for its artifact and an assertion for its shape. The
+page can now be wrong about the system in a way it previously could not; that is a cost accepted with the
+diagram, not an oversight in the earlier claim.
+
+The 2026-07-25 text is left exactly as written (supersede, never rewrite) — it is the record of what the
+page was before it carried a statement of its own.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
@@ -192,4 +237,7 @@ that ages out of sync.
   complete per ADR-0005), within the same enumeration contract · the "localized URLs remain a separate,
   unmade decision" note in that amendment is **now made** in
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (symmetric `/pt` · `/en` prefixes on one slug;
-  dual localized slugs still deferred).
+  dual localized slugs still deferred) · amended (2026-07-30) to **narrow** that amendment's
+  "it cannot drift from them" claim, now that [ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a
+  diagram — the page's first statement about the system rather than a pointer to one — on
+  `/architecture`.
