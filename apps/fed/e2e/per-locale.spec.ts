@@ -101,8 +101,8 @@ test.describe('the portfolio body is per-locale', () => {
   test('/en/portfolio serves English copy and no Portuguese', async ({ request }) => {
     const body = await (await request.get('/en/portfolio/')).text();
     expect(body).toContain('This site — a static React/Vite SPA'); // tagline
-    expect(body).toContain('agent-driven SDLC'); // description
-    expect(body).toContain('how an agent-driven SDLC actually closes'); // proof
+    expect(body).toContain('agent-first SDLC'); // description
+    expect(body).toContain('how an agent-first SDLC actually closes'); // proof
     expect(body).toContain('The bar for getting listed here'); // the bar (#246)
     expect(body).not.toContain('Este site — SPA estático');
     expect(body).not.toContain('entregue por um SDLC');
@@ -117,7 +117,7 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).toContain('se fecha na prática'); // proof
     expect(body).toContain('A régua pra entrar aqui'); // the bar (#246)
     expect(body).not.toContain('This site — a static React/Vite SPA');
-    expect(body).not.toContain('how an agent-driven SDLC actually closes');
+    expect(body).not.toContain('how an agent-first SDLC actually closes');
     expect(body).not.toContain('The bar for getting listed here');
   });
 

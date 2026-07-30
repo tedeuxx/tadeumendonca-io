@@ -193,6 +193,28 @@ Working rules that follow from that:
 - **CI OIDC roles** pinned to the **immutable OIDC subject**; role ARNs are **environment secrets**, tooling
   tokens are **repository** secrets (see `/workflow/github-actions`).
 - **No client/employer references** in public writing.
+- **The vocabulary is a hierarchy, not a synonym set** (#245). The presence carried **four** names for
+  what a reader meets as one practice — `AI-native`, `agent-first`, `agent-driven`, `agent-led
+  verification` — across the CV, the portfolio and `/architecture`, which is the surface set a hiring
+  manager traverses in one sitting. Three survive, and each answers a **different question**:
+
+  | term | answers | where it belongs |
+  |---|---|---|
+  | **AI-native** | *what kind of development is this?* | the approach — broadest, the one a non-engineer parses. The CV headline and LinkedIn carry it |
+  | **agent-first** | *who drafts, and who reviews?* | the ordering — the agent drafts, the human reviews, not the reverse |
+  | **agent-led verification** | *who proves it is done?* | the spine — the agent produces the evidence; the human keeps the irreversible call. The narrowest and the most falsifiable |
+
+  Read as a hierarchy they narrow cleanly: an **AI-native** practice that is **agent-first** in its
+  ordering, whose verification is **agent-led**.
+
+  **`agent-driven` is retired.** *"Who moves the work through the SDLC"* is not a distinct claim from
+  *"the agent drafts and the human reviews"* — it is `agent-first` restated, and it was the one term with
+  no surface where it was the most precise word available.
+
+  **`agent-led verification` is the least negotiable**, and the reason is worth keeping: it is the only
+  one of the three a technical reader can check. Not *"AI helped build this"* but *"the agent produced
+  the evidence that this is done"* — which is the claim the ADR library actually backs. Diluting it into
+  the broader terms would trade the site's strongest claim for its vaguest.
 
 ## ⚠️ Destructive / requires explicit confirmation
 - **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.
