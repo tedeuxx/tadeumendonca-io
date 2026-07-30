@@ -133,9 +133,9 @@ The rest of what I watch, ranked by how much I actually watch it — not by foll
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — practitioners posting techniques and tools worth stealing.
 - **[@virattt](https://x.com/virattt)** — AI applied to finance, if that's your domain.
 - **[@garrytan](https://x.com/garrytan)** (Garry Tan, YC) — founder/investor lens on where AI is heading.
-- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — joined X in July 2026 and has posted one open letter on open-weight models so far. Listed for who is writing rather than for a body of work: he builds the hardware everything above runs on.
+- **[@JensenHuang](https://x.com/JensenHuang)** (Jensen Huang, NVIDIA) — he runs the company that makes the hardware this whole field runs on. Posts rarely: one open letter on open-weight models, in July 2026.
 - **[@karpathy](https://x.com/karpathy)** (Andrej Karpathy) — foundational LLM education and frontier takes from one of the field's clearest teachers.
-- PT-BR: **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos, Principal Software Engineer at Itaú, ex-Microsoft MVP) — a Brazilian dev voice going deep on this.
+- PT-BR: **[@glaucia_lemos86](https://x.com/glaucia_lemos86)** (Glaucia Lemos, Itaú) — a Brazilian dev voice going deep on this.
 
 Treat X as signal, not truth — it's where you spot what's new, then you go verify it in the books.
 
