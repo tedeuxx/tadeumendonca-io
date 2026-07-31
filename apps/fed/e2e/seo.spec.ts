@@ -140,6 +140,32 @@ test.describe('SEO discovery', () => {
     expect([...seen]).toHaveLength(1);
   });
 
+  // #269. Each article advertises its OWN card, per locale, and the card RESOLVES.
+  //
+  // The 200 is the point, not decoration. A per-article `og:image` that 404s is the least reversible
+  // failure this site can ship: the page looks fine, nothing goes red, and every scraper that fetched
+  // the miss has pinned it — the merge that adds the file does not fix the post that already unfurled.
+  // So the assertion follows the advertised URL rather than trusting that the generator ran.
+  test('every article advertises its own OG card, per locale, and the card resolves', async ({ request }) => {
+    const seen = new Set<string>();
+
+    for (const path of ['/pt/blog/meu-compromisso/', '/en/blog/my-commitment/']) {
+      const html = await (await request.get(path)).text();
+      const card = /property="og:image" content="([^"]+)"/.exec(html)?.[1];
+      expect(card, `${path} must advertise an og:image`).toBeTruthy();
+      expect(card, `${path} must not fall back to the site-wide card`).not.toContain('og-default');
+
+      const res = await request.get(new URL(card!).pathname);
+      expect(res.status(), `${path} advertises ${card} — which does not resolve`).toBe(200);
+      expect(res.headers()['content-type']).toContain('image/png');
+      seen.add(card!);
+    }
+
+    // Two editions, two cards. One shared card would satisfy every assertion above and defeat the
+    // feature, whose entire purpose is that two shared articles stop looking like the same link.
+    expect(seen.size, 'the two editions must not share one card').toBe(2);
+  });
+
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
   // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on
   // this site ever carried a query string, so sourcing the canonical from the location would have been a

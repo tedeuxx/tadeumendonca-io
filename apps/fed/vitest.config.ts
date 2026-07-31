@@ -27,6 +27,11 @@ export default defineConfig({
         // gen-diagrams.mjs is deliberately NOT here. It drives a browser and has no unit-testable
         // surface left once the logic is factored out — which is exactly why the logic was factored out.
         'scripts/diagram-source.mjs',
+        // #269. Same split as diagram-source: this is the half that decides WHICH cards must exist and
+        // whether the committed set still matches the articles. gen-og-articles.mjs is excluded from the
+        // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a
+        // browser and has no unit-testable surface left once the logic is factored out.
+        'scripts/og-cards.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
