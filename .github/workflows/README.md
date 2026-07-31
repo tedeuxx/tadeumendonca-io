@@ -207,3 +207,117 @@ A check that matched nothing must not read like one that passed.
 | `infra-apply.yml` | push → main `paths: iac/**` · dispatch | **no** — it *is* the change |
 
 `claude.yml` is on-demand (`@claude` in a comment) and is not part of this flow.
+
+---
+---
+
+# PROPOSAL — not built yet
+
+**Everything above describes what runs today. Everything below is a proposal under discussion**
+(2026-07-31) and no YAML has been touched. It is here so it can be read rendered and argued with.
+
+## The problem it addresses
+
+The Actions tab cannot draw a graph, because there is nothing to draw: six workflows, seven jobs,
+and only `deploy` has more than one. `build-test` is a **13-step monolith** — a real dependency
+graph flattened into a queue on one machine.
+
+## The one fact that makes this cheap
+
+Branch protection requires **`plan`, `build-test`, `actionlint`** — those are **job names**, not
+workflow names. Any reorganisation that keeps those three names intact needs **no change to branch
+protection**.
+
+## The proposed shape
+
+```mermaid
+flowchart TD
+    CH["changes<br/><i>paths-filter, no credentials</i>"]
+
+    CH -->|"code?"| IN["setup<br/><i>node + npm ci, cached</i>"]
+
+    IN --> AU["audit"]
+    IN --> LI["lint"]
+    IN --> TY["typecheck"]
+    IN --> TE["test ≥85%<br/><i>uploads lcov</i>"]
+    IN --> BU["build<br/><i>uploads dist</i>"]
+
+    BU --> E2["e2e<br/><i>downloads dist</i>"]
+    TE --> SO["sonar<br/><i>downloads lcov</i>"]
+    BU --> SO
+
+    AU --> GATE["<b>build-test</b><br/><i>aggregator — the required check</i>"]
+    LI --> GATE
+    TY --> GATE
+    TE --> GATE
+    E2 --> GATE
+    SO --> GATE
+
+    CH -->|"iac?"| PL["<b>plan</b><br/>fmt · validate · checkov"]
+    CH -->|"workflows?"| AL["<b>actionlint</b><br/>+ shellcheck"]
+
+    style GATE stroke-width:3px
+    style PL stroke-width:3px
+    style AL stroke-width:3px
+```
+
+**The bold nodes are the three required checks, unchanged in name.**
+
+## The trick that makes the names survive
+
+`build-test` stops being the job that *does* the work and becomes a **terminal aggregator**: it
+`needs:` all the others and does nothing but succeed or fail with them. Two things fall out of that,
+and the second is the point:
+
+- branch protection keeps working untouched;
+- the graph gets a real terminal node, so "did the code gate pass" is one box instead of a mental
+  AND over six.
+
+## What the filter becomes — this part gets *simpler*
+
+Today `dorny/paths-filter` runs as step 2 and every subsequent step carries
+`if: steps.changes.outputs.code == 'true'` — eleven repetitions of the same condition. As jobs, the
+filter becomes one `changes` job whose outputs the others read once each in their own `if:`.
+
+A skipped job satisfies a required check in GitHub, so a non-matching PR still reports green
+without the workflow-level `paths:` trap described in §6.
+
+## What it costs, stated before it is built
+
+**Every job is a fresh runner.** There is no shared `node_modules` between jobs, so each one runs
+its own `npm ci`. `actions/setup-node`'s cache makes that cheaper, not free. **Wall-clock may
+improve and total runner-minutes will certainly go up — and I have not measured either.** That
+measurement is the first task, not an afterthought; if the wall-clock does not improve, the honest
+outcome is to keep the monolith and say so.
+
+**Two artifacts appear where there were none:** `dist` (build → e2e) and the lcov report
+(test → sonar). Artifact upload/download is real latency and a real new failure mode — a job that
+passes locally and fails in CI because an artifact did not arrive.
+
+## The open question I do not think should be decided by the picture
+
+**One file or three?**
+
+Merging `build-test` + `infra-plan` + `lint-workflows` into a single workflow gives **one run per
+PR** instead of three, and one graph to look at.
+
+But it couples their failure: a YAML syntax error in that file makes GitHub fail the **whole
+workflow**, so all three required checks go missing at once and the PR is blocked with no useful
+signal. Today a broken `lint-workflows.yml` costs you `actionlint` and nothing else.
+
+The three gates are also genuinely independent — `plan` does not depend on `lint`, and neither
+depends on `actionlint`. **Merging them draws no edges.** It would put three unconnected boxes in
+one run. The edges in the diagram above come entirely from splitting the monolith, which is a
+separate change and the one that carries the value.
+
+**So the two changes should be decided separately**, and my recommendation is: split the monolith
+first, measure it, and leave the three files alone until there is a reason beyond the picture.
+
+## Status
+
+Nothing here is agreed. Open questions, in the order they should be settled:
+
+1. Split the monolith — yes or no, pending a wall-clock measurement.
+2. If yes: does `sonar` need `build`, or only the lcov from `test`? (drawn conservatively above as
+   needing both)
+3. Merge the three files — separately, and probably not.
