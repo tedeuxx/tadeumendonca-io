@@ -183,7 +183,14 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
       upsertMeta('property', 'og:image:width', OG_IMAGE_WIDTH);
       upsertMeta('property', 'og:image:height', OG_IMAGE_HEIGHT);
       upsertMeta('property', 'og:image:type', OG_IMAGE_TYPE);
-      upsertMeta('property', 'og:image:alt', imageAlt ?? ogImageAlt(locale));
+      // Keyed on whether the image is CUSTOM, not on `imageAlt ?? default`, and the difference is the
+      // failure mode. The default alt is only ever correct for the DEFAULT card, so falling back to it
+      // for a custom card would reintroduce exactly the misdescription this change removes — silently,
+      // the first time a caller passes a card without an alt. Here that caller gets NO alt: a gap a
+      // reader can notice, rather than a confident sentence about a different picture.
+      const alt = image ? imageAlt : ogImageAlt(locale);
+      if (alt) upsertMeta('property', 'og:image:alt', alt);
+      else removeMeta('property', 'og:image:alt');
     } else {
       // An image from outside the build is a different, unknown size — carrying our dimensions over
       // from a previous route would actively lie about it.

@@ -7,7 +7,7 @@
 // TAGLINE, and it was re-typed here as a literal. Two copies of one sentence in two languages, with
 // nothing asserting they match — the shape that put Portuguese on /en/portfolio for three days (#235).
 // A .mjs script cannot import the TypeScript catalog, so the copy still lives here; what changed is that
-// `og-copy.test.ts` now reconstructs each locale's tagline from these fields and compares it to
+// `og-copy.test.mjs` now reconstructs each locale's tagline from these fields and compares it to
 // `src/i18n/messages.ts`. Editing the hero without editing the card is a red test, not a silent
 // divergence between the page and the card that advertises it.
 

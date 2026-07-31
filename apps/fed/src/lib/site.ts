@@ -37,8 +37,10 @@ export const DEFAULT_DESCRIPTION = DEFAULT_DESCRIPTION_EN;
  * failure ADR-0041 is organised around avoiding. Mirrors `defaultCardFile` in scripts/og-copy.mjs; a
  * mismatch is caught by the E2E, which reads the SERVED HTML rather than this constant.
  */
-export const defaultOgImage = (locale: Locale): string =>
-  `${SITE_URL}${locale === 'en' ? '/og-default.png' : `/og-default.${locale}.png`}`;
+export const defaultOgImage = (locale: Locale): string => {
+  const file = locale === 'en' ? 'og-default.png' : `og-default.${locale}.png`;
+  return `${SITE_URL}/${file}`;
+};
 
 /**
  * Alt text for the default card, per locale — it describes a PICTURE WITH WORDS IN IT, so an English

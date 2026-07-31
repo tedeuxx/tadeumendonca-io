@@ -34,7 +34,7 @@ const mark = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rec
 
 // Brutalist mono: near-black canvas, one safety-orange accent, radius 0, no shadow/gradient.
 // NOT exported: this module launches a browser at top level, so importing it to read a string would run
-// the generator. The words are asserted where they are authored — og-copy.mjs — and og-copy.test.ts reads
+// the generator. The words are asserted where they are authored — og-copy.mjs — and og-copy.test.mjs reads
 // this file as TEXT to prove the generator still interpolates them.
 const cardHtml = (locale) => {
   const copy = CARD_COPY[locale];

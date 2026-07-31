@@ -175,10 +175,17 @@ describe('useDocumentHead', () => {
   // card became distinctive and, on the two surfaces the site actually distributes through, started
   // unfurling as the small square thumbnail — distinct at a size where distinctness cannot be seen.
   //
-  // Fed the path `content.ts` derives rather than a hand-written literal, so the test follows the
-  // shape the app really produces if that derivation ever changes.
+  // The path is a LITERAL here, and the earlier version of this comment claimed otherwise — that it
+  // "follows the shape the app really produces". It does not: `${'my-commitment'}` is a string in a
+  // template, nothing is imported from content.ts, and a change to that derivation would leave this
+  // test green while the block was stripped again. Corrected rather than deleted, because a comment
+  // that names the wrong protector is the failure this suite keeps re-learning.
+  //
+  // What actually follows the real derivation is `e2e/seo.spec.ts` — it reads the SERVED article HTML
+  // and asserts the same three tags. This test's job is narrower and worth stating exactly: that
+  // `isGeneratedCard` recognises a `/og/…` path at all.
   it('declares the dimensions for a per-article card too — it is the same 1200×630 the build renders', () => {
-    const derivedCardPath = `/og/${'my-commitment'}.${'en'}.png`;
+    const derivedCardPath = '/og/my-commitment.en.png';
     renderHook(
       () =>
         useDocumentHead({
