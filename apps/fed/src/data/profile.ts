@@ -313,9 +313,16 @@ const sourceTemplate: ProfileSource = {
     {
       // Its own group since 2026-07-31 (owner). It was one line — `Observability, level 4` — inside
       // Distributed Systems & DevOps, which said the discipline is a skill rather than a domain with
-      // tooling under it. The contents are not new claims: the experience block above already states
-      // an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix,
-      // so this group makes checkable what the prose already asserts.
+      // tooling under it.
+      //
+      // WHAT IS AND IS NOT BACKED BY THE PROSE ABOVE, stated precisely because an earlier version of
+      // this comment claimed the whole group was: the experience block asserts an end-to-end
+      // observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix. That covers
+      // Grafana and Prometheus here. CloudWatch and X-Ray are AWS services the AWS Cloud group already
+      // carried. `ELK Stack` and `Splunk` are the owner's own assessment and are backed by nothing
+      // else on this page — which is fine, since a levelled skill IS an assessment, but the comment
+      // does not get to certify them. Note also that AppDynamics and Zabbix are named in the prose and
+      // absent from this list; the owner has not ruled on adding them.
       //
       // CloudWatch and X-Ray MOVED here out of AWS Cloud rather than being duplicated. That group is
       // organised by vendor and this one by domain, so the two genuinely overlap — listing them twice
