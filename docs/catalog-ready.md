@@ -17,7 +17,7 @@ the platform repo, is listed in the catalog because it **is** the site, not beca
 its own shelf, and it is measured differently.
 
 **Where the line actually falls.** Not adopted-vs-not: this repo is emphatically meant to be taken from
-— *"fork the two repos … adopt the skills plugin as your loop"* is the invitation `/architecture` makes,
+— replicating it is the invitation `/architecture` makes under *"Replicate it for your own context"*,
 and `/portfolio` says the catalog is there *"to study, clone and use."* A reader really does clone this
 and run it. **What they end up running is their own site, not this one.** That is the difference the
 checklist cannot see: for a catalog project the artifact *is* the deliverable, so *does it install, does
@@ -38,7 +38,7 @@ changes and a row does not, the row is wrong.
 | Config via env vars with a committed `.env.example` | **passes** — `apps/fed/.env.example`, added because writing this row is what revealed it was missing. It serves the row above rather than contradicting it: what a forker configures is *their* site's origin and analytics, which is the point |
 | No secrets in history | **passes** |
 | No client references, and no war-story that identifies a client | **passes** |
-| A LICENSE | **passes** — MIT on the code, editorial content reserved |
+| A LICENSE | **passes** — MIT on the software, editorial content reserved. Two files: `LICENSE` is the exact MIT text so GitHub can classify it, `NOTICE` states the boundary |
 | A README in the new framing | **partly substituted.** *What it does · the real problem · the stack* are in the root README. *The agentic pattern* is the failed box above. *How to run* is scoped out with the box above it. *One honest limitation* is published on `/architecture` instead of in the README — a substitution, not a satisfaction |
 | Names each explicit choice and its trade-off | **passes** — that is what the ADR library is |
 | Green on its own basics | **passes**, by a stricter mechanism than the box asks for (below) |

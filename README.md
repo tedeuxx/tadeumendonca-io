@@ -47,15 +47,22 @@ docs/
   adr/    # the decision library — the architecture documentation; start at 0001
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
           # plus one account-wide cost budget, deliberately not scoped to this project
-LICENSE   # MIT on the code; the editorial content is reserved — see the file
+LICENSE   # the MIT grant, exact text so GitHub can classify it
+NOTICE    # the boundary of that grant — the editorial content is reserved
 VERSION   # single version (numeric SemVer)
 ```
 
 ## Licence
 
-**MIT on the software, editorial content reserved.** The code — the SPA, `iac/`, the build scripts, the
-workflows — is yours to fork and ship. The writing and the CV are not: they are published to be read, not
-relicensed. `LICENSE` states the split and which paths fall on each side.
+**MIT on the software, editorial content reserved.** The machinery — the SPA, `iac/`, the build scripts,
+the workflows — is yours to fork and ship, and so are **the decision records** (`docs/adr/**`,
+`catalog-ready.md`, the IaC policy): a fork that takes the structure without the reasoning takes the
+weaker half. The writing and the CV are not: they are published to be read, not relicensed. Reserved is
+the default — the MIT side wins only where `NOTICE` names something.
+
+[`LICENSE`](./LICENSE) is the MIT grant, kept as the exact MIT text so GitHub can classify it.
+[`NOTICE`](./NOTICE) is the boundary of that grant — what is reserved, and which paths illustrate it.
+**Read them together; neither is complete alone.**
 
 ## Workflow (trunk-based)
 

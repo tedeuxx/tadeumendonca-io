@@ -1,0 +1,114 @@
+NOTICE — the boundary of the MIT grant in `LICENSE`
+===================================================
+
+`LICENSE` grants MIT. This file states what that grant covers and what it does
+not. Read them together; neither is complete alone.
+
+
+WHAT IS MIT
+-----------
+
+**The rule: the machinery is MIT.** Everything that makes the site work is
+yours to take: the application source, the Terraform under `iac/`, the build and
+prerender scripts, the CI workflows, the tests, the configuration.
+
+**So are the decision records** — `docs/adr/**`, `docs/catalog-ready.md`,
+`docs/iac-deploy-policy.{md,json}`. They are prose, and they are named here
+because the rule below would otherwise reserve them: `/architecture` invites a
+reader to fork both repositories and read the ADRs first, and a fork that
+inherits the structure without the reasoning inherits the weaker half.
+
+**`docs/` is not granted wholesale.** `docs/redesign/**` is on the reserved
+side — it holds a design comp of published pages, and that comp contains the CV:
+the employers, the dates, the role titles. Naming a directory would have granted
+it by accident.
+
+Fork it, adapt it, ship it commercially.
+
+
+WHAT IS RESERVED
+----------------
+
+**The rule: the author's own words and likeness are reserved, wherever in the
+tree they live.** The paths below illustrate it; they are deliberately not
+exhaustive, because a list always lags the next file nobody thought to add.
+
+**Which rule wins.** Both rules are written to be general, so they meet: a
+decision record *is* the author's words, and `/architecture` *is* a record of
+how something was decided. **The reserved rule is the default; the MIT side wins
+only where it names something.** So the ADRs, `catalog-ready.md` and the IaC
+policy are MIT because they are named above — and `/architecture`, which is a
+page a reader reads rather than a record kept for a maintainer, stays reserved,
+as does anything else the MIT side does not name.
+
+The reserved half is the author's writing, the images of him, and his
+professional record — published here to be read, not relicensed.
+
+  - `apps/fed/src/content/**` — the articles, the ramp-up plan, the
+    architecture page
+  - `apps/fed/src/data/profile.ts` — the CV
+  - `apps/fed/src/data/catalog.ts`, `apps/fed/src/data/repoCards.ts` — the
+    portfolio copy
+  - `apps/fed/src/i18n/messages.ts` — the site's UI **strings**
+  - `apps/fed/src/lib/site.ts`, `apps/fed/src/components/contactChannels.ts`,
+    `apps/fed/index.html`'s meta tags — the meta/OG copy and the public contact
+    details
+  - `apps/fed/scripts/og-copy.mjs` — the words set on the share cards
+  - `apps/fed/public/og-default.png`, `apps/fed/public/og-default.*.png`,
+    `apps/fed/public/og/**` — the generated share cards, which carry those words
+  - `apps/fed/src/assets/avatar.jpg`, and any other portrait of the author
+
+**The modules in that list are MIT; their contents are not.** `profile.ts`,
+`catalog.ts` and `messages.ts` are software carrying copy — the keys, the types,
+and the `satisfies` check that makes a missing translation a compile error are
+the machinery, and they are yours. Replace the values with your own, which is
+what `/architecture`'s walkthrough tells a forker to do anyway.
+
+Those contents are © 2026 Luiz Tadeu Mendonça. **You may quote them** — a few
+sentences, with attribution and a link to the page they came from, as you would
+any published writing. **You may not** republish an article, the CV, or a
+portrait in full, or present any of it as your own.
+
+
+THE CERTIFICATION BADGES — neither granted nor reserved
+------------------------------------------------------
+
+`apps/fed/public/badges/**` is outside this licence in both directions, because
+it is not the author's to grant or reserve. Those files are the issuing
+bodies' trademarks and artwork, reproduced under those bodies' own terms, and
+they identify credentials held by the author. This file says nothing about
+what you may do with them; whoever wants to use them goes to the issuer.
+
+The rest of `apps/fed/public/` — `robots.txt`, `favicon.svg`, the touch icon —
+is functional and is MIT. **Except the share cards named in the reserved list
+above, which are also in that directory.**
+
+
+IF YOU REDISTRIBUTE
+-------------------
+
+MIT requires only that `LICENSE` travel with copies of the software, so this
+file is not compelled by it. Carry it anyway. A copy that keeps `LICENSE` and
+drops this one is formally compliant and has silently erased the boundary — and
+`LICENSE` cannot point here, because appending a single line to it is what makes
+GitHub stop recognising it as MIT.
+
+
+WHY THE BOUNDARY
+----------------
+
+The structure is what is being given away. The words are not, because a CV and
+a body of writing under a permissive software licence could be reposted
+verbatim by anyone, including under someone else's name.
+
+That is the same line `/architecture` draws when it invites replication: it
+publishes the repositories, the decisions and the bar, not the author's record.
+But the invitation on that page is an invitation — `LICENSE` and this file are
+the licence.
+
+*On the file layout:* GitHub classifies a repository's licence by matching the
+text of `LICENSE` against known licences, and any text appended to the MIT
+wording makes the match fail — the repository is then labelled "Other", which
+tells a reader nothing about what they may do. Keeping `LICENSE` as the exact
+MIT text and the boundary here makes the grant legible to a person and to a
+machine at the same time.
