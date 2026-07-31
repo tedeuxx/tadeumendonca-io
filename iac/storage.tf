@@ -48,7 +48,12 @@ module "frontend_bucket" {
   versioning = { enabled = true } # rollback safety for the site
 }
 
-# 2. Generated OG images cache — private, read via the main CloudFront /og/* behavior (OAC in #7).
+# 2. Generated OG images cache — RETIRED, RETAINED. It backed the Lambda@Edge OG renderer (ADR-0026,
+# superseded by ADR-0004); nothing has written to it since, and as of the /og/* routing fix nothing
+# READS it either: CloudFront no longer has an origin or a behavior pointing here (frontend.tf), and
+# the per-article cards of ADR-0041 are committed static objects served from the fed bucket.
+# The bucket, its objects and its SSM parameter are kept ON PURPOSE — deleting storage is irreversible
+# and is a separate owner decision, not something a routing fix gets to take.
 module "og_images_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 4.0"

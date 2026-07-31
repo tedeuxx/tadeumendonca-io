@@ -1,7 +1,17 @@
 # Frontend layer — owned by /infrastructure/cloudfront (+ /infrastructure/waf, /infrastructure/s3,
 # /infrastructure/route53). CloudFront fronts the private fed bucket (OAC) at the custom domain, with
-# a /og/* behavior to the og-images bucket and SPA error routing. The Lambda@Edge (og-edge) viewer
-# request is deferred to api.tf (#6) — the SPA serves fine without it (it's bot/SEO only).
+# an /assets/avatars/* behavior to the assets bucket and SPA error routing. Everything else — including
+# /og/* — falls through to the default behavior and is served from the fed bucket.
+#
+# /og/* USED to have its own behavior pointing at the og-images bucket, a leftover of the retired
+# Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0004) that generated cards at request time into
+# that bucket. Nothing has written to it since. ADR-0041 then shipped per-article cards as COMMITTED
+# static objects in apps/fed/public/og/, which deploy.yml syncs to the FED bucket only — so every
+# article's advertised og:image resolved to the og-images bucket, 403'd, hit the SPA custom_error_response
+# below and returned `200 text/html`: an og:image URL serving the SPA's HTML to every scraper. The
+# behavior and its origin are removed here so those ALREADY-ADVERTISED URLs resolve; no URL is minted or
+# moved, because a scraper pins the URL it fetched (ADR-0041). The og-images BUCKET, its SSM parameter
+# and its objects are deliberately left in place — deleting storage is a separate, irreversible decision.
 
 # CloudFront Function (viewer-request) — rewrites directory routes to their prerendered index.html so
 # the per-route static HTML (built by `build:static`) is served. Replaces the og-edge Lambda@Edge:
@@ -38,10 +48,11 @@ module "cloudfront" {
       domain_name           = module.frontend_bucket.s3_bucket_bucket_regional_domain_name
       origin_access_control = "s3_oac"
     }
-    og = {
-      domain_name           = module.og_images_bucket.s3_bucket_bucket_regional_domain_name
-      origin_access_control = "s3_oac"
-    }
+    # NOTE: no `og` origin. It existed solely as the target of the /og/* behavior removed below; with
+    # that behavior gone it would be an origin no cache behavior references. CloudFront does accept
+    # that shape (the upstream module's own examples/complete declares an unreferenced `s3_oac`
+    # origin), so this is not a legality workaround — it is removed because it would be dead config
+    # that the next reader has to re-derive. The bucket itself still exists (storage.tf).
     assets = {
       domain_name           = module.assets_bucket.s3_bucket_bucket_regional_domain_name
       origin_access_control = "s3_oac"
@@ -71,17 +82,12 @@ module "cloudfront" {
   # `assets` bucket under the avatars/ prefix → served at /assets/avatars/*, which is listed BEFORE the
   # broad /assets/* so it wins. (A future non-avatars prefix in the assets bucket needs its own behavior
   # here, or move the SPA build to /static/* to reserve all of /assets/* for the store.)
+  # /og/* is deliberately ABSENT from this list — see the header comment. It falls through to the
+  # default behavior (fed origin), which is where the committed cards actually are. Falling through
+  # also gains it the SecurityHeadersPolicy the removed behavior never applied. The spa-rewrite
+  # function now sees these requests and passes them through unchanged (the last path segment has an
+  # extension) — see cloudfront-functions/spa-rewrite.js.
   ordered_cache_behavior = [
-    {
-      path_pattern           = "/og/*"
-      target_origin_id       = "og"
-      viewer_protocol_policy = "redirect-to-https"
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      compress               = true
-      use_forwarded_values   = false
-      cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
-    },
     {
       path_pattern           = "/assets/avatars/*" # generic asset store (avatars) — MUST precede /assets/*
       target_origin_id       = "assets"
@@ -155,6 +161,13 @@ data "aws_iam_policy_document" "frontend_bucket" {
   }
 }
 
+# The og-images bucket policy is UNCHANGED by the /og/* routing fix and stays valid and appliable:
+# its AllowCloudFrontOAC condition keys off the distribution ARN, which still exists, not off any
+# origin or behavior. The grant is now VESTIGIAL though — CloudFront has no origin for this bucket, so
+# nothing can exercise it. Removing that statement is the least-privilege follow-up, deliberately left
+# to the same decision that settles the bucket's fate rather than smuggled into an outage fix. The
+# DenyInsecureTransport statement must stay regardless (it is the bucket's TLS floor, folded here
+# because storage.tf sets attach_deny_insecure_transport_policy = false).
 data "aws_iam_policy_document" "og_bucket" {
   statement {
     sid     = "DenyInsecureTransport"
