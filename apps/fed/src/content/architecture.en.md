@@ -59,7 +59,7 @@ The interesting part isn't the stack — it's how it's built: **agent-led verifi
 flowchart LR
   accTitle: Where the human sits in the loop
   accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates, which loop back on red. A fresh-context reviewer then judges the change and can send it back. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to a human go or no-go, which is the last thing before production and can also return the work.
-  I["Issue"] --> P["Plan, aligned with the human"]
+  I["Issue"] --> P["Plan, decided by the human"]
   P --> B["Agent builds the slice"]
   B --> G["Mechanical gates"]
   G -- "red" --> B
@@ -71,11 +71,11 @@ flowchart LR
   H -- "no-go" --> B
 ```
 
-The human appears twice, and the two appearances are different jobs. At the plan, deciding what is worth building and how — the architectural calls are never made solo. At the end, on boundary-class work only, deciding whether it ships. In between the agent builds and the machine proves, and most changes reach production without a person in that path at all.
+The human appears twice, and the two appearances are different jobs. At the plan, deciding what is worth building and how — the architectural calls are never made solo. At the end, on boundary-class work only, deciding whether it ships. In between, the agent builds and the machine proves, and most changes reach production without a person in that path at all.
 
-What the picture cannot show is that **the routing itself is the artifact**. Which edge the human sits on, what counts as a class boundary, where a gate is worth its cost — that is the engineering this page is offering, more than any box in the figure.
+The picture shows the routing. What it cannot show is that the routing was **decided** — which edge the human sits on, what counts as a class boundary, where a gate is worth what it costs. That is the engineering this page is offering, more than any box in the figure.
 
-And the cost, since the rest of this page states its own: a change mis-classified as safe reaches production with no human in front of it, and the thing doing the classifying is the same kind of thing that wrote the change. What makes that acceptable here is blast radius, not confidence — this is a static site, and a revert is a merge.
+And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — this is a static site, and a revert is a merge.
 
 ## The decision record IS the documentation
 
@@ -88,7 +88,7 @@ It's all public — two repos, no secrets:
 - **[tadeumendonca-io](https://github.com/tedeuxx/tadeumendonca-io)** — this site and its infrastructure (`iac/`: Terraform for S3/CloudFront/OIDC).
 - **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — the reusable dev-loop plugin: the principles, the agent personas, the permission guards.
 
-**The bar:** a project is only listed in the portfolio when it clears **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — the proof-of-engineering gate. This site is the one entry that did not come through it, because it *is* the shelf; what holds it up is on this page — the ADRs above, the gates, and the limitation it states about itself below. The bar is written down and public, so you can read it and decide whether it is yours.
+**The bar:** a project is only listed in the portfolio when it clears **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — the proof-of-engineering gate. This site is the one entry that did not come through it, because it *is* the shelf; what holds it up is on this page — the ADRs above, the gates, and the limitations it states about itself below. The bar is written down and public, so you can read it and decide whether it is yours.
 
 ### The walkthrough
 
@@ -109,4 +109,4 @@ The part I would be nervous seeing someone copy without the rest is **merging st
 
 This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
 
-And both diagrams above show the **shape** of a thing, not a run of it. That the request path is what the edge actually does is checkable — the function, its tests and the post-deploy comparison are linked. That the loop is followed the way it is drawn is not: nothing on this page proves any particular change took the route in the picture. The diagram is a claim about how I work, and it is the one claim here you still have to take on trust.
+And both diagrams above show the **shape** of a thing, not a run of it. That the request path is what the edge actually does is checkable — the function, its tests and the post-deploy comparison are linked. That the loop is followed the way it is drawn is not: nothing on this page proves any particular change took the route in the picture. The diagram is a claim about how I work, and no artifact on this page can settle it for you.
