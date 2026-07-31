@@ -255,9 +255,23 @@ Working rules that follow from that:
   cases happened — *nothing matched, so nothing was verified* · *a step failed, so the rest never ran* ·
   *the gate ran, with the list*. A check that matched nothing must not read like one that passed, and a
   notice that prints the full list after a failure is the same overstatement on the red path.
-- **`deploy`** (merge to `main`, paths under `apps/fed`): publishes the static site, then runs a
-  **post-deploy E2E smoke against the live apex**. Post-deploy assertions are the *one* exception noted
-  under *Branching* above — they are unsatisfiable before the deploy exists.
+- **`deploy`** (the **version bump**, not the merge — `paths: VERSION`): publishes the static site, then
+  runs a **post-deploy E2E smoke against the live apex**. Post-deploy assertions are the *one* exception
+  noted under *Branching* above — they are unsatisfiable before the deploy exists.
+  **Why the bump and not the merge** (#299): `version-main` pushes `bump: X → Y` and tags `vY` on top of
+  every merge, so the bump commit is the **only** commit on `main` whose tree carries the version it is
+  tagged with. Triggering on the merge built a tree whose `VERSION` still named the *previous* release.
+  Nothing reads `VERSION` yet, so no reader has seen it — #298 would have been the first, and it is held
+  behind this precisely so the wrong footer never ships: the link would **resolve**, so nothing would
+  signal it.
+  **The `apps/fed` surface filter did not disappear, it moved** into a credential-free `gate` job that
+  diffs `<last tag>..HEAD` over the same three paths — verified against real history, in both directions,
+  before the change was written. Note what the design actually rests on: not that tags are dense (they
+  are, one bump+tag per merge), but that the range starts at the **last released tag**, so a wedge that
+  accumulates merges yields a *superset* rather than a gap. The filter is a union; it cannot skip content.
+  **The cost, inherent and undesignable-away: `version-main` is now load-bearing for deployment.** It
+  wedged once, for four merges; then that only stopped tagging, now it stops the site shipping.
+  `workflow_dispatch` is the unconditional manual deploy and the rollback path.
 - **`infra-apply`** (merge to `main`, paths under `iac/` **and its own workflow file**): applies Terraform,
   then **verifies the LIVE CloudFront Function stage matches the repo's source**, and runs
   **`e2e/edge-rewrite.spec.ts`** — together the only proof the function is **attached, current, and
