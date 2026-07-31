@@ -108,7 +108,12 @@ test.describe('CV PDF export', () => {
     expect(await display(page.locator('a[href="/cv.pdf"][download]'))).toBe('none');
     // The marquee lives on the landing, not /me — guard for its absence (like the conditional consent
     // button) rather than assume it renders here.
-    const marquee = page.locator('[aria-label="Subjects"]');
+    // "Stack", not "Subjects" — the strip's label changed on 2026-07-31 and this locator was left
+    // pointing at a string the app no longer contains. Because the check is conditional, it would
+    // have gone on passing forever while verifying nothing: `count()` returns 0 and the block is
+    // skipped. A guard that can never find its subject is indistinguishable from a guard that found
+    // it and was satisfied.
+    const marquee = page.locator('[aria-label="Stack"]');
     if ((await marquee.count()) > 0) {
       expect(await display(marquee.first())).toBe('none');
     }
