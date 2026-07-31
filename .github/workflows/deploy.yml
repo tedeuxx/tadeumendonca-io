@@ -8,7 +8,8 @@ name: deploy
 # TRIGGERED BY THE VERSION BUMP, NOT BY THE MERGE (#298). `version-main` pushes `bump: X → Y` and tags
 # vY on top of every merge, so the bump commit is the ONLY commit on main whose tree carries the version
 # it is tagged with. Building the merge commit builds a tree whose VERSION still names the PREVIOUS
-# release — which is exactly what shipped a footer linking the wrong Release.
+# release. Nothing reads VERSION yet, so no reader has seen it: #298 would be the first, and it is held
+# behind this change precisely so a footer linking the wrong Release never ships.
 #
 # The surface filter did not disappear; it MOVED into the `gate` job, where it diffs vN-1..vN. Tags are
 # dense on main (one bump+tag per merge), so that range is losslessly "one merge's content plus its
@@ -77,7 +78,14 @@ jobs:
             echo "::notice::manual dispatch — publishing unconditionally, NO surface filter applied"
             exit 0
           fi
-          prev="$(git describe --tags --abbrev=0 HEAD^)"
+          # Diagnosed rather than left to git's raw `fatal: No names found`. It fails CLOSED — red job,
+          # deploy skipped, never a silent no-op — but every other failure path in this file says why,
+          # and a deploy that stops with an unexplained git error is the kind of thing that gets
+          # retried rather than read.
+          if ! prev="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null)"; then
+            echo "::error::No tag reachable from HEAD^, so there is no previous release to diff against. The surface filter cannot run; refusing to publish rather than guessing. If this is a fresh clone, the checkout needs fetch-depth: 0 and its tags."
+            exit 1
+          fi
           # Plain path prefixes, not globs: a git pathspec naming a directory already means everything
           # under it, so `apps/fed/**` would go through fnmatch for no gain.
           hits="$(git diff --name-only "$prev..HEAD" -- \

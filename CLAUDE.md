@@ -260,12 +260,15 @@ Working rules that follow from that:
   noted under *Branching* above — they are unsatisfiable before the deploy exists.
   **Why the bump and not the merge** (#298): `version-main` pushes `bump: X → Y` and tags `vY` on top of
   every merge, so the bump commit is the **only** commit on `main` whose tree carries the version it is
-  tagged with. Triggering on the merge built a tree whose `VERSION` still named the *previous* release —
-  which shipped a footer linking a Release that did not describe it, resolving fine so nothing signalled it.
+  tagged with. Triggering on the merge built a tree whose `VERSION` still named the *previous* release.
+  Nothing reads `VERSION` yet, so no reader has seen it — #298 would have been the first, and it is held
+  behind this precisely so the wrong footer never ships: the link would **resolve**, so nothing would
+  signal it.
   **The `apps/fed` surface filter did not disappear, it moved** into a credential-free `gate` job that
-  diffs `vN-1..vN` over the same three paths. Tags are dense (one bump+tag per merge), so that range is
-  exactly one merge's content plus its bump — verified against real history, in both directions, before
-  the change was written.
+  diffs `<last tag>..HEAD` over the same three paths — verified against real history, in both directions,
+  before the change was written. Note what the design actually rests on: not that tags are dense (they
+  are, one bump+tag per merge), but that the range starts at the **last released tag**, so a wedge that
+  accumulates merges yields a *superset* rather than a gap. The filter is a union; it cannot skip content.
   **The cost, inherent and undesignable-away: `version-main` is now load-bearing for deployment.** It
   wedged once, for four merges; then that only stopped tagging, now it stops the site shipping.
   `workflow_dispatch` is the unconditional manual deploy and the rollback path.

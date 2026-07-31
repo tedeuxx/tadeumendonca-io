@@ -202,9 +202,16 @@ which sits **on top of** the merge it describes. `deploy` triggered on push to `
 them — and additionally skipped the bump commit. So every deploy built a tree whose `VERSION` had not yet
 been incremented.
 
-Latent until #298 put the version in the footer; then the served site **named the release preceding the
-code it was serving**. The link resolved, so nothing signalled it — which is worse than a 404. A wrong
-answer that renders is the failure mode this ADR's "no pre-production tier" cost is most exposed to.
+**This has not shipped, and the framing matters.** Nothing on the site reads `VERSION` today, so the
+stale value has never been visible to a reader. #298 — open, and blocked behind this change — would make
+it visible: the served page would name the release *preceding* the code it was serving, and the link
+would **resolve**, so nothing would signal it. A wrong answer that renders is the failure mode this ADR's
+"no pre-production tier" cost is most exposed to, which is why the fix goes first and the feature second.
+
+Recorded this way deliberately. An earlier draft of this amendment said the wrong footer *had* shipped.
+It had not, and a decision record that looks authoritative while being wrong is the exact defect this
+change exists to prevent — an auditor would go looking for an incident and find none. Caught by the
+`critical-reviewer` on the MR.
 
 ### The change
 
@@ -213,11 +220,19 @@ tree carries the version it is tagged with.
 
 The surface filter did not disappear; it **moved** out of the trigger and into a credential-free `gate`
 job that runs `git diff --name-only vN-1..vN -- apps/fed packages/shared .github/workflows/deploy.yml`.
-Tags are dense on `main` (one bump + tag per merge), so that range is exactly one merge's content plus its
-bump. Verified against real history in **both** directions before writing, because a filter is only proven
-by its negative case: `v0.1.143..v0.1.144` (a fed release) returns the fed files; `v0.1.139..v0.1.140`
-(the dependabot merge touching only `.github/workflows/claude.yml`) returns **empty**, so it correctly
-would not deploy.
+Verified against real history in **both** directions before writing, because a filter is only proven by
+its negative case: `v0.1.143..v0.1.144` (a fed release) returns the fed files; `v0.1.139..v0.1.140` (the
+dependabot merge touching only `.github/workflows/claude.yml`) returns **empty**, so it correctly would
+not deploy.
+
+**What the design rests on is weaker than "tags are dense", and stating the weaker property is the
+point.** Tags *are* dense today — one bump + tag per merge — but correctness does not depend on it. The
+range is `<last reachable tag>..HEAD`, so if `version-main` wedges and merges accumulate (as they did for
+four merges on 2026-07-23), the next bump's range covers **all** of them. The filter is a union, so it
+deploys if *any* accumulated merge touched the surface: a **superset**, never a gap. A range that skipped
+content is the failure this could have had, and the `<last tag>..HEAD` construction cannot produce one.
+The tighter claim was in an earlier draft; it is true, it is not load-bearing, and recording it as
+load-bearing would have made a future reader defend tag density for no reason.
 
 **A security improvement, not a footnote — permissions tightened rather than loosened.** `id-token: write`
 moved from the workflow level to the single job that assumes a role; the workflow default is now
