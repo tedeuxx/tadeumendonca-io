@@ -75,8 +75,14 @@ const cardHtml = (title) => `<!doctype html><html><head><meta charset="utf-8"><s
     display:flex; align-items:center; gap:12px; }
   .wm .badge { width:42px; height:42px; flex:none; display:block; }
   .wm .io { color:#FF5A00; }
+  /* line-height 1.06, not the 0.96 the default card's hook uses, and the difference is pt-BR.
+     Uppercase Portuguese keeps its diacritics — Ç, Ã, Í — and at a sub-1.0 line height the cedilla of
+     a line ONE descends into the line below it. Caught by rendering a long accented title, not by the
+     overflow guard: the text still FITS vertically, so scrollHeight never grows and the generator would
+     have shipped a card whose second line is struck through by the first. The en edition of the same
+     article renders clean at 0.96, which is exactly why a single-locale look would have missed it. */
   .title { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:${titleSize(title)}px;
-    line-height:0.96; letter-spacing:-0.035em; text-transform:uppercase; margin-top:34px;
+    line-height:1.06; letter-spacing:-0.035em; text-transform:uppercase; margin-top:34px;
     max-width:1040px; }
   .rule { width:96px; height:6px; background:#FF5A00; margin-top:30px; }
   .meta { font-family:'JetBrains Mono',monospace; font-weight:500;
