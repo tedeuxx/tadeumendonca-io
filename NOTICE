@@ -8,15 +8,20 @@ not. Read them together; neither is complete alone.
 WHAT IS MIT
 -----------
 
-**The rule: the machinery is MIT.** Everything that makes the site work, and
-everything that records how it was decided, is yours to take.
+**The rule: the machinery is MIT.** Everything that makes the site work is
+yours to take: the application source, the Terraform under `iac/`, the build and
+prerender scripts, the CI workflows, the tests, the configuration.
 
-That is the application source, the Terraform under `iac/`, the build and
-prerender scripts, the CI workflows, the tests, the configuration — and
-`docs/`, including all of `docs/adr/`. The decision records are deliberately on
-this side: `/architecture` invites a reader to fork both repositories and read
-the ADRs first, and a fork that inherits the structure without the reasoning
-inherits the weaker half.
+**So are the decision records** — `docs/adr/**`, `docs/catalog-ready.md`,
+`docs/iac-deploy-policy.{md,json}`. They are prose, and they are named here
+because the rule below would otherwise reserve them: `/architecture` invites a
+reader to fork both repositories and read the ADRs first, and a fork that
+inherits the structure without the reasoning inherits the weaker half.
+
+**`docs/` is not granted wholesale.** `docs/redesign/**` is on the reserved
+side — it holds a design comp of published pages, and that comp contains the CV:
+the employers, the dates, the role titles. Naming a directory would have granted
+it by accident.
 
 Fork it, adapt it, ship it commercially.
 
@@ -27,6 +32,14 @@ WHAT IS RESERVED
 **The rule: the author's own words and likeness are reserved, wherever in the
 tree they live.** The paths below illustrate it; they are deliberately not
 exhaustive, because a list always lags the next file nobody thought to add.
+
+**Which rule wins.** Both rules are written to be general, so they meet: a
+decision record *is* the author's words, and `/architecture` *is* a record of
+how something was decided. **The reserved rule is the default; the MIT side wins
+only where it names something.** So the ADRs, `catalog-ready.md` and the IaC
+policy are MIT because they are named above — and `/architecture`, which is a
+page a reader reads rather than a record kept for a maintainer, stays reserved,
+as does anything else the MIT side does not name.
 
 The reserved half is the author's writing, the images of him, and his
 professional record — published here to be read, not relicensed.
