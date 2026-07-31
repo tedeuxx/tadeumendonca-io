@@ -48,7 +48,9 @@ are simply this property applied; they are recorded together for that reason.
 - **Per locale, because the title is per locale** ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
 - **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — the smallest card that
   fixes the problem, not the most informative one.
-- **`iac/` untouched** — cards are static objects like every other, served by the existing behaviour.
+- ~~**`iac/` untouched** — cards are static objects like every other, served by the existing behaviour.~~
+  **Wrong; see Consequences → Neutral.** `/og/*` had its own cache behaviour pointing at a different
+  bucket, so the cards were published where nothing served them.
 
 ## Considered options
 
@@ -240,8 +242,28 @@ names the URL.
   for reader-facing copy) — it is a bounded per-post cost, not a threat to the site.
 
 **Neutral**
-- **`iac/` untouched.** The cards are static objects under the existing S3/CloudFront behaviour
-  ([ADR-0013](./0013-s3-cloudfront-hosting.md)); no cache-behaviour, edge or Terraform change.
+- ~~**`iac/` untouched.** The cards are static objects under the existing S3/CloudFront behaviour
+  ([ADR-0013](./0013-s3-cloudfront-hosting.md)); no cache-behaviour, edge or Terraform change.~~
+  **False, and it broke production for four hours (2026-07-31).** The cards *are* static objects, and
+  that part was never in doubt — but `/og/*` was not on "the existing behaviour". It had its **own**
+  `ordered_cache_behavior` pointing at the `og-images` bucket, a leftover from the retired Lambda@Edge
+  OG renderer. The deploy syncs `dist/` to the **fed** bucket, so the cards were published to a bucket
+  CloudFront never reads for that prefix. Every article's `og:image` served the SPA's HTML instead of
+  a PNG, from the moment this ADR's slice deployed.
+
+  **Two things made it invisible, and both are worth more than the fix.** First, the distribution's
+  `custom_error_response` maps **403 → 200 `/index.html`** — so an origin miss did not 404, it returned
+  a healthy-looking page. Second, and this is the sharper one: the E2E asserted `status === 200` AND
+  `content-type` contains `image/png`, and **only the second one caught it**. The status assertion was
+  useless here by construction. An assertion that cannot fail for the defect it names is the pattern
+  this record already documents twice; this is its third appearance, and the first where the useless
+  half sat *beside* the working half in the same test.
+
+  The generalised lesson, one layer below the one already written here: a decision record organised
+  around *"the artifact is static"* cannot see *"static from **which bucket**"*. Fixed by removing the
+  `/og/*` behaviour and its origin so the prefix falls through to the fed origin — repairing the
+  **already-advertised** URLs rather than moving the cards, because this record's own naming argument
+  is that a scraper pins what it fetched.
 - One aspect ratio only; nothing here decides whether a Story-format card ever returns, and #270 removed
   the surface that wanted one.
 
@@ -269,7 +291,10 @@ names the URL.
   `/cv.pdf`: a published artifact is *printed from* the canonical source, never re-typed.
 - **Consistent with [ADR-0008](./0008-brutalist-mono-identity.md)** — the card is the identity's palette,
   mark and type, one line changed from `og-default.png`.
-- **Consistent with [ADR-0013](./0013-s3-cloudfront-hosting.md)** — static objects, `iac/` untouched.
+- **Constrains [ADR-0013](./0013-s3-cloudfront-hosting.md)** — static objects, but ~~`iac/` untouched~~
+  **not on the default cache behaviour**: `/og/*` had its own, pointing at a retired bucket, and the
+  correction on 2026-07-31 removed it. "Static object" was never the whole question — *served from
+  which origin* was.
 - **Serves [ADR-0039](./0039-share-campaign-tagging.md) and
   [ADR-0038](./0038-content-distribution-linkedin-and-x.md)** — the shared and distributed link now
   carries a card that identifies the article it points at.
