@@ -64,9 +64,19 @@ describe('resolveProfile', () => {
     expect(pt.skills['Engenharia AI-native']).toEqual(en.skills['AI-native Engineering']);
   });
 
-  it('localizes the one prose-like skill group (spoken languages)', () => {
-    expect(en.skills['Languages (spoken)']).toContainEqual({ name: 'Portuguese (Native)' });
-    expect(pt.skills['Idiomas']).toContainEqual({ name: 'Português (nativo)' });
+  // Spoken languages are LEVELED like every other group since 2026-07-31, and their names localize —
+  // which is the case `SkillItemSource.name` was widened for. Asserted in both editions and with the
+  // level, because the point of the change was that this group stopped being the exception.
+  it('localizes a leveled skill name and keeps its level (spoken languages)', () => {
+    expect(en.skills['Languages (spoken)']).toContainEqual({ name: 'Portuguese', level: 4 });
+    expect(pt.skills['Idiomas']).toContainEqual({ name: 'Português', level: 4 });
+  });
+
+  // The other half of the widened type, and the one that would break silently: a technical name is a
+  // plain string and must pass through UNCHANGED in both editions, never resolved as if localized.
+  it('leaves a plain-string skill name identical across editions', () => {
+    expect(en.skills['Languages']).toContainEqual({ name: 'Python', level: 3 });
+    expect(pt.skills['Linguagens']).toContainEqual({ name: 'Python', level: 3 });
   });
 
   it('preserves the authored group order in both editions', () => {

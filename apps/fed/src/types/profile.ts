@@ -106,7 +106,17 @@ export interface SkillItem {
 
 /** Authoring shape for a leveled technical skill (the name is English in both locales). */
 export interface SkillItemSource {
-  name: string;
+  /**
+   * Written ONCE for technical skills, because `Python` is `Python` in both editions — that is the
+   * common case and it stays a plain string.
+   *
+   * `Localized<string>` exists for the one group where the name genuinely differs: spoken languages
+   * (`Português` / `Portuguese`). Before 2026-07-31 that group avoided this by using the prose shape
+   * below and encoding the level IN the name ("Português (nativo)"), which meant it was the only
+   * category on the page without the proficiency meter. Putting it on the same 100–400 scale as
+   * everything else is what forced the name to localize.
+   */
+  name: string | Localized<string>;
   level: SkillLevel;
 }
 

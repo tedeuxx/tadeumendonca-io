@@ -243,7 +243,11 @@ const strings = {
     experience: { pt: 'Experiência', en: 'Experience' },
     education: { pt: 'Formação', en: 'Education' },
     certifications: { pt: 'Certificações', en: 'Certifications' },
-    skills: { pt: 'Habilidades', en: 'Skills' },
+    // Not translated (owner, 2026-07-31). "Skills" is the word a pt-BR technical reader uses for this
+    // section of a CV — "Habilidades" reads as a translation of a résumé template, not as the register
+    // the rest of this page is written in. Same rule already applied to `agentic`, `AI-native` and the
+    // harness vocabulary: the term stays English in both editions when English IS the pt-BR usage.
+    skills: { pt: 'Skills', en: 'Skills' },
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
