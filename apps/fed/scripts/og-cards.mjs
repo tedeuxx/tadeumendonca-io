@@ -37,7 +37,10 @@ export function articleKeysIn(blogDir) {
     const m = /^(.+)\.([^.]+)\.md$/.exec(file);
     if (m && LOCALES.includes(m[2])) keys.add(m[1]);
   }
-  return [...keys].sort();
+  // Explicit comparator: a bare `.sort()` compares by string coercion, which is correct for these keys
+  // and is still flagged (S2871) because the element type is not inferred through the Set. Stating the
+  // comparison rather than suppressing the rule — the intent is alphabetical and now says so.
+  return [...keys].sort((a, b) => a.localeCompare(b));
 }
 
 /** The card files actually present in `public/og/`, as public paths. */
@@ -48,7 +51,10 @@ export function generatedCardsIn(ogDir) {
   } catch {
     return []; // the directory not existing is the same finding as it being empty
   }
-  return files.filter((f) => f.endsWith('.png')).map((f) => `/og/${f}`).sort();
+  return files
+    .filter((f) => f.endsWith('.png'))
+    .map((f) => `/og/${f}`)
+    .sort((a, b) => a.localeCompare(b));
 }
 
 /**

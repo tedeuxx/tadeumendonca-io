@@ -34,7 +34,9 @@ const mono = font('jetbrains-mono', 'jetbrains-mono-latin-500-normal.woff2');
 // The brand mark, inline — same 512-space geometry as favicon.svg / gen-og-default.mjs.
 const mark = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" fill="#FF5A00"/><g fill="#0A0A0A"><rect x="112" y="140" width="288" height="72"/><rect x="220" y="140" width="72" height="232"/></g></svg>`;
 
-const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
+// Anchored and bounded rather than `[\s\S]*?` across the whole file: a lazy any-character scan over a
+// long body is super-linear (S8786), and a card generator has no reason to read past the frontmatter.
+const FRONTMATTER = /^---\r?\n([^]*?)\r?\n---\r?\n/;
 
 /** The article's title, read from its own frontmatter — never re-typed. */
 function titleOf(key, locale) {
@@ -45,7 +47,7 @@ function titleOf(key, locale) {
   return line.replace(/^["']|["']$/g, '');
 }
 
-const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.codePointAt(0)};`);
 
 /**
  * Title size, chosen from length rather than fixed.
@@ -55,7 +57,11 @@ const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
  * fixed 118px a long title overflows the canvas and the card ships with its words cut off — which the
  * generator cannot see, because a screenshot of an overflowing box is still a valid PNG.
  */
-const titleSize = (title) => (title.length > 46 ? 62 : title.length > 28 ? 80 : 104);
+function titleSize(title) {
+  if (title.length > 46) return 62;
+  if (title.length > 28) return 80;
+  return 104;
+}
 
 const cardHtml = (title) => `<!doctype html><html><head><meta charset="utf-8"><style>
   @font-face { font-family:'Space Grotesk'; font-weight:700; src:url('${grotesk}') format('woff2'); }
@@ -122,12 +128,24 @@ for (const key of keys) {
     // The layout has no scroll, so an overflowing title is silently cropped by `overflow:hidden` —
     // a valid PNG with the words cut off. Measured rather than trusted: the generator refuses instead
     // of publishing a card whose text does not fit, because the reader who sees it cannot be un-shown it.
-    // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
-    const overflows = await page.evaluate(() => document.body.scrollHeight > document.body.clientHeight);
-    if (overflows) {
+    //
+    // BOTH AXES, and the second one is not symmetry for its own sake. The first version measured height
+    // only, and the size ladder keys off CHARACTER COUNT — so an ordinary pt-BR word like
+    // "Contrarrevolucionarios" (22 chars, therefore 104px) runs 169px past the canvas, is sliced by
+    // `overflow:hidden`, and never grows scrollHeight because the text still fits vertically. The
+    // generator wrote the PNG, the set-equality test saw a file, and the E2E saw 200 + image/png.
+    // Caught by the critical-reviewer driving the real layout rather than reading it.
+    const overflow = await page.evaluate(() => ({
+      // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+      down: document.body.scrollHeight > document.body.clientHeight,
+      // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+      across: document.body.scrollWidth > document.body.clientWidth,
+    }));
+    if (overflow.down || overflow.across) {
       throw new Error(
-        `${key}.${locale}: the title overflows the card at ${titleSize(title)}px — "${title}". ` +
-          'Shorten it or widen the size ladder in titleSize(); shipping it would crop the words.',
+        `${key}.${locale}: the title overflows the card ${overflow.down ? 'vertically' : 'horizontally'} ` +
+          `at ${titleSize(title)}px — "${title}". Shorten it, or widen the ladder in titleSize(); ` +
+          'shipping it would crop the words, and a scraper pins whatever it fetched first.',
       );
     }
 

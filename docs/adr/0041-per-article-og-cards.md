@@ -176,9 +176,20 @@ names the URL.
 - **A committed binary per article per locale, growing with the archive.** Two PNGs for every article,
   forever, in a repo that is otherwise text. Bounded and small today; it is a curve, not a constant.
 - **The size ladder is a heuristic, not a layout engine.** It keys off *character count*, so a short title
-  containing one very long word can still overflow. The measurement catches it — but as a **build
-  failure the author has to resolve** (shorten the title, or widen the ladder), not as something the
-  generator solves. That is the deliberate trade: refusing is safe, guessing is not.
+  containing one very long word can still overflow. The measurement catches it — on **both axes** — but as
+  a **build failure the author has to resolve** (shorten the title, or widen the ladder), not as something
+  the generator solves. That is the deliberate trade: refusing is safe, guessing is not.
+
+  *Both axes, and stated that way because an earlier revision of this bullet claimed the coverage the code
+  did not have.* The first implementation measured `scrollHeight` only. Since the ladder keys off character
+  count, an ordinary pt-BR word — `Contrarrevolucionarios`, 22 characters, therefore rendered at 104px —
+  runs 169px past the canvas, is sliced by `overflow:hidden`, and never grows `scrollHeight`, because the
+  text still fits **vertically**. The generator wrote the PNG, the set-equality test saw a file at the
+  derived path, and the E2E saw `200` and `image/png`. Every gate green, on a card with a word cut in
+  half, on the one artifact this record is organised around being unable to take back. Found by the
+  `critical-reviewer` driving the shipped layout in a browser rather than reading it — and worth recording
+  as a defect in the RECORD as much as in the code: a decision record that is wrong in the direction of
+  false safety tells the next author the guard covers the case it misses.
 - **Regeneration rewrites every PNG, and the diff is binary and unreviewable by reading.** There is no
   equivalent of 0040's deterministic element ids here — a screenshot has no stable identity to pin. The
   set-equality test is what stands in for reviewing the changeset, and it is a weaker substitute; stated
