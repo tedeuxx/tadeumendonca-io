@@ -6,11 +6,30 @@
 # Bucket NAMES are created here; the OAC read policies for the private fed + assets buckets are
 # wired in frontend.tf (#7) once the CloudFront distribution exists — its SourceArn is the principal.
 
+# force_destroy is FALSE on every bucket, hard-coded, not derived. It used to be
+# `local.s3_force_destroy = var.environment != "production"` ("stg can be torn down; prod protected"),
+# written for ADR-0028's two environments. That world is gone (ADR-0003: one environment), and the
+# survivor is named `staging` while BEING production — it serves the apex. So the predicate was
+# literally correct and semantically backwards: it evaluated to TRUE, arming force_destroy on the
+# bucket that holds the live site. A guard that is inverted on the only environment it runs in is
+# worse than no guard, because it reads as protection.
+#
+# REJECTED — renaming the environment to `production` so the predicate comes out right. Measured, not
+# reasoned: `terraform plan -var environment=production` (inspection only, never applied) proposes
+# **19 to add, 4 to change, 19 to destroy**. var.environment is interpolated into every NAME in this
+# root — bucket names, SSM parameter paths, the CloudFront Function name, the IAM policy name — and
+# all of those are ForceNew. It would replace the fed bucket serving the apex, replace the
+# spa-rewrite function, and move /staging/frontend/s3-bucket-name and
+# /staging/frontend/cloudfront-distribution-id, which are exactly the two parameters deploy.yml
+# resolves at the start of every deploy. Never reach for it; the rename is only safe as a full
+# migration, not as a one-line fix to this guard.
+#
+# The lesson generalises past force_destroy: while there is exactly ONE environment, ANY predicate
+# over var.environment is fiction. Its other branch can never be taken, so nothing ever tests it — it
+# is a comment that happens to compile, and this one was wrong for months in the dangerous direction.
+# State the value you want.
 locals {
   bucket_prefix = "${data.aws_caller_identity.current.account_id}-${var.project}"
-
-  # Shared hardened baseline applied to every bucket.
-  s3_force_destroy = var.environment != "production" # stg can be torn down; prod protected
 
   # CloudFront-served public buckets (fed, assets) use SSE-S3 (AES256): CloudFront OAC can't
   # decrypt objects under the AWS-managed aws/s3 KMS key (its key policy can't grant the CloudFront
@@ -28,8 +47,13 @@ module "frontend_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 4.0"
 
-  bucket        = "${local.bucket_prefix}-fed-${var.environment}"
-  force_destroy = local.s3_force_destroy
+  bucket = "${local.bucket_prefix}-fed-${var.environment}"
+  # This bucket IS the live site. force_destroy = true directly CONTRADICTED the
+  # `versioning = { enabled = true } # rollback safety for the site` line at the bottom of this same
+  # block: force_destroy deletes every object AND every noncurrent version, so the one setting bought
+  # the rollback history that the other stood ready to erase without the bucket-not-empty error
+  # stopping it. Measured at the time of this change: 80 current objects, ~9,000 versions.
+  force_destroy = false
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
@@ -67,8 +91,12 @@ module "assets_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 4.0"
 
-  bucket        = "${local.bucket_prefix}-assets-${var.environment}"
-  force_destroy = local.s3_force_destroy
+  bucket = "${local.bucket_prefix}-assets-${var.environment}"
+  # false here too, and it costs nothing: force_destroy only has an effect on a bucket that HAS
+  # contents — an empty bucket destroys cleanly without it. So this does not obstruct retiring this
+  # bucket the way og-images was retired (#304); it only refuses to silently delete objects that
+  # someone has since put here.
+  force_destroy = false
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
