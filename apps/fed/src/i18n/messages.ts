@@ -45,7 +45,9 @@ const strings = {
     version: { pt: 'Notas da versão que está no ar (GitHub)', en: 'Release notes for the running build (GitHub)' },
   },
   marquee: {
-    subjects: { pt: 'Assuntos', en: 'Subjects' },
+    // The key stays `subjects` — renaming it would touch every call site for no reader benefit —
+    // but the LABEL is now "Stack", because that is what the strip lists. See Marquee.tsx.
+    subjects: { pt: 'Stack', en: 'Stack' },
   },
   hero: {
     badge: { pt: 'Conteúdo técnico aberto', en: 'Open technical content' },

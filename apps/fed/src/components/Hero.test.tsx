@@ -48,11 +48,28 @@ describe('Hero', () => {
     expect(screen.getByRole('link', { name: /Ramp-up/ })).toHaveAttribute('href', '/pt/ramp-up');
   });
 
-  it('renders the subject marquee once for assistive tech (the loop copy is hidden)', () => {
+  it('renders the stack marquee once for assistive tech (the loop copy is hidden)', () => {
     renderHero();
-    const marquee = screen.getByLabelText('Assuntos');
+    const marquee = screen.getByLabelText('Stack');
     expect(marquee).toBeInTheDocument();
     expect(screen.getAllByText('Agentic AI')).toHaveLength(2); // visual loop needs two tracks
     expect(marquee.querySelectorAll('[aria-hidden="true"] > span').length).toBeGreaterThan(0);
+  });
+
+  // The strip is the first part of this component that VARIES BY LOCALE — most entries are proper
+  // nouns, but the ordinary technical nouns are Portuguese in the pt edition. Rendered here (this
+  // suite renders under `pt`) rather than asserted against the constant, because reading the
+  // constant back would pass whatever the constant says.
+  it('renders the localisable stack entries in the reader’s language', () => {
+    renderHero();
+    expect(screen.getAllByText('Observabilidade')).toHaveLength(2);
+    expect(screen.getAllByText('Segurança')).toHaveLength(2);
+    expect(screen.queryByText('Observability')).toBeNull();
+  });
+
+  // Dropped on 2026-07-31 (owner): too low-level next to the practice terms beside it.
+  it('no longer advertises tool-calling', () => {
+    renderHero();
+    expect(screen.queryByText('Tool-Calling')).toBeNull();
   });
 });
