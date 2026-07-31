@@ -22,16 +22,25 @@ import { useLocale, useT, type Locale } from '../i18n';
 // comment said "two" while the array translated three — a comment that contradicts the data it
 // documents is worse than no comment, and `Sistemas Distribuídos` was the one nobody had asked for.
 //
-// ORDER IS DELIBERATE: the AI-native layer first, the languages next, the platform and the
-// engineering floor last. A reader scanning left to right meets the repositioning before the
-// history, which is the whole argument the strip is making.
+// ORDER BUYS ADJACENCY, NOT A READING SEQUENCE. An earlier version of this comment claimed "a reader
+// scanning left to right meets the repositioning before the history" — the strip is an infinite loop
+// with no visible start, so the reader meets whatever is on screen when they arrive. What the order
+// actually controls is which terms NEIGHBOUR each other: `Java`/`Spring Boot` always sit beside
+// `TypeScript` and `AWS` rather than beside `Agentic AI`, and the seam back to the top reads
+// `Distributed Systems → Agentic AI`, which is the repositioning's own argument in one join.
+//
+// `Harness Engineering` sits beside `AI-DLC`, not beside `Context Engineering`. Two coined tokens
+// both ending in `Engineering`, adjacent, in uppercase mono at glance speed, read as one hedged
+// concept stated twice — and the part-whole relation between them (context engineering is INSIDE the
+// harness) is invisible at that granularity. Beside `AI-DLC` it reads as identity, which is how the
+// vocabulary hierarchy already binds the two.
 const STACK: Record<Locale, readonly string[]> = {
   en: [
     'Agentic AI',
     'MCP',
     'Context Engineering',
-    'Harness Engineering',
     'AI-DLC',
+    'Harness Engineering',
     'Claude Code',
     'Python',
     'Node.js',
@@ -49,8 +58,8 @@ const STACK: Record<Locale, readonly string[]> = {
     'Agentic AI',
     'MCP',
     'Context Engineering',
-    'Harness Engineering',
     'AI-DLC',
+    'Harness Engineering',
     'Claude Code',
     'Python',
     'Node.js',
