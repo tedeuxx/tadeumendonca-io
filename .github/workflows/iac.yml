@@ -1,0 +1,246 @@
+name: iac
+
+# PR gate for iac/ — named after the top-level directory it guards. (Formerly `infra-plan.yml`.)
+# Trunk-based: a PR into main plans the single workspace. Terraform Cloud is the state backend (Local
+# execution — GitHub runs the plan); AWS via OIDC. Workspace: tadeumendonca-io.
+#
+# THE CUT BETWEEN THESE JOBS IS CREDENTIALS, NOT COMMANDS:
+#
+#   checkov                | no init | NO AWS credentials
+#   terraform fmt -check   | no init | NO AWS credentials
+#   terraform validate     | init    | yes — init talks to Terraform Cloud
+#   terraform plan         | init    | yes — OIDC; the plan refreshes data sources
+#
+# So checkov and terraform-fmt become their own jobs and that is pure gain: neither touches AWS, neither
+# needs init, both fail in seconds, and both used to sit inside a job carrying `id-token: write`. Fewer
+# jobs hold a credential, which is the direction the repo's least-privilege floor points.
+#
+# `validate` STAYS inside terraform-plan. Splitting it would run `init` twice — two provider downloads,
+# two TFC round-trips — and put a credential in a second job, undoing the gain above. `plan` already
+# validates; a separate job buys a clearer error message and pays for it twice.
+on:
+  pull_request:
+    branches: [main]
+
+# Read-only by default; the OIDC grant lives on the single job that assumes a role.
+permissions:
+  contents: read
+
+concurrency:
+  group: iac-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_VERSION: "1.9.8"
+
+jobs:
+  # Decides only. No credentials, no init, no tools.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      iac: ${{ steps.filter.outputs.iac }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Detect iac changes
+        id: filter
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        with:
+          filters: |
+            iac:
+              # ALL of iac/, INCLUDING cloudfront-functions/. The design doc proposed excluding
+              # `iac/cloudfront-functions/**` here on the grounds that it belongs to the app gate — it
+              # does belong there, and it is filtered there, but excluding it HERE would be a silent
+              # production no-op. iac/frontend.tf line 27 embeds the file:
+              #
+              #     code = file("${path.module}/cloudfront-functions/spa-rewrite.js")
+              #
+              # so an edit to spa-rewrite.js IS a Terraform diff. Filter it out of this gate and the
+              # matching filter in deploy.yml's `terraform-apply` and the edge function is planned by
+              # nothing and applied by nothing: the change merges green and never reaches the edge, with
+              # no signal anywhere. The two gates make two DIFFERENT claims about the same file — `app`
+              # proves the rewrite logic is correct, `iac` proves the edge is actually running it — and
+              # both are required.
+              - 'iac/**'
+              - '.github/workflows/iac.yml'
+              # deploy.yml now contains the apply, and its own paths include itself, so without this line
+              # a change to the applying workflow would reach production with no plan ever reviewed —
+              # while CLAUDE.md instructs "merge that touches iac/ → confirm the plan". Same defect shape
+              # as #237: the gate did not cover the file that drives it.
+              - '.github/workflows/deploy.yml'
+
+  # Static analysis — hard-fail gate. Suppressions curated in iac/.checkov.yaml + inline #checkov:skip.
+  checkov:
+    needs: changes
+    if: needs.changes.outputs.iac == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@7b972723c44fb3d256283fac96fae5d7c1894bb7 # v12.1347.0
+        with:
+          directory: iac/
+          framework: terraform
+          config_file: iac/.checkov.yaml
+          soft_fail: false
+          output_format: cli
+
+  terraform-fmt:
+    needs: changes
+    if: needs.changes.outputs.iac == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: iac
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Format check
+        run: terraform fmt -check -recursive
+
+  # ---------------------------------------------------------------------------------------------
+  # THE REQUIRED CHECK for iac PRs.
+  #
+  # ⚠️ RENAMED from `plan` to `terraform-plan`. Branch protection requires the JOB name `plan`, so this
+  # rename does not take effect on its own — the protection must be resequenced by the owner:
+  # remove `plan` from required → merge this → add `terraform-plan`. There is a window in between where
+  # iac PRs are ungated. Nothing in this repo's agent loop touches branch protection.
+  #
+  # `if: always()` rather than a bare `needs:`, for the same two reasons as app.yml's `build-test`:
+  # a skipped required check satisfies branch protection, and this job must produce a definite status
+  # both when its dependencies were skipped (a non-iac PR) and when one of them failed.
+  # ---------------------------------------------------------------------------------------------
+  terraform-plan:
+    needs: [changes, checkov, terraform-fmt]
+    if: always()
+    runs-on: ubuntu-latest
+    # The `staging` GitHub Environment only scopes AWS_INFRA_OIDC_ROLE_ARN (an environment secret) — it
+    # has no required reviewers, so it is not an approval gate.
+    environment: staging
+    permissions:
+      contents: read
+      pull-requests: write # the plan comment
+      id-token: write # OIDC → AWS. The ONLY job in this file that holds a credential.
+    defaults:
+      run:
+        working-directory: iac
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TFC_API_TOKEN }}
+      TF_WORKSPACE: tadeumendonca-io
+      VAR_FILE: env/stg.tfvars
+    steps:
+      # First, before anything is set up: inherit the verdict of the credential-free jobs. Without this
+      # the split would have made checkov and fmt advisory — they would fail, this job would run anyway,
+      # and the required check would go green over a checkov violation.
+      - name: Inherit the credential-free gates
+        if: needs.checkov.result == 'failure' || needs.terraform-fmt.result == 'failure'
+        run: |
+          echo "::error::checkov or terraform fmt failed — not planning. Read those jobs."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure AWS credentials (OIDC)
+        if: needs.changes.outputs.iac == 'true'
+        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
+        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action
+        # and breaks its runtime. That flag is gone everywhere now, so v6 runs clean (#89).
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        if: needs.changes.outputs.iac == 'true'
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        if: needs.changes.outputs.iac == 'true'
+        run: terraform init -input=false
+
+      - name: Validate
+        if: needs.changes.outputs.iac == 'true'
+        run: terraform validate -no-color
+
+      # tee to a file (pipefail preserves terraform's exit code → steps.plan.outcome). The comment step
+      # reads this file instead of an env var: a large plan (e.g. a 100+-resource destroy) overflows the
+      # execve arg+env limit and the github-script node process fails to start with "Argument list too
+      # long" BEFORE it can truncate. Reading from a file keeps the value out of the process environment.
+      - name: Plan
+        id: plan
+        if: needs.changes.outputs.iac == 'true'
+        shell: bash
+        # Same value as apply, so the plan preview matches what apply will do. The variable is
+        # `sensitive`, so terraform renders it as "(sensitive value)" in plan.txt — which is posted as a
+        # public PR comment — never the address in cleartext.
+        env:
+          TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
+        run: |
+          set -o pipefail
+          terraform plan -input=false -no-color -var-file="$VAR_FILE" 2>&1 | tee plan.txt
+
+      - name: Comment plan on PR
+        if: always() && needs.changes.outputs.iac == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          WORKSPACE: ${{ env.TF_WORKSPACE }}
+          PLAN_OUTCOME: ${{ steps.plan.outcome }}
+        with:
+          script: |
+            const fs = require("fs");
+            const max = 60000;
+            const planPath = "iac/plan.txt";
+            let plan = fs.existsSync(planPath) ? fs.readFileSync(planPath, "utf8") : "(no plan output)";
+            if (plan.length > max) plan = plan.slice(0, max) + "\n...(truncated — see the Actions log)";
+            const body = [
+              `### Terraform Plan — \`${process.env.WORKSPACE}\``,
+              `Status: \`${process.env.PLAN_OUTCOME}\``,
+              "```hcl",
+              plan,
+              "```",
+            ].join("\n");
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+            });
+            const marker = "### Terraform Plan — `" + process.env.WORKSPACE + "`";
+            const existing = comments.find((c) => c.body && c.body.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+            }
+
+      - name: Fail if plan failed
+        if: needs.changes.outputs.iac == 'true' && steps.plan.outcome == 'failure'
+        run: exit 1
+
+      # Say which of the three greens this is (issue #79). On a PR that touches no iac/ this job passes
+      # in seconds having run neither checkov nor terraform — a green indistinguishable from a full infra
+      # verification.
+      - name: Report what was verified
+        if: always()
+        env:
+          IAC: ${{ needs.changes.outputs.iac }}
+        run: |
+          set -euo pipefail
+          if [ "$IAC" != "true" ]; then
+            echo "::notice::no iac/ changes — checkov, fmt, validate and plan did NOT run (nothing was verified)"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::the iac gate did NOT complete — a job or step failed, so the checks after it never ran. Read the failing one, not this line."
+            exit 0
+          fi
+          echo "::notice::the iac gate ran — checkov, terraform fmt, validate, plan"

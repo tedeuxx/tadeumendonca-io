@@ -63,7 +63,10 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
     // fail, and the temptation then is to blame the link rather than the glob.
     expect(existingDocPaths.has('iac/cloudfront-functions/spa-rewrite.js')).toBe(true);
     expect(existingDocPaths.has('apps/fed/scripts/spa-rewrite.test.mjs')).toBe(true);
-    expect(existingDocPaths.has('.github/workflows/infra-apply.yml')).toBe(true);
+    // A workflow file, as the canary for the .github/ tree. It named infra-apply.yml until the
+    // pipeline was rebuilt into four workflows — and this line going red is how that rename was
+    // caught reaching the reader: the architecture page linked to the same file, in both locales.
+    expect(existingDocPaths.has('.github/workflows/deploy.yml')).toBe(true);
   });
 
   it.each([

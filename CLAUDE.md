@@ -159,16 +159,19 @@ Two consequences worth stating outright, because they are what the other model g
   Read the amendment before classifying; the table there is the operative text.
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
-- **Single version** (numeric SemVer, root `VERSION`): `version-main` auto-bumps patch on every push to `main`,
-  tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded.
+- **Single version** (numeric SemVer, root `VERSION`): the deploy's **`release`** job auto-bumps the patch
+  on every push to `main`, tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded. It is
+  the deploy's *first* job rather than a workflow of its own because `VERSION` is a **build input** — the
+  bundle's footer renders it, so the bump has to precede the build that ships.
 
 ## Structure
 - **`apps/fed/`** — the static SPA (React + Vite + Tailwind, no PWA). Own guide in `apps/fed/CLAUDE.md`.
 - **`iac/`** — Terraform for the frontend infra (S3, CloudFront + URL-rewrite function, email, OIDC roles)
   plus the account cost budget. State in Terraform Cloud, **Local** execution; `apply`/`destroy` are
   **pipeline-only**. Note `iac/cloudfront-functions/` holds **application logic in JS**, unit-gated by
-  `build-test` rather than by `infra-plan` — gate ownership is by what a file IS, not its directory
-  (ADR-0018 amendment).
+  the **`app`** workflow rather than only by `iac` — gate ownership is by what a file IS, not its
+  directory (ADR-0018 amendment). It is filtered by **both**: `app` proves the rewrite logic, `iac` proves
+  the edge is running it, since `frontend.tf` reads that file and an edit to it is a Terraform diff.
 - **`docs/`** — **`docs/adr/`** is the decision library (38 records; `docs/adr/README.md` is the index and
   the reading order). Also `docs/catalog-ready.md` — the bar a project must clear to be published in the
   portfolio — and `docs/iac-deploy-policy.{md,json}`. **Read the relevant ADR before changing anything it
@@ -208,7 +211,8 @@ Working rules that follow from that:
   and those are not rewritten: supersede, never rewrite.
 
 ## ⚠️ Destructive / requires explicit confirmation
-- **Merge to `main` that touches `iac/`** → `infra-apply` = **real AWS infra**. Confirm the `plan`.
+- **Merge to `main` that touches `iac/`** → the deploy's **`terraform-apply`** job = **real AWS infra**.
+  Confirm the `plan`.
 - **Publishing an ARTICLE** — the `content` backlog. Boundary because it is the owner's *voice*: what
   the piece argues, in whose words, is not a thing an agent supplies. This is the one content class
   that still routes to the owner, and the label is the boundary (owner decision, 2026-07-30).
@@ -242,59 +246,41 @@ Working rules that follow from that:
 - **IaC is pipeline-only** — `apply`/`destroy` run in CI only. Local is read-only (`fmt`/`validate`/inspection `plan`).
 
 ## CI (`.github/workflows/`)
-- **`build-test`** (PR **and push to `main`**): dependency audit (ADR-0021 — high/critical prod advisories
-  block) → lint → typecheck → test ≥85% → `build:static` → E2E → SonarCloud. Filtered to `apps/fed/**`,
-  `packages/shared/**`, **`iac/cloudfront-functions/**`** and its own workflow file. That third path is
-  load-bearing, not a stray: the CloudFront rewrite function is JS with behaviour, so it is unit-gated
-  here rather than by `infra-plan` (ADR-0018 amendment). "Path-filtered to `apps/fed`" would read as if an
-  `iac/` change never reaches this gate — it does.
-- **`infra-plan`** (PR): checkov + `fmt`/`validate`/`plan`, path-filtered to `iac/`.
-- **`lint-workflows`** (PR): `actionlint` + `shellcheck` over `.github/workflows/**` — the gate that
-  did not exist, so a workflow change reported PASS having verified nothing (#79). Note the shape:
-  every one of these runs on **every** PR and filters **inside** the job. A workflow-level `paths:`
-  filter cannot be a required check — it never reports on a non-matching PR and sits pending — so a
-  filtered workflow is permanently advisory. Each ends with a `::notice::` naming which of **three**
-  cases happened — *nothing matched, so nothing was verified* · *a step failed, so the rest never ran* ·
-  *the gate ran, with the list*. A check that matched nothing must not read like one that passed, and a
-  notice that prints the full list after a failure is the same overstatement on the red path.
-- **`deploy`** (the **version bump**, not the merge — `paths: VERSION`): publishes the static site, then
-  runs a **post-deploy E2E smoke against the live apex**. Post-deploy assertions are the *one* exception
-  noted under *Branching* above — they are unsatisfiable before the deploy exists.
-  **Why the bump and not the merge** (#299): `version-main` pushes `bump: X → Y` and tags `vY` on top of
-  every merge, so the bump commit is the **only** commit on `main` whose tree carries the version it is
-  tagged with. Triggering on the merge built a tree whose `VERSION` still named the *previous* release.
-  Nothing reads `VERSION` yet, so no reader has seen it — #298 would have been the first, and it is held
-  behind this precisely so the wrong footer never ships: the link would **resolve**, so nothing would
-  signal it.
-  **The `apps/fed` surface filter did not disappear, it moved** into a credential-free `gate` job that
-  diffs `<last tag>..HEAD` over ~~the same three paths~~ **`apps/fed`, `packages/shared` and its own
-  workflow file** — verified against real history, in both directions, before the change was written.
-  *That is NOT `build-test`'s triple:* `build-test`'s third path is **`iac/cloudfront-functions/**`**,
-  and the deploy gate substitutes its own workflow file for it. The difference is not cosmetic and it
-  cost four hours of production on 2026-07-31 — **an `iac/`-only PR matches none of the deploy gate's
-  paths, so `deploy` SKIPS and the post-deploy smoke never runs.** So an infra fix to a
-  *content-serving* path is unverifiable by CI, and `workflow_dispatch` on `deploy` after
-  `infra-apply` is the only thing that proves it. Note what the design rests on: not that tags are dense
-  (they are, one bump+tag per merge), but that the range starts at the **last released tag**, so a wedge
-  that accumulates merges yields a *superset* rather than a gap. The filter is a union over **those**
-  paths; it cannot skip content inside them, and it was never claimed to cover `iac/`.
-  **The cost, inherent and undesignable-away: `version-main` is now load-bearing for deployment.** It
-  wedged once, for four merges; then that only stopped tagging, now it stops the site shipping.
-  `workflow_dispatch` is the unconditional manual deploy and the rollback path.
-- **`infra-apply`** (merge to `main`, paths under `iac/` **and its own workflow file**): applies Terraform,
-  then **verifies the LIVE CloudFront Function stage matches the repo's source**, and runs
-  **`e2e/edge-rewrite.spec.ts`** — together the only proof the function is **attached, current, and
-  accepted by the JS 2.0 runtime** (#216).
-  It lives **here and not in `deploy`** (#237): this is the workflow that changes the function, and the two
-  workflows have **different concurrency groups and no ordering**, so asserting from `deploy` would race
-  the apply and report green having measured the *previous* function.
-  **Two changes, two synchronisations, and conflating them buys nothing:** a *distribution* change is
-  asynchronous (and `wait_for_deployment = false`), so it needs `aws cloudfront wait
-  distribution-deployed`; a *function* change publishes a new version and **never touches the
-  distribution** — the association is by unqualified ARN — so that wait returns instantly and guarantees
-  nothing for the case the gate exists for. That case is covered by comparing the LIVE stage to the repo
-  instead, which `publish = true` makes possible synchronously.
-  Its Playwright setup sits **before** the apply, per #195: a red must mean the edge is broken, and an apt
-  flake after infrastructure has already been mutated is the ambiguity that rule exists to remove.
-- **`version-main`**: numeric SemVer auto-bump + tag + Release (needs a valid `VERSION_BUMP_TOKEN`).
+**The full map — diagrams, per-job path filters, and the reasons behind each — lives in
+[`.github/workflows/README.md`](./.github/workflows/README.md). Read it before changing a workflow.**
+It is kept next to the YAML deliberately: GitHub renders it when you open that directory, which is
+where the questions get asked.
+
+**Four workflows, each named after the top-level directory it gates.** Jobs are named after the command
+they run; a job running a pipeline is named after the script.
+
+- **`app`** (`apps/**`) — `npm-ci` → `npm-audit` · `eslint` · `tsc` · `vitest` · `build-static` →
+  `playwright` · `sonarqube-scan`, behind a terminal **`build-test`** aggregator (that name is fixed by
+  branch protection). Dependency audit blocks on high/critical prod advisories (ADR-0021); coverage ≥85%;
+  SonarCloud's gate blocks.
+- **`iac`** (`iac/**`) — credential-free `checkov` and `terraform-fmt` in parallel, then
+  **`terraform-plan`** (init + validate + plan), the **only** job holding an AWS token. The cut is
+  credentials, not commands.
+- **`github`** (`.github/**`) — **`actionlint`** + shellcheck. Its own file on purpose: living inside
+  `app` would mean a syntax error in `app` stops the linter that exists to catch it.
+- **`deploy`** (push to `main`, skipping its own `bump:` commits) — `release` (bump + tag + Release) →
+  `gate` → `terraform-apply` / `deploy-app` → `e2e` against the live apex. `release` must precede the
+  build because `VERSION` is a build input; `terraform-apply` must precede `deploy-app` because the app
+  resolves its bucket and distribution from SSM parameters Terraform creates.
+
+**Two filter facts that look like mistakes and are not.** `iac/cloudfront-functions/**` is in **both**
+the `app` and `iac` filters — it is JS with behaviour *and* a Terraform diff, and the two gates prove
+different things (ADR-0018 amendment). And `VERSION` is in the **PR** gate's filter but deliberately
+**not** in the deploy gate's: the deploy diffs `<last tag>..HEAD`, and HEAD *is* the bump commit, whose
+whole content is that file — including it would make the filter match everything, always.
+
+**Every PR workflow runs on every PR and filters inside the job.** A workflow-level `paths:` filter can
+never be a required check: on a non-matching PR it never reports and sits pending. Each ends with a
+`::notice::` naming which of three cases happened — *nothing matched, so nothing was verified* · *a step
+failed, so the rest never ran* · *the gate ran, here is the list*. A check that matched nothing must not
+read like one that passed.
+
+**The post-deploy `e2e` is not a gate.** It runs after the publish and cannot revert anything. A red one
+means the site is broken and someone has to act.
+
 - **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.

@@ -61,19 +61,27 @@ relicensed. `LICENSE` states the split and which paths fall on each side.
 
 - **`main`** is the only branch. Feature/fix branches cut from `main` → PR → merge → **automatic deploy** to the
   single environment; the site serves at the apex `tadeumendonca.io`.
-- Single version (root `VERSION`, tags `vX.Y.Z`); `version-main` auto-bumps patch on every push to `main`.
+- Single version (root `VERSION`, tags `vX.Y.Z`); the deploy's `release` job auto-bumps the patch on every
+  push to `main`.
 
 ## CI (`.github/workflows/`)
 
-`build-test` (dependency audit + lint + typecheck + test ≥85% + build + E2E + SonarCloud; path-filtered to
-`apps/fed/**` **and `iac/cloudfront-functions/**`** — that second path is load-bearing, not a stray: the
-CloudFront rewrite function is JS with behaviour, so it is unit-gated here rather than by `infra-plan`);
-`infra-plan`
-(checkov + `plan`, path-filtered to `iac/`); `lint-workflows` (actionlint + shellcheck over
-`.github/workflows/**`). Each runs on **every** PR and applies its path filter inside the job, then reports
-whether it skipped, failed part-way, or ran in full — a check that matched nothing must not read like one
-that passed.
-Deploys: `deploy` / `infra-apply` on merge to `main`.
+**Four workflows, named after the top-level directory each one gates** — full map, with diagrams, in
+[`.github/workflows/README.md`](./.github/workflows/README.md).
+
+- **`app`** (`apps/**`) — `npm-ci` → `npm-audit` · `eslint` · `tsc` · `vitest` · `build-static` →
+  `playwright` · `sonarqube-scan`, behind a terminal **`build-test`** aggregator. Its filter also carries
+  **`iac/cloudfront-functions/**`**, which is load-bearing rather than a stray: the CloudFront rewrite
+  function is JS with behaviour, so it is unit-gated here. It stays in `iac`'s filter too — that file is
+  also a Terraform diff, and the two gates prove different things.
+- **`iac`** (`iac/**`) — credential-free `checkov` and `terraform-fmt`, then **`terraform-plan`**
+  (init + validate + plan), the only job holding an AWS token.
+- **`github`** (`.github/**`) — **`actionlint`** + shellcheck.
+- **`deploy`** (push to `main`) — `release` → `gate` → `terraform-apply` / `deploy-app` → `e2e` against
+  the live apex.
+
+Each PR workflow runs on **every** PR and applies its path filter inside the job, then reports whether it
+skipped, failed part-way, or ran in full — a check that matched nothing must not read like one that passed.
 
 ## Related repos
 
