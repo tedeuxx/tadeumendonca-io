@@ -5,11 +5,12 @@
 import { useEffect } from 'react';
 import {
   SITE_NAME,
-  DEFAULT_OG_IMAGE,
+  defaultOgImage,
+  ogImageAlt,
+  isGeneratedCard,
   OG_IMAGE_WIDTH,
   OG_IMAGE_HEIGHT,
   OG_IMAGE_TYPE,
-  OG_IMAGE_ALT,
   absoluteUrl,
 } from '../lib/site';
 import { localePath, ogLocale, useLocale, type Locale } from '../i18n';
@@ -43,8 +44,17 @@ export interface DocumentHead {
   description?: string;
   /** Canonical path or absolute URL (e.g. '/blog/slug'). */
   canonicalPath?: string;
-  /** OG image path or absolute URL; falls back to the site default. */
+  /** OG image path or absolute URL; falls back to the locale's default card. */
   image?: string;
+  /**
+   * Alt text for `image`, when the caller has one.
+   *
+   * Required in practice for any custom card, because the alternative is worse than silence: the
+   * default card's alt describes the DEFAULT card ("learn to build with AI…"), so reusing it on an
+   * article would tell a screen-reader user they are being shown a picture they are not being shown.
+   * Falls back to the locale's default-card alt, which is only correct when the image IS that card.
+   */
+  imageAlt?: string;
   type?: 'website' | 'article';
   /** ISO date for article:published_time (articles only). */
   publishedTime?: string;
@@ -111,7 +121,7 @@ function setJsonLd(json: string | undefined) {
   if (!existing) document.head.appendChild(el);
 }
 
-export function useDocumentHead({ title, description, canonicalPath, image, type = 'website', publishedTime, jsonLd, alternates }: DocumentHead) {
+export function useDocumentHead({ title, description, canonicalPath, image, imageAlt, type = 'website', publishedTime, jsonLd, alternates }: DocumentHead) {
   const { locale } = useLocale();
   // Serialize JSON-LD so the effect depends on its value, not object identity.
   const jsonLdStr = jsonLd ? JSON.stringify(jsonLd) : undefined;
@@ -125,7 +135,7 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     // Per-locale URLs (ADR-0036): the canonical is SELF — the current locale's prefixed URL — never
     // cross-locale. The reciprocal editions are advertised via hreflang alternates below.
     const url = canonicalPath ? absoluteUrl(localePath(locale, canonicalPath)) : undefined;
-    const img = image ? absoluteUrl(image) : DEFAULT_OG_IMAGE;
+    const img = image ? absoluteUrl(image) : defaultOgImage(locale);
 
     document.title = fullTitle;
     if (description) upsertMeta('name', 'description', description);
@@ -158,17 +168,25 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:image', img);
     // Declaring the size is what makes WhatsApp/LinkedIn render the WIDE card. Without it they fetch
-    // first and guess, and the fallback guess is the small square thumbnail. Only emitted for the
-    // default card, whose dimensions we actually know — a per-article image could be any size, and
-    // claiming 1200×630 for it would be worse than staying silent.
-    if (img === DEFAULT_OG_IMAGE) {
+    // first and guess, and the fallback guess is the small square thumbnail.
+    //
+    // The condition is "did THIS BUILD generate the card", not "is it the default one" (#167). The old
+    // test was written when a custom image meant an unknown size, and #269 falsified that premise the
+    // day it gave every article its own 1200×630 card: the article card lost the whole block, so it
+    // became distinctive and started unfurling small in the same commit. Both defaults and every
+    // article card come out of the same Playwright viewport, so the size is a fact about all of them.
+    //
+    // `alt` does NOT come from the same place, and that asymmetry is the point. Size is shared; the
+    // description of the picture is not. The default card's alt describes the default card, so emitting
+    // it over an article's title card would misdescribe the image to the one reader who cannot check.
+    if (isGeneratedCard(img)) {
       upsertMeta('property', 'og:image:width', OG_IMAGE_WIDTH);
       upsertMeta('property', 'og:image:height', OG_IMAGE_HEIGHT);
       upsertMeta('property', 'og:image:type', OG_IMAGE_TYPE);
-      upsertMeta('property', 'og:image:alt', OG_IMAGE_ALT);
+      upsertMeta('property', 'og:image:alt', imageAlt ?? ogImageAlt(locale));
     } else {
-      // A custom image is a different, unknown size — carrying the default's dimensions over from a
-      // previous route would actively lie about it.
+      // An image from outside the build is a different, unknown size — carrying our dimensions over
+      // from a previous route would actively lie about it.
       removeMeta('property', 'og:image:width');
       removeMeta('property', 'og:image:height');
       removeMeta('property', 'og:image:type');
@@ -184,5 +202,5 @@ export function useDocumentHead({ title, description, canonicalPath, image, type
     if (description) upsertMeta('name', 'twitter:description', description);
 
     setJsonLd(jsonLdStr);
-  }, [locale, title, description, canonicalPath, image, type, publishedTime, jsonLdStr, altPt, altEn]);
+  }, [locale, title, description, canonicalPath, image, imageAlt, type, publishedTime, jsonLdStr, altPt, altEn]);
 }

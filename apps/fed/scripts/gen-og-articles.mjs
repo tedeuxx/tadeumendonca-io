@@ -20,6 +20,7 @@ import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
 import { articleKeysIn, LOCALES } from './og-cards.mjs';
+import { META_LINE } from './og-copy.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const blogDir = join(root, 'src', 'content', 'blog');
@@ -99,7 +100,7 @@ const cardHtml = (title) => `<!doctype html><html><head><meta charset="utf-8"><s
   <div class="title">${escapeHtml(title)}</div>
   <div class="rule"></div>
   <div class="fill"></div>
-  <div class="meta">Agentic dev · AI-DLC / Loop Engineering · Open source</div>
+  <div class="meta">${META_LINE}</div>
 </body></html>`;
 
 const keys = articleKeysIn(blogDir);
