@@ -29,15 +29,15 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
+      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Harness Engineering with Claude Code & Kiro | ' +
       'Python · Node.js / TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
     pt:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering com Claude Code & Kiro | ' +
+      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Harness Engineering com Claude Code & Kiro | ' +
       'Python · Node.js / TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
   },
   summary: {
     en:
-      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC / Loop Engineering — to design, ' +
+      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC & Harness Engineering — to design, ' +
       "build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
       'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
       'modern product engineering building web and native-mobile apps, and spent the last years as a ' +
@@ -47,7 +47,7 @@ const sourceTemplate: ProfileSource = {
       'MCP — and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and ' +
       'backend; TypeScript for the full-stack and web layer.',
     pt:
-      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC / Loop Engineering — para ' +
+      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC & Harness Engineering — para ' +
       'projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
       '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
       'e software empacotado, passei para engenharia de produto moderna construindo apps web e mobile nativo, e ' +
@@ -68,21 +68,16 @@ const sourceTemplate: ProfileSource = {
         en:
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
-          'Claude Code, Kiro and AI-DLC / Loop Engineering practices.',
+          'Claude Code, Kiro and AI-DLC & Harness Engineering practices.',
         pt:
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
-          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC / Loop Engineering.',
+          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Harness Engineering.',
       },
-      // The internal knowledge platform (MCP server + semantic search on Bedrock) is the one highlight
-      // the one-page PDF keeps (#161): it is the only place in the whole CV that shows something AGENTIC
-      // actually built, rather than adopted or certified. Highlight 0 is adoption, which the description
-      // above already carries. It also restores "MVP in progress" to the sheet — the calibration that
-      // kept "ship production-ready systems" honest, and that the print edition had dropped along with it.
       print_highlight_index: 1,
       highlights: {
         en: [
-          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +
+          'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Harness Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and structured the practice for team-scale adoption.',
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search (vector embeddings on Amazon Bedrock) so AI agents can both search and create knowledge; MVP in progress.',
@@ -97,7 +92,7 @@ const sourceTemplate: ProfileSource = {
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
-          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) em 2026 para ' +
+          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Harness Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
             'adoção em escala de time.',
           'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
@@ -319,7 +314,7 @@ const sourceTemplate: ProfileSource = {
     {
       label: { en: 'AI-native Engineering', pt: 'Engenharia AI-native' },
       items: [
-        { name: 'AI-DLC / Loop Engineering', level: 3 },
+        { name: 'AI-DLC & Harness Engineering', level: 3 },
         { name: 'Claude Code', level: 3 },
         { name: 'Kiro', level: 3 },
         { name: 'Context Engineering', level: 3 },
