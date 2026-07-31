@@ -26,6 +26,10 @@ this file is the bug.
 
 ## The whole lifecycle, as proposed
 
+Owner's structure (2026-07-31): **two workflows before the merge — `app` and `iac`** — and **one
+`deploy` workflow after it, with the app deploy and the iac apply as jobs**, followed by a single
+e2e against the converged environment.
+
 ```mermaid
 flowchart TD
     A["push to a feature branch"] -->|"still nothing"| A2(["no workflow runs"])
@@ -33,36 +37,52 @@ flowchart TD
 
     B --> CH["changes<br/><i>paths-filter · no credentials</i>"]
 
-    CH -->|"code?"| IN["setup<br/><i>node + npm ci, cached</i>"]
-    IN --> AU["audit"]
-    IN --> LI["lint"]
-    IN --> TY["typecheck"]
-    IN --> TE["test ≥85%<br/><i>uploads lcov</i>"]
-    IN --> BU["build<br/><i>uploads dist</i>"]
-    BU --> E2["e2e<br/><i>downloads dist</i>"]
-    TE --> SO["sonar<br/><i>downloads lcov</i>"]
-    BU --> SO
+    subgraph appwf["workflow: app"]
+        IN["setup<br/><i>node + npm ci, cached</i>"]
+        IN --> AU["audit"]
+        IN --> LI["lint"]
+        IN --> TY["typecheck"]
+        IN --> TE["test ≥85%<br/><i>uploads lcov</i>"]
+        IN --> BU["build<br/><i>uploads dist</i>"]
+        BU --> E2["e2e on the runner<br/><i>vite preview + Playwright</i>"]
+        TE --> SO["sonar"]
+        BU --> SO
+        AU --> GATE["<b>build-test</b><br/><i>aggregator = required check</i>"]
+        LI --> GATE
+        TY --> GATE
+        TE --> GATE
+        E2 --> GATE
+        SO --> GATE
+    end
 
-    AU --> GATE["<b>build-test</b><br/><i>aggregator = required check</i>"]
-    LI --> GATE
-    TY --> GATE
-    TE --> GATE
-    E2 --> GATE
-    SO --> GATE
+    subgraph iacwf["workflow: iac"]
+        PL["<b>plan</b><br/>fmt · validate · checkov"]
+    end
 
-    CH -->|"iac?"| PL["<b>plan</b>"]
-    CH -->|"workflows?"| AL["<b>actionlint</b>"]
+    subgraph lintwf["workflow: lint-workflows"]
+        AL["<b>actionlint</b> + shellcheck"]
+    end
+
+    CH -->|"code?"| IN
+    CH -->|"iac?"| PL
+    CH -->|"workflows?"| AL
 
     GATE --> M["merge to main"]
     PL --> M
     AL --> M
 
-    M --> VM["version-main<br/>bump · tag · Release"]
-    VM -->|"commit bump: X → Y"| DP["deploy"]
-    M -->|"only if iac/ changed"| IA["infra-apply"]
+    M --> VM["version-main<br/>bump · tag · Release<br/><i>no path filter — every merge</i>"]
 
-    DP --> LIVE(["site is live"])
-    IA --> LIVE
+    subgraph deploywf["workflow: deploy — triggered by paths: VERSION"]
+        DG["gate<br/><i>no credentials</i>"]
+        DG -->|"iac/ changed?"| IA["apply-iac<br/>terraform apply<br/>+ verify live function"]
+        DG -->|"app surface changed?"| DA["deploy-app<br/>build · S3 · invalidation"]
+        IA --> DA
+        DA --> SM["e2e vs the live apex<br/><i>app AND infra converged</i>"]
+    end
+
+    VM -->|"commit bump: X → Y"| DG
+    SM --> LIVE(["verified live"])
 
     style A2 stroke-dasharray: 5 5
     style GATE stroke-width:3px
@@ -70,19 +90,65 @@ flowchart TD
     style AL stroke-width:3px
     style M stroke-width:3px
     style LIVE stroke-width:3px
+    style SM stroke-width:3px
 ```
+
+## Why the owner's post-merge structure is better than my first draft
+
+**It closes the hole that broke production on 2026-07-31, by construction.** Today `deploy` and
+`infra-apply` are separate workflows with separate triggers, and an `iac/`-only merge matches none
+of `deploy`'s gate paths — so the full post-deploy smoke never runs for infrastructure changes.
+That is exactly how a misrouted `/og/*` prefix stayed live for four hours. One `deploy` workflow
+triggered by the **bump commit** reaches every merge, because `version-main` has **no path filter**
+and bumps on all of them.
+
+**It also removes a race the current design documents as unsolved.** `infra-apply.yml` says today:
+
+> *the two workflows have different concurrency groups and no ordering, so deploy's smoke would race
+> terraform apply and — given CloudFront takes minutes to propagate — almost certainly assert against
+> the PREVIOUS function and report green.*
+
+As jobs in one workflow, `needs:` gives that ordering for free. The final e2e runs against an
+environment where both the infra and the app have converged, which is the thing neither workflow
+can assert on its own today.
+
+## Two objections to it, neither fatal
+
+**The apply job must keep its own path filter.** With the trigger moved to `VERSION`, an unfiltered
+apply job would run `terraform apply` on **every merge**. A no-op apply is mostly harmless, but
+"apply runs always" is a real change in blast radius and it loses the property that infrastructure
+is only touched when someone touched infrastructure.
+
+**`needs:` couples them: a failed apply blocks the app deploy.** I think that is correct — you do
+not want to ship code onto infrastructure that did not converge. But the cost is that an unrelated
+infra hiccup holds a content release, and that should be chosen deliberately rather than inherited
+from the drawing.
 
 ## What changes, and what deliberately does not
 
-**Changes — one thing only:** `build-test` stops being a 13-step monolith and becomes a set of jobs
-with the dependencies it always had. That is where every edge in the top half comes from.
+**Two changes:**
 
-**Does not change:**
+1. `build-test` stops being a 13-step monolith and becomes jobs with the dependencies it always had
+   — that is where the edges in the top half come from.
+2. `deploy` and `infra-apply` merge into **one** post-merge workflow, so the apply and the app
+   publish are ordered and a single e2e verifies both.
 
-- pushing to a feature branch still runs nothing;
-- `plan` and `actionlint` stay exactly as they are;
-- the merge → `version-main` → `deploy` chain is untouched;
-- the post-deploy smoke stays where it is — **still not a gate** (see Part II §3).
+**Already true today — listed so the drawing is not read as proposing them:**
+
+- pushing to a feature branch runs nothing;
+- the app's e2e already runs **on the runner**, against a `vite preview` of the real build;
+- `version-main` already bumps on **every** merge, with no path filter. That is the fact the whole
+  post-merge redesign rests on.
+
+**Deliberately unchanged:**
+
+- `plan` and `actionlint` keep their names, so branch protection is untouched;
+- `actionlint` stays its **own workflow**, and the reason is circular: if it lived inside `app`, a
+  syntax error in `app`'s YAML would stop the very linter that exists to catch it. The verifier of
+  workflows cannot depend on the file it verifies;
+- the post-deploy e2e is **still not a gate**. It runs after the publish and cannot revert
+  anything (Part II §3). Merging the workflows makes it *reachable for infra changes* — it does not
+  make it *blocking*.
 
 ## Three things this design turns on
 
@@ -122,10 +188,19 @@ there is a reason beyond the drawing.
 
 ## Open, in the order to settle
 
-1. Split the monolith — yes or no, pending the wall-clock measurement.
-2. If yes: does `sonar` need `build`, or only the lcov from `test`? Drawn conservatively above as
-   needing both.
-3. Merge the three files — decided separately, and my answer is no.
+1. **Does the `apply-iac` job keep a path filter?** If not, `terraform apply` runs on every merge.
+   Drawn above *with* the filter.
+2. **Is `deploy-app` allowed to run when `apply-iac` failed?** Drawn above as **no** (`needs:`).
+3. Split the app monolith — yes or no, pending a wall-clock measurement I have not done.
+4. If yes: does `sonar` need `build`, or only the lcov from `test`? Drawn conservatively as needing
+   both.
+5. Where does the "verify the LIVE function stage matches the repo" assertion go? Today it is inside
+   `infra-apply` precisely because of the race the merge removes — so it could move to the shared
+   e2e, or stay next to the apply. Drawn above as staying.
+
+Settled by the owner, 2026-07-31: the pre-merge shape is **`app` + `iac`** (plus `lint-workflows`,
+kept separate for the circular reason above), and the post-merge shape is **one `deploy` workflow**
+with the apply and the publish as ordered jobs.
 
 ---
 ---
