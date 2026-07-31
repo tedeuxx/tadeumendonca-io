@@ -207,6 +207,24 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
         }
       }
     }
+    // The per-article OG card (#269), derived AFTER the parity check and deliberately so.
+    //
+    // `ogImage` is in FACT_KEYS — a fact the two editions must agree on — and a per-locale card cannot
+    // agree by construction, because each edition carries its own title. Deriving it before the loop
+    // would make every article throw. Deriving it here keeps the guard intact for anything an author
+    // writes in frontmatter and adds the generated path afterwards.
+    //
+    // Keyed by `fileSlug` — the article's KEY — never by `slug`. The slug is per-locale and editable
+    // after publication (ADR-0037); the key is the identity this module already treats as stable. A card
+    // named after a slug orphans the day the slug is corrected, and an orphaned card is not a broken
+    // image on a page: it is an `og:image` URL that 404s, which every scraper that fetched it has pinned.
+    //
+    // Derived rather than authored: an author who forgets the frontmatter line gets the generic card and
+    // nothing objects. scripts/og-cards.test.mjs asserts a card exists for every article in both locales,
+    // so the missing file fails the build instead.
+    for (const locale of LOCALES) {
+      editions[locale]!.ogImage = `/og/${fileSlug}.${locale}.png`;
+    }
     resolved[fileSlug] = editions as Editions;
   }
 
