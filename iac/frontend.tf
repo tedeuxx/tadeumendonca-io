@@ -9,9 +9,10 @@
 # static objects in apps/fed/public/og/, which deploy.yml syncs to the FED bucket only — so every
 # article's advertised og:image resolved to the og-images bucket, 403'd, hit the SPA custom_error_response
 # below and returned `200 text/html`: an og:image URL serving the SPA's HTML to every scraper. The
-# behavior and its origin are removed here so those ALREADY-ADVERTISED URLs resolve; no URL is minted or
-# moved, because a scraper pins the URL it fetched (ADR-0041). The og-images BUCKET, its SSM parameter
-# and its objects are deliberately left in place — deleting storage is a separate, irreversible decision.
+# behavior and its origin were removed (#302) so those ALREADY-ADVERTISED URLs resolve; no URL was
+# minted or moved, because a scraper pins the URL it fetched (ADR-0041). The og-images bucket itself is
+# now gone too (owner decision, follow-up to #302) — it held zero objects and, once the origin was
+# removed, zero readers. Only the fed and assets origins remain.
 
 # CloudFront Function (viewer-request) — rewrites directory routes to their prerendered index.html so
 # the per-route static HTML (built by `build:static`) is served. Replaces the og-edge Lambda@Edge:
@@ -123,8 +124,10 @@ module "cloudfront" {
   ]
 }
 
-# Combined bucket policy (TLS-deny + CloudFront OAC read) for the private fed + og-images buckets.
+# Combined bucket policy (TLS-deny + CloudFront OAC read) for the private fed + assets buckets.
 # Standalone resource (not the s3 module's attach_policy) to break the storage↔frontend cycle.
+# There is no og-images document here any more: that bucket is destroyed (storage.tf), and a policy
+# is a property OF a bucket — with no bucket there is nothing to deny insecure transport TO.
 data "aws_iam_policy_document" "frontend_bucket" {
   statement {
     sid     = "DenyInsecureTransport"
@@ -149,49 +152,6 @@ data "aws_iam_policy_document" "frontend_bucket" {
     effect    = "Allow"
     actions   = ["s3:GetObject"]
     resources = ["${module.frontend_bucket.s3_bucket_arn}/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [module.cloudfront.cloudfront_distribution_arn]
-    }
-  }
-}
-
-# The og-images bucket policy is UNCHANGED by the /og/* routing fix and stays valid and appliable:
-# its AllowCloudFrontOAC condition keys off the distribution ARN, which still exists, not off any
-# origin or behavior. The grant is now VESTIGIAL though — CloudFront has no origin for this bucket, so
-# nothing can exercise it. Removing that statement is the least-privilege follow-up, deliberately left
-# to the same decision that settles the bucket's fate rather than smuggled into an outage fix. The
-# DenyInsecureTransport statement must stay regardless (it is the bucket's TLS floor, folded here
-# because storage.tf sets attach_deny_insecure_transport_policy = false).
-data "aws_iam_policy_document" "og_bucket" {
-  statement {
-    sid     = "DenyInsecureTransport"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      module.og_images_bucket.s3_bucket_arn,
-      "${module.og_images_bucket.s3_bucket_arn}/*",
-    ]
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-  }
-  statement {
-    sid       = "AllowCloudFrontOAC"
-    effect    = "Allow"
-    actions   = ["s3:GetObject"]
-    resources = ["${module.og_images_bucket.s3_bucket_arn}/*"]
     principals {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
@@ -243,11 +203,6 @@ data "aws_iam_policy_document" "assets_bucket" {
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = module.frontend_bucket.s3_bucket_id
   policy = data.aws_iam_policy_document.frontend_bucket.json
-}
-
-resource "aws_s3_bucket_policy" "og" {
-  bucket = module.og_images_bucket.s3_bucket_id
-  policy = data.aws_iam_policy_document.og_bucket.json
 }
 
 resource "aws_s3_bucket_policy" "assets" {
