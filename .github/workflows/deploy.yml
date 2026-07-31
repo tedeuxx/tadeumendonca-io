@@ -5,7 +5,7 @@ name: deploy
 # to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; the
 # trust pins the IMMUTABLE subject repo:<org>@<org_id>/<repo>@<repo_id>:* — see iac/iam.tf, and note
 # that a repo rename does not change it). Post-deploy E2E (Playwright) runs on the trunk.
-# TRIGGERED BY THE VERSION BUMP, NOT BY THE MERGE (#298). `version-main` pushes `bump: X → Y` and tags
+# TRIGGERED BY THE VERSION BUMP, NOT BY THE MERGE (#299). `version-main` pushes `bump: X → Y` and tags
 # vY on top of every merge, so the bump commit is the ONLY commit on main whose tree carries the version
 # it is tagged with. Building the merge commit builds a tree whose VERSION still names the PREVIOUS
 # release. Nothing reads VERSION yet, so no reader has seen it: #298 would be the first, and it is held

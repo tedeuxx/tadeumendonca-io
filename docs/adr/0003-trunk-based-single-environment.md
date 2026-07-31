@@ -255,12 +255,16 @@ shipping. This is **inherent to "bump before deploy" and cannot be designed away
 absent bump above is the obvious one. The other is a *malformed* one: the gate's "assert this tree
 carries its own tag" step exits non-zero when `v$(cat VERSION)` does not point at HEAD, which turns a
 half-completed release into a red deploy rather than a build whose footer links a Release that does not
-describe it. That guard is correct and deliberate — but note what it means against the incident cited
-above: **the 2026-07-23 wedge was precisely a tag out of step with its commit**, so that failure would
-now trip this assert too, not only stop the tagging. `--atomic --follow-tags` in `version-main` is what
+describe it. That guard is correct and deliberate, and `--atomic --follow-tags` in `version-main` is what
 makes the case rare; the assert is what makes it loud instead of wrong. The owner accepted "version-main
-becomes load-bearing"; this is the whole of what that sentence buys, and it should not have taken a
-review to say so.
+becomes load-bearing"; this is the whole of what that sentence buys.
+
+*(An earlier revision of this paragraph attached the 2026-07-23 wedge to this second path. It does not
+belong to it: that push was non-atomic, so **the branch was rejected while the tag went through**
+([ADR-0022](./0022-numeric-semver-auto-release.md)) — the bump commit never reached `main`, `VERSION`
+never changed, and `deploy` would never have fired at all. That incident is the absent-bump path above.
+Removed rather than left, because a record that attaches a real mechanism to the wrong incident is the
+same defect this amendment opens by naming.)*
 
 ### Named residual gap — recorded rather than fixed
 
@@ -297,7 +301,7 @@ WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one clic
 5. **Show the commit SHA instead of a version** — genuinely the **cheapest correct answer**: always exact,
    zero workflow change, zero coupling. It lost to the owner's ruling that the footer should carry the
    *version*, and that ruling has a reason rather than only a preference: a version resolves to a Release
-   page with categorised notes ([ADR-0022](./0022-numeric-semver-auto-bump.md)), while a SHA resolves to a
+   page with categorised notes ([ADR-0022](./0022-numeric-semver-auto-release.md)), while a SHA resolves to a
    diff — so the version is the form a reader can act on, which is the whole argument for putting an
    identifier in the chrome at all. The coupling in "the accepted cost" above is the price of that, and is
    recorded as bought rather than overlooked.
