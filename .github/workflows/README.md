@@ -26,9 +26,17 @@ this file is the bug.
 
 ## The whole lifecycle, as proposed
 
-Owner's structure (2026-07-31): **two workflows before the merge — `app` and `iac`** — and **one
-`deploy` workflow after it, with the app deploy and the iac apply as jobs**, followed by a single
-e2e against the converged environment.
+Owner's structure (2026-07-31): **three workflows before the merge — `app`, `iac`, `github`** — and
+**one `deploy` workflow after it, with the app deploy and the iac apply as jobs**, followed by a
+single e2e against the converged environment.
+
+**The names map the three top-level directories they gate** — `apps/`, `iac/`, `.github/` — so each
+one says *what it guards* rather than *what it does to it*. `lint-workflows` was the odd one out
+(verb + object), and `github` also anticipates the right scope: `.github/` holds `dependabot.yml`
+as well, which nothing validates today.
+
+Renaming the **workflow** is free — branch protection requires the **job** names
+`plan`, `build-test`, `actionlint`. The jobs keep those names; only the files are renamed.
 
 ```mermaid
 flowchart TD
@@ -59,13 +67,13 @@ flowchart TD
         PL["<b>plan</b><br/>fmt · validate · checkov"]
     end
 
-    subgraph lintwf["workflow: lint-workflows"]
+    subgraph ghwf["workflow: github"]
         AL["<b>actionlint</b> + shellcheck"]
     end
 
-    CH -->|"code?"| IN
-    CH -->|"iac?"| PL
-    CH -->|"workflows?"| AL
+    CH -->|"apps/fed?"| IN
+    CH -->|"iac/?"| PL
+    CH -->|".github/?"| AL
 
     GATE --> M["merge to main"]
     PL --> M
@@ -143,9 +151,9 @@ from the drawing.
 **Deliberately unchanged:**
 
 - `plan` and `actionlint` keep their names, so branch protection is untouched;
-- `actionlint` stays its **own workflow**, and the reason is circular: if it lived inside `app`, a
-  syntax error in `app`'s YAML would stop the very linter that exists to catch it. The verifier of
-  workflows cannot depend on the file it verifies;
+- the `github` workflow (today `lint-workflows`) stays **its own file**, and the reason is circular:
+  if it lived inside `app`, a syntax error in `app`'s YAML would stop the very linter that exists to
+  catch it. The verifier of workflows cannot depend on the file it verifies;
 - the post-deploy e2e is **still not a gate**. It runs after the publish and cannot revert
   anything (Part II §3). Merging the workflows makes it *reachable for infra changes* — it does not
   make it *blocking*.
@@ -212,7 +220,7 @@ skips the entire app gate while changing what a reader sees.
 | `build` | the above + **`VERSION`** ← the gap today |
 | `e2e` | the above — **never only when `e2e/**` changes**, because it drives the build |
 | `plan`, `apply-iac` | `iac/**` **minus** `iac/cloudfront-functions/**` |
-| `actionlint` | `.github/workflows/**` |
+| `actionlint` | `.github/workflows/**` — and **`.github/**` once `dependabot.yml` is gated too |
 
 **Why "an MR that only touches e2e" is the clarifying case.** The e2e specs are TypeScript in the
 same project, so `lint` and `typecheck` cover them. Filtering "e2e changed → run only e2e" skips the
@@ -243,9 +251,11 @@ every workflow here ends with a `::notice::` naming which of the three cases hap
    redesign. Fix it now as its own slice, or fold it into the rebuild? It is one line either way,
    but shipping it separately means the fix is not held hostage to a design still being argued.
 
-Settled by the owner, 2026-07-31: the pre-merge shape is **`app` + `iac`** (plus `lint-workflows`,
-kept separate for the circular reason above), and the post-merge shape is **one `deploy` workflow**
-with the apply and the publish as ordered jobs.
+**Settled by the owner, 2026-07-31.** Pre-merge: **`app`, `iac`, `github`** — three files, named
+after the three top-level directories they gate, each kept separate (the `github` one for the
+circular reason above). Post-merge: **one `deploy` workflow**, with the apply and the publish as
+ordered jobs and a single e2e against the converged environment. Job names — `build-test`, `plan`,
+`actionlint` — are unchanged, so branch protection is untouched.
 
 ---
 ---
