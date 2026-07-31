@@ -35,7 +35,9 @@ describe('CVSection', () => {
     expect(screen.getAllByText(/Terraform/).length).toBeGreaterThan(0); // in highlights + skills
     expect(screen.getByText('Formação')).toBeInTheDocument();
     expect(screen.getByText('Certificações')).toBeInTheDocument();
-    expect(screen.getByText('Habilidades')).toBeInTheDocument();
+    // "Skills", not "Habilidades" — the heading is deliberately untranslated in the pt edition
+    // (owner, 2026-07-31), because English IS the pt-BR usage for this section of a CV.
+    expect(screen.getByText('Skills')).toBeInTheDocument();
     // Each leveled skill shows the 4-square proficiency meter (AWS L100–L400 model).
     expect(screen.getAllByRole('img', { name: /Proficiency level/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
@@ -198,6 +200,6 @@ describe('CVSection', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tadeu Mendonça' })).toBeInTheDocument();
     expect(screen.queryByText('Experiência')).not.toBeInTheDocument();
     expect(screen.queryByText('Certificações')).not.toBeInTheDocument();
-    expect(screen.queryByText('Habilidades')).not.toBeInTheDocument();
+    expect(screen.queryByText('Skills')).not.toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@ _This site is the argument. This page is the blueprint — how it's built, and h
 
 ## The thesis
 
-For a proof-of-engineering site, the code is the pitch — so the honest thing is to show the machine, not just its output. This is the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build — AI-native development (Claude Code, Kiro, an AI-DLC / Loop Engineering loop) with the SDLC rigor most AI work skips. The site is that loop's public output.
+For a proof-of-engineering site, the code is the pitch — so the honest thing is to show the machine, not just its output. This is the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build — AI-native development (Claude Code, Kiro, a loop built on AI-DLC & Harness Engineering) with the SDLC rigor most AI work skips. The site is that loop's public output.
 
 ## The shape
 

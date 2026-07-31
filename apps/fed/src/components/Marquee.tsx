@@ -17,9 +17,16 @@ import { useT } from '../i18n';
 //
 // This briefly carried a `Record<Locale, readonly string[]>` translating `Observabilidade`,
 // `Segurança` and `Sistemas Distribuídos`. The owner settled the rule the other way, and the RULE is
-// what mattered: `profile.ts` already keeps every individual skill name English in both editions and
-// translates only GROUP labels, so a translated strip meant a pt reader met `Observabilidade` on the
-// landing and `Observability` on /me. One rule was missing across two surfaces; now there is one.
+// what mattered — and it turns on ITEM versus GROUP LABEL. `profile.ts` keeps every individual skill
+// NAME English in both editions and translates only the group HEADINGS they sit under. The strip is a
+// list of items, so items are what it must match: a translated strip meant a pt reader met
+// `Observabilidade` here and the item `Observability` on /me.
+//
+// A pt reader still meets both forms, and that is the existing rule rather than a leak — /me carries
+// an `Observabilidade` HEADING above `Observability` ITEMS, because a heading is prose and an item is
+// a proper noun. Spelled out because "consistent with profile.ts" would otherwise read as a promise
+// this strip cannot keep the moment a group is named after one of its own items, which is exactly
+// what happened when Observability became its own group.
 //
 // The locale plumbing went with it. A type modelling variance that nothing exercises is machinery
 // pretending to be a safeguard, and this repo's floor is the simplest thing that solves it. If the

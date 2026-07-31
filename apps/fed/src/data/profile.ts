@@ -29,15 +29,15 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering with Claude Code & Kiro | ' +
+      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Harness Engineering with Claude Code & Kiro | ' +
       'Python · Node.js / TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
     pt:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC / Loop Engineering com Claude Code & Kiro | ' +
+      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Harness Engineering com Claude Code & Kiro | ' +
       'Python · Node.js / TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
   },
   summary: {
     en:
-      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC / Loop Engineering — to design, ' +
+      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC & Harness Engineering — to design, ' +
       "build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
       'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
       'modern product engineering building web and native-mobile apps, and spent the last years as a ' +
@@ -47,7 +47,7 @@ const sourceTemplate: ProfileSource = {
       'MCP — and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and ' +
       'backend; TypeScript for the full-stack and web layer.',
     pt:
-      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC / Loop Engineering — para ' +
+      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC & Harness Engineering — para ' +
       'projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
       '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
       'e software empacotado, passei para engenharia de produto moderna construindo apps web e mobile nativo, e ' +
@@ -68,21 +68,16 @@ const sourceTemplate: ProfileSource = {
         en:
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
-          'Claude Code, Kiro and AI-DLC / Loop Engineering practices.',
+          'Claude Code, Kiro and AI-DLC & Harness Engineering practices.',
         pt:
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
-          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC / Loop Engineering.',
+          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Harness Engineering.',
       },
-      // The internal knowledge platform (MCP server + semantic search on Bedrock) is the one highlight
-      // the one-page PDF keeps (#161): it is the only place in the whole CV that shows something AGENTIC
-      // actually built, rather than adopted or certified. Highlight 0 is adoption, which the description
-      // above already carries. It also restores "MVP in progress" to the sheet — the calibration that
-      // kept "ship production-ready systems" honest, and that the print edition had dropped along with it.
       print_highlight_index: 1,
       highlights: {
         en: [
-          'Adopted AI-native development (Claude Code, Kiro, AI-DLC / Loop Engineering) in 2026 to design, ' +
+          'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Harness Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and structured the practice for team-scale adoption.',
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search (vector embeddings on Amazon Bedrock) so AI agents can both search and create knowledge; MVP in progress.',
@@ -97,7 +92,7 @@ const sourceTemplate: ProfileSource = {
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
-          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC / Loop Engineering) em 2026 para ' +
+          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Harness Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
             'adoção em escala de time.',
           'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
@@ -291,13 +286,11 @@ const sourceTemplate: ProfileSource = {
         { name: 'Amazon S3', level: 4 },
         { name: 'Amazon DynamoDB', level: 4 },
         { name: 'Amazon ECS', level: 4 },
-        { name: 'Amazon EKS', level: 4 },
+        { name: 'Amazon EKS', level: 3 },
         { name: 'Amazon SQS', level: 4 },
         { name: 'Amazon SNS', level: 4 },
-        { name: 'Amazon CloudWatch', level: 4 },
-        { name: 'AWS X-Ray', level: 3 },
         { name: 'AWS WAF', level: 3 },
-        { name: 'Amazon Cognito', level: 3 },
+        { name: 'Amazon Cognito', level: 4 },
         { name: 'AWS KMS', level: 3 },
         { name: 'Amazon RDS', level: 3 },
         { name: 'Amazon CloudFront', level: 3 },
@@ -309,33 +302,61 @@ const sourceTemplate: ProfileSource = {
         { name: 'Distributed Systems Architecture', level: 4 },
         { name: 'Microservices', level: 4 },
         { name: 'Serverless Computing', level: 4 },
-        { name: 'Event-Driven Architecture', level: 4 },
-        { name: 'Terraform / IaC', level: 4 },
+        { name: 'Event-Driven Architecture', level: 3 },
+        { name: 'Terraform', level: 4 },
+        { name: 'AWS CloudFormation', level: 3 },
         { name: 'CI/CD', level: 4 },
-        { name: 'Observability', level: 4 },
+        { name: 'Security', level: 3 },
         { name: 'Platform Engineering', level: 3 },
+      ],
+    },
+    {
+      // Its own group since 2026-07-31 (owner). It was one line — `Observability, level 4` — inside
+      // Distributed Systems & DevOps, which said the discipline is a skill rather than a domain with
+      // tooling under it.
+      //
+      // WHAT IS AND IS NOT BACKED BY THE PROSE ABOVE, stated precisely because an earlier version of
+      // this comment claimed the whole group was: the experience block asserts an end-to-end
+      // observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix. That covers
+      // Grafana and Prometheus here. CloudWatch and X-Ray are AWS services the AWS Cloud group already
+      // carried. `ELK Stack` and `Splunk` are the owner's own assessment and are backed by nothing
+      // else on this page — which is fine, since a levelled skill IS an assessment, but the comment
+      // does not get to certify them. Note also that AppDynamics and Zabbix are named in the prose and
+      // absent from this list; the owner has not ruled on adding them.
+      //
+      // CloudWatch and X-Ray MOVED here out of AWS Cloud rather than being duplicated. That group is
+      // organised by vendor and this one by domain, so the two genuinely overlap — listing them twice
+      // would inflate the AWS count and make a reader scanning for observability depth find it in two
+      // places with no relationship.
+      label: { en: 'Observability', pt: 'Observabilidade' },
+      items: [
+        { name: 'Amazon CloudWatch', level: 4 },
+        { name: 'AWS X-Ray', level: 3 },
+        { name: 'Prometheus', level: 3 },
+        { name: 'Grafana', level: 3 },
+        { name: 'ELK Stack', level: 3 },
+        { name: 'Splunk', level: 2 },
       ],
     },
     {
       label: { en: 'AI-native Engineering', pt: 'Engenharia AI-native' },
       items: [
-        { name: 'AI-DLC / Loop Engineering', level: 3 },
+        { name: 'AI-DLC', level: 2 },
+        { name: 'Harness Engineering', level: 2 },
         { name: 'Claude Code', level: 3 },
         { name: 'Kiro', level: 3 },
         { name: 'Context Engineering', level: 3 },
-        { name: 'Agentic AI Development', level: 3 },
-        { name: 'MCP (Model Context Protocol)', level: 3 },
+        { name: 'Agents Engineering', level: 2 },
+        { name: 'MCP (Model Context Protocol)', level: 2 },
       ],
     },
     {
-      label: { en: 'AI Foundations', pt: 'Fundamentos de IA' },
+      label: { en: 'AI Engineering', pt: 'Engenharia de IA' },
       items: [
         { name: 'Large Language Models (LLM)', level: 2 },
-        { name: 'Prompt Engineering', level: 2 },
-        { name: 'Applied Generative AI', level: 2 },
+        { name: 'Prompt Engineering', level: 3 },
         { name: 'RAG (Retrieval-Augmented Generation)', level: 1 },
-        { name: 'Agent Evaluation (LLM-as-judge)', level: 1 },
-        { name: 'Amazon Bedrock', level: 1 },
+        { name: 'Amazon Bedrock', level: 2 },
       ],
     },
     {
@@ -345,14 +366,20 @@ const sourceTemplate: ProfileSource = {
         { name: 'TypeScript', level: 3 },
         { name: 'Node.js', level: 3 },
         { name: 'Java', level: 2 },
+        { name: 'Spring Boot', level: 3 },
       ],
     },
     {
+      // On the same 100–400 meter as everything else since 2026-07-31 (owner). It used to encode the
+      // level IN the name — "Português (nativo)" — which made it the one category on the page with no
+      // proficiency bar. The names localise, which is why `SkillItemSource.name` now accepts a
+      // localized value; see the type.
       label: { en: 'Languages (spoken)', pt: 'Idiomas' },
-      items: {
-        en: ['Portuguese (Native)', 'English (Advanced)', 'Spanish (Intermediate)'],
-        pt: ['Português (nativo)', 'Inglês (avançado)', 'Espanhol (intermediário)'],
-      },
+      items: [
+        { name: { en: 'Portuguese', pt: 'Português' }, level: 4 },
+        { name: { en: 'English', pt: 'Inglês' }, level: 3 },
+        { name: { en: 'Spanish', pt: 'Espanhol' }, level: 2 },
+      ],
     },
   ],
   metadata: {

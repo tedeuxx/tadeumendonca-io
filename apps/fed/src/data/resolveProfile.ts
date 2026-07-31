@@ -13,11 +13,12 @@ import type { Locale } from '../i18n/config';
 
 const pick = <T,>(value: Localized<T>, locale: Locale): T => value[locale];
 
-/** Resolve a group's items to `SkillItem[]`: a leveled technical array passes through; a localized
- * string list (spoken languages) resolves to the locale and carries no level. */
+/** Resolve a group's items to `SkillItem[]`: a leveled array resolves each name — a plain string
+ * passes through (the technical case, written once), a `Localized<string>` picks the edition (spoken
+ * languages). A bare localized string list still resolves with no level, for any future prose group. */
 const pickItems = (items: SkillGroupSource['items'], locale: Locale): SkillItem[] =>
   Array.isArray(items)
-    ? items.map((i) => ({ name: i.name, level: i.level }))
+    ? items.map((i) => ({ name: typeof i.name === 'string' ? i.name : pick(i.name, locale), level: i.level }))
     : pick(items, locale).map((name) => ({ name }));
 
 export function resolveProfile(source: ProfileSource, locale: Locale): Profile {

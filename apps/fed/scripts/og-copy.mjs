@@ -18,14 +18,18 @@ export const LOCALES = ['pt', 'en'];
  * The line under the mark on every card, both locales, both generators.
  *
  * NOT TRANSLATED, and that is a positioning decision rather than an omission: `agentic`, `AI-native`,
- * `AI-DLC` and `Loop Engineering` stay English in both editions, because the card is where a pt reader
- * meets the term FIRST and a rectangle that renders ~320px wide has no room to teach one.
+ * `AI-DLC` and `Harness Engineering` stay English in both editions, because the card is where a pt
+ * reader meets the term FIRST and a rectangle that renders ~320px wide has no room to teach one.
  *
- * It says `Agentic development`, not `Agentic dev`. The vocabulary hierarchy fixes the identity as
- * "Agentic development / AI-DLC / Loop Engineering"; the abbreviation was drift on the single surface
- * that decision names explicitly.
+ * It says `Agentic development`, not `Agentic dev` — the abbreviation was drift on the single surface
+ * the vocabulary decision names explicitly.
+ *
+ * `Loop Engineering` became `Harness Engineering` on 2026-07-31 (owner). Changing this line REPUBLISHES
+ * all four cards, and under ADR-0041 every regeneration republishes an artifact scrapers have pinned —
+ * which is why the term moved across every surface in one batch rather than card-by-card as each was
+ * noticed.
  */
-export const META_LINE = 'Agentic development · AI-DLC / Loop Engineering · Open source';
+export const META_LINE = 'Agentic development · AI-DLC & Harness Engineering · Open source';
 
 /**
  * The default card's hook and subline, per locale.
