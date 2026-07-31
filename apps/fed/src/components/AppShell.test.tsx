@@ -34,7 +34,7 @@ describe('AppShell', () => {
   it('prefixes the landing anchors and the /me route with the active locale', () => {
     renderShell();
     expect(screen.getByRole('link', { name: 'Artigos' })).toHaveAttribute('href', '/pt/#artigos');
-    expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/pt/#portfolio');
+    expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/pt/portfolio');
     expect(screen.getByRole('link', { name: 'Contato' })).toHaveAttribute('href', '/pt/#contato');
     expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/pt/me');
   });
@@ -141,8 +141,36 @@ describe('AppShell', () => {
   it('renders English nav chrome under the /en prefix when the active locale is en', () => {
     renderShell('en');
     expect(screen.getByRole('link', { name: 'Articles' })).toHaveAttribute('href', '/en/#artigos');
-    expect(screen.getByRole('link', { name: 'Portfolio' })).toHaveAttribute('href', '/en/#portfolio');
+    expect(screen.getByRole('link', { name: 'Portfolio' })).toHaveAttribute('href', '/en/portfolio');
     expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/en/#contato');
+  });
+
+  // #315. The nav entry named after the catalog used to land on the landing's SHORTLIST of it, one
+  // further click from the real thing. Both assertions above now pin the route, and the two below pin
+  // what that change must NOT have cost.
+  //
+  // Written as a pair on purpose: the defect this replaced was a link that WORKED — it scrolled, it
+  // highlighted, it looked designed — so "the link resolves" was never the failing property. What
+  // failed was WHERE it resolved to. An assertion that only checks the new href would go green on a
+  // regression that took the anchor away with it.
+  it('is a react-router route, not a plain anchor — so it does not full-load back to the landing', () => {
+    renderShell('pt');
+    const portfolio = screen.getByRole('link', { name: 'Portfólio' });
+    // Route entries carry the bordered treatment; anchors do not. This is the rendered proof of the
+    // `route: true` branch, which is what makes it a client-side navigation.
+    expect(portfolio.className).toContain('border-border');
+    expect(screen.getByRole('link', { name: 'Artigos' }).className).not.toContain('border-border');
+  });
+
+  it('leaves #portfolio a live landing anchor — the section stayed, only the nav entry moved', () => {
+    renderShell('pt');
+    // No nav entry points at it any more, so nothing should mark it while scrolling. `SECTIONS` is what
+    // useActiveSection observes, and it is derived from NAV — the risk is that removing the entry is
+    // read as removing the section. LandingPage still renders `id="portfolio"` (asserted in e2e); here
+    // we pin that the nav no longer CLAIMS it, which is the half this file owns.
+    const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'));
+    expect(hrefs).not.toContain('/pt/#portfolio');
+    expect(hrefs).toContain('/pt/portfolio');
   });
 });
 
