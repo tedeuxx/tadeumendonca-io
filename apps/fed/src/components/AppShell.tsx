@@ -16,6 +16,7 @@ import { analyticsConfigured } from '../lib/analytics';
 import { ConsentBanner } from './ConsentBanner';
 import { LocaleSuggestion } from './LocaleSuggestion';
 import { LOCALES, useLocale, useLocalePath, type MessageKey } from '../i18n';
+import { SITE_VERSION, releaseUrl } from '../lib/version';
 
 interface NavEntry {
   href: string;
@@ -201,7 +202,28 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <footer data-print="hide" className="border-t-2 border-border-strong px-[--gutter] py-4">
         <div className="mx-auto flex w-full max-w-screen items-center justify-between gap-3">
-          <span className="font-mono text-xs text-muted-foreground">tadeumendonca.io</span>
+          <span className="font-mono text-xs text-muted-foreground">
+            tadeumendonca.io{' '}
+            {/* The running build, linked to its own release — here rather than in the landing's
+                colophon, because THIS is the footer every route renders. Knowing which build you are
+                reading is the precondition for checking any other claim on the site, and /architecture
+                is the page that most needs it.
+
+                Bare on screen and named for assistive technology. `v0.1.144` is a conventional
+                identifier rather than prose, so a sighted reader gets the affordance from position and
+                register — but a screen reader would announce a link called "v0.1.144" with no context
+                and no external-link cue, which is exactly the class of thing the rest of this file is
+                careful about. The label costs two catalog entries; that is the right trade. */}
+            <a
+              href={releaseUrl()}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={t('footer.version')}
+              className="hover:text-foreground hover:underline"
+            >
+              v{SITE_VERSION}
+            </a>
+          </span>
           {/* Withdrawal must be as reachable as granting: this re-opens the banner to re-decide. Shown
               only when analytics is configured — otherwise there is no cookie choice to manage. */}
           {analyticsConfigured() && (

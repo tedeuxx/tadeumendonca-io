@@ -4,6 +4,7 @@ import { AppShell } from './AppShell';
 import { ConsentProvider } from '../lib/consent';
 import { renderWithLocale } from '../test-utils';
 import { STORAGE_KEY, type Locale } from '../i18n';
+import { SITE_VERSION, releaseUrl } from '../lib/version';
 
 // The offer's aria-label is in the SUGGESTED language, not the page's, so it is one of the two.
 const OFFER_LABEL = /Language suggestion|Sugestão de idioma/;
@@ -163,6 +164,30 @@ describe('skip link', () => {
     // link look present and do nothing. Asserting the attribute is asserting the behaviour's precondition.
     expect(main).toHaveAttribute('id', 'main');
     expect(main).toHaveAttribute('tabindex', '-1');
+  });
+
+  // The version lives in the SHELL footer, not the landing's colophon, and that placement is the point:
+  // this footer is on every route, so /architecture and /me carry it too. It was in ContactFooter first,
+  // which renders only on the landing — so the page the feature exists for did not have it.
+  //
+  // The semver SHAPE is asserted first, and the ordering matters. A test cannot independently know the
+  // version — any assertion reads the same file the component does, so comparing them proves only that
+  // both read something. Without this line an empty import renders "v" and an assertion built from the
+  // same empty value matches it happily.
+  it('names the running build in the footer of every route, linked to its release', () => {
+    expect(SITE_VERSION, 'VERSION must resolve to a real semver at build time').toMatch(/^\d+\.\d+\.\d+$/);
+
+    renderShell('pt');
+    // Found by its ACCESSIBLE name, not its visible text. The visible text is a bare `v0.1.144`; the
+    // accessible name comes from aria-label, because a screen reader announcing "v0.1.144" as a link
+    // gets no context and no external-link cue. Querying by role+name is what proves the label reached
+    // the element — a getByText would pass with the aria-label missing entirely.
+    const tag = screen.getByRole('link', { name: 'Notas da versão que está no ar (GitHub)' });
+    expect(tag).toHaveTextContent(`v${SITE_VERSION}`);
+    expect(tag).toHaveAttribute('href', releaseUrl());
+    // The release for THIS build, not a generic releases page — that is what makes the number checkable
+    // rather than decorative.
+    expect(releaseUrl()).toBe(`https://github.com/tedeuxx/tadeumendonca-io/releases/tag/v${SITE_VERSION}`);
   });
 
   it('renders its own edition, with no leak from the other', () => {

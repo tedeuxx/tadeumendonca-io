@@ -35,6 +35,15 @@ const strings = {
     // aria-label for the PT/EN toggle group.
     switch: { pt: 'Idioma', en: 'Language' },
   },
+  footer: {
+    // Accessible name for the version link. The visible text is a bare `v0.1.144` — conventional and
+    // locale-neutral for a sighted reader, who gets the affordance from position and register. A screen
+    // reader gets neither: it announces a link called "v0.1.144" with no context and no external-link
+    // cue. So the number stays unlabelled on screen and the meaning lives here, which costs two catalog
+    // entries and is the right trade in a file that is otherwise scrupulous about exactly this class of
+    // thing (the skip link, the notice ordering, `tabIndex={-1}`).
+    version: { pt: 'Notas da versão que está no ar (GitHub)', en: 'Release notes for the running build (GitHub)' },
+  },
   marquee: {
     subjects: { pt: 'Assuntos', en: 'Subjects' },
   },

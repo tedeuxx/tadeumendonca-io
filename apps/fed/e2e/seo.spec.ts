@@ -121,6 +121,25 @@ test.describe('SEO discovery', () => {
     }
   });
 
+  // The version in the footer. Asserted on the SERVED bytes of several routes rather than in jsdom,
+  // because both halves of the claim live there: that it is baked into the prerendered HTML (so a reader
+  // with JS off sees it), and that it is on EVERY route rather than only the landing — the first
+  // implementation put it in the landing colophon, so /architecture, the page it exists for, did not
+  // have it. A component test cannot tell those apart.
+  test('every route names the running build, in the served HTML', async ({ request }) => {
+    const tagged = /releases\/tag\/v(\d+\.\d+\.\d+)/;
+    const seen = new Set<string>();
+
+    for (const path of ['/pt/', '/en/', '/pt/architecture/', '/en/me/']) {
+      const html = await (await request.get(path)).text();
+      const version = tagged.exec(html)?.[1];
+      expect(version, `${path} must name the running build`).toBeTruthy();
+      seen.add(version!);
+    }
+    // One build, one number. Divergence would mean the value is resolved per-route rather than baked.
+    expect([...seen]).toHaveLength(1);
+  });
+
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
   // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on
   // this site ever carried a query string, so sourcing the canonical from the location would have been a
