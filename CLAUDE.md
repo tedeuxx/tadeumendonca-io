@@ -140,8 +140,10 @@ Two consequences worth stating outright, because they are what the other model g
   three things and no longer includes reader-facing content: **`iac/`** and anything that threatens
   the site's continuity, **a change to the dev-loop's own rules** (this section, the ⚠️ section, an
   ADR that decides how work is decided), and **publishing an article** (the `content` backlog — the
-  owner's voice). Contract/schema still escalates as `iac/`-adjacent. *Significance beats
-  in-pattern:* when the class is
+  owner's voice). Contract/schema still escalates as `iac/`-adjacent. **An ADR amendment that *decides*
+  something is safe class** (owner, 2026-07-31) — ADR-0003's 2026-07-29 table said otherwise and that
+  clause is struck; the only ADRs that still escalate are the ones covered by the second item above,
+  which decide *how work is decided*. *Significance beats in-pattern:* when the class is
   unclear, it is boundary. **The reviewer never merges an expansion of its own authority** — a change to
   this guide's merge rules is boundary by construction, whatever the diff looks like.
   A green CI is **not** a substitute for the review — CI proves nothing broke, the reviewer judges
