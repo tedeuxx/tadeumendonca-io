@@ -264,6 +264,13 @@ names the URL.
   `/og/*` behaviour and its origin so the prefix falls through to the fed origin — repairing the
   **already-advertised** URLs rather than moving the cards, because this record's own naming argument
   is that a scraper pins what it fetched.
+
+  **And then the bucket itself was retired (2026-07-31, same day).** Recorded here rather than in a new
+  ADR because it is one arc, not four events: the Lambda@Edge OG renderer was superseded → its bucket
+  was left orphaned → the `/og/*` behaviour outlived the supersession and misrouted live traffic → the
+  bucket is gone. What made the middle step possible is the part worth keeping: **a supersession that
+  removes the *consumer* but leaves the *plumbing* is not finished**, and the plumbing was invisible
+  precisely because it was doing nothing — until a new feature was named into the same path.
 - One aspect ratio only; nothing here decides whether a Story-format card ever returns, and #270 removed
   the surface that wanted one.
 
