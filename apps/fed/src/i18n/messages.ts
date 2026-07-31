@@ -71,9 +71,13 @@ const strings = {
   articles: {
     headingBold: { pt: 'Artigos', en: 'Articles' },
     headingRest: { pt: 'pra você aplicar', en: 'to put to use' },
+    // The `· videos embedded in the text` half was dropped (owner, 2026-07-31). Both editions, because
+    // this is one string with two renderings, not two decisions. It promised a format rather than a
+    // payoff — and a promise about HOW the writing is delivered competes with the claim that carries
+    // the section, which is that the trade-offs are made explicit.
     subtitle: {
-      pt: 'Escrita técnica com trade-offs explícitos · vídeos embedados no texto',
-      en: 'Technical writing with explicit trade-offs · videos embedded in the text',
+      pt: 'Escrita técnica com trade-offs explícitos',
+      en: 'Technical writing with explicit trade-offs',
     },
     filtersLabel: { pt: 'Filtrar por trilha', en: 'Filter by track' },
     filterAll: { pt: 'Tudo', en: 'All' },
