@@ -17,7 +17,7 @@ the platform repo, is listed in the catalog because it **is** the site, not beca
 its own shelf, and it is measured differently.
 
 **Where the line actually falls.** Not adopted-vs-not: this repo is emphatically meant to be taken from
-— *"fork the two repos … adopt the skills plugin as your loop"* is the invitation `/architecture` makes,
+— replicating it is the invitation `/architecture` makes under *"Replicate it for your own context"*,
 and `/portfolio` says the catalog is there *"to study, clone and use."* A reader really does clone this
 and run it. **What they end up running is their own site, not this one.** That is the difference the
 checklist cannot see: for a catalog project the artifact *is* the deliverable, so *does it install, does

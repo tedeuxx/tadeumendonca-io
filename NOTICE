@@ -19,9 +19,9 @@ WHAT IS MIT
 The **software** in this repository: the application source, the Terraform
 under `iac/`, the build and prerender scripts, the CI workflows, the tests, and
 the configuration. Fork it, adapt it, ship it commercially — that is the
-intent, and `/architecture` says so out loud: "fork the two repos, read the
-ADRs … adopt the skills plugin as your loop, then swap in your own content and
-positioning."
+intent, and the site says so on `/architecture`, under "Replicate it for your
+own context": both repositories are public, the bar for what gets listed is
+written down, and the reader is invited to decide whether it is theirs.
 
 
 WHAT IS RESERVED
@@ -61,28 +61,28 @@ or present them as your own.
 NEITHER GRANTED NOR RESERVED HERE
 ---------------------------------
 
-Two things under `apps/fed/public/` are covered by neither clause, because they
-are not the author's to grant or reserve.
-
-The certification badges in `apps/fed/public/badges/` are the **issuers'
-trademarks and artwork** — AWS's, reproduced under the issuers' own terms. They
-identify credentials held by the author; they are not part of this
-repository's licence in either direction, and a forker should delete them
-rather than reuse them.
+One thing under `apps/fed/public/` is covered by neither clause, because it is
+not the author's to grant or reserve: the certification badges in
+`apps/fed/public/badges/`. They are the **issuers' trademarks and artwork** —
+AWS's, reproduced under the issuers' own terms. They identify credentials held
+by the author; they are not part of this repository's licence in either
+direction, and a forker should delete them rather than reuse them.
 
 Everything else in that directory — `robots.txt`, `favicon.svg`, the touch icon
 — is functional and is MIT with the rest of the software.
+
+(This paragraph said "two things" and named one, then said everything else was
+MIT — which foreclosed the second. The count was wrong, not the content.)
 
 
 WHY THE SPLIT
 -------------
 
-It follows the principle stated at the end of `/architecture`'s "Replicate it
-for your own context" section: "fork the two repos, read the ADRs … then swap
-in your own content and positioning. The structure carries; the words are
-yours." That line is an invitation, not a licence — `LICENSE` and this file are
-the licence — but it names the same boundary.
-
 The structure is what is being given away. The words are not, because a CV and
 a body of writing under a permissive software licence could be reposted
 verbatim by anyone, including under someone else's name.
+
+That is the same boundary `/architecture` draws when it invites replication —
+it publishes the repositories and the bar, not the author's record. But the
+invitation on that page is an invitation; `LICENSE` and this file are the
+licence.
