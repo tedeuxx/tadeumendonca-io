@@ -32,6 +32,11 @@ export default defineConfig({
         // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a
         // browser and has no unit-testable surface left once the logic is factored out.
         'scripts/og-cards.mjs',
+        // #167. The third of the same split, and the one that carries WORDS: which sentence each
+        // locale's card sets, what it is named, and the tie back to the hero's tagline. Its generator
+        // (gen-og-default.mjs) is excluded from the Sonar metric on the same terms as the other two —
+        // browser harness, no unit-testable surface left once the decisions moved here.
+        'scripts/og-copy.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
