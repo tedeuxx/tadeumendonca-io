@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, cleanup } from '@testing-library/react';
 import { Hero } from './Hero';
+import { AppShell } from './AppShell';
 import { profile } from '../data/profile';
 import { renderWithLocale } from '../test-utils';
 
@@ -36,16 +37,39 @@ describe('Hero', () => {
     expect(screen.getByText(/agentic development/)).toBeInTheDocument();
   });
 
-  it('offers the two content CTAs as landing anchors', () => {
+  it('offers the articles CTA as a landing anchor', () => {
     renderHero();
     expect(screen.getByRole('link', { name: /Artigos/ })).toHaveAttribute('href', '#artigos');
-    expect(screen.getByRole('link', { name: /Portfólio/ })).toHaveAttribute('href', '#portfolio');
   });
 
   it('offers the ramp-up page as a real route (client-side nav, not a landing anchor)', () => {
     renderHero();
     // The route link stays within the active locale (ADR-0036); the anchors above stay bare hashes.
     expect(screen.getByRole('link', { name: /Ramp-up/ })).toHaveAttribute('href', '/pt/ramp-up');
+  });
+
+  // #315, and this is the assertion that would have caught the defect the routing fix introduced. The
+  // Hero and the nav render the SAME `nav.portfolio` key, and the nav is sticky while this row is the
+  // first block — so both are on screen together on the landing. Sending them to different places is
+  // one word with two behaviours on one screen, which is the kind of thing a reader notices without
+  // being able to name.
+  //
+  // Asserted as an EQUALITY between the two controls rather than as a literal href, so it fails if
+  // either side moves alone. A pair of independent literal assertions would both stay green while the
+  // two drifted apart, which is exactly what happened here.
+  it('sends its Portfolio CTA wherever the nav sends its own — they share a label', () => {
+    renderHero();
+    const heroTarget = screen.getByRole('link', { name: /Portfólio/ }).getAttribute('href');
+    cleanup();
+    renderWithLocale(
+      <AppShell>
+        <div />
+      </AppShell>,
+      { locale: 'pt' },
+    );
+    const navTarget = screen.getByRole('link', { name: 'Portfólio' }).getAttribute('href');
+    expect(heroTarget).toBe(navTarget);
+    expect(heroTarget).toBe('/pt/portfolio');
   });
 
   it('renders the stack marquee once for assistive tech (the loop copy is hidden)', () => {

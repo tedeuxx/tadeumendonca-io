@@ -143,6 +143,37 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { level: 1, name: /Arquitetura/ })).toBeVisible();
   });
 
+  // #315. Both locales, because the nav href is built by `useLocalePath` and a prefix bug shows up in
+  // exactly one of them. The old entry (`/#portfolio`) would fail this by landing on the LANDING with a
+  // fragment — same origin, same 200, different page — which is why the assertion is on the URL and on
+  // something only the catalog can render, rather than on the click succeeding.
+  const barLink = 'docs/catalog-ready.md'; // a filename, identical in both editions by design
+  for (const [locale, label] of [
+    ['pt', 'Portfólio'],
+    ['en', 'Portfolio'],
+  ] as const) {
+    test(`the ${locale} nav's Portfolio entry lands on the catalog, not the landing's shortlist`, async ({ page }) => {
+      await page.goto(`/${locale}`);
+      await page.getByRole('navigation').getByRole('link', { name: label }).click();
+      await expect(page).toHaveURL(new RegExp(`/${locale}/portfolio$`));
+      // NOT the heading. `PortfolioSection` is shared, so the landing and the page render the SAME
+      // `portfolio.heading` — an assertion on it passes in both places and would have gone green on the
+      // old `/#portfolio` entry, which is the exact defect this test exists for. The curation bar is
+      // opted into by `PortfolioPage` and by nothing else, so it is the one thing on screen that can
+      // only be true of the catalog.
+      await expect(page.getByRole('link', { name: barLink })).toBeVisible();
+    });
+  }
+
+  // The section the nav entry USED to point at is still there and still reachable by its anchor. The
+  // regression this guards is not hypothetical: removing a nav entry and removing the region it named
+  // are one edit apart, and nothing else asserts the landing still carries `id="portfolio"`.
+  test('keeps #portfolio a live landing anchor after the nav entry became a route', async ({ page }) => {
+    await page.goto('/pt/#portfolio');
+    await expect(page).toHaveURL(/\/pt\/#portfolio$/);
+    await expect(page.locator('#portfolio')).toBeVisible();
+  });
+
   test('reaches the full catalog from the landing shortlist', async ({ page }) => {
     await page.goto('/pt');
     await page.getByRole('link', { name: /Ver catálogo completo/ }).click();

@@ -2,9 +2,16 @@
 // single fixed theme. Layout: a 1440px frame with heavy side rules → sticky nav (brand left, links
 // right, collapsible on mobile) → the page. Fully static — no auth, no backend, no PWA.
 //
-// The landing owns the anchors (#artigos, #portfolio, #contato); nav points at them through `/#…`
-// so the same link works from a sub-route (full load back to the landing) and as an in-page jump on
-// the landing itself. `/me` and `/portfolio` are real routes.
+// The landing owns the anchors (#artigos, #contato); nav points at them through `/#…` so the same
+// link works from a sub-route (full load back to the landing) and as an in-page jump on the landing
+// itself. `/me`, `/ramp-up`, `/architecture` and `/portfolio` are real routes and the nav links them
+// as routes.
+//
+// `#portfolio` IS STILL AN ANCHOR ON THE LANDING — it just has no nav entry (#315). The section stays
+// as a teaser; what changed is that the menu item named after the catalog now lands ON the catalog
+// instead of on the shortlist of it. Until then this file asserted both halves in consecutive
+// sentences — "the landing owns #portfolio" and "/portfolio is a real route" — without noticing they
+// disagreed for that one entry, which is why the wrong link read as designed.
 import { useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -29,7 +36,10 @@ interface NavEntry {
 }
 const NAV: NavEntry[] = [
   { href: '/#artigos', labelKey: 'nav.articles', section: 'artigos' },
-  { href: '/#portfolio', labelKey: 'nav.portfolio', section: 'portfolio' },
+  // Position preserved deliberately. Routes render with a border and anchors without, so moving this
+  // entry down into the route group would have looked tidier — and would have silently reordered the
+  // reader's menu, which is not what #315 is. It stays second, and the border now alternates.
+  { href: '/portfolio', labelKey: 'nav.portfolio', route: true },
   { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
   { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
   { href: '/architecture', labelKey: 'nav.architecture', route: true },
