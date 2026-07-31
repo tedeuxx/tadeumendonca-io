@@ -91,22 +91,49 @@ test.describe('routes', () => {
 
   // #170. The diagram is compiled to inline SVG at BUILD time, so the properties worth asserting are the
   // ones that distinguish that from every cheaper thing it could have been.
-  test('/architecture renders its diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
+  // Both figures, not one. The first version pinned only the infra diagram by caption, so the dev-loop
+  // diagram — added in the same issue's second slice — had no E2E at all. That is the wrong thing to
+  // leave uncovered given what this feature's real failure looks like: the defect this slice actually
+  // shipped was a diagram drawn in the page's own background colour, present and legible to every
+  // assertion and invisible to a reader.
+  test('/architecture renders BOTH diagrams as inline SVG, sized, in the reader’s language', async ({ page }) => {
     await page.goto('/pt/architecture');
-    const figure = page.getByRole('figure', { name: /Como uma requisição vira uma página/ });
-    await expect(figure).toBeVisible();
 
-    // NOT `toBeVisible` alone, which passes on a 0x0 SVG and on a viewBox-less one — an element that is
-    // present, "visible", and shows the reader nothing. A diagram that does not size is the failure this
-    // whole slice could ship silently.
-    const box = await figure.boundingBox();
-    expect(box, 'the diagram must occupy a real box').not.toBeNull();
-    expect(box!.width).toBeGreaterThan(300);
-    expect(box!.height).toBeGreaterThan(100);
+    for (const name of [/Como uma requisição vira uma página/, /Onde o humano fica no loop/]) {
+      const figure = page.getByRole('figure', { name });
+      await expect(figure, `${name} must render`).toBeVisible();
 
-    // Real <text>, not <foreignObject> HTML and not an <img>: the reason inline SVG was chosen at all.
-    expect(await figure.locator('svg text').count()).toBeGreaterThan(3);
-    await expect(figure.locator('foreignObject')).toHaveCount(0);
+      // NOT `toBeVisible` alone, which passes on a 0x0 SVG and on a viewBox-less one — an element that
+      // is present, "visible", and shows the reader nothing.
+      const box = await figure.boundingBox();
+      expect(box, `${name} must occupy a real box`).not.toBeNull();
+      expect(box!.width).toBeGreaterThan(300);
+      expect(box!.height).toBeGreaterThan(100);
+
+      // Real <text>, not <foreignObject> HTML and not an <img>: the reason inline SVG was chosen at all.
+      expect(await figure.locator('svg text').count()).toBeGreaterThan(3);
+      await expect(figure.locator('foreignObject')).toHaveCount(0);
+
+      // BACKGROUND-EQUALITY, not contrast — and the distinction is the point rather than pedantry.
+      // The palette assertions check MEMBERSHIP, so a diagram drawn entirely in the canvas colour
+      // satisfies them and shows nothing; that is the defect that reached production in slice one, and
+      // this catches exactly it. It does NOT catch #0B0B0B on #0A0A0A. A legibility check this is not,
+      // and saying so here matters because the previous round's finding was a comment claiming more
+      // than its assertion did.
+      const strokes = await figure.locator('svg path.flowchart-link').evaluateAll((els) =>
+        els.map((el) => getComputedStyle(el).stroke),
+      );
+      expect(strokes.length, `${name} must draw edges at all`).toBeGreaterThan(2);
+      // Read the canvas colour from `.diagram-canvas`, NOT from the <figure>. The figure has no
+      // background of its own — it computes to rgba(0,0,0,0) — so comparing against it made this
+      // assertion pass on the very defect it was written for. Caught by running the mutation instead of
+      // trusting the assertion, which is the only reason it is not still wrong.
+      const canvas = await figure
+        .locator('.diagram-canvas')
+        .evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(canvas, 'the canvas must have a real background to compare against').not.toBe('rgba(0, 0, 0, 0)');
+      expect(strokes.filter((s) => s === canvas), `${name} draws edges in the background colour`).toEqual([]);
+    }
   });
 
   test('reaches the architecture page from the nav', async ({ page }) => {

@@ -55,6 +55,28 @@ O conteúdo de cada página — o CV, esta página, os artigos — é markdown o
 
 A parte interessante não é a stack — é como ele é construído: **agent-led verification, human-residual** (verificação liderada pelo agente, humano no resíduo). O agente prova o "pronto" com gates mecânicos e evidência real (lint, tipos, testes ≥85%, um build verde, SonarCloud, E2E funcional, um revisor de contexto fresco); o humano fica com as decisões irreversíveis e arquiteturais. Esse loop vive num plugin reutilizável à parte — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — então é uma metodologia que você pode adotar, não algo sob medida só pra este site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) os gates de CI)*
 
+```mermaid
+flowchart LR
+  accTitle: Onde o humano fica no loop
+  accDescr: Uma issue vira um plano que o humano alinha antes de existir código. O agente constrói a fatia e roda os gates mecânicos, que voltam para a construção no vermelho. Um revisor de contexto fresco então julga a mudança e pode devolvê-la. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar um artigo — passa por um go ou no-go humano, que é a última coisa antes da produção e também pode devolver o trabalho.
+  I["Issue"] --> P["Plano, decidido pelo humano"]
+  P --> B["Agente constrói a fatia"]
+  B --> G["Gates mecânicos"]
+  G -- "vermelho" --> B
+  G -- "verde" --> R["Revisor de contexto fresco"]
+  R -- "mudanças" --> B
+  R -- "classe segura" --> M["Merge = deploy"]
+  R -- "classe de fronteira" --> H["Go / no-go humano"]
+  H -- "go" --> M
+  H -- "no-go" --> B
+```
+
+O humano aparece duas vezes, e as duas aparições são trabalhos diferentes. No plano, decidindo o que vale ser construído e como — arquitetura eu nunca decido sozinho. No fim, só no que é classe de fronteira, decidindo se aquilo sobe. No meio, o agente constrói e a máquina prova, e a maior parte das mudanças chega à produção sem ninguém nesse caminho.
+
+A figura mostra por onde o trabalho passa. O que ela não consegue mostrar é que esse caminho foi **decidido** — em qual aresta o humano entra, o que conta como fronteira de classe, onde um gate vale o que custa. É essa a engenharia que esta página está oferecendo, mais do que qualquer caixa do desenho.
+
+E o custo disso, já que o resto desta página assume os seus: quem decide que uma mudança é segura é o mesmo tipo de coisa que escreveu a mudança. Classifique uma errado e ela pega o caminho vazio. O que torna isso aceitável aqui é raio de impacto, não confiança — isto é um site estático, e reverter é um merge.
+
 ## O registro de decisões É a documentação
 
 Nada de doc de arquitetura separado que descola da realidade. Toda decisão que sustenta peso — e as revertidas, mantidas como histórico — é um **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, lido através do keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.
@@ -66,7 +88,7 @@ Está tudo público — dois repos, sem segredos:
 - **[tadeumendonca-io](https://github.com/tedeuxx/tadeumendonca-io)** — este site e sua infraestrutura (`iac/`: Terraform para S3/CloudFront/OIDC).
 - **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — o plugin reutilizável do dev-loop: os princípios, as personas dos agentes, os guardas de permissão.
 
-**A régua:** um projeto só entra no portfólio quando **cumpre** a **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — o gate de prova de engenharia. Este site é a única entrada que não veio por ela, porque ele *é* a prateleira; o que o sustenta está nesta página — os ADRs acima, os gates, e a limitação que ele assume logo abaixo. A régua está escrita e é pública, então dá pra ler e decidir se ela é sua.
+**A régua:** um projeto só entra no portfólio quando **cumpre** a **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — o gate de prova de engenharia. Este site é a única entrada que não veio por ela, porque ele *é* a prateleira; o que o sustenta está nesta página — os ADRs acima, os gates, e as limitações que ele assume logo abaixo. A régua está escrita e é pública, então dá pra ler e decidir se ela é sua.
 
 ### O passo a passo
 
@@ -87,4 +109,4 @@ O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto p
 
 Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
 
-E o loop que esta página chama de parte interessante é a única coisa aqui que continua inteiramente por conta do texto. Como uma requisição é servida está desenhado acima; onde o agente prova o "pronto", e de quem é o go/no-go, você tem que acreditar na minha palavra.
+E os dois desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Que o caminho da requisição é o que a borda de fato faz dá pra conferir — a função, os testes dela e a comparação pós-deploy estão linkados. Que o loop é seguido do jeito que está desenhado, não: nada nesta página prova que alguma mudança específica percorreu aquele trajeto. O desenho é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.

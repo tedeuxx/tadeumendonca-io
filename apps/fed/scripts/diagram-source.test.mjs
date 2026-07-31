@@ -15,10 +15,14 @@ const fences = collectFences(contentDir);
 // how a rule gets weakened until it says nothing.
 //
 // But the first version of this dropped the entire <style> block, and that was too generous in exactly
-// the way the caller feared: `#F5F4EF` — the fill of EVERY node box — is declared only there, so the
-// assertion named "uses only the palette" could not see the primary fill. Regressing it to magenta left
-// the test green. Caught by the critical-reviewer; the fix is to drop only the two selector families
-// that are genuinely dead here, and keep the rules that decide what a reader sees.
+// the way the caller feared: the node-box fill is declared ONLY there, so the assertion named "uses only
+// the palette" could not see it. Regressing it to magenta left the test green. Caught by the
+// critical-reviewer; the fix is to drop only the two selector families that are genuinely dead here, and
+// keep the rules that decide what a reader sees.
+//
+// (The theme has since been inverted — the canvas is near-black, so the node fill is #0A0A0A and
+// #F5F4EF is the text and the strokes. The point is unchanged and the stripping rule is unchanged; only
+// which literal sits in which slot moved.)
 //
 // Dead by inspection, not by assumption: the markup renders `data-look="classic"`, so every
 // `[data-look="neo"]` rule is unreachable, and there is no KaTeX in a flowchart.

@@ -29,8 +29,12 @@ function graphOf(source) {
       .replace(/"[^"]*"/g, '')
       .replace(/\[[^\]]*\]/g, '')
       .replace(/\{[^}]*\}/g, '');
-    const m = /([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/.exec(clean);
-    if (m) edges.push([m[1], m[2]]);
+    // matchAll, not exec: `exec` takes the FIRST arrow per line, so a chained `A --> B --> C` would
+    // contribute only A→B and the rest of the line would vanish silently. Neither fence chains today,
+    // which is exactly why this is worth fixing now rather than when one does.
+    for (const m of clean.matchAll(/([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/g)) {
+      edges.push([m[1], m[2]]);
+    }
   }
   const nodes = [...new Set(edges.flat())].sort();
   return { nodes, edges: edges.map((e) => e.join('->')).sort() };
@@ -120,5 +124,60 @@ describe('the infrastructure diagram earns its place', () => {
   it('names the rewrite as the step that changes the uri', () => {
     expect(en[0].source).toMatch(/index\.html/);
     expect(pt[0].source).toMatch(/index\.html/);
+  });
+});
+
+// The owner's constraint on the SECOND diagram, and it is a harder one to make mechanical: "it has to
+// show the human's position, not just the steps — where the agent proves 'done' and where the owner's
+// go/no-go actually sits. A flow that shows only boxes is the corporate flowchart the page's voice is
+// arguing against."
+//
+// The falsifiable form of that is not "a human node exists" — a flowchart with a human box at every
+// stage satisfies that and means the opposite. It is that there is EXACTLY ONE, and that it sits on the
+// edge into production. That is the claim "human-residual" makes, and it is the one a diagram can lie
+// about most easily.
+// WHAT THIS FILE CAN AND CANNOT GUARANTEE, said plainly because the first version of it overstated
+// both. Node ids are an authoring convention: the test knows a node is CALLED `H`, never that it is a
+// human. So this pins the shape the author declared — a real drift guard across edits and between the
+// two editions — and it is not "the diagram cannot lie about where the human is". The `H`-prefix rule
+// below is what makes the convention enforceable rather than decorative.
+const humanNodes = (graph) => graph.nodes.filter((n) => /^H/.test(n));
+
+describe('the dev-loop diagram shows where the human stands', () => {
+  const graph = graphOf(en[1].source);
+
+  // Counted over the PREFIX, not over `nodes` filtered to a single id. The first version asserted
+  // `nodes.filter(n => n === 'H').length === 1` against a list built from a Set — which cannot contain
+  // 'H' twice, so it could never fail, while its comment claimed it caught an approval ladder. It did
+  // not: adding `P --> H2` left every assertion green. This version fails on that mutation.
+  it('has exactly one human decision point in the merge path', () => {
+    expect(humanNodes(graph)).toEqual(['H']);
+  });
+
+  it('puts the human on the edge into production', () => {
+    expect(graph.edges).toContain('H->M');
+    // Not on the gates: verification is mechanical, and a human standing on it would make the gates
+    // an opinion rather than a proof.
+    expect(graph.edges).not.toContain('G->H');
+  });
+
+  // The other half of "human-residual", and the half the previous version only claimed to test: most
+  // work does NOT pass the human. `reaches(I, M)` on the full graph is vacuous — it is satisfied by a
+  // path THROUGH H. Removing H first is what turns it into the property the name promises.
+  it('shows a path to production that does not pass the human', () => {
+    const withoutHuman = {
+      nodes: graph.nodes.filter((n) => !/^H/.test(n)),
+      edges: graph.edges.filter((e) => !/(^|>)H/.test(e)),
+    };
+    expect(reaches(withoutHuman, 'I', 'M'), 'every route to production passes a human').toBe(true);
+  });
+
+  // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a reviewer
+  // drawn as a pure fork: this very review is the counterexample, and a diagram that cannot show work
+  // coming back describes a loop that never rejects anything.
+  it('lets work come back — from the gates, from the reviewer, and from the human', () => {
+    expect(graph.edges).toContain('G->B');
+    expect(graph.edges).toContain('R->B');
+    expect(graph.edges).toContain('H->B');
   });
 });
