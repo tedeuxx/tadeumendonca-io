@@ -11,9 +11,15 @@ name: deploy
 # release. Nothing reads VERSION yet, so no reader has seen it: #298 would be the first, and it is held
 # behind this change precisely so a footer linking the wrong Release never ships.
 #
-# The surface filter did not disappear; it MOVED into the `gate` job, where it diffs vN-1..vN. Tags are
-# dense on main (one bump+tag per merge), so that range is losslessly "one merge's content plus its
-# bump" — verified against real history before this was written.
+# The surface filter did not disappear; it MOVED into the `gate` job, which diffs <last reachable
+# tag>..HEAD over the same three paths — verified against real history, in both directions, before this
+# was written.
+#
+# What that rests on is weaker than "tags are dense", and the weaker property is the one to keep in mind
+# here: the range STARTS at the last released tag, so if version-main wedges and merges accumulate, the
+# next bump's range covers all of them. The filter is a union — it deploys if ANY accumulated merge
+# touched the surface. A superset, never a gap. Dense tags (one bump+tag per merge, which is the case
+# today) make the range tight, not correct. See ADR-0003's 2026-07-30 amendment.
 #
 # ACCEPTED COST, stated because it is inherent to bump-before-deploy and cannot be designed away:
 # `version-main` becomes load-bearing for deployment. A wedged version-main (it wedged once, for four
