@@ -71,9 +71,21 @@ const strings = {
   articles: {
     headingBold: { pt: 'Artigos', en: 'Articles' },
     headingRest: { pt: 'pra você aplicar', en: 'to put to use' },
+    // The `· videos embedded in the text` half was dropped (owner, 2026-07-31). Both editions, because
+    // this is one string with two renderings, not two decisions.
+    //
+    // The reason is stronger than "it promised a format rather than a payoff", which is what this
+    // comment said first: NO ARTICLE DELIVERED IT. The capability exists (`hasVideo` in the
+    // frontmatter, and the badge below fires per item) but not one published article sets it — the
+    // embeds are on /ramp-up, a different route. So the storefront's highest-traffic section
+    // advertised a property that zero of its rows carried. That is a capability stated as track
+    // record, which the positioning rules out.
+    //
+    // The per-item `hasVideo` badge is the right home for the claim, and stays: it can only ever be
+    // true, because it is rendered from the article that has one.
     subtitle: {
-      pt: 'Escrita técnica com trade-offs explícitos · vídeos embedados no texto',
-      en: 'Technical writing with explicit trade-offs · videos embedded in the text',
+      pt: 'Escrita técnica com trade-offs explícitos',
+      en: 'Technical writing with explicit trade-offs',
     },
     filtersLabel: { pt: 'Filtrar por trilha', en: 'Filter by track' },
     filterAll: { pt: 'Tudo', en: 'All' },
