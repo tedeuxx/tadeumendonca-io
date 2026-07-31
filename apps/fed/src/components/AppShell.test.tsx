@@ -178,7 +178,13 @@ describe('skip link', () => {
     expect(SITE_VERSION, 'VERSION must resolve to a real semver at build time').toMatch(/^\d+\.\d+\.\d+$/);
 
     renderShell('pt');
-    expect(screen.getByRole('link', { name: `v${SITE_VERSION}` })).toHaveAttribute('href', releaseUrl());
+    // Found by its ACCESSIBLE name, not its visible text. The visible text is a bare `v0.1.144`; the
+    // accessible name comes from aria-label, because a screen reader announcing "v0.1.144" as a link
+    // gets no context and no external-link cue. Querying by role+name is what proves the label reached
+    // the element — a getByText would pass with the aria-label missing entirely.
+    const tag = screen.getByRole('link', { name: 'Notas da versão que está no ar (GitHub)' });
+    expect(tag).toHaveTextContent(`v${SITE_VERSION}`);
+    expect(tag).toHaveAttribute('href', releaseUrl());
     // The release for THIS build, not a generic releases page — that is what makes the number checkable
     // rather than decorative.
     expect(releaseUrl()).toBe(`https://github.com/tedeuxx/tadeumendonca-io/releases/tag/v${SITE_VERSION}`);

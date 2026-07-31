@@ -209,12 +209,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 reading is the precondition for checking any other claim on the site, and /architecture
                 is the page that most needs it.
 
-                Unlabelled on purpose: the number needs no translation, and a label would need one in
-                the i18n catalog for a string that adds nothing to a row this terse. */}
+                Bare on screen and named for assistive technology. `v0.1.144` is a conventional
+                identifier rather than prose, so a sighted reader gets the affordance from position and
+                register — but a screen reader would announce a link called "v0.1.144" with no context
+                and no external-link cue, which is exactly the class of thing the rest of this file is
+                careful about. The label costs two catalog entries; that is the right trade. */}
             <a
               href={releaseUrl()}
               target="_blank"
               rel="noreferrer"
+              aria-label={t('footer.version')}
               className="hover:text-foreground hover:underline"
             >
               v{SITE_VERSION}

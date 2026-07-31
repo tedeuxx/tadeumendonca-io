@@ -32,7 +32,9 @@ export function ContactFooter() {
       </div>
 
       <div className="flex flex-wrap gap-x-8 gap-y-1 border-t border-border pt-4">
-        <span className="label-mono">tadeumendonca.io</span>
+        {/* The domain used to open this row too. It is dropped because the shell footer below now
+            carries it alongside the build version, and on the landing both render — the reader met
+            the same token twice, in the same mono register, one row apart. */}
         <span className="label-mono">Built agent-first · Claude Code</span>
         <span className="label-mono">São Paulo — BR</span>
       </div>
