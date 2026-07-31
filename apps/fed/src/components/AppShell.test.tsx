@@ -9,12 +9,12 @@ import { SITE_VERSION, releaseUrl } from '../lib/version';
 // The offer's aria-label is in the SUGGESTED language, not the page's, so it is one of the two.
 const OFFER_LABEL = /Language suggestion|Sugestão de idioma/;
 
-const renderShell = (locale: Locale = 'pt') =>
+const renderShell = (locale: Locale = 'pt', initialPath?: string) =>
   renderWithLocale(
     <AppShell>
       <div>child content</div>
     </AppShell>,
-    { locale },
+    { locale, initialPath },
   );
 
 beforeEach(() => window.localStorage.removeItem(STORAGE_KEY));
@@ -156,10 +156,34 @@ describe('AppShell', () => {
   it('is a react-router route, not a plain anchor — so it does not full-load back to the landing', () => {
     renderShell('pt');
     const portfolio = screen.getByRole('link', { name: 'Portfólio' });
-    // Route entries carry the bordered treatment; anchors do not. This is the rendered proof of the
-    // `route: true` branch, which is what makes it a client-side navigation.
+    // The border marks `route: true` and is UNCONDITIONAL for route entries — it says nothing about
+    // the active state, which is the separate `text-foreground` class. Stated because the first draft
+    // of this file let this assertion stand in for active-state coverage, and it cannot: it is green
+    // on every route entry on every page.
     expect(portfolio.className).toContain('border-border');
     expect(screen.getByRole('link', { name: 'Artigos' }).className).not.toContain('border-border');
+  });
+
+  // The active state was an owner acceptance criterion, and the entry SWAPPED MECHANISMS to satisfy
+  // it. It used to carry `section: 'portfolio'`, so `useActiveSection` scroll-spied the landing region
+  // and set `aria-current="true"`. As a route it is react-router's `isActive`, which sets
+  // `aria-current="page"`. Different attribute VALUE, different trigger, same visible affordance —
+  // exactly the kind of swap that keeps looking right while the thing a screen reader announces
+  // changes underneath it.
+  it('marks the Portfolio entry current while the reader is ON the catalog route', () => {
+    renderShell('pt', '/pt/portfolio');
+    const portfolio = screen.getByRole('link', { name: 'Portfólio' });
+    expect(portfolio).toHaveAttribute('aria-current', 'page');
+    expect(portfolio.className).toContain('text-foreground');
+  });
+
+  // The negative half, which is the one that fails if `isActive` is ever loosened to a prefix match:
+  // on the landing NOTHING should mark it, because the reader is not there.
+  it('does not mark it current on the landing, where the section is only a teaser', () => {
+    renderShell('pt', '/pt');
+    const portfolio = screen.getByRole('link', { name: 'Portfólio' });
+    expect(portfolio).not.toHaveAttribute('aria-current');
+    expect(portfolio.className).not.toContain('text-foreground');
   });
 
   it('leaves #portfolio a live landing anchor — the section stayed, only the nav entry moved', () => {

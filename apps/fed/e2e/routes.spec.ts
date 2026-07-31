@@ -146,7 +146,7 @@ test.describe('routes', () => {
   // #315. Both locales, because the nav href is built by `useLocalePath` and a prefix bug shows up in
   // exactly one of them. The old entry (`/#portfolio`) would fail this by landing on the LANDING with a
   // fragment — same origin, same 200, different page — which is why the assertion is on the URL and on
-  // the catalog's own h1 rather than on the click succeeding.
+  // something only the catalog can render, rather than on the click succeeding.
   const barLink = 'docs/catalog-ready.md'; // a filename, identical in both editions by design
   for (const [locale, label] of [
     ['pt', 'Portfólio'],
