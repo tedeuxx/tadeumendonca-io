@@ -53,11 +53,16 @@ describe('OG card copy vs the hero tagline', () => {
 });
 
 describe('the meta line', () => {
-  // The vocabulary hierarchy fixes the identity as "Agentic development / AI-DLC / Loop Engineering".
-  // The cards said "Agentic dev" — drift on the one surface that decision names explicitly as where a
-  // pt reader meets the term first.
+  // The vocabulary hierarchy fixes the identity as "Agentic development / AI-DLC & Harness
+  // Engineering" (Loop Engineering until 2026-07-31). The cards said "Agentic dev" — drift on the one
+  // surface that decision names explicitly as where a pt reader meets the term first.
   it('carries the canonical term, not an abbreviation of it', () => {
     expect(META_LINE).toContain('Agentic development');
+    // The practice term, pinned here so a surface-by-surface drift shows up as a red test rather than
+    // as two names for one practice across the CV, the cards and /architecture — which is the failure
+    // the hierarchy exists to prevent, and which this very change had to repair across five surfaces.
+    expect(META_LINE).toContain('Harness Engineering');
+    expect(META_LINE).not.toContain('Loop Engineering');
     expect(META_LINE).not.toMatch(/Agentic dev\b(?!elopment)/);
   });
 

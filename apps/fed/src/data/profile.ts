@@ -286,13 +286,11 @@ const sourceTemplate: ProfileSource = {
         { name: 'Amazon S3', level: 4 },
         { name: 'Amazon DynamoDB', level: 4 },
         { name: 'Amazon ECS', level: 4 },
-        { name: 'Amazon EKS', level: 4 },
+        { name: 'Amazon EKS', level: 3 },
         { name: 'Amazon SQS', level: 4 },
         { name: 'Amazon SNS', level: 4 },
-        { name: 'Amazon CloudWatch', level: 4 },
-        { name: 'AWS X-Ray', level: 3 },
         { name: 'AWS WAF', level: 3 },
-        { name: 'Amazon Cognito', level: 3 },
+        { name: 'Amazon Cognito', level: 4 },
         { name: 'AWS KMS', level: 3 },
         { name: 'Amazon RDS', level: 3 },
         { name: 'Amazon CloudFront', level: 3 },
@@ -304,33 +302,53 @@ const sourceTemplate: ProfileSource = {
         { name: 'Distributed Systems Architecture', level: 4 },
         { name: 'Microservices', level: 4 },
         { name: 'Serverless Computing', level: 4 },
-        { name: 'Event-Driven Architecture', level: 4 },
-        { name: 'Terraform / IaC', level: 4 },
+        { name: 'Event-Driven Architecture', level: 3 },
+        { name: 'Terraform', level: 4 },
+        { name: 'AWS CloudFormation', level: 3 },
         { name: 'CI/CD', level: 4 },
-        { name: 'Observability', level: 4 },
         { name: 'Platform Engineering', level: 3 },
+      ],
+    },
+    {
+      // Its own group since 2026-07-31 (owner). It was one line — `Observability, level 4` — inside
+      // Distributed Systems & DevOps, which said the discipline is a skill rather than a domain with
+      // tooling under it. The contents are not new claims: the experience block above already states
+      // an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix,
+      // so this group makes checkable what the prose already asserts.
+      //
+      // CloudWatch and X-Ray MOVED here out of AWS Cloud rather than being duplicated. That group is
+      // organised by vendor and this one by domain, so the two genuinely overlap — listing them twice
+      // would inflate the AWS count and make a reader scanning for observability depth find it in two
+      // places with no relationship.
+      label: { en: 'Observability', pt: 'Observabilidade' },
+      items: [
+        { name: 'Amazon CloudWatch', level: 4 },
+        { name: 'AWS X-Ray', level: 3 },
+        { name: 'Prometheus', level: 3 },
+        { name: 'Grafana', level: 3 },
+        { name: 'ELK Stack', level: 3 },
+        { name: 'Splunk', level: 2 },
       ],
     },
     {
       label: { en: 'AI-native Engineering', pt: 'Engenharia AI-native' },
       items: [
-        { name: 'AI-DLC & Harness Engineering', level: 3 },
+        { name: 'AI-DLC', level: 2 },
+        { name: 'Harness Engineering', level: 2 },
         { name: 'Claude Code', level: 3 },
         { name: 'Kiro', level: 3 },
         { name: 'Context Engineering', level: 3 },
-        { name: 'Agentic AI Development', level: 3 },
-        { name: 'MCP (Model Context Protocol)', level: 3 },
+        { name: 'Agents Engineering', level: 2 },
+        { name: 'MCP (Model Context Protocol)', level: 2 },
       ],
     },
     {
-      label: { en: 'AI Foundations', pt: 'Fundamentos de IA' },
+      label: { en: 'AI Engineering', pt: 'Engenharia de IA' },
       items: [
         { name: 'Large Language Models (LLM)', level: 2 },
-        { name: 'Prompt Engineering', level: 2 },
-        { name: 'Applied Generative AI', level: 2 },
+        { name: 'Prompt Engineering', level: 3 },
         { name: 'RAG (Retrieval-Augmented Generation)', level: 1 },
-        { name: 'Agent Evaluation (LLM-as-judge)', level: 1 },
-        { name: 'Amazon Bedrock', level: 1 },
+        { name: 'Amazon Bedrock', level: 2 },
       ],
     },
     {
@@ -343,11 +361,16 @@ const sourceTemplate: ProfileSource = {
       ],
     },
     {
+      // On the same 100–400 meter as everything else since 2026-07-31 (owner). It used to encode the
+      // level IN the name — "Português (nativo)" — which made it the one category on the page with no
+      // proficiency bar. The names localise, which is why `SkillItemSource.name` now accepts a
+      // localized value; see the type.
       label: { en: 'Languages (spoken)', pt: 'Idiomas' },
-      items: {
-        en: ['Portuguese (Native)', 'English (Advanced)', 'Spanish (Intermediate)'],
-        pt: ['Português (nativo)', 'Inglês (avançado)', 'Espanhol (intermediário)'],
-      },
+      items: [
+        { name: { en: 'Portuguese', pt: 'Português' }, level: 4 },
+        { name: { en: 'English', pt: 'Inglês' }, level: 3 },
+        { name: { en: 'Spanish', pt: 'Espanhol' }, level: 2 },
+      ],
     },
   ],
   metadata: {
