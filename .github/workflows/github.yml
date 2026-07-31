@@ -1,0 +1,118 @@
+name: github
+
+# PR gate for .github/ — named after the top-level directory it guards. (Formerly `lint-workflows.yml`.)
+#
+# The gate that did not exist. `app` is path-filtered to apps/**, so a change to .github/workflows/**
+# matched nothing and still reported PASS — a green check that verified nothing, indistinguishable from
+# one that verified everything. That is how an unexecuted retry loop reached the production release path
+# (issue #79), and it is why `actionlint` sat in the permission allowlist while being wired into no job.
+#
+# actionlint also drives shellcheck over inline `run:` blocks, which is where the real logic lives here —
+# the release retry loop, the release-notes generator, the deploy surface filter. One tool closes both.
+#
+# IT STAYS ITS OWN FILE, for a circular reason: if this lived inside `app`, a syntax error in app.yml
+# would stop the very linter that exists to catch it. The verifier of workflows cannot depend on the file
+# it verifies.
+#
+# TRIGGERING: runs on EVERY PR, with the path filter applied INSIDE the job — same shape as `app` and
+# `iac`, and for the same reason. A workflow-level `paths:` filter cannot be a required status check: on
+# a PR that does not match, the check never reports and sits pending forever. A filtered workflow is
+# permanently unpromotable to blocking, which would make this an advisory check dressed as a gate — the
+# exact defect it was written to remove.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - ".github/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # THE REQUIRED CHECK. The name `actionlint` is fixed by branch protection and must not change.
+  # Deliberately a single job: it runs two seconds' worth of tooling and has no credential to split off.
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Scoped to `.github/**`, not `.github/workflows/**`: dependabot.yml lives beside the workflows and
+      # nothing validated it before. What this gate can honestly claim about it is narrow — see the
+      # parse check below, and the notice, which does not overstate it.
+      - name: Detect .github changes
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        id: changes
+        with:
+          filters: |
+            github:
+              - '.github/**'
+
+      # Pinned by CHECKSUM, not only by version: a tag can be moved and a release asset replaced.
+      - name: Install actionlint (pinned)
+        if: steps.changes.outputs.github == 'true'
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          set -euo pipefail
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -sSfL -o actionlint.tar.gz "$url"
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf actionlint.tar.gz actionlint
+
+      # actionlint SILENTLY DISABLES shellcheck when the binary is missing — it halves the check and
+      # still exits 0. That happened during authoring: the first local run was clean for the wrong
+      # reason. Passing `-shellcheck <path>` does NOT fix it (verified: an invalid path still just
+      # disables the rule and exits 0; the reason appears only under -verbose). The only reliable guard
+      # is asserting the executable ourselves, before trusting the result.
+      - name: Assert shellcheck is available
+        if: steps.changes.outputs.github == 'true'
+        run: |
+          set -euo pipefail
+          command -v shellcheck >/dev/null || {
+            echo "::error::shellcheck is missing — actionlint would skip the run: block analysis and still pass"
+            exit 1
+          }
+          shellcheck --version | head -2
+
+      - name: Lint every workflow
+        if: steps.changes.outputs.github == 'true'
+        run: ./actionlint -color -shellcheck shellcheck
+
+      # A SYNTAX check, not a schema one. actionlint knows nothing about dependabot.yml, so this is the
+      # honest limit of what this gate covers for that file: it parses. A wrong `package-ecosystem` still
+      # gets through, and the notice below says so rather than implying otherwise.
+      - name: Parse dependabot.yml
+        if: steps.changes.outputs.github == 'true'
+        run: |
+          set -euo pipefail
+          if [ ! -f .github/dependabot.yml ]; then
+            echo "::notice::no .github/dependabot.yml — nothing to parse"
+            exit 0
+          fi
+          python3 -c 'import sys,yaml; yaml.safe_load(open(".github/dependabot.yml"))'
+          echo "dependabot.yml parses as YAML (syntax only — this is not schema validation)"
+
+      # A check that matched nothing must not read like a check that passed — that ambiguity IS issue
+      # #79. Three cases, always distinguished.
+      - name: Report what was linted
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.changes.outputs.github }}" != "true" ]; then
+            echo "::notice::no .github/ files changed — actionlint did not run (nothing was verified)"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::the .github gate did NOT complete — a step failed, so the checks after it never ran. Read the failing step, not this line."
+            exit 0
+          fi
+          count=$(find .github/workflows -maxdepth 1 \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')
+          echo "::notice::actionlint + shellcheck passed over ${count} workflow file(s); dependabot.yml parsed (syntax only, not schema-validated)"

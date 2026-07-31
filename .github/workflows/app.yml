@@ -1,0 +1,402 @@
+name: app
+
+# PR gate for apps/** — named after the top-level directory it guards, not after what it does to it.
+# (Formerly `build-test.yml`. The WORKFLOW was renamed; the terminal JOB is still `build-test`, because
+# that name is what branch protection requires — see the aggregator at the bottom of this file.)
+#
+# trunk-single-env: main IS production, so there is no downstream tier to defer a check to — the full
+# regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys.
+#
+# The former 13-step monolith is split into one job per command. What that buys is parallelism and a
+# readable graph; what it costs is a fresh runner (and a fresh `npm ci`) per job. That trade is an OPEN
+# question in .github/workflows/README.md pending a wall-clock measurement — if the measurement says the
+# monolith was faster, this file is the thing to revert, not the naming.
+#
+# `npm-ci` is a real job with a real purpose, but NOT the one the graph suggests: node_modules cannot
+# cross runners. It fails fast on a broken lockfile and it POPULATES the actions/setup-node npm cache
+# (~/.npm) that every job below restores from, so the parallel installs are warm rather than cold. Each
+# job still runs its own `npm ci --ignore-scripts`. Persisting node_modules as an artifact was considered
+# and rejected: this tree (playwright, vite, mermaid) is larger than the download it would save.
+on:
+  pull_request:
+    branches: [main]
+  # Kept on push-to-main deliberately, though the design doc draws only the PR edge: SonarCloud needs a
+  # main-branch analysis to have a "new code" baseline to compare PRs against. Drop this trigger and the
+  # quality gate slowly stops meaning what it says.
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "packages/shared/**"
+      - "iac/cloudfront-functions/**" # unit-tested here, not by `iac` (#205)
+      - "VERSION" # a build input — see the `version` filter below
+      - "tsconfig.base.json"
+      - "package.json"
+      - ".github/workflows/app.yml"
+
+# Read-only by default. No job in this file touches AWS, so `id-token: write` appears nowhere.
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  # Runs the paths-filter ONCE. No credentials, installs nothing, decides only.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      version: ${{ steps.filter.outputs.version }}
+      any: ${{ steps.filter.outputs.code == 'true' || steps.filter.outputs.version == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # on `push`, dorny diffs against github.event.before and needs the history
+
+      - name: Detect changes
+        id: filter
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        with:
+          filters: |
+            code:
+              - 'apps/**'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'package.json'
+              - '.github/workflows/app.yml'
+              # The CloudFront viewer-request function is IaC by path and JavaScript by nature. Its
+              # behaviour is unit-tested HERE (apps/fed/scripts/spa-rewrite.test.mjs reads
+              # ../../../iac/cloudfront-functions/spa-rewrite.js directly, #205) because `iac` validates
+              # Terraform, not behaviour. Without this line an edit to the function alone would skip the
+              # only gate that exercises it. NOTE it is ALSO in the `iac` workflow's filter and must stay
+              # there: iac/frontend.tf embeds this file via `file()`, so an edit to it is a real Terraform
+              # diff that has to be planned and applied. Two gates, two different claims, both required.
+              - 'iac/cloudfront-functions/**'
+            # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
+            # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
+            # therefore has to rebuild and re-run E2E, but has nothing for eslint/tsc/vitest/Sonar to
+            # look at. This line is also a live gap being closed — VERSION was in NO filter before, so an
+            # edit to it changed what a reader sees with no gate run at all.
+            version:
+              - 'VERSION'
+
+  # Fails fast on a broken lockfile and warms ~/.npm for every job below.
+  npm-ci:
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+
+      - name: Install
+        # --ignore-scripts: a PR gate installs the dependency tree of a branch anyone can open, so an
+        # install hook here runs attacker-chosen code on the runner before any gate has looked at the
+        # diff. It also keeps this install identical to deploy.yml's — the gate must exercise the same
+        # tree the deploy ships, or "green here" stops meaning "safe there" (ADR-0021). No dep needs a
+        # hook: the only one whose install hook actually runs is esbuild, and it only validates the
+        # @esbuild/<platform> binary; the Playwright browser is installed by an explicit step.
+        run: npm ci --ignore-scripts
+
+  # Package-vulnerability gate (ADR-0021). HIGH/CRITICAL advisories in PRODUCTION deps block
+  # (audit-ci.jsonc: skip-dev + high/critical); devDep advisories surface via Dependabot but never block
+  # a static-site deploy. It queries a live advisory DB, so a new advisory can start blocking an
+  # otherwise-unrelated PR — the checked-in allowlist (justification + expiry) is the relief valve.
+  npm-audit:
+    needs: [changes, npm-ci]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Audit
+        run: npm run audit
+
+  eslint:
+    needs: [changes, npm-ci]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Lint
+        run: npm run lint
+
+  # `tsc --noEmit` runs a second time inside build-static's `npm run build`. Accepted duplication (it is
+  # seconds, and `npm run build` stays self-sufficient for local use) — see the design doc's open
+  # decision 2. The alternative is stripping it from the build script, which costs the local type check.
+  tsc:
+    needs: [changes, npm-ci]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Typecheck
+        run: npm run typecheck
+
+  # Coverage >= 85% is a gate, as a GLOBAL AVERAGE (ADR-0018's 2026-07-29 amendment) — not a per-file
+  # floor. The lcov report is handed to sonarqube-scan as an artifact, which is the ONLY reason that job
+  # needs this one: Sonar re-reads the source itself, but it cannot recompute coverage.
+  vitest:
+    needs: [changes, npm-ci]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Test (coverage >= 85%)
+        run: npm test
+      - name: Upload coverage for the Sonar scan
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: apps/fed/coverage/lcov.info
+          retention-days: 1
+          if-no-files-found: error
+
+  # Named after the script, not after `vite`: build:static runs `tsc --noEmit && vite build &&
+  # gen-sitemap && prerender`. `vite-build` would name a quarter of it and hide the part that matters
+  # most — the prerender launches Chromium and snapshots every route in both locales, which is what puts
+  # the OG tags in the served HTML and prints /cv.pdf.
+  #
+  # Runs on a VERSION-only change too: the version is compiled into the bundle.
+  build-static:
+    needs: [changes, npm-ci]
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      # BEFORE the build, not after: scripts/prerender.mjs launches headless chromium to snapshot each
+      # route and emit /cv.pdf. On a fresh `npm ci` runner the browser does not exist yet.
+      - name: Install Playwright browser (the prerender drives it)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build (static — prerendered)
+        # A TEST measurement id so the E2E can exercise the consent banner without touching the real GA
+        # property — the Playwright suite blocks the googletagmanager request, so no hit leaves CI. Set
+        # explicitly rather than inheriting build:static's own default: the gate should state the id it
+        # tests with.
+        env:
+          VITE_GA_MEASUREMENT_ID: G-TEST00000000
+        run: npm run build:static
+
+      - name: Upload dist for the Playwright run
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: apps/fed/dist
+          retention-days: 1
+          if-no-files-found: error
+
+  # The full functional regression, against a `vite preview` of the artifact build-static just produced.
+  # It NEVER runs on an e2e/**-only filter of its own, because it drives the build: the spec files are
+  # inside apps/**, so the `code` filter already covers them.
+  #
+  # NOTE what this artifact is NOT: it cannot be promoted to production. The deploy rebuilds after the
+  # version bump, so the shipped bundle differs from this one by the VERSION string. See deploy.yml.
+  playwright:
+    needs: [changes, build-static]
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      # A SECOND browser download, on a second runner. This is the clearest cost of splitting the gate
+      # into jobs: build-static already paid for one and cannot hand it over.
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Download the built site
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: apps/fed/dist
+
+      # `:built` skips the rebuild `e2e:local` does — the artifact above IS the build, and a fresh
+      # checkout cannot have a stale dist/. Locally the default script rebuilds first, because there
+      # dist/ CAN be stale and a suite run against old output passes for the wrong reason.
+      - name: E2E (Playwright against a preview of the build)
+        run: npm run e2e:local:built
+
+  # Authoritative quality gate; `-Dsonar.qualitygate.wait=true` makes it blocking.
+  #
+  # It needs `vitest` and NOT `build-static`: sonar-project.properties sets `sonar.sources=src,scripts`
+  # and `sonar.javascript.lcov.reportPaths=coverage/lcov.info`. dist/ is in neither, so waiting for the
+  # build would serialise this job behind it for no input. (The design doc drew this edge conservatively
+  # as needing both — the properties file answers it.)
+  #
+  # Skipped on Dependabot PRs: GitHub isolates Actions secrets from Dependabot-triggered runs, so
+  # SONAR_TOKEN is empty there and the scan fails "not authorized", blocking every dep bump for an
+  # infrastructural reason rather than a code one. The other gates still run.
+  sonarqube-scan:
+    needs: [changes, vitest]
+    if: needs.changes.outputs.code == 'true' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        # Full history — SonarCloud uses git blame for new-code / authorship attribution.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: coverage
+          path: apps/fed/coverage
+
+      - name: SonarCloud scan (quality gate blocks)
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          projectBaseDir: apps/fed
+          args: -Dsonar.qualitygate.wait=true
+
+  # ---------------------------------------------------------------------------------------------
+  # THE REQUIRED CHECK. The name `build-test` is fixed by branch protection and must not change.
+  #
+  # `if: always()` is load-bearing twice over:
+  #
+  #  (1) A bare `needs:` aggregator is SKIPPED when any dependency fails — and a skipped required check
+  #      satisfies branch protection. The monolith could not have this bug (one job, one status); the
+  #      split introduces it, and this is where it is paid for. The job must RUN and decide.
+  #  (2) On a PR that touches nothing here, every job above is skipped and this one still has to report,
+  #      or the required check never arrives.
+  #
+  # `contains(needs.*.result, ...)` is used rather than naming each job: a job id with a hyphen is not
+  # reachable through dot notation, and a list that has to be kept in sync with `needs:` is one more
+  # place to forget.
+  # ---------------------------------------------------------------------------------------------
+  build-test:
+    needs:
+      [
+        changes,
+        npm-ci,
+        npm-audit,
+        eslint,
+        tsc,
+        vitest,
+        build-static,
+        playwright,
+        sonarqube-scan,
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any gate failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "::error::a gate job failed or was cancelled — see the jobs above"
+          exit 1
+
+      # A path-filtered gate that matched nothing reports PASS exactly like one that ran every check, and
+      # that ambiguity is the second half of issue #79. Three cases, always distinguished.
+      - name: Report what was verified
+        if: always()
+        env:
+          CODE: ${{ needs.changes.outputs.code }}
+          VERSION_ONLY: ${{ needs.changes.outputs.version }}
+          SONAR: ${{ needs.sonarqube-scan.result }}
+        run: |
+          set -euo pipefail
+          if [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
+            echo "::notice::no gated changes (apps/**, packages/shared, iac/cloudfront-functions, VERSION) — nothing was verified"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::the app gate did NOT complete — a job failed, so the ones downstream of it never ran. Read the failing job, not this line."
+            exit 0
+          fi
+          if [ "$CODE" != "true" ]; then
+            echo "::notice::VERSION-only change — build-static and Playwright ran; lint, typecheck, tests and Sonar had nothing to look at and did NOT run"
+            exit 0
+          fi
+          echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright; sonarqube-scan: ${SONAR}"

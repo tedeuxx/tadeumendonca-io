@@ -1,7 +1,12 @@
 # CI/CD — the design
 
-**Status: agreed shape, not yet built.** The YAML in this directory does not match this document
-yet. When it does, this file describes it and the YAML is the source of truth.
+**Status: built.** The YAML in this directory implements this document, and the YAML is now the source
+of truth — this file describes it. Four points where the design did not survive contact with the build
+are recorded in *[Where the drawing was wrong](#where-the-drawing-was-wrong)* at the bottom; the
+original claims are left standing there rather than edited out.
+
+**One thing is not done and cannot be done from here: branch protection still requires the job name
+`plan`, which no longer exists.** See *[Rules the design has to obey](#rules-the-design-has-to-obey)*.
 
 Four workflows. Three gate the merge, one publishes. **Jobs are named after the command they run**,
 in kebab-case; a job that runs a pipeline of several commands is named after the script instead.
@@ -57,12 +62,13 @@ flowchart TD
         DG -->|"iac/**"| TA["terraform-apply<br/><i>+ verify live function</i>"]
         DG -->|"app surface"| DA["deploy-app<br/><i>build-static · s3 sync · invalidation</i>"]
         TA -.->|"blocks only if it RAN and failed"| DA
-        TA --> E2["e2e vs the live apex"]
+        TA --> E2["e2e vs the live apex<br/><i>no credentials</i>"]
         DA --> E2
+        E2 --> RP["report<br/><i>the three-case notice</i>"]
     end
 
     M --> RE
-    E2 --> LIVE(["verified live"])
+    RP --> LIVE(["verified live"])
 
     style A2 stroke-dasharray: 5 5
     style GATE stroke-width:3px
@@ -87,7 +93,12 @@ what it does to it.
 | `github` | `.github/**` | `actionlint` |
 | `deploy` | — publishes | none — it *is* the change |
 
-`github` also covers `dependabot.yml`, which nothing validates today.
+`github` also covers `dependabot.yml`, which nothing validated before — but only as far as it honestly
+can. Its filter is `.github/**` rather than `.github/workflows/**`, so a dependabot.yml edit now
+triggers the gate, and the gate parses the file as YAML. actionlint knows nothing about dependabot's
+schema, so a wrong `package-ecosystem` still gets through. The job's `::notice::` says "syntax only,
+not schema-validated" for that reason — a check that overstates its reach is the defect this whole
+notice convention exists to remove.
 
 ---
 
@@ -141,17 +152,30 @@ not prove that.
 | `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties` |
 | `build-static` | the above + **`VERSION`** |
 | `playwright` | the above — **never only when `e2e/**` changes**, because it drives the build |
-| `checkov`, `terraform-fmt`, `terraform-plan`, `terraform-apply` | `iac/**` **minus** `iac/cloudfront-functions/**` |
+| `checkov`, `terraform-fmt`, `terraform-plan`, `terraform-apply` | `iac/**` — **all of it, `cloudfront-functions/` included** |
 | `actionlint` | `.github/**` |
 
 **Two entries carry the whole rule.**
 
-`iac/cloudfront-functions/**` belongs to the **app** gate, not the iac one: it is IaC by path but
-JavaScript with behaviour, and `terraform-plan` validates Terraform, not behaviour. Filter it as
-infra and the only gate that exercises it never runs.
+`iac/cloudfront-functions/**` belongs to the **app** gate: it is IaC by path but JavaScript with
+behaviour, and `terraform-plan` validates Terraform, not behaviour. Filter it as infra *only* and the
+only gate that exercises it never runs. It is in `app`'s `code` filter for exactly that reason —
+`apps/fed/scripts/spa-rewrite.test.mjs` reads `../../../iac/cloudfront-functions/spa-rewrite.js`
+directly.
+
+**But it stays in the `iac` filter too, and the original draft of this document was wrong to remove it
+there.** `iac/frontend.tf` line 27 is `code = file("${path.module}/cloudfront-functions/spa-rewrite.js")`,
+so an edit to that file *is* a Terraform diff. Excluding it from `terraform-plan` and `terraform-apply`
+would mean an edge-function change is planned by nothing and applied by nothing: it merges green and
+never reaches the edge, with no signal anywhere. The two gates make two **different** claims about the
+same file — `app` proves the rewrite logic is correct, `iac` proves the edge is actually running it —
+and both are required. Belonging to one gate was never the same as being excluded from the other.
 
 `VERSION` belongs to **`build-static`**: `apps/fed/src/lib/version.ts` imports it as a build input and
 the footer renders it. Filter it out and an edit to it changes what a reader sees with no gate run.
+It is in `app`'s filter as its own `version` key, so a VERSION-only change rebuilds and re-runs
+Playwright while `eslint`/`tsc`/`vitest`/`sonarqube-scan` — which have nothing to look at — stay
+skipped. **It is deliberately absent from `deploy`'s gate**, for a measured reason: see below.
 
 **The app jobs' filter sets overlap almost entirely.** Splitting the app gate into jobs therefore
 buys little in *filtering* — the value is parallelism and a readable graph, and it should be argued
@@ -177,10 +201,18 @@ this merge did touch infra and the app change may depend on it. Note the Actions
 `if: always() && needs.terraform-apply.result != 'failure'` rather than a bare `needs:`.
 
 **Job names are fixed by branch protection.** It requires `build-test`, `plan`, `actionlint` — job
-names, not workflow names. Renaming `plan` → `terraform-plan` therefore needs a protection change,
-sequenced: remove `plan` from required, merge the rename, add `terraform-plan`. There is a window
-in between where iac PRs are ungated — do it in the same change that builds these workflows, so the
-protection is touched once.
+names, not workflow names. `build-test` and `actionlint` survive verbatim. `plan` is now
+`terraform-plan`, so **the protection is out of step with the YAML until the owner resequences it**:
+remove `plan` from required → merge → add `terraform-plan`. There is a window in between where iac PRs
+are ungated. Nothing in the agent loop touches branch protection, so this is a human step and it did
+not happen as part of the build.
+
+**Every required check must RUN, not merely be needed.** A required job with a bare `needs:` is
+*skipped* when a dependency fails — and GitHub counts a skipped required check as satisfied. The
+monolith could not have this bug: one job, one status. Splitting it introduces it. So `build-test` and
+`terraform-plan` both carry `if: always()` and decide explicitly from `needs.*.result`, which is also
+what lets them report on a PR that matched nothing. This is the single largest piece of machinery the
+split added, and it exists entirely to stop the gate going green by omission.
 
 **`github` stays its own file, for a circular reason.** If it lived inside `app`, a syntax error in
 `app`'s YAML would stop the very linter that exists to catch it. The verifier of workflows cannot
@@ -205,17 +237,70 @@ verified* · *a step failed, so the rest never ran* · *the gate ran, here is th
 
 ---
 
-## Open decisions
+## Open decisions — resolved
 
-1. **Split the app gate into jobs — yes or no?** Pending a wall-clock measurement that has not been
-   done. Every job is a fresh runner with its own `npm ci`; runner-minutes certainly go up,
-   wall-clock is unknown. If it does not improve, keep the monolith.
-2. **`tsc --noEmit` would run twice** — once as `tsc`, once inside `build-static`. Accept the
-   duplication (seconds, and the script stays self-sufficient for local use), or strip it from
-   `build:static` (and local `npm run build` loses its type check)? Drawn as accepting it.
-3. **Does `sonarqube-scan` need `build-static`, or only the coverage from `vitest`?** Drawn
-   conservatively as needing both.
-4. **Where does "verify the LIVE function matches the repo" run** — inside `terraform-apply`, or in
-   the shared e2e? Drawn inside the apply.
-5. **`VERSION` is missing from the app filter today.** One line, a live gap independent of this
-   redesign. Fix as its own slice, or fold in?
+1. **Split the app gate into jobs — yes or no?** Built as drawn, **still unmeasured**. Runner-minutes
+   definitely go up: eight jobs, eight `npm ci`, and **two** Chromium downloads (`build-static` needs
+   one to prerender, `playwright` needs one to drive the suite, and a runner cannot hand a browser to
+   another runner). `npm-ci` also sits on the critical path of every job that follows it. If the
+   wall-clock measurement does not justify this, the revert is mechanical — merge the jobs back, keep
+   the names.
+2. **`tsc --noEmit` runs twice** — once as `tsc`, once inside `build-static`. **Accepted**, as drawn.
+3. **Does `sonarqube-scan` need `build-static`?** **No — resolved by reading
+   `apps/fed/sonar-project.properties`**, which sets `sonar.sources=src,scripts` and
+   `sonar.javascript.lcov.reportPaths=coverage/lcov.info`. `dist/` appears in neither, so the scan
+   consumes nothing the build produces. `sonarqube-scan` needs `vitest` only, for the lcov artifact.
+   Waiting for the build would have serialised the slowest gate behind the second-slowest for no input.
+   The doc drew this edge conservatively; the properties file answers it.
+4. **Where does "verify the LIVE function matches the repo" run?** **Inside `terraform-apply`**, as
+   drawn — it reads `terraform output` for the function name, so it cannot move to a job without the
+   Terraform working directory and state.
+5. **`VERSION` is missing from the app filter.** **Folded in** — as its own filter key in `app`, so a
+   VERSION-only change rebuilds and re-runs E2E without waking the checks that have nothing to read.
+
+---
+
+## Where the drawing was wrong
+
+Four things this document asserted did not survive being built. They are recorded rather than edited
+away.
+
+**1. "`iac/**` minus `iac/cloudfront-functions/**`" would have silently stopped deploying the edge
+function.** The reasoning behind the exclusion was sound and the conclusion did not follow from it.
+`iac/frontend.tf` embeds the file with `file()`, so it is a real Terraform diff; excluded, an
+edge-function change would have been planned by nothing and applied by nothing. Corrected above.
+
+**2. `VERSION` must NOT go in `deploy`'s surface filter, only in `app`'s.** `deploy`'s gate diffs
+`<last tag>..HEAD` where HEAD is the **bump commit** — and the bump commit's entire content is an edit
+to `VERSION`. Measured on the real range for v0.1.155, an `iac`-only release:
+
+```
+$ git diff --name-only v0.1.154..v0.1.155 -- apps/fed packages/shared VERSION
+VERSION
+```
+
+So including it makes `app=true` on every release and the surface filter stops filtering. The two
+filters answer different questions: `app` asks *"does this PR need a rebuild and an E2E?"* (yes, the
+footer changed), `deploy` asks *"did this release change anything we serve besides its own version
+stamp?"*. Verified in both directions after the fix: v0.1.154..v0.1.155 → `app=false iac=true`
+(`iac/storage.tf`); v0.1.152..v0.1.153 → `app=true` (`apps/fed/src/i18n/messages.ts`) `iac=false`.
+
+**3. `npm-ci` is not the node the graph implies.** node_modules cannot cross runners, so every job
+below it still runs its own `npm ci --ignore-scripts`. What the job really does is fail fast on a
+broken lockfile and populate the `actions/setup-node` npm cache the others restore from. Persisting
+`node_modules` as an artifact was considered and rejected — this tree is larger than the install it
+would save.
+
+**4. Splitting the post-deploy smoke into its own job breaks #195's letter.** That rule put Playwright
+setup *before* the deploy, because `--with-deps` shells out to apt and a transient mirror failure once
+turned a successful deploy red. A separate runner cannot install before the deploy it runs after. The
+rule's **purpose** — a red must not be ambiguous — is preserved explicitly instead: the `e2e` job
+diagnoses a setup failure as a setup failure and says outright that the site was published and is now
+unverified. That is a weaker guarantee than #195 had, and it is the price of the job split.
+
+**Two smaller notes.** `deploy`'s `workflow_dispatch` grew two boolean inputs (`deploy_app`,
+`apply_infra`, the latter defaulting **false**), because absorbing `infra-apply` would otherwise have
+silently widened the documented rollback path into something that runs `terraform apply` against real
+AWS. And `app` keeps its **push-to-`main`** trigger even though the diagram draws only the PR edge:
+SonarCloud needs a main-branch analysis to have a "new code" baseline, and without it the quality gate
+slowly stops meaning what it says.

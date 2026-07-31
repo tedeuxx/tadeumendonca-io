@@ -1,69 +1,236 @@
 name: deploy
 
-# Build the SPA (Vite, static — prerendered) and publish: S3 sync with split cache headers (immutable
-# hashed assets vs no-cache index.html) + CloudFront invalidation. Trunk-based: merge to main → deploy
-# to the single environment (auto). AWS via OIDC (AWS_FED_OIDC_ROLE_ARN = the fed deploy role; the
-# trust pins the IMMUTABLE subject repo:<org>@<org_id>/<repo>@<repo_id>:* — see iac/iam.tf, and note
-# that a repo rename does not change it). Post-deploy E2E (Playwright) runs on the trunk.
-# TRIGGERED BY THE VERSION BUMP, NOT BY THE MERGE (#299). `version-main` pushes `bump: X → Y` and tags
-# vY on top of every merge, so the bump commit is the ONLY commit on main whose tree carries the version
-# it is tagged with. Building the merge commit builds a tree whose VERSION still names the PREVIOUS
-# release. Nothing reads VERSION yet, so no reader has seen it: #298 would be the first, and it is held
-# behind this change precisely so a footer linking the wrong Release never ships.
+# The one workflow that publishes. It absorbs the former `version-main.yml` and `infra-apply.yml`, so
+# the release, the infrastructure apply, the site publish and the post-deploy smoke are ONE ordered run
+# instead of three racing ones.
 #
-# The surface filter did not disappear; it MOVED into the `gate` job, which diffs <last reachable
-# tag>..HEAD over the same three paths — verified against real history, in both directions, before this
-# was written.
+#   release → gate → terraform-apply ┐
+#                  → deploy-app      ├→ e2e (vs the live apex) → report
 #
-# What that rests on is weaker than "tags are dense", and the weaker property is the one to keep in mind
-# here: the range STARTS at the last released tag, so if version-main wedges and merges accumulate, the
-# next bump's range covers all of them. The filter is a union — it deploys if ANY accumulated merge
-# touched the surface. A superset, never a gap. Dense tags (one bump+tag per merge, which is the case
-# today) make the range tight, not correct. See ADR-0003's 2026-07-30 amendment.
+# WHY THEY ARE ONE WORKFLOW NOW
 #
-# ACCEPTED COST, stated because it is inherent to bump-before-deploy and cannot be designed away:
-# `version-main` becomes load-bearing for deployment. A wedged version-main (it wedged once, for four
-# merges) now stops the site from shipping rather than merely stopping the tagging. `workflow_dispatch`
-# below is the unconditional manual deploy, and version-main fails loudly with a diagnosis.
+# (a) ORDERING IS A DATA DEPENDENCY. `deploy-app` resolves /{env}/frontend/s3-bucket-name and
+#     /{env}/frontend/cloudfront-distribution-id from SSM — parameters Terraform creates. On a cold
+#     environment it cannot even start. As separate workflows there was nothing making the apply happen
+#     first; there was only luck.
+#
+# (b) THE POST-DEPLOY SMOKE BECOMES REACHABLE FOR INFRASTRUCTURE CHANGES. It was not, and that cost four
+#     hours of production on 2026-07-31: an iac/-only merge matched none of deploy's surface paths, so
+#     `deploy` skipped and the smoke never ran. Here the e2e job hangs off BOTH publishing jobs.
+#
+# (c) THE RACE #237 DESCRIBES IS GONE BY CONSTRUCTION. Asserting the edge from a separate `deploy`
+#     workflow raced `terraform apply` and would report green having measured the PREVIOUS function.
+#     `needs:` is an ordering; two concurrency groups were not.
+#
+# WHY `release` RUNS FIRST, AND WHY THE DEPLOY ALWAYS REBUILDS (#299)
+#
+# The version is a BUILD INPUT: apps/fed/src/lib/version.ts imports the root VERSION with `?raw` and the
+# footer renders it as a link to the GitHub Release. `release` pushes `bump: X → Y` and tags vY on top of
+# the merge, so the BUMP commit — not the merge commit — is the only tree that carries the version it is
+# tagged with. Every job after `release` therefore checks out THAT commit by sha, not the merge commit.
+# Building the merge commit would ship a footer naming the previous release: a link that RESOLVES, so
+# nothing would signal it.
+#
+# The corollary, stated because it is a real cost: the artifact `app` built and Playwright-tested on the
+# PR CANNOT be promoted. It carries the previous version. The PR's e2e tests an artifact that differs
+# from production by one string.
+#
+# ACCEPTED COST, inherent to bump-before-deploy and undesignable-away: the release step is load-bearing
+# for deployment. It wedged once, for four merges; then that only stopped the tagging, now it stops the
+# site shipping. `workflow_dispatch` below is the unconditional manual deploy and the rollback path.
 on:
   push:
     branches: [main]
-    paths:
-      - "VERSION"
   workflow_dispatch:
+    # Two inputs rather than one, because merging infra-apply in here would otherwise have silently
+    # widened what a manual deploy DOES: the documented rollback path would start running
+    # `terraform apply` against real AWS. Publishing is the default; applying is opt-in.
+    inputs:
+      deploy_app:
+        description: "Publish the site (build, S3 sync, invalidation)"
+        type: boolean
+        default: true
+      apply_infra:
+        description: "Run terraform apply (real AWS infrastructure)"
+        type: boolean
+        default: false
 
-# Read-only by DEFAULT. `id-token: write` now lives on the one job that assumes a role, so the deciding
-# job never holds a credential — on a release that touched nothing we serve, no token is ever issued.
+# Read-only by DEFAULT. `contents: write` and `id-token: write` are granted per job, to the one job that
+# needs each, so no deciding job ever holds a credential.
 permissions:
   contents: read
 
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: false
-
 env:
   AWS_REGION: us-east-1
+  NODE_VERSION: "22"
+  ENV_NAME: staging
 
 jobs:
-  # Decides only. No AWS, no OIDC, installs nothing.
-  gate:
-    # `workflow_dispatch` must be named explicitly: `github.event.head_commit` is null on dispatch, so
-    # the startsWith alone coerces to false and would silently disable every manual deploy — including
-    # the rollback path this change relies on.
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      startsWith(github.event.head_commit.message, 'bump:')
+  # ---------------------------------------------------------------------------------------------
+  # Numeric SemVer auto-bump + tag + GitHub Release. Formerly version-main.yml.
+  # Named after the outcome, not the tool, because it is three things — bump, tag, publish — and the
+  # Release is the one the site's footer links to.
+  # ---------------------------------------------------------------------------------------------
+  release:
+    # `github.event_name == 'push'` first: on workflow_dispatch `github.event.head_commit` is null, so
+    # the startsWith alone coerces to false and would silently disable every manual deploy. A manual
+    # deploy deliberately does NOT bump — it republishes what is already released.
+    if: github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'bump:')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # push the bump commit + tag, create the Release
+    # Job-scoped, NOT workflow-scoped. A workflow-level group would queue the next merge's bump behind
+    # the previous merge's entire deploy. This keeps the former version-main serialisation exactly.
+    concurrency:
+      group: release-main
+      cancel-in-progress: false
     outputs:
-      deploy: ${{ steps.changes.outputs.deploy }}
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+          fetch-depth: 0
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install bump-my-version
+        run: pip install bump-my-version
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Rebase onto whatever landed while this job was starting. `concurrency` serializes RUNS, but it
+      # cannot stop main moving between this job's checkout and its push — two merges seconds apart is
+      # enough, and that is exactly what happened on 2026-07-23.
+      - name: Bump patch version and push, rebasing if main moved
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main          # re-read VERSION from the real tip, not a stale one
+            # Fail with a diagnosis, not a traceback. If the tag we are about to create already exists
+            # remotely, bump-my-version dies with a raw Python CalledProcessError that says nothing about
+            # the actual situation — which is how the 2026-07-23 wedge presented for four merges running.
+            next="v$(bump-my-version show new_version --increment patch)"
+            if git ls-remote --exit-code --tags origin "refs/tags/$next" >/dev/null 2>&1; then
+              echo "::error::$next already exists on the remote while VERSION is $(cat VERSION). A previous run pushed the tag without its commit. Delete the orphaned tag, then re-run."
+              exit 1
+            fi
+            bump-my-version bump patch --verbose
+            # --atomic is the load-bearing flag. Without it a push is NOT all-or-nothing: on
+            # 2026-07-23 the branch was rejected (non-fast-forward) while the TAG went through,
+            # leaving v0.1.39 pointing at a commit that never reached main. Every later run then
+            # died on "tag already exists" — a self-perpetuating break across four merges.
+            if git push --atomic origin main --follow-tags; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected (main moved); dropping the local bump and retrying"
+            git tag -d "v$(cat VERSION)"          # local only — --atomic guarantees it never shipped
+          done
+          echo "::error::could not push the version bump after 3 attempts"
+          exit 1
+
+      # The SHA is the handoff to every job below. They check out this commit, not the merge commit and
+      # not `main` — main can move again before they start, and a tag name is a weaker promise than a sha.
+      - name: Publish the version and the commit that carries it
+        id: version
+        run: |
+          set -euo pipefail
+          {
+            echo "version=$(cat VERSION)"
+            echo "sha=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build categorized release notes (commits since the previous release)
+        env:
+          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
+          NEW: v${{ steps.version.outputs.version }}
+          REPO: ${{ github.repository }}
+        run: |
+          # previous *release* — the new release isn't created yet, so exclude NEW defensively.
+          PREV=$(gh release list --exclude-drafts --json tagName \
+            --jq "[.[].tagName | select(. != \"$NEW\")] | .[0]" 2>/dev/null || true)
+          RANGE="${PREV:+$PREV..}$NEW"
+          log() { git log --no-merges --pretty='%s%x09%h' "$RANGE" | grep -v '^bump:'; }
+          section() {  # $1 = heading, $2 = alternation of conventional-commit types
+            body=$(log | grep -iE "^($2)(\(.+\))?!?:" \
+              | sed -E "s/^($2)(\([^)]*\))?!?:[[:space:]]*//I" \
+              | awk -F'\t' '{print "- " $1 " (" $2 ")"}')
+            if [ -n "$body" ]; then printf '### %s\n%s\n\n' "$1" "$body"; fi
+          }
+          {
+            section "✨ Features" "feat|feature"
+            section "🐛 Fixes" "fix"
+            section "📝 Documentation" "docs"
+            section "♻️ Refactoring" "refactor"
+            section "⚙️ CI & chores" "ci|chore|build|test"
+            other=$(log | grep -ivE "^(feat|feature|fix|docs|refactor|ci|chore|build|test|style|perf)(\(.+\))?!?:" \
+              | awk -F'\t' '{print "- " $1 " (" $2 ")"}')
+            if [ -n "$other" ]; then printf '### Other\n%s\n\n' "$other"; fi
+            if [ -n "$PREV" ]; then echo "**Full changelog**: https://github.com/$REPO/compare/$PREV...$NEW"; fi
+          } > RELEASE_NOTES.md
+          echo "Generated notes for $RANGE:"; cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
+          NEW: v${{ steps.version.outputs.version }}
+        run: gh release create "$NEW" --title "$NEW" --notes-file RELEASE_NOTES.md
+
+  # ---------------------------------------------------------------------------------------------
+  # Decides only. No AWS, no OIDC, installs nothing.
+  #
+  # The `if:` handles three events and must keep them apart:
+  #   push, message NOT bump:  → release ran  → gate runs
+  #   push, message IS  bump:  → release's own commit → NOTHING runs (or every merge deploys twice)
+  #   workflow_dispatch        → release skipped → gate runs, filters bypassed
+  # ---------------------------------------------------------------------------------------------
+  gate:
+    needs: release
+    if: >-
+      always() &&
+      (needs.release.result == 'success' || needs.release.result == 'skipped') &&
+      (github.event_name == 'workflow_dispatch' ||
+       !startsWith(github.event.head_commit.message, 'bump:'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+      version: ${{ steps.resolve.outputs.version }}
+      app: ${{ steps.changes.outputs.app }}
+      iac: ${{ steps.changes.outputs.iac }}
+    steps:
+      - name: Checkout the commit that carries the version
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # On a push this is the bump commit `release` just created. On a dispatch `release` is skipped
+          # and the output is empty, so this falls back to whatever ref was dispatched.
+          ref: ${{ needs.release.outputs.sha || github.ref }}
           fetch-depth: 0 # the filter below diffs this release against the previous TAG
 
+      - name: Resolve what is being published
+        id: resolve
+        run: |
+          set -euo pipefail
+          {
+            echo "sha=$(git rev-parse HEAD)"
+            echo "version=$(cat VERSION)"
+          } >> "$GITHUB_OUTPUT"
+
+      # Now redundant by construction (we checked out the sha `release` reported), and kept anyway: it is
+      # the assertion that the two halves of this workflow agree. If it ever fires, the handoff above is
+      # broken and the alternative is publishing a footer that links a Release describing something else.
       - name: Assert this tree carries its own tag
         if: github.event_name != 'workflow_dispatch'
         run: |
@@ -75,80 +242,215 @@ jobs:
             exit 1
           fi
 
-      - name: Did this release touch the deployed surface?
+      - name: What did this release touch?
         id: changes
+        env:
+          DISPATCH_APP: ${{ inputs.deploy_app }}
+          DISPATCH_IAC: ${{ inputs.apply_infra }}
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "deploy=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::manual dispatch — publishing unconditionally, NO surface filter applied"
+            echo "app=$DISPATCH_APP" >> "$GITHUB_OUTPUT"
+            echo "iac=$DISPATCH_IAC" >> "$GITHUB_OUTPUT"
+            echo "::notice::manual dispatch — NO surface filter applied. publish site: $DISPATCH_APP · terraform apply: $DISPATCH_IAC"
             exit 0
           fi
           # Diagnosed rather than left to git's raw `fatal: No names found`. It fails CLOSED — red job,
           # deploy skipped, never a silent no-op — but every other failure path in this file says why,
-          # and a deploy that stops with an unexplained git error is the kind of thing that gets
-          # retried rather than read.
+          # and a deploy that stops with an unexplained git error is the kind of thing that gets retried
+          # rather than read.
           if ! prev="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null)"; then
-            echo "::error::No tag reachable from HEAD^, so there is no previous release to diff against. The surface filter cannot run; refusing to publish rather than guessing. If this is a fresh clone, the checkout needs fetch-depth: 0 and its tags."
+            echo "::error::No tag reachable from HEAD^, so there is no previous release to diff against. The surface filter cannot run; refusing to publish rather than guessing."
             exit 1
           fi
+          # What this rests on is weaker than "tags are dense", and the weaker property is the one that
+          # matters: the range STARTS at the last released tag, so if the release step wedges and merges
+          # accumulate, the next bump's range covers all of them. The filter is a UNION — it deploys if
+          # ANY accumulated merge touched the surface. A superset, never a gap.
+          #
           # Plain path prefixes, not globs: a git pathspec naming a directory already means everything
           # under it, so `apps/fed/**` would go through fnmatch for no gain.
-          hits="$(git diff --name-only "$prev..HEAD" -- \
+          # ⚠️ VERSION IS DELIBERATELY *NOT* IN THIS LIST, and it is the one entry someone will try to
+          # add. The design doc records "VERSION is missing from the app filter" as a live gap — it is,
+          # but the gap is in the PR gate (app.yml), not here. HEAD is the BUMP COMMIT, and the bump
+          # commit's whole content is an edit to VERSION. Measured on the real v0.1.154..v0.1.155 range,
+          # an iac-only release:
+          #     $ git diff --name-only v0.1.154..v0.1.155 -- apps/fed packages/shared VERSION
+          #     VERSION
+          # So adding it makes app=true on EVERY release and the surface filter stops filtering. The two
+          # filters answer different questions: app.yml asks "does this PR need a rebuild and E2E?"
+          # (yes — the footer changes), this one asks "did this release change anything we serve BESIDES
+          # its own version stamp?".
+          app_hits="$(git diff --name-only "$prev..HEAD" -- \
             apps/fed packages/shared .github/workflows/deploy.yml)"
-          if [ -z "$hits" ]; then
-            echo "deploy=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::$prev..v$(cat VERSION) touched no deployed surface — NOTHING was published and nothing was verified"
+          # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds
+          # cloudfront-functions/spa-rewrite.js via file(), so an edit to it is a real Terraform diff.
+          # Excluding it here would merge the change green and never apply it to the edge.
+          iac_hits="$(git diff --name-only "$prev..HEAD" -- \
+            iac .github/workflows/deploy.yml)"
+          # `if`, NOT `[ -n "$x" ] && x=true`: under `set -e` a false test is the last command of the
+          # list, so the shell exits 1 — the gate would go red on every app-only merge (iac empty) and
+          # the deploy would never happen. Caught locally; it would have looked like a git failure.
+          app=false
+          iac=false
+          if [ -n "$app_hits" ]; then app=true; fi
+          if [ -n "$iac_hits" ]; then iac=true; fi
+          {
+            echo "app=$app"
+            echo "iac=$iac"
+          } >> "$GITHUB_OUTPUT"
+          if [ "$app" = false ] && [ "$iac" = false ]; then
+            echo "::notice::$prev..v$(cat VERSION) touched no deployed surface — NOTHING will be published and nothing will be verified"
             exit 0
           fi
-          echo "deploy=true" >> "$GITHUB_OUTPUT"
-          echo "::notice::publishing v$(cat VERSION) — surface changes since $prev: $(echo "$hits" | tr '\n' ' ')"
+          echo "::notice::publishing v$(cat VERSION) — since $prev: app=$app iac=$iac · $(echo "$app_hits $iac_hits" | tr '\n' ' ')"
 
-  deploy:
+  # ---------------------------------------------------------------------------------------------
+  # Terraform apply against the single workspace. Formerly infra-apply.yml.
+  # On apply this writes the app SSM params (/{env}/{frontend,storage,iam}/*) that deploy-app reads —
+  # which is why it is upstream of it.
+  # ---------------------------------------------------------------------------------------------
+  terraform-apply:
     needs: gate
-    if: needs.gate.outputs.deploy == 'true'
+    if: needs.gate.outputs.iac == 'true'
     runs-on: ubuntu-latest
     environment: staging
     permissions:
-      id-token: write # OIDC → AWS, only in the job that touches AWS
       contents: read
+      id-token: write # OIDC → AWS. The infra role, which is strictly more powerful than the deploy role.
+    concurrency:
+      group: infra-apply-staging
+      cancel-in-progress: false
     defaults:
       run:
-        working-directory: apps/fed
+        working-directory: iac
     env:
-      ENV_NAME: staging
+      TF_TOKEN_app_terraform_io: ${{ secrets.TFC_API_TOKEN }}
+      TF_WORKSPACE: tadeumendonca-io
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+
+      - name: Configure AWS credentials (OIDC)
+        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
+        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action
+        # and breaks its runtime. That flag is gone everywhere now, so v6 runs clean (#89).
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Apply
+        # budget_alert_email is delivered here, not via env/stg.tfvars (public repo) nor a TFC workspace
+        # variable (inert under Local execution). The variable is `sensitive`, so terraform redacts it in
+        # the apply output. Empty/unset secret keeps budget notifications off — the budget still tracks.
+        env:
+          TF_VAR_budget_alert_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
+        run: terraform apply -input=false -auto-approve -var-file=env/stg.tfvars
+
+      # Two different changes, two different synchronisations — conflating them is how a wait ends up
+      # guaranteeing nothing.
+      #
+      # (a) DISTRIBUTION config changes (frontend.tf) are asynchronous, and `wait_for_deployment = false`
+      #     in frontend.tf means terraform does not even wait for them. So this wait is required — but it
+      #     covers the SECONDARY case.
+      # (b) A change to cloudfront-functions/spa-rewrite.js publishes a new function version and does NOT
+      #     touch the distribution at all: the association is by UNQUALIFIED ARN, so the distribution
+      #     never leaves `Deployed` and this wait returns instantly. It synchronises nothing for the
+      #     exact case #216/#237 exist for.
+      - name: Wait for the CloudFront distribution to finish deploying
+        run: |
+          id="$(terraform output -raw cloudfront_distribution_id)"
+          echo "waiting for distribution $id to reach Deployed…"
+          aws cloudfront wait distribution-deployed --id "$id"
+
+      # For case (b) the right check is not a wait but a COMPARISON: `publish = true` makes the publish
+      # synchronous, so by the time apply returns the LIVE stage should already carry the repo's code.
+      # Asserting that directly catches "stale association" and "never accepted" at their source, without
+      # depending on how fast the edge propagates. It needs the terraform outputs, so it stays here
+      # rather than moving to the shared e2e job.
+      - name: Verify the LIVE function stage carries the repo's code
+        run: |
+          name="$(terraform output -raw spa_rewrite_function_name)"
+          aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
+          if diff -q cloudfront-functions/spa-rewrite.js live-function.js >/dev/null; then
+            echo "LIVE stage of $name matches the repo."
+          else
+            echo "::error::the LIVE CloudFront Function does not match iac/cloudfront-functions/spa-rewrite.js"
+            diff cloudfront-functions/spa-rewrite.js live-function.js || true
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------------------------
+  # Build the SPA and publish: S3 sync with split cache headers + CloudFront invalidation.
+  #
+  # ⚠️ THE `if:` IS THE WHOLE POINT OF THIS JOB'S WIRING. A bare `needs: terraform-apply` SKIPS this job
+  # whenever terraform-apply skipped — which is the COMMON case, an app-only merge. That would mean the
+  # site stops deploying entirely and reports green while doing it.
+  #
+  # So: run whenever terraform-apply did not FAIL. It blocks only when infra actually ran and broke,
+  # because that means this merge did touch infra and the app change may depend on it.
+  # ---------------------------------------------------------------------------------------------
+  deploy-app:
+    needs: [gate, terraform-apply]
+    if: >-
+      always() &&
+      needs.gate.result == 'success' &&
+      needs.gate.outputs.app == 'true' &&
+      needs.terraform-apply.result != 'failure' &&
+      needs.terraform-apply.result != 'cancelled'
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      id-token: write # OIDC → AWS, only in the job that touches AWS
+    concurrency:
+      group: deploy-app-${{ github.ref }}
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The bump commit, NOT the merge commit: this tree's VERSION is the one the tag names, and the
+          # build bakes it into the footer.
+          ref: ${{ needs.gate.outputs.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: apps/fed/package-lock.json
 
       - name: Install
-        # --ignore-scripts: note the threat is persist-then-execute, NOT "the install holds credentials"
-        # — this step runs BEFORE Configure AWS credentials below. A malicious postinstall writes into
-        # node_modules, and `npm run build:static` then executes that tree with the OIDC deploy role
-        # exported into the job env, i.e. with rights to write the S3 bucket and invalidate CloudFront.
-        # (`id-token: write` is job-wide from step one regardless.) Nothing here needs a lifecycle hook:
-        # the only dep whose install hook actually runs is esbuild, and it merely validates a binary the
-        # @esbuild/<platform> optional package already delivers; the Playwright browser comes from the
-        # explicit step below. Any future dep that genuinely needs a hook gets an explicit step instead.
+        # --ignore-scripts: the threat is persist-then-execute, NOT "the install holds credentials" — it
+        # runs BEFORE Configure AWS credentials below. A malicious postinstall writes into node_modules,
+        # and `npm run build:static` then executes that tree with the OIDC deploy role in the job env,
+        # i.e. with rights to write the S3 bucket and invalidate CloudFront. (`id-token: write` is
+        # job-wide from step one regardless.) Identical to the PR gate's install, so "green there" keeps
+        # meaning "safe here".
         run: npm ci --ignore-scripts
 
-      # Serves BOTH the prerender below and the post-deploy smoke at the end of this job — it is the only
-      # browser install here (#195). `--with-deps` needs apt/root and the network, so it is deliberately
-      # placed before anything is published: if this flakes, the deploy fails having changed nothing.
-      - name: Install Playwright browser (for the prerender and the post-deploy smoke)
+      # The prerender launches chromium. `--with-deps` needs apt/root and the network, so it is
+      # deliberately placed BEFORE anything is published (#195): if this flakes, the deploy fails having
+      # changed nothing.
+      - name: Install Playwright browser (the prerender drives it)
         run: npx playwright install --with-deps chromium
 
       - name: Configure AWS credentials (OIDC)
-        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
-        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action and
-        # breaks its runtime. That flag is gone now (every action here is node24), so v6 runs clean (#89).
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ secrets.AWS_FED_OIDC_ROLE_ARN }}
@@ -172,37 +474,122 @@ jobs:
         run: npm run build:static
 
       - name: Publish to S3 (split cache headers)
+        env:
+          BUCKET: ${{ steps.cfg.outputs.bucket }}
         run: |
-          # Immutable hashed assets first; then the revalidating root (index.html, prerendered routes, icons)
-          # with --delete to prune stale files (assets/ excluded — the first pass owns it).
-          aws s3 sync dist/assets/ "s3://${{ steps.cfg.outputs.bucket }}/assets/" \
+          # Immutable hashed assets first; then the revalidating root (index.html, prerendered routes,
+          # icons) with --delete to prune stale files (assets/ excluded — the first pass owns it).
+          aws s3 sync dist/assets/ "s3://$BUCKET/assets/" \
             --delete --cache-control "public,max-age=31536000,immutable"
-          aws s3 sync dist/ "s3://${{ steps.cfg.outputs.bucket }}/" \
+          aws s3 sync dist/ "s3://$BUCKET/" \
             --delete --exclude "assets/*" \
             --cache-control "no-cache,no-store,must-revalidate"
 
       - name: CloudFront invalidation
+        env:
+          DISTRIBUTION_ID: ${{ steps.cfg.outputs.distribution_id }}
+          VERSION: ${{ needs.gate.outputs.version }}
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id "${{ steps.cfg.outputs.distribution_id }}" \
+            --distribution-id "$DISTRIBUTION_ID" \
             --paths "/*" >/dev/null
-          echo "deployed fed to $ENV_NAME"
+          echo "deployed v$VERSION to $ENV_NAME"
 
-      # Post-deploy SMOKE (Playwright E2E) against the real apex. The full regression already gated the
-      # PR (build-test, against a preview) — this is the post-deploy health confirmation the principles ask
-      # for: it exercises the real CDN + prerendered HTML and catches deploy/CloudFront-level breakage
-      # the pre-merge run can't see. Config retries absorb invalidation lag.
-      #
-      # NO browser install here (#195): the step above already installed chromium in this same job, and
-      # this duplicate is what turned a successful deploy red — `--with-deps` shells out to apt, and a
-      # transient sync on Google's mirror failed the fetch AFTER the site had already published. This
-      # smoke cannot roll anything back, so its worth rests mostly on what its RED means; a non-site
-      # reason to go red erodes that, and setup is the cheapest one to remove. Environment setup belongs
-      # before the deploy, not inside the assertion.
-      - name: E2E smoke (Playwright) against production
-        if: github.ref == 'refs/heads/main'
+  # ---------------------------------------------------------------------------------------------
+  # Post-deploy smoke against the real apex. NOT A GATE — it runs after the publish and cannot revert
+  # anything. Its worth rests on what its RED means, so a red must mean the SITE is broken.
+  #
+  # It runs after EITHER publishing job, which is the reachability #237/#299 lacked: an iac/-only merge
+  # now gets a smoke. `e2e/edge-rewrite.spec.ts` is part of this suite and is the only check that proves
+  # the edge is running the repo's rewrite function (detached · stale association · rejected by the JS
+  # 2.0 runtime, #216); it skips anywhere it cannot run.
+  #
+  # ⚠️ COST INTRODUCED BY MAKING THIS A SEPARATE JOB: #195's rule was "environment setup belongs before
+  # the deploy, not inside the assertion" — a browser install is an apt fetch and it once turned a
+  # successful deploy red. A separate runner cannot install before the deploy it runs after. The rule's
+  # PURPOSE was that a red must not be ambiguous, so that is preserved explicitly instead: a setup
+  # failure is diagnosed as a setup failure, and says the site was published and is unverified.
+  # ---------------------------------------------------------------------------------------------
+  e2e:
+    needs: [gate, terraform-apply, deploy-app]
+    if: >-
+      always() &&
+      needs.terraform-apply.result != 'failure' &&
+      needs.deploy-app.result != 'failure' &&
+      (needs.terraform-apply.result == 'success' || needs.deploy-app.result == 'success')
+    runs-on: ubuntu-latest
+    # No AWS. It drives the public apex like any reader, so it holds no credential at all.
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: apps/fed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+
+      - name: Setup Node
+        id: setup-node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/fed/package-lock.json
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright browser
+        id: setup-browser
+        run: npx playwright install --with-deps chromium
+
+      # Everything above is SETUP and can fail for reasons that have nothing to do with the site. Saying
+      # so is what keeps this job's red meaningful.
+      - name: Diagnose a setup failure
+        if: failure()
+        run: |
+          echo "::error::the smoke could not START — Node/npm/browser setup failed. THE SITE WAS ALREADY PUBLISHED AND IS NOW UNVERIFIED. This is not evidence that the site is broken; re-run this job."
+          exit 1
+
+      - name: Smoke (Playwright against the live apex)
         env:
-          E2E_ENV: ${{ env.ENV_NAME }}
+          E2E_ENV: production
         run: |
           sleep 10 # let the CloudFront invalidation propagate before driving the browser
           npm run e2e
+
+  # ---------------------------------------------------------------------------------------------
+  # The three-case notice, as a terminal job because there is no single step every path reaches.
+  # A deploy that published nothing must not read like one that published and verified everything.
+  # ---------------------------------------------------------------------------------------------
+  report:
+    needs: [release, gate, terraform-apply, deploy-app, e2e]
+    if: always() && needs.gate.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report what was published and verified
+        env:
+          APP: ${{ needs.gate.outputs.app }}
+          IAC: ${{ needs.gate.outputs.iac }}
+          VERSION: ${{ needs.gate.outputs.version }}
+          R_GATE: ${{ needs.gate.result }}
+          R_TF: ${{ needs.terraform-apply.result }}
+          R_APP: ${{ needs.deploy-app.result }}
+          R_E2E: ${{ needs.e2e.result }}
+        run: |
+          set -euo pipefail
+          if [ "$R_GATE" != "success" ]; then
+            echo "::notice::the deploy did NOT get past its gate — nothing was published and nothing was verified. Read the gate job."
+            exit 0
+          fi
+          if [ "$APP" != "true" ] && [ "$IAC" != "true" ]; then
+            echo "::notice::v$VERSION touched no deployed surface — NOTHING was published and nothing was verified"
+            exit 0
+          fi
+          if [ "$R_TF" = "failure" ] || [ "$R_APP" = "failure" ] || [ "$R_E2E" = "failure" ]; then
+            echo "::notice::the deploy did NOT complete — terraform-apply: $R_TF · deploy-app: $R_APP · e2e: $R_E2E. Read the failing job, not this line."
+            exit 1
+          fi
+          echo "::notice::published v$VERSION — terraform-apply: $R_TF · deploy-app: $R_APP · post-deploy e2e: $R_E2E"
