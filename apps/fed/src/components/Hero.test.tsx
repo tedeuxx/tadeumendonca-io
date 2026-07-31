@@ -57,14 +57,27 @@ describe('Hero', () => {
   });
 
   // The strip is the first part of this component that VARIES BY LOCALE — most entries are proper
-  // nouns, but the ordinary technical nouns are Portuguese in the pt edition. Rendered here (this
-  // suite renders under `pt`) rather than asserted against the constant, because reading the
-  // constant back would pass whatever the constant says.
-  it('renders the localisable stack entries in the reader’s language', () => {
-    renderHero();
+  // nouns, but three ordinary technical nouns are Portuguese in the pt edition.
+  //
+  // BOTH EDITIONS ARE ASSERTED, and that is the point rather than symmetry. The first version of
+  // these tests ran under `pt` only, so swapping the two arrays wholesale would have passed every
+  // check: the `Record<Locale, …>` type catches a MISSING key, never a wrong value, and 100% coverage
+  // on this file is compatible with the `en` strip being entirely wrong — it is data, not a branch.
+  it('renders the localisable stack entries in Portuguese for a pt reader', () => {
+    renderHero('pt');
     expect(screen.getAllByText('Observabilidade')).toHaveLength(2);
     expect(screen.getAllByText('Segurança')).toHaveLength(2);
+    expect(screen.getAllByText('Sistemas Distribuídos')).toHaveLength(2);
     expect(screen.queryByText('Observability')).toBeNull();
+  });
+
+  it('renders them in English for an en reader, and the label is untranslated in both', () => {
+    renderHero('en');
+    expect(screen.getByLabelText('Stack')).toBeInTheDocument();
+    expect(screen.getAllByText('Observability')).toHaveLength(2);
+    expect(screen.getAllByText('Security')).toHaveLength(2);
+    expect(screen.getAllByText('Distributed Systems')).toHaveLength(2);
+    expect(screen.queryByText('Observabilidade')).toBeNull();
   });
 
   // Dropped on 2026-07-31 (owner): too low-level next to the practice terms beside it.

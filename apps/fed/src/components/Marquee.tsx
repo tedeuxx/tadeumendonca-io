@@ -16,8 +16,11 @@ import { useLocale, useT, type Locale } from '../i18n';
 // Typed per locale so a missing translation is a COMPILE error, the rule every reader-facing module
 // in this repo follows (#235). Most entries are identical across editions because they are proper
 // nouns — `Python`, `MCP`, `Terraform` — and because `agentic`, `AI-native` and the harness/context
-// vocabulary stay English in both locales by positioning rule. The two that genuinely localise are
-// the ordinary technical nouns a pt-BR reader would expect in Portuguese.
+// vocabulary stay English in both locales by positioning rule. THREE genuinely localise, and they
+// are the ordinary technical nouns a pt-BR reader expects in Portuguese: `Observabilidade`,
+// `Segurança` and `Sistemas Distribuídos`. The count is stated because an earlier version of this
+// comment said "two" while the array translated three — a comment that contradicts the data it
+// documents is worse than no comment, and `Sistemas Distribuídos` was the one nobody had asked for.
 //
 // ORDER IS DELIBERATE: the AI-native layer first, the languages next, the platform and the
 // engineering floor last. A reader scanning left to right meets the repositioning before the
