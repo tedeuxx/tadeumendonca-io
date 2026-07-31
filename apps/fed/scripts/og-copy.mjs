@@ -30,20 +30,21 @@ export const META_LINE = 'Agentic development · AI-DLC / Loop Engineering · Op
 /**
  * The default card's hook and subline, per locale.
  *
- * `line1` / `line2` are the hook's two authored blocks, `accent` is the final word carried in safety
- * orange, and the three concatenate back to the hero's `taglineLead` (minus its trailing em-dash, which
- * is a page-layout join and not part of the sentence).
+ * `lines` are the hook's leading rows, `tail` opens the last row and `accent` closes it in safety orange.
+ * Concatenated with single spaces they reconstruct the hero's `taglineLead` — minus its trailing em-dash,
+ * which is a page-layout join between two spans and not part of the sentence.
  *
- * ONE authored break, before the last line — not a full line plan. `line1` still wraps naturally if it
- * is too wide, which is what the pt edition actually does: `APRENDA A / CONSTRUIR / COM IA` renders as
- * three lines, not two. That reads well and fills the card better than the two-line en edition does,
- * but it is the browser's decision, not this file's — so the generator MEASURES the result rather than
- * trusting it, the same refusal ADR-0041 put on the article cards after a pt-BR word ran off the canvas
- * with every gate still green.
+ * EVERY BREAK IS AUTHORED, PER LOCALE, and that is the point of the array. The first version gave each
+ * edition one authored break and let the rest wrap: en broke where a human decided (`LEARN TO BUILD /
+ * WITH AI`, a clean semantic seam) while pt broke wherever the browser ran out of room (`APRENDA A /
+ * CONSTRUIR / COM IA`), stranding the article `A` at the end of a line, away from the verb it belongs
+ * to. Same words, but one edition line-planned and the other auto-wrapped is the structural signature of
+ * a TRANSLATION — which this copy is not; it is the hero's own pt sentence, authored as a peer.
+ * The generator still measures the rendered result, because an authored plan is not a guarantee of fit.
  */
 export const CARD_COPY = {
-  pt: { line1: 'Aprenda a construir', line2: 'com', accent: 'IA', sub: 'do dia a dia à produção' },
-  en: { line1: 'Learn to build', line2: 'with', accent: 'AI', sub: 'from everyday life to production' },
+  pt: { lines: ['Aprenda', 'a construir'], tail: 'com', accent: 'IA', sub: 'do dia a dia à produção' },
+  en: { lines: ['Learn to build'], tail: 'with', accent: 'AI', sub: 'from everyday life to production' },
 };
 
 /**

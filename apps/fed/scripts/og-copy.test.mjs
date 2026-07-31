@@ -25,8 +25,19 @@ describe('OG card copy vs the hero tagline', () => {
 
   it.each(LOCALES)('the %s card sets the hero’s tagline, not a second copy of it', (locale) => {
     const copy = CARD_COPY[locale];
-    expect(`${copy.line1} ${copy.line2} ${copy.accent}`).toBe(heroHook(locale));
+    // Joined across the authored line breaks: the card may set the sentence over three rows, but the
+    // WORDS must still be the hero's, in the hero's order. A break is layout; a different word is drift.
+    expect([...copy.lines, copy.tail, copy.accent].join(' ')).toBe(heroHook(locale));
     expect(copy.sub).toBe(strings.hero.taglineAccent[locale]);
+  });
+
+  // Each edition's line plan is its own. The pt hook is three rows and the en two — not an accident of
+  // width, which is what it was before: pt used to wrap wherever the browser ran out of room, stranding
+  // the article "A" away from its verb. One edition line-planned and the other auto-wrapped reads as a
+  // translation even when the words are a peer's.
+  it('every break is authored, not left to the browser', () => {
+    expect(CARD_COPY.pt.lines).toEqual(['Aprenda', 'a construir']);
+    expect(CARD_COPY.en.lines).toEqual(['Learn to build']);
   });
 
   // Guards the false green: if the catalog lookup silently produced '' for both sides, the equality
@@ -36,7 +47,7 @@ describe('OG card copy vs the hero tagline', () => {
   });
 
   it('the two editions do not ship the same words', () => {
-    expect(CARD_COPY.pt.line1).not.toBe(CARD_COPY.en.line1);
+    expect(CARD_COPY.pt.lines).not.toEqual(CARD_COPY.en.lines);
     expect(CARD_COPY.pt.sub).not.toBe(CARD_COPY.en.sub);
   });
 });

@@ -58,7 +58,7 @@ const cardHtml = (locale) => {
     font-size:20px; letter-spacing:0.1em; text-transform:uppercase; color:#B8B6AE; }
 </style></head><body>
   <div class="wm"><span class="badge">${mark}</span>tadeumendonca<span class="io">.io</span></div>
-  <div class="hook">${copy.line1}<br>${copy.line2} <span class="ac">${copy.accent}</span></div>
+  <div class="hook">${copy.lines.join('<br>')}<br>${copy.tail} <span class="ac">${copy.accent}</span></div>
   <div class="sub">${copy.sub}</div>
   <div class="meta">${META_LINE}</div>
 </body></html>`;

@@ -132,7 +132,7 @@ https://www.youtube.com/watch?v=I4B37S1dyQQ
 
 ### X / Twitter
 
-- **[@AnthropicAI](https://x.com/AnthropicAI)** · **[@ClaudeDevs](https://x.com/ClaudeDevs)** · **[@bcherny](https://x.com/bcherny)** (Boris Cherny, Claude Code) — o mais perto da fonte em ferramental de dev agentic.
+- **[@AnthropicAI](https://x.com/AnthropicAI)** · **[@ClaudeDevs](https://x.com/ClaudeDevs)** · **[@bcherny](https://x.com/bcherny)** (Boris Cherny, Claude Code) — o mais perto da fonte em ferramental de agentic development.
 - **[@OpenAI](https://x.com/OpenAI)** · **[@OpenAIDevs](https://x.com/OpenAIDevs)** — Codex e o outro lado da fronteira.
 - **[@rubenhassid](https://x.com/rubenhassid)** · **[@sairahul1](https://x.com/sairahul1)** · **[@tom_doerr](https://x.com/tom_doerr)** — praticantes postando técnicas e ferramentas que valem roubar.
 - **[@virattt](https://x.com/virattt)** — IA aplicada a finanças, se esse for seu domínio.
