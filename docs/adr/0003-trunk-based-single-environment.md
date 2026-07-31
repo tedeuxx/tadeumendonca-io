@@ -109,7 +109,7 @@ its intent is modest.
 |---|---|
 | A **purely referential** discharge: `→ discharged <date> by ADR-00NN`, where 00NN is already accepted and visibly supersedes the struck text. Asserts nothing beyond the pointer; two files confirm it | A discharge asserting a **new fact** — a date, a cause, a file's history, "this never existed", "the premise expired". Facts need checking, and facts are where the errors landed |
 | A route/file/workflow literal corrected against a mechanically checkable source (`routes.mjs`, the workflow, the file tree) | A discharge that **reinterprets scope** — "what this ADR still owns", "EN-only by choice rather than by limit". Neither reverses a decision; both judge what the record *means* |
-| A guide's description of what the code now does | An amendment that **chooses** something · ~~reader-facing copy~~ (safe class since the 2026-07-30 amendment below) · `iac/` that mutates · anything irreversible |
+| A guide's description of what the code now does | ~~An amendment that **chooses** something~~ (struck by the 2026-07-31 amendment below — safe class, unless the ADR amended is itself one that decides how work is decided, which is already clause 2) · ~~reader-facing copy~~ (safe class since the 2026-07-30 amendment below) · `iac/` that mutates · anything irreversible |
 | | A change to **these merge rules** — always, by construction |
 
 **The failure mode, recorded so it is not discovered later:** a "correction" that quietly decides something,
@@ -307,6 +307,35 @@ WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one clic
    recorded as bought rather than overlooked.
 
 Root `CLAUDE.md`'s CI section is updated in the same MR to match.
+
+## Amendment, 2026-07-31 — "an amendment that chooses something" is retired from the boundary column
+
+**Owner decision.** The 2026-07-30 amendment governs, and its list is **exact**: what reaches the owner is
+`iac/` + continuity, a change to the dev-loop's own rules, and publishing an article. **Nothing else.**
+
+So the boundary-column entry *"An amendment that **chooses** something"* in the 2026-07-29 table above is
+**struck**. An ADR amendment that decides something is **safe class** — the reviewer merges it — *unless*
+the ADR being amended is one that decides **how work is decided**, in which case it was already boundary by
+clause 2 and needs no separate rule.
+
+**Why this needed deciding at all, which is the part worth keeping.** The 2026-07-30 amendment edited that
+very table row — it struck `reader-facing copy` from it — and left the `chooses` clause standing. Read
+alone, each is defensible: the amendment says *exactly three*, the table says *and also this*. So the
+record answered "is this boundary?" two ways at once.
+
+It stopped being theoretical on **2026-07-31**. PR #301 passed all nine DoD criteria with every gate green,
+and the `critical-reviewer` **did not merge it** — it escalated, on the grounds that resolving the
+ambiguity in its own favour would widen its own merge authority, which is precisely the thing this ADR
+says it must never do. That was the correct call and it is why the reviewer is trusted. But the cost is
+real: **an unresolved conflict in this record turns every ADR-touching slice into an owner interrupt**,
+and the boundary exists to spend the owner's attention on judgement, not on adjudicating our own
+bookkeeping.
+
+**The general lesson, and it outlives this clause:** editing one cell of a table that encodes a rule is not
+a local edit. The 2026-07-30 amendment struck the item it came to strike and left a sibling in the same
+cell that contradicted its own opening sentence. When an amendment says *"the list is now exactly N"*, every
+other place that adds to the list is part of that amendment's diff, whether or not it was the point of it.
+Retiring an item is cheap; **the expensive half is finding what still says otherwise.**
 
 ## Consequences
 **Good**
