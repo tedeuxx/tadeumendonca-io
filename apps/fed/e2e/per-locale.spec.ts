@@ -312,6 +312,35 @@ test.describe('x-default root snapshot', () => {
   });
 });
 
+// 5b · The card is in the reader's language too, not only the text beside it (#167).
+//
+// Read off the SERVED HTML rather than the hook, because the hook is what I wrote and the artifact is
+// what a scraper fetches. Asserted as the FULL attribute: `toContain('og-default')` would pass on the
+// English card, so it could not fail for the defect it is named after.
+test.describe('per-locale default OG card', () => {
+  test('a pt route advertises the pt card, an en route the unsuffixed one', async ({ request }) => {
+    // Trailing slash: `vite preview` serves the prerendered file, it does not do the clean-URL rewrite
+    // — that is the CloudFront Function's job and `edge-rewrite.spec.ts` is what proves it runs.
+    const pt = await (await request.get('/pt/me/')).text();
+    expect(pt).toContain(`property="og:image" content="${SITE}/og-default.pt.png"`);
+    expect(pt).toContain('property="og:image:alt" content="tadeumendonca.io — aprenda a construir com IA');
+
+    const en = await (await request.get('/en/me/')).text();
+    expect(en).toContain(`property="og:image" content="${SITE}/og-default.png"`);
+    expect(en).toContain('property="og:image:alt" content="tadeumendonca.io — learn to build with AI');
+  });
+
+  // Both cards must actually be SERVED — the head can advertise a URL the deploy never uploaded, and a
+  // 404 og:image is pinned by every scraper that fetches it exactly like a good one is.
+  test('both default cards are served, as PNGs', async ({ request }) => {
+    for (const path of ['/og-default.png', '/og-default.pt.png']) {
+      const res = await request.get(path);
+      expect(res.status(), `${path} must be served`).toBe(200);
+      expect(res.headers()['content-type']).toContain('image/png');
+    }
+  });
+});
+
 // 6 · The bare-root redirect preserves the sub-path, per detected locale.
 test.describe('bare-root redirect preserves the sub-path', () => {
   test.describe('pt-BR context', () => {

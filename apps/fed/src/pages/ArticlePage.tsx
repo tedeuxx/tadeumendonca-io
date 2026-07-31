@@ -31,6 +31,10 @@ export function ArticlePage() {
           description: article.excerpt,
           canonicalPath: `/blog/${article.slug}`,
           image: article.ogImage,
+          // The card IS the title, set over the site's art (ADR-0041) — so the title is what the alt
+          // says. Not the default card's alt: that describes a different picture, and a screen-reader
+          // user is the one reader who cannot notice the substitution.
+          imageAlt: article.title,
           type: 'article',
           publishedTime: article.date,
           alternates: { pt: `/blog/${eds.pt.slug}`, en: `/blog/${eds.en.slug}` },

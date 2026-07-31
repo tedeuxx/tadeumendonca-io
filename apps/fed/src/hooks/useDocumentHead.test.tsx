@@ -52,6 +52,22 @@ describe('useDocumentHead', () => {
     expect(metaContent('meta[property="og:url"]')).toBe('https://tadeumendonca.io/pt/me');
   });
 
+  // #167: #162 gave a shared /pt/* link Portuguese og:title and og:description over an ENGLISH image,
+  // so the card's own words disagreed with the text beside it. Asserted as the exact URL: `toContain`
+  // on a substring like 'og-default' cannot fail here, because the English card contains it too.
+  it('serves the reader’s own language in the card, not just in the text beside it', () => {
+    renderHook(() => useDocumentHead({ title: 'Perfil', canonicalPath: '/me' }), { wrapper: wrapperAt('pt') });
+    expect(metaContent('meta[property="og:image"]')).toBe('https://tadeumendonca.io/og-default.pt.png');
+    expect(metaContent('meta[property="og:image:alt"]')).toBe(
+      'tadeumendonca.io — aprenda a construir com IA, do dia a dia à produção',
+    );
+  });
+
+  it('keeps the unsuffixed card for en — the suffix is additive, not a rename of a pinned URL', () => {
+    renderHook(() => useDocumentHead({ title: 'Profile', canonicalPath: '/me' }), { wrapper: wrapperAt('en') });
+    expect(metaContent('meta[property="og:image"]')).toBe('https://tadeumendonca.io/og-default.png');
+  });
+
   it('emits og:locale en_US under the en prefix', () => {
     renderHook(() => useDocumentHead({ title: 'Profile', canonicalPath: '/me' }), { wrapper: wrapperAt('en') });
     expect(metaContent('meta[property="og:locale"]')).toBe('en_US');
@@ -148,22 +164,80 @@ describe('useDocumentHead', () => {
     expect(metaContent('meta[property="og:image:width"]')).toBe('1200');
     expect(metaContent('meta[property="og:image:height"]')).toBe('630');
     expect(metaContent('meta[property="og:image:type"]')).toBe('image/png');
-    expect(metaContent('meta[property="og:image:alt"]')).toBeTruthy();
+    expect(metaContent('meta[property="og:image:alt"]')).toBe(
+      'tadeumendonca.io — learn to build with AI, from everyday life to production',
+    );
   });
 
-  it('drops the dimensions for a custom image rather than lying about its size', () => {
-    // Start on a route using the default card, then navigate to one with its own image: the tags
-    // must not survive, because upsertMeta alone would leave them describing the previous page.
+  // THE ASSERTION THAT FAILS ON THE COMMIT BEFORE THIS ONE (#167). The gate used to be "is this the
+  // default card"; #269 gave every article a card of its own, all of them rendered at the same
+  // 1200×630, and the stale condition stripped the whole block from every one of them. The article
+  // card became distinctive and, on the two surfaces the site actually distributes through, started
+  // unfurling as the small square thumbnail — distinct at a size where distinctness cannot be seen.
+  //
+  // The path is a LITERAL here, and the earlier version of this comment claimed otherwise — that it
+  // "follows the shape the app really produces". It does not: `${'my-commitment'}` is a string in a
+  // template, nothing is imported from content.ts, and a change to that derivation would leave this
+  // test green while the block was stripped again. Corrected rather than deleted, because a comment
+  // that names the wrong protector is the failure this suite keeps re-learning.
+  //
+  // What actually follows the real derivation is `e2e/seo.spec.ts` — it reads the SERVED article HTML
+  // and asserts the same three tags. This test's job is narrower and worth stating exactly: that
+  // `isGeneratedCard` recognises a `/og/…` path at all.
+  it('declares the dimensions for a per-article card too — it is the same 1200×630 the build renders', () => {
+    const derivedCardPath = '/og/my-commitment.en.png';
+    renderHook(
+      () =>
+        useDocumentHead({
+          title: 'My commitment',
+          canonicalPath: '/blog/my-commitment',
+          image: derivedCardPath,
+          imageAlt: 'My commitment',
+          type: 'article',
+        }),
+      { wrapper: wrapperAt('en') },
+    );
+    expect(metaContent('meta[property="og:image"]')).toBe(`https://tadeumendonca.io${derivedCardPath}`);
+    expect(metaContent('meta[property="og:image:width"]')).toBe('1200');
+    expect(metaContent('meta[property="og:image:height"]')).toBe('630');
+    expect(metaContent('meta[property="og:image:type"]')).toBe('image/png');
+  });
+
+  // The alt is the half that must NOT be shared. Reusing the default card's alt over an article's
+  // title card tells a screen-reader user they are looking at a picture they are not looking at —
+  // and they are the one reader who cannot notice the substitution.
+  it('describes the article card by its own title, never by the default card’s alt', () => {
+    renderHook(
+      () =>
+        useDocumentHead({
+          title: 'Meu compromisso',
+          canonicalPath: '/blog/meu-compromisso',
+          image: '/og/my-commitment.pt.png',
+          imageAlt: 'Meu compromisso',
+          type: 'article',
+        }),
+      { wrapper: wrapperAt('pt') },
+    );
+    expect(metaContent('meta[property="og:image:alt"]')).toBe('Meu compromisso');
+    expect(metaContent('meta[property="og:image:alt"]')).not.toContain('aprenda a construir');
+  });
+
+  it('drops the dimensions for an image the build did not generate, rather than lying about its size', () => {
+    // Start on a route using the default card, then navigate to one carrying an image from OUTSIDE the
+    // build: the tags must not survive, because upsertMeta alone would leave them describing the
+    // previous page. `/og/…` is deliberately NOT used here any more — it is a generated path now, and
+    // this test asserted the opposite for a year on the strength of the path alone.
     const { rerender } = renderHook(
       (props: { image?: string } = {}) => useDocumentHead({ title: 'Home', canonicalPath: '/', ...props }),
       { wrapper: wrapperAt('en') },
     );
     expect(metaContent('meta[property="og:image:width"]')).toBe('1200');
 
-    rerender({ image: '/og/custom.png' });
-    expect(metaContent('meta[property="og:image"]')).toBe('https://tadeumendonca.io/og/custom.png');
+    rerender({ image: 'https://images.example.com/someone-elses.png' });
+    expect(metaContent('meta[property="og:image"]')).toBe('https://images.example.com/someone-elses.png');
     expect(document.head.querySelector('meta[property="og:image:width"]')).toBeNull();
     expect(document.head.querySelector('meta[property="og:image:height"]')).toBeNull();
+    expect(document.head.querySelector('meta[property="og:image:alt"]')).toBeNull();
   });
 
   it('does not double-append the site name when already present', () => {

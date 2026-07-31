@@ -93,6 +93,18 @@ is a second thing that can overflow, silently, on a card nobody looks at.
    pinned. That is the least reversible failure this feature can have, so the naming removes it **by
    construction** rather than by remembering.
 
+3. **The site-wide DEFAULT card, added by #167 and decided the other way — `og-default.png` for English,
+   `og-default.<locale>.png` for everything else.** Asymmetric on purpose. The article cards were named
+   into an empty namespace, so option 1 cost nothing; `/og-default.png` has been serving since launch and
+   is pinned by every link already shared. Renaming it to `og-default.en.png` would **manufacture the
+   404 that option 2 is rejected for** — same failure, arriving from the opposite direction. The suffix
+   is therefore *additive*, and English keeping the bare name is also true rather than merely convenient:
+   English is the x-default edition (ADR-0024).
+   *Considered and rejected:* rename to `og-default.en.png` **and leave a byte-identical copy** at the old
+   path, which buys the symmetry with no 404. Rejected because two files with identical bytes and **no gate
+   keeping them in sync** is drift-by-remembering — the thing option 2 above is rejected for. A
+   regeneration that updated one and not the other would be silent, permanent, and invisible.
+
 ### Where `ogImage` comes from
 1. **Derived in code, in `buildEditions`, after the parity loop** (chosen) —
    `editions[locale].ogImage = '/og/<key>.<locale>.png'`. *Trade-off:* an author cannot override the card
@@ -160,8 +172,26 @@ names the URL.
 ## Consequences
 
 **Good**
-- Two shared articles stop unfurling as the same link — the reader in a timeline can tell them apart,
-  which is the whole objective.
+- ~~Two shared articles stop unfurling as the same link — the reader in a timeline can tell them apart,
+  which is the whole objective.~~ **Overstated at the time of writing; discharged by #167 (2026-07-31).**
+  The card became *distinct*, and in the same commit stopped rendering at the size where distinctness is
+  visible. `useDocumentHead` gated `og:image:width/height/type/alt` on `img === DEFAULT_OG_IMAGE` — a
+  condition that was correct while "a custom image" meant "a size we do not know", and that this ADR's own
+  decision falsified: every article card is rendered at exactly 1200×630 by our generator. So every article
+  shipped with the dimension block **stripped**, and the code's own comment says what that costs — *"without
+  it they fetch first and guess, and the fallback guess is the small square thumbnail."* On WhatsApp and
+  LinkedIn, the two surfaces ADR-0038 names as the distribution channels, the reader got a small square of a
+  card built to be told apart at a glance. The article also lost `og:image:alt` entirely, which is the
+  accessibility half of the same line. Corrected in #167: the condition is now *"did this build generate the
+  card"*, and `alt` is derived from the article's own title rather than shared — size is a fact about every
+  card, the description of the picture is not.
+
+  Recorded rather than quietly fixed, and this is the second time in this record: the amendment above about
+  the one-axis overflow guard, and this one, are the same failure at different altitudes. **Nothing here was
+  caught by a gate.** The card set matched, the E2E followed the advertised URL to a 200 `image/png`, the
+  build was green, and the defect was in the four tags *beside* the one everything was asserting. A test
+  suite organised around "is there a card" cannot see "is the card usable" — that is the standing lesson,
+  not the specific tag.
 - The card's text is the article's own frontmatter title, so it **cannot be re-typed wrongly**; there is
   no second place to update when a title changes.
 - The naming survives a slug correction by construction, so the maintenance ADR-0037 explicitly expects

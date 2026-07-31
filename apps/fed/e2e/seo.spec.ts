@@ -166,6 +166,29 @@ test.describe('SEO discovery', () => {
     expect(seen.size, 'the two editions must not share one card').toBe(2);
   });
 
+  // #167. The card being DISTINCT is only half of what makes a reader tell two links apart — the other
+  // half is it rendering at the size where the difference is visible. Without the dimension block,
+  // WhatsApp and LinkedIn fetch first and guess, and they guess the small square thumbnail. That is the
+  // state #269 shipped in: the article got its own card and lost these four tags in the same commit.
+  //
+  // The alt is asserted to be the ARTICLE'S TITLE, not the default card's sentence. Emitting the latter
+  // over an article card would describe a picture the reader is not being shown, to the one reader who
+  // cannot check.
+  test('an article card is declared at its real size, and described by its own title', async ({ request }) => {
+    const html = await (await request.get('/pt/blog/meu-compromisso/')).text();
+    expect(html).toContain('property="og:image:width" content="1200"');
+    expect(html).toContain('property="og:image:height" content="630"');
+    expect(html).toContain('property="og:image:type" content="image/png"');
+
+    const alt = /property="og:image:alt" content="([^"]+)"/.exec(html)?.[1];
+    const title = /property="og:title" content="([^"]+)"/.exec(html)?.[1];
+    expect(alt, 'the article card must carry alt text').toBeTruthy();
+    expect(title?.startsWith(alt!), `og:image:alt "${alt}" must describe THIS article, not the default card`).toBe(
+      true,
+    );
+    expect(alt).not.toContain('aprenda a construir');
+  });
+
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
   // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on
   // this site ever carried a query string, so sourcing the canonical from the location would have been a
