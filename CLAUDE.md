@@ -265,10 +265,17 @@ Working rules that follow from that:
   behind this precisely so the wrong footer never ships: the link would **resolve**, so nothing would
   signal it.
   **The `apps/fed` surface filter did not disappear, it moved** into a credential-free `gate` job that
-  diffs `<last tag>..HEAD` over the same three paths — verified against real history, in both directions,
-  before the change was written. Note what the design actually rests on: not that tags are dense (they
-  are, one bump+tag per merge), but that the range starts at the **last released tag**, so a wedge that
-  accumulates merges yields a *superset* rather than a gap. The filter is a union; it cannot skip content.
+  diffs `<last tag>..HEAD` over ~~the same three paths~~ **`apps/fed`, `packages/shared` and its own
+  workflow file** — verified against real history, in both directions, before the change was written.
+  *That is NOT `build-test`'s triple:* `build-test`'s third path is **`iac/cloudfront-functions/**`**,
+  and the deploy gate substitutes its own workflow file for it. The difference is not cosmetic and it
+  cost four hours of production on 2026-07-31 — **an `iac/`-only PR matches none of the deploy gate's
+  paths, so `deploy` SKIPS and the post-deploy smoke never runs.** So an infra fix to a
+  *content-serving* path is unverifiable by CI, and `workflow_dispatch` on `deploy` after
+  `infra-apply` is the only thing that proves it. Note what the design rests on: not that tags are dense
+  (they are, one bump+tag per merge), but that the range starts at the **last released tag**, so a wedge
+  that accumulates merges yields a *superset* rather than a gap. The filter is a union over **those**
+  paths; it cannot skip content inside them, and it was never claimed to cover `iac/`.
   **The cost, inherent and undesignable-away: `version-main` is now load-bearing for deployment.** It
   wedged once, for four merges; then that only stopped tagging, now it stops the site shipping.
   `workflow_dispatch` is the unconditional manual deploy and the rollback path.
