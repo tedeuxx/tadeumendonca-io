@@ -337,6 +337,38 @@ cell that contradicted its own opening sentence. When an amendment says *"the li
 other place that adds to the list is part of that amendment's diff, whether or not it was the point of it.
 Retiring an item is cheap; **the expensive half is finding what still says otherwise.**
 
+## Amendment, 2026-07-31 — a predicate over `var.environment` is untestable fiction here
+
+**The consequence of "one environment" that this record never drew.** There is one environment, it is
+named `staging` in `env/stg.tfvars`, and it **is production** — it serves the apex. So any Terraform
+expression that branches on `var.environment` has exactly one reachable branch, forever, and reads as a
+policy while being a constant.
+
+**The worked example, and it was live.** `iac/storage.tf` carried
+`s3_force_destroy = var.environment != "production"  # stg can be torn down; prod protected`. Permanently
+`true`, including on the bucket serving the site. And it was **not inert — it was inverted**: an absent
+`force_destroy` defaults to `false` in the provider, so had the local never been written, both buckets
+would have been safe. It moved them from safe to unsafe **while reading as protection**.
+
+What it stood ready to erase is the part that makes this a decision rather than a tidy-up: eight rows
+below it in the same block sits `versioning = { enabled = true } # rollback safety for the site`.
+`force_destroy` deletes every object **and every noncurrent version**, so one setting bought the rollback
+history the other was configured to erase without even the bucket-not-empty error interrupting. Measured
+at the time of the fix: **80 current objects, ~9,000 versions** — the site's entire deploy history.
+
+**The rejected alternative, measured rather than argued.** Renaming the environment to `production` would
+make the predicate honest. `var.environment` is interpolated into every name in the root and all of them
+are ForceNew, so an inspection plan of that rename returns **19 to add, 4 to change, 19 to destroy** —
+both origin buckets, the CloudFront Function, the IAM deploy policy, and the SSM parameters
+`deploy.yml` resolves on its first step. The trap is what *survives*: the distribution is updated
+in place and the Route 53 record is untouched, so **DNS keeps resolving and the site keeps answering** —
+from brand-new empty buckets, while every name CI would use to repair it has moved. It would not look
+like an outage.
+
+**So the rule is the opposite of "fix the predicate":** while one environment exists, do not write
+predicates over `var.environment` at all. State the value you mean, with a comment saying why. A branch
+that cannot be exercised is not a safeguard — it is an assertion nobody can test, and this one was false.
+
 ## Consequences
 **Good**
 - Minimal branching/ops overhead; the pipeline mirrors the site's actual size.
