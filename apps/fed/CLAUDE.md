@@ -125,7 +125,9 @@ which #195's rule for the post-deploy step forbids. It reports **skipped**, not 
 run: a check that did not run must not read like one that did.
 
 **It runs in `infra-apply`, not in `deploy`** (#237). `infra-apply` is the workflow that changes the
-function; `deploy` is path-filtered to `apps/fed`, so it never fired on the change this guards, and moving
+function; `deploy` never fires on the change this guards — it triggers on the version bump and its `gate`
+job filters the release range to `apps/fed`, `packages/shared` and its own workflow file (#299), so an
+`iac/` change reaches it in neither form — and moving
 the trigger there instead would have raced the apply and asserted against the *previous* function. `deploy`
 still runs it as part of the full smoke, which is legitimate redundancy on an `apps/fed`-only merge.
 

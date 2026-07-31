@@ -208,10 +208,9 @@ it visible: the served page would name the release *preceding* the code it was s
 would **resolve**, so nothing would signal it. A wrong answer that renders is the failure mode this ADR's
 "no pre-production tier" cost is most exposed to, which is why the fix goes first and the feature second.
 
-Recorded this way deliberately. An earlier draft of this amendment said the wrong footer *had* shipped.
-It had not, and a decision record that looks authoritative while being wrong is the exact defect this
-change exists to prevent — an auditor would go looking for an incident and find none. Caught by the
-`critical-reviewer` on the MR.
+An earlier draft asserted an incident that did not occur, and the rule that survives it is worth more
+than the anecdote: **a record that looks authoritative while being wrong is the defect this change exists
+to prevent** — an auditor would go looking for an incident and find none.
 
 ### The change
 
@@ -219,7 +218,9 @@ change exists to prevent — an auditor would go looking for an incident and fin
 tree carries the version it is tagged with.
 
 The surface filter did not disappear; it **moved** out of the trigger and into a credential-free `gate`
-job that runs `git diff --name-only vN-1..vN -- apps/fed packages/shared .github/workflows/deploy.yml`.
+job that resolves `prev="$(git describe --tags --abbrev=0 HEAD^)"` and runs
+`git diff --name-only "$prev..HEAD" -- apps/fed packages/shared .github/workflows/deploy.yml`. In the
+common case that is `vN-1..vN`; the paragraph below is why the general form is the one to hold in mind.
 Verified against real history in **both** directions before writing, because a filter is only proven by
 its negative case: `v0.1.143..v0.1.144` (a fed release) returns the fed files; `v0.1.139..v0.1.140` (the
 dependabot merge touching only `.github/workflows/claude.yml`) returns **empty**, so it correctly would
@@ -250,6 +251,17 @@ shipping. This is **inherent to "bump before deploy" and cannot be designed away
 - The change **self-verifies on its own merge**: its bump's range contains `.github/workflows/deploy.yml`,
   so the filter must match or the deploy visibly does not happen.
 
+**And there are now TWO ways it stops the site, not one — the second was almost left unrecorded.** The
+absent bump above is the obvious one. The other is a *malformed* one: the gate's "assert this tree
+carries its own tag" step exits non-zero when `v$(cat VERSION)` does not point at HEAD, which turns a
+half-completed release into a red deploy rather than a build whose footer links a Release that does not
+describe it. That guard is correct and deliberate — but note what it means against the incident cited
+above: **the 2026-07-23 wedge was precisely a tag out of step with its commit**, so that failure would
+now trip this assert too, not only stop the tagging. `--atomic --follow-tags` in `version-main` is what
+makes the case rare; the assert is what makes it loud instead of wrong. The owner accepted "version-main
+becomes load-bearing"; this is the whole of what that sentence buys, and it should not have taken a
+review to say so.
+
 ### Named residual gap — recorded rather than fixed
 
 GitHub keeps only **one** pending run per concurrency group. Three bump-deploys queuing inside one deploy's
@@ -267,9 +279,12 @@ WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one clic
    interleaving: two merges seconds apart both compute the same next version while `version-main` hands out
    different ones. Same defect class, rarer and harder to spot — **strictly worse** than a bug that fails
    consistently.
-2. **`workflow_run` on `version-main`** — no `paths` support; fires on `completed` regardless of
-   conclusion; and runs the workflow file from the **default branch** rather than the triggering ref, which
-   makes a change to the workflow itself untestable in the usual way.
+2. **`workflow_run` on `version-main`** — two decisive reasons: no `paths` support at all, and it runs the
+   workflow file from the **default branch** rather than the triggering ref, which makes a change to the
+   workflow itself untestable in the usual way. (A third objection — that it fires on `completed`
+   regardless of conclusion — is listed in the MR and is **mitigable** with a one-line
+   `if: …workflow_run.conclusion == 'success'`. It is named here as not-load-bearing rather than dropped,
+   because a padded rejection list is where a reader goes looking for straw.)
 3. **Bump on the PR instead of after the merge** — theoretically the cleanest (the tag would point at the
    merge, and the loop guard could disappear), but two open PRs both compute the same next version and the
    second merge collides with the first's tag — reproducing the exact wedge class `version-main` now
@@ -281,8 +296,11 @@ WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one clic
    token with `workflows: write`. (ADR-0021's third lever exists for this class of reasoning.)
 5. **Show the commit SHA instead of a version** — genuinely the **cheapest correct answer**: always exact,
    zero workflow change, zero coupling. It lost to the owner's ruling that the footer should carry the
-   *version*. The coupling in "the accepted cost" above is the price of that ruling, and is recorded as
-   bought rather than overlooked.
+   *version*, and that ruling has a reason rather than only a preference: a version resolves to a Release
+   page with categorised notes ([ADR-0022](./0022-numeric-semver-auto-bump.md)), while a SHA resolves to a
+   diff — so the version is the form a reader can act on, which is the whole argument for putting an
+   identifier in the chrome at all. The coupling in "the accepted cost" above is the price of that, and is
+   recorded as bought rather than overlooked.
 
 Root `CLAUDE.md`'s CI section is updated in the same MR to match.
 

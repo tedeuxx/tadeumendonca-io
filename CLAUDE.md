@@ -258,7 +258,7 @@ Working rules that follow from that:
 - **`deploy`** (the **version bump**, not the merge — `paths: VERSION`): publishes the static site, then
   runs a **post-deploy E2E smoke against the live apex**. Post-deploy assertions are the *one* exception
   noted under *Branching* above — they are unsatisfiable before the deploy exists.
-  **Why the bump and not the merge** (#298): `version-main` pushes `bump: X → Y` and tags `vY` on top of
+  **Why the bump and not the merge** (#299): `version-main` pushes `bump: X → Y` and tags `vY` on top of
   every merge, so the bump commit is the **only** commit on `main` whose tree carries the version it is
   tagged with. Triggering on the merge built a tree whose `VERSION` still named the *previous* release.
   Nothing reads `VERSION` yet, so no reader has seen it — #298 would have been the first, and it is held
