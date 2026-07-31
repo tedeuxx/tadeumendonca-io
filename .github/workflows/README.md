@@ -186,6 +186,48 @@ nothing else.
 **Recommendation: leave the three files alone.** Split the monolith, measure, and revisit only if
 there is a reason beyond the drawing.
 
+## Every job filters on changed paths — but the criterion is not the directory
+
+Owner's principle (2026-07-31): each job should run only when files it cares about changed, so an
+`iac`-only MR does not run the app suite and an `app`-only MR does not plan Terraform. Right, and
+the repo already does it — the filter lives *inside* the job so the check still reports (§6).
+
+**The correction is the criterion.** A filter is an assertion that *the skipped job's outcome cannot
+change*. "These files live in another directory" does not prove that, and this repo already carries
+one carved-out exception and one live bug because of it.
+
+**The documented exception.** `build-test`'s filter includes `iac/cloudfront-functions/**` — IaC by
+path, but JavaScript with behaviour, unit-tested by the app gate rather than by `infra-plan` (#205).
+A naive `iac/**` filter would skip the only gate that exercises it.
+
+**The bug, found while writing this table.** `apps/fed/src/lib/version.ts` does
+`import raw from '../../../../VERSION?raw'` — the root `VERSION` file is a **build input to the
+bundle**, and it is what the footer shows. It is **not in any filter.** An MR touching only `VERSION`
+skips the entire app gate while changing what a reader sees.
+
+| job | runs when these change |
+|---|---|
+| `lint`, `typecheck` | `apps/fed/**` (**including `e2e/**`**), `packages/shared/**`, root TS/lint config |
+| `test`, `sonar` | the above + `vitest.config.ts`, `sonar-project.properties` |
+| `build` | the above + **`VERSION`** ← the gap today |
+| `e2e` | the above — **never only when `e2e/**` changes**, because it drives the build |
+| `plan`, `apply-iac` | `iac/**` **minus** `iac/cloudfront-functions/**` |
+| `actionlint` | `.github/workflows/**` |
+
+**Why "an MR that only touches e2e" is the clarifying case.** The e2e specs are TypeScript in the
+same project, so `lint` and `typecheck` cover them. Filtering "e2e changed → run only e2e" skips the
+two gates that catch a type error *in the files that changed*. The filter must be derived from what
+each gate **consumes**, never from what the author thinks they touched.
+
+**And note what the table shows about splitting:** the app job's filter sets overlap almost
+entirely. That is information, not waste — it means splitting buys little in *filtering*. The gain
+from splitting is parallelism and the graph, and it should be argued on that alone.
+
+**The risk this shares with today's incident.** A skipped job reports green and is
+indistinguishable from one that passed. Today's four-hour outage was a gate that ran and was
+ignored; a wrong filter is the worse version — the gate never runs and nothing says so. That is why
+every workflow here ends with a `::notice::` naming which of the three cases happened.
+
 ## Open, in the order to settle
 
 1. **Does the `apply-iac` job keep a path filter?** If not, `terraform apply` runs on every merge.
@@ -197,6 +239,9 @@ there is a reason beyond the drawing.
 5. Where does the "verify the LIVE function stage matches the repo" assertion go? Today it is inside
    `infra-apply` precisely because of the race the merge removes — so it could move to the shared
    e2e, or stay next to the apply. Drawn above as staying.
+6. **`VERSION` missing from the app filter is a bug that exists today**, independent of this
+   redesign. Fix it now as its own slice, or fold it into the rebuild? It is one line either way,
+   but shipping it separately means the fix is not held hostage to a design still being argued.
 
 Settled by the owner, 2026-07-31: the pre-merge shape is **`app` + `iac`** (plus `lint-workflows`,
 kept separate for the circular reason above), and the post-merge shape is **one `deploy` workflow**
