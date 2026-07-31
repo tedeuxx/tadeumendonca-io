@@ -306,6 +306,7 @@ const sourceTemplate: ProfileSource = {
         { name: 'Terraform', level: 4 },
         { name: 'AWS CloudFormation', level: 3 },
         { name: 'CI/CD', level: 4 },
+        { name: 'Security', level: 3 },
         { name: 'Platform Engineering', level: 3 },
       ],
     },
@@ -358,6 +359,7 @@ const sourceTemplate: ProfileSource = {
         { name: 'TypeScript', level: 3 },
         { name: 'Node.js', level: 3 },
         { name: 'Java', level: 2 },
+        { name: 'Spring Boot', level: 3 },
       ],
     },
     {
