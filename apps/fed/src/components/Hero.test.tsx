@@ -63,21 +63,28 @@ describe('Hero', () => {
   // these tests ran under `pt` only, so swapping the two arrays wholesale would have passed every
   // check: the `Record<Locale, …>` type catches a MISSING key, never a wrong value, and 100% coverage
   // on this file is compatible with the `en` strip being entirely wrong — it is data, not a branch.
-  it('renders the localisable stack entries in Portuguese for a pt reader', () => {
+  // Technical nouns stay English in the pt edition too (owner, 2026-07-31) — the same rule
+  // `profile.ts` already follows for individual skill names, so a pt reader does not meet
+  // `Observabilidade` here and `Observability` on /me.
+  //
+  // ASSERTED THROUGH THE RENDER, UNDER BOTH LOCALES, and that is not redundancy now that one list
+  // serves both: it pins the RULE rather than the data. If someone reintroduces a translated pt
+  // edition, the first of these goes red — which is exactly what happened while this slice was being
+  // written, and the reason the assertion is phrased against what a pt reader sees.
+  it('keeps technical nouns in English for a pt reader', () => {
     renderHero('pt');
-    expect(screen.getAllByText('Observabilidade')).toHaveLength(2);
-    expect(screen.getAllByText('Segurança')).toHaveLength(2);
-    expect(screen.getAllByText('Sistemas Distribuídos')).toHaveLength(2);
-    expect(screen.queryByText('Observability')).toBeNull();
-  });
-
-  it('renders them in English for an en reader, and the label is untranslated in both', () => {
-    renderHero('en');
-    expect(screen.getByLabelText('Stack')).toBeInTheDocument();
     expect(screen.getAllByText('Observability')).toHaveLength(2);
     expect(screen.getAllByText('Security')).toHaveLength(2);
     expect(screen.getAllByText('Distributed Systems')).toHaveLength(2);
     expect(screen.queryByText('Observabilidade')).toBeNull();
+    expect(screen.queryByText('Sistemas Distribuídos')).toBeNull();
+  });
+
+  it('renders the same strip and an untranslated label for an en reader', () => {
+    renderHero('en');
+    expect(screen.getByLabelText('Stack')).toBeInTheDocument();
+    expect(screen.getAllByText('Observability')).toHaveLength(2);
+    expect(screen.getAllByText('Distributed Systems')).toHaveLength(2);
   });
 
   // Dropped on 2026-07-31 (owner): too low-level next to the practice terms beside it.

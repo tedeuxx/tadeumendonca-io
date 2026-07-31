@@ -11,16 +11,20 @@
 // follows the content instead of the content being trimmed to fit a stale label: this is what the
 // owner works with, and showing 18 years of SDLC under the AI-native layer is the point rather than
 // the cost.
-import { useLocale, useT, type Locale } from '../i18n';
+import { useT } from '../i18n';
 
-// Typed per locale so a missing translation is a COMPILE error, the rule every reader-facing module
-// in this repo follows (#235). Most entries are identical across editions because they are proper
-// nouns — `Python`, `MCP`, `Terraform` — and because `agentic`, `AI-native` and the harness/context
-// vocabulary stay English in both locales by positioning rule. THREE genuinely localise, and they
-// are the ordinary technical nouns a pt-BR reader expects in Portuguese: `Observabilidade`,
-// `Segurança` and `Sistemas Distribuídos`. The count is stated because an earlier version of this
-// comment said "two" while the array translated three — a comment that contradicts the data it
-// documents is worse than no comment, and `Sistemas Distribuídos` was the one nobody had asked for.
+// ONE LIST, BOTH EDITIONS — owner decision, 2026-07-31: ordinary technical nouns stay English in pt.
+//
+// This briefly carried a `Record<Locale, readonly string[]>` translating `Observabilidade`,
+// `Segurança` and `Sistemas Distribuídos`. The owner settled the rule the other way, and the RULE is
+// what mattered: `profile.ts` already keeps every individual skill name English in both editions and
+// translates only GROUP labels, so a translated strip meant a pt reader met `Observabilidade` on the
+// landing and `Observability` on /me. One rule was missing across two surfaces; now there is one.
+//
+// The locale plumbing went with it. A type modelling variance that nothing exercises is machinery
+// pretending to be a safeguard, and this repo's floor is the simplest thing that solves it. If the
+// rule ever flips, the Record comes back — and `Hero.test.tsx` asserts the rule through the RENDER
+// under both locales rather than by reading this constant, so it catches the regression either way.
 //
 // ORDER BUYS ADJACENCY, NOT A READING SEQUENCE. An earlier version of this comment claimed "a reader
 // scanning left to right meets the repositioning before the history" — the strip is an infinite loop
@@ -34,51 +38,30 @@ import { useLocale, useT, type Locale } from '../i18n';
 // concept stated twice — and the part-whole relation between them (context engineering is INSIDE the
 // harness) is invisible at that granularity. Beside `AI-DLC` it reads as identity, which is how the
 // vocabulary hierarchy already binds the two.
-const STACK: Record<Locale, readonly string[]> = {
-  en: [
-    'Agentic AI',
-    'MCP',
-    'Context Engineering',
-    'AI-DLC',
-    'Harness Engineering',
-    'Claude Code',
-    'Python',
-    'Node.js',
-    'TypeScript',
-    'Java',
-    'Spring Boot',
-    'AWS',
-    'Terraform',
-    'CI/CD',
-    'Observability',
-    'Security',
-    'Distributed Systems',
-  ],
-  pt: [
-    'Agentic AI',
-    'MCP',
-    'Context Engineering',
-    'AI-DLC',
-    'Harness Engineering',
-    'Claude Code',
-    'Python',
-    'Node.js',
-    'TypeScript',
-    'Java',
-    'Spring Boot',
-    'AWS',
-    'Terraform',
-    'CI/CD',
-    'Observabilidade',
-    'Segurança',
-    'Sistemas Distribuídos',
-  ],
-};
+const STACK = [
+  'Agentic AI',
+  'MCP',
+  'Context Engineering',
+  'AI-DLC',
+  'Harness Engineering',
+  'Claude Code',
+  'Python',
+  'Node.js',
+  'TypeScript',
+  'Java',
+  'Spring Boot',
+  'AWS',
+  'Terraform',
+  'CI/CD',
+  'Observability',
+  'Security',
+  'Distributed Systems',
+] as const;
 
-function Track({ items, hidden = false }: { items: readonly string[]; hidden?: boolean }) {
+function Track({ hidden = false }: { hidden?: boolean }) {
   return (
     <span aria-hidden={hidden || undefined} className="flex shrink-0 items-center py-2.5 font-mono text-sm uppercase tracking-[0.1em]">
-      {items.map((item) => (
+      {STACK.map((item) => (
         <span key={item} className="flex items-center whitespace-nowrap">
           {item}
           <span aria-hidden="true" className="px-[1.1rem] text-primary">
@@ -92,13 +75,11 @@ function Track({ items, hidden = false }: { items: readonly string[]; hidden?: b
 
 export function Marquee() {
   const t = useT();
-  const { locale } = useLocale();
-  const items = STACK[locale];
   return (
     <div data-print="hide" aria-label={t('marquee.subjects')} className="relative z-10 overflow-hidden border-y border-b-border border-t-2 border-t-border-strong bg-background">
       <div className="flex w-max animate-marquee">
-        <Track items={items} />
-        <Track items={items} hidden />
+        <Track />
+        <Track hidden />
       </div>
     </div>
   );
