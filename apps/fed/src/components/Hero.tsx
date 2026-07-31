@@ -37,10 +37,25 @@ export function Hero() {
 
         <div className="mb-[clamp(2.2rem,5vw,3.5rem)] flex flex-wrap">
           {/* Ramp-up leads, but shares the outlined HeroLink styling with the content anchors — it is a
-              real route (not a landing anchor), so it renders as a router Link for client-side nav. */}
+              real route (not a landing anchor), so it renders as a router Link for client-side nav.
+
+              PORTFOLIO IS A ROUTE HERE FOR THE SAME REASON IT IS ONE IN THE NAV (#315). It renders
+              `nav.portfolio` — the identical catalog key the nav entry uses — so the two controls show
+              the reader the same word. The nav is sticky and this row is the first block, which puts
+              both on screen at once on the landing: pointing them at different places would mean one
+              word with two behaviours, one screen. Moving the nav entry alone is what would have
+              created that, so this line moves with it.
+
+              The alternative was to keep this on `#portfolio` and give it its own label naming what it
+              does — a jump to the shortlist below. That needs a NEW string in both editions, which is
+              copy, so it is not a call to make inside a routing fix. If the Hero should keep the reader
+              on the landing, that is the change to make, deliberately.
+
+              `#portfolio` stays a live anchor with a shareable URL; it simply has no chrome control
+              pointing at it now, which is what a section you meet by scrolling should be. */}
           <HeroLink to={lp('/ramp-up')}>{t('nav.rampup')}</HeroLink>
           <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
-          <HeroLink href="#portfolio">{t('nav.portfolio')}</HeroLink>
+          <HeroLink to={lp('/portfolio')}>{t('nav.portfolio')}</HeroLink>
         </div>
       </div>
 
