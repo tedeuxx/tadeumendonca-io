@@ -121,6 +121,49 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).not.toContain('The bar for getting listed here');
   });
 
+  // #313, the second catalog entry. Asserted separately from the pair above rather than folded into
+  // it, and PER FIELD, because the guard those tests document is per-ENTRY as well as per-field: the
+  // defect that shipped Portuguese to /en did so for whatever entries existed at the time, and a new
+  // entry gets no coverage from assertions naming the old one's strings.
+  //
+  // NOT the card's NAME. `tadeumendonca-skills` is a fact, authored once and identical in both
+  // editions by design, so an assertion on it passes in either locale and cannot fail for the defect
+  // this describes. The issue asked for this explicitly and it is the trap worth naming: the most
+  // obvious string to assert on a card is the one that proves nothing about its language.
+  const SKILLS_CARD = {
+    en: ['The harness that builds this site', 'the bottleneck becomes trusting it', 'what you can install into your own repo today'],
+    pt: ['O harness que constrói este site', 'o gargalo vira confiar nele', 'o que dá para instalar no seu repo hoje'],
+  } as const;
+
+  for (const locale of ['en', 'pt'] as const) {
+    const other = locale === 'en' ? 'pt' : 'en';
+    test(`/${locale}/portfolio serves the skills card in its own language`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      for (const s of SKILLS_CARD[locale]) expect(body).toContain(s);
+      for (const s of SKILLS_CARD[other]) expect(body).not.toContain(s);
+    });
+  }
+
+  // THE HUMAN HALF, pinned separately and in both editions, because it is the half that went missing.
+  //
+  // The card's first draft said the verification is mechanical and stopped there — describing a loop
+  // with no human in it, which a reader who has not clicked through parses as *the irreversible is
+  // handled mechanically*: the opposite of what the hook routes to. `brand-guardian` caught it. The
+  // practice term is `agent-led verification, HUMAN-RESIDUAL`, and every other surface states the pair
+  // (`architecture.{en,pt}.md`, the plugin's README).
+  //
+  // Not covered by the per-locale test above, and that is the point rather than duplication: those
+  // assertions pin that each edition is in its OWN LANGUAGE. A card that drops the human half in both
+  // editions equally is perfectly bilingual and still wrong, so it passes them. This asserts the CLAIM;
+  // those assert the locale. Different defects, and one cannot stand in for the other.
+  const HUMAN_HALF = { en: 'the human keeps what is theirs', pt: 'o humano fica com o que é dele' } as const;
+  for (const locale of ['en', 'pt'] as const) {
+    test(`/${locale}/portfolio keeps the human in the loop the card describes`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      expect(body).toContain(HUMAN_HALF[locale]);
+    });
+  }
+
   // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
   // claims the standard is checkable, and a claim whose link never shipped is the claim failing, not a
   // cosmetic miss. Asserted in both editions because the href is authored once and shared: a defect here
