@@ -15,6 +15,13 @@
 // because "tap share, sometimes get the OS sheet and sometimes get our modal" is a worse contract than
 // either. The `share-sheet` UTM source stays defined in `utm.ts`; nothing emits it now, and the
 // historical rows keep their meaning.
+//
+// AND IT IS NOT ONLY THE ARTICLE. `MarkdownPage` renders this too, so `/ramp-up` and `/architecture`
+// get the modal — and those pages have NO footer share block, so on them the unification argument does
+// not apply: there is no second affordance to converge with, and the sheet is removed with nothing
+// gained. Still the right call, because the destinations there are the same three and one share
+// behaviour across the site beats two. But the reasoning is narrower than on an article, and stating
+// that is cheaper than letting the next reader assume the argument covered every call site.
 import { useRef, useState } from 'react';
 import { Share2 } from 'lucide-react';
 import { cn } from '../lib/cn';

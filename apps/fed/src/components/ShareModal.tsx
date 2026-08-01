@@ -103,11 +103,17 @@ export function ShareModal({
         ref={panel}
         role="dialog"
         aria-modal="true"
-        aria-label={t('share.modalLabel')}
+        // LABELLED BY THE VISIBLE HEADING, not by a separate `aria-label`. The first version set both,
+        // and `aria-label` wins — so a sighted reader saw "Compartilhar" while a screen-reader user
+        // heard "Opções de compartilhamento": two names for one dialog, and the visible one was verbatim
+        // the label of the button that had just opened it.
+        aria-labelledby="share-modal-title"
         className="w-full max-w-sm border-2 border-border-strong bg-background p-5"
       >
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="label-mono text-foreground">{t('share.linksHeading')}</h2>
+          <h2 id="share-modal-title" className="label-mono text-foreground">
+            {t('share.modalLabel')}
+          </h2>
           <button
             type="button"
             onClick={onClose}

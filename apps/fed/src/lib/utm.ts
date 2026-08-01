@@ -30,17 +30,25 @@ export const AUTHOR_CAMPAIGN = 'author-post';
 /**
  * Where a share came FROM, as GA4 will read it.
  *
- * `share-sheet` is not a platform, and that is deliberate: the OS share sheet genuinely does not tell
- * the page where the reader sent the link. Guessing one would be a fabricated dimension. Leaving the
- * sheet untagged was the alternative, and it is worse — the sheet is the PHONE affordance, phone is
- * where WhatsApp sharing actually happens, so an untagged sheet biases the count against exactly the
- * channel the pt-BR audience uses most (#272).
+ * `share-sheet` NO LONGER HAS AN EMITTER (#314). `ShareButton` used to invoke the Web Share API,
+ * falling back to a clipboard copy; it now opens a modal rendering the same target list the footer
+ * block renders, and the OS sheet — being an OS surface the footer cannot offer — could not survive
+ * that unification. The value stays defined rather than removed: it is stamped on links already shared,
+ * and ADR-0039 treats a campaign literal as immutable once out, so deleting it would orphan rows that
+ * still arrive.
  *
- * `copy-link` exists because the same rule turned on this module's first version. `ShareButton` builds
- * ONE url and then branches: the Web Share API when it exists, the clipboard when it does not. Tagging
- * before the branch stamped `share-sheet` on a desktop copy-paste — a value naming a mechanism the code
- * had just established did not happen, which is precisely the fabricated dimension the paragraph above
- * refuses. Two branches, two truthful sources.
+ * The REASON it was tagged is kept, in the past tense, because it is still true of those rows and it is
+ * the argument a future emitter would have to answer: the sheet does not tell the page where the reader
+ * sent the link, so guessing a platform would have been a fabricated dimension — but leaving it
+ * untagged was worse, since the sheet was the PHONE affordance and phone is where WhatsApp sharing
+ * happens, so an untagged sheet would have biased the count against the channel the pt-BR audience uses
+ * most (#272).
+ *
+ * `copy-link` exists because the same rule turned on this module's first version. `ShareButton` then
+ * built ONE url and branched — the Web Share API when it existed, the clipboard when it did not — and
+ * tagging before the branch stamped `share-sheet` on a desktop copy-paste: a value naming a mechanism
+ * the code had just established did not happen. The branch is gone; `copy-link` is now the modal's
+ * copy option and the footer's, and it is still the truthful name for what happened.
  */
 export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-link';
 
