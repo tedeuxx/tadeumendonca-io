@@ -8,8 +8,14 @@
 // ACCESSIBILITY IS THE HARD PART OF A MODAL, NOT THE STYLING, and the affordance it replaces was
 // already keyboard-reachable — so anything less than the full set is a regression shipped as a feature:
 // focus moves in on open, is trapped while open, returns to the trigger on close, `Escape` dismisses,
-// the dialog carries an accessible name, and the backdrop click closes. `prefers-reduced-motion` is
-// respected by having no transition at all, which is the cheapest way to be correct.
+// the dialog carries an accessible name, and the backdrop click closes.
+//
+// `prefers-reduced-motion` is honoured by the GLOBAL reset in `styles/index.css`, which neuters
+// `transition-duration` to 0.01ms under `reduce` — not, as an earlier version of this comment claimed,
+// by this file having no transitions. It has three (`transition-colors` on the close control,
+// `transition-[padding]` on each row). The behaviour was always right; the stated reason was not, and
+// naming the wrong mechanism is how the next component "follows the pattern" by omitting a transition
+// it could have had.
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { X as CloseIcon, Link2, Check } from 'lucide-react';
 import { useT } from '../i18n';

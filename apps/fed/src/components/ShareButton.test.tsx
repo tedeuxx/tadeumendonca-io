@@ -64,16 +64,37 @@ describe('ShareButton', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Compartilhar' }));
   });
 
-  // Tab from the LAST control must wrap to the first. Without it the reader tabs into the browser
-  // chrome while a dialog still covers the page — which is the failure that makes a modal worse than
-  // the inline links it replaced, and it is invisible to every other assertion here.
-  it('traps Tab inside the dialog', () => {
+  // THE ASSERTION IS IDENTITY, NOT CONTAINMENT, and the first version got this wrong in a way that
+  // made it impossible to fail. It asserted `dialog.contains(document.activeElement)` — but jsdom does
+  // not implement sequential focus navigation, so a Tab keydown moves focus nowhere on its own. With
+  // the wrap, focus lands on the first item (inside). WITHOUT the wrap, focus stays where it was
+  // (also inside). True in both worlds, green against a deleted trap, and it was the assertion this
+  // slice argued hardest for.
+  //
+  // Naming the expected element is what makes it a test. Both directions, because they are separate
+  // branches and the reverse one had no assertion at all.
+  // DOM ORDER, which is the order focus actually moves in. The first version of this helper did
+  // `getAllByRole('link').concat(getAllByRole('button'))` — all links, then all buttons — while the
+  // dialog renders close · WhatsApp · X · LinkedIn · copy. So it compared against an invented order and
+  // both assertions failed for a reason that had nothing to do with the trap. Caught only because the
+  // assertion had just been made capable of failing.
+  const focusablesIn = (dialog: HTMLElement) =>
+    Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+
+  it('wraps Tab from the last control back to the first', () => {
     const dialog = open();
-    const items = within(dialog).getAllByRole('link').concat(within(dialog).getAllByRole('button'));
-    const last = items[items.length - 1];
-    last.focus();
+    const items = focusablesIn(dialog);
+    items[items.length - 1].focus();
     fireEvent.keyDown(document, { key: 'Tab' });
-    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).toBe(items[0]);
+  });
+
+  it('wraps Shift+Tab from the first control back to the last', () => {
+    const dialog = open();
+    const items = focusablesIn(dialog);
+    items[0].focus();
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(items[items.length - 1]);
   });
 
   it('copies the tagged link and confirms in the active locale', async () => {
