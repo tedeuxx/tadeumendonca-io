@@ -121,6 +121,34 @@ test.describe('the portfolio body is per-locale', () => {
     expect(body).not.toContain('The bar for getting listed here');
   });
 
+  // #313, the second catalog entry. Asserted separately from the pair above rather than folded into
+  // it, and PER FIELD, because the guard those tests document is per-ENTRY as well as per-field: the
+  // defect that shipped Portuguese to /en did so for whatever entries existed at the time, and a new
+  // entry gets no coverage from assertions naming the old one's strings.
+  //
+  // NOT the card's NAME. `tadeumendonca-skills` is a fact, authored once and identical in both
+  // editions by design, so an assertion on it passes in either locale and cannot fail for the defect
+  // this describes. The issue asked for this explicitly and it is the trap worth naming: the most
+  // obvious string to assert on a card is the one that proves nothing about its language.
+  for (const [locale, own, other] of [
+    [
+      'en',
+      ['The harness that builds this site', 'the bottleneck becomes trusting it', 'what you can install into your own repo today'],
+      ['O harness que constrói este site', 'o gargalo vira confiar nele', 'o que dá para instalar no seu repo hoje'],
+    ],
+    [
+      'pt',
+      ['O harness que constrói este site', 'o gargalo vira confiar nele', 'o que dá para instalar no seu repo hoje'],
+      ['The harness that builds this site', 'the bottleneck becomes trusting it', 'what you can install into your own repo today'],
+    ],
+  ] as const) {
+    test(`/${locale}/portfolio serves the skills card in its own language`, async ({ request }) => {
+      const body = await (await request.get(`/${locale}/portfolio/`)).text();
+      for (const s of own) expect(body).toContain(s);
+      for (const s of other) expect(body).not.toContain(s);
+    });
+  }
+
   // The bar's LINK, asserted on the served artifact rather than only in the unit test — the sentence
   // claims the standard is checkable, and a claim whose link never shipped is the claim failing, not a
   // cosmetic miss. Asserted in both editions because the href is authored once and shared: a defect here

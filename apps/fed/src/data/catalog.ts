@@ -108,4 +108,50 @@ export const catalog: CatalogProject[] = [
     // would just point at the page they're viewing. The GitHub link is the useful one here (#175).
     status: 'live',
   },
+  // #313. The asymmetry with the entry above is the point rather than a wart: this repo is a
+  // DEPENDENCY of that one. The site consumes this plugin, so the card is not a second product — it
+  // is the thing that explains how the first is built, which is the "the code is the pitch" argument
+  // taken one level down.
+  //
+  // It clears `docs/catalog-ready.md` as of `-skills`#109. It did NOT before: the README pitched a
+  // "personal Claude skills library" and failed the "README in the new framing" box, and that bar
+  // explicitly refuses to extend the platform's scoping exception to anything else on the shelf. The
+  // honest options were to fix the repo or not publish the card; the repo was fixed first.
+  {
+    name: 'tadeumendonca-skills',
+    tagline: {
+      // NOT "biblioteca de skills" / "skills library" — that is the pitch #109 retired, and it names
+      // the least differentiated third of the repo. The personas and the hooks are what make it a
+      // harness; the skill library is the part any prompt collection also has.
+      pt: 'O harness que constrói este site — personas de review, hooks de permissão e 73 skills, como plugin do Claude Code.',
+      en: 'The harness that builds this site — review personas, permission hooks and 73 skills, as a Claude Code plugin.',
+    },
+    description: {
+      // The claim is `agent-led verification`, which the private positioning source marks as the least
+      // negotiable of the practice terms precisely because it is the only one a technical reader can
+      // CHECK rather than take on faith. So the sentence says what is mechanical, since that is what
+      // makes it checkable — a hook that denies before the command runs, not an instruction that asks.
+      pt:
+        'Um agente produz trabalho plausível rápido; o gargalo vira confiar nele. Aqui a verificação é mecânica: ' +
+        'um reviewer julga o MR em contexto limpo, e um hook nega o piso irreversível antes do comando rodar.',
+      en:
+        'An agent produces plausible work fast; the bottleneck becomes trusting it. Here the verification is ' +
+        'mechanical: a reviewer judges the MR in a fresh context, and a hook denies the irreversible floor ' +
+        'before the command runs.',
+    },
+    // Answers "what you take away", so it points at what is reusable — and at the honest limit,
+    // because the same README this card is drawn from publishes that limit rather than burying it.
+    proof: {
+      pt:
+        'o que dá para instalar no seu repo hoje, e o que é padrão de referência — o próprio README publica ' +
+        'como distinguir os dois, em vez de deixar você descobrir por arquivo.',
+      en:
+        'what you can install into your own repo today, and what is a reference pattern — the README publishes ' +
+        'how to tell them apart rather than leaving you to find out per file.',
+    },
+    // FACTS, and deliberately short: there is no runtime here. Markdown, shell and the plugin manifests.
+    stack: ['Claude Code', 'Bash', 'GitHub Actions'],
+    repoUrl: 'https://github.com/tedeuxx/tadeumendonca-skills',
+    status: 'live',
+  },
 ];
