@@ -120,24 +120,46 @@ export const catalog: CatalogProject[] = [
   {
     name: 'tadeumendonca-skills',
     tagline: {
-      // NOT "biblioteca de skills" / "skills library" — that is the pitch #109 retired, and it names
-      // the least differentiated third of the repo. The personas and the hooks are what make it a
-      // harness; the skill library is the part any prompt collection also has.
-      pt: 'O harness que constrói este site — personas de review, hooks de permissão e 73 skills, como plugin do Claude Code.',
-      en: 'The harness that builds this site — review personas, permission hooks and 73 skills, as a Claude Code plugin.',
+      // NOT "biblioteca de skills" / "skills library" — that is the pitch `-skills`#109 retired, and it
+      // names the least differentiated third of the repo. The personas and the hooks are what make it a
+      // harness; a skill library is what any prompt collection also has.
+      //
+      // AND NOT A SKILL COUNT, which the first draft led with. Two reasons, and the second is the one
+      // that decided it. (a) It leads with the least differentiated part — the same defect the sentence
+      // above avoids, one clause later. (b) That number lives in the OTHER repo's tree, which has a CI
+      // gate asserting every published copy of it precisely because it rots on the next skill added.
+      // That gate cannot see this file. Publishing it here would have created a sixth copy, in a repo
+      // the test cannot reach, on the surface whose whole thesis is that its claims are checkable.
+      //
+      // What replaced it is the strongest CHECKABLE fact in that repo's README, which the first draft
+      // gave zero words: the merge gate cannot be skipped, on install, with no configuration.
+      pt: 'O harness que constrói este site — personas de review, hooks de permissão, e um gate de merge que não dá para pular.',
+      en: 'The harness that builds this site — review personas, permission hooks, and a merge gate you cannot skip.',
     },
     description: {
-      // The claim is `agent-led verification`, which the private positioning source marks as the least
-      // negotiable of the practice terms precisely because it is the only one a technical reader can
-      // CHECK rather than take on faith. So the sentence says what is mechanical, since that is what
-      // makes it checkable — a hook that denies before the command runs, not an instruction that asks.
+      // The claim is `agent-led verification, HUMAN-RESIDUAL`, and the second half is not decoration.
+      // The first draft stopped at "a hook denies the irreversible floor", which describes a loop with
+      // no human in it — a reader who has not clicked through parses that as *the irreversible is
+      // handled mechanically*, the opposite of what the hook routes to. It overclaims the automation
+      // and under-sells the design in one clause, and every other surface states the pair explicitly
+      // (`architecture.{en,pt}.md`, and the plugin's own README).
+      //
+      // `contexto fresco`, not `contexto limpo`: `/pt/architecture` already publishes `contexto fresco`,
+      // including in a diagram's accDescr, which is copy a screen reader receives. One presence, one
+      // name — the same rule the sibling card's `description` comment states for `CI gates`.
+      //
+      // pt does NOT say `piso irreversível`. In BR Portuguese `piso` carries the MINIMUM-level sense,
+      // and this site uses it that way three paragraphs later in `architecture.pt.md` (`piso de custo`).
+      // Using it for a boundary you may not cross points the opposite way on the same axis. English
+      // keeps `irreversible floor`, which is the repo's established term there.
       pt:
-        'Um agente produz trabalho plausível rápido; o gargalo vira confiar nele. Aqui a verificação é mecânica: ' +
-        'um reviewer julga o MR em contexto limpo, e um hook nega o piso irreversível antes do comando rodar.',
+        'Um agente produz trabalho plausível com rapidez; o gargalo vira confiar nele. Aqui a verificação é ' +
+        'mecânica e o humano fica com o que é dele: um reviewer julga o MR em contexto fresco, e um hook ' +
+        'recusa as ações irreversíveis antes do comando rodar, deixando-as com você.',
       en:
         'An agent produces plausible work fast; the bottleneck becomes trusting it. Here the verification is ' +
-        'mechanical: a reviewer judges the MR in a fresh context, and a hook denies the irreversible floor ' +
-        'before the command runs.',
+        'mechanical and the human keeps what is theirs: a reviewer judges the MR in a fresh context, and a ' +
+        'hook refuses irreversible actions before the command runs, leaving them to you.',
     },
     // Answers "what you take away", so it points at what is reusable — and at the honest limit,
     // because the same README this card is drawn from publishes that limit rather than burying it.

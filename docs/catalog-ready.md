@@ -82,6 +82,53 @@ Two consequences, so this cannot be read as the bar getting easier:
 - **A future catalog entry does not inherit the exception.** The platform is the only repo that hosts
   the catalog. Anything else that appears on the shelf graduated onto it, and clears every box.
 
+## The second shelf item, accounted for — `tadeumendonca-skills`
+
+The clause directly above is now load-bearing rather than hypothetical, so this entry gets the same
+row-by-row treatment the platform got. **Nothing below softens a box**; two are recorded as *not
+applicable to the artifact's shape*, which is a different act and is argued rather than asserted.
+
+| box | `tadeumendonca-skills` |
+|---|---|
+| Solves a real problem from my own workflow | **passes** |
+| Demonstrates an agentic / AI-native pattern | **passes outright** — the box's own examples name *"an agent harness"*, and this is one |
+| Python-first where it fits | **passes** on the box's terms (*"a sharp TS/MCP tool qualifies"*) — it is markdown and POSIX shell |
+| A clean clone runs by following the README only | **n/a — you do not clone it.** See below |
+| Config via env vars with a committed `.env.example` | **n/a — there is no config.** See below |
+| No secrets in history | **passes** |
+| No client references | **passes** |
+| A LICENSE | **passes** — MIT, and verified through `gh api repos/.../license` returning `mit`, not by reading the file. GitHub's classifier is the thing a visitor sees |
+| A README in the new framing | **passes as of `-skills`#109.** It did **not** before, which is why the card waited: the README pitched a "personal Claude skills library", missing the problem, the agentic pattern, the stack, the run block and the honest limitation |
+| Names each explicit choice and its trade-off | **passes** — the house style, and the README states a cost for each of its three mechanisms |
+| Green on its own basics | **passes** by the stricter mechanism — `hooks-test` and `docs-test` are blocking gates, where the box accepts *"or a documented 'how I verified it'"* |
+| Newsletter-ready: there's a story | **passes** |
+
+**The two n/a rows, argued.** Both boxes sit under **"Runs from scratch"**, and they measure the same
+thing: *can a stranger get this working without asking you*. That question is the right one and it is
+answered — it is the mechanism the boxes assume that does not exist here.
+
+A Claude Code plugin is **installed, not cloned**: `claude plugin marketplace add …` then
+`claude plugin install …`, both in the README, with the per-repo `.claude/settings.json` and the
+release-pinning `ref` documented alongside. There is no build, no dependency tree, no lockfile to
+pin, and no run command — which is also why the second box has nothing to exemplify. It takes **no
+environment variables at all**, so a `.env.example` would be an empty file committed to satisfy a
+checklist, which is worse than the honest absence.
+
+**This is scoping, not softening, and the difference has a test:** a box is scoped out only when the
+artifact's *shape* makes it unanswerable, never when the answer would be inconvenient. Both rows here
+fail the inconvenience reading — the underlying question is answered *more* completely than a clone
+would answer it, in the README, in public. Contrast the platform's own scoped row, which is scoped
+for the same structural reason and is equally not an escape hatch.
+
+**What this does NOT create.** No general plugin exemption: the next entry gets its own table, and a
+row that copies these two without the argument is the failure this section exists to prevent. The
+platform's failed box stays failed. And **the bar itself is unchanged** — no box was edited, added or
+reworded to make this fit.
+
+*Owner: this is the first time the "no inherited exception" clause has been exercised, so if you read
+the two n/a rows as the bar bending rather than being applied, say so — the card is one entry and the
+revert is one line.*
+
 ## The single triage question
 > Does this repo help or hurt someone who opened my GitHub expecting an **AI Engineer, agentic**?
 
