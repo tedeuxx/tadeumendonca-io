@@ -132,9 +132,17 @@ export const catalog: CatalogProject[] = [
       // the test cannot reach, on the surface whose whole thesis is that its claims are checkable.
       //
       // What replaced it is the strongest CHECKABLE fact in that repo's README, which the first draft
-      // gave zero words: the merge gate cannot be skipped, on install, with no configuration.
-      pt: 'O harness que constrói este site — personas de review, hooks de permissão, e um gate de merge que não dá para pular.',
-      en: 'The harness that builds this site — review personas, permission hooks, and a merge gate you cannot skip.',
+      // gave zero words: the merge gate is enforced by a hook rather than asked for in a prompt.
+      //
+      // "cannot be skipped" was the first phrasing and is NOT used, because the README pairs that
+      // headline with a caveat this line has no room for — the hooks fail open, and a raw API call to
+      // the same endpoint is a named, accepted gap. A tagline may compress; it may not compress away
+      // the qualifier and keep the absolute, on a card whose pitch is that its claims are checkable
+      // against the repo one click away. What is stated instead needs no caveat and is the actual
+      // differentiator: the guarantee is wired into the tool, not into an instruction the context can
+      // forget.
+      pt: 'O harness que constrói este site — personas de review, hooks de permissão, e um gate de merge que é hook, não instrução.',
+      en: 'The harness that builds this site — review personas, permission hooks, and a merge gate wired into the tool, not the prompt.',
     },
     description: {
       // The claim is `agent-led verification, HUMAN-RESIDUAL`, and the second half is not decoration.

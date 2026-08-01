@@ -85,49 +85,46 @@ Two consequences, so this cannot be read as the bar getting easier:
 ## The second shelf item, accounted for — `tadeumendonca-skills`
 
 The clause directly above is now load-bearing rather than hypothetical, so this entry gets the same
-row-by-row treatment the platform got. **Nothing below softens a box**; two are recorded as *not
-applicable to the artifact's shape*, which is a different act and is argued rather than asserted.
+row-by-row treatment the platform got. **Eleven boxes pass and one is n/a**, which is the first time
+that clause's *clears every box* has met a box the artifact's shape leaves nothing to answer. Nothing
+below is softened; the n/a is argued under a test stated after the table.
 
 | box | `tadeumendonca-skills` |
 |---|---|
 | Solves a real problem from my own workflow | **passes** |
 | Demonstrates an agentic / AI-native pattern | **passes outright** — the box's own examples name *"an agent harness"*, and this is one |
-| Python-first where it fits | **passes** on the box's terms (*"a sharp TS/MCP tool qualifies"*) — it is markdown and POSIX shell |
-| A clean clone runs by following the README only | **n/a — you do not clone it.** See below |
+| Python-first where it fits | **passes** on the box's governing words — *"the preference, not a hard gate"*. It is markdown and POSIX shell, which is neither Python nor the TS/MCP case the box names as its example |
+| A clean clone runs by following the README only | **passes, by substitution** — you install it rather than cloning it (`claude plugin marketplace add` / `install`, both in the README), and the box's *"pin versions; commit a lockfile"* is answered by the release `ref`, which the README names as the lockfile in those words |
 | Config via env vars with a committed `.env.example` | **n/a — there is no config.** See below |
-| No secrets in history | **passes** |
-| No client references | **passes** |
+| No secrets in history | **passes for the shapes scanned, which is what this row claims.** `git log --all -p` across the whole history matches no `AKIA…`, `ghp_…`, `xox…`, PRIVATE KEY block, or assigned `aws_access_key_id`/`aws_secret_access_key`. The box also names *endpoints*, and a five-pattern regex does not prove their absence — what it establishes is that no credential of a known shape was ever committed |
+| No client references, and no war-story that identifies a client | **passes** — the repo is generic by construction (`<project>` / `<apex-domain>` placeholders), so it carries no engagement to identify |
 | A LICENSE | **passes** — MIT, and verified through `gh api repos/.../license` returning `mit`, not by reading the file. GitHub's classifier is the thing a visitor sees |
 | A README in the new framing | **passes as of `-skills`#109.** It did **not** before, which is why the card waited: the README pitched a "personal Claude skills library", missing the problem, the agentic pattern, the stack, the run block and the honest limitation |
 | Names each explicit choice and its trade-off | **passes** — the house style, and the README states a cost for each of its three mechanisms |
-| Green on its own basics | **passes** by the stricter mechanism — `hooks-test` and `docs-test` are blocking gates, where the box accepts *"or a documented 'how I verified it'"* |
+| Green on its own basics | **passes** — `hooks-test` and `docs-test` are real CI suites that run on the PRs able to falsify them (each is path-filtered, with the reason in its own header), where the box accepts *"a documented 'how I verified it'"*. **Not the platform's "held to blocking CI"** standard: that repo has no required status checks |
 | Newsletter-ready: there's a story | **passes** |
 
-**The two n/a rows, argued.** Both boxes sit under **"Runs from scratch"**, and they measure the same
-thing: *can a stranger get this working without asking you*. That question is the right one and it is
-answered — it is the mechanism the boxes assume that does not exist here.
+**The n/a row.** The plugin takes **no environment variables at all**, so `.env.example` would be an
+empty file committed to satisfy a checklist — worse than the honest absence. There is no
+configuration to substitute *for*, which is what makes this different from the row above it: that box
+is answered by a different mechanism and therefore **passes**, this one has nothing to answer.
 
-A Claude Code plugin is **installed, not cloned**: `claude plugin marketplace add …` then
-`claude plugin install …`, both in the README, with the per-repo `.claude/settings.json` and the
-release-pinning `ref` documented alongside. There is no build, no dependency tree, no lockfile to
-pin, and no run command — which is also why the second box has nothing to exemplify. It takes **no
-environment variables at all**, so a `.env.example` would be an empty file committed to satisfy a
-checklist, which is worse than the honest absence.
+**Scoping is not softening, and the difference is a test with three outcomes**, not two:
 
-**This is scoping, not softening, and the difference has a test:** a box is scoped out only when the
-artifact's *shape* makes it unanswerable, never when the answer would be inconvenient. Both rows here
-fail the inconvenience reading — the underlying question is answered *more* completely than a clone
-would answer it, in the README, in public. Contrast the platform's own scoped row, which is scoped
-for the same structural reason and is equally not an escape hatch.
+- the box is answered as written → **passes**
+- the box is answered by a **different mechanism** → **passes, by substitution** — name the mechanism
+- the artifact's **shape leaves nothing to answer** → **n/a** — and only then
 
-**What this does NOT create.** No general plugin exemption: the next entry gets its own table, and a
-row that copies these two without the argument is the failure this section exists to prevent. The
-platform's failed box stays failed. And **the bar itself is unchanged** — no box was edited, added or
-reworded to make this fit.
+"The answer would be inconvenient" appears nowhere in that list, which is the point. Note the middle
+outcome is what the clean-clone row above gets, and note that it therefore does **not** apply to the
+platform's own clean-clone row further up: that one is scoped out for a different reason — what a
+clone produces there is *your* site, so the artifact is not the deliverable at all. Mechanism-differs
+and artifact-is-not-the-deliverable are distinct, and collapsing them is how a test like this becomes
+an escape hatch.
 
-*Owner: this is the first time the "no inherited exception" clause has been exercised, so if you read
-the two n/a rows as the bar bending rather than being applied, say so — the card is one entry and the
-revert is one line.*
+**The bar itself is unchanged** — no box edited, added or reworded — and the platform's failed box
+stays failed. The consequences already stated two sections up still hold; the only thing this entry
+adds to them is that a row copied without its argument is the failure this table exists to prevent.
 
 ## The single triage question
 > Does this repo help or hurt someone who opened my GitHub expecting an **AI Engineer, agentic**?
