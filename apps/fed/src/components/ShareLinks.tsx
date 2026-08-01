@@ -1,43 +1,24 @@
-// Share deeplinks for an article (#183) — WhatsApp, X, LinkedIn.
+// Share deeplinks for an article (#183) — the FOOTER entry point.
 //
-// Distinct from `ShareButton`, which offers the OS share sheet (or a clipboard copy). That one is the
-// right affordance on a phone and useless on a desktop where the sheet does not exist; these are the
-// right one on a desktop and redundant on a phone. Both ship, because the reader is on one or the other
-// and neither knows which.
+// PLACEMENT AND FRAMING ARE UNCHANGED and deliberate: the reader who just finished is the one with
+// something to say about it, so offering the share before the text asks them to recommend what they
+// have not read. The header's compact button stays because that is the phone affordance and a phone
+// reader shares mid-scroll. Two placements, two reasons.
 //
-// PLAIN ANCHORS, no third-party script. Every platform documents a share URL that needs nothing loaded,
-// so nothing runs until the reader clicks — the same rule the video facades and the consent bar hold
-// (ADR-0002: nothing third-party loads until asked). A share widget would be the one place on this site
-// that quietly phones home.
+// WHAT CHANGED (#314) IS THE SET, NOT THE LOOK. These render `SHARE_TARGETS` — the same list the header's
+// modal renders — plus the copy-link the header always had and this block did not. Before, the two
+// entry points offered different destinations and the reader met whichever they happened to reach.
 //
-// The URL is built from SITE_URL, not `window.location.origin`. These hrefs are PRERENDERED, so at build
-// time the origin is `vite preview`'s — a shared link would carry localhost. `ShareButton` can read the
-// live origin because it only runs on click; an anchor cannot.
+// STILL INLINE ANCHORS RATHER THAN A SECOND MODAL. The unification #314 asked for is of the DESTINATIONS;
+// forcing this block into a dialog would replace three visible desktop links with a button that hides
+// them, which is a regression sold as consistency. The header needed a modal because its affordance is
+// one compact control; this one has room.
+//
+// No third-party script: every platform documents a share URL that needs nothing loaded, so nothing runs
+// until the reader clicks — the same rule the video facades and the consent bar hold (ADR-0002).
+import { useState } from 'react';
 import { useLocale, useT } from '../i18n';
-import type { MessageKey } from '../i18n/messages';
-import { SITE_URL } from '../lib/site';
-import { withShareUtm, type ShareSource } from '../lib/utm';
-
-/**
- * One platform's share endpoint. `u` is the absolute article URL, `t` its title.
- *
- * Each target names its OWN accessible-name key rather than sharing a prefix: pt-BR contracts the
- * preposition with the platform's article ("no WhatsApp"), so the phrase cannot be assembled from parts.
- */
-const TARGETS: ReadonlyArray<{
-  key: ShareSource;
-  label: string;
-  nameKey: MessageKey;
-  href: (u: string, t: string) => string;
-}> = [
-  // WhatsApp takes ONE `text` parameter — no separate title field — so the title and the URL are joined
-  // with a newline. Without it the two run together in the message box.
-  { key: 'whatsapp', label: 'WhatsApp', nameKey: 'share.onWhatsapp', href: (u, t) => `https://wa.me/?text=${encodeURIComponent(`${t}\n${u}`)}` },
-  { key: 'x', label: 'X', nameKey: 'share.onX', href: (u, t) => `https://x.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(u)}` },
-  // LinkedIn ignores any title parameter and reads the OG card from the URL itself — which is why the
-  // per-locale OG tags are what actually decides how a shared article looks there.
-  { key: 'linkedin', label: 'LinkedIn', nameKey: 'share.onLinkedin', href: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` },
-];
+import { SHARE_TARGETS, shareHref, copyLinkUrl } from './shareTargets';
 
 /**
  * `path` is the LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`). The slug is per-locale
@@ -47,33 +28,45 @@ const TARGETS: ReadonlyArray<{
 export function ShareLinks({ title, path }: { title: string; path: string }) {
   const t = useT();
   const { locale } = useLocale();
-  const url = `${SITE_URL}${path}`;
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(copyLinkUrl(path));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked — no-op */
+    }
+  };
 
   return (
     <nav aria-label={t('share.linksLabel')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
       <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-muted-foreground">
         {t('share.linksHeading')}
       </span>
-      {TARGETS.map(({ key, label, nameKey, href }) => (
+      {SHARE_TARGETS.map((target) => (
         <a
-          key={key}
-          // Tagged PER TARGET, and BEFORE the href builder encodes it (#272). Appending after encoding
-          // puts a raw `&` inside WhatsApp's single `text=` field, which WhatsApp reads as its own
-          // parameter and truncates the message at — the link still opens and still looks right, so the
-          // test asserts on the DECODED inner URL. Verified by mutation: the wrong order leaves every
-          // other assertion in ShareLinks.test.tsx green.
-          href={href(withShareUtm(url, key), title)}
+          key={target.key}
+          href={shareHref(target, path, title)}
           target="_blank"
           rel="noreferrer"
           // The accessible name says WHAT is being shared and WHERE. "LinkedIn" alone, repeated on every
           // article, is three identical links to a screen reader moving by link list.
-          aria-label={`${t(nameKey)}: ${title}`}
+          aria-label={`${t(target.nameKey)}: ${title}`}
           className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-primary hover:underline"
           data-locale={locale}
         >
-          {label}
+          {target.label}
         </a>
       ))}
+      <button
+        type="button"
+        onClick={() => void copy()}
+        className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-primary hover:underline"
+      >
+        {copied ? t('share.copied') : t('share.copyLink')}
+      </button>
     </nav>
   );
 }
