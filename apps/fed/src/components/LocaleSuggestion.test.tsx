@@ -51,12 +51,22 @@ describe('LocaleSuggestion', () => {
     expect(screen.queryByRole('region')).toBeNull();
   });
 
-  it('remembers a dismissal and hides immediately', () => {
+  // #323. "Continuar em inglês" is an affirmative statement of preference, not merely a way to close
+  // the notice — so it must persist the locale the reader is choosing to STAY in, alongside the
+  // dismissal. Writing only the dismissal meant a reader who answered had stated a language, the site
+  // stored nothing, and it then silenced the one control that would have asked again: the next open at
+  // the bare root fell through to navigator.language, in the other edition, permanently.
+  //
+  // THIS is the assertion that pins the handler, and the distinction matters. A lib-level test calling
+  // storeChoice() and storeDismissal() in sequence proves only the composition the TEST wrote — remove
+  // storeChoice from the component and it stays green. Only a click can falsify the wiring.
+  it('a dismissal persists the locale the reader chose to stay in, and hides immediately', () => {
     withBrowserLanguage('pt-BR');
     renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
     fireEvent.click(screen.getByRole('button', { name: 'Continuar em inglês' }));
     expect(screen.queryByRole('region')).toBeNull();
     expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBe('1');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
   });
 
   // Accepting persists through the SAME key the PT/EN toggle uses, so the choice overrides detection

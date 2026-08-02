@@ -74,11 +74,16 @@ describe('suggestion storage', () => {
 
   // Private mode and blocked cookies make localStorage THROW rather than return null. A notice about
   // language must not be able to break the page it is offered on.
+  // Spied on `window.localStorage` ITSELF, not on `Storage.prototype`. The prototype form was here
+  // first and did not take: coverage showed both `catch` blocks unexecuted, so the assertions were
+  // running against a store that never threw — `not.toThrow()` on a call that cannot throw passes for
+  // the wrong reason and reads as a hardened path. Verified the fix by the only means that settles it:
+  // the catch lines are now covered, and inverting either assertion fails.
   it('survives storage being unavailable, in both directions', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation(() => {
       throw new Error('denied');
     });
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
       throw new Error('denied');
     });
     expect(readSuggestionState()).toEqual({ storedChoice: null, dismissed: false });
@@ -96,6 +101,12 @@ describe('suggestion storage', () => {
 // #323. Every test above exercises ONE function against fixed inputs, which is precisely why the defect
 // survived: both functions were individually correct and the bug lived in the seam between them. These
 // cross it — what the dismiss handler writes, read back through the resolver a later session runs.
+//
+// WHAT THESE DO NOT PROVE, stated because the first version of this block claimed otherwise. They call
+// the store functions directly, so they verify that persisting a choice SURVIVES into `detectLocale` —
+// not that the component's handler calls it. Remove `storeChoice` from the handler and every test here
+// stays green. The wiring is pinned by a CLICK, in `components/LocaleSuggestion.test.tsx`; these pin
+// the consequence. Both are needed and neither substitutes for the other.
 describe('the seam: answering the offer, then re-resolving in a later session', () => {
   beforeEach(() => window.localStorage.clear());
 
