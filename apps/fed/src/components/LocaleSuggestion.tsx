@@ -31,7 +31,7 @@ import { useEffect, useState } from 'react';
 import { useLocale } from '../i18n';
 import { htmlLang } from '../i18n/config';
 import { translate } from '../i18n/messages';
-import { browserLocale, isPrerender, localeToOffer, readSuggestionState, storeDismissal } from '../lib/localeSuggestion';
+import { browserLocale, isPrerender, localeToOffer, readSuggestionState, storeChoice, storeDismissal } from '../lib/localeSuggestion';
 
 const buttonBase = 'px-4 py-2 font-mono text-xs uppercase tracking-[0.12em]';
 
@@ -53,7 +53,21 @@ export function LocaleSuggestion() {
   });
   if (!offer) return null;
 
+  // "Continue in Portuguese" is an affirmative statement of preference, not just a way to close the
+  // notice — so it PERSISTS the locale the reader is choosing to stay in, alongside the dismissal.
+  //
+  // Writing only the dismissal was #323, and it is worse than losing a preference: it also silenced the
+  // one control that would have asked again. A reader who answered here had stated a language, the site
+  // stored nothing, and the next open at the bare root fell through to `navigator.language` — the other
+  // edition, permanently. Reported as "it doesn't keep the preference", which is exactly right.
+  //
+  // Both keys, and they are not redundant. The CHOICE stops `localeToOffer` on this locale (its third
+  // silence) and drives the bare-root default. The DISMISSAL covers the other locale, so a later shared
+  // link in the language they just declined does not re-ask. That asymmetry with `accept` — which
+  // deliberately writes no dismissal, see below — is the whole shape: declining is durable, accepting
+  // leaves the feature alive.
   const dismiss = () => {
+    storeChoice(locale);
     storeDismissal();
     setDismissed(true);
   };

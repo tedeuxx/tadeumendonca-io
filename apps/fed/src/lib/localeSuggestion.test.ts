@@ -3,10 +3,11 @@ import {
   browserLocale,
   localeToOffer,
   readSuggestionState,
+  storeChoice,
   storeDismissal,
   SUGGESTION_DISMISSED_KEY,
 } from './localeSuggestion';
-import { STORAGE_KEY } from '../i18n/config';
+import { detectLocale, STORAGE_KEY } from '../i18n/config';
 
 describe('browserLocale', () => {
   it.each([
@@ -73,14 +74,85 @@ describe('suggestion storage', () => {
 
   // Private mode and blocked cookies make localStorage THROW rather than return null. A notice about
   // language must not be able to break the page it is offered on.
+  // Spied on `window.localStorage` ITSELF, not on `Storage.prototype`. The prototype form was here
+  // first and did not take: coverage showed both `catch` blocks unexecuted, so the assertions were
+  // running against a store that never threw — `not.toThrow()` on a call that cannot throw passes for
+  // the wrong reason and reads as a hardened path. Verified the fix by the only means that settles it:
+  // the catch lines are now covered, and inverting either assertion fails.
   it('survives storage being unavailable, in both directions', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation(() => {
       throw new Error('denied');
     });
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
       throw new Error('denied');
     });
     expect(readSuggestionState()).toEqual({ storedChoice: null, dismissed: false });
     expect(() => storeDismissal()).not.toThrow();
+    expect(() => storeChoice('pt')).not.toThrow();
+  });
+
+  it('persists a choice without touching the dismissal key', () => {
+    storeChoice('pt');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('pt');
+    expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBeNull();
+  });
+});
+
+// #323. Every test above exercises ONE function against fixed inputs, which is precisely why the defect
+// survived: both functions were individually correct and the bug lived in the seam between them. These
+// cross it — what the dismiss handler writes, read back through the resolver a later session runs.
+//
+// WHAT THESE DO NOT PROVE, stated because the first version of this block claimed otherwise. They call
+// the store functions directly, so they verify that persisting a choice SURVIVES into `detectLocale` —
+// not that the component's handler calls it. Remove `storeChoice` from the handler and every test here
+// stays green. The wiring is pinned by a CLICK, in `components/LocaleSuggestion.test.tsx`; these pin
+// the consequence. Both are needed and neither substitutes for the other.
+describe('the seam: answering the offer, then re-resolving in a later session', () => {
+  beforeEach(() => window.localStorage.clear());
+
+  // The reported case. OS is English, the reader is on /pt and answers "Continue in Portuguese" —
+  // an affirmative statement of preference. Before the fix this wrote only the dismissal key, so the
+  // next open at the bare root fell through to navigator.language and served English forever, while
+  // the offer that would have caught it had been permanently silenced.
+  it('a dismissal that MEANS "stay in this language" survives into the next session', () => {
+    // What the handler does, in the order it does it.
+    storeChoice('pt');
+    storeDismissal();
+
+    // A later session opening the bare root: no locale in the path, an English browser.
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('en-US');
+    expect(detectLocale('/')).toBe('pt');
+    vi.restoreAllMocks();
+  });
+
+  // The inverse, asserted so the fix cannot trade one defect for another: after dismissing on /pt, a later
+  // shared /en link must not re-ask a reader who already declined English.
+  //
+  // THE INPUTS ARE CHOSEN SO THE DISMISSAL IS THE ONLY THING THAT CAN SUPPRESS, and the first version of
+  // this test got that wrong — caught by the reviewer, mutation in hand. It asserted `pathLocale:'pt'`
+  // (short-circuited at line 63, storedChoice === pathLocale) and `pathLocale:'en', visitorLocale:'en'`
+  // (short-circuited at line 61, languages agree). Neither call ever reached the dismissal check, so
+  // removing `if (dismissed) return null;` left this green while two OLDER tests went red. An assertion
+  // named for a rule it cannot exercise is worse than none: it reads as coverage.
+  //
+  // `pathLocale:'en'` with `visitorLocale:'pt'` and `storedChoice:'pt'` clears both earlier guards —
+  // languages differ, and the stored choice is the OTHER locale, which line 57-58 documents as the case
+  // the feature exists FOR. Only `dismissed` can silence it.
+  it('still does not re-offer after a dismissal, on a link pinning the declined locale', () => {
+    storeChoice('pt');
+    storeDismissal();
+    const { storedChoice, dismissed } = readSuggestionState();
+
+    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'pt', storedChoice, dismissed })).toBeNull();
+    // The control: identical inputs without the dismissal DO produce an offer. Without this line the
+    // assertion above could pass for any reason at all.
+    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'pt', storedChoice, dismissed: false })).toBe('pt');
+  });
+
+  // And the feature itself must survive: a reader who never answered is still offered. A fix that
+  // suppressed globally would pass both assertions above and break the thing #172 built.
+  it('still offers a reader who has never answered', () => {
+    const { storedChoice, dismissed } = readSuggestionState();
+    expect(localeToOffer({ pathLocale: 'pt', visitorLocale: 'en', storedChoice, dismissed })).toBe('en');
   });
 });
