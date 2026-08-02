@@ -457,6 +457,36 @@ test.describe('locale offer on a link that pins the other language', () => {
       await expect(page.getByRole('region', { name: new RegExp(LOCALE_OFFER_LABELS.join('|')) })).toHaveCount(0);
     });
   });
+
+  // #323, and this journey is the ONE that could have caught the defect. Every other assertion about the
+  // offer lives within a single visit; this one crosses sessions, which is where the bug was — the dismiss
+  // handler wrote only the dismissal flag, so the next open at the bare root fell through to
+  // navigator.language and served English forever, with the offer permanently silenced.
+  //
+  // It belongs at THIS layer specifically. jsdom was green for the entire life of the defect: it has no
+  // real bare-root redirect, so nothing below Playwright can assert that a stored choice actually decides
+  // which edition a later visit lands on. That is criterion 6 — behaviour proved where it runs — and on a
+  // static site this suite is the only artifact that can carry it.
+  test.describe('the dismissal that means "stay in this language" survives the session', () => {
+    test.use({ locale: 'en-US' });
+
+    test('answering the offer on /pt makes the bare root resolve to /pt afterwards', async ({ page }) => {
+      // en-US visitor on the Portuguese edition: the offer appears, written in English.
+      await page.goto('/pt/me/');
+      const offer = page.getByRole('region', { name: LOCALE_OFFER_LABEL.en });
+      await expect(offer).toBeVisible();
+
+      // "Continue in Portuguese" — an affirmative statement of preference, not merely closing the notice.
+      await offer.getByRole('button', { name: 'Continue in Portuguese' }).click();
+      await expect(page.getByRole('region', { name: LOCALE_OFFER_LABEL.en })).toHaveCount(0);
+
+      // A later visit entering at the bare root. Before the fix this resolved to /en — the browser is
+      // still en-US and nothing had been stored — which is the reported symptom in one line.
+      await page.goto('/');
+      await expect(page).toHaveURL(/\/pt\/?$/);
+      await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
+    });
+  });
 });
 
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link

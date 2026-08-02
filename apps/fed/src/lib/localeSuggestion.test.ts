@@ -125,16 +125,28 @@ describe('the seam: answering the offer, then re-resolving in a later session', 
     vi.restoreAllMocks();
   });
 
-  // The inverse, asserted so the fix cannot trade one defect for another: the dismissal still suppresses
-  // the offer, and it must suppress it on the OTHER locale too — a later shared /en link must not
-  // re-ask a reader who already declined English.
-  it('still does not re-offer after a dismissal, on either locale', () => {
+  // The inverse, asserted so the fix cannot trade one defect for another: after dismissing on /pt, a later
+  // shared /en link must not re-ask a reader who already declined English.
+  //
+  // THE INPUTS ARE CHOSEN SO THE DISMISSAL IS THE ONLY THING THAT CAN SUPPRESS, and the first version of
+  // this test got that wrong — caught by the reviewer, mutation in hand. It asserted `pathLocale:'pt'`
+  // (short-circuited at line 63, storedChoice === pathLocale) and `pathLocale:'en', visitorLocale:'en'`
+  // (short-circuited at line 61, languages agree). Neither call ever reached the dismissal check, so
+  // removing `if (dismissed) return null;` left this green while two OLDER tests went red. An assertion
+  // named for a rule it cannot exercise is worse than none: it reads as coverage.
+  //
+  // `pathLocale:'en'` with `visitorLocale:'pt'` and `storedChoice:'pt'` clears both earlier guards —
+  // languages differ, and the stored choice is the OTHER locale, which line 57-58 documents as the case
+  // the feature exists FOR. Only `dismissed` can silence it.
+  it('still does not re-offer after a dismissal, on a link pinning the declined locale', () => {
     storeChoice('pt');
     storeDismissal();
     const { storedChoice, dismissed } = readSuggestionState();
 
-    expect(localeToOffer({ pathLocale: 'pt', visitorLocale: 'en', storedChoice, dismissed })).toBeNull();
-    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'en', storedChoice, dismissed })).toBeNull();
+    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'pt', storedChoice, dismissed })).toBeNull();
+    // The control: identical inputs without the dismissal DO produce an offer. Without this line the
+    // assertion above could pass for any reason at all.
+    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'pt', storedChoice, dismissed: false })).toBe('pt');
   });
 
   // And the feature itself must survive: a reader who never answered is still offered. A fix that

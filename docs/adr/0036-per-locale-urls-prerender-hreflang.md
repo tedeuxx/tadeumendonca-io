@@ -288,6 +288,31 @@ so it is never repeated. *Trade-off:* a second key is more client state to reaso
 clears storage is offered once again — accepted over overloading `locale` with a sentinel, which would have
 made "declined the offer" indistinguishable from "chose this language".
 
+> **Amended 2026-08-02 (#323): dismissing writes `locale` too, and the enumeration above is superseded.**
+> *"`locale` records a CHOICE (the toggle, or accepting the offer)"* is now incomplete — **the dismiss
+> control writes it as well.** Kept as written rather than edited, per this library's rule.
+>
+> **What changed is the premise, not the decision.** This amendment assumed *dismiss = decline*. It is
+> not: the button is labelled **"Continuar em inglês" / "Continue in Portuguese"** — an affirmative
+> statement of preference that also happens to close the notice. So a reader who answered the offer had
+> stated a language, the site stored nothing, **and then permanently silenced the one control that would
+> have asked again**. Next open at the bare root fell through to `navigator.language`, in the other
+> edition, forever. Reported as *"não guarda a preferência de ter trocado para pt"*, which is exactly
+> what it looks like from the reader's seat.
+>
+> **The two-key decision survives intact, and that is why this is an amendment rather than a reversal.**
+> Both keys are still written separately and *"declined"* stays distinguishable from *"chose"* — which is
+> what the trade-off paragraph above was protecting. What each key now buys:
+> **`locale`** stops the offer on this locale and drives the bare-root default; **`locale-suggestion-dismissed`**
+> covers the *other* locale, so a later shared link in the language just declined does not re-ask.
+>
+> **Recorded here rather than left in a code comment**, because leaving it there would repeat the defect's
+> own shape: `localeSuggestion.ts:11` documented the key as *"the reader dismissed the offer"* while
+> `messages.ts:290` labelled the same button as an affirmative choice, and neither knew about the other.
+> A record and an artifact disagreeing is how this went unnoticed for its whole life.
+>
+> **Still not reversed:** accepting must NOT write the dismissal key — see immediately below, unchanged.
+
 **Declined only — accepting must NOT write it.** The distinction is load-bearing rather than tidy. The
 dismissal is checked before everything else, so writing it on an *accept* would permanently retire the
 feature for the reader who just used it: the next shared wrong-language link would leave them exactly
@@ -343,7 +368,9 @@ records the prerender invariant it exposed. `iac/` is untouched — the negotiat
 - **Amended by** Issue [#172](https://github.com/tedeuxx/tadeumendonca-io/issues/172) — the authoritative path
   left a reader no in-page way to their own edition; a dismissible **offer** (never a redirect) now proposes
   the visitor's locale, persisting through the same `locale` key as the toggle, with a second key
-  (`locale-suggestion-dismissed`) recording only a decline. Exposed the general rule that **the prerender is
+  (`locale-suggestion-dismissed`) recording only a decline — ~~only~~ *see the 2026-08-02 amendment inline
+  above: dismissing writes `locale` too, because the button states a preference rather than declining one.*
+  Exposed the general rule that **the prerender is
   not a visitor** — `window.__PRERENDER__`, not a post-mount flag, is what keeps visitor-dependent rendering
   out of the shipped HTML. Consistent with
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (the persisted toggle overriding detection) and
