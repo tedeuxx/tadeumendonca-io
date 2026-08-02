@@ -314,6 +314,16 @@ const strings = {
     // aria-label for the group. Not "Share" — the page already has a ShareButton with that name, and two
     // controls whose accessible names are indistinguishable is the defect, not the duplication itself.
     linksLabel: { pt: 'Compartilhar este artigo', en: 'Share this article' },
+    // #314. The modal's accessible name, and it must differ from `linksLabel` for the same reason that
+    // one differs from `share.share`: on an article page the dialog and the footer nav are both share
+    // groups, and a screen-reader user moving between landmarks cannot tell two identically-named
+    // regions apart. "Options" is what the dialog adds — it is the one that offers a choice.
+    modalLabel: { pt: 'Opções de compartilhamento', en: 'Share options' },
+    close: { pt: 'Fechar', en: 'Close' },
+    // The fourth destination, and the only one that never leaves the page. pt says `link` rather than
+    // `ligação` — `link` is the ordinary BR-Portuguese word here, and the same rule that keeps technical
+    // nouns in English on the CV and the strip applies.
+    copyLink: { pt: 'Copiar link', en: 'Copy link' },
   },
   video: {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },
