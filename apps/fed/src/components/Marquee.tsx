@@ -50,7 +50,11 @@ import { useT } from '../i18n';
 // weaker: three words to `Context Engineering`'s two, and the first of them names what the harness is
 // FOR, so the two tokens no longer rhyme at glance speed. It also costs the strip its longest entry —
 // worth knowing, since this list is unlevelled and every item is weighted equally.
-const STACK = [
+// Exported for `data/vocabulary.test.ts`, which pins the practice's name on every surface that
+// carries it. Exporting data purely to assert it is usually a smell; here the alternative is reading
+// this file as text and regexing an array literal, which asserts the SOURCE rather than what a reader
+// sees — and the strip is one of the surfaces the term has already drifted on.
+export const STACK = [
   'Agentic AI',
   'MCP',
   'Context Engineering',
