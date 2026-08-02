@@ -40,17 +40,26 @@ import { useT } from '../i18n';
 // `TypeScript` and `AWS` rather than beside `Agentic AI`, and the seam back to the top reads
 // `Distributed Systems → Agentic AI`, which is the repositioning's own argument in one join.
 //
-// `Harness Engineering` sits beside `AI-DLC`, not beside `Context Engineering`. Two coined tokens
-// both ending in `Engineering`, adjacent, in uppercase mono at glance speed, read as one hedged
+// `Agent Harness Engineering` sits beside `AI-DLC`, not beside `Context Engineering`. Two coined
+// tokens both ending in `Engineering`, adjacent, in uppercase mono at glance speed, read as one hedged
 // concept stated twice — and the part-whole relation between them (context engineering is INSIDE the
 // harness) is invisible at that granularity. Beside `AI-DLC` it reads as identity, which is how the
 // vocabulary hierarchy already binds the two.
-const STACK = [
+//
+// The `Agent` prefix arrived 2026-08-02 (#328) and makes the adjacency argument stronger rather than
+// weaker: three words to `Context Engineering`'s two, and the first of them names what the harness is
+// FOR, so the two tokens no longer rhyme at glance speed. It also costs the strip its longest entry —
+// worth knowing, since this list is unlevelled and every item is weighted equally.
+// Exported for `data/vocabulary.test.ts`, which pins the practice's name on every surface that
+// carries it. Exporting data purely to assert it is usually a smell; here the alternative is reading
+// this file as text and regexing an array literal, which asserts the SOURCE rather than what a reader
+// sees — and the strip is one of the surfaces the term has already drifted on.
+export const STACK = [
   'Agentic AI',
   'MCP',
   'Context Engineering',
   'AI-DLC',
-  'Harness Engineering',
+  'Agent Harness Engineering',
   'Claude Code',
   'Python',
   'Node.js',
