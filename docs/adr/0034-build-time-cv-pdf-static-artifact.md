@@ -195,6 +195,26 @@ the same correction the skills block needed, for the same reason.
 
 Measured after: content 1966px against a 1047px sheet. Still two pages.
 
+### 4 · The meter carries the headline terms too — owner decision, 2026-08-01
+
+`brand-guardian` escalated this rather than blocking it, and it was the right call to put up: with the
+meters restored, the printed sheet shows the full 1–4 self-assessment, so **`AI-DLC` and
+`Harness Engineering` appear at level 2 on the same page whose headline leads with them.**
+
+Nothing there is false — if anything it under-claims. What changed is what the **detached** artifact
+asserts: `/cv.pdf` travels by email and into an ATS without the surrounding page, so it now carries
+those terms as a rated self-assessment where it used to carry them as keywords.
+
+**Decided: the meter carries every skill, including the headline terms.** No carve-out. The scale is an
+honesty device, and a scale with an exemption for the two entries the author most wants believed is not
+one — it would be the flattening this ADR's 2026-07-28 amendment already refused, applied selectively
+and in the author's favour.
+
+The adjacent question — whether identity terms belong in a proficiency-metered list *at all* — is
+**still open** and is not decided here. It is recorded on `-io`#325's thread and PR #320, it is about
+`profile.ts` rather than about the print stylesheet, and it would change `/me` as much as `/cv.pdf`.
+This amendment decides only that the PDF does not diverge from the page on it.
+
 ### The cost that is accepted, not solved
 
 **A full-bleed black A4 is expensive to print.** A recruiter who prints it burns toner, and some office
