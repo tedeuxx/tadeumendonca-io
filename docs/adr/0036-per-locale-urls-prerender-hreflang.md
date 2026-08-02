@@ -313,6 +313,42 @@ made "declined the offer" indistinguishable from "chose this language".
 >
 > **Still not reversed:** accepting must NOT write the dismissal key — see immediately below, unchanged.
 
+> **Amended 2026-08-02 (#333): the dismissal FILLS A GAP and never overwrites.** The block immediately
+> above says *"the dismiss control writes it as well"* — unqualified, and that is now too strong. It
+> writes `locale` **only when no valid locale is already stored.** Superseded, not rewritten, one hour
+> after being recorded: the record was true for the state the code was in and stopped being true when the
+> next slice landed.
+>
+> **The toggle is sovereign over the dismissal** (owner decision). They are not the same kind of act,
+> even though both end in a locale:
+>
+> - the **toggle** is a decision about the reader's own preference — nothing prompted it, they went
+>   looking for the control;
+> - the **dismissal** answers a question the *site* asked, about the page they happen to be on.
+>   "Continue in Portuguese" means *this page is fine* — a statement about the current visit, not a
+>   re-declaration of a standing preference.
+>
+> Treating them as equal let an incidental shared link overwrite a deliberate setting: toggle to EN,
+> later open a `/pt` link, answer the offer, and the stored choice silently flipped to `pt`. Same class
+> as the defect the block above fixes — the site behaving as though the reader had said something they
+> did not say. Found by `security` reviewing that very fix, which is the shape a working gate has.
+>
+> | stored before dismissing | after dismissing on `/pt` |
+> |---|---|
+> | nothing | `pt` — the amendment above, intact |
+> | `en`, from the toggle | **`en`, untouched** |
+> | `pt` | `pt`, unchanged |
+>
+> **The predicate is `isLocale`, not truthiness, and that is load-bearing rather than tidy.**
+> `detectLocale` decides whether a stored value has any effect with the identical test — so the write is
+> suppressed in exactly the cases where the existing value will actually be honoured, and never in a case
+> where it will not. A truthiness check reads the same and strands a reader: truthy garbage blocks the
+> write, `detectLocale` still refuses to honour it, and the dismissal key has already silenced the one
+> control that would have asked again.
+>
+> **Unchanged:** the dismissal key is still written every time, so declining stays durable; accepting
+> still writes no dismissal; `localeToOffer` is still untouched.
+
 **Declined only — accepting must NOT write it.** The distinction is load-bearing rather than tidy. The
 dismissal is checked before everything else, so writing it on an *accept* would permanently retire the
 feature for the reader who just used it: the next shared wrong-language link would leave them exactly

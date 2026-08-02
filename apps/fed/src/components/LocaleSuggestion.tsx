@@ -29,7 +29,7 @@
 // in dev and visible only in the shipped artifact.
 import { useEffect, useState } from 'react';
 import { useLocale } from '../i18n';
-import { htmlLang } from '../i18n/config';
+import { htmlLang, isLocale } from '../i18n/config';
 import { translate } from '../i18n/messages';
 import { browserLocale, isPrerender, localeToOffer, readSuggestionState, storeChoice, storeDismissal } from '../lib/localeSuggestion';
 
@@ -46,10 +46,11 @@ export function LocaleSuggestion() {
 
   if (!mounted || dismissed || isPrerender()) return null;
 
+  const persisted = readSuggestionState();
   const offer = localeToOffer({
     pathLocale: locale,
     visitorLocale: browserLocale(),
-    ...readSuggestionState(),
+    ...persisted,
   });
   if (!offer) return null;
 
@@ -66,8 +67,22 @@ export function LocaleSuggestion() {
   // link in the language they just declined does not re-ask. That asymmetry with `accept` — which
   // deliberately writes no dismissal, see below — is the whole shape: declining is durable, accepting
   // leaves the feature alive.
+  //
+  // BUT IT FILLS A GAP AND NEVER OVERWRITES (#333, owner decision). The two controls are not the same
+  // kind of act even though both end in a locale:
+  //
+  //   · the TOGGLE is a decision about the reader's own preference — nothing prompted it, they went
+  //     looking for the control;
+  //   · the DISMISSAL answers a question the site asked, about the page they are on. "Continue in
+  //     Portuguese" means *this page is fine*, a statement about the current visit rather than a
+  //     re-declaration of a standing preference.
+  //
+  // Treating them as equal let an incidental shared link overwrite a deliberate setting — toggle to EN,
+  // later open a `/pt` link, answer the offer, and the stored choice silently flipped to `pt`. That is
+  // the same class as #323 itself: the site behaving as though the reader had said something they did
+  // not say. Found by `security` reviewing the fix for #323, which is the shape a good gate has.
   const dismiss = () => {
-    storeChoice(locale);
+    if (!isLocale(persisted.storedChoice)) storeChoice(locale);
     storeDismissal();
     setDismissed(true);
   };
