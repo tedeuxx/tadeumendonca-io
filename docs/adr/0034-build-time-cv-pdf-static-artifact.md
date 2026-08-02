@@ -1,6 +1,6 @@
 # 0034. The downloadable CV is a build-time PDF, printed from `/me` to a static asset
 
-- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-01** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back)
+- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-02** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back)
 - **Date:** 2026-07-25
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
@@ -126,7 +126,7 @@ think to re-check a PDF for. The failure message says to trim the print view, no
 cutting a role, which reads as a gap on a CV. And the print stylesheet is now **content-bearing**, so an
 edit to it is an editorial change to what a recruiter reads, not a styling change.
 
-## Amendment (2026-08-01) — the PDF keeps the page's palette, and buys a second sheet with the space it needs
+## Amendment (2026-08-02) — the PDF keeps the page's palette, and buys a second sheet with the space it needs
 
 Two things the 2026-07-28 amendment decided are re-decided here, both on the owner's call and both for
 the same reason: **the one-page budget was being paid for out of legibility.**
@@ -195,7 +195,7 @@ the same correction the skills block needed, for the same reason.
 
 Measured after: content 1966px against a 1047px sheet. Still two pages.
 
-### 4 · The meter carries the headline terms too — owner decision, 2026-08-01
+### 4 · The meter carries the headline terms too — owner decision, 2026-08-02
 
 `brand-guardian` escalated this rather than blocking it, and it was the right call to put up: with the
 meters restored, the printed sheet shows the full 1–4 self-assessment, so **`AI-DLC` and

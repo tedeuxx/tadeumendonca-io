@@ -71,7 +71,7 @@ that list:
    is no separate blog index (below).
 2. **Interactive CV** (`/me`) — the canonical reference of the owner's experience, and now the **only** CV
    surface: the Canva CV was retired (ADR-0024 amendment) once `/cv.pdf` became a real artifact rather than
-   a capability. `/me` is the full edition; `/cv.pdf` is the one-page recruiter edition printed from it at
+   a capability. `/me` is the full edition; `/cv.pdf` is the two-page recruiter edition printed from it at
    build time (ADR-0034). Both derive from `profile.ts` — nothing is maintained by re-typing. LinkedIn is
    the one CV-bearing surface still hand-maintained, so it is the one that can still drift.
 3. **Portfolio** (`/portfolio`) — a curated **catalog** of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code. The bar a project must clear to be published is `docs/catalog-ready.md`.
