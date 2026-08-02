@@ -18,18 +18,24 @@ export const LOCALES = ['pt', 'en'];
  * The line under the mark on every card, both locales, both generators.
  *
  * NOT TRANSLATED, and that is a positioning decision rather than an omission: `agentic`, `AI-native`,
- * `AI-DLC` and `Harness Engineering` stay English in both editions, because the card is where a pt
+ * `AI-DLC` and `Agent Harness Engineering` stay English in both editions, because the card is where a pt
  * reader meets the term FIRST and a rectangle that renders ~320px wide has no room to teach one.
  *
  * It says `Agentic development`, not `Agentic dev` — the abbreviation was drift on the single surface
  * the vocabulary decision names explicitly.
  *
- * `Loop Engineering` became `Harness Engineering` on 2026-07-31 (owner). Changing this line REPUBLISHES
- * all four cards, and under ADR-0041 every regeneration republishes an artifact scrapers have pinned —
- * which is why the term moved across every surface in one batch rather than card-by-card as each was
- * noticed.
+ * THIS LINE HAS NOW BEEN CHANGED TWICE IN THREE DAYS, and the cost is worth stating precisely because
+ * it did not stop either change. `Loop Engineering` → `Harness Engineering` on 2026-07-31, then
+ * → `Agent Harness Engineering` on 2026-08-02 (both owner). Each edit REPUBLISHES all four cards, and
+ * under ADR-0041 every regeneration republishes an artifact scrapers have pinned: a post that unfurled
+ * before an edit keeps the old card forever, and is right on every post made after.
+ *
+ * So the cost is per-EDIT and bounded by how much has been shared, not by how many surfaces the term
+ * lives on — which is exactly why each rename still moves every surface in ONE batch. Splitting a
+ * rename across merges would multiply the windows in which someone pins a card carrying one name while
+ * the CV reads another, at no saving.
  */
-export const META_LINE = 'Agentic development · AI-DLC & Harness Engineering · Open source';
+export const META_LINE = 'Agentic development · AI-DLC & Agent Harness Engineering · Open source';
 
 /**
  * The default card's hook and subline, per locale.

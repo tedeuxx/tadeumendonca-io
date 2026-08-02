@@ -53,17 +53,28 @@ describe('OG card copy vs the hero tagline', () => {
 });
 
 describe('the meta line', () => {
-  // The vocabulary hierarchy fixes the identity as "Agentic development / AI-DLC & Harness
-  // Engineering" (Loop Engineering until 2026-07-31). The cards said "Agentic dev" — drift on the one
-  // surface that decision names explicitly as where a pt reader meets the term first.
-  it('carries the canonical term, not an abbreviation of it', () => {
+  // The vocabulary hierarchy fixes the identity as "Agentic development / AI-DLC & Agent Harness
+  // Engineering" (Loop Engineering until 2026-07-31, then Harness Engineering until 2026-08-02). The
+  // cards once said "Agentic dev" — drift on the one surface that decision names explicitly as where a
+  // pt reader meets the term first.
+  it('carries the canonical term, not an abbreviation or a superseded form of it', () => {
     expect(META_LINE).toContain('Agentic development');
     // The practice term, pinned here so a surface-by-surface drift shows up as a red test rather than
-    // as two names for one practice across the CV, the cards and /architecture — which is the failure
-    // the hierarchy exists to prevent, and which this very change had to repair across five surfaces.
-    expect(META_LINE).toContain('Harness Engineering');
+    // as two names for one practice across the CV, the cards and /architecture.
+    expect(META_LINE).toContain('Agent Harness Engineering');
     expect(META_LINE).not.toContain('Loop Engineering');
     expect(META_LINE).not.toMatch(/Agentic dev\b(?!elopment)/);
+
+    // THE BARE FORM NEEDS A LOOKBEHIND, and this is the part that stopped working silently when the
+    // term grew. The previous assertion was `toContain('Harness Engineering')` — which is satisfied by
+    // `Agent Harness Engineering`, since one is a substring of the other. So on the day the term
+    // changed, the test that exists to pin the term went green against BOTH the new value and the
+    // superseded one, and would have gone green against a revert.
+    //
+    // A plain `not.toContain('Harness Engineering')` cannot express this either: it fails on the
+    // correct value. The rule is "no occurrence that is not preceded by `Agent `", which is what a
+    // negative lookbehind says and a substring check cannot.
+    expect(META_LINE).not.toMatch(/(?<!Agent )Harness Engineering/);
   });
 
   // What this DOES prove: both generators still interpolate the shared constant. What it does NOT
