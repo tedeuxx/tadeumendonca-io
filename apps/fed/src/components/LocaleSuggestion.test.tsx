@@ -80,7 +80,12 @@ describe('LocaleSuggestion', () => {
   // The scenario has to be built precisely or it does not render at all, and the constraint is
   // informative: an en browser is required. With a pt-BR browser on /pt the visitor's language and the
   // path's agree, `localeToOffer` stays silent on its FIRST guard, and there is no offer to answer — so
-  // the overwrite this rule prevents cannot arise for that reader in the first place.
+  // the overwrite cannot arise ON THIS PATH for that reader.
+  //
+  // Scoped to the path deliberately. An earlier version of this sentence said it could not arise "for
+  // that reader in the first place", which is false and was caught in review: a pt-BR reader with a
+  // stored `pt` who opens a shared /en link DOES get the offer, and before the fix the dismissal would
+  // have flipped their choice to `en`. The code handles that case; only the sentence was loose.
   it('a dismissal does NOT overwrite a locale the reader chose with the toggle', () => {
     withBrowserLanguage('en-US');
     // As if they had deliberately toggled to EN earlier, then followed a shared /pt link.
