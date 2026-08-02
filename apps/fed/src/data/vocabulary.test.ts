@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { STACK } from '../components/Marquee';
+// `?raw` rather than `node:fs`, and the first version got this wrong in a way vitest could not see:
+// the app's tsconfig carries no Node types, so `readFileSync`/`__dirname` typecheck-fail while the
+// suite passes — vitest does not run tsc. Green tests, red build, pushed. `?raw` is Vite's own way to
+// import a file as text, it is already the idiom here (`content/architecture-links.test.ts`), and it
+// needs no types the app does not have.
+import profileSrc from './profile.ts?raw';
+import architectureEn from '../content/architecture.en.md?raw';
+import architecturePt from '../content/architecture.pt.md?raw';
 
 // THE PRACTICE'S NAME, PINNED ON EVERY SURFACE THAT CARRIES IT — not just the OG card.
 //
@@ -29,16 +35,14 @@ const CURRENT = 'Agent Harness Engineering';
 const BARE_UNPREFIXED = /(?<!Agent )Harness Engineering/;
 const RETIRED_STEM = /Loop Engineer/;
 
-const read = (rel: string) => readFileSync(resolve(__dirname, rel), 'utf8');
-
-// Prose surfaces are read as SOURCE rather than imported, because what is asserted is the authored
-// text — including the comments around it, which is where a superseded term most often survives a
-// find-and-replace. `profile.ts` is read the same way for the same reason: its comments carry the
-// vocabulary history and are exactly where the bare form would linger.
+// Surfaces are read as SOURCE rather than imported as values, because what is asserted is the
+// authored TEXT — including the comments around it, which is where a superseded term most often
+// survives a find-and-replace. `profile.ts` is read the same way for the same reason: its comments
+// carry the vocabulary history and are exactly where the bare form would linger.
 const SURFACES: ReadonlyArray<[string, string]> = [
-  ['profile.ts', read('./profile.ts')],
-  ['architecture.en.md', read('../content/architecture.en.md')],
-  ['architecture.pt.md', read('../content/architecture.pt.md')],
+  ['profile.ts', profileSrc],
+  ['architecture.en.md', architectureEn],
+  ['architecture.pt.md', architecturePt],
 ];
 
 describe('the practice is named consistently across every surface', () => {
