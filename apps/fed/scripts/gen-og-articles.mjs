@@ -135,7 +135,7 @@ for (const key of keys) {
     // "Contrarrevolucionarios" (22 chars, therefore 104px) runs 169px past the canvas, is sliced by
     // `overflow:hidden`, and never grows scrollHeight because the text still fits vertically. The
     // generator wrote the PNG, the set-equality test saw a file, and the E2E saw 200 + image/png.
-    // Caught by the critical-reviewer driving the real layout rather than reading it.
+    // Caught by the quality-assurance driving the real layout rather than reading it.
     const overflow = await page.evaluate(() => ({
       // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
       down: document.body.scrollHeight > document.body.clientHeight,

@@ -23,14 +23,14 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 - **Plan-first** — design and align before coding; no solo architectural call.
 - **Ask on the boundaries — and only there.** Architecture, content/positioning, anything irreversible
   or public-facing goes to the owner; **everything in-pattern is decided and merged autonomously**,
-  through the `critical-reviewer`. Asking on in-pattern work is not caution, it is the loop failing to
+  through the `quality-assurance`. Asking on in-pattern work is not caution, it is the loop failing to
   flow — the boundary is what the human's attention is *for*, and spending it elsewhere devalues it.
 - **Thin vertical slices, WIP = 1** — each increment end-to-end and reviewable; **finish it through
   merge** before opening the next. A green PR left sitting is the queue forming. (Mechanical since
   skills#61: the plugin's `wip-guard` denies opening a second PR in a repo that already has one of
   yours; `session-wip` lists the open queue at session start.)
 - **Quality is a gate** — lint/typecheck + tests (coverage ≥ 85%) + a green build + SonarCloud + the
-  `critical-reviewer`, and **functional E2E** (Playwright) as the proof nothing already working broke.
+  `quality-assurance`, and **functional E2E** (Playwright) as the proof nothing already working broke.
   The reviewer is a **distinct** gate from CI, not a summary of it.
 - **Observability is part of done** — the site is static, so this is Google Analytics + the client error
   surface + a build/prerender smoke (routes render, OG tags present in the served HTML) — not backend telemetry.
@@ -132,7 +132,7 @@ Two consequences worth stating outright, because they are what the other model g
 
 - **`main`** is the only branch. Feature/fix branches cut **from `main`** → PR (0 required approvals) → merge →
   **automatic deploy** to the single environment. The merge **is** the deploy, so it is the go/no-go —
-  and **the `critical-reviewer` subagent is who holds it**, not a human prompt on every PR. Run it on
+  and **the `quality-assurance` subagent is who holds it**, not a human prompt on every PR. Run it on
   **every** PR before merging, unprompted; it verifies the MR Definition of Done with real evidence and
   then either **approves-and-merges the safe class itself** (docs, dependency bumps, tests, in-pattern
   work implementing an already-approved spec, **and the whole `product` backlog including
@@ -283,4 +283,4 @@ read like one that passed.
 **The post-deploy `e2e` is not a gate.** It runs after the publish and cannot revert anything. A red one
 means the site is broken and someone has to act.
 
-- **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.
+- **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `quality-assurance` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.

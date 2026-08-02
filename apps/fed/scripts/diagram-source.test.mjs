@@ -17,7 +17,7 @@ const fences = collectFences(contentDir);
 // But the first version of this dropped the entire <style> block, and that was too generous in exactly
 // the way the caller feared: the node-box fill is declared ONLY there, so the assertion named "uses only
 // the palette" could not see it. Regressing it to magenta left the test green. Caught by the
-// critical-reviewer; the fix is to drop only the two selector families that are genuinely dead here, and
+// quality-assurance; the fix is to drop only the two selector families that are genuinely dead here, and
 // keep the rules that decide what a reader sees.
 //
 // (The theme has since been inverted — the canvas is near-black, so the node fill is #0A0A0A and
