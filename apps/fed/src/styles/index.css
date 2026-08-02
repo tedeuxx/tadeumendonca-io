@@ -114,7 +114,7 @@ body {
      header/nav + mobile menu, every LocaleToggle, the Marquee, the AppShell footer (incl. its
      conditional consent button), and — on /me — the metadata/contact row and the Download-CV control
      itself. A single attribute selector is testable and robust (no brittle deep selectors).
-   - THE PALETTE IS THE PAGE'S OWN (#317, owner 2026-07-31). It used to be inverted — the off-white
+   - THE PALETTE IS THE PAGE'S OWN (#317, owner asked 2026-07-31, shipped 2026-08-01). It used to be inverted — the off-white
      became the sheet, the near-black the ink — which made the PDF a *paper* treatment of a *screen*
      design. The owner asked for the opposite: near-black ground, off-white text, safety orange, so the
      download looks like the site it came from. That is closer to ADR-0034's argument than the
@@ -170,7 +170,7 @@ body {
      Owner decision (2026-07-28): one page, recruiter-first. The full career arc lives on /me — the PDF
      is the door, the site is where the story breathes.
 
-     AMENDED (2026-07-31, owner): TWO pages. "o pdf não tá legal em 1 página, fica tudo muito apertado e
+     AMENDED (asked 2026-07-31, shipped 2026-08-01, owner): TWO pages. "o pdf não tá legal em 1 página, fica tudo muito apertado e
      não fica bem espaçado" — and the cramping was the one-page decision working exactly as designed, so
      this is a trade being re-made rather than a bug. One page bought recruiter-friendliness with 7.4pt
      type and sub-quarter-rem gaps; at that density the sheet stops being scanned and starts being

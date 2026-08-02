@@ -254,11 +254,17 @@ export function CVSection({ profile }: { profile: Profile }) {
                       className="-mb-px -mr-px inline-flex items-center gap-2 border border-border px-2.5 py-1.5 font-mono text-xs"
                     >
                       {skill.name}
-                      {/* Print-only proficiency wording, low levels only — see the `cv.level1/2`
-                          comment in the message catalog for why it exists and why 3–4 stay bare. */}
-                      {skill.level === 1 || skill.level === 2 ? (
-                        <span className="hidden print:inline"> ({t(`cv.level${skill.level}`)})</span>
-                      ) : null}
+                      {/* THE PRINT-ONLY GLOSS IS GONE (#317). It existed because the meter was hidden in
+                          print: with the graphic dropped for the one-page budget, `Amazon Bedrock`
+                          printed beside `AWS Lambda` as an equal, so the calibration was restated as
+                          words on levels 1–2 only.
+
+                          The meter is back on the sheet, so the gloss became a second calibration device
+                          saying the same thing — and a ONE-SIDED one: the only English words qualifying
+                          any skill on the recruiter artifact were the two diminishing ones. Every level-2
+                          entry printed `(working)` while every 3 and 4 printed bare, which reads as
+                          hedging the low end rather than rating the whole list. One device, and it is the
+                          one that speaks for all four levels. */}
                       {skill.level ? <LevelMeter level={skill.level} /> : null}
                     </span>
                   ))}

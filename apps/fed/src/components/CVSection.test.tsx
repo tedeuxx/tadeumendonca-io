@@ -80,10 +80,20 @@ describe('CVSection', () => {
     expect(document.querySelectorAll('[data-print-keep]')).toHaveLength(1);
   });
 
-  // Reflowed inline for print, the 4-square meter is dropped — which printed a level-1 keyword beside a
-  // level-4 one as equals, flattening a deliberate honesty device into an over-claim. The low levels get
-  // print-only wording; 3 and 4 stay bare, because they are not what the flattening exaggerated.
-  it('words only the low proficiency levels for print', () => {
+  // ONE CALIBRATION DEVICE, NOT TWO (#317). This test used to assert the opposite — that levels 1 and 2
+  // carry print-only wording (`(working)` / `(foundational)`) and 3–4 print bare. That was right while
+  // the meter was HIDDEN in print for the one-page budget: with the graphic gone, a level-1 keyword
+  // printed beside a level-4 one as equals, and the words restored the calibration.
+  //
+  // The meter is back on the sheet, so the words became a second device saying the same thing — and a
+  // one-sided one, since only the diminishing halves were ever worded. Every level-2 entry printed
+  // `(working)` while every 3 and 4 printed bare, which on a recruiter artifact reads as hedging the
+  // bottom of the list rather than rating all of it.
+  //
+  // Asserted as an ABSENCE plus a presence, because deleting the old test would have left nothing
+  // saying which device won: the meter must be there for EVERY levelled skill, and no print-only
+  // wording may come back beside it.
+  it('rates every skill with the meter alone — no second, one-sided wording', () => {
     const p: Profile = {
       ...profile,
       skills: {
@@ -96,12 +106,13 @@ describe('CVSection', () => {
       },
     };
     // English: the PDF is printed from the English canonical edition (ADR-0024).
-    renderWithLocale(<CVSection profile={p} />, { locale: 'en' });
-    // Leading space is part of the node — it separates the wording from the skill name in print.
-    expect(screen.getByText('(working)', { exact: false })).toHaveClass('print:inline');
-    expect(screen.getByText('(foundational)', { exact: false })).toHaveClass('print:inline');
-    // Two wordings for four skills — the levels that already read honestly are left alone.
-    expect(document.querySelectorAll('.print\\:inline')).toHaveLength(2);
+    const { container } = renderWithLocale(<CVSection profile={p} />, { locale: 'en' });
+    expect(container.querySelectorAll('[role="img"]')).toHaveLength(4); // one meter per skill
+    expect(screen.queryByText('(working)', { exact: false })).toBeNull();
+    expect(screen.queryByText('(foundational)', { exact: false })).toBeNull();
+    // The print-only span is the shape the retired gloss used. Nothing in this section may reintroduce
+    // it — a second device would have to be argued, not slipped back in beside the meter.
+    expect(container.querySelectorAll('.print\\:inline')).toHaveLength(0);
   });
 
   // The print edition drops the issuer line to fit one page (#161) — free for "AWS Certified …", a real
