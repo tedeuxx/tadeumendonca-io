@@ -1,6 +1,6 @@
 # 0034. The downloadable CV is a build-time PDF, printed from `/me` to a static asset
 
-- **Status:** accepted
+- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-01** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back)
 - **Date:** 2026-07-25
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
@@ -125,6 +125,71 @@ think to re-check a PDF for. The failure message says to trim the print view, no
 **Accepted cost:** body text prints at 7.4pt — legible, but denser than a typical CV. The alternative was
 cutting a role, which reads as a gap on a CV. And the print stylesheet is now **content-bearing**, so an
 edit to it is an editorial change to what a recruiter reads, not a styling change.
+
+## Amendment (2026-08-01) — the PDF keeps the page's palette, and buys a second sheet with the space it needs
+
+Two things the 2026-07-28 amendment decided are re-decided here, both on the owner's call and both for
+the same reason: **the one-page budget was being paid for out of legibility.**
+
+> *"o pdf não tá legal em 1 página, fica tudo muito apertado e não fica bem espaçado. quero que o CV em
+> pdf tenha fundo preto e siga o layout com laranja da página pois fica mais ousado na leitura, gostoso
+> para os olhos. Use os elementos gráficos da página, adaptando ao mínimo ao formato pdf no que for
+> estritamente necessário."*
+
+### 1 · The palette is the page's own — and this is closer to the ORIGINAL decision than the inversion was
+
+`@media print` used to swap the two brand neutrals: the off-white became the sheet, the near-black the
+ink. That made the download a *paper* treatment of a *screen* design.
+
+It now inherits the site's palette unchanged — near-black ground, off-white text, safety orange accent.
+Worth stating because it reads at first like a reversal and is nearer a return: **the whole argument for
+printing from the real page** (the original decision above) **is that the PDF cannot layout-drift from
+the on-screen CV.** The palette swap was the one place it deliberately did drift.
+
+`printBackground: true` was already set, so this needed no Playwright change — but the CSS now paints
+`html`/`body` explicitly and sets `print-color-adjust: exact`, because a print render starts from a white
+canvas and only paints what an element actually fills. That second half also carries the ground when a
+*reader* prints the downloaded PDF from their own viewer, where nobody passed Playwright's flag.
+
+**One token is nudged for print and only one:** `--muted-foreground`, the warm grey carrying dates,
+issuers and role subtitles, is lifted from `#8C8880`. It reads on a backlit screen; at print DPI, and
+worse on a printer that dithers, it is the first thing to go muddy.
+
+### 2 · The budget is TWO pages — and the previous amendment was right, for a page count that has changed
+
+Nothing in the 2026-07-28 reasoning was wrong. Five faithful pages *is* a scrolling liability, and one
+page *did* fix it. What it cost only became visible in the artifact: **7.4pt type, sub-quarter-rem gaps,
+and a skills block reflowed into a single continuous keyword band with its proficiency meters hidden.**
+
+That last one is where the trade stopped being worth it. That amendment argued the meters could go
+because "the **graphic** goes and the **calibration stays**" as print-only wording on levels 1–2. In the
+rendered sheet the result was seven categories and ~60 keywords in one justified paragraph, with
+`(working)` glosses scattered through it — the eye has nothing to land on, and levels 3 and 4 print bare,
+so the reader cannot tell a moat from a competence at all. The calibration survived as text and died as
+information.
+
+**So the meters come back, the categories are blocks again, and the type goes to 8.6pt/1.42.** Two pages
+is still a long way from five, and the recruiter-first argument survives the change: what made the
+one-page edition scannable was never the page count, it was the selection — and the selection is intact.
+
+**What the print edition still omits, unchanged from 2026-07-28:** the portrait (decorative, already
+`aria-hidden`, and the `<h1>` names the person) and the Credly badge images (nine 64px artworks; the
+credential *name* carries the claim). Those were never the cramping.
+
+### The cost that is accepted, not solved
+
+**A full-bleed black A4 is expensive to print.** A recruiter who prints it burns toner, and some office
+printers render large dark fills poorly or drop the background entirely. The PDF is a *download*, so most
+readers meet it on a screen — but the one who prints it is exactly the reader the artifact exists for.
+
+The rejected alternative is a second, paper-treatment artifact. It is rejected for the same reason the
+original decision printed from the real page: two layouts is the thing this ADR exists to avoid, and it
+would reintroduce the drift the whole approach was chosen to prevent. Accepted knowingly, by the owner,
+on the argument that the screen reading is the common case and boldness is the point.
+
+**The page-count guard moves with the decision, in the same commit** (`e2e/cv-pdf.spec.ts`, 1 → 2). A
+count that drifts silently is the defect; a count changed alongside its reason is the guard working. What
+must not happen is the number being raised to turn a red test green.
 
 ## Links
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it; the Canva retirement it deferred was taken by 0024's 2026-07-28 amendment, #225).
