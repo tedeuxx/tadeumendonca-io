@@ -3,10 +3,11 @@ import {
   browserLocale,
   localeToOffer,
   readSuggestionState,
+  storeChoice,
   storeDismissal,
   SUGGESTION_DISMISSED_KEY,
 } from './localeSuggestion';
-import { STORAGE_KEY } from '../i18n/config';
+import { detectLocale, STORAGE_KEY } from '../i18n/config';
 
 describe('browserLocale', () => {
   it.each([
@@ -82,5 +83,53 @@ describe('suggestion storage', () => {
     });
     expect(readSuggestionState()).toEqual({ storedChoice: null, dismissed: false });
     expect(() => storeDismissal()).not.toThrow();
+    expect(() => storeChoice('pt')).not.toThrow();
+  });
+
+  it('persists a choice without touching the dismissal key', () => {
+    storeChoice('pt');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('pt');
+    expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBeNull();
+  });
+});
+
+// #323. Every test above exercises ONE function against fixed inputs, which is precisely why the defect
+// survived: both functions were individually correct and the bug lived in the seam between them. These
+// cross it — what the dismiss handler writes, read back through the resolver a later session runs.
+describe('the seam: answering the offer, then re-resolving in a later session', () => {
+  beforeEach(() => window.localStorage.clear());
+
+  // The reported case. OS is English, the reader is on /pt and answers "Continue in Portuguese" —
+  // an affirmative statement of preference. Before the fix this wrote only the dismissal key, so the
+  // next open at the bare root fell through to navigator.language and served English forever, while
+  // the offer that would have caught it had been permanently silenced.
+  it('a dismissal that MEANS "stay in this language" survives into the next session', () => {
+    // What the handler does, in the order it does it.
+    storeChoice('pt');
+    storeDismissal();
+
+    // A later session opening the bare root: no locale in the path, an English browser.
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('en-US');
+    expect(detectLocale('/')).toBe('pt');
+    vi.restoreAllMocks();
+  });
+
+  // The inverse, asserted so the fix cannot trade one defect for another: the dismissal still suppresses
+  // the offer, and it must suppress it on the OTHER locale too — a later shared /en link must not
+  // re-ask a reader who already declined English.
+  it('still does not re-offer after a dismissal, on either locale', () => {
+    storeChoice('pt');
+    storeDismissal();
+    const { storedChoice, dismissed } = readSuggestionState();
+
+    expect(localeToOffer({ pathLocale: 'pt', visitorLocale: 'en', storedChoice, dismissed })).toBeNull();
+    expect(localeToOffer({ pathLocale: 'en', visitorLocale: 'en', storedChoice, dismissed })).toBeNull();
+  });
+
+  // And the feature itself must survive: a reader who never answered is still offered. A fix that
+  // suppressed globally would pass both assertions above and break the thing #172 built.
+  it('still offers a reader who has never answered', () => {
+    const { storedChoice, dismissed } = readSuggestionState();
+    expect(localeToOffer({ pathLocale: 'pt', visitorLocale: 'en', storedChoice, dismissed })).toBe('en');
   });
 });

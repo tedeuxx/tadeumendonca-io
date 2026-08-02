@@ -86,3 +86,27 @@ export function storeDismissal(): void {
     // Nothing to do — the offer will reappear next page, which is preferable to throwing on a click.
   }
 }
+
+/**
+ * Persist a locale CHOICE without navigating — the same store and key the PT/EN toggle writes, so it
+ * outranks detection from here on (`detectLocale`: path → stored → navigator).
+ *
+ * Separate from the toggle's `setLocale` on purpose: that one persists AND navigates, which is right
+ * when the reader is changing edition and wrong when they are staying put. Calling it with the locale
+ * already on screen would push a history entry for a navigation to the page you are on.
+ *
+ * #323 is why this exists. The dismiss button reads "Continue in Portuguese" — an affirmative statement
+ * of preference — and its handler wrote only the dismissal key. So a reader who answered the offer with
+ * it had stated a language and the site stored NOTHING, then silenced the one control that would have
+ * asked again. Next open at the bare root fell through to `navigator.language`, in the other language,
+ * permanently. From the reader's seat that is "it does not remember", which is exactly how it was
+ * reported.
+ */
+export function storeChoice(locale: Locale): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, locale);
+  } catch {
+    // Same posture as `storeDismissal`: a browser with storage disabled must not break a click. The
+    // cost is that the preference does not survive the session, which is the failure that costs least.
+  }
+}
