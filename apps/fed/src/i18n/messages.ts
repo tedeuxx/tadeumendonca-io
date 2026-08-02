@@ -210,7 +210,22 @@ const strings = {
     viewLive: { pt: 'Ver ao vivo', en: 'View live' },
     // Only for a card that shows NO tag (#329). Where a tag is shown it IS the label — a version string
     // is the same in every edition, so it is not localized, exactly like `name` and `stack`.
+    //
+    // NOT translated, and that is the fidelity rather than the drift: this catalog already carries its
+    // technical nouns untranslated (`statusLive: 'Live'`, `statusWip: 'WIP'`, the `stack` chips, which
+    // have no locale at all). "Lançamentos" would be the departure.
     viewReleases: { pt: 'Releases', en: 'Releases' },
+    // Accessible name for the TAG variant, whose visible text is a bare `v0.1.166`. Same problem the
+    // footer already solved (`footer.version`) and the same answer: a screen reader otherwise announces
+    // a link named after a glyph and a version string, with no context and no external-link cue.
+    //
+    // Deliberately NOT reusing `footer.version` — that one says "the running build", which is right
+    // beside the domain in the footer and wrong on a card, where the subject is the PROJECT rather than
+    // the page you are reading. Same mechanism, different sentence.
+    viewReleaseTag: {
+      pt: 'Notas da release desta versão do projeto (GitHub)',
+      en: 'Release notes for this version of the project (GitHub)',
+    },
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },
     viewAll: { pt: '→ Ver catálogo completo', en: '→ View the full catalog' },

@@ -43,7 +43,10 @@ test.describe('routes', () => {
     await expect(card).toBeVisible();
     await expect(card.getByRole('heading', { name: 'tadeumendonca.io', exact: true })).toHaveCount(0);
 
-    const release = card.getByRole('link', { name: /^⌂ v/ });
+    // Found by its ACCESSIBLE NAME rather than its text: the link carries an aria-label, which overrides
+    // the text content for `name`. The visible text is asserted separately below, since the label is
+    // precisely what lets it stay a bare version string.
+    const release = card.getByRole('link', { name: /Notas da release/ });
     const tag = (await release.textContent())!.replace('⌂', '').trim();
     expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
     await expect(release).toHaveAttribute(
@@ -51,10 +54,28 @@ test.describe('routes', () => {
       `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`,
     );
 
-    // GitHub answers 200 for a tag that exists. Skipped rather than failed with no network, since a
-    // suite that goes red because GitHub is unreachable is testing GitHub.
+    // The tag must actually exist on GitHub — a release-notes link is a promise the notes are there, and
+    // pointing at a tag that was never cut is the same class of defect as showing a stale one.
+    //
+    // ONLY A 404 FAILS THIS, and the first version of this block got that wrong in a way both reviewers
+    // caught. It read `.catch(() => null)` and asserted `status() === 200`, with a comment claiming a
+    // suite that goes red because GitHub is down is testing GitHub. `.catch` fires on a transport-level
+    // rejection; Playwright RETURNS on any HTTP status — so a 429 or a 503 landed in `res` and turned the
+    // BLOCKING playwright job red for a GitHub reason, on a healthy branch. The comment described
+    // behaviour the code did not have.
+    //
+    // That is also the exact failure this slice's own argument refused: option (b) was rejected because a
+    // build-time GitHub read can redden a healthy `main` on rate-limiting. Reintroducing it one layer over,
+    // on a gate that blocks the PR, would have been the same defect wearing a test's clothes.
+    //
+    // So: a throttle, an outage or an unreachable network is NOT this repo's problem and is skipped out
+    // loud; a definitive 404 is, and fails.
     const res = await request.get(`https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`).catch(() => null);
-    if (res) expect(res.status()).toBe(200);
+    if (!res || res.status() === 429 || res.status() >= 500) {
+      test.info().annotations.push({ type: 'skip-reason', description: `GitHub unavailable (${res?.status() ?? 'no response'}) — tag existence not verified` });
+    } else {
+      expect(res.status(), `GitHub has no release tagged ${tag}`).not.toBe(404);
+    }
   });
 
   // The other card, and the assertion that matters is the ABSENCE: no tag may appear for a repo whose

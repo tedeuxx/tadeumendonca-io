@@ -29,8 +29,20 @@ export interface CatalogProject {
    * `tadeumendonca-io`. Binding the title to `repoUrl`'s last segment makes them two views of one fact,
    * which is what stops them drifting — the same reasoning that keeps `slug` per-locale and `name` shared.
    *
-   * *Trade-off, accepted:* the landing and `/portfolio` read `tadeumendonca-io` where a visitor may expect
-   * the brand. Right for a **catalog of repos**, whose job is to say which repo to open.
+   * **This closes a drift rather than buying one**, and the first draft of this comment got that backwards
+   * by booking it as an accepted cost — which is what invites a later sweep to revert a correct decision.
+   * `content/architecture.{pt,en}.md` already published this repo as `tadeumendonca-io`, in both editions,
+   * in a bulleted pair with `tadeumendonca-skills`. So the presence was carrying **two names for one repo
+   * across two surfaces a reader meets in one sitting**. Three things agree now: the card's title, the
+   * card's link target, and `/architecture`'s repo list.
+   *
+   * The brand is not at risk of going unnoticed — it is the footer of every route, the nav, the URL bar
+   * and the OG card. The portfolio card is the one slot where the reader's next action is *open this
+   * repo*, and the string that serves that action is the slug. A shelf titled by repo name reads as an
+   * engineer's shelf; a card titled with a domain but linking a repo reads as a marketing tile.
+   *
+   * **Not per-card.** Making it a choice per entry reinstates the drift this removes and turns every
+   * future entry into a fresh judgement — the value here is that it is a rule.
    */
   name: string;
   /**

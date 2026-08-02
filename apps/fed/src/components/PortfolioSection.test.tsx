@@ -63,12 +63,17 @@ describe('PortfolioSection', () => {
   // whatever it happens to be. It fails if either side is derived separately, which is the defect.
   //
   // Whether the tag is the RIGHT one is not a unit-test question at all — a stale literal passes any
-  // test that reads the same literal. That is asserted on the served artifact, in e2e/portfolio.spec.ts.
+  // test that reads the same literal. That is asserted on the served artifact, in e2e/routes.spec.ts.
+  //
+  // Queried by the ACCESSIBLE NAME, not the visible text: the link carries an `aria-label`, which
+  // overrides its text content for the `name` option. Finding the element by `/^⌂ v/` stopped working the
+  // moment that label was added — and that is the label doing its job, since a screen reader would
+  // otherwise announce a house glyph and a version number.
   it('shows the build tag and links THAT tag, from one value', () => {
     state.catalog = [{ ...sample, releases: 'this-build' }];
     renderSection();
 
-    const link = screen.getByRole('link', { name: /^⌂ v/ });
+    const link = screen.getByRole('link', { name: /Notas da release/ });
     const tag = link.textContent!.replace('⌂', '').trim();
     expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
     expect(link).toHaveAttribute('href', `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`);
@@ -90,7 +95,24 @@ describe('PortfolioSection', () => {
   it('renders no release affordance when the field is absent', () => {
     state.catalog = [sample];
     renderSection();
-    expect(screen.queryByRole('link', { name: /Releases|⌂/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Releases|Notas da release/ })).toBeNull();
+  });
+
+  // The accessible name is asserted on its own, because it is the whole reason the visible text can stay
+  // a bare version string. A screen reader announcing "house v-zero-point-one" is what this prevents.
+  it('gives the bare tag an accessible name, and leaves the worded variant alone', () => {
+    state.catalog = [{ ...sample, releases: 'this-build' }];
+    const { unmount } = renderSection();
+    expect(screen.getByRole('link', { name: /Notas da release desta versão do projeto/ })).toBeInTheDocument();
+    unmount();
+
+    // `Releases` is already its own accessible name, so it must NOT be given a redundant one — asserted
+    // as the ABSENCE of the tag label rather than by matching an exact string, since the name includes
+    // the leading glyph (`⌂ Releases`).
+    state.catalog = [{ ...sample, releases: 'index' }];
+    renderSection();
+    expect(screen.getByRole('link', { name: /Releases/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Notas da release/ })).toBeNull();
   });
 
   // The bug this file's bilingual shape exists to prevent (#235): /en/portfolio served Portuguese copy

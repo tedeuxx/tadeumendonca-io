@@ -42,7 +42,17 @@ function ReleaseLink({ project }: { project: CatalogProject }) {
   const label = project.releases === 'this-build' ? `v${SITE_VERSION}` : t('portfolio.viewReleases');
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="hover:underline">
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      // The tag variant's visible text is a bare `v0.1.166`, so without this a screen reader announces a
+      // link named after a glyph and a version number — no context, no external-link cue. Same problem
+      // the footer's version link already solved, and solved the same way. The `index` variant needs
+      // nothing: `Releases` is already its own accessible name.
+      aria-label={project.releases === 'this-build' ? t('portfolio.viewReleaseTag') : undefined}
+      className="hover:underline"
+    >
       <span className="text-primary">⌂</span> {label}
     </a>
   );
