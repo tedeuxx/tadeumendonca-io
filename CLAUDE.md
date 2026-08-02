@@ -23,14 +23,14 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 - **Plan-first** — design and align before coding; no solo architectural call.
 - **Ask on the boundaries — and only there.** Architecture, content/positioning, anything irreversible
   or public-facing goes to the owner; **everything in-pattern is decided and merged autonomously**,
-  through the `critical-reviewer`. Asking on in-pattern work is not caution, it is the loop failing to
+  through the `quality-assurance`. Asking on in-pattern work is not caution, it is the loop failing to
   flow — the boundary is what the human's attention is *for*, and spending it elsewhere devalues it.
 - **Thin vertical slices, WIP = 1** — each increment end-to-end and reviewable; **finish it through
   merge** before opening the next. A green PR left sitting is the queue forming. (Mechanical since
   skills#61: the plugin's `wip-guard` denies opening a second PR in a repo that already has one of
   yours; `session-wip` lists the open queue at session start.)
 - **Quality is a gate** — lint/typecheck + tests (coverage ≥ 85%) + a green build + SonarCloud + the
-  `critical-reviewer`, and **functional E2E** (Playwright) as the proof nothing already working broke.
+  `quality-assurance`, and **functional E2E** (Playwright) as the proof nothing already working broke.
   The reviewer is a **distinct** gate from CI, not a summary of it.
 - **Observability is part of done** — the site is static, so this is Google Analytics + the client error
   surface + a build/prerender smoke (routes render, OG tags present in the served HTML) — not backend telemetry.
@@ -40,9 +40,9 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 
 Depth lives in the plugin's `/principles/*` skills (`engineering-philosophy`, `verification-and-gates`,
 `dev-loop`, `permissions-and-environments`); for deliberate validation of a non-trivial decision, invoke the
-subagent that **owns** it — **`plan-reviewer`** for a plan/spec against the principles + the ADR library,
-**`security`** for the permission floor and supply chain, **`product-manager`** for what to build next.
-(There is no `principles-guide`; `plan-reviewer` superseded it and invoking the old name simply fails.)
+subagent that **owns** it — **`tech-lead`** for a decision against the principles + the ADR library,
+**`security`** for the permission floor and supply chain, **`product-lead`** for what to build next.
+(`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
 **static** (fully static SPA, no backend). The agent works the full inner loop unprompted (git-reversible /
@@ -132,7 +132,7 @@ Two consequences worth stating outright, because they are what the other model g
 
 - **`main`** is the only branch. Feature/fix branches cut **from `main`** → PR (0 required approvals) → merge →
   **automatic deploy** to the single environment. The merge **is** the deploy, so it is the go/no-go —
-  and **the `critical-reviewer` subagent is who holds it**, not a human prompt on every PR. Run it on
+  and **the `quality-assurance` subagent is who holds it**, not a human prompt on every PR. Run it on
   **every** PR before merging, unprompted; it verifies the MR Definition of Done with real evidence and
   then either **approves-and-merges the safe class itself** (docs, dependency bumps, tests, in-pattern
   work implementing an already-approved spec, **and the whole `product` backlog including
@@ -233,12 +233,16 @@ Working rules that follow from that:
   fixed by the next merge — it stays wrong *on that post* and right everywhere after. The owner was
   shown this and accepted it. It is a bounded, per-post cost, not a threat to the site.
 
-  **`brand-guardian` and `editor` are still dispatched on reader-facing diffs — by the reviewer's own
-  instructions, not by any check.** Nothing mechanical enforces it, and the owner is no longer a second
-  backstop behind them, so a lens that is not dispatched now fails silently. Narrowing what reaches the
-  owner does not narrow what gets reviewed — those lenses catch calques, positioning drift and
-  cross-surface contradiction, which is exactly the class the owner is *not* well placed to catch by
-  reading the finished page. They advise the reviewer; they no longer wake the owner.
+  **`marketing-lead` is still dispatched on reader-facing diffs — by the reviewer's own instructions,
+  not by any check.** Nothing mechanical enforces it, and the owner is no longer a second backstop
+  behind it, so a lens that is not dispatched now fails silently. Narrowing what reaches the owner does
+  not narrow what gets reviewed — that lens catches calques, positioning drift and cross-surface
+  contradiction, which is exactly the class the owner is *not* well placed to catch by reading the
+  finished page. It advises the reviewer; it no longer wakes the owner.
+
+  It is **one** lens where this used to name two: `brand-guardian` (what the copy claims) and `editor`
+  (how well it is written) merged into `marketing-lead`, which splits truth from craft *internally* and
+  makes truth blocking and craft advisory (skills ADR-0002 amendment #7).
 
   The `reader-facing` label on the `product` queue is now an **ordering and lens** signal — which
   reviewers to dispatch — not a gate.
@@ -283,4 +287,4 @@ read like one that passed.
 **The post-deploy `e2e` is not a gate.** It runs after the publish and cannot revert anything. A red one
 means the site is broken and someone has to act.
 
-- **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `critical-reviewer` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.
+- **`claude`**: `@claude` on-demand (Claude App). The MR review gate is the dev-loop's `quality-assurance` subagent (in-loop, against the Definition of Done) — the App-based auto-review (`claude-code-review.yml`) was retired as redundant.
