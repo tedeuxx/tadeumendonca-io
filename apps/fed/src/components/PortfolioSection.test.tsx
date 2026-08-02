@@ -54,6 +54,45 @@ describe('PortfolioSection', () => {
     expect(screen.getByRole('link', { name: /Ver ao vivo/ })).toHaveAttribute('href', sample.liveUrl);
   });
 
+  // #329. The two release shapes, and what each must NOT do.
+  //
+  // Asserting `v${SITE_VERSION}` against a card built from `SITE_VERSION` would be circular — the same
+  // literal on both sides of the equals. What is worth pinning here is the COUPLING the issue's
+  // acceptance actually names: *the card must not be able to display a tag that is not the tag it links
+  // to.* So the assertion reads the rendered label and checks the href contains that same string,
+  // whatever it happens to be. It fails if either side is derived separately, which is the defect.
+  //
+  // Whether the tag is the RIGHT one is not a unit-test question at all — a stale literal passes any
+  // test that reads the same literal. That is asserted on the served artifact, in e2e/portfolio.spec.ts.
+  it('shows the build tag and links THAT tag, from one value', () => {
+    state.catalog = [{ ...sample, releases: 'this-build' }];
+    renderSection();
+
+    const link = screen.getByRole('link', { name: /^⌂ v/ });
+    const tag = link.textContent!.replace('⌂', '').trim();
+    expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
+    expect(link).toHaveAttribute('href', `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`);
+  });
+
+  // The other repo's card. No tag CAN be shown — its VERSION lives in a repo this build cannot read, and
+  // the network call that would fetch one was ruled out. Asserted as an absence as much as a presence:
+  // showing a tag here would mean it came from somewhere that can go stale.
+  it('links the releases index with no tag when the tag is not knowable', () => {
+    state.catalog = [{ ...sample, releases: 'index' }];
+    renderSection();
+
+    expect(screen.getByRole('link', { name: /Releases/ })).toHaveAttribute('href', `${sample.repoUrl}/releases`);
+    expect(screen.queryByText(/^v\d+\.\d+\.\d+$/)).toBeNull();
+  });
+
+  // Absent `releases` renders nothing at all — a card for a project with no releases must not grow an
+  // affordance by default. Every catalog entry predating #329 is in this state.
+  it('renders no release affordance when the field is absent', () => {
+    state.catalog = [sample];
+    renderSection();
+    expect(screen.queryByRole('link', { name: /Releases|⌂/ })).toBeNull();
+  });
+
   // The bug this file's bilingual shape exists to prevent (#235): /en/portfolio served Portuguese copy
   // because the prose fields were plain strings. Asserted in BOTH directions — each edition must show
   // its own prose AND not leak the other's, which is the same parity contract the blog editions carry.

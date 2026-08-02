@@ -208,6 +208,9 @@ const strings = {
     statusWip: { pt: 'WIP', en: 'WIP' },
     viewGithub: { pt: 'Ver no GitHub', en: 'View on GitHub' },
     viewLive: { pt: 'Ver ao vivo', en: 'View live' },
+    // Only for a card that shows NO tag (#329). Where a tag is shown it IS the label — a version string
+    // is the same in every edition, so it is not localized, exactly like `name` and `stack`.
+    viewReleases: { pt: 'Releases', en: 'Releases' },
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },
     viewAll: { pt: '→ Ver catálogo completo', en: '→ View the full catalog' },
