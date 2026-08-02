@@ -13,7 +13,7 @@ Five surfaces:
 
 1. **Landing** (`/`) — the storefront; it also hosts the articles list (`#artigos`).
 2. **Interactive CV** (`/me`) — canonical reference of the owner's experience, and the only CV surface.
-   `/cv.pdf` is the one-page recruiter edition printed from it at build time.
+   `/cv.pdf` is the two-page recruiter edition printed from it at build time, in the site's own dark palette.
 3. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code.
 4. **Ramp-up** (`/ramp-up`) — the open plan for the AI-Engineer transition.
 5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and both public repos.

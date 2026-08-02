@@ -114,11 +114,14 @@ body {
      header/nav + mobile menu, every LocaleToggle, the Marquee, the AppShell footer (incl. its
      conditional consent button), and — on /me — the metadata/contact row and the Download-CV control
      itself. A single attribute selector is testable and robust (no brittle deep selectors).
-   - The mono palette is flipped onto paper: the site's own off-white becomes the sheet and the
-     near-black becomes the ink (both are brand tokens, just swapped for print), the safety-orange
-     accent is kept. Radius 0 and the typefaces are inherited unchanged.
-   - printBackground is on, so the filled LevelMeter squares (`bg-foreground`) and the orange accents
-     (`bg-primary` / the cert seal) — which paint via background/border — survive into the PDF. */
+   - THE PALETTE IS THE PAGE'S OWN (#317, owner asked 2026-07-31). It used to be inverted — the off-white
+     became the sheet, the near-black the ink — which made the PDF a *paper* treatment of a *screen*
+     design. The owner asked for the opposite: near-black ground, off-white text, safety orange, so the
+     download looks like the site it came from. That is closer to ADR-0034's argument than the
+     inversion was: the reason for printing from the real page is that the PDF cannot layout-drift from
+     the on-screen CV, and a swapped palette was the one deviation from it.
+   - printBackground is on, so the ground actually renders, along with the filled LevelMeter squares
+     and the orange accents. Radius 0 and the typefaces are inherited unchanged. */
 @media print {
   @page {
     /* Matches the margin `page.pdf()` passes in scripts/prerender.mjs — the two must agree, or a
@@ -128,19 +131,29 @@ body {
   [data-print='hide'] {
     display: none !important;
   }
-  /* Ink-on-paper: swap the two brand neutrals, keep the accent. Grid rules go light so they read on
-     white; the strong rule stays ink for the section frames. */
+  /* NO TOKEN OVERRIDES. The screen palette is the print palette now — this block used to swap the two
+     neutrals here, and deleting that swap is most of #317.
+
+     ONE token is nudged, and only one: `--muted-foreground` is the warm grey that carries dates,
+     issuers and the role subtitles. On a backlit screen at #8C8880 it reads fine against the near-black;
+     in a PDF viewer at print DPI, and worse on a printer that dithers, it is the first thing to go
+     muddy. Lifted for print only, on the print artifact only. */
   :root {
-    --background: 50 23% 95%; /* off-white → the sheet */
-    --foreground: 0 0% 4%; /* near-black → the ink */
-    --border: 0 0% 80%; /* light grid line on paper */
-    --border-strong: 0 0% 4%; /* heavy rule = ink */
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 30%;
+    --muted-foreground: 40 8% 66%;
   }
+  /* The ground has to be painted explicitly. `html`/`body` carry `bg-background` from the base layer,
+     but a print render starts from a white canvas and only paints what an element actually fills —
+     `printBackground: true` permits it, it does not cause it. Both elements, because the sheet is
+     taller than the body on a short second page and the unpainted remainder would print white. */
+  html,
   body {
-    background-color: hsl(var(--background));
+    background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground));
+    /* Belt to the braces of `printBackground: true` — this is the CSS half of the same instruction,
+       and it is what keeps the ground from being dropped by a reader who prints the downloaded PDF
+       from their own viewer, where nobody passed Playwright's flag. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* ── The CV fits ONE A4 sheet (#161) ────────────────────────────────────────────────────────────
@@ -155,14 +168,24 @@ body {
      needed because the values it overrides are utilities of equal specificity.
 
      Owner decision (2026-07-28): one page, recruiter-first. The full career arc lives on /me — the PDF
-     is the door, the site is where the story breathes. */
+     is the door, the site is where the story breathes.
+
+     AMENDED (owner, asked 2026-07-31): TWO pages. "o pdf não tá legal em 1 página, fica tudo muito apertado e
+     não fica bem espaçado" — and the cramping was the one-page decision working exactly as designed, so
+     this is a trade being re-made rather than a bug. One page bought recruiter-friendliness with 7.4pt
+     type and sub-quarter-rem gaps; at that density the sheet stops being scanned and starts being
+     endured, which costs the same recruiter more than a second page does. Two pages is still a long way
+     from the five a faithful print produces.
+
+     The guard in `e2e/cv-pdf.spec.ts` moves with it, deliberately — a page count that silently drifts
+     is exactly what it exists to catch, and it is only meaningful while it names the number that was
+     chosen. */
   [data-print='cv'] {
-    /* 7.4pt is the honest floor for this content on one sheet. Measured, not chosen by feel: at 8pt the
-       page overflows by ~100px with everything already compacted. Below ~7pt a printed CV stops being
-       comfortably readable, so this is the last notch before the trade-off would have to come out of
-       content instead of type. */
-    font-size: 7.4pt;
-    line-height: 1.25;
+    /* 8.6pt, up from 7.4. That floor was measured against a one-page budget and was honest about being
+       the last notch before content had to be cut instead of type; with a second sheet the floor is
+       no longer what decides, so the size goes to where a CV is comfortable rather than survivable. */
+    font-size: 8.6pt;
+    line-height: 1.42;
   }
   /* Kill the vw-driven scale: fixed, small, paper-appropriate spacing everywhere. */
   [data-print='cv'] header,
@@ -171,9 +194,11 @@ body {
   }
   [data-print='cv'] section {
     border-top-width: 1px;
-    margin-top: 0.06rem;
-    padding-top: 0.06rem;
-    /* A section must not be split across a page break if it can be helped. */
+    margin-top: 0.55rem;
+    padding-top: 0.55rem;
+    /* A section must not be split across a page break if it can be helped. On one sheet this was nearly
+       decorative — nothing had room to split. With two it is load-bearing: without it the break lands
+       wherever the flow reaches 297mm, which is how a role's bullets end up orphaned from its title. */
     break-inside: avoid;
   }
   /* Header: the portrait is decorative (the h1 beside it names the person), so it shrinks hard rather
@@ -199,10 +224,10 @@ body {
   /* The block label sits above its content on paper, so the gap that separated two grid columns on
      screen is now vertical dead space. */
   [data-print='cv'] section > div:first-child {
-    margin-bottom: 0.05rem !important;
+    margin-bottom: 0.35rem !important;
   }
   [data-print='cv'] section > div:last-child > div {
-    gap: 0.16rem !important;
+    gap: 0.55rem !important;
   }
   /* The numbered block label: the 3.4rem index is a screen device, not information. And the index
      STACKED above its heading is the single largest piece of pure chrome on the sheet — 30px per block,
@@ -234,29 +259,43 @@ body {
     max-width: none !important;
   }
   [data-print='cv'] section > div:last-child > div > div {
-    padding-top: 0.24rem !important;
-    padding-bottom: 0.24rem !important;
-    padding-left: 0.6rem !important;
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+    padding-left: 0.7rem !important;
   }
   [data-print='cv'] section > div:last-child ul {
-    margin-top: 0.12rem !important;
-    padding-left: 0.85rem !important;
+    margin-top: 0.3rem !important;
+    padding-left: 0.95rem !important;
   }
   [data-print='cv'] section > div:last-child li {
     font-size: 0.95em !important;
-    margin-top: 0 !important;
-    line-height: 1.24 !important;
+    margin-top: 0.16rem !important;
+    line-height: 1.4 !important;
   }
-  /* The 1rem stack between education entries is screen rhythm, not information. */
+  /* Education entries get their stack back — 0.22rem was one-page triage, not rhythm. */
   [data-print='cv'] [data-print-block='02'] > div:last-child > div {
-    gap: 0.22rem !important;
+    gap: 0.5rem !important;
   }
-  /* Certifications (03): nine 64px Credly images cost more than a page on their own. The credential is
-     the claim; the artwork is decoration. Seals go, and the entries reflow as a dense inline list
-     instead of nine bordered rows. */
-  [data-print='cv'] section img {
-    display: none !important;
+  /* ── Certifications (03): the Credly badges are BACK (#317, owner 2026-08-02) ────────────────────
+     They were dropped for the one-page budget on the argument that "the credential is the claim; the
+     artwork is decoration". True as far as it goes, and it misses what a badge does on a CV that a name
+     does not: it is the ISSUER's mark, not the author's, so it reads as attested rather than asserted.
+     On the one artifact whose whole job is to be believed by someone who has never met him, that is not
+     decoration.
+     They cost real height, so they are scaled to the sheet rather than dropped from it — the adaptation
+     the issue asks for ("adapting only what the sheet strictly forces"). */
+  [data-print='cv'] [data-print-block='03'] img {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
   }
+  /* The portrait still goes, and it is hidden ONCE — by the rule 85 lines above, which already existed.
+     Narrowing the old bulk `section img` selector to spare the badges nearly added a second
+     `header img` rule here; the duplicate was caught in review and is not worth carrying for the sake
+     of keeping the two decisions adjacent.
+     The distinction is worth stating even without the rule, because one selector used to hide both and
+     made them look like one call: the portrait is decorative by the component's own reckoning
+     (`aria-hidden`, and the <h1> beside it names the person), so it costs no claim. A badge is an
+     attestation. Opposite things. */
   /* The seal is the FALLBACK for a certification with no Credly artwork — a 68x62px clip-path hexagon,
      and a <span>, so hiding `img` alone misses it. Dormant today (all nine credentials carry an image),
      which is exactly why it is worth closing now: the first certification added without one would put
@@ -264,82 +303,57 @@ body {
   [data-print='cv'] [data-print-block='03'] > div:last-child span[aria-hidden='true'] {
     display: none !important;
   }
+  /* THE INLINE REFLOW IS GONE, for the same reason it went in the skills block: it existed to buy the
+     one-page budget and it fought the thing that was just restored. It stripped every border and
+     padding, made each credential `inline-flex`, and generated `·` separators to stand in for the rows
+     it had removed — which with the badges back would put nine images in a run-on sentence with dots
+     between them.
+     The screen's bordered rows stand; only the row rhythm is tightened. */
   [data-print='cv'] [data-print-block='03'] > div:last-child > div {
-    display: block !important;
+    gap: 0.3rem !important;
   }
   [data-print='cv'] [data-print-block='03'] a[href],
   [data-print='cv'] [data-print-block='03'] > div:last-child > div > div {
-    display: inline-flex !important;
-    border: 0 !important;
-    padding: 0 !important;
-    gap: 0.25rem !important;
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
   }
-  [data-print='cv'] [data-print-block='03'] a[href]:not(:last-child)::after,
-  [data-print='cv'] [data-print-block='03'] > div:last-child > div > div:not(:last-child)::after {
-    content: ' · ';
-    color: hsl(var(--muted-foreground));
-    padding: 0 0.28rem;
-  }
-  /* The name/issuer wrapper is a flex COLUMN on screen, so left alone it stacks the issuer under the
-     name mid-sentence in an inline list. Both shapes are matched — a certification with a
-     `credential_url` renders as <a>, one without as <div>, and targeting only the link left every
-     unlinked credential printing a stray "AMAZON WEB SERVICES" on its own line. */
-  [data-print='cv'] [data-print-block='03'] span > span {
-    display: inline !important;
-  }
-  /* The issuer/date line — dropped because the credential NAME carries the claim. Hooked on an explicit
-     attribute rather than on `span:last-child`: the name span now itself contains a span (the issuer,
-     printed only where the name does not already say "AWS"), so a positional selector would hide the
-     one attribution the print edition exists to keep. */
+  /* The issuer/date line stays dropped — the credential NAME carries the claim, and with the badge back
+     the ISSUER is now carried twice over: by the artwork, which is the issuer's own mark. Hooked on an
+     explicit attribute rather than on `span:last-child`, because the name span itself contains a span
+     (the issuer, printed only where the name does not already say "AWS"), so a positional selector
+     would hide the one attribution the print edition exists to keep. */
   [data-print='cv'] [data-print-block='03'] [data-print-issuer] {
     display: none !important;
   }
 
-  /* Skills (04): the single tallest block on the sheet at 658px, because each entry is a row with a
-     4-square proficiency meter. The meter is a screen device; a recruiter (and an ATS) scans the
-     keywords. Reflowed inline, meters dropped. */
-  [data-print='cv'] [data-print-block='04'] > div:last-child * {
-    display: inline !important;
-    /* The chips are bordered boxes on screen. Reflowed inline they keep their borders and the negative
-       -mb-px/-mr-px that tiled them into a grid, so the rules overlap the text and strike through the
-       band. Inline keywords need no box. */
-    border: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  [data-print='cv'] [data-print-block='04'] span[role='img'] {
-    display: none !important;
-  }
-  /* Reflowed inline, this is a keyword band rather than prose — it reads at a smaller size than the
-     body without costing the scan anything, and it is the last block that can give height back
-     without losing a keyword. */
+  /* ── Skills (04): the block that most needed the second sheet ─────────────────────────────────────
+     It used to be reflowed INLINE — every category and every skill collapsed into one continuous band,
+     with generated `·` separators standing in for the layout that had been removed, and the 4-square
+     proficiency meters hidden outright. That was the tallest block on the sheet (658px) paying for the
+     one-page budget, and it worked: it fit.
+
+     It also produced the wall the owner was looking at when he said the PDF is "tudo muito apertado".
+     Seven categories and ~60 keywords in one justified paragraph is not a scan; the eye has nothing to
+     land on, and the one signal that ranked the list — the meter — was the first thing cut.
+
+     So the reflow is GONE and the screen layout stands, which is what #317 asks for ("use the page's
+     graphic elements, adapting only what the sheet strictly forces"). The meters come back: they are
+     the LevelMeter squares, they paint via background so `printBackground: true` carries them, and they
+     are the difference between a keyword list and a self-assessment. What the sheet strictly forces is
+     below, and it is two lines. */
   [data-print='cv'] [data-print-block='04'] > div:last-child {
-    font-size: 0.9em !important;
-    line-height: 1.15 !important;
+    /* Slightly under the body, because this block is a scan rather than prose and it is still the
+       tallest. Not the 0.9em/1.15 of the inline band — that was compression, this is proportion. */
+    font-size: 0.94em !important;
   }
-  /* Zeroing the chip margins removes the box, and with it the only thing separating one keyword from the
-     next — "AWS Lambda" and "Amazon API Gateway" print as one word. The band gets an explicit separator
-     (the same mono dot the certifications use) on every skill, and the category label gets one too so it
-     reads as a lead-in rather than as a keyword glued to the first entry. */
-  /* Four levels down, not three: the body div holds a flex COLUMN, whose children are the categories,
-     each of which holds a label div and a wrap div, and only then the skill spans. Off by one, the
-     separator silently matched nothing and the colon landed after the last skill of a category instead
-     of after its heading. */
-  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div > div > span:not(:last-child)::after {
-    content: ' · ';
-    color: hsl(var(--muted-foreground));
-    padding: 0 0.3em;
+  /* The chip grid tiles with negative margins so adjacent borders overlap into one rule. That is a
+     screen device that survives print unchanged; only the row rhythm is tightened. */
+  [data-print='cv'] [data-print-block='04'] > div:last-child > div {
+    gap: 0.4rem !important;
   }
-  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div > div:first-child::after {
-    content: ':';
-    padding-right: 0.45em;
-  }
-  /* Dropping the trailing dot leaves the last skill of one category touching the next category's
-     heading ("Amazon CloudFrontDISTRIBUTED SYSTEMS"). The categories are what the flex COLUMN separated
-     before it was reflowed inline, so the gap has to come back explicitly — on every category but the
-     first, which needs no lead-in. */
-  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div:not(:first-child) > div:first-child {
-    padding-left: 0.9em !important;
+  [data-print='cv'] [data-print-block='04'] > div:last-child > div > div > div > span {
+    padding-top: 0.1rem !important;
+    padding-bottom: 0.1rem !important;
   }
 
   /* Experience (01): every role stays — a dropped role reads as a gap on a CV. What goes is the

@@ -27,19 +27,29 @@ test.describe('CV PDF export', () => {
     expect(head).not.toContain('<html');
   });
 
-  // The one-page constraint (#161) is the whole point of the print stylesheet, and it is invisible: the
+  // The page-count constraint is the whole point of the print stylesheet, and it is invisible: the
   // build succeeds, the asset is a valid PDF, and every other assertion here passes at five pages just
-  // as happily as at one. Nothing but a page count catches the regression, and the regression arrives
-  // through CONTENT — one more role in profile.ts, a longer summary — not through a CSS edit anyone
-  // would think to re-check the PDF for.
+  // as happily as at the budgeted number. Nothing but a page count catches the regression, and the
+  // regression arrives through CONTENT — one more role in profile.ts, a longer summary — not through a
+  // CSS edit anyone would think to re-check the PDF for.
+  //
+  // THE NUMBER MOVED FROM 1 TO 2 (#317, owner 2026-07-31), deliberately and with the artifact looked at
+  // rather than inferred. The one-page edition was working exactly as designed and the design was the
+  // complaint: "o pdf não tá legal em 1 página, fica tudo muito apertado". It bought recruiter-
+  // friendliness with 7.4pt type, sub-quarter-rem gaps, and a skills block reflowed into one continuous
+  // keyword band with its proficiency meters hidden. At that density the sheet stops being scanned.
+  //
+  // UPDATING THIS ASSERTION IS THE POINT OF IT, NOT AN EXCEPTION TO IT. A page count that silently
+  // drifts is the defect; a page count changed in the same commit as the decision, with the reason, is
+  // the guard doing its job. What must never happen is the number being raised to make a red test green.
   //
   // Counted straight out of the bytes rather than with a PDF library: `/Type /Page` (excluding the
   // `/Pages` tree node) is stable in Chromium's output, and a dependency for one integer is not worth
   // the supply-chain surface on a repo that pins and audits them.
-  test('fits on a single A4 page', async ({ request }) => {
+  test('fits the budgeted two A4 pages', async ({ request }) => {
     const body = (await (await request.get('/cv.pdf')).body()).toString('latin1');
     const pages = body.match(/\/Type\s*\/Page(?![s/\w])/g) ?? [];
-    expect(pages, 'the CV PDF must stay on one page — trim the print view, not this assertion').toHaveLength(1);
+    expect(pages, 'the CV PDF must stay within two pages — trim the print view, not this assertion').toHaveLength(2);
   });
 
   // ADR-0034's 2026-07-28 amendment gave up "the PDF cannot disagree with /me" and replaced it with a

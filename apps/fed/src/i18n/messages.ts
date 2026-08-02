@@ -253,14 +253,18 @@ const strings = {
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
-    // Print-only proficiency wording for the one-page CV (#161). On screen the 4-square meter carries
-    // this; reflowed inline for print the meter is dropped, which printed a level-1 keyword beside a
-    // level-4 one as equals — flattening a deliberate honesty device into an over-claim. Only the low
-    // levels are worded, because they are the ones the flattening exaggerated; 3–4 print bare.
-    // Two labels rather than one: collapsing 1 and 2 into "basic" would under-claim level 2, which is
-    // the same distortion in the other direction.
-    level1: { pt: 'básico', en: 'foundational' },
-    level2: { pt: 'intermediário', en: 'working' },
+    // RETIRED as of #317, and kept as strings rather than deleted only for the length of this comment:
+    // these were the print-only proficiency wording for the one-page CV (#161). The meter was hidden in
+    // print then, so a level-1 keyword printed beside a level-4 one as equals, and the calibration was
+    // restated as words — on the LOW levels only, since those were the ones the flattening exaggerated.
+    //
+    // The meter is back on the sheet (#317), so the words became a second device saying the same thing,
+    // and a one-sided one: every level 1–2 printed a diminishing gloss while every 3 and 4 printed bare.
+    // On a recruiter artifact that reads as hedging the bottom of the list rather than rating all of it.
+    //
+    // Deleted rather than left dormant. A catalog entry with no consumer is the shape that gets
+    // re-adopted by someone who finds it and assumes it is current — and if the meter is ever hidden in
+    // print again, the reasoning above is what needs re-reading, not two strings that survived it.
   },
   // The locale OFFER (#172), shown when the URL's locale is not the visitor's own language. Every string
   // here is rendered in the SUGGESTED language, not the page's — it is addressed to a reader who may not
