@@ -21,8 +21,49 @@
 // claim lens and the craft lens into one.)
 import type { Locale } from '../i18n';
 export interface CatalogProject {
-  /** Repo / project name as shown on the card — a FACT, identical in every edition. */
+  /**
+   * **The GitHub repo name, verbatim** — a FACT, identical in every edition.
+   *
+   * A RULE rather than a per-entry choice (#329, owner: *"ajuste para o nome do repo no github, regra"*).
+   * The `.io` entry said `tadeumendonca.io`, which is the SITE's name while the card links a REPO named
+   * `tadeumendonca-io`. Binding the title to `repoUrl`'s last segment makes them two views of one fact,
+   * which is what stops them drifting — the same reasoning that keeps `slug` per-locale and `name` shared.
+   *
+   * **This closes a drift rather than buying one**, and the first draft of this comment got that backwards
+   * by booking it as an accepted cost — which is what invites a later sweep to revert a correct decision.
+   * `content/architecture.{pt,en}.md` already published this repo as `tadeumendonca-io`, in both editions,
+   * in a bulleted pair with `tadeumendonca-skills`. So the presence was carrying **two names for one repo
+   * across two surfaces a reader meets in one sitting**. Three things agree now: the card's title, the
+   * card's link target, and `/architecture`'s repo list.
+   *
+   * The brand is not at risk of going unnoticed — it is the footer of every route, the nav, the URL bar
+   * and the OG card. The portfolio card is the one slot where the reader's next action is *open this
+   * repo*, and the string that serves that action is the slug. A shelf titled by repo name reads as an
+   * engineer's shelf; a card titled with a domain but linking a repo reads as a marketing tile.
+   *
+   * **Not per-card.** Making it a choice per entry reinstates the drift this removes and turns every
+   * future entry into a fresh judgement — the value here is that it is a rule.
+   */
   name: string;
+  /**
+   * How this card points at the project's releases (#329). Absent means no release affordance at all.
+   *
+   * - `'this-build'` — **only valid for THIS repo.** Shows the tag baked in from the root `VERSION` file
+   *   and links that tag's own notes. Exact rather than approximate: the deploy's `release` job bumps
+   *   `VERSION` in the same commit the build consumes, so the tag shipped IS the tag that exists.
+   * - `'index'` — links the repo's `/releases` page with **no tag shown**.
+   *
+   * **Why no third option that reads a tag over the network**, which is what the request literally asked
+   * for and would have put an indicator on both cards uniformly: the build is hermetic today, and a
+   * build-time GitHub API call makes a version badge able to turn a healthy `main` red on rate-limiting
+   * or an outage — plus a "what does the card show when the call fails" branch with no good answer, since
+   * a stale tag is worse than no tag and a blank is a visible hole. Owner decision, 2026-08-02.
+   *
+   * A literal tag string is not offered either, deliberately: `-io` re-tags on **every merge**, so a
+   * hand-written tag would be wrong more often than right — on the surface whose whole thesis is that
+   * its claims are checkable.
+   */
+  releases?: 'this-build' | 'index';
   /** One-line hook — what it does, in the AI-Engineer-agentic framing. Prose, authored per locale. */
   tagline: Record<Locale, string>;
   /** 1–2 sentences: the real problem it solves. Prose, authored per locale. */
@@ -47,7 +88,9 @@ export interface CatalogProject {
 // automations graduate — this is the curated shortlist, not an exhaustive repo dump.
 export const catalog: CatalogProject[] = [
   {
-    name: 'tadeumendonca.io',
+    // The repo name, not the site's — see the rule on `name` above (#329).
+    name: 'tadeumendonca-io',
+    releases: 'this-build',
     tagline: {
       pt: 'Este site — SPA estático React/Vite, construído agent-first com Claude Code.',
       // "built agent-first" reads as a bare adverbial in English and is the tell that the copy came from
@@ -120,6 +163,11 @@ export const catalog: CatalogProject[] = [
   // honest options were to fix the repo or not publish the card; the repo was fixed first.
   {
     name: 'tadeumendonca-skills',
+    // `index`, not a tag: this repo's `VERSION` lives in ANOTHER repo the build cannot read, and the
+    // only way to a tag here is the network call the owner ruled out (#329). Losing the indicator on
+    // this card is the stated cost of that decision, not an oversight — the reader still reaches the
+    // notes, with nothing that can go stale.
+    releases: 'index',
     tagline: {
       // NOT "biblioteca de skills" / "skills library" — that is the pitch `-skills`#109 retired, and it
       // names the least differentiated third of the repo. The personas and the hooks are what make it a

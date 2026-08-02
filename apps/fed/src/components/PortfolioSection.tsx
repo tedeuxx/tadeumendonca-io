@@ -8,6 +8,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
 import { useLocale, useLocalePath, useT } from '../i18n';
+import { SITE_VERSION, releaseUrl } from '../lib/version';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   const t = useT();
@@ -16,6 +17,44 @@ function StatusBadge({ status }: { status: CatalogProject['status'] }) {
     <span className="shrink-0 border border-current px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-[0.1em]">
       {status === 'live' ? t('portfolio.statusLive') : t('portfolio.statusWip')}
     </span>
+  );
+}
+
+// The release affordance (#329). Two shapes, and which one a card gets is DATA (`releases`), never
+// inferred from the URL — an inference would silently start showing this build's tag on any future
+// entry that happened to be this repo.
+//
+// `this-build` shows the tag and links THAT tag's notes, both derived from the same `SITE_VERSION`, so
+// the label and the destination cannot disagree — which is the acceptance criterion the issue wrote
+// ("the card must not be able to display a tag that is not the tag it links to"), satisfied by
+// construction rather than by a check.
+//
+// `index` shows no tag at all. On a card for another repo there is no tag the build can know without a
+// network call, and a tag that can go stale is worse than none on a surface whose thesis is that its
+// claims are checkable.
+function ReleaseLink({ project }: { project: CatalogProject }) {
+  const t = useT();
+  if (!project.releases) return null;
+
+  const href = project.releases === 'this-build' ? releaseUrl() : `${project.repoUrl}/releases`;
+  // The tag reads as data, not prose, so it stays in the mono scale the stack chips use and is NOT
+  // localized — `v0.1.166` is the same string in every edition, like `name` and `stack`.
+  const label = project.releases === 'this-build' ? `v${SITE_VERSION}` : t('portfolio.viewReleases');
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      // The tag variant's visible text is a bare `v0.1.166`, so without this a screen reader announces a
+      // link named after a glyph and a version number — no context, no external-link cue. Same problem
+      // the footer's version link already solved, and solved the same way. The `index` variant needs
+      // nothing: `Releases` is already its own accessible name.
+      aria-label={project.releases === 'this-build' ? t('portfolio.viewReleaseTag') : undefined}
+      className="hover:underline"
+    >
+      <span className="text-primary">⌂</span> {label}
+    </a>
   );
 }
 
@@ -72,6 +111,7 @@ function ProjectCard({ project }: { project: CatalogProject }) {
             <span className="text-primary">↗</span> {t('portfolio.viewLive')}
           </a>
         )}
+        <ReleaseLink project={project} />
       </div>
     </article>
   );

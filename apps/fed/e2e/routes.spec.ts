@@ -25,6 +25,72 @@ test.describe('routes', () => {
     await expect(repoLink).toHaveAttribute('href', /^https:\/\/github\.com\//);
   });
 
+  // #329. The release affordance, asserted on the SERVED artifact because that is the only layer where
+  // it can be wrong: a stale tag passes every unit test that reads the same literal it renders.
+  //
+  // Two claims, and the second is the one with teeth. The tag the card DISPLAYS must be the tag its href
+  // points at — checked by reading the label and building the expectation from it, so the assertion
+  // holds at any version and fails the moment the two are derived separately. And the URL must actually
+  // RESOLVE: a release-notes link is a promise that the notes exist, and pointing at a tag GitHub does
+  // not have is the same class of defect as showing a stale one.
+  test('the .io card names the repo and links the running build\'s release notes', async ({ page, request }) => {
+    await page.goto('/pt/portfolio');
+
+    // The card's title IS the repo name now, not the site's brand — the rule stated on `CatalogProject.name`.
+    // Scoped to the card: `tadeumendonca.io` legitimately appears elsewhere on the page (it is the site),
+    // so a page-wide absence assertion would fail for the right reason and hide the wrong one.
+    const card = page.locator('article', { has: page.getByRole('heading', { name: 'tadeumendonca-io' }) });
+    await expect(card).toBeVisible();
+    await expect(card.getByRole('heading', { name: 'tadeumendonca.io', exact: true })).toHaveCount(0);
+
+    // Found by its ACCESSIBLE NAME rather than its text: the link carries an aria-label, which overrides
+    // the text content for `name`. The visible text is asserted separately below, since the label is
+    // precisely what lets it stay a bare version string.
+    const release = card.getByRole('link', { name: /Notas da release/ });
+    const tag = (await release.textContent())!.replace('⌂', '').trim();
+    expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
+    await expect(release).toHaveAttribute(
+      'href',
+      `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`,
+    );
+
+    // The tag must actually exist on GitHub — a release-notes link is a promise the notes are there, and
+    // pointing at a tag that was never cut is the same class of defect as showing a stale one.
+    //
+    // ONLY A 404 FAILS THIS, and the first version of this block got that wrong in a way both reviewers
+    // caught. It read `.catch(() => null)` and asserted `status() === 200`, with a comment claiming a
+    // suite that goes red because GitHub is down is testing GitHub. `.catch` fires on a transport-level
+    // rejection; Playwright RETURNS on any HTTP status — so a 429 or a 503 landed in `res` and turned the
+    // BLOCKING playwright job red for a GitHub reason, on a healthy branch. The comment described
+    // behaviour the code did not have.
+    //
+    // That is also the exact failure this slice's own argument refused: option (b) was rejected because a
+    // build-time GitHub read can redden a healthy `main` on rate-limiting. Reintroducing it one layer over,
+    // on a gate that blocks the PR, would have been the same defect wearing a test's clothes.
+    //
+    // So: a throttle, an outage or an unreachable network is NOT this repo's problem and is skipped out
+    // loud; a definitive 404 is, and fails.
+    const res = await request.get(`https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`).catch(() => null);
+    if (!res || res.status() === 429 || res.status() >= 500) {
+      test.info().annotations.push({ type: 'skip-reason', description: `GitHub unavailable (${res?.status() ?? 'no response'}) — tag existence not verified` });
+    } else {
+      expect(res.status(), `GitHub has no release tagged ${tag}`).not.toBe(404);
+    }
+  });
+
+  // The other card, and the assertion that matters is the ABSENCE: no tag may appear for a repo whose
+  // version this build cannot read. A tag here could only have come from somewhere that can go stale.
+  test('the skills card links its releases index and shows no tag', async ({ page }) => {
+    await page.goto('/pt/portfolio');
+
+    const card = page.locator('article', { has: page.getByRole('link', { name: 'tadeumendonca-skills', exact: true }) });
+    await expect(card.getByRole('link', { name: /Releases/ })).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-skills/releases',
+    );
+    await expect(card.getByText(/^v\d+\.\d+\.\d+$/)).toHaveCount(0);
+  });
+
   // The ramp-up page is the fourth public surface. Its body is markdown-in-repo rendered through the
   // shared <Markdown>, so this journey proves the whole chain — route answers, markdown renders, and
   // the YouTube links became click-to-load facades rather than eager third-party frames.

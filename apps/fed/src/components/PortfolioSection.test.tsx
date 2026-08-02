@@ -54,6 +54,67 @@ describe('PortfolioSection', () => {
     expect(screen.getByRole('link', { name: /Ver ao vivo/ })).toHaveAttribute('href', sample.liveUrl);
   });
 
+  // #329. The two release shapes, and what each must NOT do.
+  //
+  // Asserting `v${SITE_VERSION}` against a card built from `SITE_VERSION` would be circular — the same
+  // literal on both sides of the equals. What is worth pinning here is the COUPLING the issue's
+  // acceptance actually names: *the card must not be able to display a tag that is not the tag it links
+  // to.* So the assertion reads the rendered label and checks the href contains that same string,
+  // whatever it happens to be. It fails if either side is derived separately, which is the defect.
+  //
+  // Whether the tag is the RIGHT one is not a unit-test question at all — a stale literal passes any
+  // test that reads the same literal. That is asserted on the served artifact, in e2e/routes.spec.ts.
+  //
+  // Queried by the ACCESSIBLE NAME, not the visible text: the link carries an `aria-label`, which
+  // overrides its text content for the `name` option. Finding the element by `/^⌂ v/` stopped working the
+  // moment that label was added — and that is the label doing its job, since a screen reader would
+  // otherwise announce a house glyph and a version number.
+  it('shows the build tag and links THAT tag, from one value', () => {
+    state.catalog = [{ ...sample, releases: 'this-build' }];
+    renderSection();
+
+    const link = screen.getByRole('link', { name: /Notas da release/ });
+    const tag = link.textContent!.replace('⌂', '').trim();
+    expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
+    expect(link).toHaveAttribute('href', `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`);
+  });
+
+  // The other repo's card. No tag CAN be shown — its VERSION lives in a repo this build cannot read, and
+  // the network call that would fetch one was ruled out. Asserted as an absence as much as a presence:
+  // showing a tag here would mean it came from somewhere that can go stale.
+  it('links the releases index with no tag when the tag is not knowable', () => {
+    state.catalog = [{ ...sample, releases: 'index' }];
+    renderSection();
+
+    expect(screen.getByRole('link', { name: /Releases/ })).toHaveAttribute('href', `${sample.repoUrl}/releases`);
+    expect(screen.queryByText(/^v\d+\.\d+\.\d+$/)).toBeNull();
+  });
+
+  // Absent `releases` renders nothing at all — a card for a project with no releases must not grow an
+  // affordance by default. Every catalog entry predating #329 is in this state.
+  it('renders no release affordance when the field is absent', () => {
+    state.catalog = [sample];
+    renderSection();
+    expect(screen.queryByRole('link', { name: /Releases|Notas da release/ })).toBeNull();
+  });
+
+  // The accessible name is asserted on its own, because it is the whole reason the visible text can stay
+  // a bare version string. A screen reader announcing "house v-zero-point-one" is what this prevents.
+  it('gives the bare tag an accessible name, and leaves the worded variant alone', () => {
+    state.catalog = [{ ...sample, releases: 'this-build' }];
+    const { unmount } = renderSection();
+    expect(screen.getByRole('link', { name: /Notas da release desta versão do projeto/ })).toBeInTheDocument();
+    unmount();
+
+    // `Releases` is already its own accessible name, so it must NOT be given a redundant one — asserted
+    // as the ABSENCE of the tag label rather than by matching an exact string, since the name includes
+    // the leading glyph (`⌂ Releases`).
+    state.catalog = [{ ...sample, releases: 'index' }];
+    renderSection();
+    expect(screen.getByRole('link', { name: /Releases/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Notas da release/ })).toBeNull();
+  });
+
   // The bug this file's bilingual shape exists to prevent (#235): /en/portfolio served Portuguese copy
   // because the prose fields were plain strings. Asserted in BOTH directions — each edition must show
   // its own prose AND not leak the other's, which is the same parity contract the blog editions carry.
