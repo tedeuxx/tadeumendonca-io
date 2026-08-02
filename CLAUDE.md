@@ -40,9 +40,9 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 
 Depth lives in the plugin's `/principles/*` skills (`engineering-philosophy`, `verification-and-gates`,
 `dev-loop`, `permissions-and-environments`); for deliberate validation of a non-trivial decision, invoke the
-subagent that **owns** it — **`plan-reviewer`** for a plan/spec against the principles + the ADR library,
-**`security`** for the permission floor and supply chain, **`product-manager`** for what to build next.
-(There is no `principles-guide`; `plan-reviewer` superseded it and invoking the old name simply fails.)
+subagent that **owns** it — **`tech-lead`** for a decision against the principles + the ADR library,
+**`security`** for the permission floor and supply chain, **`product-lead`** for what to build next.
+(`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
 **static** (fully static SPA, no backend). The agent works the full inner loop unprompted (git-reversible /
@@ -233,12 +233,16 @@ Working rules that follow from that:
   fixed by the next merge — it stays wrong *on that post* and right everywhere after. The owner was
   shown this and accepted it. It is a bounded, per-post cost, not a threat to the site.
 
-  **`brand-guardian` and `editor` are still dispatched on reader-facing diffs — by the reviewer's own
-  instructions, not by any check.** Nothing mechanical enforces it, and the owner is no longer a second
-  backstop behind them, so a lens that is not dispatched now fails silently. Narrowing what reaches the
-  owner does not narrow what gets reviewed — those lenses catch calques, positioning drift and
-  cross-surface contradiction, which is exactly the class the owner is *not* well placed to catch by
-  reading the finished page. They advise the reviewer; they no longer wake the owner.
+  **`marketing-lead` is still dispatched on reader-facing diffs — by the reviewer's own instructions,
+  not by any check.** Nothing mechanical enforces it, and the owner is no longer a second backstop
+  behind it, so a lens that is not dispatched now fails silently. Narrowing what reaches the owner does
+  not narrow what gets reviewed — that lens catches calques, positioning drift and cross-surface
+  contradiction, which is exactly the class the owner is *not* well placed to catch by reading the
+  finished page. It advises the reviewer; it no longer wakes the owner.
+
+  It is **one** lens where this used to name two: `brand-guardian` (what the copy claims) and `editor`
+  (how well it is written) merged into `marketing-lead`, which splits truth from craft *internally* and
+  makes truth blocking and craft advisory (skills ADR-0002 amendment #7).
 
   The `reader-facing` label on the `product` queue is now an **ordering and lens** signal — which
   reviewers to dispatch — not a gate.

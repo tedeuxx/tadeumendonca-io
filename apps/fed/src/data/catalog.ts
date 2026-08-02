@@ -16,8 +16,9 @@
 //
 // READER-FACING BY PATH: these are published positioning words, so a change here is copy, not app data.
 // It is NOT an owner gate — ADR-0003's 2026-07-30 amendment made reader-facing content safe class. What
-// it is: the trigger for `brand-guardian`, which since that amendment is the only lens on this file
-// rather than the first of two.
+// it is: the trigger for `marketing-lead`, which since that amendment is the only lens on this file
+// rather than the first of two. (It was `brand-guardian` until skills ADR-0002 amendment #7 merged the
+// claim lens and the craft lens into one.)
 import type { Locale } from '../i18n';
 export interface CatalogProject {
   /** Repo / project name as shown on the card — a FACT, identical in every edition. */
