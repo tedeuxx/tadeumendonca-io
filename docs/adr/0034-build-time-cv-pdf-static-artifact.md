@@ -172,9 +172,28 @@ information.
 is still a long way from five, and the recruiter-first argument survives the change: what made the
 one-page edition scannable was never the page count, it was the selection — and the selection is intact.
 
-**What the print edition still omits, unchanged from 2026-07-28:** the portrait (decorative, already
-`aria-hidden`, and the `<h1>` names the person) and the Credly badge images (nine 64px artworks; the
-credential *name* carries the claim). Those were never the cramping.
+### 3 · The Credly badges come back — a badge is an attestation, not artwork
+
+Added on the owner's call after reading the rendered sheets. The 2026-07-28 amendment dropped them as
+decoration — *"the credential is the claim; the artwork is decoration"* — which is true as far as it
+goes and misses what a badge does that a name does not: **it is the issuer's mark, not the author's**,
+so it reads as *attested* rather than *asserted*. On the one artifact whose whole job is to be believed
+by someone who has never met him, that is not decoration.
+
+They cost real height, so they are **scaled to the sheet** (2.6rem) rather than dropped from it — the
+adaptation this issue asks for rather than the omission the budget forced.
+
+**The portrait still goes**, and the distinction is worth stating because a single `section img` rule
+used to hide both and made them look like one decision. The portrait is decorative by the component's
+own reckoning — `aria-hidden`, and the `<h1>` beside it names the person — so it costs no claim. A badge
+is an attestation. Opposite things, and now opposite rules.
+
+**What no longer applies:** the inline reflow of the certifications block, which stripped every border
+and generated `·` separators to stand in for the rows it had removed. With the badges back that prints
+nine images in a run-on sentence, so the screen's bordered rows stand and only the rhythm is tightened —
+the same correction the skills block needed, for the same reason.
+
+Measured after: content 1966px against a 1047px sheet. Still two pages.
 
 ### The cost that is accepted, not solved
 

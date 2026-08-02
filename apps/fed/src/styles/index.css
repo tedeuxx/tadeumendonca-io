@@ -276,10 +276,23 @@ body {
   [data-print='cv'] [data-print-block='02'] > div:last-child > div {
     gap: 0.5rem !important;
   }
-  /* Certifications (03): nine 64px Credly images cost more than a page on their own. The credential is
-     the claim; the artwork is decoration. Seals go, and the entries reflow as a dense inline list
-     instead of nine bordered rows. */
-  [data-print='cv'] section img {
+  /* ── Certifications (03): the Credly badges are BACK (#317, owner 2026-08-01) ────────────────────
+     They were dropped for the one-page budget on the argument that "the credential is the claim; the
+     artwork is decoration". True as far as it goes, and it misses what a badge does on a CV that a name
+     does not: it is the ISSUER's mark, not the author's, so it reads as attested rather than asserted.
+     On the one artifact whose whole job is to be believed by someone who has never met him, that is not
+     decoration.
+     They cost real height, so they are scaled to the sheet rather than dropped from it — the adaptation
+     the issue asks for ("adapting only what the sheet strictly forces"). */
+  [data-print='cv'] [data-print-block='03'] img {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+  }
+  /* The portrait still goes, and the reason is unchanged: it is decorative by the component's own
+     reckoning (`aria-hidden`, and the <h1> beside it names the person), so it costs no claim. That is
+     the opposite of a badge, which is an attestation — worth stating, because both used to be hidden by
+     one `section img` rule that made them look like the same decision. */
+  [data-print='cv'] header img {
     display: none !important;
   }
   /* The seal is the FALLBACK for a certification with no Credly artwork — a 68x62px clip-path hexagon,
@@ -289,33 +302,25 @@ body {
   [data-print='cv'] [data-print-block='03'] > div:last-child span[aria-hidden='true'] {
     display: none !important;
   }
+  /* THE INLINE REFLOW IS GONE, for the same reason it went in the skills block: it existed to buy the
+     one-page budget and it fought the thing that was just restored. It stripped every border and
+     padding, made each credential `inline-flex`, and generated `·` separators to stand in for the rows
+     it had removed — which with the badges back would put nine images in a run-on sentence with dots
+     between them.
+     The screen's bordered rows stand; only the row rhythm is tightened. */
   [data-print='cv'] [data-print-block='03'] > div:last-child > div {
-    display: block !important;
+    gap: 0.3rem !important;
   }
   [data-print='cv'] [data-print-block='03'] a[href],
   [data-print='cv'] [data-print-block='03'] > div:last-child > div > div {
-    display: inline-flex !important;
-    border: 0 !important;
-    padding: 0 !important;
-    gap: 0.25rem !important;
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
   }
-  [data-print='cv'] [data-print-block='03'] a[href]:not(:last-child)::after,
-  [data-print='cv'] [data-print-block='03'] > div:last-child > div > div:not(:last-child)::after {
-    content: ' · ';
-    color: hsl(var(--muted-foreground));
-    padding: 0 0.28rem;
-  }
-  /* The name/issuer wrapper is a flex COLUMN on screen, so left alone it stacks the issuer under the
-     name mid-sentence in an inline list. Both shapes are matched — a certification with a
-     `credential_url` renders as <a>, one without as <div>, and targeting only the link left every
-     unlinked credential printing a stray "AMAZON WEB SERVICES" on its own line. */
-  [data-print='cv'] [data-print-block='03'] span > span {
-    display: inline !important;
-  }
-  /* The issuer/date line — dropped because the credential NAME carries the claim. Hooked on an explicit
-     attribute rather than on `span:last-child`: the name span now itself contains a span (the issuer,
-     printed only where the name does not already say "AWS"), so a positional selector would hide the
-     one attribution the print edition exists to keep. */
+  /* The issuer/date line stays dropped — the credential NAME carries the claim, and with the badge back
+     the ISSUER is now carried twice over: by the artwork, which is the issuer's own mark. Hooked on an
+     explicit attribute rather than on `span:last-child`, because the name span itself contains a span
+     (the issuer, printed only where the name does not already say "AWS"), so a positional selector
+     would hide the one attribution the print edition exists to keep. */
   [data-print='cv'] [data-print-block='03'] [data-print-issuer] {
     display: none !important;
   }
