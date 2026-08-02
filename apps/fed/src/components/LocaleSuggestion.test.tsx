@@ -69,6 +69,43 @@ describe('LocaleSuggestion', () => {
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
   });
 
+  // #333, and it is the OTHER half of the rule above: the dismissal FILLS A GAP and never overwrites.
+  //
+  // The two controls are not the same kind of act. The toggle is a decision about the reader's own
+  // preference — nothing prompted it. The dismissal answers a question the site asked about the page
+  // they are on. So an incidental shared link must not be able to overwrite a deliberate setting.
+  //
+  // Pinned by a CLICK rather than by calling the store functions in sequence, per the issue: a lib-level
+  // composition proves only what the test wrote and stays green if the handler stops honouring it.
+  // The scenario has to be built precisely or it does not render at all, and the constraint is
+  // informative: an en browser is required. With a pt-BR browser on /pt the visitor's language and the
+  // path's agree, `localeToOffer` stays silent on its FIRST guard, and there is no offer to answer — so
+  // the overwrite this rule prevents cannot arise for that reader in the first place.
+  it('a dismissal does NOT overwrite a locale the reader chose with the toggle', () => {
+    withBrowserLanguage('en-US');
+    // As if they had deliberately toggled to EN earlier, then followed a shared /pt link.
+    window.localStorage.setItem(STORAGE_KEY, 'en');
+    renderWithLocale(<LocaleSuggestion />, { locale: 'pt' });
+
+    // The notice renders in the SUGGESTED language, so its dismiss button is the English one.
+    fireEvent.click(screen.getByRole('button', { name: 'Continue in Portuguese' }));
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
+    // The dismissal is still recorded — declining stays durable whichever way the choice went.
+    expect(window.localStorage.getItem(SUGGESTION_DISMISSED_KEY)).toBe('1');
+  });
+
+  // A stored value that is not a locale is not a choice, so the gap is still empty and dismissing fills
+  // it. Asserted because `isLocale` is what makes the distinction, and a truthiness check would read the
+  // same and behave differently — leaving a reader permanently pinned by a corrupt value.
+  it('treats a non-locale stored value as no choice at all', () => {
+    withBrowserLanguage('pt-BR');
+    window.localStorage.setItem(STORAGE_KEY, 'garbage');
+    renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar em inglês' }));
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('en');
+  });
+
   // Accepting persists through the SAME key the PT/EN toggle uses, so the choice overrides detection
   // from here on. It must NOT write the dismissal key: that key means "declined", and writing it on an
   // ACCEPT would permanently retire the feature for the reader who liked it — the next shared
