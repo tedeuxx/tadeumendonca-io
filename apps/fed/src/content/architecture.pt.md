@@ -64,14 +64,16 @@ As linhas de hospedagem são medição com data, não fato permanente — nenhum
 
 ### As outras duas contas, e por que escrever zero seria pior
 
-A AWS é uma de três contas de que este site depende. As outras duas são o **GitHub** — que hospeda o código e roda todos os gates — e o **Terraform Cloud**, que guarda o estado da infraestrutura. As duas cobram **USD 0,00** hoje, e escrever só isso seria a resposta mais enganosa.
+A AWS é um dos fornecedores que poderiam faturar este site — e esse é o critério, declarado em vez de virar contagem, porque número envelhece na primeira dependência nova. **Entra aqui tudo que cobra, ou que cobraria sob alguma condição.** Por esse teste, os outros dois são o **GitHub**, que hospeda o código e roda todos os gates, e o **Terraform Cloud**, que guarda o estado da infraestrutura. Os dois cobram **USD 0,00** hoje, e escrever só isso seria a resposta mais enganosa.
+
+Outros dois ficam logo fora do critério, e estão nomeados para que ele apareça funcionando em vez de excluir em silêncio: o **SonarCloud**, cujo gate faz parte do conjunto listado abaixo e cujo tier gratuito depende da mesma condição de repositório público, e a **analytics**, que depende de consentimento e aparece no desenho de runtime lá em cima. Nenhum dos dois jamais gerou cobrança; os dois entrariam no instante em que pudessem.
 
 **São gratuitas sob condições, e as condições é que interessam:**
 
-- **O GitHub Actions é gratuito porque os repositórios são públicos.** Tornar qualquer um deles privado passa a medir minutos contra uma cota mensal — e o pipeline deste site roda o conjunto inteiro de gates **a cada pull request**, e de novo no merge: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O GitHub Actions é gratuito porque os repositórios são públicos.** Tornar qualquer um deles privado passa a consumir minutos de uma franquia mensal — e o pipeline deste site roda o conjunto inteiro de gates **a cada pull request**, e de novo no merge: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
 - **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. Esse teto é contado em **recursos** — não em tráfego, nem em gasto — então é o único limite aqui que uma **decisão** move, e não um público.
 
-Então o formato honesto é **três contas: duas condicionais e uma medida** — e as duas condicionais dependem de escolhas, não de uso. Um repositório privado, ou um parque bem maior, tira as duas do zero; mais leitores, não.
+Então o formato honesto é **três faturas: duas condicionais e uma medida** — e as duas condicionais dependem de escolhas, não de uso. Um repositório privado, ou um parque bem maior, tira as duas do zero; mais leitores, não.
 
 **E o mesmo vale para a medida, que é a parte escondida pelo total.** Dos USD 6,57, USD 6,42 são um registro anual e USD 0,50 é uma zona hospedada fixa — a linha precificada por tráfego arredonda para nada. Esta conta é dominada por custo fixo, então também não escala com leitores. As três são praticamente insensíveis a quanta gente visita, e todas se mexem por decisão: registrar um nome, fechar um repositório, crescer o parque.
 
@@ -81,7 +83,7 @@ Então o formato honesto é **três contas: duas condicionais e uma medida** —
 
 Mesmo completo nos três provedores, ele é **só infraestrutura e ferramental**. Não inclui a assinatura do Claude Max em que este trabalho roda, e não inclui uma hora sequer minha.
 
-Isso precisa estar escrito, senão o número mente por omissão: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** São perguntas diferentes, e só a primeira tem fatura.
+Isso precisa estar escrito, senão o número mente por omissão: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** São duas perguntas diferentes, e esta seção responde só a primeira.
 
 ### Pra que serve o guardrail, na prática
 

@@ -64,7 +64,9 @@ Treat the serving lines as a measurement with a date on it rather than a standin
 
 ### The other two bills, and why zero is the wrong way to write them
 
-AWS is one of three services this site depends on. The other two are **GitHub** — which hosts the code and runs every gate — and **Terraform Cloud**, which holds the infrastructure state. Both bill **USD 0.00** today, and writing only that would be the more misleading answer.
+AWS is one of the providers that could invoice this — and that is the criterion, stated rather than left to a count, because a number goes stale the moment a dependency is added. **Anything that bills, or would bill on a condition, belongs here.** By that test the other two are **GitHub**, which hosts the code and runs every gate, and **Terraform Cloud**, which holds the infrastructure state. Both bill **USD 0.00** today, and writing only that would be the more misleading answer.
+
+Two more sit just outside it and are named so the criterion is visibly doing work rather than quietly excluding: **SonarCloud**, whose gate is part of the set below and whose free tier turns on the same public-repository condition, and **analytics**, which is consent-gated and appears in the runtime picture further up. Neither has ever produced a charge; both would fall inside the moment they could.
 
 **They are free on conditions, and the conditions are the interesting part:**
 
@@ -81,7 +83,7 @@ So the honest shape is **three bills, two of them conditional and one of them me
 
 Complete across three providers, it is still **infrastructure and tooling only**. It does not include the Claude Max subscription this work runs on, and it does not include a single hour of mine.
 
-That has to be said or the number lies by omission: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** Those are different questions, and only the first one has an invoice.
+That has to be said or the number lies by omission: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** Two different questions, and this section only answers the first.
 
 ### What the guardrail is actually for
 
