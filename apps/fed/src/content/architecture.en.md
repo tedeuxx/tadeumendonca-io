@@ -98,7 +98,7 @@ The build lane in the diagram above is the seam: adding a server means moving wo
 
 ## Every decision, and where it stands
 
-The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked by the build: a decision added or superseded that has not been regenerated turns the build red, so the page either matches the library or nothing ships. A hand-copied index of a library this size is stale within a week and nothing says so — this one is the same mechanism as the diagrams above, and for the same reason.
+The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked in CI: a decision added or superseded that has not been regenerated turns the pipeline red, so the page either matches the library or nothing ships. A hand-copied index of a library this size is stale within a week and nothing says so — this one is the same mechanism as the diagrams above, and for the same reason.
 
 ```adr-index
 ```

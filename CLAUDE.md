@@ -272,11 +272,16 @@ they run; a job running a pipeline is named after the script.
   build because `VERSION` is a build input; `terraform-apply` must precede `deploy-app` because the app
   resolves its bucket and distribution from SSM parameters Terraform creates.
 
-**Two filter facts that look like mistakes and are not.** `iac/cloudfront-functions/**` is in **both**
+**Three filter facts that look like mistakes and are not.** `iac/cloudfront-functions/**` is in **both**
 the `app` and `iac` filters — it is JS with behaviour *and* a Terraform diff, and the two gates prove
-different things (ADR-0018 amendment). And `VERSION` is in the **PR** gate's filter but deliberately
+different things (ADR-0018 amendment). `VERSION` is in the **PR** gate's filter but deliberately
 **not** in the deploy gate's: the deploy diffs `<last tag>..HEAD`, and HEAD *is* the bump commit, whose
-whole content is that file — including it would make the filter match everything, always.
+whole content is that file — including it would make the filter match everything, always. And
+`docs/adr/**` is in the **`app`** filter because it is the authored source of a published artifact (the
+decision index on `/architecture`); it is **not** in the deploy gate's, and that omission is about
+**credentials**, not noise — `deploy`'s gate outputs decide whether an OIDC-credentialed job runs, so
+every path added there widens the credential surface. The reasons for all three live in
+[`.github/workflows/README.md`](./.github/workflows/README.md); this is the map, that is the territory.
 
 **Every PR workflow runs on every PR and filters inside the job.** A workflow-level `paths:` filter can
 never be a required check: on a non-matching PR it never reports and sits pending. Each ends with a
