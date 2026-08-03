@@ -1,4 +1,8 @@
-// The decision index on /architecture, compiled from `docs/adr/` at build time (#318).
+// The decision index on /architecture, generated from `docs/adr/` and verified in CI (#318).
+//
+// NOT "compiled at build time" — `npm run build` never runs `gen-adrs`. That phrasing was corrected in
+// the page copy and in the table's caption and survived here, in the same commit whose message named
+// "fixing one of two places" as this slice's recurring failure. Third instance, found by `security`.
 //
 // WHY A COMPONENT AND NOT A MARKDOWN TABLE. The page's own principle is that it LINKS canonical detail
 // rather than restating it — that is what keeps it drift-safe. An index is the one case where linking

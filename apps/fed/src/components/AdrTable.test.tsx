@@ -47,7 +47,11 @@ describe('AdrTable', () => {
     const { container } = renderWithLocale(<AdrTable />, { locale: 'en' });
     const row = container.querySelector(`tbody tr:has(a[href$="${marked!.file}"])`);
 
-    expect(row?.querySelector('del')).not.toBeNull();
+    // `row` asserted first, and not folded into optional chaining: `row?.querySelector('del')` returns
+    // `undefined` when the ROW is missing, and `not.toBeNull()` passes on `undefined` — so a selector
+    // that found nothing would have read as a pass. Found by `security`.
+    expect(row).not.toBeNull();
+    expect(row!.querySelector('del')).not.toBeNull();
     expect(row?.textContent, 'the table must not publish markdown syntax').not.toContain('~~');
   });
 
