@@ -40,9 +40,9 @@ on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's i
 
 ## What you need before you fork
 
-**Three of the six cost money, and that is the honest front of this pitch** — a reader four steps into a
-setup should not be the one to discover it. What they buy: a site that is live at your own apex,
-prerendered in two locales, gated on every merge, and deployed by merging.
+**Three of the six cost money** — and a reader four steps into a setup should not be the one to discover
+it. What they buy: a site live at your own apex, prerendered in two locales, gated before every merge,
+and deployed by merging.
 
 ### Accounts
 
@@ -51,9 +51,16 @@ prerendered in two locales, gated on every merge, and deployed by merging.
 | **AWS account** | **no** — see the cost below | S3, CloudFront, Route 53, ACM |
 | **A registered domain** | **no** — the largest single line in this site's bill | the site serves at an apex you own |
 | **GitHub account** | yes | the repo, and CI is GitHub Actions |
-| **Terraform Cloud org** | yes — this workspace holds **52 managed resources** ([`iac/versions.tf`](./iac/versions.tf) says so), well inside the free tier's resource allowance. Check [their pricing](https://www.hashicorp.com/pricing) for the current limits rather than trusting this line — nothing here can keep it true | Terraform state. Execution mode is **Local**, so TFC holds state and CI runs the plan |
-| **SonarCloud account** | yes — **because this repo is public.** A private fork needs a paid plan | the quality gate on `app` |
-| **Claude Code** | **no** — a paid Anthropic plan; there is no free tier | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
+| **Terraform Cloud org** | yes — this workspace is small enough for the free tier | Terraform state. Execution mode is **Local**, so TFC holds state and CI runs the plan |
+| **SonarCloud account** | yes — **because this repo is public** | the quality gate on `app` |
+| **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
+
+**The three "yes" rows are the ones nothing here can keep true.** Terraform Cloud, SonarCloud and
+Anthropic set their own tiers and change them without telling this repo — so check
+[HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/)
+and [Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells. What is stated here
+is the *condition* each one depends on — workspace size, and the repo being public — because those are
+facts about this repo and they are the part that would change on your side.
 
 **The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
 account and no AWS bill at all** — it has neither.
@@ -69,10 +76,12 @@ account and no AWS bill at all** — it has neither.
 
 ### What it costs to run
 
-Roughly **USD 6.57/month, and USD 6.42 of that is the domain name** — registration amortized plus the
-Route 53 hosted zone. S3 is about 0.15 (deploy *writes*, not reads) and CloudFront rounds to zero at this
-traffic. The full breakdown, with its measurement date and why it is sourced partly from the bill and
-partly from the registrar's price list, is on [`/architecture`](https://tadeumendonca.io/en/architecture).
+**Almost all of it is the name.** Registration amortized plus the Route 53 hosted zone dwarf everything
+else: publishing is cents, and serving a visitor rounds to zero. The figure, its measurement date, and
+why it is sourced partly from the bill and partly from the registrar's price list are on
+[`/architecture`](https://tadeumendonca.io/en/architecture) — **stated there and not repeated here**, so
+one number does not go stale on two surfaces. That page also treats it as a measurement with a date
+rather than a standing fact, which is the framing the number needs and this table cannot carry.
 
 ### GitHub secrets and variables
 
@@ -87,7 +96,7 @@ prints twelve lines for **seven distinct secrets**, and exactly three jobs decla
 | `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the recipient of the account cost alert, passed to Terraform as a variable |
 | `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform's access to its own state |
 | `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate's authentication |
-| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | the **checkout token** the `release` job uses to push the bump commit and tag |
+| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN`, doing three things: the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link resolves to nothing |
 | `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` on issues and PRs — it silently does not answer without one |
 
 **The scope column is what the job can read, not a preference.** An **environment**-scoped secret is
@@ -105,13 +114,15 @@ environment-scoped secret can be created at all**, which is invisible until it i
 
 ### What is deliberately not here yet
 
-This section is the first slice of #319, which the owner rescoped on 2026-08-02. Named so a reader can
-see what is absent rather than assume it was forgotten:
+Named so you can see what is absent rather than assume it was forgotten — each with where it lives today:
 
-- **the fork-to-live walkthrough** — sequenced after #318, which moves the setup procedure off
-  `/architecture`. Until then that page carries it;
-- **the architecture diagram in this README**, with a test asserting it against the page's copy;
-- **an ADR** for why the OIDC provider and the Terraform-running role are bootstrapped by hand.
+- **the fork-to-live walkthrough.** [`/architecture`](https://tadeumendonca.io/en/architecture) carries it
+  now; it moves here once that page is restructured;
+- **the architecture diagram**, with a test holding it against the page's copy. The diagram is on
+  `/architecture` today;
+- **an ADR** for why the OIDC provider and the role that *runs* Terraform are bootstrapped by hand.
+  The reasoning is already public on `/architecture` — it is the decision *record* that is missing, not
+  the explanation.
 
 ## Structure
 
