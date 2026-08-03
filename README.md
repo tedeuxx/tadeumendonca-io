@@ -50,21 +50,23 @@ and deployed by merging.
 |---|---|---|
 | **AWS account** | **no** — see the cost below | S3, CloudFront, Route 53, ACM |
 | **A registered domain** | **no** — the largest single line in this site's bill | the site serves at an apex you own |
-| **GitHub account** | yes | the repo, and CI is GitHub Actions |
+| **GitHub account** | yes — **because this repo is public**; Actions minutes are metered on a private one | the repo, and CI is GitHub Actions |
 | **Terraform Cloud org** | yes — this workspace is small enough for the free tier | Terraform state. Execution mode is **Local**, so TFC holds state and CI runs the plan |
 | **SonarCloud account** | yes — **because this repo is public** | the quality gate on `app` |
 | **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
 
-**Two of those rows are free *conditionally*, and the condition is a fact about this repo** — Terraform
-Cloud's is how small this workspace is, SonarCloud's is the repo being public. Those are the parts that
-change on **your** side, which is why they are stated rather than the tier. GitHub is unconditional at
-this scale, and **Claude Code is simply paid** — what varies there is whether you want the loop, which
-is a fact about you, not about this repo.
+**Every "yes" here is conditional, and each condition is a fact about the repo rather than about the
+tier** — which is why the condition is what is stated. **Two of the three are the same condition:
+this repo is public**, which is what makes GitHub Actions minutes and SonarCloud free; a private fork
+pays for both. The third is workspace size, for Terraform Cloud.
 
-**None of the three vendors is something this file can keep true.** They set their own tiers and change
-them without telling a README, so check [HashiCorp](https://www.hashicorp.com/pricing),
-[SonarCloud](https://www.sonarsource.com/plans-and-pricing/) and
-[Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells.
+**Claude Code is the one row with no condition at all** — it is paid, and what varies is whether you
+want the loop, which is a fact about you and not about this repo.
+
+**None of these vendors is something this file can keep true.** They set their own tiers and change them
+without telling a README, so check [GitHub](https://github.com/pricing),
+[HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/)
+and [Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells.
 
 **The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
 account and no AWS bill at all** — it has neither.
@@ -85,7 +87,8 @@ Route 53 hosted zone dwarf everything else: publishing is cents, and serving a v
 **Your TLD sets that line, not this architecture** — a `.com` and a `.io` are different bills for the
 same site. The figure, its measurement date, and
 why it is sourced partly from the bill and partly from the registrar's price list are on
-[`/architecture`](https://tadeumendonca.io/en/architecture) — **stated there and not repeated here**, so
+[`/architecture`](https://tadeumendonca.io/en/architecture) — or, if you have the clone,
+[`architecture.en.md`](./apps/fed/src/content/architecture.en.md) — **stated there and not repeated here**, so
 one number does not go stale on two surfaces. That page also treats it as a measurement with a date
 rather than a standing fact, which is the framing the number needs and this table cannot carry.
 
