@@ -156,12 +156,12 @@ describe('AppShell', () => {
   it('is a react-router route, not a plain anchor — so it does not full-load back to the landing', () => {
     renderShell('pt');
     const portfolio = screen.getByRole('link', { name: 'Portfólio' });
-    // The border marks `route: true` and is UNCONDITIONAL for route entries — it says nothing about
-    // the active state, which is the separate `text-foreground` class. Stated because the first draft
-    // of this file let this assertion stand in for active-state coverage, and it cannot: it is green
-    // on every route entry on every page.
-    expect(portfolio.className).toContain('border-border');
-    expect(screen.getByRole('link', { name: 'Artigos' }).className).not.toContain('border-border');
+    // The href is what distinguishes the route from the anchor it replaced — NOT the border, which
+    // used to encode `route: true` and no longer encodes anything (#346, and the nav-border test
+    // below). The active-state coverage is separate (`text-foreground` / `aria-current`), in the two
+    // tests that follow: this one must not be allowed to stand in for it.
+    expect(portfolio).toHaveAttribute('href', '/pt/portfolio');
+    expect(screen.getByRole('link', { name: 'Artigos' })).toHaveAttribute('href', '/pt/#artigos');
   });
 
   // The active state was an owner acceptance criterion, and the entry SWAPPED MECHANISMS to satisfy
@@ -195,6 +195,53 @@ describe('AppShell', () => {
     const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'));
     expect(hrefs).not.toContain('/pt/#portfolio');
     expect(hrefs).toContain('/pt/portfolio');
+  });
+
+  // #346. The border used to encode what an entry IS: `route: true` rendered `border border-border`,
+  // the two landing anchors rendered none. With those anchors sitting at positions 1 and 3, the rule
+  // came out as an ALTERNATING border, which reads as a glitch rather than as a cue — and the border
+  // never carried the distinction for a screen-reader user at all. The decision is that it is chrome:
+  // every item carries it, and route-vs-anchor stays expressed by `aria-current` (`page` from the
+  // router, `true` from the scroll-spy), which is the mechanism that was always doing the work.
+  //
+  // Asserted across the WHOLE nav, not on the two entries that changed. The defect class here is "one
+  // item differs from the rest", so pinning only yesterday's two would leave the next divergence
+  // uncovered — including the reverse of this change, a border removed from one route entry.
+  //
+  // Both copies are checked because the mobile menu is a second live mount of NavItems, not a restyling
+  // of the desktop one; a change that reached only one of them is a real, shippable outcome.
+  const NAV_LABELS = ['Artigos', 'Portfólio', 'Contato', 'Ramp-up', 'Arquitetura', 'Perfil'];
+
+  it('borders every nav item, in the desktop bar and in the mobile menu alike', () => {
+    renderShell('pt');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+
+    for (const name of NAV_LABELS) {
+      const copies = screen.getAllByRole('link', { name });
+      // Pinned at two so the loop cannot pass by inspecting a single copy: with the menu open both
+      // renderings are mounted, and an entry present in only one of them is exactly the half-applied
+      // change this test exists to catch.
+      expect(copies, `${name} should render in both the desktop bar and the mobile menu`).toHaveLength(2);
+      for (const link of copies) {
+        expect(link.className, `${name} must carry the nav border`).toContain('border-border');
+      }
+    }
+  });
+
+  // The other half: the border is UNCONDITIONAL. Making it appear on the active entry would satisfy
+  // "every item is bordered" on some page and re-create the same visual inconsistency on every other,
+  // so the active entry and an inactive neighbour are compared side by side on the same render.
+  it('keeps the border unconditional — the active entry is marked by colour, not by gaining a border', () => {
+    renderShell('pt', '/pt/portfolio');
+    const portfolio = screen.getByRole('link', { name: 'Portfólio' });
+    const articles = screen.getByRole('link', { name: 'Artigos' });
+
+    expect(portfolio.className).toContain('border-border');
+    expect(portfolio.className).toContain('text-foreground');
+    // Inactive, bordered identically — 'text-muted-foreground' does not contain 'text-foreground', so
+    // this negative is real rather than an accident of substring matching.
+    expect(articles.className).toContain('border-border');
+    expect(articles.className).not.toContain('text-foreground');
   });
 });
 

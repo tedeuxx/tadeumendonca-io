@@ -36,9 +36,14 @@ interface NavEntry {
 }
 const NAV: NavEntry[] = [
   { href: '/#artigos', labelKey: 'nav.articles', section: 'artigos' },
-  // Position preserved deliberately. Routes render with a border and anchors without, so moving this
-  // entry down into the route group would have looked tidier — and would have silently reordered the
-  // reader's menu, which is not what #315 is. It stays second, and the border now alternates.
+  // Position preserved deliberately, and it still is — reordering the reader's menu is not what #315
+  // was, nor what #346 is. What changed is the reason it USED to look odd: routes were bordered and
+  // anchors were not, so with the two anchors at positions 1 and 3 the border alternated and read as a
+  // glitch rather than as a rule. #346 settled that the border is CHROME, not meaning — every entry
+  // carries it now, so there is no alternation left to justify and nothing here depends on the order.
+  // The route/anchor difference is still expressed where it is actually load-bearing: `isActive` /
+  // `aria-current="page"` for routes, scroll-spy `aria-current="true"` for anchors. A border announces
+  // nothing to a screen reader, so it was never carrying that distinction for everyone.
   { href: '/portfolio', labelKey: 'nav.portfolio', route: true },
   { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
   { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
@@ -47,7 +52,12 @@ const NAV: NavEntry[] = [
 ];
 const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => id !== undefined);
 
-const linkClass = 'px-3.5 py-2 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground invert-hover';
+// Shared by BOTH nav shapes — the route `NavLink` and the anchor `<a>`. The border lives here, in the
+// one class both branches use, rather than being repeated per branch: #346 decided it is chrome, so
+// "every nav item is bordered" is now an invariant of the item, not a property of what it links to.
+// Keeping it in a single place is what stops the two branches drifting apart again.
+const linkClass =
+  'border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground invert-hover';
 
 function Brand() {
   const lp = useLocalePath();
@@ -73,7 +83,7 @@ function NavItems({ activeSection, onNavigate }: { activeSection: string | null;
             key={href}
             to={lp(href)}
             onClick={onNavigate}
-            className={({ isActive }) => cn(linkClass, 'border border-border', isActive && 'text-foreground')}
+            className={({ isActive }) => cn(linkClass, isActive && 'text-foreground')}
           >
             {t(labelKey)}
           </NavLink>
