@@ -146,18 +146,45 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { name: /O registro de decisões É a documentação/ })).toBeVisible();
 
     // The orientation contract, on the real page: both public repos and catalog-ready are reachable.
-    await expect(page.getByRole('link', { name: 'tadeumendonca-io' }).first()).toHaveAttribute(
-      'href',
-      'https://github.com/tedeuxx/tadeumendonca-io',
-    );
-    await expect(page.getByRole('link', { name: 'tadeumendonca-skills' }).first()).toHaveAttribute(
-      'href',
-      'https://github.com/tedeuxx/tadeumendonca-skills',
-    );
     await expect(page.getByRole('link', { name: 'docs/catalog-ready.md' })).toHaveAttribute(
       'href',
       'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md',
     );
+
+    // #318. The two repos are no longer inline links in a bulleted list — they are the section's closing
+    // CALL TO ACTION, rendered as <RepoCard>s by the lone-URL facade (ADR-0035). Located by testid and
+    // asserted on href rather than by accessible name, because a card's name is its whole body (owner/name
+    // + language + description + "view on GitHub") and pinning that string would make this journey go red
+    // on a copy edit — a check somebody deletes, not a check that caught something.
+    const cards = page.getByTestId('repo-card');
+    await expect(cards).toHaveCount(2);
+    expect(
+      await cards.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href.replace(/\/$/, ''))),
+      'the closing element leaves for both public repos, in order',
+    ).toEqual([
+      'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/tadeumendonca-skills',
+    ]);
+    // The mark #318 asked for, and the reason it is asserted rather than trusted: it is decorative
+    // (aria-hidden), so nothing in the accessible tree would notice it vanishing.
+    const mark = cards.first().locator('svg');
+    await expect(mark).toHaveCount(1);
+
+    // The accent tint, and this check's reach is stated rather than assumed because it is narrower than
+    // it looks. The mark is accent-coloured by THREE independent causes — `.markdown a` paints every
+    // anchor in this container, the enclosing span carries `group-hover:text-primary`, and the mark
+    // itself carries `text-primary` — so removing any ONE of them leaves this green. Both the resting
+    // and the hover form were mutation-checked against a build with `text-primary` deleted, and both
+    // passed; that is recorded here instead of a mutation-proof claim this assertion cannot support.
+    //
+    // What it does catch is the failure no unit test can see: `--primary` redefined, or the anchor rule
+    // in index.css re-coloured, either of which silently ends "a GitHub mark in the accent" site-wide.
+    // The class itself is pinned in RepoCard.test.tsx, where deleting it DOES go red.
+    //
+    // `rgb(255, 89, 0)` and not `255, 90, 0`: the accent is authored as `--primary: 21 100% 50%`, and the
+    // browser's HSL→RGB rounding lands one unit under #FF5A00. Pinned as the browser computes it rather
+    // than as the hex is written, or the test is right about the design system and red about the product.
+    expect(await mark.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 89, 0)');
   });
 
   // #318. The decision index is compiled from `docs/adr/` at build time, so what is worth asserting on

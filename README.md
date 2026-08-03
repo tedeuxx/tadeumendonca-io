@@ -116,15 +116,80 @@ environment-scoped secret can be created at all**, which is invisible until it i
 
 ### What is deliberately not here yet
 
-Named so you can see what is absent rather than assume it was forgotten — each with where it lives today:
+Named so you can see what is absent rather than assume it was forgotten — with where it lives today:
 
-- **the fork-to-live walkthrough.** [`/architecture`](https://tadeumendonca.io/en/architecture) carries it
-  now; it moves here once that page is restructured;
 - **the architecture diagram**, with a test holding it against the page's copy. The diagram is on
-  `/architecture` today;
-- **an ADR** for why the OIDC provider and the role that *runs* Terraform are bootstrapped by hand.
-  The reasoning is already public on `/architecture` — it is the decision *record* that is missing, not
-  the explanation.
+  [`/architecture`](https://tadeumendonca.io/en/architecture) today.
+
+Two entries left this list rather than being dropped from it. The **fork-to-live walkthrough** is now
+directly below, moved off `/architecture` because a page that links canonical detail should not also be a
+setup guide — and the copy that lived there had gone stale describing renamed workflows, which is the
+argument rather than a coincidence. The **ADR for the hand-bootstrapped trust root** is
+[ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also narrows
+[ADR-0014](./docs/adr/0014-terraform-cloud-pipeline-only.md)'s "no irreversible cloud mutation in the
+inner loop" claim to what is actually true.
+
+## Fork to live
+
+**Roughly an evening, and most of it is waiting on DNS and a certificate** — the two steps below that no
+amount of preparation makes faster. Everything in
+[What you need before you fork](#what-you-need-before-you-fork) is assumed in place.
+
+1. **Fork both repos.** Read the ADRs first, starting at
+   [0001](./docs/adr/0001-lean-by-design-calibrated-to-strategy.md) — the decisions are the part worth
+   taking, and several of them will not fit your context. If you only want the loop, stop after
+   [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills): it installs with no cloud
+   account, no domain and nothing to deploy, and its README is self-contained.
+2. **Register the domain and create its Route 53 hosted zone.** Then request an ACM certificate **in
+   `us-east-1`** — CloudFront reads certificates from that region only, wherever the rest of your stack
+   lives — and **add its validation CNAMEs to the zone**, which is the part that actually makes you wait.
+   Both are read as **pre-existing data sources** by [`iac/data.tf`](./iac/data.tf); Terraform never
+   creates them, so a missing certificate fails the first `plan` rather than being provisioned for you.
+   What this costs you is in [What it costs to run](#what-it-costs-to-run) — check the **renewal** price
+   of your TLD, not just the first year.
+3. **Create a Terraform Cloud organization and one workspace**, execution mode **Local**, then point
+   [`iac/versions.tf`](./iac/versions.tf) at your names — **and the two `TF_WORKSPACE` values in
+   `.github/workflows/`**, which is where the workspace is actually selected. There are exactly two, and
+   they are not both in the same workflow: `iac.yml`'s `terraform-plan` job and `deploy.yml`'s
+   `terraform-apply` job. `grep -rn 'TF_WORKSPACE:' .github/workflows/` is the check — change only
+   `versions.tf` and CI still talks to *my* workspace. **Local execution is what the repo uses, not a
+   recommendation:** state lives in TFC, but `plan` and `apply` run in CI, where the credentials are
+   short-lived OIDC roles. Remote mode would keep credentials in the workspace, and then there are two
+   places infrastructure can change from.
+4. **Create the trust root by hand, before the first CI run.** Terraform creates the **fed deploy** role
+   that publishes the site. It does **not** create the GitHub OIDC provider, the **infra** role that CI
+   assumes to run Terraform, or that role's `tadeumendonca-iac-deploy` policy — those three are created
+   out of band with the AWS CLI and stay outside Terraform permanently. So before your first CI run the
+   account must already hold **five** things: the hosted zone and the `us-east-1` certificate from step 2,
+   plus the provider, the infra role and its policy. Miss any of the last three and the failure is opaque
+   — `Not authorized to perform sts:AssumeRoleWithWebIdentity`, which reads exactly like the
+   immutable-subject trap in the next paragraph.
+
+   **Two decisions are doing the work here, and neither is setup trivia.** *Why the trust root is
+   permanently out of band* — bootstrap circularity, and the permanent one, that a role able to rewrite
+   its own trust policy has no ceiling — is
+   [ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also states its accepted
+   costs: no `plan` detects drift on any of it, and the hand path **reopens every time that policy
+   changes** rather than being a one-time act.
+   [`docs/iac-deploy-policy.md`](./docs/iac-deploy-policy.md) is the standing runbook for exactly that,
+   and [`docs/iac-deploy-policy.json`](./docs/iac-deploy-policy.json) is the desired document to apply.
+   *Why the role's trust names an **immutable** subject* — `repo:<org>@<org_id>/<repo>@<repo_id>:*`, by
+   numeric ID rather than by name, since a name can be transferred and the IDs cannot — is
+   [ADR-0015](./docs/adr/0015-oidc-immutable-subject-least-privilege.md). Its cost is that the safer form
+   is not copy-pasteable: you have to look your own IDs up.
+5. **Wire the GitHub secrets.** All seven are in
+   [GitHub secrets and variables](#github-secrets-and-variables) above, with the scope each one takes and
+   the job that reads it — **that table, not a second copy of it here.** The one thing to carry forward
+   while you work through it: anything naming AWS is **environment**-scoped, tooling tokens are
+   **repository**-scoped, and the `staging` environment has to exist in repository settings before an
+   environment secret can be created at all.
+6. **Replace the content and the positioning.** [`apps/fed/src/content/`](./apps/fed/src/content) for the
+   long-form, `src/data/profile.ts` for the CV, `src/data/catalog.ts` for the portfolio,
+   `src/i18n/messages.ts` for the chrome. Every reader-facing module is typed so that a missing
+   translation is a **compile error** rather than a page that quietly serves the wrong language.
+7. **Merge to `main`.** The merge *is* the deploy — there is no promote step and no second environment to
+   catch what the pull request missed. That is the trade the whole architecture makes, and it is only
+   safe because the gates run on the PR.
 
 ## Structure
 
