@@ -161,6 +161,45 @@ A figura mostra por onde o trabalho passa. O que ela não consegue mostrar é qu
 
 E o custo disso, já que o resto desta página assume os seus: quem decide que uma mudança é segura é o mesmo tipo de coisa que escreveu a mudança. Classifique uma errado e ela pega o caminho vazio. O que torna isso aceitável aqui é raio de impacto, não confiança — isto é um site estático, e reverter é um merge.
 
+### Do que o loop é feito, e o que cada parte consegue de fato fazer
+
+A figura acima responde *por onde o trabalho passa*. Ela não diz do que o loop é **feito** — e é essa a pergunta de quem está decidindo se adota isso. São dois desenhos separados de propósito: um só, tentando ser os dois, teria que dar a mesma seta pra um hook que recusa um comando e pra uma lente que alguém precisa lembrar de acionar, e essa diferença é a coisa mais útil desta página.
+
+```mermaid
+flowchart TB
+  accTitle: Do que o harness é feito
+  accDescr: Três tipos de componente, desenhados separados porque não têm a mesma força. Quatro hooks, registrados no hooks.json — permission-guard e wip-guard rodam no evento PreToolUse com o matcher Bash e RECUSAM uma chamada de ferramenta antes dela acontecer; session-wip e session-plugin-version rodam no SessionStart e só reportam estado. Seis personas no diretório agents — tech-lead, product-lead, marketing-lead, developer, quality-assurance e security — apenas ACONSELHAM: cada uma precisa ser acionada, nada garante que foi, e uma que não é acionada falha em silêncio. Isso inclui quality-assurance e security, cuja autoridade sobre um merge é convenção do guia deste repositório e não mecanismo. Seis famílias de comando no diretório commands — architecture 1, backend 20, frontend 18, infrastructure 21, principles 5, workflow 9 — mais autonomy-on, o único comando fora de qualquer família, apenas DOCUMENTAM: tiram uma re-decisão do caminho. No desenho a aresta que nega é grossa e na cor de destaque, a que aconselha é tracejada, e as que documentam são comuns. Essa diferença é o que está sendo afirmado, não enfeite.
+  HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
+  PS["6 personas · agents/<br/>tech-lead<br/>product-lead<br/>marketing-lead<br/>developer<br/>quality-assurance<br/>security"]
+  CF["6 famílias de comando<br/>commands/<br/>architecture 1<br/>backend 20<br/>frontend 18<br/>infrastructure 21<br/>principles 5<br/>workflow 9"]
+  OC["autonomy-on<br/>1 comando, sem família"]
+  HKR["2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version"]
+  DE["O que o agente decide"]
+  RU["O que o agente executa"]
+  GM["Aí os gates, aí o merge<br/>— a figura acima"]
+  HKD -- "nega a chamada" --> RU
+  PS -- "aconselha, se acionada" --> DE
+  CF -- "documenta" --> DE
+  OC -- "documenta" --> DE
+  HKR -- "documenta" --> DE
+  DE --> RU
+  RU --> GM
+  classDef mechanism stroke:#FF5A00,stroke-width:3px
+  classDef convention stroke-dasharray:6 4
+  class HKD mechanism
+  class PS convention
+  linkStyle 0 stroke:#FF5A00,stroke-width:3px
+  linkStyle 1 stroke-dasharray:6 4
+```
+
+**Só uma caixa daquele desenho consegue te barrar**, e essa é a versão honesta do convite a adotar. Dois dos quatro hooks rodam no `PreToolUse`: o runtime do agente chama eles *antes* da ferramenta rodar, eles devolvem uma negativa e o comando não acontece. Os outros dois rodam no `SessionStart` e só reportam — não têm chamada nenhuma pra recusar, e é por isso que não estão desenhados como piso. As personas são documentos: são acionadas por julgamento, e o guia deste repositório diz com todas as letras que uma lente que ninguém aciona *falha em silêncio*. Os comandos não são nem uma coisa nem outra — são a forma escrita de uma decisão já tomada, pra ninguém rediscutir ela às duas da manhã.
+
+**O inventário é derivado, não digitado aqui.** Cada nome, evento, matcher, caminho e contagem acima vem de um [manifesto gerado a partir do repositório do plugin](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/harness-source.mjs), e um [job de CI](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compara esse manifesto com a árvore viva do plugin de três formas — um componente que falta no manifesto, uma linha do manifesto sem nada por trás, e uma que existe dos dois lados tendo mudado de forma. Adicione, aposente ou renomeie uma persona lá e o build deste repositório fica vermelho. *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md))*
+
+**O que isso não compra é atualidade, e a lacuna é estrutural, não descuido.** O plugin é um *outro repositório*, e nada aqui consegue disparar num merge lá. Então o vermelho chega no próximo build daqui — que pode ser dias depois, e numa mudança que não tem nada a ver. **Esta página pode estar errada essa janela inteira e não vai avisar.** Dois limites menores, pela mesma razão que o resto da página assume os seus: a verificação compara **identidade**, então um hook que mantém o nome e muda o que faz publica uma descrição velha com o build verde; e as glosas curtas nas arestas — *nega a chamada*, *aconselha, se acionada* — são **escritas aqui** e não são verificadas por nada.
+
+É aí também que caem os dois termos do parágrafo de abertura. **AI-DLC** é a primeira figura: um ciclo de entrega cujas etapas são executadas e verificadas por agentes, e não em volta deles. **Agent Harness Engineering** é esta — a afirmação de que o harness é uma coisa que se constrói, se conta e se verifica, e não um jeito de escrever prompt. A evidência da segunda é que ele *pode* ser inventariado, a partir do repositório onde mora, com um build que quebra quando o inventário deixa de ser verdade.
+
 ## O registro de decisões É a documentação
 
 Nada de doc de arquitetura separado que descola da realidade. Toda decisão que sustenta peso — e as revertidas, mantidas como histórico — é um **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, lido através do keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.
@@ -191,4 +230,4 @@ O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto p
 
 Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
 
-E os três desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Dois deles você consegue conferir. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si. O terceiro você não consegue. Que o loop é seguido do jeito que está desenhado não é algo que esta página prove — nada aqui mostra que alguma mudança específica percorreu aquele trajeto. Aquele é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.
+E os quatro desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Três deles você consegue conferir, em três forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. O quarto você não consegue conferir de jeito nenhum. Que o loop é seguido do jeito que está desenhado não é algo que esta página prove — nada aqui mostra que alguma mudança específica percorreu aquele trajeto. Aquele é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.

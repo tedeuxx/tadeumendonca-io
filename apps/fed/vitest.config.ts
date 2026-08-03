@@ -46,6 +46,18 @@ export default defineConfig({
         // (gen-og-default.mjs) is excluded from the Sonar metric on the same terms as the other two —
         // browser harness, no unit-testable surface left once the decisions moved here.
         'scripts/og-copy.mjs',
+        // #318 / ADR-0043. The decision half of the harness inventory — what a component IS, which
+        // enforcement class it may claim, and whether the committed manifest still matches the plugin
+        // tree. Added here for the reason the `docs/adr/**` note two entries up spells out: this list is
+        // an ALLOWLIST, and a tested file left off it reads as 0% on new code to SonarCloud while the
+        // local average stays high.
+        //
+        // gen-harness.mjs and check-harness-drift.mjs are deliberately NOT here, on the same rule as
+        // gen-diagrams.mjs and gen-adrs.mjs: both are shells around this file — one writes it, one exits
+        // non-zero on it — and neither has a unit-testable surface left once the decisions moved out.
+        // check-harness-drift.mjs additionally requires a second repository on disk, which `npm test`
+        // must never need.
+        'scripts/harness-source.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',

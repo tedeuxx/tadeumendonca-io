@@ -1,0 +1,275 @@
+// The pure half of the harness-inventory pipeline (#318, ADR-0043): read the dev-loop plugin's tree,
+// turn it into components, and decide whether the committed manifest still matches them.
+//
+// Split from gen-harness.mjs for the same reason adr-source.mjs is split from gen-adrs.mjs: the
+// generator writes a file, which is a side effect; everything that DECIDES what the inventory contains
+// is logic and lives here, where it is testable against fixtures.
+//
+// WHY THIS EXISTS AT ALL, and it is not the usual "generated beats hand-typed" argument. The inventory's
+// source of truth is `tadeumendonca-skills`, a DIFFERENT repository — the only generated artifact on this
+// site whose source is not in this repo. ADR-0043 records the whole trade. The short version is the
+// motivating evidence: the specification for this very slice claimed 19 personas and 3 hooks, copied in
+// good faith from the plugin's own README diagram, and the tree said 6 and 4. A hand-typed table with a
+// date on it would have recorded the date the wrong numbers were copied.
+//
+// WHAT THIS MODULE READS AND WHAT IT DOES NOT. It reads IDENTITY — names, files, events, matchers,
+// counts. It does not read the `description` frontmatter, and the manifest carries no gloss: the short
+// label a diagram node shows is authored in the markdown fence, in each locale, and is NOT checked. That
+// is the same honest limit ADR-0040 states about its own guard — the guarantee is "the source exists and
+// is unchanged", never "this artifact describes it correctly".
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { basename, join } from 'node:path';
+
+/**
+ * The ENFORCEMENT CLASS, against a closed set, exactly as `parseStatus` treats an ADR status.
+ *
+ * This is the one field on the manifest that is a CLAIM rather than an observation, and it is the claim
+ * the diagram exists to make: a hook that refuses a tool call before it runs and a persona somebody has
+ * to remember to dispatch are not the same kind of thing. Drawing them alike would assert a mechanism
+ * that does not exist, on the one page whose credibility rests on declining to do that.
+ *
+ * - `denies`   — refuses before the act. The two `PreToolUse` hooks.
+ * - `advises`  — has to be dispatched, and is not enforced by anything. ALL SIX personas, including
+ *                `quality-assurance` and `security`: their authority over a merge is a convention of
+ *                this repo's CLAUDE.md, not a mechanism. This repo's own guide says a lens that is not
+ *                dispatched fails silently, and that is the honest sentence.
+ * - `documents`— neither denies nor advises; it removes a re-decision or reports state. The command
+ *                families, the un-namespaced command, and the two `SessionStart` hooks, which print
+ *                context at session start and cannot refuse anything.
+ *
+ * NOTE what is NOT in here: the CI gates. ADR-0043 classes them `denies` and they genuinely do refuse a
+ * merge — but they live in THIS repo's `.github/workflows/`, not in the plugin, so they are not derived
+ * and a manifest row for them would be an authored claim wearing a derived artifact's clothes. They are
+ * already drawn, as `Mechanical gates`, in the flow diagram this one complements.
+ */
+const ENFORCEMENT = ['denies', 'advises', 'documents'];
+
+/**
+ * The class of a component, from its kind — and for a hook, from its EVENT.
+ *
+ * Keyed on the event and not on "hook", deliberately. "Hooks deny" is false for half of them:
+ * `SessionStart` runs once at session start and has no tool call to refuse. Collapsing the four into one
+ * class would publish the stronger claim about two scripts that cannot make it, which is the same defect
+ * in miniature as drawing personas like hooks.
+ *
+ * A closed map that THROWS. A kind or an event this does not know is either a typo or a change to the
+ * practice; both are things a person should hear about, and neither should quietly become a diagram node.
+ */
+const ENFORCEMENT_BY_SHAPE = {
+  'hook:PreToolUse': 'denies',
+  'hook:SessionStart': 'documents',
+  persona: 'advises',
+  'command-family': 'documents',
+  command: 'documents',
+};
+
+export function enforcementFor(kind, event) {
+  const key = kind === 'hook' ? `hook:${event}` : kind;
+  const cls = ENFORCEMENT_BY_SHAPE[key];
+  if (!cls) throw new Error(`unrecognised harness component shape: "${key}"`);
+  return cls;
+}
+
+/**
+ * Validate an enforcement value read back from the COMMITTED manifest.
+ *
+ * `enforcementFor` guards the generator; this guards the file. The manifest is committed, so a hand-edit
+ * or a bad merge can put anything in that field, and the page would then draw a class nothing defines —
+ * the same hole `adrRecords` closes by re-sorting an artifact its generator already sorted.
+ */
+export function assertEnforcement(value) {
+  if (!ENFORCEMENT.includes(value)) {
+    throw new Error(
+      `unrecognised harness enforcement class: "${String(value).slice(0, 40)}" — expected one of ${ENFORCEMENT.join(', ')}`,
+    );
+  }
+  return value;
+}
+
+/** Is there a plugin tree at this path? The caller decides whether that is a skip or a failure. */
+export function pluginPresent(pluginDir) {
+  return existsSync(join(pluginDir, 'agents')) && existsSync(join(pluginDir, 'hooks', 'hooks.json'));
+}
+
+const dirsIn = (dir) => readdirSync(dir).filter((e) => statSync(join(dir, e)).isDirectory());
+const mdIn = (dir) => readdirSync(dir).filter((f) => f.endsWith('.md')).sort();
+
+/**
+ * The six personas, from `agents/*.md` frontmatter.
+ *
+ * The `name:` field is read from the document and compared against the FILENAME, and they must agree —
+ * the same assertion `parseRecord` makes about an ADR's heading versus its file. Claude Code dispatches
+ * by the frontmatter name while a reader finds the persona by its path; those two can disagree, and this
+ * is the only place positioned to notice.
+ */
+export function collectPersonas(pluginDir) {
+  const dir = join(pluginDir, 'agents');
+  return mdIn(dir).map((f) => {
+    const text = readFileSync(join(dir, f), 'utf8');
+    const declared = /^name:\s*(\S+)\s*$/m.exec(text)?.[1];
+    if (!declared) throw new Error(`agents/${f}: no \`name:\` in the frontmatter`);
+    const fromFile = basename(f, '.md');
+    if (declared !== fromFile) {
+      throw new Error(`agents/${f}: frontmatter says "${declared}", filename says "${fromFile}"`);
+    }
+    return {
+      kind: 'persona',
+      id: declared,
+      file: `agents/${f}`,
+      enforcement: enforcementFor('persona'),
+    };
+  });
+}
+
+/**
+ * The four hooks, from `hooks/hooks.json` — the WIRING file, not the scripts directory.
+ *
+ * `hooks/scripts/` holds nine files, five of which are the hooks' own `.test.sh` suites. Counting the
+ * directory would inventory the tests as hooks; counting the wiring inventories what is actually
+ * registered, which is the thing the diagram claims. It is also the field that drifted: nothing anywhere
+ * counted `session-plugin-version`, and the plugin's README still draws three.
+ *
+ * `matcher` is carried because it is half of what a `PreToolUse` hook IS — a guard re-pointed from `Bash`
+ * to something else is present on both sides with a different field, which is exactly the `changed` case
+ * a set comparison cannot see.
+ */
+export function collectHooks(pluginDir) {
+  const wiring = JSON.parse(readFileSync(join(pluginDir, 'hooks', 'hooks.json'), 'utf8'));
+  const out = [];
+  for (const [event, groups] of Object.entries(wiring.hooks ?? {})) {
+    for (const group of groups) {
+      for (const hook of group.hooks ?? []) {
+        const script = basename(String(hook.command).replace(/"$/, ''));
+        out.push({
+          kind: 'hook',
+          id: script,
+          file: `hooks/scripts/${script}`,
+          event,
+          // `null` rather than absent: an event with no matcher (SessionStart) and an event whose
+          // matcher was DELETED must not serialise identically, or the deletion is invisible to `changed`.
+          matcher: group.matcher ?? null,
+          enforcement: enforcementFor('hook', event),
+        });
+      }
+    }
+  }
+  return out.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/**
+ * The command families, and the one command that is in no family.
+ *
+ * `commands/autonomy-on.md` is handled EXPLICITLY rather than filtered away. A generator that walks only
+ * the directories drops it without a word, and the plugin's own suite asserts `root_cmds -eq 1` for
+ * exactly this reason — a second un-namespaced command is a real change to the shape and must go red,
+ * not vanish. Counting it as a seventh family would be the opposite error: it makes a category out of an
+ * orphan, which is how the "seven command families" figure was produced.
+ *
+ * A nested directory throws. Today the families are flat; if that stops being true, the count this
+ * publishes silently stops meaning what it says.
+ */
+export function collectCommands(pluginDir) {
+  const dir = join(pluginDir, 'commands');
+  const families = dirsIn(dir)
+    .sort()
+    .map((name) => {
+      const familyDir = join(dir, name);
+      if (dirsIn(familyDir).length > 0) {
+        throw new Error(`commands/${name}: nested directories — the family count no longer means what it says`);
+      }
+      return {
+        kind: 'command-family',
+        id: name,
+        file: `commands/${name}`,
+        commands: mdIn(familyDir).length,
+        enforcement: enforcementFor('command-family'),
+      };
+    });
+
+  const orphans = mdIn(dir).map((f) => ({
+    kind: 'command',
+    id: basename(f, '.md'),
+    file: `commands/${f}`,
+    enforcement: enforcementFor('command'),
+  }));
+
+  return [...families, ...orphans];
+}
+
+/** Fixed rather than alphabetical: the manifest is reviewed as a diff, and kind-grouped reads. */
+const KIND_ORDER = ['hook', 'persona', 'command-family', 'command'];
+
+export function collectComponents(pluginDir) {
+  const all = [
+    ...collectHooks(pluginDir),
+    ...collectPersonas(pluginDir),
+    ...collectCommands(pluginDir),
+  ];
+  return all.sort(
+    (a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.id.localeCompare(b.id),
+  );
+}
+
+/** A component's identity across the two sides of the comparison. `id` alone collides: a persona and a
+ *  command family could share a name, and today `architecture` is a family while nothing stops a persona
+ *  taking that name tomorrow. */
+export const componentKey = (c) => `${c.kind}:${c.id}`;
+
+/**
+ * Compare the plugin tree against the committed manifest, THREE ways.
+ *
+ * Not negotiable, and the reason is in adr-source.mjs's equivalent: a set comparison alone misses the
+ * likeliest drift. Here that is a persona RENAMED or a hook RE-POINTED to a different event — present on
+ * both sides, different in a field. Both gatekeepers independently found the equivalent field omission
+ * on the ADR index, so it is not hypothetical.
+ *
+ * The field comparison is a UNION OF KEYS rather than a hand-written list, and that is the direct lesson
+ * from that finding: the ADR version called itself "field by field" while skipping `file`, the one field
+ * a reader clicks. A list of fields is a place to forget one; a union cannot omit a field that exists on
+ * either side, including one added later by someone who never reads this comment.
+ */
+export function diffAgainstManifest(components, manifest) {
+  const committed = new Map(manifest.map((c) => [componentKey(c), c]));
+  const live = new Set(components.map(componentKey));
+
+  const differs = (a, b) => {
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    return [...keys].some((k) => a[k] !== b[k]);
+  };
+
+  return {
+    missing: components.filter((c) => !committed.has(componentKey(c))),
+    orphaned: manifest.filter((c) => !live.has(componentKey(c))),
+    changed: components.filter((c) => {
+      const c2 = committed.get(componentKey(c));
+      return c2 && differs(c, c2);
+    }),
+  };
+}
+
+/**
+ * The failure message, and it is aimed at ATTRIBUTION rather than at timing.
+ *
+ * ADR-0043's accepted cost: this check is asymmetric. A plugin PR that retires a persona is green over
+ * there and knows nothing about this page; the red surfaces at the next `app` run HERE, which will
+ * usually be an unrelated PR landing on an author who did not cause it. Nothing in this repo can trigger
+ * on an event in another one. So the least this can do is tell that author it is not their change and
+ * hand them the one command that fixes it.
+ */
+export function driftReport(diff) {
+  const lines = [];
+  const name = (c) => `${c.kind} ${c.id}`;
+  for (const c of diff.missing) lines.push(`  + ${name(c)} exists in the plugin and is NOT in the manifest`);
+  for (const c of diff.orphaned) lines.push(`  - ${name(c)} is in the manifest and NO LONGER in the plugin`);
+  for (const c of diff.changed) lines.push(`  ~ ${name(c)} changed shape (event, matcher, file or command count)`);
+  if (lines.length === 0) return '';
+  return [
+    'The /architecture harness inventory no longer matches tedeuxx/tadeumendonca-skills:',
+    ...lines,
+    '',
+    'This is almost certainly NOT your change — the plugin is a separate repository and a merge there',
+    'cannot turn this repo red until the next run here. To fix it:',
+    '  npm --prefix apps/fed run gen-harness',
+    'then update the components diagram in apps/fed/src/content/architecture.{en,pt}.md, both editions.',
+  ].join('\n');
+}

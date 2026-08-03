@@ -161,6 +161,45 @@ The picture shows the routing. What it cannot show is that the routing was **dec
 
 And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — this is a static site, and a revert is a merge.
 
+### What the loop is made of, and what each part can actually do
+
+The picture above answers *how work moves*. It does not say what the loop is **made of** — and that is the question a reader deciding whether to adopt it is actually asking. The two are separate diagrams on purpose: one drawing that tried to be both would have to give a hook that refuses a command and a lens somebody has to remember to invoke the same arrow, and that difference is the most useful thing on this page.
+
+```mermaid
+flowchart TB
+  accTitle: What the harness is made of
+  accDescr: Three kinds of component, drawn apart because they do not have the same force. Four hooks, registered in hooks.json — permission-guard and wip-guard run on the PreToolUse event with the matcher Bash and REFUSE a tool call before it runs; session-wip and session-plugin-version run on SessionStart and only report state. Six personas in the agents directory — tech-lead, product-lead, marketing-lead, developer, quality-assurance and security — only ADVISE: each has to be dispatched, nothing enforces that it was, and one that is not dispatched fails silently. That includes quality-assurance and security, whose authority over a merge is a convention of this repo's guide and not a mechanism. Six command families in the commands directory — architecture 1, backend 20, frontend 18, infrastructure 21, principles 5, workflow 9 — plus autonomy-on, the one command in no family, only DOCUMENT: they remove a re-decision. In the drawing the deny edge is thick and in the accent colour, the advise edge is dashed, and the document edges are plain. That difference is the claim, not decoration.
+  HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
+  PS["6 personas · agents/<br/>tech-lead<br/>product-lead<br/>marketing-lead<br/>developer<br/>quality-assurance<br/>security"]
+  CF["6 command families<br/>commands/<br/>architecture 1<br/>backend 20<br/>frontend 18<br/>infrastructure 21<br/>principles 5<br/>workflow 9"]
+  OC["autonomy-on<br/>1 command, no family"]
+  HKR["2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version"]
+  DE["What the agent decides"]
+  RU["What the agent runs"]
+  GM["Then the gates, then the merge<br/>— the flow above"]
+  HKD -- "denies the call" --> RU
+  PS -- "advises, if dispatched" --> DE
+  CF -- "documents" --> DE
+  OC -- "documents" --> DE
+  HKR -- "documents" --> DE
+  DE --> RU
+  RU --> GM
+  classDef mechanism stroke:#FF5A00,stroke-width:3px
+  classDef convention stroke-dasharray:6 4
+  class HKD mechanism
+  class PS convention
+  linkStyle 0 stroke:#FF5A00,stroke-width:3px
+  linkStyle 1 stroke-dasharray:6 4
+```
+
+**Only one box in that picture can stop you**, and that is the honest version of the adoption pitch. Two of the four hooks run on `PreToolUse`: the agent runtime calls them *before* a tool runs, they return a denial, and the command does not happen. The other two run at `SessionStart` and only report — they have no tool call to refuse, which is why they are not drawn as a floor. The personas are documents: they are dispatched by a judgement, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. The commands are neither — they are the written form of a decision already taken, so nobody re-litigates it at 2am.
+
+**The inventory is derived, not typed here.** Every name, event, matcher, path and count above comes from a [manifest generated out of the plugin repo](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/harness-source.mjs), and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree three ways — a component the manifest is missing, a manifest row with nothing behind it, and one that is present on both sides having changed shape. Add, retire or rename a persona over there and this repo's build goes red. *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md))*
+
+**What that does not buy is freshness, and the gap is structural rather than an oversight.** The plugin is a *different repository*, and nothing in this one can trigger on a merge in it. So the red arrives at the next build here — which may be days later, and on a change that has nothing to do with it. **This page can be wrong for that whole window and will not say so.** Two smaller limits, for the same reason the rest of this page states its own: the check compares **identity**, so a hook that keeps its name and changes what it does publishes a stale description under a green build; and the short glosses on the edges — *denies the call*, *advises, if dispatched* — are **authored here** and checked by nothing.
+
+That is also where the two terms in the opening paragraph land. **AI-DLC** is the first picture: a delivery lifecycle whose stages are run and verified by agents rather than around them. **Agent Harness Engineering** is this one — the claim that the harness is a thing you build, count and check, rather than a way of prompting. The evidence for the second is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
+
 ## The decision record IS the documentation
 
 No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, read through the keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
@@ -191,4 +230,4 @@ The part I would be nervous seeing someone copy without the rest is **merging st
 
 This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
 
-And all three diagrams above show the **shape** of a thing, not a run of it. Two of them you can check. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. The third you cannot. That the loop is followed the way it is drawn is not something this page proves — nothing here shows that any particular change took the route in the picture. That one is a claim about how I work, and no artifact on this page can settle it for you.
+And all four diagrams above show the **shape** of a thing, not a run of it. Three of them you can check, in three different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. The fourth you cannot check at all. That the loop is followed the way it is drawn is not something this page proves — nothing here shows that any particular change took the route in the picture. That one is a claim about how I work, and no artifact on this page can settle it for you.

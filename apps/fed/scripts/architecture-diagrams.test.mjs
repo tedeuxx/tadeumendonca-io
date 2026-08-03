@@ -11,10 +11,11 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { mermaidFences } from './diagram-source.mjs';
+import { mermaidFences, normalise } from './diagram-source.mjs';
 
 const contentDir = resolve(import.meta.dirname, '..', 'src', 'content');
 const read = (f) => readFileSync(join(contentDir, f), 'utf8');
+const generated = (f) => JSON.parse(readFileSync(join(contentDir, 'generated', f), 'utf8'));
 
 /** Node ids and directed edges, labels discarded — the graph's SHAPE, which both editions must share. */
 function graphOf(source) {
@@ -203,5 +204,152 @@ describe('the dev-loop diagram shows where the human stands', () => {
     expect(graph.edges).toContain('G->B');
     expect(graph.edges).toContain('R->B');
     expect(graph.edges).toContain('H->B');
+  });
+});
+
+// THE COMPONENTS DIAGRAM (#318, ADR-0043) — the one whose content is DERIVED from another repository.
+//
+// The chain has two links and this file is the second of them. `check-harness-drift.mjs`, in its own CI
+// job, proves the committed manifest still matches the plugin tree. Nothing there looks at the page. So
+// without this block a plugin change would update harness.json, go green, and leave the drawing saying
+// the old thing — the manifest would be current and the published picture stale, which is the exact
+// failure this whole mechanism was built to remove, one file further along.
+//
+// What this can and cannot guarantee, stated because ADR-0043 requires the page to be honest about it:
+// it pins IDENTITY — names, events, matchers, counts, the orphan — into both editions. It says nothing
+// about whether the short glosses on the edges describe those components correctly. Those are authored
+// here and checked by nothing, and the page says so in both editions.
+describe('the components diagram carries the inventory it was generated from', () => {
+  const harness = generated('harness.json');
+  const of = (kind) => harness.filter((c) => c.kind === kind);
+  const enFence = byTitle(en, 'What the harness is made of');
+  const ptFence = byTitle(pt, 'Do que o harness é feito');
+
+  it('is asserting against a real manifest, not an empty one', () => {
+    expect(of('persona').length).toBeGreaterThan(0);
+    expect(of('hook').length).toBeGreaterThan(0);
+    expect(of('command-family').length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('names every persona in the %s edition', (_locale, fence) => {
+    const source = fence().source;
+    const absent = of('persona')
+      .map((c) => c.id)
+      .filter((id) => !source.includes(id));
+    expect(absent, 'a persona is in the manifest and not in the drawing').toEqual([]);
+  });
+
+  // The `.sh` is stripped, deliberately: the drawing names the HOOK, and the manifest's id is its file.
+  // Said out loud because it is a weakening — a hook renamed from `wip-guard.sh` to `wip-guard.bash`
+  // would pass here. That rename is caught one link back, by the live drift check against the plugin.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('names every registered hook in the %s edition', (_locale, fence) => {
+    const source = fence().source;
+    const absent = of('hook')
+      .map((c) => c.id.replace(/\.sh$/, ''))
+      .filter((name) => !source.includes(name));
+    expect(absent, 'a hook is registered in hooks.json and not in the drawing').toEqual([]);
+  });
+
+  // The counts, pinned as `<family> <n>` pairs. This is the assertion that fails when a command is added
+  // to the plugin: the manifest moves, this does not match, and the page cannot ship the old number.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('states each command family with its current size in the %s edition', (_locale, fence) => {
+    const source = fence().source;
+    const wrong = of('command-family')
+      .filter((c) => !source.includes(`${c.id} ${c.commands}`))
+      .map((c) => `${c.id} should read ${c.commands}`);
+    expect(wrong).toEqual([]);
+  });
+
+  // The orphan APPEARS rather than being filtered. A generator walking only the directories drops it
+  // silently, and the plugin's own suite asserts `root_cmds -eq 1` for exactly this reason.
+  it('carries the un-namespaced command in both editions', () => {
+    for (const c of of('command')) {
+      expect(enFence.source).toContain(c.id);
+      expect(ptFence.source).toContain(c.id);
+    }
+  });
+
+  // The totals, per kind and per hook event. The locale nouns are authored — the NUMBERS are not.
+  it('states the totals the manifest holds, in each edition’s own words', () => {
+    const pre = of('hook').filter((c) => c.event === 'PreToolUse').length;
+    const session = of('hook').filter((c) => c.event === 'SessionStart').length;
+    for (const source of [enFence.source, ptFence.source]) {
+      expect(source).toContain(`${of('persona').length} personas`);
+      expect(source).toContain(`${pre} hooks · PreToolUse`);
+      expect(source).toContain(`${session} hooks · SessionStart`);
+    }
+    expect(enFence.source).toContain(`${of('command-family').length} command families`);
+    expect(ptFence.source).toContain(`${of('command-family').length} famílias de comando`);
+  });
+});
+
+describe('the components diagram distinguishes a mechanism from a convention', () => {
+  const svgs = generated('diagrams.json');
+  const enFence = byTitle(en, 'What the harness is made of');
+  const ptFence = byTitle(pt, 'Do que o harness é feito');
+
+  // ADR-0043's non-negotiable: hooks deny, personas advise, and drawing them alike would assert a
+  // mechanism that does not exist. Asserted on the COMPILED SVG rather than only on the fence, because
+  // the fence is the intention and the SVG is what a reader gets — a classDef that mermaid silently
+  // ignored would leave the source looking correct and the picture making the false claim.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('renders the deny node and the advise node differently in the %s edition', (_locale, fence) => {
+    const svg = svgs[normalise(fence().source)];
+    expect(svg, 'the fence must be compiled — run `npm run gen-diagrams`').toBeTruthy();
+    const boxes = [...svg.matchAll(/class="basic label-container"[^>]*style="([^"]*)"/g)].map((m) => m[1]);
+    const accented = boxes.filter((s) => /#FF5A00/i.test(s));
+    const dashed = boxes.filter((s) => /stroke-dasharray/.test(s));
+    expect(accented.length, 'no node is drawn as a mechanism').toBe(1);
+    expect(dashed.length, 'no node is drawn as a convention').toBe(1);
+    // Different treatments, not the same one twice — which is what would happen if both classes were
+    // pointed at the same classDef, and it is the regression that reinstates the false equivalence.
+    expect(accented[0]).not.toBe(dashed[0]);
+  });
+
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('draws the deny edge and the advise edge differently in the %s edition', (_locale, fence) => {
+    const svg = svgs[normalise(fence().source)];
+    const edges = [...svg.matchAll(/class="[^"]*flowchart-link"[^>]*style="([^"]*)"/g)].map((m) => m[1]);
+    expect(edges.filter((s) => /#FF5A00/i.test(s)).length, 'no edge denies').toBe(1);
+    expect(edges.filter((s) => /stroke-dasharray/.test(s)).length, 'no edge advises').toBe(1);
+    // The plain ones must still exist, or "different" was achieved by styling everything.
+    expect(edges.filter((s) => !/#FF5A00|stroke-dasharray/i.test(s)).length).toBeGreaterThan(1);
+  });
+
+  // The other half of the same requirement, and the half a drawing cannot carry: a reader using a screen
+  // reader gets the accDescr and nothing else. An accDescr that flattens deny into advise re-publishes
+  // the false claim to exactly the reader who cannot see the arrow style — so each edition's description
+  // has to make the distinction IN WORDS, in its own language.
+  it.each([
+    ['en', () => enFence, ['REFUSE', 'ADVISE', 'DOCUMENT', 'fails silently']],
+    ['pt', () => ptFence, ['RECUSAM', 'ACONSELHAM', 'DOCUMENTAM', 'falha em silêncio']],
+  ])('says deny, advise and document in the %s accessible description', (_locale, fence, words) => {
+    const descr = /^\s*accDescr:\s*(.+)$/m.exec(fence().source)?.[1] ?? '';
+    expect(descr.length, 'the accessible description must exist and say something').toBeGreaterThan(200);
+    for (const word of words) expect(descr).toContain(word);
+  });
+
+  // The claim ADR-0043 forbids outright, checked as an ABSENCE rather than trusted: the two gatekeeper
+  // personas hold their merge authority by convention, so nothing on this page may draw them denying.
+  it('never puts a gatekeeper persona on the deny side', () => {
+    for (const fence of [enFence, ptFence]) {
+      const denyNode = /HKD\["([^"]*)"\]/.exec(fence.source)?.[1] ?? '';
+      expect(denyNode).not.toContain('quality-assurance');
+      expect(denyNode).not.toContain('security');
+      expect(fence.source).toContain('class PS convention');
+    }
   });
 });

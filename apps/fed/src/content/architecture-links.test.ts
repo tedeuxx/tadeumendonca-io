@@ -69,6 +69,16 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
     expect(existingDocPaths.has('.github/workflows/deploy.yml')).toBe(true);
   });
 
+  // Cross-locale parity, the rule `content.test.ts` already applies to an article body and this page has
+  // never had. Long-form is one file per locale (ADR-0032), so the two CAN drift — and they drift most
+  // easily when a slice adds a section to one edition and translates it into the other by hand, which is
+  // every slice this page has ever had. Same targets, same order: a link added to `en` and forgotten in
+  // `pt` is a pt reader who cannot reach the evidence the en reader is offered.
+  it('cites the same in-repo files, in the same order, in both editions', () => {
+    expect(localTargetsIn(architecturePt)).toEqual(localTargetsIn(architectureEn));
+    expect(localTargetsIn(architectureEn).length).toBeGreaterThan(0);
+  });
+
   it.each([
     ['en', architectureEn],
     ['pt', architecturePt],

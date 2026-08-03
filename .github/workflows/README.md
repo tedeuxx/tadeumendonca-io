@@ -28,11 +28,13 @@ flowchart TD
         BS --> PW["playwright<br/><i>vs a preview, on the runner</i>"]
         VI --> SQ["sonarqube-scan"]
         BS --> SQ
+        HD["harness-drift<br/><i>2nd checkout: the plugin repo · tokenless</i>"]
         NA --> GATE["<b>build-test</b><br/><i>aggregator</i>"]
         ES --> GATE
         TS --> GATE
         VI --> GATE
         PW --> GATE
+        HD --> GATE
         SQ --> GATE
     end
 
@@ -48,6 +50,7 @@ flowchart TD
     end
 
     CH -->|"apps/**"| NC
+    CH -->|"apps/** — but its real trigger is a merge in the plugin repo"| HD
     CH -->|"iac/**"| CK
     CH -->|"iac/**"| TF
     CH -->|".github/**"| AL
@@ -152,6 +155,7 @@ not prove that.
 | `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`** |
 | `build-static` | the above + **`VERSION`** |
 | `playwright` | the above — **never only when `e2e/**` changes**, because it drives the build |
+| `harness-drift` | the `code` filter — but see below: its real trigger is **in another repository** |
 | `checkov`, `terraform-fmt`, `terraform-plan`, `terraform-apply` | `iac/**` — **all of it, `cloudfront-functions/` included** |
 | `actionlint` | `.github/**` |
 
@@ -200,6 +204,33 @@ matches.
 **The app jobs' filter sets overlap almost entirely.** Splitting the app gate into jobs therefore
 buys little in *filtering* — the value is parallelism and a readable graph, and it should be argued
 on that alone.
+
+### `harness-drift` — the one job that reads another repository
+
+`/architecture` publishes an inventory of the dev-loop harness (personas, hooks, command families), and
+its source of truth is **`tadeumendonca-skills`**, not this repo. The pattern is the ADR index's, one
+repository further out: a committed manifest under `apps/fed/src/content/generated/` is what the build
+reads, and this job is the only place that manifest is compared against the live plugin tree — three
+ways, `missing` · `orphaned` · `changed` (ADR-0043).
+
+**It takes a second `actions/checkout`, and that is a security statement rather than a convenience.** The
+plugin is a **public** repository, so the checkout carries **no token, no secret and no `id-token`**. This
+job widens no credential surface, which is the property that makes a cross-repo read acceptable here at
+all — and nothing about it goes near `deploy`'s gate filter, whose outputs decide whether an
+OIDC-credentialed job runs. The manifest lives under `apps/fed/`, which the `code` filter already matches,
+so a regeneration is gated by the ordinary path and needs no new entry anywhere.
+
+**It is not self-triggering, and unlike `docs/adr/**` it cannot be made so.** That entry above fixed
+exactly this problem by naming the authored source as a path in this repo. **There is no such path here:**
+the event that falsifies the manifest is a merge in another repository, and no filter in this one can
+match it. So the red arrives at the next `app` run here — usually an unrelated PR, landing on an author
+who did not cause it. The mitigation is aimed at **attribution**, not timing: the failure names the plugin
+repo, says it is not the reader's change, and gives the one command that fixes it. A scheduled tokenless
+run is the recorded upgrade if the lateness ever bites in practice.
+
+The filter is `code` rather than "always", deliberately: an unrelated PR going red is a cost already
+accepted once, and running this on *every* PR in the repo would spread that cost over authors with no
+`apps/**` change at all, for a red they can do even less about.
 
 ---
 

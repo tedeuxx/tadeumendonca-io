@@ -292,5 +292,12 @@
     "file": "0042-trust-root-bootstrapped-out-of-band.md",
     "status": "accepted",
     "amended": false
+  },
+  {
+    "id": "0043",
+    "title": "The dev-loop inventory is derived from the plugin repo — a committed manifest plus a cross-repo drift check, and the manifest may not say \"denies\" about a thing that only advises",
+    "file": "0043-harness-inventory-derived-from-plugin-repo.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
