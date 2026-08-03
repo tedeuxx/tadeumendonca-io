@@ -29,8 +29,7 @@ flowchart TB
 
 **The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md))*. What a backend would do per request — resolve content, render HTML, build the OG tags — happens once, in the build lane, and ships as files.
 
-That is also why the bill below is what it is: **the name and the hosted zone bill whether anyone comes or not, and what a visit adds on top of them rounds to nothing.** Neither half of that is "free" — it is a fixed cost plus a variable one small enough to disappear.
-
+That is also why the bill below is what it is: **the name and the hosted zone bill whether anyone comes or not, and what a visit adds on top of them rounds to nothing.**
 What none of that places is where a clean URL becomes a file:
 
 ```mermaid
