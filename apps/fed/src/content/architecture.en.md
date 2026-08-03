@@ -29,7 +29,7 @@ flowchart TB
 
 **The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md))*. What a backend would do per request — resolve content, render HTML, build the OG tags — happens once, in the build lane, and ships as files.
 
-That is also why the bill below is what it is: **there is nothing in the serving lane that costs money while nobody is visiting.**
+That is also why the bill below is what it is: **nothing in the serving lane costs more because someone visited.** It is not free while idle — DNS is a fixed monthly charge and the bill below is mostly that — but nothing in this lane scales with readers, which is the harder property to buy and the one that actually holds here.
 
 What none of that places is where a clean URL becomes a file:
 
@@ -45,7 +45,7 @@ flowchart LR
   S --> C
 ```
 
-There is no application in that path — so the only logic between a reader and a file is [nineteen lines of JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), and it carries [its own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) plus a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo. It runs on every *page* request; the build's assets are a separate behaviour that never invokes it — OG images do reach it and pass through untouched, because the last path segment has an extension.
+There is no application in that path — so the only logic between a reader and a file is [ten executable lines of JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), and it carries [its own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) plus a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo. It runs on every *page* request; the build's assets are a separate behaviour that never invokes it — OG images do reach it and pass through untouched, because the last path segment has an extension.
 
 That check is the price of putting logic at the edge, not a nicety: a function version is published independently of the distribution, so nothing about deploying the site proves which one is actually running.
 
@@ -70,7 +70,7 @@ AWS is one of the providers that could invoice this — and that is the criterio
 
 **The rest bill zero, on conditions that are the part worth knowing:**
 
-- **GitHub Actions is free because the repositories are public** — a property of the repos, not of the plan, so it would outlive a downgrade and it would not outlive going private. That starts metering minutes against a monthly allowance, and this pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request that touches the app** — the workflows filter by path, so a docs-only change runs far less — and **again on the merge**, which additionally publishes and runs a second end-to-end pass against the live site. The number that appears is not small, and nothing about the code would have changed.
+- **GitHub Actions is free because the repositories are public** — a property of the repos, not of the plan, so it would outlive a downgrade and it would not outlive going private. That starts metering minutes against a monthly allowance, and this pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request that touches the app** — the workflows filter by path, and the ADRs are inside that filter because this page publishes them, so it is prose *outside* those paths that runs far less — and **again on the merge**, which additionally publishes and runs a second end-to-end pass against the live site. The number that appears is not small, and nothing about the code would have changed.
 - **SonarCloud turns on the same condition**, on a separate account: its free tier is for public projects. Its gate blocks a merge, so it is load-bearing in the loop at exactly zero — which is the clearest case for why writing only the zero would be the more misleading answer.
 - **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. That ceiling is counted in *resources*, not in traffic or in spend, so it is the one limit here that a **decision** moves rather than an audience.
 

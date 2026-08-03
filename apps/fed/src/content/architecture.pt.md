@@ -29,7 +29,7 @@ flowchart TB
 
 **A ausência é deliberada, não uma lacuna.** Um diagrama de camadas para um sistema assim costuma seguir para uma camada de aplicação, um banco e integrações internas; aqui ele para num bucket. O único terceiro em tempo de execução é a analytics, e ela depende de consentimento *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md))*. O que um backend faria por requisição — resolver conteúdo, renderizar HTML, montar as tags OG — acontece uma vez, na trilha de build, e viaja como arquivo.
 
-É também por isso que a conta logo abaixo é tão baixa: **não há nada na trilha de servir que custe dinheiro enquanto ninguém visita.**
+É também por isso que a conta logo abaixo é tão baixa: **não há nada na trilha de servir que custe mais porque alguém visitou.** Não é de graça parada — o DNS é uma cobrança mensal fixa, e a conta abaixo é quase toda ela — mas nada nessa trilha escala com leitor, que é a propriedade mais difícil de comprar e a que de fato vale aqui.
 
 O que nada disso situa é onde uma URL limpa vira um arquivo:
 
@@ -45,7 +45,7 @@ flowchart LR
   S --> C
 ```
 
-Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dezenove linhas de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório. Ela roda a cada requisição de *página*; os assets do build são um behavior separado, que nunca a invoca — as imagens de OG passam por ela e seguem intactas, porque o último segmento do caminho tem extensão.
+Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dez linhas executáveis de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório. Ela roda a cada requisição de *página*; os assets do build são um behavior separado, que nunca a invoca — as imagens de OG passam por ela e seguem intactas, porque o último segmento do caminho tem extensão.
 
 Essa verificação é o preço de colocar lógica na borda, não um capricho: a versão de uma função é publicada independentemente da distribuição, então nada no deploy do site prova qual delas está de fato rodando.
 
@@ -70,7 +70,7 @@ A AWS é um dos fornecedores que poderiam faturar este site — e esse é o crit
 
 **O resto cobra zero, sob condições que são justamente a parte que interessa:**
 
-- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request que mexe na aplicação** — instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar; os workflows filtram por caminho, então uma mudança só de documentação roda bem menos —, e **de novo no merge**, que ainda por cima publica e roda um segundo E2E contra o site no ar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request que mexe na aplicação** — instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar; os workflows filtram por caminho, e os ADRs estão dentro desse filtro porque esta página os publica, então quem roda bem menos é prosa *fora* desses caminhos —, e **de novo no merge**, que ainda por cima publica e roda um segundo E2E contra o site no ar. O número que aparece não é pequeno, e nada no código teria mudado.
 - **O SonarCloud depende da mesma condição**, numa conta separada: o tier gratuito dele é para projetos públicos. O gate dele barra um merge, então ele é estrutural no loop cobrando exatamente zero — que é o caso mais claro de por que escrever só o zero seria a resposta mais enganosa.
 - **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. Esse teto é contado em **recursos** — não em tráfego, nem em gasto — então é o único limite aqui que uma **decisão** move, e não um público.
 
