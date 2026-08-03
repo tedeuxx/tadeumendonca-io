@@ -65,6 +65,30 @@ function reaches(graph, from, to) {
 const en = mermaidFences(read('architecture.en.md'));
 const pt = mermaidFences(read('architecture.pt.md'));
 
+/**
+ * Pick a fence by its `accTitle` rather than by its position in the page.
+ *
+ * The first version of this file addressed them as `en[0]` and `en[1]`. That is a coupling to
+ * DOCUMENT ORDER, and adding a diagram ABOVE them silently re-pointed every assertion below at a
+ * different graph — which is what happened: three infra assertions and four dev-loop assertions all
+ * failed at once, describing a diagram they were never written about. Position is not identity.
+ *
+ * `accTitle` is the right key because it is not optional decoration: the accessibility rule already
+ * requires every fence to carry one, so a diagram cannot lose its handle without failing that rule
+ * first. Throwing on a miss is deliberate — returning `undefined` here would surface as an
+ * unreadable crash inside `graphOf` rather than as "the diagram this suite is about is gone".
+ */
+function byTitle(fences, title) {
+  const found = fences.filter((f) => f.source.includes(`accTitle: ${title}`));
+  if (found.length !== 1) {
+    throw new Error(
+      `expected exactly one mermaid fence with accTitle "${title}", found ${found.length} — ` +
+        'the diagram was renamed, removed, or duplicated',
+    );
+  }
+  return found[0];
+}
+
 describe('the two editions describe the same system', () => {
   // Long-form is one file per locale (ADR-0032), so the two CAN drift — and a diagram drifting is worse
   // than prose drifting, because nobody re-reads a picture to check it. Counting first: a missing fence
@@ -104,7 +128,7 @@ describe('the two editions describe the same system', () => {
 });
 
 describe('the infrastructure diagram earns its place', () => {
-  const graph = graphOf(en[0].source);
+  const graph = graphOf(byTitle(en, 'How a request becomes a page').source);
 
   // THE OWNER'S CONSTRAINT, made falsifiable. A labelled box list has nodes and no path; this fails on
   // it. Node ids are asserted by ROLE rather than by label so a rewording does not break the test — R is
@@ -122,8 +146,8 @@ describe('the infrastructure diagram earns its place', () => {
   // The rewrite is the only logic in the path and the thing a sentence cannot place. If the diagram
   // stops naming it, it has become the box list the owner asked us to cut.
   it('names the rewrite as the step that changes the uri', () => {
-    expect(en[0].source).toMatch(/index\.html/);
-    expect(pt[0].source).toMatch(/index\.html/);
+    expect(byTitle(en, 'How a request becomes a page').source).toMatch(/index\.html/);
+    expect(byTitle(pt, 'Como uma requisição vira uma página').source).toMatch(/index\.html/);
   });
 });
 
@@ -144,7 +168,7 @@ describe('the infrastructure diagram earns its place', () => {
 const humanNodes = (graph) => graph.nodes.filter((n) => /^H/.test(n));
 
 describe('the dev-loop diagram shows where the human stands', () => {
-  const graph = graphOf(en[1].source);
+  const graph = graphOf(byTitle(en, 'Where the human sits in the loop').source);
 
   // Counted over the PREFIX, not over `nodes` filtered to a single id. The first version asserted
   // `nodes.filter(n => n === 'H').length === 1` against a list built from a Set — which cannot contain
