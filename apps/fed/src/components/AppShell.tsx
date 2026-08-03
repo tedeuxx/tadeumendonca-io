@@ -103,8 +103,13 @@ function NavItems({ activeSection, onNavigate }: { activeSection: string | null;
   );
 }
 
-// PT/EN toggle — brutalist mono, radius 0, the safety-orange accent marks the active locale (matching
-// the nav's active-link treatment). The codes 'PT'/'EN' are not localized (they are language labels).
+// PT/EN toggle — brutalist mono, radius 0, the safety-orange accent marks the active locale.
+// NOT the same treatment as the nav, and the comment here used to claim it was: the nav marks its
+// active entry by brightening the label to `text-foreground`, never with the accent, which appears
+// in the header only inside this component. The divergence is deliberate — the toggle is a state
+// control where the accent says WHICH ONE IS ON, while a nav entry is a destination. Recorded so the
+// next reader does not "restore consistency" by moving the accent into the wrong half.
+// The codes 'PT'/'EN' are not localized (they are language labels).
 // It persists the choice via setLocale (localStorage), overriding browser detection.
 function LocaleToggle() {
   const { locale, setLocale, t } = useLocale();
@@ -187,7 +192,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           style={{ minHeight: 'var(--header-h)' }}
         >
           <Brand />
-          {/* Desktop nav switches on at `lg` (1024px), not `md` (768px): the full row — Brand + five
+          {/* Desktop nav switches on at `lg` (1024px), not `md` (768px): the full row — Brand + six
               links + locale toggle, longer in pt — needs ~880px, so between 768–880px it used to overflow
               the viewport (horizontal scroll) AND wrap the links to two lines. Keeping the hamburger until
               `lg` guarantees the full nav only renders where it fits (#159). */}
