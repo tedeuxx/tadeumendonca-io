@@ -39,6 +39,32 @@ describe('RepoCard', () => {
     expect(container.querySelector('iframe')).toBeNull();
   });
 
+  // #318 asked the closing element to carry a GitHub mark in the accent. Three separable claims, and each
+  // one can break without the other two noticing.
+  it('carries the accent-tinted GitHub mark, decorative, and not lucide’s', () => {
+    const { container } = renderWithLocale(<RepoCard repo={nanoGpt} />, { locale: 'en' });
+
+    const svgs = [...container.querySelectorAll('svg')];
+    expect(svgs).toHaveLength(1);
+    const [mark] = svgs;
+
+    // 1 · It is tinted with the single accent. `text-primary` is the ONLY channel for safety orange
+    // (ADR-0008); asserting the class is what a unit test can see, and the E2E asserts the computed
+    // colour, which is the half a redefined token would break.
+    expect(mark.getAttribute('class')).toMatch(/\btext-primary\b/);
+
+    // 2 · It is decorative. The card already says "view on GitHub" in words, so a mark with an accessible
+    // name would announce the same link twice to a screen reader.
+    expect(mark).toHaveAttribute('aria-hidden', 'true');
+
+    // 3 · It is the site's own glyph (BrandIcons), not lucide's line-art approximation — the same mark the
+    // footer's contact channels render. lucide draws with strokes and no fill; the brand mark is a filled
+    // path. Pinning the path's opening coordinates is what distinguishes the two, and it is stable: it is
+    // the official octocat outline, not a styling choice.
+    expect(mark.getAttribute('fill')).toBe('currentColor');
+    expect(mark.querySelector('path')?.getAttribute('d')).toMatch(/^M12 \.297c-6\.63 0-12 5\.373-12 12/);
+  });
+
   it('obeys the fixed identity — no rounded/shadow/gradient anywhere in the card', () => {
     const { container } = renderWithLocale(<RepoCard repo={nanoGpt} />, { locale: 'en' });
     const html = container.innerHTML;

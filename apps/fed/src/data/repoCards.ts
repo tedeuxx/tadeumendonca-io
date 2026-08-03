@@ -32,9 +32,41 @@ export interface RepoCardData {
   description: Record<Locale, string>;
 }
 
-// The repos the ramp-up "sources → GitHub" section points at — the configs and skill sets these people
-// run in the open. Owner-curated; extend as new repos earn a card.
+// Two groups, and the split is worth knowing before adding a row.
+//
+// FIRST, the site's own two repos — cited by `/architecture`'s "Replicate it for your own context"
+// section (#318). They are the page's closing element: the walkthrough that used to sit there moved to
+// the READMEs, so what the page owes a reader at that point is a way INTO those repos, not a second copy
+// of what they say. Cards rather than bullets because that section is the page's call to action and a
+// list item is not one.
+//
+// THEN the repos the ramp-up "sources → GitHub" section points at — the configs and skill sets these
+// people run in the open. Owner-curated; extend as new repos earn a card.
 export const repoCards: RepoCardData[] = [
+  {
+    name: 'tadeumendonca-io',
+    owner: 'tedeuxx',
+    language: 'TypeScript',
+    repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',
+    description: {
+      // "the load-bearing decisions", NOT "every choice" — the first draft of this line said exactly that,
+      // and it is the same universal catalog.ts retired from the sibling card (see the note there). The page
+      // this card closes qualifies it twice, in both editions: "every LOAD-BEARING decision ... is an ADR".
+      // One merged PR that decided something without an ADR falsifies the universal, and there are many.
+      en: 'This site and the Terraform that serves it — a static SPA on S3 + CloudFront, prerendered in both locales, with the decision library that records the load-bearing decisions and what each one cost.',
+      pt: 'Este site e o Terraform que o serve — uma SPA estática em S3 + CloudFront, prerenderizada nos dois idiomas, com a biblioteca de decisões que registra as decisões que sustentam peso e o que cada uma custou.',
+    },
+  },
+  {
+    name: 'tadeumendonca-skills',
+    owner: 'tedeuxx',
+    language: 'Shell',
+    repoUrl: 'https://github.com/tedeuxx/tadeumendonca-skills',
+    description: {
+      en: 'The reusable dev-loop plugin: the principles layer, the agent personas, the permission guards. The half you can adopt with no cloud account at all.',
+      pt: 'O plugin reutilizável do dev-loop: a camada de princípios, as personas dos agentes, os guardas de permissão. A metade que dá pra adotar sem nenhuma conta em nuvem.',
+    },
+  },
   {
     name: 'skills',
     owner: 'mattpocock',

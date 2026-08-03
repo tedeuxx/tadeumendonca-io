@@ -95,7 +95,7 @@
     "title": "Terraform + Terraform Cloud, apply pipeline-only",
     "file": "0014-terraform-cloud-pipeline-only.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0015",
@@ -283,6 +283,13 @@
     "id": "0041",
     "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
     "file": "0041-per-article-og-cards.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0042",
+    "title": "The trust root is bootstrapped out of band — Terraform never manages the OIDC provider, nor the role that runs Terraform",
+    "file": "0042-trust-root-bootstrapped-out-of-band.md",
     "status": "accepted",
     "amended": false
   }

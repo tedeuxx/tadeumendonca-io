@@ -41,6 +41,23 @@ mutation an outer-loop, human-gated act — consistent with ADR-0003 and enforce
 - A dependency on Terraform Cloud (the workspace name is load-bearing — renaming it points Terraform at
   empty state; kept deliberately as-is).
 
+## Amendment (2026-08-03) — the floor has one exception, and it was never recorded here
+The decision above is unchanged: `apply`/`destroy` still run in CI only, and no `terraform apply` has ever
+run outside it. What is **narrowed** is the Consequences → Good claim *"No irreversible cloud mutation in
+the inner loop"*.
+
+That claim is true of Terraform and false of the account. The GitHub OIDC provider, the infra role CI
+assumes to run Terraform, and that role's managed policy are **not** managed by `iac/` — they are created
+by hand with the AWS CLI, because the first run would otherwise need the credential it has not created
+yet, and because a role able to rewrite its own trust policy has no ceiling on it. So there is
+human-performed, irreversible-class cloud mutation at t = 0, and again whenever that policy is revised.
+
+Recorded in full — both reasons, the scope of the exception, and the fact that nothing enforces removing
+the bootstrap credentials — in **[ADR-0042](./0042-trust-root-bootstrapped-out-of-band.md)**. A reader of
+0014 alone would take "pipeline-only" as total; it is total *for Terraform*, and that is a narrower
+statement than it looks.
+
 ## Links
 - Driven by ADR-0001, ADR-0003 · relies on ADR-0015 (OIDC, no stored keys) · IaC is pipeline-only, part
-  of the permission floor.
+  of the permission floor · **its one exception is [ADR-0042](./0042-trust-root-bootstrapped-out-of-band.md)**
+  (the trust root is bootstrapped out of band).
