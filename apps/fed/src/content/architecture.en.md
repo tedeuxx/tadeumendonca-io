@@ -51,16 +51,42 @@ That check is the price of putting logic at the edge, not a nicety: a function v
 
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
-"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the whole bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
+"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the AWS bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
 
 - **The domain** — USD 71.00/yr for the `.io`, an annual charge that lands in one month. **USD 5.92/month** amortized.
 - **Route 53** — USD 0.50/month, fixed. The hosted zone, whether or not anyone visits.
 - **S3** — about USD 0.15/month, and it is deploy *writes*, not reads.
 - **CloudFront** — effectively USD 0.00 at this traffic.
 
-Note the shape, because it is not a small effect and it is a three-way split rather than a ratio: **the name is 6.42, publishing is 0.15, and answering requests is zero.** Registration and DNS cost more than everything else on this page combined, forty times over; the 0.15 is the build pushing files to S3, not readers pulling them; and the part that actually serves a visitor rounds to nothing.
+Note the shape, because it is not a small effect and it is a three-way split rather than a ratio: **the name is 6.42, publishing is 0.15, and answering requests is zero.** Registration and DNS cost more than everything else in this bill combined, forty times over; the 0.15 is the build pushing files to S3, not readers pulling them; and the part that actually serves a visitor rounds to nothing.
 
-Treat the serving lines as a measurement with a date on it rather than a standing fact — no invoice has closed at that rate yet. And note *why* the sourcing is split, because it is the mistake this section already made once: the daily cost series is a window, and **a charge that recurs less often than your window is long is invisible to it.** The renewal is annual and falls in October, so reading the account was correct and answered a different question than the one asked. "Measured, not estimated" is not a defence against measuring the wrong interval. There is no compute line at all, and that is what "no backend" buys: a **floor** of zero, nothing billing while nobody visits. It does not buy indifference to traffic — S3 and CloudFront are purely usage-priced, so the variable part is zero here because of the free tier and small payloads, not because there is nothing to scale.
+Treat the serving lines as a measurement with a date on it rather than a standing fact — no invoice has closed at that rate yet. And note *why* the sourcing is split, because it is the mistake this section already made once: the daily cost series is a window, and **a charge that recurs less often than your window is long is invisible to it.** The renewal is annual and falls in October, so reading the account was correct and answered a different question than the one asked. "Measured, not estimated" is not a defence against measuring the wrong interval. The only compute in the path is the edge function above, metered per invocation and rounding to zero at this volume; there is no *server* line at all, and that is what "no backend" buys: a **floor** of zero, nothing always-on billing while nobody visits. It does not buy indifference to traffic — S3 and CloudFront are purely usage-priced, so the variable part is zero here because of the free tier and small payloads, not because there is nothing to scale.
+
+### The other providers, and why one number is the wrong shape
+
+AWS is one of the providers that could invoice this — and that is the criterion, stated rather than left to a count, because a number goes stale the moment a dependency is added. **Anything that bills to keep the published site up, or would bill on a condition, belongs here.** The scope is deliberate and the closing section returns to it: what I build the site *with* is a different question from what the site *runs on*. Applied honestly it still turns up more than a list of zeros, and the interesting part is that they do not all behave the same way.
+
+**Two bill today, and neither charge was created by this site.** **GitHub** hosts the code and runs every gate, on a paid plan — the subscription predates the site, though the CI load on it is entirely the site's own, and priced at zero for a reason two paragraphs down. **iCloud+** carries the custom-domain email at the apex — [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records, so it is not adjacent to this infrastructure, it is inside it *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) custom email via iCloud)*. Both subscriptions existed before the site and would bill exactly the same if it were deleted tomorrow, which is why the USD 6.57 does not absorb them: that figure is what this site **added**, not what it **depends on**. Those are different claims, and "runs on almost nothing" is only the first one.
+
+**The rest bill zero, on conditions that are the part worth knowing:**
+
+- **GitHub Actions is free because the repositories are public** — a property of the repos, not of the plan, so it would outlive a downgrade and it would not outlive going private. That starts metering minutes against a monthly allowance, and this pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request that touches the app** — the workflows filter by path, so a docs-only change runs far less — and **again on the merge**, which additionally publishes and runs a second end-to-end pass against the live site. The number that appears is not small, and nothing about the code would have changed.
+- **SonarCloud turns on the same condition**, on a separate account: its free tier is for public projects. Its gate blocks a merge, so it is load-bearing in the loop at exactly zero — which is the clearest case for why writing only the zero would be the more misleading answer.
+- **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. That ceiling is counted in *resources*, not in traffic or in spend, so it is the one limit here that a **decision** moves rather than an audience.
+
+Analytics is named further up as the only third party at runtime and is deliberately not in this list: it is consent-gated and free at any volume this site will produce, which makes it a privacy question rather than a billing one.
+
+So the honest shape is **one measured bill, a set of conditional zeros, and two subscriptions that would bill with or without this site** — and no provider here moves with readers. Going private, growing the estate, registering a name: all decisions. The only traffic-priced lines anywhere in this are inside the AWS bill, and they are the two that round to nothing.
+
+**And that is true of the measured one too, which is the part a single total hides.** Of the USD 6.57, USD 5.92 is the amortized annual registration and USD 0.50 the fixed hosted zone — 6.42 of it before a single file is served. The remaining 0.15 is the build writing to S3, not readers reading from it.
+
+**This is stated rather than tabulated deliberately.** A row reading `GitHub — USD 0.00` invites the reader to add it up and stop. What matters is not that the cell is empty but that it is empty *for a reason someone chose*, and that the reason is reversible by a decision rather than by traffic.
+
+### What the figure still excludes
+
+It is one provider's bill, deliberately — and the axis above is what makes that honest rather than partial: USD 6.57 is what this site **added**, not what it depends on. So it leaves out the two subscriptions that would bill with or without it, it leaves out the Claude Max subscription this work runs on, and it leaves out every hour of mine. **Infrastructure and tooling only**, and not even all of that.
+
+That has to be said or the number lies by omission: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** Two different questions, and this section only answers the first.
 
 ### What the guardrail is actually for
 

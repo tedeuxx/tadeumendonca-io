@@ -51,16 +51,42 @@ Essa verificação é o preço de colocar lógica na borda, não um capricho: a 
 
 ## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
 
-Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta inteira: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
+Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta da AWS: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
 
 - **O domínio** — USD 71,00/ano pelo `.io`, uma cobrança anual que cai num mês só. **USD 5,92/mês** amortizado.
 - **Route 53** — USD 0,50/mês, fixo. A hosted zone, com ou sem visitante.
 - **S3** — cerca de USD 0,15/mês, e são *escritas* de deploy, não leituras.
 - **CloudFront** — na prática USD 0,00 com esse volume.
 
-Repare no desenho disso, porque não é um efeito pequeno e é uma divisão em três, não uma razão: **o nome são 6,42, publicar são 0,15, e responder requisição é zero.** Registro e DNS custam mais que todo o resto desta página somado, quarenta vezes mais; os 0,15 são o build empurrando arquivo pro S3, não leitor puxando; e a parte que de fato atende um visitante arredonda pra nada.
+Repare no formato disso, porque não é um efeito pequeno e é uma divisão em três, não uma razão: **o nome são 6,42, publicar são 0,15, e responder requisição é zero.** Registro e DNS custam mais que todo o resto desta conta somado, quarenta vezes mais; os 0,15 são o build empurrando arquivo pro S3, não leitor puxando; e a parte que de fato atende um visitante arredonda pra nada.
 
-As linhas de hospedagem são medição com data, não fato permanente — nenhuma fatura fechou nesse ritmo ainda. E repare *por que* a fonte é dividida, porque esse foi o erro que esta seção já cometeu uma vez: a série de custo diário é uma janela, e **uma cobrança que se repete menos vezes do que a sua janela é longa fica invisível pra ela.** A renovação é anual e cai em outubro, então ler a conta estava certo e respondia uma pergunta diferente da que eu tinha feito. "Medido, não estimado" não protege de medir o intervalo errado. Não existe linha de computação nenhuma, e é isso que "sem backend" compra: um **piso** de zero, nada cobrando enquanto ninguém visita. O que ele não compra é indiferença a tráfego — S3 e CloudFront são cobrados puramente por uso, então a parte variável é zero aqui por causa do free tier e de payloads pequenos, não porque não haja o que escalar.
+As linhas de hospedagem são medição com data, não fato permanente — nenhuma fatura fechou nesse ritmo ainda. E repare *por que* a fonte é dividida, porque esse foi o erro que esta seção já cometeu uma vez: a série de custo diário é uma janela, e **uma cobrança que se repete menos vezes do que a sua janela é longa fica invisível pra ela.** A renovação é anual e cai em outubro, então ler a conta estava certo e respondia uma pergunta diferente da que eu tinha feito. "Medido, não estimado" não protege de medir o intervalo errado. A única computação nesse caminho é a função de edge lá de cima, cobrada por invocação e arredondando pra zero neste volume; não existe linha de *servidor* nenhuma, e é isso que "sem backend" compra: um **piso** de zero, nada sempre ligado cobrando enquanto ninguém visita. O que ele não compra é indiferença a tráfego — S3 e CloudFront são cobrados puramente por uso, então a parte variável é zero aqui por causa do free tier e de payloads pequenos, não porque não haja o que escalar.
+
+### Os outros fornecedores, e por que um número só é o formato errado
+
+A AWS é um dos fornecedores que poderiam faturar este site — e esse é o critério, declarado em vez de virar contagem, porque número envelhece na primeira dependência nova. **Entra aqui tudo que cobra para manter o site publicado no ar, ou que cobraria sob alguma condição.** O recorte é deliberado, e a seção final volta nele: aquilo com que eu **construo** o site é uma pergunta diferente daquilo em que ele **roda**. Aplicado com honestidade, ele ainda revela mais do que uma lista de zeros — e o interessante é que os itens não se comportam do mesmo jeito.
+
+**Dois cobram hoje, e nenhuma das duas cobranças foi criada por este site.** O **GitHub** hospeda o código e roda todos os gates, num plano pago — a assinatura é anterior ao site, embora a carga de CI em cima dela seja inteiramente dele, e cobrada a zero por um motivo que aparece dois parágrafos abaixo. O **iCloud+** carrega o e-mail com domínio próprio no apex — o [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisiona os registros MX, DKIM e SPF dele, então não é algo adjacente a esta infraestrutura: está dentro dela *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) e-mail próprio via iCloud)*. As duas assinaturas já existiam antes do site e cobrariam exatamente o mesmo se ele fosse apagado amanhã — e é por isso que os USD 6,57 não as absorvem: aquele número é o que este site **acrescentou**, não do que ele **depende**. São afirmações diferentes, e "roda com quase nada" só vale para a primeira.
+
+**O resto cobra zero, sob condições que são justamente a parte que interessa:**
+
+- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request que mexe na aplicação** — instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar; os workflows filtram por caminho, então uma mudança só de documentação roda bem menos —, e **de novo no merge**, que ainda por cima publica e roda um segundo E2E contra o site no ar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O SonarCloud depende da mesma condição**, numa conta separada: o tier gratuito dele é para projetos públicos. O gate dele barra um merge, então ele é estrutural no loop cobrando exatamente zero — que é o caso mais claro de por que escrever só o zero seria a resposta mais enganosa.
+- **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. Esse teto é contado em **recursos** — não em tráfego, nem em gasto — então é o único limite aqui que uma **decisão** move, e não um público.
+
+A analytics aparece lá em cima como o único terceiro em runtime e está deliberadamente fora desta lista: depende de consentimento e é gratuita em qualquer volume que este site vá produzir, o que faz dela uma questão de privacidade, não de cobrança.
+
+Então o formato honesto é **uma conta medida, um conjunto de zeros condicionais e duas assinaturas que cobrariam com ou sem este site** — e nenhum fornecedor aqui se move com leitores. Fechar um repositório, crescer o parque, registrar um nome: tudo decisão. As únicas linhas cobradas por tráfego em tudo isso estão dentro da conta da AWS, e são as duas que arredondam pra nada.
+
+**E isso também vale para a medida, que é a parte escondida por um total só.** Dos USD 6,57, USD 5,92 são o registro anual amortizado e USD 0,50 a zona hospedada fixa — 6,42 antes de um único arquivo ser servido. Os 0,15 restantes são o build escrevendo no S3, não leitores lendo de lá.
+
+**Isso está em texto e não em tabela, de propósito.** Uma linha escrita `GitHub — USD 0,00` convida o leitor a somar e parar. O que importa não é a célula estar vazia, e sim que ela está vazia **por um motivo que alguém escolheu** — e que esse motivo se reverte por decisão, não por tráfego.
+
+### O que o número ainda deixa de fora
+
+É a conta de um provedor só, deliberadamente — e o eixo acima é o que torna isso honesto em vez de parcial: os USD 6,57 são o que este site **acrescentou**, não aquilo de que ele depende. Então ficam de fora as duas assinaturas que cobrariam com ou sem ele, fica de fora a assinatura do Claude Max em que este trabalho roda, e ficam de fora todas as minhas horas. **Só infraestrutura e ferramental**, e nem isso inteiro.
+
+Isso precisa estar escrito, senão o número mente por omissão: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** São duas perguntas diferentes, e esta seção responde só a primeira.
 
 ### Pra que serve o guardrail, na prática
 
