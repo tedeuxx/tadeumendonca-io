@@ -13,7 +13,7 @@ In layers, and **the interesting thing about this picture is what is not in it**
 ```mermaid
 flowchart TB
   accTitle: The layers, and the build lane that replaces the missing ones
-  accDescr: Two lanes. On the right, serving: the reader's device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then the S3 origin holding prerendered files. There is no application server and no database. On the left, build: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result to that same S3 origin. Everything a backend would normally do at request time happens in the build lane instead.
+  accDescr: Two groups. The first is build: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result to the S3 origin. The second is serving: the reader's device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then that same S3 origin holding the prerendered files. There is no application server and no database. Everything a backend would normally do at request time happens in the build group instead.
   subgraph build["BUILD — runs on merge, not on request"]
     direction TB
     C["Content in the repo<br/>markdown · typed TypeScript"] --> P["Pipeline<br/>gates · prerender both locales · print /cv.pdf"]
@@ -158,4 +158,4 @@ The part I would be nervous seeing someone copy without the rest is **merging st
 
 This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
 
-And both diagrams above show the **shape** of a thing, not a run of it. That the request path is what the edge actually does is checkable — the function, its tests and the post-deploy comparison are linked. That the loop is followed the way it is drawn is not: nothing on this page proves any particular change took the route in the picture. The diagram is a claim about how I work, and no artifact on this page can settle it for you.
+And all three diagrams above show the **shape** of a thing, not a run of it. Two of them you can check. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. The third you cannot. That the loop is followed the way it is drawn is not something this page proves — nothing here shows that any particular change took the route in the picture. That one is a claim about how I work, and no artifact on this page can settle it for you.
