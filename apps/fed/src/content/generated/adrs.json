@@ -18,7 +18,7 @@
     "title": "Trunk-based delivery, single environment",
     "file": "0003-trunk-based-single-environment.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0004",
@@ -53,7 +53,7 @@
     "title": "Brutalist mono visual identity, single theme",
     "file": "0008-brutalist-mono-identity.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0009",
@@ -67,7 +67,7 @@
     "title": "Client-side routing, landing/CV split, back-compat redirects",
     "file": "0010-routing-landing-cv-split-redirects.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0011",
@@ -123,7 +123,7 @@
     "title": "CI gates on the PR — E2E included, unit coverage ≥85%",
     "file": "0018-ci-gates-e2e-on-pr-coverage.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0019",
@@ -144,7 +144,7 @@
     "title": "Application security posture — SAST + package-vulnerability scanning",
     "file": "0021-application-security-posture.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0022",
@@ -165,7 +165,7 @@
     "title": "`profile.ts` is the canonical structured CV; cross-surface coherence",
     "file": "0024-profile-canonical-cv-cross-surface.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0025",
@@ -221,7 +221,7 @@
     "title": "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~",
     "file": "0032-i18n-locale-layer-english-baseline.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0033",
@@ -249,7 +249,7 @@
     "title": "Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale",
     "file": "0036-per-locale-urls-prerender-hreflang.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0037",
@@ -263,7 +263,7 @@
     "title": "Published content is distributed to LinkedIn **and** X, in the same batch",
     "file": "0038-content-distribution-linkedin-and-x.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0039",
@@ -277,7 +277,7 @@
     "title": "Diagrams are Mermaid in the markdown body, compiled to inline SVG at build time",
     "file": "0040-build-time-mermaid-diagrams.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0041",

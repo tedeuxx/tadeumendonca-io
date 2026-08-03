@@ -116,8 +116,17 @@ test.describe('SEO discovery', () => {
       // reader, which is the opposite of why this is inline SVG at all.
       expect(html, `${path} must carry the diagram's own title/desc`).toMatch(/<title id="chart-title/);
       expect(html, `${path} must carry a visible caption`).toContain('<figcaption');
-      expect(html, `${path} must render label text`).toContain(mine);
-      expect(html, `${path} is serving the other edition's diagram`).not.toContain(theirs);
+      // Scoped to the SVG regions, not the whole document — and this is a narrowing that makes the
+      // assertion MORE precise rather than weaker. What it exists to catch is the en diagram being
+      // served on /pt, so the diagram is where it should look. Over the whole page it also fired on any
+      // English word appearing anywhere for a legitimate reason: #318 added the generated ADR index,
+      // whose titles are canonical English document names, and ADR-0039's title contains "Reader". That
+      // is a citation, not a mistranslation — a decision record has one name and it is the name it is
+      // filed under, the same way a paper title is not translated when cited.
+      const svgs = html.match(/<svg[\s\S]*?<\/svg>/g)?.join('') ?? '';
+      expect(svgs, `${path} must carry inline SVG with content`).not.toBe('');
+      expect(svgs, `${path} must render label text`).toContain(mine);
+      expect(svgs, `${path} is serving the other edition's diagram`).not.toContain(theirs);
     }
   });
 

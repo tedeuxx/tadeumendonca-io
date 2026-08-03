@@ -4,6 +4,7 @@ import { resolve, join } from 'node:path';
 import {
   collectRecords,
   diffAgainstArtifact,
+  hasAmendment,
   parseRecord,
   parseStatus,
   recordFiles,
@@ -42,19 +43,23 @@ describe('adr index — the artifact tracks the library', () => {
 
 describe('parseStatus', () => {
   it('takes the class and drops the prose', () => {
-    expect(parseStatus('- **Status:** accepted')).toEqual({ status: 'accepted', amended: false });
+    expect(parseStatus('- **Status:** accepted')).toEqual({
+      status: 'accepted',
+      statusLineAmended: false,
+    });
     expect(
       parseStatus('- **Status:** superseded by [ADR-0004](./0004-build-time-render.md) (2026-07)'),
-    ).toEqual({ status: 'superseded', amended: false });
+    ).toEqual({ status: 'superseded', statusLineAmended: false });
   });
 
-  // `amended` is a separate bit rather than a fifth class, because "accepted" and "accepted and revised
-  // since" are different things to a reader choosing what to open, and folding them loses the one bit
-  // that says the decision has moved.
-  it('keeps the amended bit, which is the one thing the class alone would lose', () => {
+  // Named `statusLineAmended`, not `amended`, and the rename is the finding rather than tidiness: this
+  // function sees ONE LINE, and the amendment convention in this library is mostly a body heading. The
+  // old name claimed the whole answer while holding a fraction of it, and thirteen records were reduced
+  // to three. `hasAmendment` below is what actually answers the question.
+  it('keeps the amendment mention it can see, without claiming to be the whole answer', () => {
     const long =
       '- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances)';
-    expect(parseStatus(long)).toEqual({ status: 'accepted', amended: true });
+    expect(parseStatus(long)).toEqual({ status: 'accepted', statusLineAmended: true });
   });
 
   // A closed set, on purpose. This repo's ADR practice has four states; a fifth is either a typo or a
@@ -112,5 +117,36 @@ describe('diffAgainstArtifact', () => {
   it('reports a retitled record under the same id', () => {
     const retitled = [{ ...base[0], title: 'B' }];
     expect(diffAgainstArtifact(retitled, base).changed.map((r) => r.id)).toEqual(['0001']);
+  });
+
+  // The case both gatekeepers found missing, independently. `file` is the href: a renamed record, or a
+  // hand-edit to the committed artifact, left every assertion green and published a row that 404s. The
+  // header called this comparison "field by field" while skipping the one field a reader clicks.
+  it('reports a RENAMED record, which is the href and was the one field left out', () => {
+    const renamed = [{ ...base[0], file: 'a-renamed.md' }];
+    expect(diffAgainstArtifact(renamed, base).changed.map((r) => r.id)).toEqual(['0001']);
+    expect(diffAgainstArtifact(renamed, base).missing).toEqual([]);
+  });
+});
+
+describe('hasAmendment', () => {
+  // The bit was read from the Status line alone and was therefore false for MOST records that had been
+  // amended: three say so in their status, ten more carry `## Amendment` sections and published as plain
+  // "accepted". A derived value with nothing keeping it true — falsified against ADR-0003.
+  it('sees an amendment section in the body, not only a mention in the status line', () => {
+    expect(hasAmendment('# 0001. X\n\n## Amendment (2026-07-29) — something\n', false)).toBe(true);
+    expect(hasAmendment('# 0001. X\n\nplain body\n', true)).toBe(true);
+    expect(hasAmendment('# 0001. X\n\nplain body\n', false)).toBe(false);
+  });
+
+  // A HEADING, not a word search. Several records discuss amending things in prose; matching the bare
+  // word would flag every one of them, and an over-reporting bit is worse than an under-reporting one
+  // when the claim is about someone else's document.
+  it('does not fire on prose that merely discusses amendments', () => {
+    expect(hasAmendment('# 0001. X\n\nThis decision could be amended later.\n', false)).toBe(false);
+  });
+
+  it('matches the real library rather than a fixture', () => {
+    expect(records.filter((r) => r.amended).length).toBeGreaterThan(10);
   });
 });

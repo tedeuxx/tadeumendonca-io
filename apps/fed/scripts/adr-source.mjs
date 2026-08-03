@@ -46,7 +46,26 @@ export function parseStatus(line) {
   const raw = line.replace(/^-\s*\*\*Status:\*\*\s*/, '').trim();
   const cls = CLASSES.find((c) => raw.toLowerCase().startsWith(c));
   if (!cls) throw new Error(`unrecognised ADR status class: "${raw.slice(0, 60)}"`);
-  return { status: cls, amended: /\bamended\b/i.test(raw) };
+  return { status: cls, statusLineAmended: /\bamended\b/i.test(raw) };
+}
+
+/**
+ * Whether the record carries an amendment — read from the BODY, not only from the Status line.
+ *
+ * The first version read the Status line alone, and that was wrong for most of the library. Three
+ * records mention an amendment in their status; **ten more carry `## Amendment` sections and would have
+ * published as plain "accepted"**. So the one bit whose stated purpose is *this decision has moved* was
+ * false for the majority of decisions that had moved — a derived value with nothing keeping it true,
+ * which is the defect class this repo keeps paying for. Found by `quality-assurance`, falsified against
+ * `0003-trunk-based-single-environment.md` and its five amendment headings.
+ *
+ * A heading, not a word search: `\bamended\b` anywhere in a body would fire on any ADR that *discusses*
+ * amending something, and several do. The convention in this library is an `## Amendment` heading, so
+ * that is what is matched — and if a record ever amends without one, this under-reports rather than
+ * over-reports, which is the safer direction for a claim about someone else's document.
+ */
+export function hasAmendment(text, statusLineAmended) {
+  return statusLineAmended || /^#{2,3}\s*Amendment\b/im.test(text);
 }
 
 /**
@@ -73,7 +92,8 @@ export function parseRecord(file) {
   const statusLine = /^-\s*\*\*Status:\*\*.*$/m.exec(text);
   if (!statusLine) throw new Error(`${name}: no Status line`);
 
-  return { id: fileId, title, file: name, ...parseStatus(statusLine[0]) };
+  const { status, statusLineAmended } = parseStatus(statusLine[0]);
+  return { id: fileId, title, file: name, status, amended: hasAmendment(text, statusLineAmended) };
 }
 
 export function collectRecords(adrDir) {
@@ -100,9 +120,20 @@ export function diffAgainstArtifact(records, artifact) {
   return {
     missing: records.filter((r) => !committed.has(r.id)),
     orphaned: artifact.filter((r) => !authored.has(r.id)),
+    // `file` is compared too, and its omission was found by BOTH gatekeepers independently. It is the
+    // href: a hand-edit or a bad merge to a filename in the committed artifact left every assertion
+    // green and published a row that 404s. The header called this comparison "field by field" while
+    // skipping the one field a reader clicks — the same shape as every other defect this week, where
+    // the check did not cover the field that mattered.
     changed: records.filter((r) => {
       const c = committed.get(r.id);
-      return c && (c.title !== r.title || c.status !== r.status || c.amended !== r.amended);
+      return (
+        c &&
+        (c.title !== r.title ||
+          c.status !== r.status ||
+          c.amended !== r.amended ||
+          c.file !== r.file)
+      );
     }),
   };
 }

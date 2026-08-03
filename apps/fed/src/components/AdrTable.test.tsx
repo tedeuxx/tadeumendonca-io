@@ -18,7 +18,14 @@ describe('AdrTable', () => {
   it('links the TITLE to the record on GitHub, opened safely', () => {
     const { container } = renderWithLocale(<AdrTable />, { locale: 'en' });
     const first = records[0];
-    const anchor = container.querySelector(`a[href$="${first.file}"]`);
+
+    // The WHOLE href, not a `href$=` suffix match. The first version used a suffix selector, and
+    // `quality-assurance` falsified it by replacing ADR_BASE with https://example.invalid/WRONG — six
+    // tests still passed. Both link assertions were blind to the origin, so every outbound link on the
+    // page was unguarded at one end while the suite claimed to cover them.
+    const anchor = container.querySelector(
+      `a[href="https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/${first.file}"]`,
+    );
 
     expect(anchor).not.toBeNull();
     // The accessible name is the title, not the number. "0034" tells a screen-reader user nothing about
