@@ -27,6 +27,15 @@ export default defineConfig({
         // gen-diagrams.mjs is deliberately NOT here. It drives a browser and has no unit-testable
         // surface left once the logic is factored out — which is exactly why the logic was factored out.
         'scripts/diagram-source.mjs',
+        // #318. Third time this list has been the thing that turned Sonar red, and the lesson is two
+        // lines above rather than in some other repo: a slice adds a tested script, the local coverage
+        // number stays high because it averages over a set that EXCLUDES the new file, and SonarCloud
+        // reads the lcov and sees 0% on new code. The include list is an ALLOWLIST — silence here is
+        // not "uncovered", it is "not measured", and those read identically in a green local run.
+        //
+        // gen-adrs.mjs is deliberately NOT here, on the same rule as gen-diagrams.mjs: it is a shell
+        // around this file with no unit-testable surface left once the decisions were factored out.
+        'scripts/adr-source.mjs',
         // #269. Same split as diagram-source: this is the half that decides WHICH cards must exist and
         // whether the committed set still matches the articles. gen-og-articles.mjs is excluded from the
         // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a

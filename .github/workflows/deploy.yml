@@ -281,6 +281,18 @@ jobs:
           # filters answer different questions: app.yml asks "does this PR need a rebuild and E2E?"
           # (yes — the footer changes), this one asks "did this release change anything we serve BESIDES
           # its own version stamp?".
+          # ⚠️ `docs/adr/**` IS DELIBERATELY *NOT* IN THIS LIST EITHER, and it is now in `app.yml`'s
+          # filter, which makes this look like an oversight. It is not, and the reason is a different one
+          # from VERSION's — it is about CREDENTIALS, not about noise (#318).
+          #
+          # `app.yml` declares `contents: read` and holds `id-token: write` nowhere, so widening ITS
+          # filter costs runner minutes. THIS file's gate outputs are the predicate that decides whether
+          # a CREDENTIALED job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
+          # `terraform-apply` (the infra role, strictly more powerful). Two edits that look identical;
+          # only one widens the credential surface — ADR-0015, applied to a filter.
+          #
+          # Nothing is lost by the asymmetry: an ADR-only PR reddens in `app.yml`, the author regenerates
+          # `adrs.json`, and the PR then touches `apps/fed/` — which this pathspec already matches.
           app_hits="$(git diff --name-only "$prev..HEAD" -- \
             apps/fed packages/shared .github/workflows/deploy.yml)"
           # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds

@@ -82,7 +82,7 @@ The easy version of this section is *"we kept the scope tight."* That is a postu
 | [ADR-0028](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0028-superseded-gitflow-two-env.md) | GitFlow with staging and production | [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) |
 | [ADR-0029](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0029-superseded-offline-first-pwa.md) | Offline-first installable PWA | [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) |
 
-Five reversals, all in July 2026, none of them quietly deleted — **the superseded record stays and says what replaced it**, which is the only way a reader can tell a decision from a rationalisation. Click any row and you get what was decided, what it cost, and why it stopped being right.
+Those five are the ones this section walks through, all in July 2026 — the backend and the machinery that came with it, which is why a staging flow and an offline-first PWA are in the list beside the server. They are not all the reversals. The full index below carries the load-bearing decisions, and the superseded ones outnumber the five above. None of them was quietly deleted: **the superseded record stays and says what replaced it**, which is the only way a reader can tell a decision from a rationalisation. Click any row and you get what was decided, what it cost, and why it stopped being right.
 
 **What the objective actually needed was content**, and none of that machinery served it. A database with nothing to store. Auth with nobody to authenticate. A staging environment for a site whose revert is a merge. Each one was defensible when it was decided and none survived the question *"what is this for, here."*
 
@@ -95,6 +95,15 @@ This is what makes the growth path concrete rather than a promise that the archi
 - **a change you cannot revert by merging** → reverse [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), and 0028 is the two-environment flow it replaced.
 
 The build lane in the diagram above is the seam: adding a server means moving work **out** of it, not bolting a tier onto the side.
+
+## Every decision, and where it stands
+
+The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating the index turns the pipeline red, so the page either matches the library or nothing ships. A hand-copied index of a library this size is stale within a week and nothing says so — this one is the same mechanism as the diagrams above, and for the same reason.
+
+```adr-index
+```
+
+That is this page's own principle applied to the one list it cannot avoid reproducing: **link the canonical detail rather than restating it.** Every row is a link, and the decision itself lives in the record — with its context, the options that lost, and what it cost.
 
 ## Content is markdown in the repo, resolved at build
 

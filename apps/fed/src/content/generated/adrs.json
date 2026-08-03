@@ -1,0 +1,289 @@
+[
+  {
+    "id": "0001",
+    "title": "Lean by design — architecture calibrated to the strategic priority",
+    "file": "0001-lean-by-design-calibrated-to-strategy.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0002",
+    "title": "Fully static SPA, no backend",
+    "file": "0002-fully-static-spa-no-backend.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0003",
+    "title": "Trunk-based delivery, single environment",
+    "file": "0003-trunk-based-single-environment.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0004",
+    "title": "Content and OG resolved at build time — not SSR or edge",
+    "file": "0004-build-time-render-not-ssr-or-edge.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0005",
+    "title": "Every public URL is SEO- and OG-complete",
+    "file": "0005-og-coverage-every-public-url.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0006",
+    "title": "React + Vite + TypeScript",
+    "file": "0006-react-vite-typescript.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0007",
+    "title": "Tailwind with own components — no shadcn/ui",
+    "file": "0007-tailwind-no-shadcn-own-components.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0008",
+    "title": "Brutalist mono visual identity, single theme",
+    "file": "0008-brutalist-mono-identity.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0009",
+    "title": "Self-hosted fonts — Space Grotesk + JetBrains Mono",
+    "file": "0009-self-hosted-fonts.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0010",
+    "title": "Client-side routing, landing/CV split, back-compat redirects",
+    "file": "0010-routing-landing-cv-split-redirects.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0011",
+    "title": "UI in pt-BR; bilingual i18n deferred",
+    "file": "0011-ui-ptbr-i18n-deferred.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0012",
+    "title": "snake_case in content/data, no mapping layer",
+    "file": "0012-snake-case-content-no-mapping.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0013",
+    "title": "S3 + CloudFront hosting with a URL-rewrite function",
+    "file": "0013-s3-cloudfront-hosting.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0014",
+    "title": "Terraform + Terraform Cloud, apply pipeline-only",
+    "file": "0014-terraform-cloud-pipeline-only.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0015",
+    "title": "GitHub OIDC deploy roles — immutable subject, least-privilege",
+    "file": "0015-oidc-immutable-subject-least-privilege.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0016",
+    "title": "Custom-domain email via iCloud+, not a mail service",
+    "file": "0016-custom-email-via-icloud.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0017",
+    "title": "Minimal infra security posture — no WAF, no CMK, SSM String-only",
+    "file": "0017-no-waf-no-cmk-ssm-string-only.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0018",
+    "title": "CI gates on the PR — E2E included, unit coverage ≥85%",
+    "file": "0018-ci-gates-e2e-on-pr-coverage.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0019",
+    "title": "Complete automated functional regression",
+    "file": "0019-complete-functional-regression.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0020",
+    "title": "SonarCloud quality gate, blocking",
+    "file": "0020-sonarcloud-quality-gate.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0021",
+    "title": "Application security posture — SAST + package-vulnerability scanning",
+    "file": "0021-application-security-posture.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0022",
+    "title": "Numeric SemVer, auto-bump + release on merge",
+    "file": "0022-numeric-semver-auto-release.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0023",
+    "title": "Observability scoped to a static site",
+    "file": "0023-observability-static-site.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0024",
+    "title": "`profile.ts` is the canonical structured CV; cross-surface coherence",
+    "file": "0024-profile-canonical-cv-cross-surface.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0025",
+    "title": "Backend-ful platform (BFF · DynamoDB · Cognito · SES · Lambda@Edge)",
+    "file": "0025-superseded-backend-platform.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0026",
+    "title": "Lambda@Edge OG renderer",
+    "file": "0026-superseded-lambda-edge-og.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0027",
+    "title": "Backend link-unfurl / OG preview cards",
+    "file": "0027-superseded-backend-link-unfurl.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0028",
+    "title": "GitFlow, staging + production two-environment",
+    "file": "0028-superseded-gitflow-two-env.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0029",
+    "title": "Offline-first installable PWA",
+    "file": "0029-superseded-offline-first-pwa.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0030",
+    "title": "Monorepo `tadeumendonca-pwa` consolidation",
+    "file": "0030-superseded-monorepo-pwa.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0031",
+    "title": "Shared regional WAF",
+    "file": "0031-superseded-shared-regional-waf.md",
+    "status": "superseded",
+    "amended": false
+  },
+  {
+    "id": "0032",
+    "title": "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~",
+    "file": "0032-i18n-locale-layer-english-baseline.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0033",
+    "title": "GA4, consent-gated — a hard opt-in gate, not Consent Mode v2",
+    "file": "0033-ga4-consent-gated-analytics.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0034",
+    "title": "The downloadable CV is a build-time PDF, printed from `/me` to a static asset",
+    "file": "0034-build-time-cv-pdf-static-artifact.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0035",
+    "title": "Curated repos render as static cards in long-form — a lone-URL facade + a leaf-bilingual field",
+    "file": "0035-static-repo-cards-in-longform.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0036",
+    "title": "Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale",
+    "file": "0036-per-locale-urls-prerender-hreflang.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0037",
+    "title": "Article slugs are localized — a locale-matched slug per edition",
+    "file": "0037-localized-article-slugs.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0038",
+    "title": "Published content is distributed to LinkedIn **and** X, in the same batch",
+    "file": "0038-content-distribution-linkedin-and-x.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0039",
+    "title": "Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`",
+    "file": "0039-share-campaign-tagging.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0040",
+    "title": "Diagrams are Mermaid in the markdown body, compiled to inline SVG at build time",
+    "file": "0040-build-time-mermaid-diagrams.md",
+    "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0041",
+    "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
+    "file": "0041-per-article-og-cards.md",
+    "status": "accepted",
+    "amended": false
+  }
+]

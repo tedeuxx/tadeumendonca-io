@@ -149,13 +149,14 @@ not prove that.
 | job | runs when these change |
 |---|---|
 | `eslint`, `tsc` | `apps/**` (**including `e2e/**`**), `packages/shared/**`, root TS + lint config |
-| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties` |
+| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`** |
 | `build-static` | the above + **`VERSION`** |
 | `playwright` | the above — **never only when `e2e/**` changes**, because it drives the build |
 | `checkov`, `terraform-fmt`, `terraform-plan`, `terraform-apply` | `iac/**` — **all of it, `cloudfront-functions/` included** |
 | `actionlint` | `.github/**` |
 
-**Two entries carry the whole rule.**
+**Three entries carry the whole rule, and they are the same rule three times: a gate belongs to what a
+file IS, not to the directory it sits in** (ADR-0018's amendment).
 
 `iac/cloudfront-functions/**` belongs to the **app** gate: it is IaC by path but JavaScript with
 behaviour, and `terraform-plan` validates Terraform, not behaviour. Filter it as infra *only* and the
@@ -176,6 +177,25 @@ the footer renders it. Filter it out and an edit to it changes what a reader see
 It is in `app`'s filter as its own `version` key, so a VERSION-only change rebuilds and re-runs
 Playwright while `eslint`/`tsc`/`vitest`/`sonarqube-scan` — which have nothing to look at — stay
 skipped. **It is deliberately absent from `deploy`'s gate**, for a measured reason: see below.
+
+`docs/adr/**` belongs to the **app** gate because it is the **authored source of a published artifact**:
+`apps/fed/scripts/gen-adrs.mjs` compiles the decision library into a committed
+`src/content/generated/adrs.json`, `/architecture` renders it, and `adr-source.test.mjs` fails when the
+two separate. Every other generated artifact here reads from `apps/fed/src/content/`, so its guard is
+self-triggering and nobody had to think about this before; this is the first whose source lives outside
+`apps/**`. Without the entry the guard is correct and **never runs on its own trigger** — an ADR-only PR
+skips `vitest`, `build-test` reports *"nothing was verified"* and passes, and the page's own claim that
+a decision added or re-statused turns the build red is false. The red would instead surface on the next
+unrelated PR touching `apps/**`, landing on an author who did not cause it.
+
+**And it is deliberately NOT in `deploy`'s gate — for a different reason from `VERSION`'s, which is
+credentials rather than noise.** `app.yml` declares `contents: read` and holds `id-token: write` nowhere,
+so widening *its* filter costs runner minutes. `deploy.yml`'s gate outputs are the predicate deciding
+whether a **credentialed** job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
+`terraform-apply` (the infra role, strictly more powerful). Two edits that look identical; only one
+widens the credential surface — ADR-0015 applied to a filter. Nothing is lost: an ADR-only PR reddens
+here, the author regenerates, and the PR then touches `apps/fed/`, which the deploy pathspec already
+matches.
 
 **The app jobs' filter sets overlap almost entirely.** Splitting the app gate into jobs therefore
 buys little in *filtering* — the value is parallelism and a readable graph, and it should be argued

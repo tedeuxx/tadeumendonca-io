@@ -29,6 +29,7 @@ on:
       - "apps/**"
       - "packages/shared/**"
       - "iac/cloudfront-functions/**" # unit-tested here, not by `iac` (#205)
+      - "docs/adr/**" # authored source of the published decision index — see the `code` filter (#318)
       - "VERSION" # a build input — see the `version` filter below
       - "tsconfig.base.json"
       - "package.json"
@@ -78,6 +79,23 @@ jobs:
               # there: iac/frontend.tf embeds this file via `file()`, so an edit to it is a real Terraform
               # diff that has to be planned and applied. Two gates, two different claims, both required.
               - 'iac/cloudfront-functions/**'
+              # The SAME rule, one directory over, and it arrived with #318. `docs/adr/` is the AUTHORED
+              # SOURCE of the decision index published on /architecture: apps/fed/scripts/gen-adrs.mjs
+              # compiles it into a committed artifact, and adr-source.test.mjs fails when the two
+              # separate. Every other generated artifact here reads from `apps/fed/src/content/`, so its
+              # guard is self-triggering; this is the first whose source lives outside `apps/**`.
+              #
+              # Without this line the guard is correct and NEVER RUNS ON ITS OWN TRIGGER. An ADR-only PR
+              # skips `vitest`, `build-test` reports "nothing was verified" and passes — and the page
+              # says, in both locales, that a decision added or re-statused either updates it or turns
+              # the build red. That claim is only true with this entry. The red would otherwise surface
+              # on the next unrelated PR touching apps/**, landing on an author who did not cause it.
+              #
+              # NOT added to the deploy gate's filter, deliberately: this entry makes an ADR-only PR go
+              # red, the author regenerates, and the PR then touches the artifact under `apps/fed/`,
+              # which the deploy pathspec already matches. Widening the deploy filter instead would
+              # republish on ADR edits that changed no served byte.
+              - 'docs/adr/**'
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
             # therefore has to rebuild and re-run E2E, but has nothing for eslint/tsc/vitest/Sonar to
