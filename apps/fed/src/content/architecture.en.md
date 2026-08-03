@@ -51,7 +51,7 @@ That check is the price of putting logic at the edge, not a nicety: a function v
 
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
-"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the whole bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
+"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the AWS bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
 
 - **The domain** — USD 71.00/yr for the `.io`, an annual charge that lands in one month. **USD 5.92/month** amortized.
 - **Route 53** — USD 0.50/month, fixed. The hosted zone, whether or not anyone visits.
@@ -61,6 +61,19 @@ That check is the price of putting logic at the edge, not a nicety: a function v
 Note the shape, because it is not a small effect and it is a three-way split rather than a ratio: **the name is 6.42, publishing is 0.15, and answering requests is zero.** Registration and DNS cost more than everything else on this page combined, forty times over; the 0.15 is the build pushing files to S3, not readers pulling them; and the part that actually serves a visitor rounds to nothing.
 
 Treat the serving lines as a measurement with a date on it rather than a standing fact — no invoice has closed at that rate yet. And note *why* the sourcing is split, because it is the mistake this section already made once: the daily cost series is a window, and **a charge that recurs less often than your window is long is invisible to it.** The renewal is annual and falls in October, so reading the account was correct and answered a different question than the one asked. "Measured, not estimated" is not a defence against measuring the wrong interval. There is no compute line at all, and that is what "no backend" buys: a **floor** of zero, nothing billing while nobody visits. It does not buy indifference to traffic — S3 and CloudFront are purely usage-priced, so the variable part is zero here because of the free tier and small payloads, not because there is nothing to scale.
+
+### The other two bills, and why zero is the wrong way to write them
+
+AWS is one of three services this site depends on. The other two are **GitHub** — which hosts the code and runs every gate — and **Terraform Cloud**, which holds the infrastructure state. Both bill **USD 0.00** today, and writing only that would be the more misleading answer.
+
+**They are free on conditions, and the conditions are the interesting part:**
+
+- **GitHub Actions is free because the repositories are public.** Making either one private starts metering minutes against a monthly allowance, and this site's pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on every push. The number that appears is not small, and nothing about the code would have changed.
+- **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. Growth crosses that line before it crosses any AWS line, because the AWS bill scales with *traffic* and the Terraform Cloud tier scales with *resource count*.
+
+So the honest shape is **three bills, two of them conditional and one of them measured** — and the two conditional ones are the pair that would change first if the strategy changed, not the one with a number on it. A private repo or a larger estate moves them off zero long before the USD 6.57 moves at all.
+
+**This is stated rather than tabulated deliberately.** A row reading `GitHub — USD 0.00` invites the reader to add it up and stop. What matters is not that the cell is empty but that it is empty *for a reason someone chose*, and that the reason is reversible by a decision rather than by traffic.
 
 ### What the guardrail is actually for
 

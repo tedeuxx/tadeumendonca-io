@@ -51,7 +51,7 @@ Essa verificação é o preço de colocar lógica na borda, não um capricho: a 
 
 ## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
 
-Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta inteira: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
+Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta da AWS: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
 
 - **O domínio** — USD 71,00/ano pelo `.io`, uma cobrança anual que cai num mês só. **USD 5,92/mês** amortizado.
 - **Route 53** — USD 0,50/mês, fixo. A hosted zone, com ou sem visitante.
@@ -61,6 +61,19 @@ Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fáci
 Repare no desenho disso, porque não é um efeito pequeno e é uma divisão em três, não uma razão: **o nome são 6,42, publicar são 0,15, e responder requisição é zero.** Registro e DNS custam mais que todo o resto desta página somado, quarenta vezes mais; os 0,15 são o build empurrando arquivo pro S3, não leitor puxando; e a parte que de fato atende um visitante arredonda pra nada.
 
 As linhas de hospedagem são medição com data, não fato permanente — nenhuma fatura fechou nesse ritmo ainda. E repare *por que* a fonte é dividida, porque esse foi o erro que esta seção já cometeu uma vez: a série de custo diário é uma janela, e **uma cobrança que se repete menos vezes do que a sua janela é longa fica invisível pra ela.** A renovação é anual e cai em outubro, então ler a conta estava certo e respondia uma pergunta diferente da que eu tinha feito. "Medido, não estimado" não protege de medir o intervalo errado. Não existe linha de computação nenhuma, e é isso que "sem backend" compra: um **piso** de zero, nada cobrando enquanto ninguém visita. O que ele não compra é indiferença a tráfego — S3 e CloudFront são cobrados puramente por uso, então a parte variável é zero aqui por causa do free tier e de payloads pequenos, não porque não haja o que escalar.
+
+### As outras duas contas, e por que escrever zero seria pior
+
+A AWS é uma de três contas de que este site depende. As outras duas são o **GitHub** — que hospeda o código e roda todos os gates — e o **Terraform Cloud**, que guarda o estado da infraestrutura. As duas cobram **USD 0,00** hoje, e escrever só isso seria a resposta mais enganosa.
+
+**São gratuitas sob condições, e as condições é que interessam:**
+
+- **O GitHub Actions é gratuito porque os repositórios são públicos.** Tornar qualquer um deles privado passa a medir minutos contra uma cota mensal — e o pipeline deste site roda o conjunto inteiro de gates a cada push: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. O crescimento cruza essa linha antes de cruzar qualquer linha da AWS, porque a conta da AWS escala com **tráfego** e o tier do Terraform Cloud escala com **contagem de recursos**.
+
+Então o formato honesto é **três contas: duas condicionais e uma medida** — e as duas condicionais são justamente o par que mudaria primeiro se a estratégia mudasse, não a que tem número. Um repositório privado, ou um parque maior, tira as duas do zero muito antes de os USD 6,57 se mexerem.
+
+**Isso está em texto e não em tabela, de propósito.** Uma linha escrita `GitHub — USD 0,00` convida o leitor a somar e parar. O que importa não é a célula estar vazia, e sim que ela está vazia **por um motivo que alguém escolheu** — e que esse motivo se reverte por decisão, não por tráfego.
 
 ### Pra que serve o guardrail, na prática
 
