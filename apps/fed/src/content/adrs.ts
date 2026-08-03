@@ -37,13 +37,8 @@ export const adrHref = (record: AdrRecord): string => `${ADR_BASE}/${record.file
 export const adrRecords = (): AdrRecord[] =>
   [...records].sort((a, b) => a.id.localeCompare(b.id));
 
-/**
- * How many decisions were superseded — the count the prose beside this table needs.
- *
- * Exported rather than written into the copy, because the copy already carried a hand-typed "five
- * reversals" that the library outgrew: there are eight superseded records today. A number in prose with
- * nothing keeping it true is the exact defect class this page has now been bitten by twice, and the fix
- * is not a more careful writer.
- */
-export const supersededCount = (): number =>
-  records.filter((r) => r.status === 'superseded').length;
+// A `supersededCount` helper lived here and has been removed. It had no consumer outside its own test,
+// and its docstring justified itself as the number the prose needs — while the prose deliberately
+// carries no number, because a count in copy with nothing keeping it true is the defect this slice was
+// fixing. An export whose stated reason is contradicted by the file it points at is worse than an
+// absent one: the next reader trusts the docstring.

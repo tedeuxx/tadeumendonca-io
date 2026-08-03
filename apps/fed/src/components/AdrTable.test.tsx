@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AdrTable } from './AdrTable';
-import { adrRecords, supersededCount } from '../content/adrs';
+import { adrRecords } from '../content/adrs';
 import { renderWithLocale } from '../test-utils';
 
 const records = adrRecords();
@@ -79,7 +79,8 @@ describe('AdrTable', () => {
       r.textContent?.includes('superseded'),
     );
 
-    expect(superseded).toHaveLength(supersededCount());
-    expect(supersededCount()).toBeGreaterThan(5);
+    const inLibrary = records.filter((r) => r.status === 'superseded').length;
+    expect(superseded).toHaveLength(inLibrary);
+    expect(inLibrary).toBeGreaterThan(5);
   });
 });
