@@ -159,8 +159,12 @@ const strings = {
       // SERP previews cut — so the fix that put the canonical term in the pt card left it invisible in a
       // large share of the cards it was meant to fix. The en string reached it earlier and was safer,
       // which is why the defect was only in one edition.
-      pt: 'Como este site é construído: o dev-loop de agent-led verification, a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, e os ADRs que registram cada decisão — com links para replicar.',
-      en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record every decision — with links to replicate it.',
+      // "as decisões que sustentam peso" / "the load-bearing decisions", NOT "cada" / "every" — the page
+      // this describes qualifies it twice in both editions, and repoCards.ts carries the same correction on
+      // the card that links the same library. A meta line is the one place the qualifier is cheapest to
+      // drop and the claim hardest for a reader to check against the page it summarises.
+      pt: 'Como este site é construído: o dev-loop de agent-led verification, a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, e os ADRs que registram as decisões que sustentam peso — com links para replicar.',
+      en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record the load-bearing decisions — with links to replicate it.',
     },
   },
   portfolio: {

@@ -49,8 +49,12 @@ export const repoCards: RepoCardData[] = [
     language: 'TypeScript',
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',
     description: {
-      en: 'This site and the Terraform that serves it — a static SPA on S3 + CloudFront, prerendered in both locales, with the decision library that explains every choice and what it cost.',
-      pt: 'Este site e o Terraform que o serve — uma SPA estática em S3 + CloudFront, prerenderizada nos dois idiomas, com a biblioteca de decisões que explica cada escolha e o que ela custou.',
+      // "the load-bearing decisions", NOT "every choice" — the first draft of this line said exactly that,
+      // and it is the same universal catalog.ts retired from the sibling card (see the note there). The page
+      // this card closes qualifies it twice, in both editions: "every LOAD-BEARING decision ... is an ADR".
+      // One merged PR that decided something without an ADR falsifies the universal, and there are many.
+      en: 'This site and the Terraform that serves it — a static SPA on S3 + CloudFront, prerendered in both locales, with the decision library that records the load-bearing decisions and what each one cost.',
+      pt: 'Este site e o Terraform que o serve — uma SPA estática em S3 + CloudFront, prerenderizada nos dois idiomas, com a biblioteca de decisões que registra as decisões que sustentam peso e o que cada uma custou.',
     },
   },
   {
