@@ -68,7 +68,7 @@ A AWS é uma de três contas de que este site depende. As outras duas são o **G
 
 **São gratuitas sob condições, e as condições é que interessam:**
 
-- **O GitHub Actions é gratuito porque os repositórios são públicos.** Tornar qualquer um deles privado passa a medir minutos contra uma cota mensal — e o pipeline deste site roda o conjunto inteiro de gates a cada push: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O GitHub Actions é gratuito porque os repositórios são públicos.** Tornar qualquer um deles privado passa a medir minutos contra uma cota mensal — e o pipeline deste site roda o conjunto inteiro de gates **a cada pull request**, e de novo no merge: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
 - **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. O crescimento cruza essa linha antes de cruzar qualquer linha da AWS, porque a conta da AWS escala com **tráfego** e o tier do Terraform Cloud escala com **contagem de recursos**.
 
 Então o formato honesto é **três contas: duas condicionais e uma medida** — e as duas condicionais são justamente o par que mudaria primeiro se a estratégia mudasse, não a que tem número. Um repositório privado, ou um parque maior, tira as duas do zero muito antes de os USD 6,57 se mexerem.

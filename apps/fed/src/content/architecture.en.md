@@ -68,7 +68,7 @@ AWS is one of three services this site depends on. The other two are **GitHub** 
 
 **They are free on conditions, and the conditions are the interesting part:**
 
-- **GitHub Actions is free because the repositories are public.** Making either one private starts metering minutes against a monthly allowance, and this site's pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on every push. The number that appears is not small, and nothing about the code would have changed.
+- **GitHub Actions is free because the repositories are public.** Making either one private starts metering minutes against a monthly allowance, and this site's pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request**, and again on the merge. The number that appears is not small, and nothing about the code would have changed.
 - **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. Growth crosses that line before it crosses any AWS line, because the AWS bill scales with *traffic* and the Terraform Cloud tier scales with *resource count*.
 
 So the honest shape is **three bills, two of them conditional and one of them measured** — and the two conditional ones are the pair that would change first if the strategy changed, not the one with a number on it. A private repo or a larger estate moves them off zero long before the USD 6.57 moves at all.
