@@ -14,7 +14,27 @@ import 'highlight.js/styles/github-dark.css';
 import { VideoEmbed, youtubeId } from './VideoEmbed';
 import { RepoCard } from './RepoCard';
 import { Diagram } from './Diagram';
+import { AdrTable } from './AdrTable';
 import { repoCardFor } from '../data/repoCards';
+
+/**
+ * Whether this <pre> is the ```adr-index marker (#318).
+ *
+ * A fence rather than a heading convention or an HTML comment, because `pre` is already the hook where
+ * this file swaps a compiled artifact in for authored source — the mermaid path directly below does the
+ * same thing — and a second mechanism for the same job is a second thing to learn and to break.
+ *
+ * The fence carries NO content. What goes in the table is decided by `docs/adr/`, so anything typed
+ * between the backticks would be either ignored or a second source of truth; the marker only says WHERE
+ * the index goes. It is a `pre` for the same reason mermaid is: react-markdown wraps a fenced block in
+ * <pre><code>, and returning a block element from the `code` handler nests it inside a <pre>, which is
+ * invalid HTML and a hydration mismatch on a prerendered page.
+ */
+function isAdrIndex(children: ReactNode): boolean {
+  const only = Children.toArray(children)[0];
+  if (!isValidElement<{ className?: string }>(only)) return false;
+  return only.props.className?.split(/\s+/).includes('language-adr-index') ?? false;
+}
 
 /**
  * A ```mermaid fence's source, if this <pre> is one — plus the caption authored on the fence's own
@@ -57,6 +77,7 @@ const components: Components = {
   pre({ children, ...rest }) {
     const { node, ...props } = rest;
     void node;
+    if (isAdrIndex(children)) return <AdrTable />;
     const diagram = mermaidBlock(children);
     if (diagram) return <Diagram source={diagram.source} caption={diagram.caption} />;
     return <pre {...props}>{children}</pre>;

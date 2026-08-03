@@ -44,6 +44,26 @@ const strings = {
     // thing (the skip link, the notice ordering, `tabIndex={-1}`).
     version: { pt: 'Notas da versão que está no ar (GitHub)', en: 'Release notes for the running build (GitHub)' },
   },
+  adrTable: {
+    // The generated decision index on /architecture (#318). Column headers and status labels live here
+    // rather than in the markdown, because the TABLE is compiled from `docs/adr/` and only its chrome is
+    // authored — putting the headers in each locale's markdown would mean the two editions could
+    // disagree about what a column means while showing identical rows.
+    caption: {
+      pt: 'Índice de decisões, gerado a partir de docs/adr/ no build',
+      en: 'Decision index, generated from docs/adr/ at build time',
+    },
+    colId: { pt: 'ADR', en: 'ADR' },
+    colTitle: { pt: 'Decisão', en: 'Decision' },
+    colStatus: { pt: 'Situação', en: 'Status' },
+    accepted: { pt: 'aceita', en: 'accepted' },
+    superseded: { pt: 'substituída', en: 'superseded' },
+    proposed: { pt: 'proposta', en: 'proposed' },
+    rejected: { pt: 'rejeitada', en: 'rejected' },
+    // Appended to a status, not replacing it: a decision that stands but has been revised is neither
+    // plainly "accepted" nor superseded, and collapsing it to either loses the bit a reader needs.
+    amended: { pt: 'emendada', en: 'amended' },
+  },
   marquee: {
     // The key stays `subjects` — renaming it would touch every call site for no reader benefit —
     // but the LABEL is now "Stack", because that is what the strip lists. See Marquee.tsx.
