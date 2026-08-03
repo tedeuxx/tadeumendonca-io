@@ -69,11 +69,19 @@ AWS is one of three services this site depends on. The other two are **GitHub** 
 **They are free on conditions, and the conditions are the interesting part:**
 
 - **GitHub Actions is free because the repositories are public.** Making either one private starts metering minutes against a monthly allowance, and this site's pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request**, and again on the merge. The number that appears is not small, and nothing about the code would have changed.
-- **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. Growth crosses that line before it crosses any AWS line, because the AWS bill scales with *traffic* and the Terraform Cloud tier scales with *resource count*.
+- **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. That ceiling is counted in *resources*, not in traffic or in spend, so it is the one limit here that a **decision** moves rather than an audience.
 
-So the honest shape is **three bills, two of them conditional and one of them measured** — and the two conditional ones are the pair that would change first if the strategy changed, not the one with a number on it. A private repo or a larger estate moves them off zero long before the USD 6.57 moves at all.
+So the honest shape is **three bills, two of them conditional and one of them measured** — and the two conditional ones turn on choices rather than on usage. A private repo or a much larger estate moves them off zero; more readers do not.
+
+**And the same is true of the measured one, which is the part the total hides.** Of the USD 6.57, USD 6.42 is an annual registration and USD 0.50 is a fixed hosted zone — the traffic-priced line rounds to nothing. This bill is dominated by fixed cost, so it does not scale with readers either. All three are essentially insensitive to how many people visit, and every one of them moves on a decision instead: register a name, go private, grow the estate.
 
 **This is stated rather than tabulated deliberately.** A row reading `GitHub — USD 0.00` invites the reader to add it up and stop. What matters is not that the cell is empty but that it is empty *for a reason someone chose*, and that the reason is reversible by a decision rather than by traffic.
+
+### What the figure still excludes
+
+Complete across three providers, it is still **infrastructure and tooling only**. It does not include the Claude Max subscription this work runs on, and it does not include a single hour of mine.
+
+That has to be said or the number lies by omission: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** Those are different questions, and only the first one has an invoice.
 
 ### What the guardrail is actually for
 
