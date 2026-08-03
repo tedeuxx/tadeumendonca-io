@@ -55,12 +55,16 @@ and deployed by merging.
 | **SonarCloud account** | yes — **because this repo is public** | the quality gate on `app` |
 | **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
 
-**The three "yes" rows are the ones nothing here can keep true.** Terraform Cloud, SonarCloud and
-Anthropic set their own tiers and change them without telling this repo — so check
-[HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/)
-and [Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells. What is stated here
-is the *condition* each one depends on — workspace size, and the repo being public — because those are
-facts about this repo and they are the part that would change on your side.
+**Two of those rows are free *conditionally*, and the condition is a fact about this repo** — Terraform
+Cloud's is how small this workspace is, SonarCloud's is the repo being public. Those are the parts that
+change on **your** side, which is why they are stated rather than the tier. GitHub is unconditional at
+this scale, and **Claude Code is simply paid** — what varies there is whether you want the loop, which
+is a fact about you, not about this repo.
+
+**None of the three vendors is something this file can keep true.** They set their own tiers and change
+them without telling a README, so check [HashiCorp](https://www.hashicorp.com/pricing),
+[SonarCloud](https://www.sonarsource.com/plans-and-pricing/) and
+[Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells.
 
 **The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
 account and no AWS bill at all** — it has neither.
@@ -76,8 +80,10 @@ account and no AWS bill at all** — it has neither.
 
 ### What it costs to run
 
-**Almost all of it is the name.** Registration amortized plus the Route 53 hosted zone dwarf everything
-else: publishing is cents, and serving a visitor rounds to zero. The figure, its measurement date, and
+**Single-digit dollars a month, and almost all of it is the name.** Registration amortized plus the
+Route 53 hosted zone dwarf everything else: publishing is cents, and serving a visitor rounds to zero.
+**Your TLD sets that line, not this architecture** — a `.com` and a `.io` are different bills for the
+same site. The figure, its measurement date, and
 why it is sourced partly from the bill and partly from the registrar's price list are on
 [`/architecture`](https://tadeumendonca.io/en/architecture) — **stated there and not repeated here**, so
 one number does not go stale on two surfaces. That page also treats it as a measurement with a date
@@ -96,7 +102,7 @@ prints twelve lines for **seven distinct secrets**, and exactly three jobs decla
 | `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the recipient of the account cost alert, passed to Terraform as a variable |
 | `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform's access to its own state |
 | `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate's authentication |
-| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN`, doing three things: the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link resolves to nothing |
+| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN` — **mint it at `contents: write` and no wider** (classic equivalent: `repo`). It is the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link 404s |
 | `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` on issues and PRs — it silently does not answer without one |
 
 **The scope column is what the job can read, not a preference.** An **environment**-scoped secret is
