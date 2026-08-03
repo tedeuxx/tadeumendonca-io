@@ -35,6 +35,22 @@ describe('AdrTable', () => {
     expect(anchor).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
 
+  // A title's inline markup is rendered, not published as syntax — and for ADR-0032 the strikethrough IS
+  // the meaning, so flattening it puts a retired claim on the page as a live one. Asserted HERE and not
+  // only in adr-title.test.tsx, because that suite proves the renderer works while this one proves the
+  // table actually calls it: the existing title assertion reads the RAW record title and is structurally
+  // blind to whether any rendering happened at all.
+  it('renders a title that carries markup, rather than publishing its syntax', () => {
+    const marked = records.find((r) => r.title.includes('~~'));
+    expect(marked, 'the library should contain a title with a retired clause').toBeDefined();
+
+    const { container } = renderWithLocale(<AdrTable />, { locale: 'en' });
+    const row = container.querySelector(`tbody tr:has(a[href$="${marked!.file}"])`);
+
+    expect(row?.querySelector('del')).not.toBeNull();
+    expect(row?.textContent, 'the table must not publish markdown syntax').not.toContain('~~');
+  });
+
   it('identifies each row by its number as a row header, so the status cell has an antecedent', () => {
     const { container } = renderWithLocale(<AdrTable />, { locale: 'en' });
     const rowHeaders = [...container.querySelectorAll('tbody th[scope="row"]')];
