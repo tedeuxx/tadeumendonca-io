@@ -322,6 +322,52 @@ jobs:
       - name: E2E (Playwright against a preview of the build)
         run: npm run e2e:local:built
 
+  # The ONE job in this repo that reads another repository (#318, ADR-0043).
+  #
+  # /architecture publishes an inventory of the dev-loop harness — personas, hooks, command families —
+  # whose source of truth is `tadeumendonca-skills`. The build never reads it: a committed manifest
+  # (apps/fed/src/content/generated/harness.json) is what ships, exactly like adrs.json and diagrams.json,
+  # so ADR-0002 and ADR-0004 hold and a clone of this repo alone still builds. THIS job is the only place
+  # the two are compared, three ways — missing, orphaned, changed.
+  #
+  # It needs no npm install and no browser: the script is dependency-free Node reading two trees.
+  #
+  # WHY THE SECOND CHECKOUT IS SAFE, and this is the property the decision turns on: the plugin is a
+  # PUBLIC repository, so `actions/checkout` needs no token, no secret and no `id-token`. This widens no
+  # credential surface. Nothing here goes near deploy.yml's gate filter, whose outputs decide whether an
+  # OIDC-credentialed job runs — that is ADR-0015 applied to a path filter, and the manifest already sits
+  # under apps/fed/, which the `code` filter matches.
+  #
+  # WHAT THIS JOB CANNOT DO, said here because it is the accepted cost rather than a gap to fix later: it
+  # is NOT self-triggering. The event that falsifies the manifest is a merge in the OTHER repo, and no
+  # filter in this one can match it — unlike `docs/adr/**`, which was added to the `code` filter above for
+  # exactly this problem and could be, because the authored source is a path here. So the red lands on the
+  # next run here, usually an unrelated PR and an author who did not cause it. The mitigation is in the
+  # failure message, which names the plugin, says it is not your change, and gives the fix.
+  harness-drift:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Checkout the dev-loop plugin (public — no token)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tedeuxx/tadeumendonca-skills
+          path: .skills-checkout
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # No `npm ci`: the script imports nothing outside node: builtins. Run directly rather than through
+      # the npm script so the plugin path is an explicit argument instead of an inherited default.
+      - name: Compare the published harness inventory against the plugin
+        run: node apps/fed/scripts/check-harness-drift.mjs "$GITHUB_WORKSPACE/.skills-checkout"
+
   # Authoritative quality gate; `-Dsonar.qualitygate.wait=true` makes it blocking.
   #
   # It needs `vitest` and NOT `build-static`: sonar-project.properties sets `sonar.sources=src,scripts`
@@ -384,6 +430,7 @@ jobs:
         vitest,
         build-static,
         playwright,
+        harness-drift,
         sonarqube-scan,
       ]
     if: always()
@@ -417,4 +464,4 @@ jobs:
             echo "::notice::VERSION-only change — build-static and Playwright ran; lint, typecheck, tests and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
-          echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright; sonarqube-scan: ${SONAR}"
+          echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright, harness-drift; sonarqube-scan: ${SONAR}"

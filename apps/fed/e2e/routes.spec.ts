@@ -230,15 +230,25 @@ test.describe('routes', () => {
 
   // #170. The diagram is compiled to inline SVG at BUILD time, so the properties worth asserting are the
   // ones that distinguish that from every cheaper thing it could have been.
-  // Both figures, not one. The first version pinned only the infra diagram by caption, so the dev-loop
-  // diagram — added in the same issue's second slice — had no E2E at all. That is the wrong thing to
-  // leave uncovered given what this feature's real failure looks like: the defect this slice actually
-  // shipped was a diagram drawn in the page's own background colour, present and legible to every
-  // assertion and invisible to a reader.
-  test('/architecture renders BOTH diagrams as inline SVG, sized, in the reader’s language', async ({ page }) => {
+  // EVERY figure, not one and not two. The first version pinned only the infra diagram by caption, so
+  // the dev-loop diagram — added in the same issue's second slice — had no E2E at all; the second version
+  // added it and left the layers diagram uncovered, which is the same omission with a smaller number.
+  // That is the wrong thing to leave uncovered given what this feature's real failure looks like: the
+  // defect this slice actually shipped was a diagram drawn in the page's own background colour, present
+  // and legible to every assertion and invisible to a reader.
+  //
+  // The list is enumerated rather than discovered (`getByRole('figure')` would find whatever is there and
+  // pass on a page that lost one). Adding a diagram means adding its caption here — which is the point:
+  // the cost of the list is exactly the assertion that the page still has all four.
+  test('/architecture renders EVERY diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
     await page.goto('/pt/architecture');
 
-    for (const name of [/Como uma requisição vira uma página/, /Onde o humano fica no loop/]) {
+    for (const name of [
+      /As camadas, e a trilha de build que substitui as que faltam/,
+      /Como uma requisição vira uma página/,
+      /Onde o humano fica no loop/,
+      /Do que o harness é feito/,
+    ]) {
       const figure = page.getByRole('figure', { name });
       await expect(figure, `${name} must render`).toBeVisible();
 

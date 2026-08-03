@@ -22,6 +22,8 @@
     "gen-og": "node scripts/gen-og-default.mjs",
     "gen-og-articles": "node scripts/gen-og-articles.mjs",
     "gen-adrs": "node scripts/gen-adrs.mjs",
+    "gen-harness": "node scripts/gen-harness.mjs",
+    "check-harness-drift": "node scripts/check-harness-drift.mjs",
     "gen-diagrams": "node scripts/gen-diagrams.mjs",
     "gen-icons": "node scripts/gen-icons.mjs",
     "audit": "audit-ci --config audit-ci.jsonc",

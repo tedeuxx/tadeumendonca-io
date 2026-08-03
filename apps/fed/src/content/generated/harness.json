@@ -1,0 +1,118 @@
+[
+  {
+    "kind": "hook",
+    "id": "permission-guard.sh",
+    "file": "hooks/scripts/permission-guard.sh",
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
+    "id": "session-plugin-version.sh",
+    "file": "hooks/scripts/session-plugin-version.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
+    "id": "session-wip.sh",
+    "file": "hooks/scripts/session-wip.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
+    "id": "wip-guard.sh",
+    "file": "hooks/scripts/wip-guard.sh",
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "enforcement": "denies"
+  },
+  {
+    "kind": "persona",
+    "id": "developer",
+    "file": "agents/developer.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
+    "id": "marketing-lead",
+    "file": "agents/marketing-lead.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
+    "id": "product-lead",
+    "file": "agents/product-lead.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
+    "id": "quality-assurance",
+    "file": "agents/quality-assurance.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
+    "id": "security",
+    "file": "agents/security.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
+    "id": "tech-lead",
+    "file": "agents/tech-lead.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "command-family",
+    "id": "architecture",
+    "file": "commands/architecture",
+    "commands": 1,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command-family",
+    "id": "backend",
+    "file": "commands/backend",
+    "commands": 20,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command-family",
+    "id": "frontend",
+    "file": "commands/frontend",
+    "commands": 18,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command-family",
+    "id": "infrastructure",
+    "file": "commands/infrastructure",
+    "commands": 21,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command-family",
+    "id": "principles",
+    "file": "commands/principles",
+    "commands": 5,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command-family",
+    "id": "workflow",
+    "file": "commands/workflow",
+    "commands": 9,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "autonomy-on",
+    "file": "commands/autonomy-on.md",
+    "enforcement": "documents"
+  }
+]
