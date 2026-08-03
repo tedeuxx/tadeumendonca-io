@@ -55,18 +55,11 @@ and deployed by merging.
 | **SonarCloud account** | yes — **because this repo is public** | the quality gate on `app` |
 | **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
 
-**Every "yes" here is conditional, and each condition is a fact about the repo rather than about the
-tier** — which is why the condition is what is stated. **Two of the three are the same condition:
-this repo is public**, which is what makes GitHub Actions minutes and SonarCloud free; a private fork
-pays for both. The third is workspace size, for Terraform Cloud.
-
-**Claude Code is the one row with no condition at all** — it is paid, and what varies is whether you
-want the loop, which is a fact about you and not about this repo.
-
-**None of these vendors is something this file can keep true.** They set their own tiers and change them
-without telling a README, so check [GitHub](https://github.com/pricing),
-[HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/)
-and [Anthropic](https://www.anthropic.com/pricing) rather than trusting these cells.
+**Each cell states its own condition, and none of these vendors is something this file can keep true.**
+They set their own tiers and change them without telling a README, so check the pricing yourself —
+[GitHub](https://github.com/pricing), [AWS](https://aws.amazon.com/pricing/),
+[HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/),
+[Anthropic](https://www.anthropic.com/pricing) — rather than trusting the table above.
 
 **The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
 account and no AWS bill at all** — it has neither.
@@ -105,7 +98,7 @@ prints twelve lines for **seven distinct secrets**, and exactly three jobs decla
 | `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the recipient of the account cost alert, passed to Terraform as a variable |
 | `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform's access to its own state |
 | `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate's authentication |
-| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN` — **mint it at `contents: write` and no wider** (classic equivalent: `repo`). It is the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link 404s |
+| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN` — **mint it fine-grained at `contents: write` and no wider**; a classic token cannot be narrowed that far, and `public_repo` is the closest it gets. It is the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link 404s |
 | `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` on issues and PRs — it silently does not answer without one |
 
 **The scope column is what the job can read, not a preference.** An **environment**-scoped secret is
