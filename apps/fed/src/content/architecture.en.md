@@ -70,7 +70,7 @@ AWS is one of the providers that could invoice this — and that is the criterio
 
 **The rest bill zero, on conditions that are the part worth knowing:**
 
-- **GitHub Actions is free because the repositories are public** — a property of the repos, not of the plan, so it would outlive a downgrade and it would not outlive going private. That starts metering minutes against a monthly allowance, and this pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request**, and again on the merge. The number that appears is not small, and nothing about the code would have changed.
+- **GitHub Actions is free because the repositories are public** — a property of the repos, not of the plan, so it would outlive a downgrade and it would not outlive going private. That starts metering minutes against a monthly allowance, and this pipeline runs the full gate set — install, audit, lint, typecheck, unit, build, E2E, a Sonar scan — on **every pull request**, and the merge then adds another build plus an end-to-end run against the live site. The number that appears is not small, and nothing about the code would have changed.
 - **SonarCloud turns on the same condition**, on a separate account: its free tier is for public projects. Its gate blocks a merge, so it is load-bearing in the loop at exactly zero — which is the clearest case for why writing only the zero would be the more misleading answer.
 - **Terraform Cloud's free tier covers this workspace** because the infrastructure is small — the last plan resolved against roughly fifty resources, well inside the tier. That ceiling is counted in *resources*, not in traffic or in spend, so it is the one limit here that a **decision** moves rather than an audience.
 
@@ -84,7 +84,7 @@ So the honest shape is **one measured bill, a set of conditional zeros, and two 
 
 ### What the figure still excludes
 
-Complete across three providers, it is still **infrastructure and tooling only**. It does not include the Claude Max subscription this work runs on, and it does not include a single hour of mine.
+It is one provider's bill, deliberately — and the axis above is what makes that honest rather than partial: USD 6.57 is what this site **added**, not what it depends on. So it leaves out the two subscriptions that would bill with or without it, it leaves out the Claude Max subscription this work runs on, and it leaves out every hour of mine. **Infrastructure and tooling only**, and not even all of that.
 
 That has to be said or the number lies by omission: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** Two different questions, and this section only answers the first.
 

@@ -70,7 +70,7 @@ A AWS é um dos fornecedores que poderiam faturar este site — e esse é o crit
 
 **O resto cobra zero, sob condições que são justamente a parte que interessa:**
 
-- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request**, e de novo no merge: instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar. O número que aparece não é pequeno, e nada no código teria mudado.
+- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request** — instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar —, e o merge ainda acrescenta outro build e um E2E contra o site no ar. O número que aparece não é pequeno, e nada no código teria mudado.
 - **O SonarCloud depende da mesma condição**, numa conta separada: o tier gratuito dele é para projetos públicos. O gate dele barra um merge, então ele sustenta peso no loop cobrando exatamente zero — que é o caso mais claro de por que escrever só o zero seria a resposta mais enganosa.
 - **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. Esse teto é contado em **recursos** — não em tráfego, nem em gasto — então é o único limite aqui que uma **decisão** move, e não um público.
 
@@ -84,7 +84,7 @@ Então o formato honesto é **uma fatura medida, um conjunto de zeros condiciona
 
 ### O que o número ainda deixa de fora
 
-Mesmo completo nos três provedores, ele é **só infraestrutura e ferramental**. Não inclui a assinatura do Claude Max em que este trabalho roda, e não inclui uma hora sequer minha.
+É a conta de um provedor só, deliberadamente — e o eixo acima é o que torna isso honesto em vez de parcial: os USD 6,57 são o que este site **acrescentou**, não aquilo de que ele depende. Então ficam de fora as duas assinaturas que cobrariam com ou sem ele, fica de fora a assinatura do Claude Max em que este trabalho roda, e ficam de fora todas as minhas horas. **Só infraestrutura e ferramental**, e nem isso inteiro.
 
 Isso precisa estar escrito, senão o número mente por omissão: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** São duas perguntas diferentes, e esta seção responde só a primeira.
 
