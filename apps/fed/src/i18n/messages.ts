@@ -49,8 +49,13 @@ const strings = {
     // rather than in the markdown, because the TABLE is compiled from `docs/adr/` and only its chrome is
     // authored — putting the headers in each locale's markdown would mean the two editions could
     // disagree about what a column means while showing identical rows.
+    // The PT caption says the records are in English, and the EN one does not — the asymmetry is the
+    // point rather than a missing translation. Titles are canonical document names and stay in English
+    // in both editions (a translated name would not exist at the other end of the click), so the PT
+    // reader is the only one who meets 41 rows in a language the surrounding page is not. Signalling it
+    // once in the caption costs a clause; leaving it unsaid makes the table look untranslated.
     caption: {
-      pt: 'Índice de decisões, gerado a partir de docs/adr/ no build',
+      pt: 'Índice de decisões, gerado a partir de docs/adr/ no build — os registros são em inglês',
       en: 'Decision index, generated from docs/adr/ at build time',
     },
     colId: { pt: 'ADR', en: 'ADR' },

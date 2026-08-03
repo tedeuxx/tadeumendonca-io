@@ -9,6 +9,7 @@
 // The staleness guard is in Node (scripts/adr-source.test.mjs), not here: it compares the committed
 // artifact against the library and fails the build on a missing, orphaned or re-statused record. This
 // component only renders what that guard has already vouched for.
+import { renderAdrTitle } from '../content/adr-title';
 import { adrHref, adrRecords, type AdrRecord } from '../content/adrs';
 import { useLocale } from '../i18n';
 
@@ -56,7 +57,7 @@ export function AdrTable() {
                     deciding whether to open, and a bare four-digit link target is a poor accessible
                     name — "0034" tells a screen-reader user nothing about where it goes. */}
                 <a href={adrHref(record)} target="_blank" rel="noopener noreferrer">
-                  {record.title}
+                  {renderAdrTitle(record.title)}
                 </a>
               </td>
               <td className="p-3 align-top whitespace-nowrap text-muted-foreground">
