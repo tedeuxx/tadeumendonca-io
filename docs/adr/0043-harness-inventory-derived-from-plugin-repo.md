@@ -112,10 +112,19 @@ date on which those three wrong numbers were copied.
 1. **A closed `enforcement` set — `denies` · `advises` · `documents` — with an unknown value throwing**
    (chosen), the same shape `parseStatus` uses for ADR status classes and for the same reason: a fifth
    value is either a typo or a change to the practice, and neither should quietly become a diagram node.
-   `denies` is for the two `PreToolUse` hooks and the CI gates, which refuse before the act. `advises` is
-   for all six personas — **including `quality-assurance` and `security`**, whose authority over a merge
-   is a convention of this guide and not a mechanism. `documents` is for the command families, which
-   neither deny nor advise; they remove a re-decision.
+   `denies` is for the two `PreToolUse` hooks, which refuse before the act — and **for nothing else in
+   the manifest**. The CI gates deny too, and they are deliberately **not manifest rows**: they live in
+   this repo's `.github/workflows/`, not in the plugin, so a row for them would be an authored claim
+   wearing a derived artifact's clothes. They are already drawn, as *Mechanical gates*, in the flow
+   diagram this one complements. Hooks are classed by their **event**, not by being hooks: the two
+   `SessionStart` hooks carry `documents`, because a hook that runs once at session start has no tool
+   call to refuse. `advises` is for all six personas, and it is a claim about the **judgement** they
+   produce — nothing checks a judgement. It is **not** a claim that they have no mechanical standing:
+   `permission-guard.sh` rule 7b refuses `gh pr merge` from every `agent_type` except
+   `*:quality-assurance`, so *who* merges is enforced while *how well they reviewed* is not. `security`
+   is weaker and must not be flattened into the same sentence — nothing forces it to be dispatched at
+   all. `documents` is for the command families, which neither deny nor advise; they remove a
+   re-decision.
 2. **One uniform "component" shape with no enforcement field** — *Why not:* the diagram would then draw a
    shell script that refuses a tool call and a persona that someone has to remember to dispatch as peers.
    That is not a drawing preference; it is the page making a safety claim it cannot support, on the one

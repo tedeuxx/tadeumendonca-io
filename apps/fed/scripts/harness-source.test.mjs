@@ -11,9 +11,11 @@
 // is well-formed and non-empty. It does NOT prove the manifest matches the plugin — nothing runnable
 // here can, and pretending otherwise is the failure this whole mechanism exists to remove.
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { readFileSync, realpathSync } from 'node:fs';
+import { resolve, join, relative } from 'node:path';
 import {
+  WORKSPACE_ROOT,
+  resolvePluginDir,
   assertEnforcement,
   collectCommands,
   collectComponents,
@@ -51,9 +53,10 @@ describe('the committed manifest is a manifest at all', () => {
   });
 
   // THE CLAIM THE DIAGRAM MAKES, pinned on the manifest rather than on the drawing. Personas advise —
-  // including quality-assurance and security, whose merge authority is a convention of CLAUDE.md and not
-  // a mechanism. If this ever flips to `denies`, the page starts asserting a safety property nothing
-  // implements, which is the one thing ADR-0043 forbids outright.
+  // including quality-assurance, whose SEAT on the merge path is mechanical (permission-guard rule 7b
+  // refuses `gh pr merge` from every agent_type but that one) while the JUDGEMENT it makes there is
+  // enforced by nothing. `advises` is about the judgement. If this ever flips to `denies`, the page
+  // starts asserting a safety property nothing implements, which is the one thing ADR-0043 forbids.
   it('says personas ADVISE and PreToolUse hooks DENY, and never the other way round', () => {
     const personas = manifest.filter((c) => c.kind === 'persona');
     expect(personas.length).toBeGreaterThan(0);
@@ -95,6 +98,53 @@ describe('enforcementFor — a closed set that refuses what it does not know', (
   it('refuses an enforcement value read back from the artifact', () => {
     expect(() => assertEnforcement('prevents')).toThrow(/unrecognised harness enforcement class/);
     expect(assertEnforcement('advises')).toBe('advises');
+  });
+});
+
+// The validated door every `fs` call in the module goes through. It exists because the check that was
+// already there sat in the CALLERS, after their own `resolve()` — beside the sinks rather than on the
+// path to them, which is what SonarCloud raised as `jssecurity:S8707`. These assertions pin BOTH halves:
+// the containment refuses, and it refuses the escape hatch too (a `..` walk out of a contained path).
+describe('resolvePluginDir — resolve and validate as one step', () => {
+  it('accepts a tree inside the workspace and hands back a canonical absolute path', () => {
+    expect(resolvePluginDir(fixture('plugin'))).toBe(realpathSync(fixture('plugin')));
+    // a relative input resolves against cwd, and lands in the same place
+    expect(resolvePluginDir(relative(process.cwd(), fixture('plugin')))).toBe(
+      realpathSync(fixture('plugin')),
+    );
+  });
+
+  it('refuses a path outside the workspace root, by name rather than by ENOENT', () => {
+    expect(() => resolvePluginDir('/')).toThrow(/not under/);
+    expect(() => resolvePluginDir(join(WORKSPACE_ROOT, '..'))).toThrow(/refusing to read a plugin tree/);
+  });
+
+  it('refuses a sibling whose NAME merely starts with the root — the classic prefix escape', () => {
+    // `/…/git-reps-elsewhere` starts with `/…/git-reps`. A containment test written as a bare
+    // `startsWith(root)` lets it through; the separator is what makes it a path test rather than a
+    // string test, and it is one character nobody would miss in review.
+    expect(() => resolvePluginDir(`${WORKSPACE_ROOT}-elsewhere/tadeumendonca-skills`)).toThrow(
+      /refusing to read a plugin tree/,
+    );
+  });
+
+  it('refuses a `..` walk that starts inside the workspace and lands outside it', () => {
+    expect(() => resolvePluginDir(join(fixture('plugin'), '..', '..', '..', '..', '..', '..', '..'))).toThrow(
+      /refusing to read a plugin tree/,
+    );
+  });
+
+  it('names the offending path and the root it had to be under', () => {
+    expect(() => resolvePluginDir('/nowhere-at-all')).toThrow(
+      new RegExp(`"/nowhere-at-all" is not under ${WORKSPACE_ROOT}`),
+    );
+  });
+
+  it('refuses a missing argument instead of silently reading the current directory', () => {
+    // `resolve('')` is cwd — apps/fed — which IS inside the workspace, so containment alone would let a
+    // forgotten argument through and then read this repo as if it were the plugin. `pluginPresent` is the
+    // second half of the door and is what stops that; asserting it here keeps the pair visible.
+    expect(pluginPresent(resolvePluginDir(undefined))).toBe(false);
   });
 });
 

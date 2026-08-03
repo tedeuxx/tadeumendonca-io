@@ -32,16 +32,24 @@ import architecturePt from './architecture.pt.md?raw';
 // the same package it never walks up to the repo root and back down. A single four-level slice
 // therefore silently produced a key nothing could match, and the failure looked like a broken LINK
 // rather than a broken glob. Resolved explicitly, per depth.
+// A THIRD key shape, and it arrives for the same reason as the second: the page now links a generated
+// artifact that sits next to THIS file, so Vite normalises the glob all the way down to `./generated/…`.
+// Same fix as before — teach the resolver the depth, never narrow the regex that finds the link.
 const REPO_PREFIX = '../../../../';
 const FED_PREFIX = '../../';
-const toRepoPath = (key: string): string =>
-  key.startsWith(REPO_PREFIX) ? key.slice(REPO_PREFIX.length) : `apps/fed/${key.slice(FED_PREFIX.length)}`;
+const CONTENT_PREFIX = './';
+const toRepoPath = (key: string): string => {
+  if (key.startsWith(REPO_PREFIX)) return key.slice(REPO_PREFIX.length);
+  if (key.startsWith(FED_PREFIX)) return `apps/fed/${key.slice(FED_PREFIX.length)}`;
+  return `apps/fed/src/content/${key.slice(CONTENT_PREFIX.length)}`;
+};
 const repoModules = {
   ...import.meta.glob('../../../../docs/**/*.md', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../iac/**/*.tf', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../iac/cloudfront-functions/*.js', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../apps/fed/scripts/*.mjs', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../.github/workflows/*.yml', { eager: true, query: '?raw' }),
+  ...import.meta.glob('./generated/*.json', { eager: true, query: '?raw' }),
 };
 const existingDocPaths = new Set(Object.keys(repoModules).map(toRepoPath));
 
@@ -67,6 +75,9 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
     // pipeline was rebuilt into four workflows — and this line going red is how that rename was
     // caught reaching the reader: the architecture page linked to the same file, in both locales.
     expect(existingDocPaths.has('.github/workflows/deploy.yml')).toBe(true);
+    // The generated tree, added when the harness section started citing the manifest itself rather than
+    // the script that writes it. Its key shape is the third one `toRepoPath` has to know about.
+    expect(existingDocPaths.has('apps/fed/src/content/generated/harness.json')).toBe(true);
   });
 
   // Cross-locale parity, the rule `content.test.ts` already applies to an article body and this page has

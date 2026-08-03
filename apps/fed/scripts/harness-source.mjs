@@ -17,8 +17,55 @@
 // label a diagram node shows is authored in the markdown fence, in each locale, and is NOT checked. That
 // is the same honest limit ADR-0040 states about its own guard — the guarantee is "the source exists and
 // is unchanged", never "this artifact describes it correctly".
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { readFileSync, readdirSync, existsSync, realpathSync, statSync } from 'node:fs';
+import { basename, dirname, join, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+/**
+ * The directory that CONTAINS this repository — the one root a plugin tree may live under.
+ *
+ * Derived from this module's own location, never from an argument, so it cannot be widened by the same
+ * input it is there to constrain. `realpathSync` because the comparison below is a string prefix and a
+ * symlinked checkout (`/tmp` → `/private/tmp` on macOS is the everyday case) would otherwise fail a
+ * containment it actually satisfies.
+ */
+export const WORKSPACE_ROOT = realpathSync(
+  resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..'),
+);
+
+/**
+ * Resolve an operator-supplied plugin path AND validate it, in that order, in ONE place.
+ *
+ * This is the only door to every `fs` call below, and it is a door rather than a helper deliberately.
+ * The validation already existed — `pluginPresent` — but it sat in the CALLERS, after their own
+ * `resolve()`, which made it a check the fs calls did not have to pass through. SonarCloud read exactly
+ * that shape and raised `jssecurity:S8707` three times (a path canonicalized from CLI-controlled data
+ * reaching `readdirSync`/`statSync`/`readFileSync` unvalidated), and it was right about the structure
+ * even though the input is a build script's own argument with no untrusted caller.
+ *
+ * So the fix is placement, not ceremony: the containment test now dominates the sinks instead of sitting
+ * beside them. It also buys the thing this repo wants for its own sake — a wrong `SKILLS_REPO` fails by
+ * NAME, at the entry point, instead of as an `ENOENT` three frames down inside a collector.
+ *
+ * WHAT CONTAINMENT MEANS HERE, since it is the part that could be over-tightened without noticing: the
+ * plugin tree is either checked out INSIDE this repo (`.skills-checkout`, which is what the CI job does)
+ * or sits BESIDE it (the workspace layout the two repos are developed in). Both are strictly under
+ * `WORKSPACE_ROOT`, so one prefix covers them. A path anywhere else is refused rather than read.
+ */
+export function resolvePluginDir(raw) {
+  const resolved = resolve(String(raw ?? ''));
+  // Canonicalise where the path exists, so a symlink cannot point outside the root through a name that
+  // textually sits inside it. Where it does not exist, the resolved form is all there is — and a
+  // non-existent path is the caller's `pluginPresent` decision (skip or fail), not this one's.
+  const canonical = existsSync(resolved) ? realpathSync(resolved) : resolved;
+  if (!canonical.startsWith(WORKSPACE_ROOT + sep)) {
+    throw new Error(
+      `refusing to read a plugin tree outside the workspace: "${canonical}" is not under ${WORKSPACE_ROOT}. ` +
+        'Check tedeuxx/tadeumendonca-skills out beside this repo, or inside it, and pass that path.',
+    );
+  }
+  return canonical;
+}
 
 /**
  * The ENFORCEMENT CLASS, against a closed set, exactly as `parseStatus` treats an ADR status.
@@ -29,10 +76,16 @@ import { basename, join } from 'node:path';
  * that does not exist, on the one page whose credibility rests on declining to do that.
  *
  * - `denies`   — refuses before the act. The two `PreToolUse` hooks.
- * - `advises`  — has to be dispatched, and is not enforced by anything. ALL SIX personas, including
- *                `quality-assurance` and `security`: their authority over a merge is a convention of
- *                this repo's CLAUDE.md, not a mechanism. This repo's own guide says a lens that is not
- *                dispatched fails silently, and that is the honest sentence.
+ * - `advises`  — the JUDGEMENT it produces is enforced by nothing. ALL SIX personas.
+ *
+ *                Say precisely what that does and does not cover for `quality-assurance`, because the
+ *                first version of this comment got it wrong and the page repeated the error.
+ *                `permission-guard.sh` rule 7b DOES refuse `gh pr merge` from every `agent_type` except
+ *                `*:quality-assurance` — so WHO may merge is mechanical, and this class is not saying
+ *                otherwise. What nothing anywhere checks is whether the review was performed, or
+ *                performed well; a merge that the reviewer waves through unread is denied by nothing.
+ *                That is what `advises` names. `security` is weaker still and must not be flattened into
+ *                the same sentence: nothing forces it to be dispatched at all.
  * - `documents`— neither denies nor advises; it removes a re-decision or reports state. The command
  *                families, the un-namespaced command, and the two `SessionStart` hooks, which print
  *                context at session start and cannot refuse anything.

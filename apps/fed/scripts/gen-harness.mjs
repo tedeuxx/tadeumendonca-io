@@ -11,16 +11,17 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectComponents, pluginPresent } from './harness-source.mjs';
+import { collectComponents, pluginPresent, resolvePluginDir } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(FED, 'src', 'content', 'generated', 'harness.json');
 
 // The sibling checkout, overridable. CI passes it explicitly (the second `actions/checkout` lands the
 // plugin somewhere of its choosing); locally the default is the workspace layout — the two repos side by
-// side, which is how they are actually developed.
+// side, which is how they are actually developed. `resolvePluginDir` resolves AND validates in one step,
+// which is the whole point of it — see its header; the caller must not resolve separately.
 export const DEFAULT_PLUGIN_DIR = resolve(FED, '..', '..', '..', 'tadeumendonca-skills');
-const pluginDir = resolve(process.argv[2] ?? process.env.SKILLS_REPO ?? DEFAULT_PLUGIN_DIR);
+const pluginDir = resolvePluginDir(process.argv[2] ?? process.env.SKILLS_REPO ?? DEFAULT_PLUGIN_DIR);
 
 if (!pluginPresent(pluginDir)) {
   // Loud and specific. A generator that wrote an EMPTY manifest here would be the worst possible

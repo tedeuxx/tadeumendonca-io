@@ -16,14 +16,24 @@
 // unconditional, so the skip path is for local runs only — and it exits 0, because a missing sibling is
 // not a defect in this repo.
 import { readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectComponents, diffAgainstManifest, driftReport, pluginPresent, assertEnforcement } from './harness-source.mjs';
+import {
+  collectComponents,
+  diffAgainstManifest,
+  driftReport,
+  pluginPresent,
+  resolvePluginDir,
+  assertEnforcement,
+} from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
-const pluginDir = resolve(
+// `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
+// itself any more: a second resolve in the caller is what put the existing check off the path between the
+// argument and the first `fs` call.
+const pluginDir = resolvePluginDir(
   process.argv[2] ?? process.env.SKILLS_REPO ?? join(FED, '..', '..', '..', 'tadeumendonca-skills'),
 );
 
