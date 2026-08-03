@@ -1,8 +1,14 @@
 // The inline markup an ADR heading may carry, rendered as React nodes (#318).
 //
-// WHY THIS EXISTS. ADR titles are authored markdown headings and five of them carry inline markup.
-// Rendered as flat text they publish their own syntax — cosmetic for four of them (backticks around
-// `profile.ts`, `/me`, `utm_content`; bold in 0038) and NOT cosmetic for the fifth:
+// WHY THIS EXISTS. ADR titles are authored markdown headings and several carry inline markup. Rendered
+// as flat text they publish their own syntax — cosmetic for most of them (backticks around a filename,
+// a route or a parameter name; bold in 0038) and NOT cosmetic for one:
+//
+// No count here, deliberately. The first version said "five … cosmetic for four of them" and named
+// three; it is six and five. A number about the library, in the comment justifying the module, on a
+// public repo whose pitch is that its claims are checkable — the same defect this slice shipped twice
+// in reader-facing copy, reappearing in the file written to fix that class. The count that IS kept true
+// lives in the test, where an assertion can fail; prose that cannot fail does not carry counts.
 //
 //   0032 — "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~"
 //

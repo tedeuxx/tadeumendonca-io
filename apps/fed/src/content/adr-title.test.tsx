@@ -39,10 +39,16 @@ describe('renderAdrTitle', () => {
     expect(html('tick ` alone')).toBe('<span>tick ` alone</span>');
   });
 
-  // Against the real library, so the claim "five titles carry markup" cannot quietly stop being true.
+  // Against the real library, and the count is PINNED rather than bounded below. The first version
+  // asserted `> 0` under a comment claiming it kept "five titles carry markup" true — green at one, at
+  // six, at forty. A comment naming a guarantee its assertion does not make is this repo's recurring
+  // defect, and it appeared here in the suite for the module written to fix that class.
+  //
+  // Six is a real number about the library, so it goes where it can fail. When an ADR heading gains or
+  // loses markup this turns red, someone looks, and the number moves deliberately.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup.length).toBeGreaterThan(0);
+    expect(withMarkup).toHaveLength(6);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);
