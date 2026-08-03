@@ -40,107 +40,78 @@ on CloudFront); the CI OIDC roles are least-privilege and pinned to the repo's i
 
 ## What you need before you fork
 
-**Two of these cost money, and that is the honest front of this pitch.** A reader four steps into a
-walkthrough should not be the one to discover that.
+**Three of the six cost money, and that is the honest front of this pitch** — a reader four steps into a
+setup should not be the one to discover it. What they buy: a site that is live at your own apex,
+prerendered in two locales, gated on every merge, and deployed by merging.
 
 ### Accounts
 
 | | free at this size? | why you need it |
 |---|---|---|
-| **AWS account** | **no** — see the cost breakdown below | S3, CloudFront, Route 53, ACM |
+| **AWS account** | **no** — see the cost below | S3, CloudFront, Route 53, ACM |
 | **A registered domain** | **no** — the largest single line in this site's bill | the site serves at an apex you own |
 | **GitHub account** | yes | the repo, and CI is GitHub Actions |
-| **Terraform Cloud org** | yes — the free tier covers this workspace, and stops being enough past 5 users or if you want remote execution or policy enforcement | Terraform state; execution mode is **Local**, so TFC holds state and CI runs the plan |
-| **SonarCloud account** | yes — **because the repo is public.** A private fork needs a paid plan | the quality gate on `app` |
-| **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*, not the site. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
+| **Terraform Cloud org** | yes — this workspace holds **52 managed resources** ([`iac/versions.tf`](./iac/versions.tf) says so), well inside the free tier's resource allowance. Check [their pricing](https://www.hashicorp.com/pricing) for the current limits rather than trusting this line — nothing here can keep it true | Terraform state. Execution mode is **Local**, so TFC holds state and CI runs the plan |
+| **SonarCloud account** | yes — **because this repo is public.** A private fork needs a paid plan | the quality gate on `app` |
+| **Claude Code** | **no** — a paid Anthropic plan; there is no free tier | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
 
-**The site runs without Claude Code.** The plugin repo is the half you can adopt with no cloud account
-and no AWS bill at all — it has neither.
+**The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
+account and no AWS bill at all** — it has neither.
 
 ### Local toolchain
 
-- **Node ≥ 22** (`engines` in `package.json`) and npm.
-- **Terraform CLI** — for `fmt`/`validate` and an inspection `plan`. You will never run `apply` locally:
-  it is pipeline-only, and the plugin's permission hook denies it.
-- **Playwright browsers** — the build downloads them; `npm ci` in `apps/fed` then `npx playwright install`.
-  The build *prerenders every route in a real browser*, so this is a build dependency, not a test one.
+- **Node ≥ 22** (`engines` in [`package.json`](./package.json)) and npm.
+- **Terraform CLI** — for `fmt`/`validate` and an inspection `plan`. You never run `apply` locally: it is
+  pipeline-only.
+- **Playwright's Chromium** — installed as its own step (`npx playwright install --with-deps chromium`),
+  not pulled in by `npm ci`. It is a **build** dependency rather than a test one: the build prerenders
+  every route in a real browser and prints `/cv.pdf` from `/en/me` in the same pass.
 
 ### What it costs to run
 
-Roughly **USD 6.57/month**, and **USD 6.42 of that is the domain name** — registration amortized plus the
+Roughly **USD 6.57/month, and USD 6.42 of that is the domain name** — registration amortized plus the
 Route 53 hosted zone. S3 is about 0.15 (deploy *writes*, not reads) and CloudFront rounds to zero at this
-traffic. The full breakdown, with its measurement date and the reason it is split between the bill and the
-registrar's price list, is on [`/architecture`](https://tadeumendonca.io/en/architecture).
-
-## Deploying your own fork
-
-> **Honesty about this walkthrough:** the **secrets table below is machine-derived** — read out of
-> `.github/workflows/*.yml`, not from memory. The **steps are reconstructed from the repository**, not
-> replayed against a fresh AWS account and domain. Where a step names a failure, that failure is one this
-> repo actually hit. Treat the ordering as sound and the timings as approximate.
-
-1. **Fork both repos** — this one, and [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills)
-   if you want the loop. They are independent: the site does not import the plugin at build time.
-2. **Register a domain and create the Route 53 hosted zone**, then point the registrar's nameservers at it.
-   Propagation is not instant and nothing later works until it has happened.
-3. **Request the ACM certificate in `us-east-1`.** *This is the step that catches people.* CloudFront reads
-   certificates only from `us-east-1` regardless of where the rest of your infrastructure lives — a
-   certificate issued in your "own" region is invisible to it, and the failure surfaces as CloudFront
-   refusing the alias, not as a certificate error. Validation is by CNAME and you wait for it.
-4. **Bootstrap the GitHub OIDC provider and the roles CI assumes — by hand, once.** Terraform does not
-   create them, and that is deliberate rather than an omission: the roles are what CI uses *to run
-   Terraform*, so having Terraform create them is a chicken-and-egg. Pin the trust policy to the
-   **immutable OIDC subject** — `repo:<org>@<org_id>/<repo>@<repo_id>:*` — never a wildcard and never the
-   name form. A repo or org **rename silently breaks every assume-role** if you trust the names.
-5. **Create the Terraform Cloud organization and workspace**, execution mode **Local**. Rename the
-   workspace in `iac/` to yours.
-6. **Create the `staging` environment in repository settings, then add the secrets** — see the table
-   below. **The environment must exist first**: an environment-scoped secret cannot be created without it,
-   and this is invisible until it is missing.
-7. **Replace everything that identifies this site as mine.** Miss one and your fork publishes to my
-   analytics or my Sonar project:
-   - the site URL in [`apps/fed/src/lib/site.ts`](./apps/fed/src/lib/site.ts);
-   - the GitHub / LinkedIn / X handles in [`apps/fed/src/data/profile.ts`](./apps/fed/src/data/profile.ts);
-   - the GA4 measurement id — `VITE_GA_MEASUREMENT_ID` in
-     [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml). **It is deliberately not a secret**:
-     it ships in the client JS, so hiding it would be theatre. It is also the one most likely to be missed,
-     because nothing fails — your readers are simply counted as mine;
-   - `sonar.projectKey` and `sonar.organization` in
-     [`apps/fed/sonar-project.properties`](./apps/fed/sonar-project.properties);
-   - the Terraform Cloud organization and workspace in [`iac/versions.tf`](./iac/versions.tf) — that file
-     warns you itself: those identifiers resolve to **live state**, so changing them without renaming in
-     TFC first makes `plan` propose recreating the whole site;
-   - the domain and the rest in [`iac/env/stg.tfvars`](./iac/env/stg.tfvars).
-8. **Merge to `main`.** The merge *is* the deploy: `release` bumps the version and tags, `terraform-apply`
-   builds the infrastructure, `deploy-app` publishes, and `e2e` runs against the live apex. **The first run
-   is the one that fails informatively** — if step 4 was skipped, the AWS-token jobs cannot assume a role
-   and nothing else in the pipeline explains why.
+traffic. The full breakdown, with its measurement date and why it is sourced partly from the bill and
+partly from the registrar's price list, is on [`/architecture`](https://tadeumendonca.io/en/architecture).
 
 ### GitHub secrets and variables
 
-Read out of the workflows, not from memory — `grep -o 'secrets\.[A-Z_]*' .github/workflows/*.yml` returns
-these seven, and three jobs declare `environment: staging` (`iac` → `terraform-plan`, `deploy` →
-`terraform-apply`, `deploy` → `deploy-app`).
+Read out of the workflows rather than from memory — `grep -o 'secrets\.[A-Z_]*' .github/workflows/*.yml`
+prints twelve lines for **seven distinct secrets**, and exactly three jobs declare `environment: staging`
+(`iac` → `terraform-plan`, `deploy` → `terraform-apply`, `deploy` → `deploy-app`).
 
-| secret | scope | consumed by | what breaks without it |
+| secret | scope | consumed by | what it gates |
 |---|---|---|---|
-| `AWS_FED_OIDC_ROLE_ARN` | **environment** (`staging`) | `deploy` → `deploy-app` | the site never publishes |
-| `AWS_INFRA_OIDC_ROLE_ARN` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | no plan on PRs, no infra apply |
-| `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the account budget alert has no recipient |
-| `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform cannot reach its state |
-| `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate cannot authenticate |
-| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | the bump lands and **triggers nothing** — see below |
-| `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` silently does not answer |
+| `AWS_FED_OIDC_ROLE_ARN` | **environment** (`staging`) | `deploy` → `deploy-app` | the role that publishes the site; without it nothing reaches S3 or CloudFront |
+| `AWS_INFRA_OIDC_ROLE_ARN` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the role that runs Terraform — no plan on PRs, no apply on merge |
+| `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the recipient of the account cost alert, passed to Terraform as a variable |
+| `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform's access to its own state |
+| `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate's authentication |
+| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | the **checkout token** the `release` job uses to push the bump commit and tag |
+| `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` on issues and PRs — it silently does not answer without one |
 
-**The scope column is not a preference — it is what the job can read.** A secret placed at repository
-scope when the job expects the environment fails at the point of use, not at setup.
+**The scope column is what the job can read, not a preference.** An **environment**-scoped secret is
+invisible to a job that does not declare that environment, so putting one of the AWS ARNs at repository
+scope is not the failure — omitting `environment: staging` from the job that needs it is. Repository
+secrets *are* readable from environment jobs, which is why `TFC_API_TOKEN` works in `terraform-plan`
+despite that job declaring `staging`.
 
-**The split has a reason:** anything naming AWS is environment-scoped; tooling tokens are repository-scoped.
-That is what keeps a token that lints code from reaching anything in the cloud account.
+**The split has a reason worth keeping:** anything naming AWS is environment-scoped; tooling tokens are
+repository-scoped. That is what stops a token that lints code from reaching anything in the cloud account.
 
-**`VERSION_BUMP_TOKEN` deserves its own sentence**, because its failure is the quietest one here. A push
-made with the default `GITHUB_TOKEN` **does not trigger other workflows** — so without a separate token the
-version bumps, the commit lands, and the deploy never fires. Nothing errors.
+**Two of these are easy to miss.** `CLAUDE_CODE_OAUTH_TOKEN` produces no error anywhere — `@claude`
+simply never replies. And the `staging` **environment must exist in repository settings before an
+environment-scoped secret can be created at all**, which is invisible until it is missing.
+
+### What is deliberately not here yet
+
+This section is the first slice of #319, which the owner rescoped on 2026-08-02. Named so a reader can
+see what is absent rather than assume it was forgotten:
+
+- **the fork-to-live walkthrough** — sequenced after #318, which moves the setup procedure off
+  `/architecture`. Until then that page carries it;
+- **the architecture diagram in this README**, with a test asserting it against the page's copy;
+- **an ADR** for why the OIDC provider and the Terraform-running role are bootstrapped by hand.
 
 ## Structure
 
