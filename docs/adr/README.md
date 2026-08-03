@@ -65,10 +65,11 @@ there. Same answer, and the same reason, as the root `CLAUDE.md` records for its
 | ADR | Title | Status |
 |---|---|---|
 | [0013](./0013-s3-cloudfront-hosting.md) | S3 + CloudFront (PriceClass_100) + CloudFront Function URL-rewrite | accepted |
-| [0014](./0014-terraform-cloud-pipeline-only.md) | Terraform + Terraform Cloud, pipeline-only apply/destroy | accepted |
-| [0015](./0015-oidc-immutable-subject-least-privilege.md) | GitHub OIDC deploy roles — immutable subject, least-privilege | accepted |
+| [0014](./0014-terraform-cloud-pipeline-only.md) | Terraform + Terraform Cloud, pipeline-only apply/destroy | accepted · **amended 2026-08-03** (the "no irreversible cloud mutation in the inner loop" claim is **narrowed**: it holds for Terraform, not for the account — the trust root is created by hand, see [0042](./0042-trust-root-bootstrapped-out-of-band.md)) |
+| [0015](./0015-oidc-immutable-subject-least-privilege.md) | GitHub OIDC deploy roles — immutable subject, least-privilege | accepted · the provider its trust points at is bootstrapped out of band ([0042](./0042-trust-root-bootstrapped-out-of-band.md)) |
 | [0016](./0016-custom-email-via-icloud.md) | Custom email via iCloud (MX/DKIM/SPF) | accepted |
 | [0017](./0017-no-waf-no-cmk-ssm-string-only.md) | No WAF, no CMK, SSM String-only config bus | accepted · its "(pending)" app-security ADR is [0021](./0021-application-security-posture.md), accepted the same day (#234) |
+| [0042](./0042-trust-root-bootstrapped-out-of-band.md) | The trust root is bootstrapped out of band — Terraform manages the fed deploy role and never the OIDC provider, the infra role, or its policy (two independent reasons: the bootstrap circularity, which is mechanical, and self-escalation, which is permanent); the exception is to 0014's *principle*, not to `terraform apply` | accepted · **amends [0014](./0014-terraform-cloud-pipeline-only.md)** · relies on [0015](./0015-oidc-immutable-subject-least-privilege.md) · accepted cost: nothing mechanical enforces removing the bootstrap credentials, and the hand path reopens on every `tadeumendonca-iac-deploy` revision |
 
 ## SDLC, quality & security
 | ADR | Title | Status |
