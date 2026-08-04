@@ -76,7 +76,8 @@ export function resolvePluginDir(raw) {
  * that does not exist, on the one page whose credibility rests on declining to do that.
  *
  * - `denies`   — refuses before the act. The two `PreToolUse` hooks.
- * - `advises`  — the JUDGEMENT it produces is enforced by nothing. ALL SIX personas.
+ * - `advises`  — the JUDGEMENT it produces is enforced by nothing. EVERY persona, without exception —
+ *                said without a count, so the sentence survives the next roster change.
  *
  *                Say precisely what that does and does not cover for `quality-assurance`, because the
  *                first version of this comment got it wrong and the page repeated the error.
@@ -87,7 +88,7 @@ export function resolvePluginDir(raw) {
  *                That is what `advises` names. `security` is weaker still and must not be flattened into
  *                the same sentence: nothing forces it to be dispatched at all.
  * - `documents`— neither denies nor advises; it removes a re-decision or reports state. The command
- *                families, the un-namespaced command, and the two `SessionStart` hooks, which print
+ *                families, the un-namespaced commands, and the two `SessionStart` hooks, which print
  *                context at session start and cannot refuse anything.
  *
  * NOTE what is NOT in here: the CI gates. ADR-0043 classes them `denies` and they genuinely do refuse a
@@ -215,7 +216,7 @@ const dirsIn = (dir) => readdirSync(dir).filter((e) => statSync(join(dir, e)).is
 const mdIn = (dir) => readdirSync(dir).filter((f) => f.endsWith('.md')).sort();
 
 /**
- * The six personas, from `agents/*.md` frontmatter.
+ * The personas, from `agents/*.md` frontmatter.
  *
  * The `name:` field is read from the document and compared against the FILENAME, and they must agree —
  * the same assertion `parseRecord` makes about an ADR's heading versus its file. Claude Code dispatches
@@ -277,13 +278,15 @@ export function collectHooks(pluginDir) {
 }
 
 /**
- * The command families, and the one command that is in no family.
+ * The command families, and the commands that are in no family.
  *
- * `commands/autonomy-on.md` is handled EXPLICITLY rather than filtered away. A generator that walks only
- * the directories drops it without a word, and the plugin's own suite asserts `root_cmds -eq 1` for
- * exactly this reason — a second un-namespaced command is a real change to the shape and must go red,
- * not vanish. Counting it as a seventh family would be the opposite error: it makes a category out of an
- * orphan, which is how the "seven command families" figure was produced.
+ * An un-namespaced command is handled EXPLICITLY rather than filtered away. A generator that walks only
+ * the directories drops it without a word, and the plugin's own suite asserts the root count for exactly
+ * this reason — a change to the number of un-namespaced commands is a real change to the shape and must
+ * go red, not vanish. It did: `commands/new-issue.md` joined `commands/autonomy-on.md`, and every count
+ * on the page moved because nothing filtered it. Promoting an orphan to a family would be the opposite
+ * error — it makes a category out of an orphan, which is how the "seven command families" figure was
+ * produced.
  *
  * A nested directory throws. Today the families are flat; if that stops being true, the count this
  * publishes silently stops meaning what it says.

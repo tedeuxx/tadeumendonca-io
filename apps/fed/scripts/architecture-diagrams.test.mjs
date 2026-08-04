@@ -242,6 +242,29 @@ describe('the components diagram carries the inventory it was generated from', (
     expect(absent, 'a persona is in the manifest and not in the drawing').toEqual([]);
   });
 
+  // THE OTHER DIRECTION, and the one that was missing until a RETIRED persona was left published.
+  //
+  // The assertion above is a subset test: manifest ⊆ drawing. It is silent about a name in the drawing
+  // that the manifest no longer has — which is exactly what a merge or a retirement in the plugin
+  // produces, and exactly what happened when `marketing-lead` was folded into `product-lead`. The
+  // manifest lost the row, the drift check stayed green (it compares the manifest to the plugin, never
+  // the page to the manifest), and `/architecture` went on naming a component that does not exist.
+  //
+  // Asserted on the PS node's own label rather than on the whole fence, deliberately: the fence's prose
+  // legitimately names `quality-assurance` and `security` in the accDescr, so a whole-fence scan could
+  // only ever be a blocklist of dead names — a list somebody has to remember to append to, which is the
+  // same failure one level up. The label is the enumeration the reader sees, so it is what must match.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('names NO persona the manifest has retired, in the %s edition', (_locale, fence) => {
+    const label = /PS\["([^"]*)"\]/.exec(fence().source)?.[1] ?? '';
+    expect(label, 'the persona node must exist and be labelled').toContain('agents/');
+    // The first segment is the `N personas · agents/` header; the rest are the names.
+    const drawn = label.split('<br/>').slice(1);
+    expect(drawn.sort()).toEqual(of('persona').map((c) => c.id).sort());
+  });
+
   // The `.sh` is stripped, deliberately: the drawing names the HOOK, and the manifest's id is its file.
   // Said out loud because it is a weakening — a hook renamed from `wip-guard.sh` to `wip-guard.bash`
   // would pass here. That rename is caught one link back, by the live drift check against the plugin.
@@ -269,9 +292,9 @@ describe('the components diagram carries the inventory it was generated from', (
     expect(wrong).toEqual([]);
   });
 
-  // The orphan APPEARS rather than being filtered. A generator walking only the directories drops it
-  // silently, and the plugin's own suite asserts `root_cmds -eq 1` for exactly this reason.
-  it('carries the un-namespaced command in both editions', () => {
+  // The orphans APPEAR rather than being filtered. A generator walking only the directories drops them
+  // silently, and the plugin's own suite asserts the root count for exactly this reason.
+  it('carries the un-namespaced commands in both editions', () => {
     for (const c of of('command')) {
       expect(enFence.source).toContain(c.id);
       expect(ptFence.source).toContain(c.id);

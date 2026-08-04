@@ -16,7 +16,8 @@
 // (ADR-0036 removed it). Flattened, the row asserts the site has an English-pinned crawlable baseline —
 // untrue today, and contradicted by this very page four sections earlier, which says every route is
 // prerendered in both locales. A published row that contradicts the page carrying it is worse than a
-// missing one. Found by `marketing-lead`.
+// missing one. Found by `marketing-lead` — the attribution is left standing because it is what happened;
+// that lens is now held by `product-lead` (`-skills`#144).
 //
 // NO `dangerouslySetInnerHTML`, and that is the whole design constraint rather than a preference. The
 // artifact is generated from repo markdown, but this is the first place a *title* becomes markup, and

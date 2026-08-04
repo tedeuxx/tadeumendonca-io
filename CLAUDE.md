@@ -233,16 +233,20 @@ Working rules that follow from that:
   fixed by the next merge — it stays wrong *on that post* and right everywhere after. The owner was
   shown this and accepted it. It is a bounded, per-post cost, not a threat to the site.
 
-  **`marketing-lead` is still dispatched on reader-facing diffs — by the reviewer's own instructions,
+  **`product-lead` is still dispatched on reader-facing diffs — by the reviewer's own instructions,
   not by any check.** Nothing mechanical enforces it, and the owner is no longer a second backstop
   behind it, so a lens that is not dispatched now fails silently. Narrowing what reaches the owner does
   not narrow what gets reviewed — that lens catches calques, positioning drift and cross-surface
   contradiction, which is exactly the class the owner is *not* well placed to catch by reading the
   finished page. It advises the reviewer; it no longer wakes the owner.
 
-  It is **one** lens where this used to name two: `brand-guardian` (what the copy claims) and `editor`
-  (how well it is written) merged into `marketing-lead`, which splits truth from craft *internally* and
-  makes truth blocking and craft advisory (skills ADR-0002 amendment #7).
+  It is **one** lens where this used to name three, and the consolidation happened in two steps that are
+  worth keeping distinct. `brand-guardian` (what the copy claims) and `editor` (how well it is written)
+  merged into `marketing-lead`, which splits truth from craft *internally* and makes truth blocking and
+  craft advisory (skills ADR-0002 amendment #7). `marketing-lead` then merged into **`product-lead`**
+  (`-skills`#144): what to build and how it is said are one voice, and a persona exists only where
+  conflict is wanted. The copy lens is not weaker for the move — it is the same blocking-truth /
+  advisory-craft split, held by the lead that already owns positioning.
 
   The `reader-facing` label on the `product` queue is now an **ordering and lens** signal — which
   reviewers to dispatch — not a gate.

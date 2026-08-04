@@ -9,8 +9,9 @@
 // READER-FACING BY PATH: the `description` field is reader-facing bilingual prose, so despite living under
 // `src/data/` a change to one is copy, not app data. It is NOT an owner gate — ADR-0003's 2026-07-30
 // amendment made reader-facing content safe class and retired the content-by-path list this comment used
-// to mirror. What it still is: the trigger for `marketing-lead`, now the only lens on these words
-// (it was `brand-guardian` until skills ADR-0002 amendment #7 merged the claim and craft lenses).
+// to mirror. What it still is: the trigger for `product-lead`, now the only lens on these words
+// (it was `brand-guardian` until skills ADR-0002 amendment #7 merged the claim and craft lenses into
+// `marketing-lead`, and `marketing-lead` until `-skills`#144 folded that lens into `product-lead`).
 //
 // The FACTS below (name, owner, language, repoUrl) are authored once and carry no
 // locale — a repo's name and primary language are the same in every edition (the facts-once / prose-per-
