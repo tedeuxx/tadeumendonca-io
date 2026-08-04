@@ -28,7 +28,7 @@ Chosen: **option 3.** A repo becomes a card only when its canonical URL is in `d
 
 The card's **description is a leaf-level `{pt,en}` field** living in the registry — the first time a key-first bilingual leaf is composed *into* a per-locale long-form page (the page body stays one-file-per-locale per ADR-0032; the embedded card field is key-first per the same ADR's leaf rule). Facts (name, owner, language, url) are **authored once**, per ADR-0024's facts-once/prose-per-locale split.
 
-**Reader-facing by path:** `data/repoCards.ts` carries reader-facing prose (the descriptions), so despite living under `src/data/` a change to one is copy, not app data. ~~It is therefore a content boundary ratified by the owner, extending CLAUDE.md's content-by-path list.~~ **Retired by ADR-0003's 2026-07-30 amendment**, which made reader-facing content safe class and deleted that list. What survives is the *dispatch* consequence: a description change still goes through `brand-guardian`, which is now the only lens on it rather than the first of two.
+**Reader-facing by path:** `data/repoCards.ts` carries reader-facing prose (the descriptions), so despite living under `src/data/` a change to one is copy, not app data. ~~It is therefore a content boundary ratified by the owner, extending CLAUDE.md's content-by-path list.~~ **Retired by ADR-0003's 2026-07-30 amendment**, which made reader-facing content safe class and deleted that list. What survives is the *dispatch* consequence: a description change still goes through `brand-guardian`, which is now the only lens on it rather than the first of two. *(That lens has been renamed twice since — `brand-guardian` → `marketing-lead` at skills ADR-0002 amendment #7, `marketing-lead` → **`product-lead`** at `-skills`#144. The routing is unchanged; only the name a dispatcher types is. The record is not rewritten — see ADR-0043's 2026-08-04 amendment.)*
 
 ## Consequences
 **Good**
@@ -39,7 +39,7 @@ The card's **description is a leaf-level `{pt,en}` field** living in the registr
 
 **Bad / accepted costs**
 - **Owner-maintained facts.** Name/language/description are curated, not fetched — a GitHub-side rename needs a registry edit. Acceptable for a small curated set; revisit only if the list grows large enough that staleness bites.
-- **A file whose data is copy** — `data/repoCards.ts` reads as app data and is not. Recorded here and in the file header so the classification isn't lost. It is no longer an owner gate (ADR-0003, 2026-07-30), but it is still the trigger for `brand-guardian`.
+- **A file whose data is copy** — `data/repoCards.ts` reads as app data and is not. Recorded here and in the file header so the classification isn't lost. It is no longer an owner gate (ADR-0003, 2026-07-30), but it is still the trigger for `brand-guardian` — the lens now held by `product-lead`, per the pointer above.
 
 **Scope boundaries (deliberate)**
 - **Only the four Karpathy repos** get cards in this slice. The other GitHub links in the same section (Matt Pocock, Garry Tan) stay plain links — a filed follow-on, not folded in (WIP=1).

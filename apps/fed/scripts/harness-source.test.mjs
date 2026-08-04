@@ -70,11 +70,16 @@ describe('the committed manifest is a manifest at all', () => {
     expect([...new Set(preToolUse.map((c) => c.enforcement))]).toEqual(['denies']);
   });
 
-  // The orphan, asserted as a POSITIVE. A generator that walks only the directories drops
-  // `commands/autonomy-on.md` without a word; the plugin's own suite asserts `root_cmds -eq 1` for
-  // exactly this reason. This is the assertion that fails if the orphan is ever filtered away again.
-  it('carries the un-namespaced command instead of silently dropping it', () => {
-    expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual(['autonomy-on']);
+  // The orphans, asserted as a POSITIVE. A generator that walks only the directories drops
+  // `commands/autonomy-on.md` and `commands/new-issue.md` without a word; the plugin's own suite asserts
+  // `root_cmds -eq 2` for exactly this reason. This is the assertion that fails if an orphan is ever
+  // filtered away again — and it is an exact list rather than a count, so a SUBSTITUTED orphan (one
+  // dropped, another added) cannot pass it.
+  it('carries the un-namespaced commands instead of silently dropping them', () => {
+    expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
+      'autonomy-on',
+      'new-issue',
+    ]);
   });
 });
 

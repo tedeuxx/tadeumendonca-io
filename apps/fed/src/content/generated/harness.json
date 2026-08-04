@@ -39,12 +39,6 @@
   },
   {
     "kind": "persona",
-    "id": "marketing-lead",
-    "file": "agents/marketing-lead.md",
-    "enforcement": "advises"
-  },
-  {
-    "kind": "persona",
     "id": "product-lead",
     "file": "agents/product-lead.md",
     "enforcement": "advises"
@@ -113,6 +107,12 @@
     "kind": "command",
     "id": "autonomy-on",
     "file": "commands/autonomy-on.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "new-issue",
+    "file": "commands/new-issue.md",
     "enforcement": "documents"
   }
 ]

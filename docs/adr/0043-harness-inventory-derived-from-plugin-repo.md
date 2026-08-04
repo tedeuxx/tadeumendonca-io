@@ -125,6 +125,9 @@ date on which those three wrong numbers were copied.
    is weaker and must not be flattened into the same sentence — nothing forces it to be dispatched at
    all. `documents` is for the command families, which neither deny nor advise; they remove a
    re-decision.
+
+   *(Amended 2026-08-04: `advises` is for **every** persona — the count that stood here went stale on a
+   roster change it does not govern. See the amendment below.)*
 2. **One uniform "component" shape with no enforcement field** — *Why not:* the diagram would then draw a
    shell script that refuses a tool call and a persona that someone has to remember to dispatch as peers.
    That is not a drawing preference; it is the page making a safety claim it cannot support, on the one
@@ -164,7 +167,9 @@ index; it is not a hypothetical.
 
 **The `autonomy-on.md` case is handled explicitly rather than filtered away.** A command that is in no
 family is a real shape in the plugin — the plugin's own suite asserts `root_cmds -eq 1` so that a second
-one goes red — and a generator that walks only the directories drops it without a word. The manifest
+one goes red *(amended 2026-08-04: it now asserts `-eq 2`, because a second one arrived and this went red
+exactly as predicted — see the amendment below)* — and a generator that walks only the directories drops
+it without a word. The manifest
 carries it, and a second un-namespaced command must fail rather than disappear.
 
 **The cross-repo dependency is isolated in one CI job, and deliberately kept out of `npm test`.** The
@@ -393,7 +398,8 @@ against* — under that reading it is exact by construction, as `this-build` is.
 
 Two consequences follow, and only the first is a wording choice:
 - **Whether a visible qualifier appears on the card is copy** — `marketing-lead`'s, not this record's, and
-  the window being hours rather than weeks is a real input to that call.
+  the window being hours rather than weeks is a real input to that call. *(Amended 2026-08-04: that call
+  now routes to `product-lead`, which absorbed the copy lens — see the amendment below.)*
 - **That the accessible name must not overclaim is not.** It may not say *latest* or *this version of the
   project*; `portfolio.viewReleaseTag`'s existing copy says the second of those and must not be reused.
 
@@ -459,6 +465,45 @@ ADR written for a routine change, which trains readers to skim the ones that mat
 amendment introduces, because that is the one landing foreign content beside a credential; whether the other
 checkouts follow is a separate finding with a separate blast radius, and folding it in would make this record
 decide two things.
+
+## Amendment, 2026-08-04 — the roster moved under the record, and the record is appended to rather than corrected
+
+`marketing-lead` was merged into `product-lead` in the plugin (`-skills`#144), and `commands/new-issue.md`
+joined `commands/autonomy-on.md` at the root of `commands/`. The published inventory therefore moves:
+**5 personas** (`developer`, `product-lead`, `quality-assurance`, `security`, `tech-lead`) and **2
+un-namespaced commands**. Nothing above is rewritten to match — the 19→6 table in *Context & problem* is
+dated evidence about the tree on 2026-08-03 and is still true of that day; **supersede, never rewrite.**
+
+**Class: safe.** It decides nothing new about the mechanism; it records an inventory change the mechanism
+was built to carry, and re-points one routing sentence. By ADR-0003's 2026-07-31 amendment that is the
+reviewer's to merge.
+
+**Three sentences above are superseded rather than edited, and this is where they are re-pointed:**
+- *"`advises` is for all six personas"* (Decision, *What the manifest is allowed to assert*) — the rule is
+  unchanged; only its **cardinality** was wrong, and it carried one it never needed. The sentence keeps an
+  inline pointer here rather than being edited; in `harness-source.mjs`, where a comment is documentation
+  and not a record, the count is **dropped outright**. `advises` is for **every** persona, and always was.
+- *"the plugin's own suite asserts `root_cmds -eq 1`"* (Consequences) — it now asserts `-eq 2`, **because
+  the guard worked exactly as this record said it would**: a second un-namespaced command was a real
+  change to the shape, and it went red rather than vanishing. That sentence is the prediction; this is
+  its outcome.
+- *"Whether a visible qualifier appears on the card is copy — `marketing-lead`'s"* (Decision 3) — that
+  call now routes to **`product-lead`**, which absorbed the copy lens. The routing changed; what the
+  sentence decided about the card did not.
+
+**What this amendment does not decide, and is flagged for the owner instead.** `advises` still classes
+every persona, `product-lead` included — and after the merge `product-lead` holds a **blocking veto on
+published claims**. It is a judgement nothing checks and no seat enforces, so `advises` remains the honest
+class and the page's *"exactly one kind can stop you"* remains literally true of **mechanism**. But the
+sentence now reads one degree stronger than the practice: a lens that blocks by convention is not the same
+as a lens that only advises, and the page does not draw that difference. Left as-is deliberately, and
+raised rather than resolved here.
+
+**One regression guard was added, because this failure was invisible to every existing check.** The
+components test asserted *manifest ⊆ drawing* and nothing in the other direction, so a **retired** persona
+left in the fence passed: the manifest lost the row, and the cross-repo drift check compares the manifest
+to the plugin, never the page to the manifest. `architecture-diagrams.test.mjs` now compares the persona
+node's label to the manifest's persona list **as an exact set**, in both editions.
 
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
