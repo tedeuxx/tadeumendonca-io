@@ -180,13 +180,30 @@ export function readPluginVersion(pluginDir) {
  * evaluated in production and would surface only in a fork's build.
  */
 export function assertPluginVersion(value, source = 'the plugin version') {
-  if (!/^\d+\.\d+\.\d+$/.test(String(value ?? ''))) {
+  // REBUILT FROM THE CAPTURE GROUPS, not returned as given, and that is the whole point of this shape.
+  //
+  // The first version tested with `.test()` and returned `value`. Correct-looking, and it left two
+  // defects. Sonar's taint engine refused it twice (`jssecurity:S8689`) and the reason it gives is the
+  // real one rather than a scanner quirk: a throw-guard is not a sanitizer, because `RegExp.test`
+  // returns a boolean that is discarded and the function hands back the binding it was given. Taint
+  // clears on TRANSFORMATION, never on testing — the value that reaches the caller is byte-identical to
+  // the one that came off disk, so nothing downstream can tell they are different.
+  //
+  // The second defect is independent of any scanner and nobody had spotted it: the test ran against
+  // `String(value ?? '')` while the RETURN was `value` — the original. A non-string that stringifies to
+  // a valid version passed the check and left this function still a non-string.
+  //
+  // Reconstructing from the groups fixes both at once. What comes back is provably three numeric runs
+  // joined by dots, built here, and provably a string.
+  const groups = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(value ?? ''));
+  if (!groups) {
     throw new Error(
       `unusable plugin version "${String(value).slice(0, 40)}" from ${source} — expected bare X.Y.Z ` +
         'with no `v` prefix (the `v` is added by the URL builder).',
     );
   }
-  return value;
+  const [, major, minor, patch] = groups;
+  return `${major}.${minor}.${patch}`;
 }
 
 /** Is there a plugin tree at this path? The caller decides whether that is a skip or a failure. */

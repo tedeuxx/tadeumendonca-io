@@ -95,7 +95,7 @@ test.describe('routes', () => {
     await page.goto('/pt/portfolio');
 
     const card = page.locator('article', { has: page.getByRole('link', { name: 'tadeumendonca-skills', exact: true }) });
-    const release = card.getByRole('link', { name: /Notas da release deste projeto/ });
+    const release = card.getByRole('link', { name: /Notas da release com a qual/ });
     const tag = (await release.textContent())!.replace('⌂', '').trim();
     expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
     await expect(release).toHaveAttribute(
