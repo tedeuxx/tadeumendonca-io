@@ -83,17 +83,58 @@ test.describe('routes', () => {
     }
   });
 
-  // The other card, and the assertion that matters is the ABSENCE: no tag may appear for a repo whose
-  // version this build cannot read. A tag here could only have come from somewhere that can go stale.
-  test('the skills card links its releases index and shows no tag', async ({ page }) => {
+  // The other card (#345). It showed no tag until the plugin's VERSION became a FILE this build can read
+  // — a tokenless checkout in the deploy, with a committed floor — so this test inverted: it used to
+  // assert the absence of a tag, and now asserts the tag, its coupling to the href, and that the href
+  // points at the PLUGIN's repo rather than at this one.
+  //
+  // Asserted on the SERVED artifact for the same reason the .io card is: this is the only layer where the
+  // whole chain is visible — the deploy resolved a value (or fell through to the floor), the build baked
+  // it in, and the prerendered HTML carries it. A unit test reads whatever constant it was handed.
+  test('the skills card shows the plugin tag and links THAT tag on the plugin repo', async ({ page, request }) => {
     await page.goto('/pt/portfolio');
 
     const card = page.locator('article', { has: page.getByRole('link', { name: 'tadeumendonca-skills', exact: true }) });
-    await expect(card.getByRole('link', { name: /Releases/ })).toHaveAttribute(
+    const release = card.getByRole('link', { name: /Notas da release deste projeto/ });
+    const tag = (await release.textContent())!.replace('⌂', '').trim();
+    expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
+    await expect(release).toHaveAttribute(
       'href',
-      'https://github.com/tedeuxx/tadeumendonca-skills/releases',
+      `https://github.com/tedeuxx/tadeumendonca-skills/releases/tag/${tag}`,
     );
-    await expect(card.getByText(/^v\d+\.\d+\.\d+$/)).toHaveCount(0);
+
+    // The tag must exist over there. This is the failure mode the mechanism actually has — the value is
+    // read from a file, so it cannot be a fabrication, but a hand-edited floor AHEAD of the plugin would
+    // name a release nobody cut. `check-harness-drift.mjs` catches that on the PR; this catches it on the
+    // published page, which is where a reader meets it.
+    //
+    // ONLY A 404 FAILS THIS, exactly as on the .io card above and for the identical reason: Playwright
+    // RETURNS on any HTTP status, so treating anything but 404 as failure would turn this suite red on
+    // GitHub's rate limiting — the very defect #329 refused to introduce at build time, wearing a test's
+    // clothes.
+    const res = await request.get(`https://github.com/tedeuxx/tadeumendonca-skills/releases/tag/${tag}`).catch(() => null);
+    if (!res || res.status() === 429 || res.status() >= 500) {
+      test.info().annotations.push({ type: 'skip-reason', description: `GitHub unavailable (${res?.status() ?? 'no response'}) — tag existence not verified` });
+    } else {
+      expect(res.status(), `tedeuxx/tadeumendonca-skills has no release tagged ${tag}`).not.toBe(404);
+    }
+  });
+
+  // The two cards must not publish the SAME tag, which is the one way this could look right and be
+  // wrong: `pluginReleaseUrl` taking its repo from the card is what keeps them independent, and a
+  // regression to a hardcoded origin (or to `SITE_VERSION`) would show up here and almost nowhere else.
+  // Compared as HREFS, not as tags — two repos can legitimately sit at the same version number.
+  test('the two cards resolve their tags independently', async ({ page }) => {
+    await page.goto('/pt/portfolio');
+
+    const io = page.locator('article', { has: page.getByRole('heading', { name: 'tadeumendonca-io' }) });
+    const skills = page.locator('article', { has: page.getByRole('link', { name: 'tadeumendonca-skills', exact: true }) });
+
+    const ioHref = await io.getByRole('link', { name: /Notas da release/ }).getAttribute('href');
+    const skillsHref = await skills.getByRole('link', { name: /Notas da release/ }).getAttribute('href');
+    expect(ioHref).toContain('/tedeuxx/tadeumendonca-io/releases/tag/');
+    expect(skillsHref).toContain('/tedeuxx/tadeumendonca-skills/releases/tag/');
+    expect(skillsHref).not.toBe(ioHref);
   });
 
   // The ramp-up page is the fourth public surface. Its body is markdown-in-repo rendered through the

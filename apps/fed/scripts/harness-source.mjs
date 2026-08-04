@@ -139,6 +139,52 @@ export function assertEnforcement(value) {
   return value;
 }
 
+/**
+ * The plugin's RELEASED version, from its own `VERSION` file (#345, ADR-0043's 2026-08-04 amendment).
+ *
+ * This is the one value in this module that is not an inventory fact: it is published on `/portfolio`'s
+ * `tadeumendonca-skills` card as a tag, linked to that release's notes. It lives HERE, beside the
+ * inventory readers, because it is the same act — reading the sibling tree — and because the pure/shell
+ * split this file exists for applies to it unchanged: the read and the validation are logic, the write is
+ * a side effect and stays in gen-harness.mjs.
+ *
+ * NO `v` PREFIX, asserted rather than tolerated. `pluginReleaseUrl` in src/lib/version.ts builds
+ * `/releases/tag/v${version}`, so a stored `v0.4.41` would produce `/releases/tag/vv0.4.41` — a link that
+ * 404s for a reader while every string involved looks plausible in a diff. The generator is the only
+ * thing that writes the artifact, so this is where the shape is decided, and `check-harness-drift.mjs`
+ * re-validates what was written for the same reason `assertEnforcement` re-validates the manifest: a
+ * committed file can be hand-edited.
+ */
+export function readPluginVersion(pluginDir) {
+  const file = join(pluginDir, 'VERSION');
+  if (!existsSync(file)) {
+    throw new Error(
+      `no VERSION file at ${file} — tedeuxx/tadeumendonca-skills carries one at its root, so either the ` +
+        'path is not a plugin tree or that repo changed shape.',
+    );
+  }
+  const version = readFileSync(file, 'utf8').trim();
+  assertPluginVersion(version, file);
+  return version;
+}
+
+/**
+ * Validate a plugin version string, wherever it came from — the sibling tree or the committed artifact.
+ *
+ * Separate from the read so the drift check can apply it to a value it did NOT read from disk, which is
+ * the case that matters: with the deploy-time override present, a malformed committed default is never
+ * evaluated in production and would surface only in a fork's build.
+ */
+export function assertPluginVersion(value, source = 'the plugin version') {
+  if (!/^\d+\.\d+\.\d+$/.test(String(value ?? ''))) {
+    throw new Error(
+      `unusable plugin version "${String(value).slice(0, 40)}" from ${source} — expected bare X.Y.Z ` +
+        'with no `v` prefix (the `v` is added by the URL builder).',
+    );
+  }
+  return value;
+}
+
 /** Is there a plugin tree at this path? The caller decides whether that is a skip or a failure. */
 export function pluginPresent(pluginDir) {
   return existsSync(join(pluginDir, 'agents')) && existsSync(join(pluginDir, 'hooks', 'hooks.json'));

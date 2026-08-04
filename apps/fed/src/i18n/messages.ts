@@ -260,6 +260,15 @@ const strings = {
       pt: 'Notas da release desta versão do projeto (GitHub)',
       en: 'Release notes for this version of the project (GitHub)',
     },
+    // The `plugin-build` variant's accessible name (#345), and it is its OWN string rather than a reuse
+    // of `viewReleaseTag` above — deliberately, because that one says "this version of the project" and
+    // this card cannot claim that. Its tag is the plugin release the site was DEPLOYED AGAINST: exact
+    // under that reading, and an overclaim under any other. It may not say "latest" or "current", which
+    // is the wording a reader would supply for free if the sentence left room for it.
+    viewPluginReleaseTag: {
+      pt: 'Notas da release deste projeto com que o site foi publicado (GitHub)',
+      en: 'Release notes for the project release this site was deployed against (GitHub)',
+    },
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },
     viewAll: { pt: '→ Ver catálogo completo', en: '→ View the full catalog' },

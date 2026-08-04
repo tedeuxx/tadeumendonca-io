@@ -79,9 +79,38 @@ describe('PortfolioSection', () => {
     expect(link).toHaveAttribute('href', `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/${tag}`);
   });
 
-  // The other repo's card. No tag CAN be shown — its VERSION lives in a repo this build cannot read, and
-  // the network call that would fetch one was ruled out. Asserted as an absence as much as a presence:
-  // showing a tag here would mean it came from somewhere that can go stale.
+  // The third shape (#345). Same coupling assertion as `this-build` above and for the same reason — the
+  // label is read off the render and the href expectation is BUILT from it, so it holds at any version
+  // and fails the moment the two are derived separately.
+  //
+  // The href is built from the CARD's repoUrl, not from a literal: "which repo" is data on the card, so a
+  // hardcoded expectation here would pass even if the component pointed every plugin-build tag at this
+  // site's repo.
+  it('shows the plugin tag and links THAT tag on the plugin\'s own repo', () => {
+    state.catalog = [{ ...sample, releases: 'plugin-build' }];
+    renderSection();
+
+    const link = screen.getByRole('link', { name: /Notas da release deste projeto/ });
+    const tag = link.textContent!.replace('⌂', '').trim();
+    expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
+    expect(link).toHaveAttribute('href', `${sample.repoUrl}/releases/tag/${tag}`);
+  });
+
+  // The two tag variants must not share an accessible name, because they do not make the same claim:
+  // `this-build` is this site's own version, `plugin-build` is the plugin release this site was deployed
+  // against. Reusing `viewReleaseTag` ("this version of the project") on the plugin card would overclaim,
+  // and nothing but this assertion would notice — the visible text is identical either way.
+  it('gives the plugin tag its own accessible name, not the this-build one', () => {
+    state.catalog = [{ ...sample, releases: 'plugin-build' }];
+    renderSection();
+    expect(screen.queryByRole('link', { name: /Notas da release desta versão do projeto/ })).toBeNull();
+    expect(
+      screen.getByRole('link', { name: /Notas da release deste projeto com que o site foi publicado/ }),
+    ).toBeInTheDocument();
+  });
+
+  // The card that shows no tag at all. Asserted as an absence as much as a presence: a tag on an `index`
+  // card would mean it came from somewhere that can go stale.
   it('links the releases index with no tag when the tag is not knowable', () => {
     state.catalog = [{ ...sample, releases: 'index' }];
     renderSection();

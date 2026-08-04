@@ -14,8 +14,69 @@
 // runtime), so it moves on deploy and only on deploy.
 import raw from '../../../../VERSION?raw';
 
+import pluginRelease from '../content/generated/plugin-release.json';
+
 export const SITE_VERSION = raw.trim();
 
 /** The GitHub Release `version-main` published for this exact build. */
 export const releaseUrl = (version = SITE_VERSION) =>
   `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/v${version}`;
+
+// ---------------------------------------------------------------------------------------------
+// THE PLUGIN'S version (#345, ADR-0043's 2026-08-04 amendment) — a SECOND repository's clock, which is
+// why it does not work the way `SITE_VERSION` does.
+//
+// `SITE_VERSION` is exact because there is one clock: the deploy's `release` job bumps the root VERSION
+// in the same commit the build consumes. `tedeuxx/tadeumendonca-skills` has its own, so this value is
+// resolved in TWO LEVELS:
+//
+//   1. `VITE_PLUGIN_VERSION` — the deploy reads the plugin's VERSION from a tokenless checkout and passes
+//      it in, exactly as it passes `VITE_GA_MEASUREMENT_ID`. Production therefore publishes the plugin
+//      release this build was DEPLOYED AGAINST, which is the only claim the card is allowed to make.
+//   2. `plugin-release.json` — the committed floor, written by `gen-harness`. A local build, a PR build
+//      and a fork render this: a real, older tag.
+//
+// Level 2 is a DEFAULT, not an error handler, and that distinction is what closes #329. That decision
+// refused a build-time GitHub API call partly because *"what does the card show when the call fails"* had
+// no good answer. Here the question does not arise — nothing is fetched, and the lower level always holds
+// a tag that really exists. Nothing degrades; a less fresh source wins.
+
+/**
+ * Resolve the two levels, and it is a FUNCTION so it can be tested without an env var.
+ *
+ * `??` is deliberately NOT used for the override. It only catches `null`/`undefined`, and the shapes this
+ * actually receives from a shell are `''` (an unset `$(cat VERSION)`) and `'\n'` (a stray newline). Both
+ * are present-but-useless and must fall through to the floor rather than be published as a tag. That is a
+ * named bug in the amendment, not a hypothetical.
+ */
+export function resolvePluginVersion(fromEnv: string | undefined, fromFile: string): string {
+  const override = (fromEnv ?? '').trim();
+  const resolved = override === '' ? String(fromFile).trim() : override;
+  // Validated after resolution, not before, and it THROWS at module load — the shape the bilingual
+  // content loader already uses. A malformed value would render `/releases/tag/v` + garbage: a link that
+  // 404s for a reader while the build stays green. A build that would ship one fails instead.
+  if (!/^\d+\.\d+\.\d+$/.test(resolved)) {
+    throw new Error(
+      `unusable plugin version "${resolved.slice(0, 40)}" — expected bare X.Y.Z with no \`v\` prefix. ` +
+        'Sources: VITE_PLUGIN_VERSION (the deploy) and src/content/generated/plugin-release.json ' +
+        '(`npm --prefix apps/fed run gen-harness`).',
+    );
+  }
+  return resolved;
+}
+
+/** The `tedeuxx/tadeumendonca-skills` release this build was deployed against. */
+export const PLUGIN_VERSION = resolvePluginVersion(
+  import.meta.env.VITE_PLUGIN_VERSION,
+  pluginRelease.version,
+);
+
+/**
+ * Release notes for a tag on an arbitrary repo.
+ *
+ * `repoUrl` is a PARAMETER rather than hardcoded, unlike `releaseUrl` above: which repo a card points at
+ * is data on the card (`CatalogProject.repoUrl`), and inferring it would be exactly the inference the
+ * `releases` field's own comment forbids.
+ */
+export const pluginReleaseUrl = (repoUrl: string, version = PLUGIN_VERSION) =>
+  `${repoUrl}/releases/tag/v${version}`;

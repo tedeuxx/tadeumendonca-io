@@ -6,6 +6,12 @@
 interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
   readonly VITE_GA_MEASUREMENT_ID?: string;
+  /**
+   * The `tedeuxx/tadeumendonca-skills` release this build is deployed against (#345). Set by the deploy
+   * job from a tokenless checkout of that repo; absent everywhere else, where `plugin-release.json` is
+   * the floor. Optional AND empty-tolerant — see `resolvePluginVersion`: a shell can deliver `''`.
+   */
+  readonly VITE_PLUGIN_VERSION?: string;
 }
 
 interface ImportMeta {
