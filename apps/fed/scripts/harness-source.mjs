@@ -163,9 +163,13 @@ export function readPluginVersion(pluginDir) {
         'path is not a plugin tree or that repo changed shape.',
     );
   }
-  const version = readFileSync(file, 'utf8').trim();
-  assertPluginVersion(version, file);
-  return version;
+  // RETURN THE VALIDATOR'S RETURN, never the binding it was handed. `assertPluginVersion(v); return v`
+  // reads as equivalent and is not: the anchored regex then sits BESIDE the dataflow path rather than on
+  // it, so raw file content still reaches every consumer. Sonar's taint engine said so before a human
+  // did — two CRITICAL `jssecurity:S8689`, tracing `readFileSync` here to the `console` calls in
+  // `gen-harness.mjs` and `check-harness-drift.mjs`. The validation was real and the value was not the
+  // validated one, which is the same defect shape as an assertion that cannot fail.
+  return assertPluginVersion(readFileSync(file, 'utf8').trim(), file);
 }
 
 /**
