@@ -265,9 +265,16 @@ const strings = {
     // this card cannot claim that. Its tag is the plugin release the site was DEPLOYED AGAINST: exact
     // under that reading, and an overclaim under any other. It may not say "latest" or "current", which
     // is the wording a reader would supply for free if the sentence left room for it.
+    // The PT edition is authored, not translated, and the first draft showed why that matters here. It
+    // read `da release deste projeto COM QUE o site foi publicado` — and `com que`, sitting right after
+    // `deste projeto`, parses first as "this project, with which the site was published". True, and a
+    // DIFFERENT claim: it drops the one thing this key exists to name, which release. Fixed by removing
+    // the competing noun rather than by repairing the relative: `com a qual` would have pinned it by
+    // gender agreement, but `deste projeto` was borrowed from the sibling string above and names nothing
+    // a reader of THIS card can see — the card shows a repo and a tag, never a "project".
     viewPluginReleaseTag: {
-      pt: 'Notas da release deste projeto com que o site foi publicado (GitHub)',
-      en: 'Release notes for the project release this site was deployed against (GitHub)',
+      pt: 'Notas da release com a qual este site foi publicado (GitHub)',
+      en: 'Release notes for the release this site was deployed against (GitHub)',
     },
     emptyLead: { pt: 'Catálogo em construção.', en: 'Catalog under construction.' },
     emptyLink: { pt: 'Acompanhe no GitHub', en: 'Follow on GitHub' },

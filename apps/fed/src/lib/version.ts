@@ -31,8 +31,11 @@ export const releaseUrl = (version = SITE_VERSION) =>
 // resolved in TWO LEVELS:
 //
 //   1. `VITE_PLUGIN_VERSION` — the deploy reads the plugin's VERSION from a tokenless checkout and passes
-//      it in, exactly as it passes `VITE_GA_MEASUREMENT_ID`. Production therefore publishes the plugin
-//      release this build was DEPLOYED AGAINST, which is the only claim the card is allowed to make.
+//      it in. The BUILD reads it as an env var, the same way it reads `VITE_GA_MEASUREMENT_ID`; how the
+//      deploy SUPPLIES it is not the same, and the comparison used to claim it was. The GA id is a
+//      step-level `env:` on the build step; this one is exported job-wide through `$GITHUB_ENV` by the
+//      resolve step, which `deploy.yml` says outright. Production therefore publishes the plugin release
+//      this build was DEPLOYED AGAINST, which is the only claim the card is allowed to make.
 //   2. `plugin-release.json` — the committed floor, written by `gen-harness`. A local build, a PR build
 //      and a fork render this: a real, older tag.
 //

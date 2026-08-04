@@ -90,7 +90,7 @@ describe('PortfolioSection', () => {
     state.catalog = [{ ...sample, releases: 'plugin-build' }];
     renderSection();
 
-    const link = screen.getByRole('link', { name: /Notas da release deste projeto/ });
+    const link = screen.getByRole('link', { name: /Notas da release com a qual/ });
     const tag = link.textContent!.replace('⌂', '').trim();
     expect(tag).toMatch(/^v\d+\.\d+\.\d+$/);
     expect(link).toHaveAttribute('href', `${sample.repoUrl}/releases/tag/${tag}`);
@@ -105,7 +105,7 @@ describe('PortfolioSection', () => {
     renderSection();
     expect(screen.queryByRole('link', { name: /Notas da release desta versão do projeto/ })).toBeNull();
     expect(
-      screen.getByRole('link', { name: /Notas da release deste projeto com que o site foi publicado/ }),
+      screen.getByRole('link', { name: /Notas da release com a qual este site foi publicado/ }),
     ).toBeInTheDocument();
   });
 
