@@ -54,8 +54,20 @@ const pluginDir = resolvePluginDir(
 // read by no one.
 let committedVersion;
 try {
-  committedVersion = JSON.parse(readFileSync(PLUGIN_RELEASE, 'utf8')).version;
-  assertPluginVersion(committedVersion, 'src/content/generated/plugin-release.json');
+  // TAKE THE RETURN. `assertPluginVersion(x); use(x)` was the shape everywhere in this slice, and it is
+  // the one that cost three review rounds: the validator rebuilds the value from its capture groups, so
+  // discarding the return means the check ran and the ORIGINAL was used anyway. This was the last site
+  // where the pattern was still half-applied.
+  //
+  // Landing it now rather than as a follow-up, on `security`'s ruling and for a reason worth keeping:
+  // the two `jssecurity:S8689` findings are now marked false-positive, which permanently silences the
+  // only automated objector to this shape in these files. The new test in harness-source.test.mjs does
+  // not reach here either — it pins the transformation, and a call that discards the return never
+  // consumes it. A follow-up with no remaining objector is, in practice, never.
+  committedVersion = assertPluginVersion(
+    JSON.parse(readFileSync(PLUGIN_RELEASE, 'utf8')).version,
+    'src/content/generated/plugin-release.json',
+  );
 } catch (err) {
   console.error(
     `::error::src/content/generated/plugin-release.json is unusable — ${err.message}. ` +
