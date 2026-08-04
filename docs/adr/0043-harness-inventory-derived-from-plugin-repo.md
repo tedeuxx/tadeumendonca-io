@@ -496,8 +496,29 @@ every persona, `product-lead` included — and after the merge `product-lead` ho
 published claims**. It is a judgement nothing checks and no seat enforces, so `advises` remains the honest
 class and the page's *"exactly one kind can stop you"* remains literally true of **mechanism**. But the
 sentence now reads one degree stronger than the practice: a lens that blocks by convention is not the same
-as a lens that only advises, and the page does not draw that difference. Left as-is deliberately, and
-raised rather than resolved here.
+as a lens that only advises, and the page does not draw that difference. ~~Left as-is deliberately, and
+raised rather than resolved here.~~
+
+**→ Raised here and resolved in the same PR, by `429a363`.** The paragraph above is left standing because
+it is the honest record of the state before that commit — but both of its closing claims are now false:
+the page **does** draw the difference, and it was **not** left as-is. The owner chose to extend to
+`product-lead` the treatment the page already gives `quality-assurance` — so `/architecture` now says, in
+both editions, that it **blocks by convention rather than by hook**, and that nothing refuses the merge
+command on its behalf.
+
+`advises` is unchanged as the manifest class, and that is the decision rather than an omission: it claims
+the JUDGEMENT is enforced by nothing, which is true of both personas. What was missing was the page saying
+that a convention-blocking lens and an advisory-only one are not the same animal.
+
+Two options were rejected. A **third enforcement class** between `denies` and `advises` would be more
+precise and would touch the generator, the manifest, every assertion and this record — and the closed set
+is exactly what keeps the diagram from lying, so widening it is not a small act. **Leaving it alone** was
+defensible too, since the sentence is true about mechanism; the cost is that a reader who checks the
+plugin finds the difference before the page tells them, on the page that exists to be checked.
+
+Found by the copy lens reviewing the PR that falsified it. Worth stating plainly, because it is the same
+defect this whole slice exists to close: a record describing a page, made false by a later commit **in the
+same pull request**, on the page that publishes this index and invites the reader to click through.
 
 **One regression guard was added, because this failure was invisible to every existing check.** The
 components test asserted *manifest ⊆ drawing* and nothing in the other direction, so a **retired** persona
