@@ -139,6 +139,73 @@ export function assertEnforcement(value) {
   return value;
 }
 
+/**
+ * The plugin's RELEASED version, from its own `VERSION` file (#345, ADR-0043's 2026-08-04 amendment).
+ *
+ * This is the one value in this module that is not an inventory fact: it is published on `/portfolio`'s
+ * `tadeumendonca-skills` card as a tag, linked to that release's notes. It lives HERE, beside the
+ * inventory readers, because it is the same act — reading the sibling tree — and because the pure/shell
+ * split this file exists for applies to it unchanged: the read and the validation are logic, the write is
+ * a side effect and stays in gen-harness.mjs.
+ *
+ * NO `v` PREFIX, asserted rather than tolerated. `pluginReleaseUrl` in src/lib/version.ts builds
+ * `/releases/tag/v${version}`, so a stored `v0.4.41` would produce `/releases/tag/vv0.4.41` — a link that
+ * 404s for a reader while every string involved looks plausible in a diff. The generator is the only
+ * thing that writes the artifact, so this is where the shape is decided, and `check-harness-drift.mjs`
+ * re-validates what was written for the same reason `assertEnforcement` re-validates the manifest: a
+ * committed file can be hand-edited.
+ */
+export function readPluginVersion(pluginDir) {
+  const file = join(pluginDir, 'VERSION');
+  if (!existsSync(file)) {
+    throw new Error(
+      `no VERSION file at ${file} — tedeuxx/tadeumendonca-skills carries one at its root, so either the ` +
+        'path is not a plugin tree or that repo changed shape.',
+    );
+  }
+  // RETURN THE VALIDATOR'S RETURN, never the binding it was handed. `assertPluginVersion(v); return v`
+  // reads as equivalent and is not: the anchored regex then sits BESIDE the dataflow path rather than on
+  // it, so raw file content still reaches every consumer. Sonar's taint engine said so before a human
+  // did — two CRITICAL `jssecurity:S8689`, tracing `readFileSync` here to the `console` calls in
+  // `gen-harness.mjs` and `check-harness-drift.mjs`. The validation was real and the value was not the
+  // validated one, which is the same defect shape as an assertion that cannot fail.
+  return assertPluginVersion(readFileSync(file, 'utf8').trim(), file);
+}
+
+/**
+ * Validate a plugin version string, wherever it came from — the sibling tree or the committed artifact.
+ *
+ * Separate from the read so the drift check can apply it to a value it did NOT read from disk, which is
+ * the case that matters: with the deploy-time override present, a malformed committed default is never
+ * evaluated in production and would surface only in a fork's build.
+ */
+export function assertPluginVersion(value, source = 'the plugin version') {
+  // REBUILT FROM THE CAPTURE GROUPS, not returned as given, and that is the whole point of this shape.
+  //
+  // The first version tested with `.test()` and returned `value`. Correct-looking, and it left two
+  // defects. Sonar's taint engine refused it twice (`jssecurity:S8689`) and the reason it gives is the
+  // real one rather than a scanner quirk: a throw-guard is not a sanitizer, because `RegExp.test`
+  // returns a boolean that is discarded and the function hands back the binding it was given. Taint
+  // clears on TRANSFORMATION, never on testing — the value that reaches the caller is byte-identical to
+  // the one that came off disk, so nothing downstream can tell they are different.
+  //
+  // The second defect is independent of any scanner and nobody had spotted it: the test ran against
+  // `String(value ?? '')` while the RETURN was `value` — the original. A non-string that stringifies to
+  // a valid version passed the check and left this function still a non-string.
+  //
+  // Reconstructing from the groups fixes both at once. What comes back is provably three numeric runs
+  // joined by dots, built here, and provably a string.
+  const groups = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(value ?? ''));
+  if (!groups) {
+    throw new Error(
+      `unusable plugin version "${String(value).slice(0, 40)}" from ${source} — expected bare X.Y.Z ` +
+        'with no `v` prefix (the `v` is added by the URL builder).',
+    );
+  }
+  const [, major, minor, patch] = groups;
+  return `${major}.${minor}.${patch}`;
+}
+
 /** Is there a plugin tree at this path? The caller decides whether that is a skip or a failure. */
 export function pluginPresent(pluginDir) {
   return existsSync(join(pluginDir, 'agents')) && existsSync(join(pluginDir, 'hooks', 'hooks.json'));

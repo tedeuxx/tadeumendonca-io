@@ -462,6 +462,58 @@ jobs:
       - name: Install Playwright browser (the prerender drives it)
         run: npx playwright install --with-deps chromium
 
+      # ---------------------------------------------------------------------------------------
+      # The plugin's released version, for /portfolio's tadeumendonca-skills card (#345, ADR-0043's
+      # 2026-08-04 amendment). Three properties of this block are DECISIONS, not YAML detail:
+      #
+      # 1. IT RUNS BEFORE `Configure AWS credentials`, AND THE TREE IS DELETED once the value is read.
+      #    Same reasoning the `npm ci --ignore-scripts` comment above already uses: the threat is
+      #    persist-then-execute. Foreign content and the AWS deploy role never coexist in this job, which
+      #    makes the mitigation a PLACEMENT anyone can verify by reading top to bottom, rather than a
+      #    promise that nothing in that tree is ever executed.
+      # 2. `persist-credentials: false`. actions/checkout defaults to ${{ github.token }} even for another
+      #    public repo and writes it into that tree's .git/config for the life of the job. `security`
+      #    raised this as an advisory on -skills#143 and noted no checkout in this repo sets it; this is
+      #    the one that lands foreign content beside a credential, so it sets it explicitly.
+      # 3. `continue-on-error`. Another repository's availability must not stop this site from shipping —
+      #    that would MOVE #329's objection to the deploy rather than close it. A failed checkout falls
+      #    through to the committed floor (src/content/generated/plugin-release.json), which holds a real,
+      #    older tag. The resolve step then says out loud which source won.
+      - name: Check out the plugin (tokenless, read-only, deleted below)
+        id: plugin-checkout
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tedeuxx/tadeumendonca-skills
+          path: .plugin-version
+          persist-credentials: false
+
+      - name: Resolve the plugin version
+        working-directory: ${{ github.workspace }}
+        env:
+          CHECKOUT_OUTCOME: ${{ steps.plugin-checkout.outcome }}
+        run: |
+          set -euo pipefail
+          if [ "$CHECKOUT_OUTCOME" != "success" ]; then
+            # AVAILABILITY, not a defect: fall through to the floor and keep shipping.
+            rm -rf .plugin-version
+            echo "::notice::plugin version — the checkout of tedeuxx/tadeumendonca-skills did not succeed ($CHECKOUT_OUTCOME); the COMMITTED default in plugin-release.json will be published"
+            exit 0
+          fi
+          version="$(tr -d '[:space:]' < .plugin-version/VERSION 2>/dev/null || true)"
+          # The tree is gone before anything else runs, success or failure — including before this step
+          # can exit non-zero below.
+          rm -rf .plugin-version
+          # A tree that checked out but carries no usable VERSION is NOT an availability event: it means
+          # that repo changed shape. Exporting the empty string would be silently indistinguishable from
+          # "no override" and would publish a stale tag under a green deploy, so this fails loudly.
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::plugin version — tedeuxx/tadeumendonca-skills checked out but its VERSION is missing or malformed (read: '$version'). Expected bare X.Y.Z. Refusing to export it."
+            exit 1
+          fi
+          echo "VITE_PLUGIN_VERSION=$version" >> "$GITHUB_ENV"
+          echo "::notice::plugin version $version — resolved from the DEPLOY-TIME checkout of tedeuxx/tadeumendonca-skills (overrides the committed default)"
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
@@ -481,6 +533,10 @@ jobs:
         # GA4 measurement id — PUBLIC (it ships in the client JS), so it lives here, not in a secret.
         # Analytics is inert without it; setting it here is what turns it on in production. GA still
         # loads only after the reader consents (src/lib/analytics), so the prerender emits no hit.
+        #
+        # VITE_PLUGIN_VERSION is NOT listed here: the resolve step above exports it through $GITHUB_ENV,
+        # so it is job-wide and reaches this build already. Absent (a failed checkout) is not an error —
+        # src/lib/version.ts falls through to the committed floor, treating empty as absent.
         env:
           VITE_GA_MEASUREMENT_ID: G-5W9EQN303X
         run: npm run build:static

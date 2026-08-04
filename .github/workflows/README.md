@@ -205,7 +205,7 @@ matches.
 buys little in *filtering* — the value is parallelism and a readable graph, and it should be argued
 on that alone.
 
-### `harness-drift` — the one job that reads another repository
+### `harness-drift` — ~~the one job that reads another repository~~ the one that reads it **without a credential**
 
 `/architecture` publishes an inventory of the dev-loop harness (personas, hooks, command families), and
 its source of truth is **`tadeumendonca-skills`**, not this repo. The pattern is the ADR index's, one
@@ -215,10 +215,23 @@ ways, `missing` · `orphaned` · `changed` (ADR-0043).
 
 **It takes a second `actions/checkout`, and that is a security statement rather than a convenience.** The
 plugin is a **public** repository, so the checkout carries **no token, no secret and no `id-token`**. This
-job widens no credential surface, which is the property that makes a cross-repo read acceptable here at
-all — and nothing about it goes near `deploy`'s gate filter, whose outputs decide whether an
-OIDC-credentialed job runs. The manifest lives under `apps/fed/`, which the `code` filter already matches,
-so a regeneration is gated by the ordinary path and needs no new entry anywhere.
+job widens no credential surface — and nothing about it goes near `deploy`'s gate filter, whose outputs
+decide whether an OIDC-credentialed job runs. The manifest lives under `apps/fed/`, which the `code`
+filter already matches, so a regeneration is gated by the ordinary path and needs no new entry anywhere.
+
+~~**and that is the property that makes a cross-repo read acceptable here at all.**~~ **Struck 2026-08-04
+(#345).** There are now **two** jobs that read the plugin repo, and the second one — `deploy`'s
+`deploy-app`, resolving the plugin's version for the `/portfolio` card — **does** hold `id-token: write`.
+So "no credential" stopped being the property that licenses a cross-repo read here; it is still true of
+*this* job and is why this one needed no further argument. What licenses the other one is **placement**:
+the checkout runs before `Configure AWS credentials (OIDC)` and deletes the tree on every exit, so the
+foreign tree and the AWS role never coexist in the job (ADR-0043's 2026-08-04 amendment, Decision 5).
+
+Stated here rather than only there because this heading is where a reader comes to ask *"does anything
+read another repo?"*, and the answer stopped being "one job, uncredentialed" the moment the second one
+shipped. The honest form of the mitigation is also narrower than it first reads: foreign content and the
+**AWS role** never coexist — not foreign content and *any* credential, since `deploy-app`'s own main
+checkout persists `GITHUB_TOKEN` into `.git/config` for the job's life. Found by `security` on #348.
 
 **It is not self-triggering, and unlike `docs/adr/**` it cannot be made so.** That entry above fixed
 exactly this problem by naming the authored source as a path in this repo. **There is no such path here:**

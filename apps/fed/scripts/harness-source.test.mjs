@@ -17,6 +17,8 @@ import {
   WORKSPACE_ROOT,
   resolvePluginDir,
   assertEnforcement,
+  assertPluginVersion,
+  readPluginVersion,
   collectCommands,
   collectComponents,
   collectHooks,
@@ -221,6 +223,52 @@ describe('reading a plugin tree', () => {
       'command-family:beta',
       'command:loose',
     ]);
+  });
+});
+
+// #345. The plugin's released version — the one value read from the sibling tree that a READER sees, as
+// a tag on the /portfolio card linking that release's notes. Fixtures, for the reason this whole file
+// uses them: `npm test` must not need a second repository on disk.
+describe('readPluginVersion — the tag the card publishes', () => {
+  it('reads a bare X.Y.Z and trims it', () => {
+    expect(readPluginVersion(fixture('plugin'))).toBe('1.2.3');
+  });
+
+  // The `v` prefix is the specific malformation worth a fixture rather than a string literal, because it
+  // is the one that looks RIGHT in a diff: `pluginReleaseUrl` builds `/releases/tag/v${version}`, so a
+  // stored `v9.9.9` ships `/releases/tag/vv9.9.9` — a 404 for the reader, from two plausible strings.
+  it('refuses a version carrying the `v` the URL builder adds', () => {
+    expect(() => readPluginVersion(fixture('plugin-renamed'))).toThrow(/expected bare X\.Y\.Z/);
+  });
+
+  it('names the missing file rather than failing as an ENOENT three frames down', () => {
+    expect(() => readPluginVersion(fixture('plugin-nested'))).toThrow(/no VERSION file at .*plugin-nested/);
+  });
+
+  // Applied by the drift check to a value it did NOT read from disk — the committed artifact, which a
+  // hand-edit or a bad merge can fill with anything. Same discipline as `assertEnforcement`.
+  it('validates a value from anywhere, and names where it came from', () => {
+    expect(assertPluginVersion('0.4.41')).toBe('0.4.41');
+    expect(() => assertPluginVersion('', 'plugin-release.json')).toThrow(/from plugin-release\.json/);
+    expect(() => assertPluginVersion(undefined)).toThrow(/expected bare X\.Y\.Z/);
+    expect(() => assertPluginVersion('1.2')).toThrow(/unusable plugin version "1\.2"/);
+    expect(() => assertPluginVersion('1.2.3-rc1')).toThrow(/unusable plugin version/);
+  });
+
+  // THE RETURN IS REBUILT, NOT PASSED THROUGH — and nothing pinned that until now.
+  //
+  // Three rounds were spent reshaping this function so a taint engine would accept it, and
+  // `quality-assurance` then ran the falsifier nobody had: delete the two reconstruction lines, restore
+  // `return value`, and lint plus all 555 tests stay green. Every case above passes a string or
+  // `undefined`, so not one of them can tell the two implementations apart. The work was real and the
+  // guard on it did not exist — this session's recurring defect, inside the fix for it.
+  //
+  // A non-string that STRINGIFIES to a valid version is the case that separates them: the guard tests
+  // `String(value ?? '')` and a pass-through returns the object, so a caller that thinks it holds a
+  // version holds something that merely prints like one. `toBe` and not `toEqual`, deliberately —
+  // `toEqual` would pass on the object too.
+  it('returns a rebuilt string, never the value it was handed', () => {
+    expect(assertPluginVersion({ toString: () => '1.2.3' })).toBe('1.2.3');
   });
 });
 

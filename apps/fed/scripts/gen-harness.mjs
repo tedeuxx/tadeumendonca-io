@@ -11,10 +11,19 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectComponents, pluginPresent, resolvePluginDir } from './harness-source.mjs';
+import { collectComponents, pluginPresent, readPluginVersion, resolvePluginDir } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(FED, 'src', 'content', 'generated', 'harness.json');
+// The plugin's released version, as its OWN artifact rather than a row in the manifest — ADR-0043's
+// 2026-08-04 amendment, Decision 1. The manifest is a flat array of components whose every element is
+// enforcement-classed against a closed set; a version is not a component, and giving it a class would
+// either throw or force a fourth class into a set that record froze deliberately.
+//
+// Written by the SAME run, from the SAME resolved pluginDir, so there is no second pipeline to remember.
+// It is the FLOOR, not what production renders: the deploy resolves the value fresh into
+// VITE_PLUGIN_VERSION and that wins. See src/lib/version.ts for the two-level resolution.
+const VERSION_OUT = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 
 // The sibling checkout, overridable. CI passes it explicitly (the second `actions/checkout` lands the
 // plugin somewhere of its choosing); locally the default is the workspace layout — the two repos side by
@@ -36,9 +45,13 @@ if (!pluginPresent(pluginDir)) {
 }
 
 const components = collectComponents(pluginDir);
+// Read BEFORE either write, so a plugin tree that cannot produce a usable version leaves both artifacts
+// as they were rather than half-updated.
+const pluginVersion = readPluginVersion(pluginDir);
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(components, null, 2)}\n`);
+writeFileSync(VERSION_OUT, `${JSON.stringify({ version: pluginVersion }, null, 2)}\n`);
 
 const count = (kind) => components.filter((c) => c.kind === kind).length;
 console.log(
@@ -46,3 +59,4 @@ console.log(
     `${count('hook')} hook(s), ${count('persona')} persona(s), ` +
     `${count('command-family')} command famil(ies), ${count('command')} un-namespaced command(s).`,
 );
+console.log(`Wrote src/content/generated/plugin-release.json — plugin version ${pluginVersion}.`);

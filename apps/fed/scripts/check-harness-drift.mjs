@@ -24,12 +24,15 @@ import {
   diffAgainstManifest,
   driftReport,
   pluginPresent,
+  readPluginVersion,
   resolvePluginDir,
   assertEnforcement,
+  assertPluginVersion,
 } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
+const PLUGIN_RELEASE = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 // `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
 // itself any more: a second resolve in the caller is what put the existing check off the path between the
 // argument and the first `fs` call.
@@ -37,11 +40,68 @@ const pluginDir = resolvePluginDir(
   process.argv[2] ?? process.env.SKILLS_REPO ?? join(FED, '..', '..', '..', 'tadeumendonca-skills'),
 );
 
+// ---------------------------------------------------------------------------------------------
+// The committed plugin version (#345, ADR-0043's 2026-08-04 amendment, Decision 2b).
+//
+// FIRST, and deliberately ABOVE the skip: this assertion needs no plugin tree, so it runs on the path
+// where the sibling repo is absent too. It is also the only place the floor is ever checked — production
+// renders the deploy-resolved override, so a malformed committed default is never evaluated there and
+// would surface only in a fork's build, as a link that cannot resolve.
+//
+// The drift check is NO LONGER what keeps this value fresh; the deploy is. What remains is error-or-
+// nothing, and BEHIND is deliberately silent — at the plugin's measured cadence (14 releases on
+// 2026-08-02) a staleness notice would print on nearly every run, and an output that always appears is
+// read by no one.
+let committedVersion;
+try {
+  // TAKE THE RETURN. `assertPluginVersion(x); use(x)` was the shape everywhere in this slice, and it is
+  // the one that cost three review rounds: the validator rebuilds the value from its capture groups, so
+  // discarding the return means the check ran and the ORIGINAL was used anyway. This was the last site
+  // where the pattern was still half-applied.
+  //
+  // Landing it now rather than as a follow-up, on `security`'s ruling and for a reason worth keeping:
+  // the two `jssecurity:S8689` findings are now marked false-positive, which permanently silences the
+  // only automated objector to this shape in these files. The new test in harness-source.test.mjs does
+  // not reach here either — it pins the transformation, and a call that discards the return never
+  // consumes it. A follow-up with no remaining objector is, in practice, never.
+  committedVersion = assertPluginVersion(
+    JSON.parse(readFileSync(PLUGIN_RELEASE, 'utf8')).version,
+    'src/content/generated/plugin-release.json',
+  );
+} catch (err) {
+  console.error(
+    `::error::src/content/generated/plugin-release.json is unusable — ${err.message}. ` +
+      'Run `npm --prefix apps/fed run gen-harness`.',
+  );
+  process.exit(1);
+}
+
 if (!pluginPresent(pluginDir)) {
   console.log(
     `::notice::SKIPPED — no tedeuxx/tadeumendonca-skills tree at ${pluginDir}, so the harness inventory was NOT verified. This is not a pass.`,
   );
   process.exit(0);
+}
+
+// AHEAD of the plugin's own VERSION. The generator cannot produce this — only a hand-edit or a bad merge
+// can — and it names a release that does not exist, so a fork's card links a 404. BEHIND is the normal,
+// expected state and says nothing.
+const livePluginVersion = readPluginVersion(pluginDir);
+const asNumbers = (v) => v.split('.').map(Number);
+const isAhead = (a, b) => {
+  const [x, y] = [asNumbers(a), asNumbers(b)];
+  for (let i = 0; i < 3; i += 1) {
+    if (x[i] !== y[i]) return x[i] > y[i];
+  }
+  return false;
+};
+if (isAhead(committedVersion, livePluginVersion)) {
+  console.error(
+    `::error::plugin-release.json says ${committedVersion}, but tedeuxx/tadeumendonca-skills is at ` +
+      `${livePluginVersion} — the committed value names a release that does not exist, so the ` +
+      '/portfolio card would link a 404. Run `npm --prefix apps/fed run gen-harness`.',
+  );
+  process.exit(1);
 }
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));

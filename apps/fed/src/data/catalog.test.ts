@@ -34,4 +34,16 @@ describe('catalog', () => {
       }
     }
   });
+
+  // The same guard for the third shape (#345), and it is the same defect one repo over: `plugin-build`
+  // renders the version resolved from `tedeuxx/tadeumendonca-skills`, so any other entry declaring it
+  // would publish THAT repo's tag beside someone else's project — and link a tag that repo never cut.
+  // No rendering test can catch it, because the component would be doing exactly what it was told.
+  it('only the plugin\'s own entry reads its tag from the plugin build', () => {
+    for (const project of catalog) {
+      if (project.releases === 'plugin-build') {
+        expect(project.repoUrl).toBe('https://github.com/tedeuxx/tadeumendonca-skills');
+      }
+    }
+  });
 });

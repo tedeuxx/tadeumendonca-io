@@ -241,6 +241,225 @@ decisions about what may be asserted rather than drawing choices:
    member is for; it may not imply that dispatch is guaranteed. The honest sentence is the one this
    repo's guide already uses about itself: a lens that is not dispatched fails silently.
 
+## Amendment, 2026-08-04 — the plugin's version is resolved at DEPLOY time, with a committed artifact as the floor
+
+**Decides:** the plugin's released version may be derived from a tokenless checkout of
+`tedeuxx/tadeumendonca-skills` and published on `/portfolio`, resolved in **two levels** — the deploy
+pipeline reads it fresh and passes it to the build; a **committed artifact** is the default that local
+builds, PR builds and forks render. The value is therefore never fetched by the application, at build time
+or at runtime, and there is no failure branch: an unresolved override is a *default*, not an error.
+
+**Why this shape rather than a committed value alone**, which is what was drafted first and is the wrong
+answer for a reason worth naming: `-io`'s own tag is exact because there is **one clock**. `version.ts`
+reads the root `VERSION` at build time and the deploy's `release` job bumps that file **in the same commit
+the build consumes**. Anything that publishes a second repository's version from a committed file accepts a
+**second clock** and then argues about how to live with the gap. Nothing regenerates `harness.json` when
+only the plugin's `VERSION` moved, so a committed-only value would be exact as of the last time somebody
+regenerated the artifact — measured on the days around this record, `tedeuxx/tadeumendonca-skills` cut **14
+releases on 2026-08-02 and 5 on 2026-08-03**, so that gap reaches tens of releases within a fortnight.
+Resolving in the deploy collapses it to *the moment of the deploy* (`-io` published 8 times on 2026-08-03),
+which is the same clock the footer's own tag runs on.
+
+**Class: safe.** This amendment *decides* something, and by [ADR-0003](./0003-trunk-based-single-environment.md)'s
+2026-07-31 amendment an ADR amendment that decides is safe class — `quality-assurance` merges it. It is not
+one of the records that decide *how work is decided*, so it does not reach the owner as a boundary.
+
+**Driven by** Issue [#345](https://github.com/tedeuxx/tadeumendonca-io/issues/345): the `tadeumendonca-skills`
+card in `/portfolio` shows the word *RELEASES* where the `tadeumendonca-io` card shows its tag.
+
+### #329 is discharged by mechanism, not waived — and the distinction is the load-bearing sentence
+`catalog.ts` records an owner decision of **2026-08-02** rejecting a third `releases` shape that reads a tag
+**over the network**: a build-time **GitHub API call** can turn a healthy `main` red on rate-limiting or an
+outage, and *"what does the card show when the call fails"* has no good answer, since a stale tag is worse
+than no tag and a blank is a visible hole. **That rejection stands. It is not revisited, softened or
+overruled here.**
+
+What changed is the premise it was argued against — *"the build cannot read the other repo"* — and the
+mechanism is a different thing from the one refused, in three respects that must be read together rather
+than as a list to pick from:
+
+- **It is a `git` checkout of a public repository, not an API call.** No token, no `X-RateLimit`, no
+  authenticated quota to exhaust — the property that made the API route able to redden a healthy `main` on
+  somebody else's traffic is absent, not mitigated.
+- **The application never reads it.** `npm run build` reads a committed file and an environment variable,
+  exactly as it already reads `VITE_GA_MEASUREMENT_ID`. ADR-0002 and ADR-0004 hold verbatim: nothing is
+  fetched at build time or at runtime *by the app*, and a clone with no sibling still builds and still
+  ships.
+- **There is no "when the call fails" branch to answer for**, because a failure resolves to the committed
+  default rather than to nothing. See Decision 4 — that is the part that closes #329's objection outright
+  rather than making it unlikely.
+
+The rejected option is still rejected; a different option now exists. **Precisely which part #344
+contributed, since it is easy to overstate:** it did not build the checkout this uses — that one is new, in
+`deploy.yml`, and it is a *second* instance. What #344 established is the **pattern and its safety
+argument** — that a tokenless checkout of this public repository is a legitimate way for this repo to read
+that one — and it proved the plugin carries `VERSION` and `.bumpversion.toml`, which is what makes the tag a
+file rather than a query. Decision 5 books the part the second instance adds and #344 did not have to weigh:
+this one lands in a job that holds a credential.
+
+### Decision 1 — the floor is its own artifact, not a row in `harness.json`
+
+`apps/fed/src/content/generated/plugin-release.json`, written by the **same** `gen-harness` run from the same
+resolved `pluginDir`, carrying the plugin's `VERSION` and nothing else. It is the **default** the deploy
+overrides, not the value production renders.
+
+*Why not a row in the manifest,* which is the option that reuses a drift check already paid for: the
+manifest's shape refuses it. It is a **flat array of components**, every element carries an `enforcement`
+value from a **closed set that throws on anything else**, and `check-harness-drift.mjs` runs
+`assertEnforcement` over **every** element. A version is not a component; giving it a class would either
+throw or force a fourth class into a set this record froze deliberately, and `diffAgainstManifest` keys on
+`kind:id` with a union-of-keys equality — so the row would be equality-checked, which Decision 2 shows is the
+wrong relation for this value. *Why not a wrapper object* (`{ version, components }`): it breaks the
+top-level `Array.isArray` guard, the three-way diff and every fixture, to move one string.
+
+*Trade-off, named:* a second generated file is a second thing to regenerate and a second thing that can go
+stale. It buys leaving the manifest's schema and its equality check exactly as this record decided them.
+
+### Decision 2 — the deploy resolves the value; `deploy-app` gains a step, not the gate a path
+
+`deploy.yml`'s **`deploy-app`** job takes a **second, tokenless `actions/checkout`** of
+`tedeuxx/tadeumendonca-skills`, reads its `VERSION`, and exports it to the build as
+**`VITE_PLUGIN_VERSION`** — the same mechanism, in the same step, that already delivers
+`VITE_GA_MEASUREMENT_ID`. Production therefore renders the plugin version as of that deploy.
+
+**Three constraints on how that step is placed, because they are decisions and not YAML detail.**
+
+1. **The checkout and its single read run BEFORE `Configure AWS credentials (OIDC)`, and the tree is
+   removed once the value is read.** This job already reasons in exactly these terms: its `npm ci
+   --ignore-scripts` comment says *"the threat is persist-then-execute … it runs BEFORE Configure AWS
+   credentials"*. Resolving the version first and deleting the checkout leaves nothing but a string in the
+   environment by the time the deploy role exists, which makes the mitigation **structural** rather than a
+   promise that nothing in that tree is ever executed.
+2. **`persist-credentials: false` on that checkout.** `actions/checkout` defaults to `${{ github.token }}`
+   even for another public repository and writes it into that tree's `.git/config` for the life of the job.
+   `security` raised this as an advisory on `-skills`#143 and noted that **no checkout in this repo sets
+   it**; this is the checkout where it matters most, being the one that lands foreign content in the job
+   that assumes the AWS role. The repo-wide sweep is a separate concern and is not decided here.
+3. **The checkout is `continue-on-error`, and a step prints which source won.** A failed checkout must not
+   stop a deploy that is otherwise ready to ship: it falls through to the committed default and the site
+   still publishes. This is the property that keeps #329's objection genuinely closed rather than moved from
+   the PR gate to the deploy — *another repository's availability cannot stop this site from shipping.*
+   *Trade-off:* a silently older tag would then ship, so silence is not allowed — the resolving step emits a
+   `::notice::` naming the source (deploy lookup, or committed default) and the value, which puts it in the
+   deploy log where a `report` line is already read.
+
+**This adds nothing to `deploy`'s `gate` filter, and the distinction must not be conflated.** That filter's
+outputs decide *whether an OIDC-credentialed job runs* — the reason this record already keeps the harness
+mechanism away from it, which is ADR-0015 applied to a path filter. Adding a **step to a job the gate has
+already decided to run** changes nothing about that decision: `deploy-app` still runs if and only if
+`gate.outputs.app == 'true'`, on the same pathspec as before. A *path* in the filter widens what can cause a
+credentialed job to start; a *step* inside it cannot.
+
+**One consequence the implementing PR must expect:** `.github/workflows/deploy.yml` is matched by **both**
+the gate's `app_hits` and its `iac_hits` pathspecs, so the merge that ships this will report `iac=true` and
+run **`terraform-apply` against real AWS**. That is CLAUDE.md's ⚠️ confirmation case by effect even though
+no file under `iac/` changed.
+
+### Decision 2b — what the drift check now asserts about the version, and what it deliberately does not
+
+The drift check is **no longer what keeps the published value fresh** — the deploy is. Its remaining job is
+to keep the *floor* honest, and it does so with two assertions that are **errors or nothing**, both silent
+on the normal case:
+
+- **Malformed or absent committed value → error.** It needs no plugin tree, so it runs even on the SKIPPED
+  path, and it catches the one case production cannot: with the override present, a broken default is never
+  evaluated in production and would surface only in a fork's build.
+- **Committed value AHEAD of the plugin's `VERSION` → error.** The generator cannot produce this; only a
+  hand-edit or a bad merge can, and it names a release that does not exist, so a fork's card 404s its
+  reader. Re-validating a committed file the generator already wrote is the same discipline
+  `assertEnforcement` applies to the manifest.
+
+**Committed value BEHIND → nothing at all.** An earlier draft of this amendment emitted a `::notice::` here.
+It is dropped, for the reason that governs this whole family of decisions: at the plugin's measured cadence
+that line would print on nearly every run, and an output that always appears is read by no one — the same
+argument that refuses equality, one notch quieter. Staleness in the floor no longer reaches a production
+reader, and what a fork gets is a **real, older tag**, which is the honest thing for a build that could not
+consult the source.
+
+*Given up, stated so it is not rediscovered as a gap:* nothing detects that the committed default is old.
+That is deliberate. If it ever matters, this record's own option 4 — a scheduled tokenless run — is the
+cheap upgrade, costing one workflow trigger and no new decision.
+
+### Decision 3 — what the card is allowed to claim
+
+On production the value is exact **as of that deploy** — hours, on an active day, against the tens of
+releases a committed-only value would have drifted. It is still not *now*, and it is still a different
+guarantee from the `-io` card beside it, which is exact at the moment the reader sees it because the file it
+reads is bumped in the commit that builds it.
+
+So the rule survives the design change, at a much smaller magnitude: **the affordance may not be read as
+"the plugin's current version".** What it truthfully names is *the plugin release this build was deployed
+against* — under that reading it is exact by construction, as `this-build` is.
+
+Two consequences follow, and only the first is a wording choice:
+- **Whether a visible qualifier appears on the card is copy** — `marketing-lead`'s, not this record's, and
+  the window being hours rather than weeks is a real input to that call.
+- **That the accessible name must not overclaim is not.** It may not say *latest* or *this version of the
+  project*; `portfolio.viewReleaseTag`'s existing copy says the second of those and must not be reused.
+
+`/architecture` already states the general form of this window in bold — *"this page can be wrong for that
+whole window and will not say so"* — about the **inventory**, whose window is unchanged by this amendment
+and remains as long as the interval between regenerations. The card must not contradict it, and nothing here
+narrows it: the deploy-time lookup freshens **one string**, not the inventory.
+
+### Decision 4 — the absence path is a DEFAULT, not a failure, and that is what closes #329
+
+Resolution has two levels and no third: **`VITE_PLUGIN_VERSION` if it is present and well-formed, otherwise
+the committed artifact.** Both are in the build's own inputs — one an environment variable, one a file in
+the tree — so the value exists in every environment: production, a PR build, a local build, a fork with no
+sibling checkout, a clone with no network.
+
+This is the precise shape of the discharge #329 asked for and never got. Its unanswerable question was
+*"what does the card show when the call fails"*, and the honest answers were all bad — a stale tag is worse
+than none, a blank is a visible hole. Here **the question does not arise**: the lower level is not an error
+handler, it is the default, and it holds a real tag that really exists. Nothing degrades; a less fresh
+source wins.
+
+Two rules follow, and they are what keep the second level from becoming the hiding place a fallback usually
+is:
+
+- **The consumer validates the RESOLVED value and throws at module load if it is malformed** — the shape the
+  bilingual content loader already uses. The override must be treated as absent when it is empty or
+  whitespace (`??` does not catch `''`, and a shell `$(cat VERSION)` can deliver a stray newline), and the
+  resolved string must match `^\d+\.\d+\.\d+$` with **no `v` prefix**, since the `v` is added by the URL
+  builder. A build that would ship a link to a tag that cannot exist fails instead.
+- **The card grows no fallback branch of its own.** Resolution happens once, in one module; the component
+  receives a string. A branch for a case that cannot reach it is where a stale value hides.
+
+### Decision 5 — accepted cost: foreign content in a credentialed job
+
+`deploy-app` holds `id-token: write` and assumes the AWS deploy role, which can write the site's bucket and
+invalidate its distribution. Checking out another repository into that job places **content this repo does
+not control in a credentialed context**, and that is a real widening, recorded here rather than argued away.
+
+*What bounds it:* the tree is read by exactly one operation — `cat VERSION` into an environment variable —
+and nothing in it is executed, imported, installed or added to the build's module graph; the checkout is
+tokenless and carries `persist-credentials: false`; and per Decision 2 it happens **before** the role is
+assumed and the tree is removed once the value is read, so the foreign content and the credential do not
+coexist in the job at all. That last point is the mitigation that makes this acceptable, and it is a
+placement, so it can be verified by reading the job top to bottom.
+
+*What is not bounded:* the source repository is trusted in the ordinary supply-chain sense — it is the
+owner's own plugin, public, and already the source of a published inventory on this site. This amendment
+does not create that trust relationship; #344 did. It extends it into a job that holds a credential, which
+is the incremental thing to weigh.
+
+*Also accepted:* the artifact `app` built and Playwright-tested on the PR now differs from production by a
+**second** string. This record's parent workflow already books the first — *"the PR's e2e tests an artifact
+that differs from production by one string"* — and the reasoning is identical, not new.
+
+### What this amendment does *not* decide
+The reader-facing `releases` union gains a third case. That contract is documented where #329 documented it —
+the field's own doc comment in `src/data/catalog.ts`, which must be updated in the same MR to record that the
+2026-08-02 rejection stands and why this is not a reversal. A separate ADR for a third enum case would be an
+ADR written for a routine change, which trains readers to skim the ones that matter.
+
+**The repo-wide `persist-credentials` posture is not decided here either.** `security`'s advisory on
+`-skills`#143 observed that **no** checkout in this repo sets it. Decision 2 sets it on the one checkout this
+amendment introduces, because that is the one landing foreign content beside a credential; whether the other
+checkouts follow is a separate finding with a separate blast radius, and folding it in would make this record
+decide two things.
+
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
   dev-loop **components** diagram, complementing the **flow** diagram shipped by

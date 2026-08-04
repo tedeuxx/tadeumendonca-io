@@ -51,19 +51,30 @@ export interface CatalogProject {
    * - `'this-build'` — **only valid for THIS repo.** Shows the tag baked in from the root `VERSION` file
    *   and links that tag's own notes. Exact rather than approximate: the deploy's `release` job bumps
    *   `VERSION` in the same commit the build consumes, so the tag shipped IS the tag that exists.
+   * - `'plugin-build'` — **only valid for `tedeuxx/tadeumendonca-skills`.** Shows that plugin's tag and
+   *   links its notes. The value is *derived and checked*, never authored: the deploy reads it from a
+   *   tokenless checkout of that repo into `VITE_PLUGIN_VERSION`, and a committed `plugin-release.json`
+   *   written by `gen-harness` is the floor a local build, a PR build or a fork renders. What it claims is
+   *   *the plugin release this build was deployed against* — exact by construction under that reading,
+   *   the way `this-build` is, and it may **not** be read as "the plugin's current version".
    * - `'index'` — links the repo's `/releases` page with **no tag shown**.
    *
-   * **Why no third option that reads a tag over the network**, which is what the request literally asked
-   * for and would have put an indicator on both cards uniformly: the build is hermetic today, and a
-   * build-time GitHub API call makes a version badge able to turn a healthy `main` red on rate-limiting
-   * or an outage — plus a "what does the card show when the call fails" branch with no good answer, since
-   * a stale tag is worse than no tag and a blank is a visible hole. Owner decision, 2026-08-02.
+   * **The 2026-08-02 rejection of a tag read over the NETWORK stands, and `plugin-build` is not a
+   * reversal of it.** That decision refused a build-time **GitHub API call**: it can turn a healthy `main`
+   * red on rate-limiting or an outage, and *"what does the card show when the call fails"* had no good
+   * answer, since a stale tag is worse than no tag and a blank is a visible hole. Every one of those
+   * properties is about an API call, and none of them survives the mechanism that replaced it — a `git`
+   * checkout of a **public** repo, with no token, no quota and nothing the application fetches at build
+   * time or at runtime. There is no failure branch to answer for either: a checkout that fails resolves
+   * to the committed floor, which is a real tag that really exists. The rejected option is still
+   * rejected; a different option now exists. ADR-0043's 2026-08-04 amendment records the whole trade
+   * (#345).
    *
    * A literal tag string is not offered either, deliberately: `-io` re-tags on **every merge**, so a
    * hand-written tag would be wrong more often than right — on the surface whose whole thesis is that
-   * its claims are checkable.
+   * its claims are checkable. `plugin-build` is the opposite of that: nobody types it.
    */
-  releases?: 'this-build' | 'index';
+  releases?: 'this-build' | 'plugin-build' | 'index';
   /** One-line hook — what it does, in the AI-Engineer-agentic framing. Prose, authored per locale. */
   tagline: Record<Locale, string>;
   /** 1–2 sentences: the real problem it solves. Prose, authored per locale. */
@@ -163,11 +174,19 @@ export const catalog: CatalogProject[] = [
   // honest options were to fix the repo or not publish the card; the repo was fixed first.
   {
     name: 'tadeumendonca-skills',
-    // `index`, not a tag: this repo's `VERSION` lives in ANOTHER repo the build cannot read, and the
-    // only way to a tag here is the network call the owner ruled out (#329). Losing the indicator on
-    // this card is the stated cost of that decision, not an oversight — the reader still reaches the
-    // notes, with nothing that can go stale.
-    releases: 'index',
+    // A TAG now, where this said `index` until #345 — and the premise that put `index` here is what
+    // changed, not the decision that produced it. That comment read: *this repo's VERSION lives in
+    // ANOTHER repo the build cannot read, and the only way to a tag here is the network call the owner
+    // ruled out (#329)*. The second clause is still true and the network call is still ruled out; the
+    // first stopped being true. A tokenless checkout of that public repo makes its VERSION a FILE, and
+    // the deploy reads it fresh into `VITE_PLUGIN_VERSION` with `plugin-release.json` as the floor.
+    //
+    // So this is not #329 being reversed — see the field's own doc comment above, which states the
+    // distinction in full. The staleness objection is answered by WHERE the value resolves rather than
+    // waived: the window is the interval since the last deploy (this site published 8 times on
+    // 2026-08-03), against the tens of releases a committed-only value would have drifted at the
+    // plugin's cadence.
+    releases: 'plugin-build',
     tagline: {
       // NOT "biblioteca de skills" / "skills library" — that is the pitch `-skills`#109 retired, and it
       // names the least differentiated third of the repo. The personas and the hooks are what make it a

@@ -8,7 +8,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { catalog, type CatalogProject } from '../data/catalog';
 import { useLocale, useLocalePath, useT } from '../i18n';
-import { SITE_VERSION, releaseUrl } from '../lib/version';
+import { PLUGIN_VERSION, SITE_VERSION, pluginReleaseUrl, releaseUrl } from '../lib/version';
 
 function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   const t = useT();
@@ -20,39 +20,58 @@ function StatusBadge({ status }: { status: CatalogProject['status'] }) {
   );
 }
 
-// The release affordance (#329). Two shapes, and which one a card gets is DATA (`releases`), never
-// inferred from the URL — an inference would silently start showing this build's tag on any future
+// The release affordance (#329, third shape added by #345). Which one a card gets is DATA (`releases`),
+// never inferred from the URL — an inference would silently start showing this build's tag on any future
 // entry that happened to be this repo.
 //
-// `this-build` shows the tag and links THAT tag's notes, both derived from the same `SITE_VERSION`, so
-// the label and the destination cannot disagree — which is the acceptance criterion the issue wrote
-// ("the card must not be able to display a tag that is not the tag it links to"), satisfied by
-// construction rather than by a check.
+// A CLOSED LOOKUP keyed on the union, not a chain of ternaries. This was three ternaries over two cases;
+// a third case makes it nine arms, and — the part that decided it — adding a fourth case to the union
+// would leave every one of those arms silently taking its `else` branch. `Record<NonNullable<…>, …>` is
+// exhaustive, so the same addition is a COMPILE error and the shape cannot ship half-wired.
 //
-// `index` shows no tag at all. On a card for another repo there is no tag the build can know without a
-// network call, and a tag that can go stale is worse than none on a surface whose thesis is that its
-// claims are checkable.
+// In every variant the label and the href derive from ONE value, which is the acceptance criterion #329
+// wrote ("the card must not be able to display a tag that is not the tag it links to") — satisfied by
+// construction rather than by a check:
+//   · `this-build`   — `SITE_VERSION`, the root VERSION file the deploy bumps in the commit it builds.
+//   · `plugin-build` — `PLUGIN_VERSION`, resolved once in lib/version.ts (the deploy's env var, else the
+//                      committed floor). The card grows no fallback branch of its own: resolution happens
+//                      in one module and this receives a string. A branch here for a case that cannot
+//                      reach it is where a stale value hides.
+//   · `index`        — no tag at all, so there is nothing to disagree with.
+type ReleaseShape = NonNullable<CatalogProject['releases']>;
+
 function ReleaseLink({ project }: { project: CatalogProject }) {
   const t = useT();
   if (!project.releases) return null;
 
-  const href = project.releases === 'this-build' ? releaseUrl() : `${project.repoUrl}/releases`;
   // The tag reads as data, not prose, so it stays in the mono scale the stack chips use and is NOT
   // localized — `v0.1.166` is the same string in every edition, like `name` and `stack`.
-  const label = project.releases === 'this-build' ? `v${SITE_VERSION}` : t('portfolio.viewReleases');
+  //
+  // `aria-label` is `undefined` for `index` on purpose: `Releases` is already its own accessible name,
+  // and a redundant one would be noise. The two tag variants carry a bare `v0.1.166` as their visible
+  // text, so without a label a screen reader announces a glyph and a version number — no context, no
+  // external-link cue. They get DIFFERENT sentences, because they make different claims: this build's
+  // own version, versus the plugin release this build was deployed against.
+  const shapes: Record<ReleaseShape, { href: string; label: string; ariaLabel?: string }> = {
+    'this-build': {
+      href: releaseUrl(),
+      label: `v${SITE_VERSION}`,
+      ariaLabel: t('portfolio.viewReleaseTag'),
+    },
+    'plugin-build': {
+      href: pluginReleaseUrl(project.repoUrl),
+      label: `v${PLUGIN_VERSION}`,
+      ariaLabel: t('portfolio.viewPluginReleaseTag'),
+    },
+    index: {
+      href: `${project.repoUrl}/releases`,
+      label: t('portfolio.viewReleases'),
+    },
+  };
+  const { href, label, ariaLabel } = shapes[project.releases];
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      // The tag variant's visible text is a bare `v0.1.166`, so without this a screen reader announces a
-      // link named after a glyph and a version number — no context, no external-link cue. Same problem
-      // the footer's version link already solved, and solved the same way. The `index` variant needs
-      // nothing: `Releases` is already its own accessible name.
-      aria-label={project.releases === 'this-build' ? t('portfolio.viewReleaseTag') : undefined}
-      className="hover:underline"
-    >
+    <a href={href} target="_blank" rel="noreferrer" aria-label={ariaLabel} className="hover:underline">
       <span className="text-primary">⌂</span> {label}
     </a>
   );

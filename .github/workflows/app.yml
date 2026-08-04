@@ -322,7 +322,15 @@ jobs:
       - name: E2E (Playwright against a preview of the build)
         run: npm run e2e:local:built
 
-  # The ONE job in this repo that reads another repository (#318, ADR-0043).
+  # The one job that reads another repository WITHOUT A CREDENTIAL (#318, ADR-0043; narrowed by #345).
+  #
+  # It was "the ONE job that reads another repository" until #345 gave `deploy`'s `deploy-app` a second
+  # checkout of the same plugin, to resolve its version for the /portfolio card. Uniqueness stopped being
+  # the property that licenses a cross-repo read; being uncredentialed is what licenses THIS one, and
+  # placement is what licenses that one (its checkout precedes `Configure AWS credentials` and deletes the
+  # tree on every exit, so the foreign tree and the AWS role never coexist). Corrected here as well as in
+  # .github/workflows/README.md because this comment is what a reader meets while looking at the job that
+  # has no credential — the place the old sentence was most likely to be believed.
   #
   # /architecture publishes an inventory of the dev-loop harness — personas, hooks, command families —
   # whose source of truth is `tadeumendonca-skills`. The build never reads it: a committed manifest
