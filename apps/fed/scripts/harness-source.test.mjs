@@ -254,6 +254,22 @@ describe('readPluginVersion — the tag the card publishes', () => {
     expect(() => assertPluginVersion('1.2')).toThrow(/unusable plugin version "1\.2"/);
     expect(() => assertPluginVersion('1.2.3-rc1')).toThrow(/unusable plugin version/);
   });
+
+  // THE RETURN IS REBUILT, NOT PASSED THROUGH — and nothing pinned that until now.
+  //
+  // Three rounds were spent reshaping this function so a taint engine would accept it, and
+  // `quality-assurance` then ran the falsifier nobody had: delete the two reconstruction lines, restore
+  // `return value`, and lint plus all 555 tests stay green. Every case above passes a string or
+  // `undefined`, so not one of them can tell the two implementations apart. The work was real and the
+  // guard on it did not exist — this session's recurring defect, inside the fix for it.
+  //
+  // A non-string that STRINGIFIES to a valid version is the case that separates them: the guard tests
+  // `String(value ?? '')` and a pass-through returns the object, so a caller that thinks it holds a
+  // version holds something that merely prints like one. `toBe` and not `toEqual`, deliberately —
+  // `toEqual` would pass on the object too.
+  it('returns a rebuilt string, never the value it was handed', () => {
+    expect(assertPluginVersion({ toString: () => '1.2.3' })).toBe('1.2.3');
+  });
 });
 
 describe('diffAgainstManifest — three ways, because two would miss the likeliest one', () => {
