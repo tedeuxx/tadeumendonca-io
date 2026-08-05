@@ -13,7 +13,7 @@ Em camadas — e **o que interessa nesse desenho é o que não está nele**: nã
 ```mermaid
 flowchart TB
   accTitle: As camadas, e a trilha de build que substitui as que faltam
-  accDescr: Duas trilhas — dois tempos, não dois lados do desenho. A trilha de build: o conteúdo escrito no repositório passa pelo pipeline, que pré-renderiza cada rota nos dois idiomas e imprime o PDF do CV, e publica o resultado na origem em S3. A trilha de servir: o dispositivo do leitor chega ao DNS, depois à borda do CloudFront, que roda a função de reescrita de URL e mantém o cache, e daí à mesma origem em S3 com os arquivos pré-renderizados. Não há servidor de aplicação nem banco de dados. Tudo que um backend normalmente faria a cada requisição acontece na trilha de build.
+  accDescr: Duas trilhas lado a lado — dois tempos, não dois lados do desenho. A trilha de servir, descrita primeiro porque o dispositivo do leitor é o nó mais alto dela: o dispositivo chega ao DNS, depois à borda do CloudFront, que roda a função de reescrita de URL e mantém o cache, e daí à origem em S3 com os arquivos pré-renderizados. A trilha de build, ao lado: o conteúdo escrito no repositório passa pelo pipeline, que pré-renderiza cada rota nos dois idiomas e imprime o PDF do CV, e publica o resultado nessa mesma origem em S3, que é onde as duas trilhas se encontram. Não há servidor de aplicação nem banco de dados. Tudo que um backend normalmente faria a cada requisição acontece na trilha de build.
   subgraph build["BUILD — roda no merge, não na requisição"]
     direction TB
     C["Conteúdo no repo<br/>markdown · TypeScript tipado"] --> P["Pipeline<br/>gates · pré-renderiza os dois idiomas · imprime /cv.pdf"]
@@ -51,13 +51,13 @@ Essa verificação é o preço de colocar lógica na borda, não um capricho: a 
 
 ## Por que este site existe
 
-Para aprender IA você precisa criar os use cases. Você não aprende sem eles. Tudo precisa de um usuário, uma aplicação, uma funcionalidade, um business case — e é aí que eu vejo a lacuna: os profissionais de IA em geral são bons acadêmicos, mas têm pouca experiência de systems integration e das complicações de TI corporativa. Eu tenho de sobra. Este site é um use case, e o repositório aberto deixa qualquer um conferir.
+Para aprender IA você precisa criar os use cases. Você não aprende sem eles. Tudo precisa de um usuário, uma aplicação, uma funcionalidade, um business case — e é aí que eu continuo vendo a lacuna. No trabalho com IA de que estive perto, a modelagem é forte e a outra metade é rala: systems integration, legado que não dá pra trocar, as complicações comuns de TI corporativa. É nessa outra metade que eu passei dezoito anos. Este site é um use case, e o repositório aberto deixa qualquer um conferir.
 
 Comecei o ano perdido. Um projeto que não estava indo bem, um monte de obrigações de catch-up nas ferramentas de IA, e a coisa foi degradando até eu sair de férias. E tem um detalhe que eu suspeito que muita gente sênior está vivendo e não diz em voz alta: **eu tinha as ferramentas de desenvolvimento agêntico na mão — Claude Code, Kiro — e mesmo assim me sentia de fora do hype.**
 
 Desenvolvimento de software é minha paixão. Nada me diverte mais que ver uma aplicação funcionando bonitinha. O que essas ferramentas me devolveram foi isso, numa escala que sozinho eu não alcançava.
 
-O caso que me provou isso não foi este site. Foi um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. Comecei a construir por fora, na volta das férias, e aquilo foi crescendo e amadurecendo. **Eu jamais teria conseguido desenvolver esse mecanismo sem uma agent development tool** — não no prazo que eu tinha.
+O caso que me provou isso não foi este site. Foi um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. Comecei a construir por fora, na volta das férias, e aquilo foi crescendo e amadurecendo. **Eu jamais teria conseguido desenvolver esse mecanismo sem uma agentic development tool** — não no prazo que eu tinha.
 
 Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, e esta, pública. Consultoria não me dá mais o que eu quero fazer: produto digital. Gosto de criar apps.
 
@@ -65,16 +65,16 @@ Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, e e
 
 Trabalhar com um time autônomo de agentes é parte do propósito deste site, então vale ser específico sobre o recorte — sem número de horas, porque eu não os registrei e um número inventado não valeria nada.
 
-**Meu:** a ideia, o produto, os conteúdos — ainda que tunados —, a personalidade, a arquitetura de agentes, a configuração do harness e a experimentação de setups, os padrões de arquitetura.
-**Do time de agentes:** o desenvolvimento e o código.
+**Meu:** a ideia, o produto, os conteúdos — meus mesmo onde eles lapidaram — a voz do site, a arquitetura de agentes, a configuração do harness e a experimentação de setups, os padrões de arquitetura.
+**Do time de agentes:** rascunhar o desenvolvimento e o código.
 
 Mas o método não é despacho. Parte da minha ideia, eu **ouço deles como fariam**, e vou aparando arestas contra a minha visão de arquitetura e minha experiência com sistemas distribuídos. A autoria continua minha; ela só se exerce depois de escutar.
 
-E escutar rende. Eles têm senioridade maior que a minha nos frameworks e nas linguagens escolhidas — eu agrego com arquitetura e visão. **Recorrentemente aprendo formas de usar os serviços AWS que eu não sabia que existiam.** Neste site foi o unfurl com Lambda@Edge: eu não fazia ideia de que dava para suprir um SSR e resolver indexação de SEO com aquilo. Em outro sistema foi trocar OpenSearch por busca semântica com S3 Vector Store — bem mais performático e de custo muito menor.
+E escutar rende. Eles têm senioridade maior que a minha nos frameworks e nas linguagens escolhidas — eu agrego com arquitetura e visão. **Recorrentemente aprendo formas de usar os serviços AWS que eu não sabia que existiam.** Neste site foi a renderização de OG com Lambda@Edge: eu não fazia ideia de que dava para suprir um SSR e resolver indexação de crawler com aquilo. Em outro sistema foi trocar OpenSearch por busca semântica com S3 Vector Store, que ali saiu mais rápido e mais barato.
 
 A ironia do primeiro exemplo está a duas seções daqui: aquele Lambda@Edge é a [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md), e ela foi **cortada**. Funcionou, me ensinou, e depois se provou desnecessária — prerender no build entrega o mesmo HTML servido sem nada rodando. As duas coisas são verdade ao mesmo tempo.
 
-Em pessoas, o que está acima custou uma. Fins de semana, em paralelo com consultoria. O inventário está todo aqui e no repositório; a conta de quanto isso custaria de outro jeito é sua, não minha.
+Em pessoas, o que está acima custou uma. Fins de semana, em paralelo com consultoria.
 
 ## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
 
@@ -85,7 +85,7 @@ Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fáci
 - **S3** — cerca de USD 0,15/mês, e são *escritas* de deploy, não leituras.
 - **CloudFront** — na prática USD 0,00 com esse volume.
 
-**E a maior linha da conta é justamente a que foi escolha.** `.io` é caro entre os domínios de topo, e eu escolhi por branding, não por custo — essa é a razão honesta, e é a única linha daqui que você pode recusar. Um `.com`, `.dev` ou `.me` registra pelo mesmo Route 53 por uma fração disso, e nada mais nesta conta se mexe: a hosted zone, o bucket e a distribuição não ligam para qual é o nome. Em vez de imprimir uma tabela de preços que envelhece, fica o comando que imprime a de hoje: `aws route53domains list-prices --region us-east-1`. Replique esta stack sob um nome mais barato e o número mensal abaixo deixa de ser dominado por uma preferência minha.
+**E a maior linha da conta é justamente a que foi escolha.** `.io` é caro entre os domínios de topo, e eu escolhi por branding, não por custo — essa é a razão honesta, e é a única linha daqui que você pode recusar. Nada mais nesta conta se mexe com o nome: a hosted zone, o bucket e a distribuição não ligam para qual ele é. Então, em vez de imprimir uma tabela de preços que envelhece — ou citar uma comparação que eu não medi —, fica o comando que responde isso para o nome que você quiser, pelo mesmo registrador que este usa: `aws route53domains list-prices --tld com`. Replique esta stack sob um nome mais barato e o número mensal acima deixa de ser dominado por uma preferência minha.
 
 Repare no formato disso, porque não é um efeito pequeno e é uma divisão em três, não uma razão: **o nome são 6,42, publicar são 0,15, e responder requisição é zero.** Registro e DNS custam mais que todo o resto desta conta somado, quarenta vezes mais; os 0,15 são o build empurrando arquivo pro S3, não leitor puxando; e a parte que de fato atende um visitante arredonda pra nada.
 
