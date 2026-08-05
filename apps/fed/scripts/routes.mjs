@@ -16,8 +16,8 @@ export const LOCALES = ['pt', 'en'];
 // source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
 // a route exists.
 //
-// `App.tsx` declares ten `<Route>`s and this list holds five of them. The other five, accounted for so
-// the comparison closes:
+// `App.tsx` declares eleven `<Route>`s and this list holds six of them. The other five, accounted for
+// so the comparison closes:
 //   - `blog/:slug` — a destination, and prerendered: the article half of `localizedRoutes()` below adds
 //     it per locale, from the markdown, because its slug is content rather than a literal.
 //   - `:locale/*` — the wrapper that renders `LocaleApp`. Not a route to a page; it is how every route
@@ -26,10 +26,22 @@ export const LOCALES = ['pt', 'en'];
 //     #artigos, the in-locale `*` → the locale landing, and the outer `*` → `RootRedirect`, which sends
 //     an unprefixed path to the reader's edition.
 //
+// `/library` is ONE ENGLISH SLUG PREFIXED TWICE, like every other entry here — `/pt/library` and
+// `/en/library`, with a bilingual LABEL and a bilingual page. The localized pair `/pt/biblioteca ⇄
+// /en/library` was proposed and then declined by the owner (2026-08-05): what he needed was a
+// self-sufficient per-language URL that carries the language when a link is forwarded, and ADR-0036's
+// locale prefix already delivers exactly that — each edition is prerendered with its own head and its
+// own OG card. A localized slug WORD adds Portuguese readability of the word, not language pinning,
+// and it would have cost a second permanent URL contract plus a per-locale addressing mechanism this
+// route table does not have. ADR-0010's 2026-07-25 amendment therefore still stands: dual localized
+// slugs remain deferred for non-article routes, and ADR-0037's per-locale slugs remain blog-only.
+//
 // (Until #262 this comment named /articles, /cv and /profile instead. Those were dropped pre-launch in
 // #234 and the comment outlived them, which made archaeology read as load-bearing exclusion — someone
-// asking why /cv is excluded would go looking for a /cv to exclude.)
-const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
+// asking why /cv is excluded would go looking for a /cv to exclude. The counts in the first paragraph
+// are the same class of prose and go stale the same way, so they are asserted in routes.test.mjs
+// rather than trusted.)
+const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
 // src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).

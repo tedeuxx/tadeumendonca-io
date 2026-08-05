@@ -227,6 +227,61 @@ diagram, not an oversight in the earlier claim.
 The 2026-07-25 text is left exactly as written (supersede, never rewrite) — it is the record of what the
 page was before it carried a statement of its own.
 
+## Amendment (2026-08-05) — `/library`, a sixth public surface
+`/library` joins `/`, `/me`, `/portfolio`, `/ramp-up` and `/architecture` as a real route —
+**without a nav entry on day 1**, unlike every surface this ADR has added before it
+([#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166)): the **Biblioteca / Library**, a
+curated reading shelf — each book with a 1–5 rating and one line on what the owner took from it. It
+backs the positioning the way `/portfolio` does, with evidence rather than assertion: what someone reads
+is a checkable claim about how they work.
+
+**It follows `/portfolio`, not `/ramp-up` — and that is the one structural thing to notice.** The two
+previous surfaces this ADR added were **markdown-in-repo** bodies rendered through the shared
+`<Markdown>`. This one is not: it is **chrome around typed data** (`src/data/library.ts`), so every word
+on it lives in the i18n catalog and every fact lives in the data module — the same shape `catalog.ts`
+gives `/portfolio`. The choice follows from what the content *is*: a shelf is a list of records with a
+rating, not prose, and authoring it as markdown would put structured facts in a place where nothing can
+check them. Facts (title, authors, publisher, year, url) are authored **once** and carry no locale — a
+book's title is the same in every edition — with exactly one reader-facing prose leaf typed
+`Record<Locale, string>`, so a missing translation is a **compile error**. That is the contract
+`catalog.ts` lacked when it served Portuguese on `/en/portfolio` (#235), applied from day one here.
+
+**The route is `/library` — one English slug prefixed twice, bilingual label and page.** `/pt/library`
+and `/en/library`, with the nav label bilingual ("Biblioteca" / "Library"), exactly the scheme the five
+surfaces before it use ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)). **The localized pair
+`/pt/biblioteca ⇄ /en/library` was proposed and declined by the owner on 2026-08-05, and the reasoning
+is recorded in [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s 2026-08-05 amendment rather
+than restated here** — deliberately, because this ADR already recorded a per-surface dual-slug rejection
+on `/architecture` in 2026-07-25 and the question was reopened on the very next surface. A per-surface
+rejection has been demonstrated not to hold, so the answer now lives on the clause that gets challenged.
+The short form: the requirement was a **language-pinned, self-sufficient URL** for forwarding, and the
+locale **prefix** already delivers it; a localized slug delivers the Portuguese *word*, which is a
+separate and much smaller benefit.
+
+**The surface ships before its content, and the empty state is deliberate copy.** Slice 1 lands the
+route, the type, the shape validator, the rating meter and the page with an authored empty state; the
+books follow. **That is also why there is no nav entry yet** (owner, 2026-08-05), and it is the one place
+this surface departs from the four before it: `/ramp-up` and `/architecture` earned a nav slot on arrival
+because they arrived complete. This one is reachable by direct URL and the sitemap until it has entries,
+because pointing a reader at an empty shelf is worse than not pointing at all — and `AppShell` already
+carries six entries, so a seventh is a real information-architecture cost on mobile to pay for a page
+with nothing on it. The nav entry and the `/ramp-up` cross-link land with the first books. The alternative — a placeholder book — is reader-facing prose in the owner's voice that
+ships and is then removed, and it is exactly what an OG scraper pins permanently
+([ADR-0005](./0005-og-coverage-every-public-url.md),
+[ADR-0041](./0041-per-article-og-cards.md)). Chrome can say "not yet"; a fake book cannot.
+
+Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
+enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or not
+at all, and the E2E sitemap drift guard was updated in the same commit — the guard working as designed.
+The **bare `/library`** is a client-side redirect to the reader's edition, never prerendered and never a
+`<loc>`, like every other unprefixed sub-path (asserted, not assumed).
+
+**No back-compat redirect — but the post-launch rule now applies forward.** There is no prior URL for
+this surface, so nothing needs to keep resolving. Note the asymmetry with the 2026-07-24 pre-launch
+amendment, which no longer applies: the site is launched, so **`/pt/library` and `/en/library` enter the
+world on merge** and are permanent from the first share. This is the first surface this ADR has added
+under that rule.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
@@ -240,4 +295,10 @@ page was before it carried a statement of its own.
   dual localized slugs still deferred) · amended (2026-07-30) to **narrow** that amendment's
   "it cannot drift from them" claim, now that [ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a
   diagram — the page's first statement about the system rather than a pointer to one — on
-  `/architecture`.
+  `/architecture` · **amended (2026-08-05) for `/library`, a sixth public surface** (#166 — one English
+  slug prefixed twice, bilingual label; **chrome around typed data**, following `/portfolio` rather than
+  the markdown surfaces; ships with an authored empty state before its books; the first surface added
+  under the post-launch rule, so both URLs are permanent from merge). Its slug reasoning is deliberately
+  **not** restated per-surface — it lives in
+  [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s 2026-08-05 amendment, because this ADR's
+  2026-07-25 per-surface dual-slug rejection was reopened on the very next surface.

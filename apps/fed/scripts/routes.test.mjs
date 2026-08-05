@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   alternatesFor,
   assertSlugIsUrlSafe,
@@ -51,6 +53,53 @@ describe('every advertised hreflang alternate is a URL the build prerenders', ()
       const bare = `${SITE_URL}${route}`;
       expect(Object.values(alternatesFor(route))).not.toContain(bare);
     }
+  });
+});
+
+// The sixth public surface (#166). `/library` is one English slug prefixed twice, so it needs no new
+// mechanism — which is precisely why it is worth asserting rather than assuming: a route that requires
+// nothing special is also a route nothing special would catch. Both editions must be prerendered, and
+// the cross-locale ghosts a localized pair would have introduced (`/pt/biblioteca`, `/en/biblioteca`)
+// must exist nowhere, since the pair was proposed and declined.
+describe('/library — the sixth static route', () => {
+  it('is prerendered under BOTH locale prefixes', () => {
+    const urls = new Set(localizedRoutes().map((r) => r.url));
+    expect(urls).toContain('/pt/library');
+    expect(urls).toContain('/en/library');
+  });
+
+  it('advertises the same alternate set from either edition, x-default on the English canonical', () => {
+    expect(alternatesFor('/library')).toEqual({
+      pt: `${SITE_URL}/pt/library`,
+      en: `${SITE_URL}/en/library`,
+      'x-default': `${SITE_URL}/en/library`,
+    });
+  });
+
+  // The declined localized pair, asserted as an ABSENCE. Stated because the reversal is recent and a
+  // half-reverted routing change fails the same way a half-implemented one does: a stray `/biblioteca`
+  // anywhere in the enumeration would be advertised in the sitemap and snapshotted by the prerender.
+  it('publishes no Portuguese-slug edition — the localized pair was declined, not half-shipped', () => {
+    const routes = localizedRoutes().map((r) => r.url);
+    expect(routes.filter((url) => url.includes('biblioteca'))).toEqual([]);
+    expect(Object.values(alternatesFor('/library')).filter((url) => url.includes('biblioteca'))).toEqual([]);
+  });
+});
+
+// #262's defect class, mechanised. The comment block above STATIC_ROUTES counts the routes in prose
+// ("App.tsx declares eleven <Route>s and this list holds six of them"), and prose that counts things has
+// already gone stale once in this exact file. The numbers are cheap to derive, so they are derived.
+describe('the route-count prose above STATIC_ROUTES is still true', () => {
+  const appSource = readFileSync(resolve(import.meta.dirname, '..', 'src', 'App.tsx'), 'utf8');
+
+  it('App.tsx declares exactly as many <Route>s as the comment claims', () => {
+    const declared = (appSource.match(/<Route\b/g) ?? []).length;
+    expect(declared, 'update the comment above STATIC_ROUTES in routes.mjs').toBe(11);
+  });
+
+  it('STATIC_ROUTES holds exactly as many logical routes as the comment claims', () => {
+    const statics = localizedRoutes().filter((r) => r.locale === 'en' && !r.route.startsWith('/blog/'));
+    expect(statics, 'update the comment above STATIC_ROUTES in routes.mjs').toHaveLength(6);
   });
 });
 

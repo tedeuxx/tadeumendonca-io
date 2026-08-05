@@ -80,9 +80,9 @@ landing), *is* in the sitemap, and *is* the advertised `x-default` — it is the
 point. `apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set; read it before
 assuming a route exists.
 
-**Five public surfaces** — `STATIC_ROUTES` in `apps/fed/scripts/routes.mjs` is
-`['/', '/me', '/portfolio', '/ramp-up', '/architecture']` — plus the article route, which is **not** in
-that list:
+**Six public surfaces** — `STATIC_ROUTES` in `apps/fed/scripts/routes.mjs` is
+`['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library']` — plus the article route, which is
+**not** in that list:
 1. **Landing** (`/`) — the storefront. It also **hosts the articles list** (`#artigos`), which is why there
    is no separate blog index (below).
 2. **Interactive CV** (`/me`) — the canonical reference of the owner's experience, and now the **only** CV
@@ -94,6 +94,13 @@ that list:
 4. **Ramp-up** (`/ramp-up`) — the open plan for the AI-Engineer transition. Markdown-in-repo, both locales.
 5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and the two public repos.
    Markdown-in-repo, both locales.
+6. **Library** (`/library`) — a curated reading shelf: each book with a 1–5 rating and one line on what
+   he took from it. **Typed data, not markdown** — `src/data/library.ts` follows `catalog.ts`, so it is
+   the `/portfolio` pattern rather than a third one. It ships with **zero entries and an authored empty
+   state** (a placeholder book is prose an OG scraper would pin), and **no nav entry until it has
+   books** — reachable by direct URL and the sitemap only. The label is bilingual ("Biblioteca" /
+   "Library"); the slug is not — the localized pair `/pt/biblioteca ⇄ /en/library` was proposed and
+   declined (ADR-0036's 2026-08-05 amendment).
 
 **Blog** — long-form engineering writing with explicit trade-offs (distributed-systems / AI patterns) — is
 **not a static route**. There is no `/blog` list page: it was retired, and `/blog` redirects to the

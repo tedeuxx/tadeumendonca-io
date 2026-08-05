@@ -16,6 +16,7 @@ import { PortfolioPage } from './pages/PortfolioPage';
 import { RampUpPage } from './pages/RampUpPage';
 import { ArchitecturePage } from './pages/ArchitecturePage';
 import { ArticlePage } from './pages/ArticlePage';
+import { LibraryPage } from './pages/LibraryPage';
 import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale } from './i18n/config';
 import { articlePathForLocale } from './lib/content';
@@ -35,6 +36,11 @@ const queryClient = new QueryClient({
 // an English reader got it fine (#204). `articlePathForLocale` maps the slug to the target locale's own,
 // from either direction; anything it does not recognise passes through, so an unknown slug still falls
 // to the in-locale not-found.
+//
+// `/library` needs nothing here, and that is a property of the slug choice rather than luck: it is one
+// English slug prefixed twice (ADR-0036), so `/library` re-prefixed verbatim is `/pt/library` — a real,
+// prerendered route. A localized pair would have needed this mapper generalised, which is one of the
+// costs weighed when it was declined.
 function RootRedirect() {
   const { pathname, search, hash } = useLocation();
   const locale = detectLocale(pathname);
@@ -58,6 +64,9 @@ function LocaleApp() {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="ramp-up" element={<RampUpPage />} />
           <Route path="architecture" element={<ArchitecturePage />} />
+          {/* The sixth public surface (#166). One English slug prefixed twice, bilingual label and page
+              — the same shape as the four above it, so it needs no per-locale route resolution. */}
+          <Route path="library" element={<LibraryPage />} />
           <Route path="blog/:slug" element={<ArticlePage />} />
           {/* The retired /blog list still deep-links: send it to the landing's #artigos, in-locale. */}
           <Route path="blog" element={<Navigate to={localePath(locale, '/#artigos')} replace />} />

@@ -167,6 +167,44 @@ const strings = {
       en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record the load-bearing decisions — with links to replicate it.',
     },
   },
+  // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
+  // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
+  // words live here, including the empty state.
+  //
+  // The LABEL is bilingual ("Biblioteca" / "Library"); the ROUTE it is reached at is decided in
+  // ADR-0010, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
+  library: {
+    heading: { pt: 'Biblioteca — o que eu leio, e o que ficou', en: 'Library — what I read, and what stuck' },
+    // Document title (the site name is appended by useDocumentHead). The bare noun, not the heading:
+    // a <title> is read in a tab and in a SERP, where the subtitle is what gets truncated away anyway.
+    title: { pt: 'Biblioteca', en: 'Library' },
+    kicker: { pt: 'Estante · em curadoria', en: 'Shelf · being curated' },
+    // "só entra o que eu li de fato" / "only books I have actually finished" is doing real work, not
+    // decoration: the shelf carries a rating on every entry, and a rating on an unread book would be a
+    // claim the reader cannot check. The data model has no `status` field precisely because only-read is
+    // the model (owner, 2026-08-05), so the copy states the same rule the type enforces.
+    intro: {
+      pt: 'Uma estante curta: os livros por trás de como eu trabalho hoje, cada um com uma nota de 1 a 5 e uma frase do que eu tirei dele. Não é lista de leitura — só entra o que eu li de fato.',
+      en: 'A short shelf: the books behind how I work today, each with a 1–5 rating and a line on what I took from it. Not a reading list — only books I have actually finished.',
+    },
+    metaDescription: {
+      pt: 'A estante por trás de como eu trabalho: IA, sistemas distribuídos, infraestrutura e engenharia de software — cada livro com nota de 1 a 5 e o que eu tirei dele.',
+      en: 'The shelf behind how I work: AI, distributed systems, infrastructure and software engineering — each book with a 1–5 rating and what I took from it.',
+    },
+    // The empty state, and it is DELIBERATE COPY rather than a fallback nobody expected to render. The
+    // surface ships before the books (#166 slice 1), because the alternative — a placeholder book — is
+    // reader-facing prose in the owner's voice that ships and is then removed, and it is exactly what an
+    // OG scraper pins permanently (ADR-0005/0041). Chrome can say "not yet"; a fake book cannot.
+    empty: {
+      pt: 'A estante ainda está sendo montada. Os primeiros livros entram em breve, cada um com nota e o que eu tirei dele.',
+      en: 'The shelf is still being put together. The first books land soon, each with a rating and what I took from it.',
+    },
+    // The rating meter's accessible name. `{rating}` and `{max}` are substituted by RatingMeter, `{max}`
+    // from the same constant that generates the squares — so the announced scale cannot disagree with the
+    // drawn one. A screen reader is the only way this value reaches a reader who cannot see the fill,
+    // which is why it is a catalog string and not the hardcoded English literal `LevelMeter` still uses.
+    ratingLabel: { pt: 'Nota {rating} de {max}', en: 'Rated {rating} out of {max}' },
+  },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
     // `se formam`, not `graduam`: in BR Portuguese this sense of `graduar` is pronominal, so the bare

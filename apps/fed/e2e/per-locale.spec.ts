@@ -492,8 +492,10 @@ test.describe('locale offer on a link that pins the other language', () => {
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
 // alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
-  // Shared-slug routes: the same logical path under both prefixes.
-  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
+  // Shared-slug routes: the same logical path under both prefixes. `/library` (#166) joins them —
+  // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
+  // added is the guard working; it is updated in the same commit as the route.
+  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
   // The one article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path.
   const ARTICLE = { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` };
   const LOGICAL_COUNT = SHARED.length + 1; // + the article
@@ -527,7 +529,12 @@ test.describe('sitemap advertises every per-locale URL', () => {
     expect(body).not.toContain('/profile');
     expect(body).not.toContain(`<loc>${SITE}/cv</loc>`);
     expect(body).not.toContain(`<loc>${SITE}/me</loc>`); // bare /me is a redirect, never a <loc>
+    expect(body).not.toContain(`<loc>${SITE}/library</loc>`); // and neither is the bare /library (#166)
     expect(body).not.toContain(`<loc>${SITE}/blog</loc>`);
+    // The localized-slug pair was proposed for this surface and declined (2026-08-05). A half-reverted
+    // routing change fails the same way a half-shipped one does, so the absence is asserted rather than
+    // assumed — no edition of any URL here carries the Portuguese word.
+    expect(body).not.toContain('biblioteca');
   });
 });
 
