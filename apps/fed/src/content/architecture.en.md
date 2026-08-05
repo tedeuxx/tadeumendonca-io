@@ -49,6 +49,33 @@ There is no application in that path — so the only logic between a reader and 
 
 That check is the price of putting logic at the edge, not a nicety: a function version is published independently of the distribution, so nothing about deploying the site proves which one is actually running.
 
+## Why this site exists
+
+To learn AI you have to build the use cases. You do not learn without them. Everything needs a user, an application, a feature, a business case — and that is where I see the gap: AI professionals are generally strong academics with little systems-integration experience and little exposure to the complications of corporate IT. I have plenty of both. This site is a use case, and the open repository lets anyone check it.
+
+I started the year lost. A project that was not going well, a pile of catch-up obligations on AI tooling, and it degraded until I went on leave. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tools in hand — Claude Code, Kiro — and still felt outside the hype.**
+
+Building software is what I love. Nothing is more fun to me than seeing an application working properly. What these tools gave back was exactly that, at a scale I could not reach on my own.
+
+The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from leave, and it grew and matured from there. **I would never have delivered that mechanism without an agent development tool** — not in the time I had.
+
+Since then I have worked on two fronts: an internal one, at my job, and this one, in public. Consulting no longer gives me what I want to do: digital product. I like building apps.
+
+## Who did what
+
+Working with an autonomous team of agents is part of this site's purpose, so the split is worth stating precisely — with no hour count, because I did not track hours and an invented number would be worth nothing.
+
+**Mine:** the idea, the product, the content — tuned as it may be —, the personality, the agent architecture, the harness configuration and the experimentation with setups, the architecture patterns.
+**The agent team's:** the development and the code.
+
+But the method is not dispatch. It starts from my idea, I **listen to how they would do it**, and I trim it against my architecture judgement and my distributed-systems experience. The authorship stays mine; it is simply exercised after listening.
+
+And listening pays. They carry more seniority than I do in the chosen frameworks and languages — I add architecture and direction. **I recurrently learn ways to use AWS services I did not know were possible.** On this site it was the Lambda@Edge unfurl: I had no idea it could stand in for SSR and solve SEO indexing. On another system it was replacing OpenSearch with semantic search on S3 Vector Store — considerably faster and far cheaper.
+
+The irony of that first example sits two sections down: that Lambda@Edge is [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md), and it was **cut**. It worked, it taught me something, and then it proved unnecessary — build-time prerendering delivers the same served HTML with nothing running. Both are true at once.
+
+In people, everything above cost one. Weekends, alongside consulting work. The inventory is all here and in the repository; what it would have cost another way is your arithmetic, not mine.
+
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
 "Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the AWS bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
@@ -57,6 +84,8 @@ That check is the price of putting logic at the edge, not a nicety: a function v
 - **Route 53** — USD 0.50/month, fixed. The hosted zone, whether or not anyone visits.
 - **S3** — about USD 0.15/month, and it is deploy *writes*, not reads.
 - **CloudFront** — effectively USD 0.00 at this traffic.
+
+**And the biggest line is the one that was a choice.** `.io` is expensive as top-level domains go, and I picked it for branding, not for cost — that is the honest reason, and it is the single line here you can decline. A `.com`, `.dev` or `.me` registers through the same Route 53 for a fraction of it, and nothing else on this bill moves: the hosted zone, the bucket and the distribution do not care what the name is. Rather than print a price table that goes stale, here is the command that prints today's: `aws route53domains list-prices --region us-east-1`. Replicate this stack under a cheaper name and the monthly figure below stops being dominated by a preference of mine.
 
 Note the shape, because it is not a small effect and it is a three-way split rather than a ratio: **the name is 6.42, publishing is 0.15, and answering requests is zero.** Registration and DNS cost more than everything else in this bill combined, forty times over; the 0.15 is the build pushing files to S3, not readers pulling them; and the part that actually serves a visitor rounds to nothing.
 
