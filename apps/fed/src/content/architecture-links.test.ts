@@ -14,6 +14,7 @@
 import { describe, it, expect } from 'vitest';
 import architectureEn from './architecture.en.md?raw';
 import architecturePt from './architecture.pt.md?raw';
+import { repoCardFor } from '../data/repoCards';
 
 // The real repo trees this page links into, enumerated at build time. Keys are relative to THIS file
 // (apps/fed/src/content/ → four levels up to the repo root), e.g. '../../../../docs/adr/0001-….md'.
@@ -101,5 +102,50 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
 
     const missing = targets.filter((path) => !existingDocPaths.has(path));
     expect(missing).toEqual([]);
+  });
+});
+
+// The page's CLOSING ELEMENT, and the one thing about it nothing asserted (#318).
+//
+// The setup walkthrough moved to the READMEs, so what the page owes a reader at that point is a way INTO
+// the two repos rather than a second copy of what they say. That is delivered WITHOUT a component in the
+// markdown: `Markdown.tsx`'s `p` handler turns a paragraph holding a LONE repo URL into a `<RepoCard>`,
+// opt-in by URL through the `repoCards.ts` registry — the same shape as the YouTube facade.
+//
+// SO THE DELIVERY IS INVISIBLE IN THE SOURCE, which is exactly why it needs an assertion. The markdown
+// reads as two bare links; the page renders two accent-marked cards. A review that reads the markdown
+// concludes the section was never built — one did — and, far worse, DELETING A REGISTRY ROW silently
+// demotes the cards back to plain links. Nothing would go red, and the page's call to action would
+// quietly become a bullet list.
+//
+// Asserted against the registry rather than by rendering the whole document: the failure mode is
+// `URL on the page ∉ registry`, and naming it directly is both cheaper and more precise than
+// re-deriving it from a DOM. `RepoCard.test.tsx` already covers what a card looks like once it renders.
+describe('architecture page — the closing repo cards are still cards (#318)', () => {
+  const repoUrlsIn = (body: string) =>
+    [...body.matchAll(/^\[?(https:\/\/github\.com\/[\w.-]+\/[\w.-]+)\]?\(?[^)\n]*\)?$/gm)].map(
+      (m) => m[1],
+    );
+
+  it.each([
+    ['en', architectureEn],
+    ['pt', architecturePt],
+  ] as const)('renders both repos as cards in the %s edition', (_locale, body) => {
+    const carded = repoUrlsIn(body).filter((url) => repoCardFor(url));
+
+    // Both site repos, and the count is exact: the section is the page's call to action and it names two.
+    expect(carded.map((u) => u.toLowerCase()).sort()).toEqual([
+      'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/tadeumendonca-skills',
+    ]);
+  });
+
+  // The vacuous-pass guard. If the regex above ever stops matching — a reformat, a trailing slash, a
+  // wrapping element — `carded` goes empty and the assertion above would fail loudly rather than pass
+  // quietly, but only because it compares against an exact list. This pins the premise separately so a
+  // future relaxation of that comparison cannot reintroduce a silent zero.
+  it('finds repo URLs at all, so the check above cannot pass on an empty match', () => {
+    expect(repoUrlsIn(architectureEn).length).toBeGreaterThan(0);
+    expect(repoUrlsIn(architecturePt).length).toBeGreaterThan(0);
   });
 });
