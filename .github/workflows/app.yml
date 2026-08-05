@@ -96,6 +96,24 @@ jobs:
               # which the deploy pathspec already matches. Widening the deploy filter instead would
               # republish on ADR edits that changed no served byte.
               - 'docs/adr/**'
+              # THE THIRD INSTANCE OF THE SAME RULE — the authored source of a guarded claim belongs in
+              # the filter — and it arrived with #353. `CLAUDE.md` carries a `roster:dispatch` fence
+              # naming the subagents an agent may invoke, and `check-harness-drift.mjs` compares it to
+              # the plugin's `agents/`. Same argument as `docs/adr/**` directly above, so it is not
+              # restated: without this line the guard is correct and never runs on its own trigger, and
+              # the red lands on the next unrelated author instead.
+              #
+              # Why the guard is worth its filter entry: the sentence it protects is the one instruction
+              # in that file that FAILS WHEN FOLLOWED if it goes stale — it routes a decision to a
+              # subagent, and a retired name simply errors. It did, for a day.
+              #
+              # NOT in the deploy gate's filter, for the reason given above and one more: `CLAUDE.md`
+              # ships no served byte at all, so a deploy triggered by it would republish nothing.
+              #
+              # The cost, stated rather than glossed: every `CLAUDE.md`-only PR now runs the full `app`
+              # gate. Measured over the month before this line: `CLAUDE.md` 11 commits against
+              # `docs/adr/` 17, so the precedent above already pays the larger bill.
+              - 'CLAUDE.md'
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
             # therefore has to rebuild and re-run E2E, but has nothing for eslint/tsc/vitest/Sonar to

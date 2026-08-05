@@ -28,6 +28,8 @@ import {
   driftReport,
   enforcementFor,
   pluginPresent,
+  rosterDispatchNames,
+  rosterDispatchReport,
 } from './harness-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -376,5 +378,67 @@ describe('driftReport — aimed at the author who did not cause the failure', ()
   it('names the components that drifted, in both directions', () => {
     expect(report).toContain('persona new-one');
     expect(report).toContain('persona gone');
+  });
+});
+
+// The dispatch roster in `CLAUDE.md` (#353). Against SYNTHETIC markdown, never the real file — a guard
+// asserted against the artifact it guards passes for as long as the artifact is correct and says
+// nothing about whether it could ever fail. The live comparison is check-harness-drift.mjs.
+describe('rosterDispatchNames — what the guide presents as invocable', () => {
+  const fenced = (body) => `intro\n\n<!-- roster:dispatch -->\n${body}\n<!-- /roster:dispatch -->\n\nouttro`;
+
+  it('reads only between the markers, so history outside them is out of scope', () => {
+    const md = [
+      'Use `tech-lead` for architecture.',
+      fenced('- `product-lead` — what to build next.'),
+      '~~`brand-guardian`~~ was retired and merged into `marketing-lead`.',
+    ].join('\n\n');
+    // The two names before the fence and the two after are narrative. Only the fenced one counts.
+    expect(rosterDispatchNames(md)).toEqual(['product-lead']);
+  });
+
+  it('returns NULL when the fence is missing, which is not the same as an empty roster', () => {
+    // The distinction is the whole point: `[]` compares equal to "nothing is missing", so a fence
+    // deleted by a careless edit would silently disable the check if this returned an empty array.
+    expect(rosterDispatchNames('no markers here, just `tech-lead` in prose')).toBeNull();
+    expect(rosterDispatchNames(fenced('nothing backticked in here'))).toEqual([]);
+  });
+
+  it('sorts, and takes each name once however it is decorated', () => {
+    expect(rosterDispatchNames(fenced('- **`b-two`** does X\n- `a-one` does Y'))).toEqual(['a-one', 'b-two']);
+  });
+});
+
+describe('rosterDispatchReport — both directions, because both have happened', () => {
+  it('is empty when the fence and the live roster agree', () => {
+    expect(rosterDispatchReport(['a', 'b'], ['b', 'a'])).toBe('');
+  });
+
+  // The defect that prompted #353: `security` was retired in the plugin and stayed in the guide, so the
+  // sentence routing the permission floor to it FAILED WHEN FOLLOWED.
+  it('catches a name the guide dispatches that the plugin no longer has', () => {
+    const report = rosterDispatchReport(['security', 'tech-lead'], ['tech-lead']);
+    expect(report).toContain('security is dispatched in CLAUDE.md and has NO file');
+    expect(report).toContain('supersede, never rewrite');
+  });
+
+  // The same defect with the opposite sign, and it is not hypothetical: `harness-reviewer` existed for
+  // a day while the guide named it nowhere, so nothing ever dispatched it.
+  it('catches a live persona the guide dispatches nowhere', () => {
+    expect(rosterDispatchReport(['tech-lead'], ['tech-lead', 'harness-reviewer'])).toContain(
+      'harness-reviewer exists in the plugin and is dispatched NOWHERE',
+    );
+  });
+
+  it('treats a missing fence as a failure rather than as agreement', () => {
+    expect(rosterDispatchReport(null, ['tech-lead'])).toContain('no `roster:dispatch` fence');
+  });
+
+  // Attribution, same reasoning as the manifest report above: the roster lives in another repository,
+  // so the author who goes red almost never caused it.
+  it('says it is not the reader-s change, and where the roster actually lives', () => {
+    const report = rosterDispatchReport(['gone'], ['live']);
+    expect(report).toContain('tedeuxx/tadeumendonca-skills');
+    expect(report).toMatch(/NOT your change/);
   });
 });
