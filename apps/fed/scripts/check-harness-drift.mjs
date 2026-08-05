@@ -21,17 +21,22 @@ import { fileURLToPath } from 'node:url';
 
 import {
   collectComponents,
+  collectPersonas,
   diffAgainstManifest,
   driftReport,
   pluginPresent,
   readPluginVersion,
   resolvePluginDir,
+  rosterDispatchNames,
+  rosterDispatchReport,
   assertEnforcement,
   assertPluginVersion,
 } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
+// `CLAUDE.md` sits at the repo root, two levels above this package (#353).
+const GUIDE = join(dirname(FED), '..', 'CLAUDE.md');
 const PLUGIN_RELEASE = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 // `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
 // itself any more: a second resolve in the caller is what put the existing check off the path between the
@@ -124,6 +129,24 @@ if (report) {
   process.exit(1);
 }
 
+// The SECOND artifact this job compares against the same plugin tree (#353): the dispatch roster in
+// `CLAUDE.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
+// checkout of the plugin — is already paid for above, and `collectPersonas` is the same read.
+//
+// Ordered AFTER the manifest diff deliberately. When a persona is retired over there, both checks
+// fire; the manifest report names the command that fixes it (`gen-harness`), and this one names a
+// hand edit. Reporting the mechanical fix first is the one a reader should act on first.
+const guideRoster = rosterDispatchNames(readFileSync(GUIDE, 'utf8'));
+const rosterProblem = rosterDispatchReport(
+  guideRoster,
+  collectPersonas(pluginDir).map((p) => p.id),
+);
+if (rosterProblem) {
+  console.error(`::error::${rosterProblem.split('\n')[0]}`);
+  console.error(rosterProblem);
+  process.exit(1);
+}
+
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified, and CLAUDE.md dispatches the ${guideRoster.length} live persona(s)`,
 );
