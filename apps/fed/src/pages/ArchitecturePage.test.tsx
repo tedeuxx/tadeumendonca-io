@@ -70,4 +70,42 @@ describe('ArchitecturePage', () => {
       'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md',
     );
   });
+
+  // The two site repos are CARDS, not links (#318) — and the test above cannot tell the difference,
+  // because a <RepoCard> IS an <a>. `querySelectorAll('a')` reads the same href either way.
+  //
+  // That distinction is the section's whole point. The setup walkthrough moved to the READMEs, so what
+  // the page owes a reader at the end is a way INTO the two repos, rendered as the page's call to action
+  // rather than as a bullet. The delivery is invisible in the markdown source: `Markdown.tsx` turns a
+  // paragraph holding a LONE self-labelled repo URL into a <RepoCard>, opt-in through `repoCards.ts`.
+  //
+  // WHAT THE TEST ABOVE DOES AND DOES NOT SEE, stated as the invariant rather than as a list — an
+  // earlier version of this comment enumerated five mutations and claimed the checks above stayed green
+  // for all of them, which was false for three:
+  //
+  //   · a mutation leaving both hrefs INTACT is invisible up there — a deleted registry row, or both
+  //     paragraphs merged into one. The cards become anchors; every `toContain` still passes.
+  //   · a mutation that CHANGES or REMOVES an href is caught up there for `-io`, and missed for
+  //     `-skills`.
+  //
+  // The asymmetry is not an accident of this file: the page already links `-skills` inline in prose,
+  // higher up, so `toContain` for that URL is satisfied no matter what the closing card does.
+  //
+  // Asserted through the real <Markdown> rather than by pattern-matching the markdown source: a check
+  // that models markdown is a second implementation of the renderer, and it is wrong in exactly the
+  // cases the renderer is subtle about — an indented paragraph is a code block, not a link, and a
+  // source-level matcher that trims whitespace cannot see that. `e2e/routes.spec.ts` makes this
+  // assertion on the served build, but only for `/pt/architecture`; this is what covers en. Same shape
+  // as `RampUpPage.test.tsx` for the ramp-up cards (#157), and its own `it` for the same reason: a
+  // failure here is about RENDERING, and reporting it under a name about reachability misdirects.
+  it.each(['pt', 'en'] as const)('closes with both repos as cards, in order (%s edition)', (locale) => {
+    const { container } = renderPage(locale);
+
+    expect(
+      [...container.querySelectorAll('[data-testid="repo-card"]')].map((c) => c.getAttribute('href')),
+    ).toEqual([
+      'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/tadeumendonca-skills',
+    ]);
+  });
 });
