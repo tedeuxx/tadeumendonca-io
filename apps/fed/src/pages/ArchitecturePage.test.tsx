@@ -89,10 +89,7 @@ describe('ArchitecturePage', () => {
   //     `-skills`.
   //
   // The asymmetry is not an accident of this file: the page already links `-skills` inline in prose,
-  // higher up, so `toContain` for that URL is satisfied no matter what the card does. Every
-  // href-changing mutation of the `-skills` card — a `tree/` subpath, a `#fragment`, a label that
-  // disagrees with its href, an indent that turns the paragraph into a code block — is caught HERE and
-  // nowhere else in the repo.
+  // higher up, so `toContain` for that URL is satisfied no matter what the closing card does.
   //
   // Asserted through the real <Markdown> rather than by pattern-matching the markdown source: a check
   // that models markdown is a second implementation of the renderer, and it is wrong in exactly the
