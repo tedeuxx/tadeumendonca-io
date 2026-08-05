@@ -241,6 +241,30 @@ who did not cause it. The mitigation is aimed at **attribution**, not timing: th
 repo, says it is not the reader's change, and gives the one command that fixes it. A scheduled tokenless
 run is the recorded upgrade if the lateness ever bites in practice.
 
+**Amended 2026-08-05 (#353): the paragraph above is still true of the MANIFEST, and the job now compares
+a second artifact for which it is only half true.** `CLAUDE.md` carries a `roster:dispatch` fence naming
+the subagents an agent may invoke, and `check-harness-drift.mjs` compares it to the plugin's `agents/`.
+`CLAUDE.md` is therefore in the `code` filter — the third instance of *the authored source of a guarded
+claim belongs in the filter*, after `iac/cloudfront-functions/**` and `docs/adr/**`.
+
+The asymmetry is the whole content of this amendment, and it is why *"cannot be made self-triggering"* is
+not simply struck. **Editing the fence here triggers the check; retiring a persona over there still does
+not.** One of the two events that can falsify the claim now has a path in this repo, and the other never
+will — so the attribution mitigation above still carries the cross-repo half, unchanged.
+
+What is now false in the original paragraph, said plainly rather than left for a reader to reconcile:
+*"there is no such path here"* was true of the manifest and is not true of the job. The manifest has no
+authored source in this repo; the roster does, and it is this file's guide.
+
+**Cost of the filter entry:** every `CLAUDE.md`-only PR runs the full `app` gate. Over the month before
+it: `CLAUDE.md` 11 commits against `docs/adr/` 17 — the precedent already pays more.
+
+**Known blind spot, stated because the check's own message cannot:** the guard reads only *between* the
+markers. A routing sentence in prose elsewhere in `CLAUDE.md` is invisible to it — which means it would
+**not** have caught #353 in the form #353 actually took, where the dead persona sat in a prose sentence.
+The fence is what makes the check exact rather than reddening on the file's deliberate history; the price
+is that it guards a shape, and the shape has to be adopted for the guard to see the claim.
+
 The filter is `code` rather than "always", deliberately: an unrelated PR going red is a cost already
 accepted once, and running this on *every* PR in the repo would spread that cost over authors with no
 `apps/**` change at all, for a red they can do even less about.

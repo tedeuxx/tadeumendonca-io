@@ -417,6 +417,18 @@ export function driftReport(diff) {
 // The comparison runs BOTH ways on purpose. A name inside the fence with no file is the defect that
 // prompted this. A live persona missing from the fence is the same defect with the opposite sign:
 // `harness-reviewer` existed for a day and the guide named it nowhere, so nothing dispatched it.
+//
+// WHAT THIS DOES NOT SEE, and it is sharper than a caveat: a routing sentence in PROSE, outside the
+// markers, is invisible. **So this guard would not have caught #353 in the form #353 actually took** —
+// the dead persona sat in an ordinary sentence, and the fence did not exist yet. The fence is what buys
+// exactness over the file's deliberate history; the price is that it guards a SHAPE, and the shape has
+// to be adopted before the guard can see the claim. Measured, not reasoned: routing the permission
+// floor to a retired name in the line directly below the closing marker exits 0.
+//
+// Second silent pass, same class: a SECOND `roster:dispatch` fence is ignored. The regex is lazy and
+// non-global, so only the first pair of markers is read. Neither is worth closing today — both are
+// authoring mistakes a reader of this comment can avoid, and widening the match is how a guard starts
+// reddening on the history it was scoped away from.
 const ROSTER_FENCE = /<!--\s*roster:dispatch\s*-->([\s\S]*?)<!--\s*\/roster:dispatch\s*-->/;
 
 /**
@@ -429,7 +441,9 @@ const ROSTER_FENCE = /<!--\s*roster:dispatch\s*-->([\s\S]*?)<!--\s*\/roster:disp
 export function rosterDispatchNames(markdown) {
   const fenced = ROSTER_FENCE.exec(markdown);
   if (!fenced) return null;
-  return [...fenced[1].matchAll(/`([a-z][a-z0-9-]*)`/g)].map((m) => m[1]).sort();
+  return [...fenced[1].matchAll(/`([a-z][a-z0-9-]*)`/g)]
+    .map((m) => m[1])
+    .sort((a, b) => a.localeCompare(b));
 }
 
 /** Compare a guide's dispatch fence against the live persona ids. Empty string means they agree. */
@@ -440,7 +454,7 @@ export function rosterDispatchReport(fenceNames, livePersonaIds) {
       'Restore the <!-- roster:dispatch --> … <!-- /roster:dispatch --> markers around the list.',
     ].join('\n');
   }
-  const live = [...livePersonaIds].sort();
+  const live = [...livePersonaIds].sort((a, b) => a.localeCompare(b));
   const dead = fenceNames.filter((n) => !live.includes(n));
   const unnamed = live.filter((n) => !fenceNames.includes(n));
   if (dead.length === 0 && unnamed.length === 0) return '';
