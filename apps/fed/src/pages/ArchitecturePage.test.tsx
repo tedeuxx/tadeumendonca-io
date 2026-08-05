@@ -69,5 +69,29 @@ describe('ArchitecturePage', () => {
     expect(hrefs).toContain(
       'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md',
     );
+
+    // …and the two site repos are CARDS, not links (#318). The assertions above cannot tell the
+    // difference: a <RepoCard> IS an <a>, so `querySelectorAll('a')` sees the same href either way.
+    //
+    // That distinction is the section's whole point. The setup walkthrough moved to the READMEs, so what
+    // the page owes a reader at the end is a way INTO the two repos — rendered as the page's call to
+    // action rather than as a bullet. The delivery is invisible in the markdown source: `Markdown.tsx`
+    // turns a paragraph holding a LONE self-labelled repo URL into a <RepoCard>, opt-in through the
+    // `repoCards.ts` registry. Deleting a registry row, deepening a URL to a `tree/` path, giving the
+    // link a label that differs from its href, indenting the paragraph, or merging the two into one
+    // paragraph each silently demotes the cards back to plain anchors — and the checks above stay green
+    // for every one of them.
+    //
+    // Asserted HERE, through the real <Markdown>, rather than by pattern-matching the markdown source:
+    // a check that models markdown is a second implementation of the renderer, and it is wrong in
+    // exactly the cases the renderer is subtle about. `e2e/routes.spec.ts` makes the same assertion on
+    // the served build, but only for `/pt/architecture`; this is what covers en. Same shape as
+    // `RampUpPage.test.tsx` for the ramp-up cards (#157).
+    expect(
+      [...container.querySelectorAll('[data-testid="repo-card"]')].map((c) => c.getAttribute('href')),
+    ).toEqual([
+      'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/tadeumendonca-skills',
+    ]);
   });
 });

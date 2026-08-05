@@ -14,7 +14,6 @@
 import { describe, it, expect } from 'vitest';
 import architectureEn from './architecture.en.md?raw';
 import architecturePt from './architecture.pt.md?raw';
-import { repoCardFor } from '../data/repoCards';
 
 // The real repo trees this page links into, enumerated at build time. Keys are relative to THIS file
 // (apps/fed/src/content/ → four levels up to the repo root), e.g. '../../../../docs/adr/0001-….md'.
@@ -102,89 +101,5 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
 
     const missing = targets.filter((path) => !existingDocPaths.has(path));
     expect(missing).toEqual([]);
-  });
-});
-
-// The page's CLOSING ELEMENT — asserted here for the EN edition, which no layer covered (#318).
-//
-// The setup walkthrough moved to the READMEs, so what the page owes a reader at that point is a way INTO
-// the two repos rather than a second copy of what they say. That is delivered WITHOUT a component in the
-// markdown: `Markdown.tsx`'s `p` handler turns a paragraph holding a LONE repo URL into a `<RepoCard>`,
-// opt-in by URL through the `repoCards.ts` registry — the same shape as the YouTube facade.
-//
-// THE DELIVERY IS THEREFORE INVISIBLE IN THE SOURCE. The markdown reads as two links; the page renders
-// two accent-marked cards. A review that reads the markdown concludes the section was never built — one
-// did, this session, and recommended building a second mechanism for it.
-//
-// WHAT THIS DOES *NOT* CLAIM, because the first version of this comment claimed it and it was false:
-// it is NOT true that deleting a registry row goes unnoticed. `e2e/routes.spec.ts` has asserted the
-// rendered cards since #318 — two of them, by testid, with both hrefs in order and the decorative mark.
-// That journey is the stronger object and it stays the primary guard. **It drives `/pt/architecture`
-// only.** The EN edition was covered by nothing, in any layer, and that gap is what this closes.
-//
-// Asserted against the registry rather than by rendering: the E2E already owns the DOM, and duplicating
-// it here would be a weaker copy of a stronger check. What this owns is the cheap, per-edition,
-// PR-time half — the failure mode `URL on the page ∉ registry`, named directly.
-describe('architecture page — the closing repo cards are still cards (#318)', () => {
-  // MODELLED ON `loneUrl` + `repoCardFor`, deliberately, and the first version of this was not — it was
-  // a line-oriented regex that captured out of the LABEL position while the renderer is paragraph-
-  // oriented and keys on the HREF. Four mutations of the real markdown broke the page and left it green:
-  // a `tree/` subpath, a `#fragment`, a link whose label says `-io` while its href says `-skills`, and
-  // merging both URLs into ONE paragraph (which renders zero cards). The last one is why the old
-  // "vacuous-pass guard" was not one: a paragraph merge IS a reformat, and the match never went empty.
-  //
-  // The model that matters, from `loneUrl`: a paragraph counts only if its ENTIRE content is one link,
-  // and an explicit `[label](href)` yields a card only when `label === href`. A mismatched pair renders
-  // as an ordinary anchor, so a check reading the label is measuring the wrong string.
-  const PARAGRAPH_LINK = /^\[([^\]]+)\]\(([^)\s]+)\)$/;
-  const PARAGRAPH_BARE = /^(https?:\/\/[^\s)]+)$/;
-
-  /** Hrefs that would reach `repoCardFor` — one per paragraph that is nothing but a self-labelled link. */
-  const cardableHrefs = (body: string) =>
-    body
-      .split(/\n\s*\n/)
-      .map((p) => p.trim())
-      .flatMap((p) => {
-        const explicit = PARAGRAPH_LINK.exec(p);
-        if (explicit) return explicit[1] === explicit[2] ? [explicit[2]] : [];
-        const bare = PARAGRAPH_BARE.exec(p);
-        return bare ? [bare[1]] : [];
-      })
-      .filter((href) => repoCardFor(href));
-
-  it.each([
-    ['en', architectureEn],
-    ['pt', architecturePt],
-  ] as const)('renders both repos as cards in the %s edition', (_locale, body) => {
-    // Exact list rather than a count, and IN ORDER — the same two repos in the same sequence the E2E
-    // pins on the served page, so the two layers cannot disagree about what the section says.
-    expect(cardableHrefs(body).map((u) => u.toLowerCase())).toEqual([
-      'https://github.com/tedeuxx/tadeumendonca-io',
-      'https://github.com/tedeuxx/tadeumendonca-skills',
-    ]);
-  });
-
-  // THE MATCHER'S OWN REGRESSION SET, and it exists because the assertion above is only as good as the
-  // model behind it. The previous model passed the page and failed four mutations of it — proving the
-  // page green says nothing about whether the check can go red. These pin the model against synthetic
-  // input so the property survives without anyone remembering to mutate the real markdown by hand.
-  //
-  // Each `false` case is a shape that renders NO card. If one of them ever counts as cardable, the
-  // assertion above starts passing on a page whose closing element has silently become plain links.
-  const IO = 'https://github.com/tedeuxx/tadeumendonca-io';
-  it.each([
-    ['a self-labelled link alone in its paragraph', `[${IO}](${IO})`, true],
-    ['a bare URL alone in its paragraph', IO, true],
-    // The four that the line-oriented model let through.
-    ['both URLs merged into one paragraph', `[${IO}](${IO})\n[${IO}](${IO})`, false],
-    ['a label that disagrees with its href', `[${IO}](${IO}-skills)`, false],
-    ['a deeper tree/ path', `[${IO}/tree/main](${IO}/tree/main)`, false],
-    ['a #fragment form', `[${IO}#readme](${IO}#readme)`, false],
-    // Shapes the old model already handled — kept so a rewrite cannot lose them.
-    ['a URL inside a sentence', `See ${IO} for the code.`, false],
-    ['a list item', `- [${IO}](${IO})`, false],
-    ['a human-worded label', `[the site repo](${IO})`, false],
-  ])('%s → cardable: %s', (_name, paragraph, expected) => {
-    expect(cardableHrefs(paragraph).length > 0).toBe(expected);
   });
 });
