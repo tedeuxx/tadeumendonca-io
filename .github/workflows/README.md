@@ -152,15 +152,17 @@ not prove that.
 | job | runs when these change |
 |---|---|
 | `eslint`, `tsc` | `apps/**` (**including `e2e/**`**), `packages/shared/**`, root TS + lint config |
-| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`** |
+| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`**, **`CLAUDE.md`** |
 | `build-static` | the above + **`VERSION`** |
 | `playwright` | the above — **never only when `e2e/**` changes**, because it drives the build |
 | `harness-drift` | the `code` filter — but see below: its real trigger is **in another repository** |
 | `checkov`, `terraform-fmt`, `terraform-plan`, `terraform-apply` | `iac/**` — **all of it, `cloudfront-functions/` included** |
 | `actionlint` | `.github/**` |
 
-**Three entries carry the whole rule, and they are the same rule three times: a gate belongs to what a
-file IS, not to the directory it sits in** (ADR-0018's amendment).
+**Four entries carry the whole rule, and they are the same rule four times: a gate belongs to what a
+file IS, not to the directory it sits in** (ADR-0018's amendment). *It said three until 2026-08-05;
+`CLAUDE.md` is the fourth, and the count is kept as a count rather than softened to "several" because a
+number is the thing a reader can check against the filter.*
 
 `iac/cloudfront-functions/**` belongs to the **app** gate: it is IaC by path but JavaScript with
 behaviour, and `terraform-plan` validates Terraform, not behaviour. Filter it as infra *only* and the
@@ -200,6 +202,23 @@ whether a **credentialed** job runs: `app` gates `deploy-app` (the deploy role),
 widens the credential surface — ADR-0015 applied to a filter. Nothing is lost: an ADR-only PR reddens
 here, the author regenerates, and the PR then touches `apps/fed/`, which the deploy pathspec already
 matches.
+
+`CLAUDE.md` is the **fourth instance, and it arrived with #353** — the same rule again, and the reason
+it is spelled out rather than folded into the paragraph above is that its guarded claim is of a
+different kind. The file carries a `roster:dispatch` fence naming the subagents an agent may invoke, and
+`check-harness-drift.mjs` compares that fence to the plugin's `agents/` in both directions. What makes
+it worth a filter entry is what the sentence does when it goes stale: it **routes a decision to a
+subagent**, so a retired name does not merely mislead — it errors. It did, for a day.
+
+Without the entry, the same failure as `docs/adr/**`: a `CLAUDE.md`-only PR skips `vitest`, the guard
+never runs on its own trigger, and the red lands later on an unrelated author. **Not** in `deploy`'s
+gate, for the credential reason above and one more — `CLAUDE.md` ships no served byte, so a deploy
+triggered by it would republish nothing.
+
+Its blind spot belongs here rather than only in the code: the check reads **only between the markers**.
+A routing sentence in prose elsewhere in the file is invisible to it, which means it would not have
+caught #353 in the form #353 took. The fence is what buys exactness over the file's deliberate history
+of retired names; the price is that it guards a *shape*.
 
 **The app jobs' filter sets overlap almost entirely.** Splitting the app gate into jobs therefore
 buys little in *filtering* — the value is parallelism and a readable graph, and it should be argued

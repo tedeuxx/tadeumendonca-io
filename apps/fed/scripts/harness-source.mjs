@@ -86,7 +86,9 @@ export function resolvePluginDir(raw) {
  *                otherwise. What nothing anywhere checks is whether the review was performed, or
  *                performed well; a merge that the reviewer waves through unread is denied by nothing.
  *                That is what `advises` names. ~~`security` is weaker still…~~ — that persona was
- *                retired on 2026-08-05 and the example now names `harness-reviewer`, which is the same
+ *                retired on 2026-08-04 (plugin `9cf3436`; this line said 2026-08-05 for one round,
+ *                inheriting the date of the EDIT rather than of the event it describes) and the
+ *                example now names `harness-reviewer`, which is the same
  *                case and slightly stronger: it runs BEFORE anything is built, gates nothing, and
  *                nothing forces it to be dispatched at all. A lens nobody dispatches fails silently,
  *                and that is the half of `advises` worth keeping distinct from the merge seat above.
