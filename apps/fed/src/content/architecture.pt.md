@@ -2,7 +2,7 @@ _Este site é o argumento. Esta página é a planta — como ele é construído,
 
 ## A tese
 
-Para um site de prova de engenharia, o código é o pitch — então o honesto é mostrar a máquina, não só o resultado dela. Esta é a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir — desenvolvimento AI-native (Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering) com o rigor de SDLC que a maior parte do trabalho com IA pula. O site é a saída pública desse loop.
+Para um site de prova de engenharia, o código é o pitch — então o honesto é mostrar a máquina, não só o resultado dela. Esta é a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir — desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA pula. As ferramentas são Claude Code e Kiro; o loop é construído sobre AI-DLC & Agent Harness Engineering. O site é a saída pública desse loop.
 
 ## O formato
 
