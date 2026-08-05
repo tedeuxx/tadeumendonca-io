@@ -167,6 +167,83 @@ const strings = {
       en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record the load-bearing decisions — with links to replicate it.',
     },
   },
+  // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
+  // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
+  // words live here, including the empty state.
+  //
+  // The LABEL is bilingual ("Biblioteca" / "Library"); the ROUTE it is reached at is decided in
+  // ADR-0010, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
+  library: {
+    heading: { pt: 'Biblioteca — o que eu leio, e o que ficou', en: 'Library — what I read, and what stuck' },
+    // Document title (the site name is appended by useDocumentHead). The bare noun, not the heading:
+    // a <title> is read in a tab and in a SERP, where the subtitle is what gets truncated away anyway.
+    title: { pt: 'Biblioteca', en: 'Library' },
+    // `em montagem` / `being put together`, not `em curadoria` / `being curated`. Two reasons, and the
+    // second is why it changed: *being curated* is everyday English while `em curadoria` in pt-BR is
+    // editorial/museum register, so the pt side was a status label imported from the en — the one calque
+    // in this group, running pt-ward. And it disagreed with the verb the empty state already uses.
+    kicker: { pt: 'Estante · em montagem', en: 'Shelf · being put together' },
+    // EVERY SENTENCE HERE STATES A RULE, NEVER THE CONTENTS. A contents sentence is false at zero entries
+    // and true at twenty; a rule sentence is true at both. That is not only about being correct today —
+    // a description that must be re-edited when the books land is a SECOND regeneration of an
+    // already-pinned OG card, which is the cost this file keeps warning about. Written as a rule, it is
+    // written once.
+    //
+    // "só entra o que eu terminei" / "only what I have finished gets in" is doing real work, not
+    // decoration: the shelf carries a rating on every entry, and a rating on an unread book would be a
+    // claim the reader cannot check. The data model has no `status` field precisely because only-read is
+    // the model (owner, 2026-08-05), so the copy states the same rule the type enforces.
+    //
+    // It states that rule POSITIVELY rather than as "não é lista de leitura" / "not a reading list",
+    // which the first draft used. That contrast defined this surface against `/ramp-up`, which publishes
+    // books marked *(reading)* and *(on my list)* — a reading list, by the owner's own hand, one route
+    // away. It lost nothing to drop: the rule was the payload, the contrast only its framing, and the
+    // framing would have read worst exactly when the two surfaces get cross-linked.
+    intro: {
+      pt: 'Uma estante curta: os livros por trás de como eu trabalho. Cada um entra com nota de 1 a 5 e uma frase do que eu tirei dele — e só entra o que eu terminei.',
+      en: 'A short shelf: the books behind how I work. Each one goes up with a 1–5 rating and a line on what I took from it — and only what I have finished gets in.',
+    },
+    // THIS ONE STRING IS THE SERP SNIPPET, and it is why the rule form above is not a style preference.
+    // `useDocumentHead` puts it in three places at once — <meta name="description">, `og:description`
+    // and `twitter:description`. `/library` is in STATIC_ROUTES, and `gen-sitemap.mjs` derives the
+    // sitemap from that same enumeration, so both URLs are advertised to Google FROM MERGE with no
+    // in-site link required. Having no nav entry removes the social pinning exposure; it does not touch
+    // the search exposure. The realistic day-1 reader is not someone forwarding a card — it is someone
+    // Google showed this line, landing on a shelf.
+    //
+    // The first draft said "cada livro com nota de 1 a 5 e o que eu tirei dele" — a populated shelf, in
+    // the present tense, on a shelf with zero entries. Untrue at the moment of publication, which is a
+    // different class from a true sentence that ages: the OG-pinning mechanism sets the COST of an
+    // error, never its CLASS, and there is no moment at which that card was correct to pin.
+    metaDescription: {
+      pt: 'A estante por trás de como eu trabalho: IA, sistemas distribuídos, infraestrutura e engenharia de software. Cada livro entra com nota de 1 a 5 e o que eu tirei dele — e só entra o que eu li.',
+      en: 'The shelf behind how I work: AI, distributed systems, infrastructure and software engineering. Every book goes up with a 1–5 rating and what I took from it — and only what I have actually read gets in.',
+    },
+    // The empty state, and it is DELIBERATE COPY rather than a fallback nobody expected to render. The
+    // surface ships before the books (#166 slice 1), because the alternative — a placeholder book — is
+    // reader-facing prose in the owner's voice that ships and is then removed, and it is exactly what an
+    // OG scraper pins permanently (ADR-0005/0041). Chrome can say "not yet"; a fake book cannot.
+    // `Esta estante` / `This shelf`, with the demonstrative, because `/ramp-up` already uses the bare
+    // definite noun for a DIFFERENT set — "Metade dessa estante ainda está saindo capítulo por capítulo"
+    // / "Half of this shelf is still shipping chapter by chapter", over six named titles. A reader who
+    // saw that page first would meet a contradiction of the article: that shelf is not being put
+    // together, it is listed. One word localises the noun and removes the collision.
+    //
+    // NO SCHEDULE. The first draft said "em breve" / "soon" — a date nobody committed to, on a page no
+    // gate is watching, which goes quietly false the day slice 2 slips and nothing in CI can say which
+    // day that is. The rule ("um a um, conforme eu termino") is true forever and is the better register
+    // besides. It also does not apologise for shipping an empty surface, which was the risk here: the
+    // owner's habit is to under-claim, and this copy declines to.
+    empty: {
+      pt: 'Esta estante ainda está sendo montada. Os livros entram um a um, conforme eu termino, cada um com nota e o que eu tirei dele.',
+      en: 'This shelf is still being put together. Books go up one at a time, as I finish them, each with a rating and what I took from it.',
+    },
+    // The rating meter's accessible name. `{rating}` and `{max}` are substituted by RatingMeter, `{max}`
+    // from the same constant that generates the squares — so the announced scale cannot disagree with the
+    // drawn one. A screen reader is the only way this value reaches a reader who cannot see the fill,
+    // which is why it is a catalog string and not the hardcoded English literal `LevelMeter` still uses.
+    ratingLabel: { pt: 'Nota {rating} de {max}', en: 'Rated {rating} out of {max}' },
+  },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
     // `se formam`, not `graduam`: in BR Portuguese this sense of `graduar` is pronominal, so the bare

@@ -392,8 +392,89 @@ and x-default all stand; this amendment adds a client-side **offer** on top of a
 records the prerender invariant it exposed. `iac/` is untouched — the negotiation is still client-side, so
 [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s no-edge invariant holds.
 
+## Amendment (2026-08-05) — why the dual-slug question keeps coming back, and the separation that ends it
+
+**Nothing in the decision above changes.** The "NOT dual localized slugs" clause stands exactly as
+written; `/library` ships as `/pt/library` · `/en/library`, which is this ADR as-is. This amendment adds
+no decision. It records **why the same question has now been opened four times** and what a fifth opening
+has to establish before it is worth anyone's time.
+
+### The separation — the reusable part
+
+Two different benefits have been argued for under one name, and they are delivered by different things:
+
+| Benefit | Delivered by | Status |
+| --- | --- | --- |
+| **Language-pinning** — a forwarded link carries its language; the recipient sees the same edition as the sender, and the unfurl is in that language | the **locale prefix** (`/pt/…`, `/en/…`) | **shipped, by this ADR.** The path is authoritative, both editions prerender with their own head, hreflang and OG are per-locale |
+| **Slug readability** — the word *after* the prefix is in the reader's language (`/pt/biblioteca`) | a **localized slug pair** | not adopted for static routes |
+
+**These are separable, and only the first has ever been the requirement.** The owner's own statement of
+what he wanted — *"urls e unfurl autossuficientes por língua para facilitar encaminhamento de links e
+contexto com o idioma fixado"* — is language-pinning in full, and it was already live. A pair adds the
+Portuguese word and nothing else; it does not make a link more self-sufficient, because the prefix
+already fixed the language before the slug is read.
+
+**The test for anyone reopening this:** say which of the two you want. **If the answer is pinning, it
+already exists and there is nothing to decide.** If the answer is genuinely slug readability, that is a
+real but much smaller benefit, and it is then weighed against a permanent second URL contract per route
+plus the cost recorded below — on its own merits, not on pinning's.
+
+### The count, and what the fourth opening cost
+
+The dual-slug pair has been set aside four times without that separation being made:
+
+1. [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s 2026-07-25 `/architecture` amendment —
+   *"a new routing pattern — a bigger decision than adding a surface."*
+2. This ADR's decision outcome — *"**NOT dual localized slugs.** … it is **not** decided here."*
+3. [ADR-0037](./0037-localized-article-slugs.md)'s blog-only carve-out — *"non-article routes keep the
+   one-slug-prefixed-twice scheme."*
+4. Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166), 2026-08-05.
+
+Each of the first three gives a **procedural** reason — the decision is large, or belongs elsewhere, or
+is unchanged here. None weighs the reader, which is why none of them settled anything: a deferral that
+never states what is being given up invites the next person to assume it is something valuable.
+
+**The fourth opening is the evidence this amendment is worth its space.** It ran to a full architecture
+analysis and a built slice — the route enumeration, the locale toggle, the unprefixed redirect, a new
+`localizedRoutes` module and its tests — all reverted before merge, because the benefit being reasoned
+about was one the site already had. That is the cost of leaving the two benefits fused, paid once, and
+this table is what it bought.
+
+**Note where the record is deliberately not repeating itself.** ADR-0010 already recorded the dual-slug
+rejection *per-surface*, on `/architecture`, and the question was reopened on the very next surface. So
+this is recorded **here**, on the clause that is actually challenged, rather than as another per-surface
+note — a per-surface rejection has now been demonstrated not to hold.
+
+### Accepted cost — the alternative is booby-trapped, not merely absent
+
+Keeping the shared slug has a price this ADR did not previously name, and it is not "a pair is
+unimplemented." It is that **the mechanism refuses to extend silently, and a test asserts the refusal as
+intended behaviour.**
+
+`localizeArticlePath` (`apps/fed/src/lib/content.ts:293`) passes every non-article path through
+unchanged, and `apps/fed/src/lib/content.test.ts:301` asserts exactly that pass-through. The same
+blog-namespace regex gates `articlePathForLocale` and this module's `alternatesFor`. So whoever adds a
+static pair next gets a **reader-facing dead end on a fully green suite**: the PT/EN toggle on
+`/pt/<pt-slug>` navigates to `/en/<pt-slug>`, which the in-locale `*` sends to the English landing —
+Issue [#204](https://github.com/tedeuxx/tadeumendonca-io/issues/204) reappearing on a static route, with
+nothing red to say so.
+
+This is recorded as a **cost of the decision, not as a defect to fix now**. It is harmless while no
+static route carries a pair, and fixing it speculatively would build the mechanism this amendment exists
+to say nobody currently needs. What it must not be is a surprise: a future pair is a routing-mechanism
+change with four crossings to guard (the toggle, the unprefixed redirect, hreflang/sitemap reciprocity,
+and what the wrong-locale slug does), **not** a table entry — and the green suite will not tell you that.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
+- **Amended 2026-08-05** (Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166)) — the
+  "NOT dual localized slugs" clause is **reaffirmed, not revised**. Separates the two benefits argued
+  under one name (language-pinning, shipped here via the prefix · slug readability, delivered only by a
+  pair), records the four openings that did not make that separation, and names the accepted cost that a
+  static pair is booby-trapped rather than absent. Related:
+  [ADR-0010](./0010-routing-landing-cv-split-redirects.md) (whose per-surface rejection did not hold),
+  [ADR-0037](./0037-localized-article-slugs.md) (the pair, for the blog only, where the readability
+  benefit was weighed and accepted on its own merits).
 - **Amended by** Issue [#200](https://github.com/tedeuxx/tadeumendonca-io/issues/200) — x-default pointed at
   bare, unprefixed URLs the build does not prerender; five of six answered 200 with the home page's OG. The
   fix pins x-default to the prefixed English canonical (root excepted) and adds the membership + own-canonical

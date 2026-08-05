@@ -19,7 +19,7 @@ test.use({ locale: 'pt-BR' });
 
 const WIDTHS = [320, 360, 390, 414, 640, 768, 834, 900, 1024, 1280];
 // Per-locale URLs (ADR-0036): drive the pt-prefixed pages directly (pt is the worst case for nav width).
-const ROUTES = ['/pt', '/pt/ramp-up', '/pt/me', '/pt/portfolio', '/pt/architecture'];
+const ROUTES = ['/pt', '/pt/ramp-up', '/pt/me', '/pt/portfolio', '/pt/architecture', '/pt/library'];
 const HEIGHT = 900;
 
 test.describe('no horizontal overflow at any width', () => {

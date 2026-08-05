@@ -228,6 +228,39 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
+  // /library, and it is here because the gate PROVED the hole rather than suspecting it: it reverted both
+  // editions of `library.metaDescription` to the contents-form the copy lens had blocked, rebuilt, and got
+  // 603 unit green and 120 E2E green with the wrong sentence sitting in the served HTML of both editions,
+  // in three head slots each. `/me`, `/portfolio` and `/architecture` all carry this assertion; `/library`
+  // was the only one of the four without it, and the only one whose description has ALREADY shipped wrong.
+  //
+  // THE POSITIVE PINS THE RULE FORM AND THE NEGATIVE PINS THE CONTENTS FORM, which is the whole point of
+  // the string rather than a phrasing preference. A contents sentence ("each book with a rating") is false
+  // at zero entries and true at twenty; a rule sentence ("only what I've read gets in") is true at both.
+  // The shelf ships empty, so the contents form was untrue at the moment of publication — and this string
+  // reaches `<meta name="description">`, `og:description` and `twitter:description` at once, on a route the
+  // sitemap advertises to search from merge with no in-site link. The negative is the exact retired
+  // wording, so a silent revert to it fails here instead of shipping green.
+  const LIBRARY_OG = {
+    pt: { rule: 'só entra o que eu li', contents: 'cada livro com nota de 1 a 5' },
+    en: {
+      rule: 'only what I have actually read gets in',
+      contents: 'each book with a 1–5 rating and what I took from it',
+    },
+  };
+  for (const locale of ['pt', 'en'] as const) {
+    const other = locale === 'pt' ? 'en' : 'pt';
+    test(`/${locale}/library states the shelf's RULE in its og:description, never its contents`, async ({
+      request,
+    }) => {
+      const body = await (await request.get(`/${locale}/library/`)).text();
+      const og = /property="og:description" content="([^"]*)"/.exec(body)?.[1] ?? '';
+      expect(og).toContain(LIBRARY_OG[locale].rule);
+      expect(og).not.toContain(LIBRARY_OG[locale].contents);
+      expect(og).not.toContain(LIBRARY_OG[other].rule);
+    });
+  }
+
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
@@ -492,8 +525,10 @@ test.describe('locale offer on a link that pins the other language', () => {
 // 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
 // alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
-  // Shared-slug routes: the same logical path under both prefixes.
-  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture'];
+  // Shared-slug routes: the same logical path under both prefixes. `/library` (#166) joins them —
+  // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
+  // added is the guard working; it is updated in the same commit as the route.
+  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
   // The one article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path.
   const ARTICLE = { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` };
   const LOGICAL_COUNT = SHARED.length + 1; // + the article
@@ -527,7 +562,12 @@ test.describe('sitemap advertises every per-locale URL', () => {
     expect(body).not.toContain('/profile');
     expect(body).not.toContain(`<loc>${SITE}/cv</loc>`);
     expect(body).not.toContain(`<loc>${SITE}/me</loc>`); // bare /me is a redirect, never a <loc>
+    expect(body).not.toContain(`<loc>${SITE}/library</loc>`); // and neither is the bare /library (#166)
     expect(body).not.toContain(`<loc>${SITE}/blog</loc>`);
+    // The localized-slug pair was proposed for this surface and declined (2026-08-05). A half-reverted
+    // routing change fails the same way a half-shipped one does, so the absence is asserted rather than
+    // assumed — no edition of any URL here carries the Portuguese word.
+    expect(body).not.toContain('biblioteca');
   });
 });
 
