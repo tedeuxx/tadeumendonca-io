@@ -59,11 +59,25 @@ describe('the committed manifest is a manifest at all', () => {
   // refuses `gh pr merge` from every agent_type but that one) while the JUDGEMENT it makes there is
   // enforced by nothing. `advises` is about the judgement. If this ever flips to `denies`, the page
   // starts asserting a safety property nothing implements, which is the one thing ADR-0043 forbids.
+  //
+  // THE TWO NAMED PERSONAS ARE THE TWO HARD CASES, not a sample — each is a different way the drawing
+  // could start over-claiming, which is why they are pinned by name and the other three are not:
+  //   · `quality-assurance` has a mechanically enforced SEAT and an unchecked judgement;
+  //   · `product-lead` is the mirror — its truth findings BLOCK a merge, but by convention, and no
+  //     hook refuses the merge command on its behalf.
+  // If either ever reads `denies`, the page claims a floor that does not exist.
+  //
+  // ~~`security`~~ held the second slot until 2026-08-05 and was retired from the roster in the
+  // plugin's own merge, which is what turned this assertion red here — the cross-repo drift this
+  // whole manifest exists to make visible, behaving exactly as designed. It is replaced rather than
+  // dropped: a single-name assertion pins the easy case and leaves the mirror case unguarded.
   it('says personas ADVISE and PreToolUse hooks DENY, and never the other way round', () => {
     const personas = manifest.filter((c) => c.kind === 'persona');
     expect(personas.length).toBeGreaterThan(0);
     expect([...new Set(personas.map((c) => c.enforcement))]).toEqual(['advises']);
-    expect(personas.map((c) => c.id)).toEqual(expect.arrayContaining(['quality-assurance', 'security']));
+    expect(personas.map((c) => c.id)).toEqual(
+      expect.arrayContaining(['quality-assurance', 'product-lead']),
+    );
 
     const preToolUse = manifest.filter((c) => c.kind === 'hook' && c.event === 'PreToolUse');
     expect(preToolUse.length).toBeGreaterThan(0);

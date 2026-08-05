@@ -39,6 +39,12 @@
   },
   {
     "kind": "persona",
+    "id": "harness-reviewer",
+    "file": "agents/harness-reviewer.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
     "id": "product-lead",
     "file": "agents/product-lead.md",
     "enforcement": "advises"
@@ -51,22 +57,9 @@
   },
   {
     "kind": "persona",
-    "id": "security",
-    "file": "agents/security.md",
-    "enforcement": "advises"
-  },
-  {
-    "kind": "persona",
     "id": "tech-lead",
     "file": "agents/tech-lead.md",
     "enforcement": "advises"
-  },
-  {
-    "kind": "command-family",
-    "id": "architecture",
-    "file": "commands/architecture",
-    "commands": 1,
-    "enforcement": "documents"
   },
   {
     "kind": "command-family",
