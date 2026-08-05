@@ -8,7 +8,7 @@ describe('LibraryPage', () => {
   it('renders the heading and the intro', () => {
     renderWithLocale(<LibraryPage />);
     expect(screen.getByRole('heading', { level: 1, name: /Biblioteca/ })).toBeInTheDocument();
-    expect(screen.getByText(/Não é lista de leitura/)).toBeInTheDocument();
+    expect(screen.getByText(/só entra o que eu terminei/)).toBeInTheDocument();
   });
 
   // The empty state is the surface's whole visible payload in this slice, so it is asserted on its TEXT
@@ -16,7 +16,7 @@ describe('LibraryPage', () => {
   // showing the reader nothing.
   it('states the shelf is being built, in the reader’s own words', () => {
     renderWithLocale(<LibraryPage />);
-    expect(screen.getByTestId('library-empty')).toHaveTextContent('A estante ainda está sendo montada.');
+    expect(screen.getByTestId('library-empty')).toHaveTextContent('Esta estante ainda está sendo montada.');
   });
 
   // Guards the guard. Every assertion above is about the EMPTY branch, and `library` is empty today —
@@ -31,15 +31,15 @@ describe('LibraryPage', () => {
   it('serves the whole page in the visitor language', () => {
     const { unmount } = renderWithLocale(<LibraryPage />, { locale: 'pt' });
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Biblioteca — o que eu leio, e o que ficou');
-    expect(screen.getByText('Estante · em curadoria')).toBeInTheDocument();
-    expect(screen.getByTestId('library-empty')).toHaveTextContent('A estante ainda está sendo montada.');
-    expect(screen.queryByText(/The shelf is still being put together/)).toBeNull();
+    expect(screen.getByText('Estante · em montagem')).toBeInTheDocument();
+    expect(screen.getByTestId('library-empty')).toHaveTextContent('Esta estante ainda está sendo montada.');
+    expect(screen.queryByText(/This shelf is still being put together/)).toBeNull();
     unmount();
 
     renderWithLocale(<LibraryPage />, { locale: 'en' });
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Library — what I read, and what stuck');
-    expect(screen.getByText('Shelf · being curated')).toBeInTheDocument();
-    expect(screen.getByTestId('library-empty')).toHaveTextContent('The shelf is still being put together.');
-    expect(screen.queryByText(/A estante ainda está sendo montada/)).toBeNull();
+    expect(screen.getByText('Shelf · being put together')).toBeInTheDocument();
+    expect(screen.getByTestId('library-empty')).toHaveTextContent('This shelf is still being put together.');
+    expect(screen.queryByText(/Esta estante ainda está sendo montada/)).toBeNull();
   });
 });

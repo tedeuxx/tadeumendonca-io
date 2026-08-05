@@ -22,8 +22,8 @@ const SITE = 'https://tadeumendonca.io';
 // runs against a BUILT artifact, and importing the catalog would assert that the page renders whatever
 // the source says — which is true of a stale build too.
 const EMPTY = {
-  pt: 'A estante ainda está sendo montada.',
-  en: 'The shelf is still being put together.',
+  pt: 'Esta estante ainda está sendo montada.',
+  en: 'This shelf is still being put together.',
 };
 
 test.describe('/library serves the deliberate empty state, in both editions', () => {
