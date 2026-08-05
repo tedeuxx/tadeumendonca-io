@@ -228,6 +228,39 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
+  // /library, and it is here because the gate PROVED the hole rather than suspecting it: it reverted both
+  // editions of `library.metaDescription` to the contents-form the copy lens had blocked, rebuilt, and got
+  // 603 unit green and 120 E2E green with the wrong sentence sitting in the served HTML of both editions,
+  // in three head slots each. `/me`, `/portfolio` and `/architecture` all carry this assertion; `/library`
+  // was the only one of the four without it, and the only one whose description has ALREADY shipped wrong.
+  //
+  // THE POSITIVE PINS THE RULE FORM AND THE NEGATIVE PINS THE CONTENTS FORM, which is the whole point of
+  // the string rather than a phrasing preference. A contents sentence ("each book with a rating") is false
+  // at zero entries and true at twenty; a rule sentence ("only what I've read gets in") is true at both.
+  // The shelf ships empty, so the contents form was untrue at the moment of publication — and this string
+  // reaches `<meta name="description">`, `og:description` and `twitter:description` at once, on a route the
+  // sitemap advertises to search from merge with no in-site link. The negative is the exact retired
+  // wording, so a silent revert to it fails here instead of shipping green.
+  const LIBRARY_OG = {
+    pt: { rule: 'só entra o que eu li', contents: 'cada livro com nota de 1 a 5' },
+    en: {
+      rule: 'only what I have actually read gets in',
+      contents: 'each book with a 1–5 rating and what I took from it',
+    },
+  };
+  for (const locale of ['pt', 'en'] as const) {
+    const other = locale === 'pt' ? 'en' : 'pt';
+    test(`/${locale}/library states the shelf's RULE in its og:description, never its contents`, async ({
+      request,
+    }) => {
+      const body = await (await request.get(`/${locale}/library/`)).text();
+      const og = /property="og:description" content="([^"]*)"/.exec(body)?.[1] ?? '';
+      expect(og).toContain(LIBRARY_OG[locale].rule);
+      expect(og).not.toContain(LIBRARY_OG[locale].contents);
+      expect(og).not.toContain(LIBRARY_OG[other].rule);
+    });
+  }
+
   for (const path of ['/', '/pt/', '/en/'] as const) {
     test(`${path} (the landing) does not carry the curation claim`, async ({ request }) => {
       const body = await (await request.get(path)).text();
