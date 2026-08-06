@@ -30,6 +30,13 @@ crash.log
 # never published: this repo is public.
 .brand/
 
+# scratch — the ONE place for throwaway files (PR bodies, commit messages). Ignored rather than
+# absent, so a scratch write lands somewhere NAMED instead of somewhere random: the failure this
+# replaces was an agent leaving a bundled `dist-old-qa/` at a repo path nothing ignored, which
+# dirtied `git status` and broke local lint with 1480 errors. Emptied at the start of every new
+# session by the plugin's `session-scratch` hook — see CLAUDE.md for what does and does not belong.
+.scratch/
+
 # editor / os
 .DS_Store
 *.log

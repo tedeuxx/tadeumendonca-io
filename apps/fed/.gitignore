@@ -9,8 +9,16 @@ coverage/
 playwright-report/
 test-results/
 
-# Throwaway diagnostic probes (#193). They must live INSIDE this package to resolve @playwright/test
-# from apps/fed/node_modules — a copy in a temp dir dies with ERR_MODULE_NOT_FOUND — so without a
-# gitignored home they get written into a tracked directory and have to be deleted before they leak
-# into a commit. Anything worth keeping becomes a real spec under e2e/ instead.
-.scratch/
+# The `.scratch/` entry that stood here is GONE, and its constraint is still true — which is why it
+# is recorded rather than dropped silently (#193 → #155).
+#
+# It said probes must live inside this package to resolve `@playwright/test` from
+# `apps/fed/node_modules`; a copy elsewhere dies with ERR_MODULE_NOT_FOUND. Still measured to be
+# true: the repo root has `node_modules/` but no `@playwright/test`.
+#
+# What changed is that a probe is no longer a scratch class at all. Scratch is for PR bodies and
+# commit messages — written once, consumed, discarded. A diagnostic worth running twice becomes a
+# real spec under `e2e/`, and one worth running once is not worth a home. So the constraint no
+# longer needs solving here: nothing should be written to `apps/fed/.scratch/` in the first place,
+# and leaving it un-ignored makes that loud instead of silent. The previous instance reached seven
+# files and ten days precisely because it was quiet.

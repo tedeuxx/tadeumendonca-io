@@ -17,6 +17,14 @@
   },
   {
     "kind": "hook",
+    "id": "session-scratch.sh",
+    "file": "hooks/scripts/session-scratch.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
     "id": "session-wip.sh",
     "file": "hooks/scripts/session-wip.sh",
     "event": "SessionStart",

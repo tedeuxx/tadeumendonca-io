@@ -202,7 +202,7 @@ flowchart TB
   PS["5 personas · agents/<br/>tech-lead<br/>product-lead<br/>developer<br/>quality-assurance<br/>harness-reviewer"]
   CF["5 famílias de comando<br/>commands/<br/>backend 20<br/>frontend 18<br/>infrastructure 21<br/>principles 5<br/>workflow 9"]
   OC["autonomy-on<br/>new-issue<br/>2 comandos, sem família"]
-  HKR["2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version"]
+  HKR["3 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>session-scratch"]
   DE["O que o agente decide"]
   RU["O que o agente executa"]
   GM["Aí os gates, aí o merge<br/>— a figura acima"]

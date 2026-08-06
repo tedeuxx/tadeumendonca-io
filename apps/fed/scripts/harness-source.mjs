@@ -93,7 +93,7 @@ export function resolvePluginDir(raw) {
  *                nothing forces it to be dispatched at all. A lens nobody dispatches fails silently,
  *                and that is the half of `advises` worth keeping distinct from the merge seat above.
  * - `documents`— neither denies nor advises; it removes a re-decision or reports state. The command
- *                families, the un-namespaced commands, and the two `SessionStart` hooks, which print
+ *                families, the un-namespaced commands, and the `SessionStart` hooks, which print
  *                context at session start and cannot refuse anything.
  *
  * NOTE what is NOT in here: the CI gates. ADR-0043 classes them `denies` and they genuinely do refuse a
@@ -106,10 +106,17 @@ const ENFORCEMENT = ['denies', 'advises', 'documents'];
 /**
  * The class of a component, from its kind — and for a hook, from its EVENT.
  *
- * Keyed on the event and not on "hook", deliberately. "Hooks deny" is false for half of them:
- * `SessionStart` runs once at session start and has no tool call to refuse. Collapsing the four into one
- * class would publish the stronger claim about two scripts that cannot make it, which is the same defect
+ * Keyed on the event and not on "hook", deliberately. "Hooks deny" is false for most of them:
+ * `SessionStart` runs once at session start and has no tool call to refuse. Collapsing them into one
+ * class would publish the stronger claim about scripts that cannot make it, which is the same defect
  * in miniature as drawing personas like hooks.
+ *
+ * ONE ROW SITS UNCOMFORTABLY HERE AND IT IS RECORDED RATHER THAN SMOOTHED OVER. `session-scratch`
+ * DELETES files at session start. It refuses no tool call, so on the axis this map actually measures
+ * — can it stop the agent from doing something — `documents` is correct. But "neither denies nor
+ * advises; it removes a re-decision or reports state" undersells a script whose whole job is
+ * destructive. The axis may need a fourth value; that is a decision for `tech-lead` and the ADR
+ * library, not something to settle by widening a map in a derivation script.
  *
  * A closed map that THROWS. A kind or an event this does not know is either a typo or a change to the
  * practice; both are things a person should hear about, and neither should quietly become a diagram node.
@@ -248,12 +255,16 @@ export function collectPersonas(pluginDir) {
 }
 
 /**
- * The four hooks, from `hooks/hooks.json` — the WIRING file, not the scripts directory.
+ * The hooks, from `hooks/hooks.json` — the WIRING file, not the scripts directory.
  *
- * `hooks/scripts/` holds nine files, five of which are the hooks' own `.test.sh` suites. Counting the
- * directory would inventory the tests as hooks; counting the wiring inventories what is actually
- * registered, which is the thing the diagram claims. It is also the field that drifted: nothing anywhere
- * counted `session-plugin-version`, and the plugin's README still draws three.
+ * The COUNT is deliberately not written here. Naming it in prose is what drifted last time and it would
+ * drift again on the next hook; the number belongs in the derived manifest, which is regenerated, and
+ * nowhere else. `check-harness-drift` is the thing that keeps it honest.
+ *
+ * `hooks/scripts/` holds more files than there are hooks, roughly half of them the hooks' own `.test.sh`
+ * suites. Counting the directory would inventory the tests as hooks; counting the wiring inventories what
+ * is actually registered, which is the thing the diagram claims. It is also the field that drifted:
+ * nothing anywhere counted `session-plugin-version`, and the plugin's README still draws three.
  *
  * `matcher` is carried because it is half of what a `PreToolUse` hook IS — a guard re-pointed from `Bash`
  * to something else is present on both sides with a different field, which is exactly the `changed` case
