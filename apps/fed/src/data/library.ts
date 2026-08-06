@@ -108,8 +108,8 @@ export const library: LibraryEntry[] = [
     // esse" / "if you read one, read this" — which is a recommendation about GROUNDING. Both are true at
     // once, and this entry is what says what the grounding costs a reader arriving from software.
     takeaway: {
-      pt: 'Pra quem quer uma visão panorâmica dos fundamentos que sustentam a era atual da IA. Vindo de TI e engenharia de software, eu senti muita informação e pouca tática — a entrega é a base, não um caminho pra começar a construir amanhã.',
-      en: 'For the reader who wants a panoramic view of the fundamentals the current AI era is built on. Coming from IT and software engineering, I found it a lot of information and short on tactics — what it delivers is the grounding, not a way to start building tomorrow.',
+      pt: 'Pra quem quer uma visão panorâmica dos fundamentos que sustentam a era atual da IA. Vindo de TI e sem background acadêmico na prática atual de IA, eu senti muita informação de uma vez — o que ele entrega é fundação, e é por isso que continua sendo o primeiro que eu indico.',
+      en: 'For anyone who wants a panoramic view of the fundamentals the current AI era is built on. Coming from IT, without an academic background in current AI practice, I found it a lot to take in at once — what it delivers is grounding, which is why it is still the first one I point people to.',
     },
   },
   {
@@ -123,7 +123,7 @@ export const library: LibraryEntry[] = [
     // calque running en-ward is the same defect class the catalog keeps catching running pt-ward.
     takeaway: {
       pt: 'Pra quem quer começar a construir aplicações de IA. Mais estruturado: um cookbook dos marcos por que passa uma solução desse tipo, com boas referências pra pesar no caminho — se você não sabe por onde começar, ele te deixa na cara do gol.',
-      en: 'For the reader who wants to start building AI applications. More structured: a cookbook of the milestones a solution like that goes through, with good references to weigh along the way — if you do not know where to start, it leaves you with an open goal.',
+      en: 'For anyone who wants to start building AI applications. More structured: a cookbook of the milestones a solution like that goes through, with good references to weigh along the way — if you do not know where to start, it leaves you with an open goal.',
     },
   },
 ];
