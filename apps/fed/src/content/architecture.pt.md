@@ -13,7 +13,7 @@ Em camadas — e **o que interessa nesse desenho é o que não está nele**: nã
 ```mermaid
 flowchart TB
   accTitle: As camadas, e a trilha de build que substitui as que faltam
-  accDescr: Duas trilhas lado a lado — dois tempos, não dois lados do desenho. A trilha de servir, descrita primeiro porque o dispositivo do leitor é o nó mais alto dela: o dispositivo chega ao DNS, depois à borda do CloudFront, que roda a função de reescrita de URL e mantém o cache, e daí à origem em S3 com os arquivos pré-renderizados. A trilha de build, ao lado: o conteúdo escrito no repositório passa pelo pipeline, que pré-renderiza cada rota nos dois idiomas e imprime o PDF do CV, e publica o resultado nessa mesma origem em S3, que é onde as duas trilhas se encontram. Não há servidor de aplicação nem banco de dados. Tudo que um backend normalmente faria a cada requisição acontece na trilha de build.
+  accDescr: Duas trilhas — dois tempos, não dois lados do desenho. A trilha de build: o conteúdo escrito no repositório passa pelo pipeline, que pré-renderiza cada rota nos dois idiomas e imprime o PDF do CV, e publica o resultado na origem em S3. A trilha de servir: o dispositivo do leitor chega ao DNS, depois à borda do CloudFront, que roda a função de reescrita de URL e mantém o cache, e daí à mesma origem em S3 com os arquivos pré-renderizados. Não há servidor de aplicação nem banco de dados. Tudo que um backend normalmente faria a cada requisição acontece na trilha de build.
   subgraph build["BUILD — roda no merge, não na requisição"]
     direction TB
     C["Conteúdo no repo<br/>markdown · TypeScript tipado"] --> P["Pipeline<br/>gates · pré-renderiza os dois idiomas · imprime /cv.pdf"]

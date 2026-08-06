@@ -13,7 +13,7 @@ In layers, and **the interesting thing about this picture is what is not in it**
 ```mermaid
 flowchart TB
   accTitle: The layers, and the build lane that replaces the missing ones
-  accDescr: Two lanes side by side — two times, not two sides of the picture. The serving lane, described first because the reader's device is the topmost node in it: the device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then the S3 origin holding the prerendered files. The build lane, alongside it: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result into that same S3 origin, which is where the two lanes meet. There is no application server and no database. Everything a backend would normally do at request time happens in the build lane instead.
+  accDescr: Two lanes — two times, not two sides of the picture. The build lane: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result to the S3 origin. The serving lane: the reader's device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then that same S3 origin holding the prerendered files. There is no application server and no database. Everything a backend would normally do at request time happens in the build lane instead.
   subgraph build["BUILD — runs on merge, not on request"]
     direction TB
     C["Content in the repo<br/>markdown · typed TypeScript"] --> P["Pipeline<br/>gates · prerender both locales · print /cv.pdf"]
