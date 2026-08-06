@@ -4,7 +4,7 @@ This is my ramp-up in the open. I already work as an AI Engineer — applied Gen
 
 Fair warning: this is a plan in progress, not a victory lap. The identity is set; the depth is still compounding. Take what's useful, ignore the rest.
 
-**How this started:** in early 2026 I picked up Kiro — an agentic IDE — and the AI-native loop clicked. It moved into my personal life next (Claude, Cowork), then into personal projects built with Claude Code. This site and this ramp-up are part of that same move: a transition I'm living in the open, not a claim I'm making.
+**How this started:** in early 2026 I picked up Kiro — an agentic IDE — and the AI-native loop clicked. The tool clicking is one thing; feeling part of what's happening is another, and for months the two didn't line up — I had the tools in hand and still felt outside the hype. That gap is what section 2 below is about, and the architecture page tells the rest of it. It moved into my personal life next (Claude, Cowork), then into personal projects built with Claude Code. This site and this ramp-up are part of that same move: a transition I'm living in the open, not a claim I'm making.
 
 ---
 
