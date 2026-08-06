@@ -28,6 +28,12 @@ const strings = {
     profile: { pt: 'Perfil', en: 'Profile' },
     rampup: { pt: 'Ramp-up', en: 'Ramp-up' },
     architecture: { pt: 'Arquitetura', en: 'Architecture' },
+    // The nav entry arrives with the first books, not with the route (#166). Slice 1 shipped `/library`
+    // reachable by direct URL and the sitemap only, because pointing a reader at an empty shelf is worse
+    // than not pointing — the label is what turns the surface from addressable into advertised.
+    // The LABEL is bilingual; the SLUG is not (`/pt/library` · `/en/library`, ADR-0036's 2026-08-05
+    // amendment), so "Biblioteca" is the one place a Portuguese reader meets the surface's own name.
+    library: { pt: 'Biblioteca', en: 'Library' },
     openMenu: { pt: 'Abrir menu', en: 'Open menu' },
     closeMenu: { pt: 'Fechar menu', en: 'Close menu' },
   },

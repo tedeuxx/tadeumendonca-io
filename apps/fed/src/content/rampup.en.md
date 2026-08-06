@@ -95,6 +95,8 @@ Half of this shelf is still shipping chapter by chapter as I read it. That's the
 
 Links go to O'Reilly's catalog; reading them needs an O'Reilly subscription.
 
+The ones I have finished and had something to say about are in the [Library](/library), with a 1–5 rating and what I took from each.
+
 ### YouTube
 
 Three to start with — one per channel, picked to show why the channel earns its place, not because it has the biggest number on it. Watch one, and if it lands, follow the channel.

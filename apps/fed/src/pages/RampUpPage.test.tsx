@@ -36,11 +36,19 @@ describe('RampUpPage', () => {
   //
   // Videos need their own extraction: a facade renders a <button>, not an <a>, so a link-only
   // comparison is blind to exactly the sources that were hand-verified against their channels.
+  //
+  // SITE-INTERNAL links are compared with their locale prefix stripped (#166). Markdown authors the
+  // LOGICAL path — `[Biblioteca](/library)` in both files — and `Markdown`'s link handler resolves it to
+  // the active locale's real, prerendered URL, so the pt render legitimately emits `/pt/library` where
+  // the en render emits `/en/library`. Stripping ONLY that leading prefix keeps the guard exact: it is
+  // still the same source, and everything after the prefix is still compared byte for byte, so a link
+  // pointing at a different page in one edition still goes red.
   it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.
+    const logical = (href: string | null) => href?.replace(/^\/(?:pt|en)(?=\/|$)/, '') ?? null;
     const sourcesOf = (container: HTMLElement) => ({
-      links: [...container.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+      links: [...container.querySelectorAll('a')].map((a) => logical(a.getAttribute('href'))),
       videos: [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src')),
       sections: container.querySelectorAll('h2').length,
     });
@@ -118,6 +126,25 @@ describe('RampUpPage', () => {
     expect(container.querySelector('iframe')?.getAttribute('src')).toMatch(
       /^https:\/\/www\.youtube-nocookie\.com\/embed\//,
     );
+  });
+
+  // The cross-link to the shelf (#166), deferred by `product-lead` to the slice that lands the first
+  // entries. It is the first site-INTERNAL link any markdown body carries, and the property that matters
+  // is the one a bare `/library` would break: a Portuguese page must not hand a reader with an English
+  // browser the English shelf. The href is resolved per locale, so it is asserted per locale.
+  it('sends the reader to the shelf in their own edition', () => {
+    const { unmount } = renderPage('pt');
+    const pt = screen.getByRole('link', { name: 'Biblioteca' });
+    expect(pt).toHaveAttribute('href', '/pt/library');
+    // The claim around the link is a FACT about the shelf, and it is here so a reworded sentence that
+    // drops it is visible: the shelf carries a rating, which is what makes it more than a second list.
+    expect(pt.closest('p')).toHaveTextContent('com nota de 1 a 5');
+    unmount();
+
+    renderPage('en');
+    const en = screen.getByRole('link', { name: 'Library' });
+    expect(en).toHaveAttribute('href', '/en/library');
+    expect(en.closest('p')).toHaveTextContent('with a 1–5 rating');
   });
 
   it('links the sources out to their public canonical URLs', () => {

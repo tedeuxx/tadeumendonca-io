@@ -37,6 +37,24 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: 'Portfólio' })).toHaveAttribute('href', '/pt/portfolio');
     expect(screen.getByRole('link', { name: 'Contato' })).toHaveAttribute('href', '/pt/#contato');
     expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/pt/me');
+    // #166's second slice. The route shipped one slice earlier with no nav entry at all, deliberately —
+    // this asserts the entry exists AND is locale-prefixed, since the surface's whole reason for a shared
+    // English slug is that the PREFIX is what carries the language.
+    expect(screen.getByRole('link', { name: 'Biblioteca' })).toHaveAttribute('href', '/pt/library');
+  });
+
+  // The label is bilingual even though the slug is not (ADR-0036's 2026-08-05 amendment), so "Biblioteca"
+  // is the one place a Portuguese reader meets the surface's own name. Asserted in both editions because
+  // a missing catalog entry renders the KEY, which looks like a label and reads as one at a glance.
+  it('names the shelf in the visitor’s language while both editions share the slug', () => {
+    const { unmount } = renderShell();
+    expect(screen.getByRole('link', { name: 'Biblioteca' })).toHaveAttribute('href', '/pt/library');
+    expect(screen.queryByRole('link', { name: 'Library' })).toBeNull();
+    unmount();
+
+    renderShell('en');
+    expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute('href', '/en/library');
+    expect(screen.queryByRole('link', { name: 'Biblioteca' })).toBeNull();
   });
 
   it('toggles the mobile menu, rendering a second copy of the nav links', () => {
@@ -210,7 +228,7 @@ describe('AppShell', () => {
   //
   // Both copies are checked because the mobile menu is a second live mount of NavItems, not a restyling
   // of the desktop one; a change that reached only one of them is a real, shippable outcome.
-  const NAV_LABELS = ['Artigos', 'Portfólio', 'Contato', 'Ramp-up', 'Arquitetura', 'Perfil'];
+  const NAV_LABELS = ['Artigos', 'Portfólio', 'Contato', 'Ramp-up', 'Arquitetura', 'Biblioteca', 'Perfil'];
 
   it('borders every nav item, in the desktop bar and in the mobile menu alike', () => {
     renderShell('pt');

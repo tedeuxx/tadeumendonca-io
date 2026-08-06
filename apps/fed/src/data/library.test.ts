@@ -4,15 +4,27 @@ import { assertLibraryShape, library, normalizeBookUrl, RATING_MAX, RATING_MIN, 
 
 // THE POINT OF THIS FILE, stated before the tests because it is the reason for their shape.
 //
-// `library` is empty in this slice. A guard written as `for (const entry of library) expect(...)` is
-// green forever and asserts NOTHING — and it stays that way through exactly the window the guard exists
-// to protect, which is the shelf being filled one book at a time. An assertion that cannot fail is worse
-// than an absent one, because it reads as coverage.
+// `library` was empty when this file was written. A guard written as `for (const entry of library)
+// expect(...)` is green forever on an empty array and asserts NOTHING — and it stays that way through
+// exactly the window the guard exists to protect, which is the shelf being filled one book at a time. An
+// assertion that cannot fail is worse than an absent one, because it reads as coverage.
 //
 // So every rule is exercised against SYNTHETIC FIXTURES that violate it one at a time. Whether the real
 // corpus is empty, one book or twenty is irrelevant to whether the rules are proven — the same injected-
 // seam reasoning `buildBlogEditions` (scripts/routes.mjs) and `buildEditions` (lib/content.ts) are built
 // on, both of which are pure because the real content can never reach the branch that throws.
+//
+// THE SHELF NOW HAS BOOKS ON IT, AND THIS FILE DELIBERATELY DID NOT CHANGE SHAPE. That is the second
+// failure mode and it is the mirror of the first: once real data exists it is tempting to let the guard
+// become a test OF that data, and then the rules quietly stop being proven — two books cannot exercise a
+// blank author, an implausible year or a duplicate URL, so every one of those rules would be resting on
+// a corpus that happens not to violate it. Both properties are wanted and both are asserted here:
+//
+//   · the RULES, proven on fixtures, corpus-independent      → every `describe` up to "the shipped shelf"
+//   · the SHIPPED SHELF, checked against those rules and no longer vacuously → "the shipped shelf" below
+//
+// The second is the weaker claim and is labelled as such, so a later reader cannot mistake it for the
+// first.
 //
 // The fixture is a REAL book on purpose: fixtures that are visibly fake ("Book A", "http://x") drift into
 // shapes the corpus never takes, and then the accept-cases stop proving that real data passes.
@@ -187,15 +199,66 @@ describe('assertLibraryShape — a missing translation cannot ship', () => {
   });
 });
 
+// The guard against the guard: everything above must keep proving the RULES, not the two rows that now
+// ship. This is the assertion that says so mechanically rather than in a comment.
+describe('assertLibraryShape reads its argument, never the shipped shelf', () => {
+  // The failure this catches is specific and cheap to introduce: someone "simplifies" the validator to
+  // iterate `library` instead of `entries`. Every reject case above would then run against a VALID shelf,
+  // throw nothing, and this whole file would go green while asserting nothing about shape at all.
+  //
+  // It could not be written while `library` was empty — an empty corpus makes a param-ignoring validator
+  // behave identically to a correct one on the accept cases. The shelf having books is what gives this
+  // test its teeth, which is why it arrives in the same slice as the books.
+  it('rejects a violating fixture even though the shipped shelf is valid and non-empty', () => {
+    expect(library.length, 'this test is only meaningful against a non-empty shelf').toBeGreaterThan(0);
+    expect(() => assertLibraryShape(library)).not.toThrow();
+    // Same call, different argument, opposite outcome. A validator reading `library` cannot produce this.
+    expect(() => assertLibraryShape([entry({ title: '   ' })])).toThrow(/has no title/);
+  });
+
+  it('accepts an empty shelf while the shipped one is full — the argument decides, not the module', () => {
+    expect(() => assertLibraryShape([])).not.toThrow();
+    expect(library.length).toBeGreaterThan(0);
+  });
+});
+
 describe('the shipped shelf', () => {
-  // This one IS vacuous while `library` is empty, and it is kept for the window in which it stops being
-  // vacuous — the first book lands in a content slice that will not be reading this file. It is labelled
-  // so nobody mistakes it for the coverage the fixtures above provide.
-  it('passes its own guard (vacuously today — the shelf is empty by design)', () => {
+  // THE WEAKER CLAIM, and labelled so nobody reads it as the coverage the fixtures above provide. It is
+  // no longer vacuous — it was, by construction, for as long as the array was empty.
+  it('passes its own guard', () => {
     expect(() => assertLibraryShape(library)).not.toThrow();
   });
 
-  it('is empty in this slice, deliberately — no placeholder book', () => {
-    expect(library).toEqual([]);
+  it('has books on it — the slice that made every real-corpus assertion here mean something', () => {
+    expect(library.length).toBeGreaterThan(0);
+  });
+
+  // Facts only, never taste. Whether a takeaway is any GOOD is curation and belongs to `product-lead`
+  // and the owner; what is checkable is that the two editions are two editions.
+  it('carries a distinct takeaway per locale — never one language pasted into both', () => {
+    for (const book of library) {
+      const values = LOCALES.map((locale) => book.takeaway[locale].trim());
+      expect(new Set(values).size, `"${book.title}" ships the same takeaway text in every locale`).toBe(LOCALES.length);
+    }
+  });
+
+  // The order is authored (foundations, then the structure built on them) rather than sorted, so it is
+  // pinned by URL — the identity key, for the reason `catalog.test.ts` keys on `repoUrl`: a title is
+  // exactly the field an edition or subtitle rewrite churns, and a rewrite must not orphan a guard.
+  it('renders in the authored order, keyed on the identity field', () => {
+    expect(library.map((book) => normalizeBookUrl(book.url))).toEqual([
+      'https://www.oreilly.com/library/view/ai-engineering/9781098166298',
+      'https://www.oreilly.com/library/view/building-applications-with/9781098176495',
+    ]);
+  });
+
+  // Not an aesthetic check. The shelf's published rule is "only what I have finished gets in", and a
+  // rating is the claim that carries it; the `Rating` union is erased at runtime, so this is the layer
+  // that would notice a `0` arriving through a cast on a real row.
+  it('rates every shipped book on the published scale', () => {
+    for (const book of library) {
+      expect(book.rating, `"${book.title}"`).toBeGreaterThanOrEqual(RATING_MIN);
+      expect(book.rating, `"${book.title}"`).toBeLessThanOrEqual(RATING_MAX);
+    }
   });
 });

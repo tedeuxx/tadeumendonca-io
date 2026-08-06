@@ -96,11 +96,15 @@ assuming a route exists.
    Markdown-in-repo, both locales.
 6. **Library** (`/library`) — a curated reading shelf: each book with a 1–5 rating and one line on what
    he took from it. **Typed data, not markdown** — `src/data/library.ts` follows `catalog.ts`, so it is
-   the `/portfolio` pattern rather than a third one. It ships with **zero entries and an authored empty
-   state** (a placeholder book is prose an OG scraper would pin), and **no nav entry until it has
-   books** — reachable by direct URL and the sitemap only. The label is bilingual ("Biblioteca" /
-   "Library"); the slug is not — the localized pair `/pt/biblioteca ⇄ /en/library` was proposed and
-   declined (ADR-0036's 2026-08-05 amendment).
+   the `/portfolio` pattern rather than a third one. It shipped with **zero entries and an authored empty
+   state** (a placeholder book is prose an OG scraper would pin) and **no nav entry**; both conditions were
+   discharged by the first books (#166), so it now carries a **nav entry in both editions** and a
+   cross-link from `/ramp-up`. **The empty state is still live copy, not dead code** — the page takes its
+   entries through a seam so that reviewed sentence stays covered for the day the array is empty again.
+   The label is bilingual ("Biblioteca" / "Library"); the slug is not — the localized pair
+   `/pt/biblioteca ⇄ /en/library` was proposed and declined (ADR-0036's 2026-08-05 amendment).
+   `/ramp-up` and `/library` name overlapping books by hand, and where they overlap they are asserted to
+   agree on the facts — title, URL, finished status — never on prose.
 
 **Blog** — long-form engineering writing with explicit trade-offs (distributed-systems / AI patterns) — is
 **not a static route**. There is no `/blog` list page: it was retired, and `/blog` redirects to the
