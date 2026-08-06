@@ -17,10 +17,12 @@
 //   The scales are not the same thing either: `LevelMeter` is a 4-square AWS L100–L400 competency ladder,
 //   this is a 5-point opinion about a book. One component asked to mean both would mean neither.
 //
-// ONE DEFECT DELIBERATELY NOT COPIED: `LevelMeter`'s label is a hardcoded English template literal with
-// no `t()`, so a Portuguese screen-reader user hears English on `/me` today. Fixing that is out of this
-// slice's scope (it changes a print-bearing component), but propagating it is not acceptable — this
-// label goes through the message catalog like every other UI string.
+// ONE DEFECT DELIBERATELY NOT COPIED, AND SINCE FIXED AT ITS SOURCE: `LevelMeter`'s label was a
+// hardcoded English template literal with no `t()`, so a Portuguese screen-reader user heard English on
+// `/me`. This surface refused to propagate it and named it instead; `LevelMeter` now reads
+// `cv.proficiencyLabel` from the catalog, in the same `{value}`/`{max}` shape as `library.ratingLabel`
+// below. Recorded rather than deleted because the sequence is the point — the defect was found by
+// declining to copy it, which is the only reason anyone looked.
 import { RATING_MAX, type Rating } from '../data/library';
 import { useT } from '../i18n';
 

@@ -43,10 +43,27 @@ function Block({ index, title, children }: { index: string; title: string; child
 /** Credly badge when the data has the image, otherwise a typographic seal built from the label. */
 // A 4-square proficiency meter (AWS L100–L400 model): `level` squares filled, the rest muted. Mono,
 // radius-0 squares — on-brand, and read as a recognized competency ladder, not an arbitrary self-bar.
+// The ladder has FOUR rungs and the number now exists once. It used to appear twice — in the drawn
+// array and in the announced label — which is how the two can disagree: a fifth square would have been
+// announced as "of 4" with nothing objecting, and only a screen-reader user would ever have known.
+const LEVEL_MAX = 4;
+const LEVELS = Array.from({ length: LEVEL_MAX }, (_, i) => i + 1);
+
 function LevelMeter({ level }: { level: number }) {
+  const t = useT();
+  // Through the catalog, like every other UI string. The literal that stood here was English in both
+  // editions, so a pt-BR screen-reader user heard "Proficiency level 3 of 4" surrounded by Portuguese —
+  // the exact failure the compile-error rule exists to stop, hiding in the one construct it cannot
+  // check. `RatingMeter` refused to copy this defect when it shipped and named it; this closes it.
+  //
+  // Changing an `aria-label` is safe for the PRINT edition even though this component is print-bearing
+  // (`/cv.pdf` is printed from `/en/me`, ADR-0034): the label is never painted, and the English edition
+  // resolves to the same sentence it always did.
+  const label = t('cv.proficiencyLabel').replace('{level}', String(level)).replace('{max}', String(LEVEL_MAX));
+
   return (
-    <span className="inline-flex gap-px" role="img" aria-label={`Proficiency level ${level} of 4`}>
-      {[1, 2, 3, 4].map((i) => (
+    <span className="inline-flex gap-px" role="img" aria-label={label}>
+      {LEVELS.map((i) => (
         <span key={i} className={`h-2 w-2 ${i <= level ? 'bg-foreground' : 'bg-border'}`} />
       ))}
     </span>

@@ -404,6 +404,21 @@ const strings = {
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
+    // The proficiency meter's accessible name. `{level}` and `{max}` are substituted by `LevelMeter`,
+    // `{max}` from the same constant that generates the squares, so the announced ladder cannot disagree
+    // with the drawn one. Same shape as `library.ratingLabel` — deliberately, since these are the two
+    // meters on the site and a reader who meets both should not hear two different grammars.
+    //
+    // This was English-only until #155's neighbourhood, and `RatingMeter.tsx` names the defect it
+    // declined to copy: a pt-BR screen-reader user heard "Proficiency level 3 of 4" on `/pt/me` while
+    // every visible string around it was Portuguese. It is the failure mode the compile-error rule
+    // exists to prevent, surviving in the one place the rule cannot see — a template literal.
+    //
+    // "Nível", not "Proficiência": the pt-BR line names the RUNG, matching the L100–L400 ladder the
+    // meter draws. `en` keeps "Proficiency" because the English ladder is named that way in the source
+    // it comes from; the two editions describe the same scale in each language's own idiom rather than
+    // one being a word-for-word cast of the other.
+    proficiencyLabel: { pt: 'Nível {level} de {max}', en: 'Proficiency level {level} of {max}' },
     // RETIRED as of #317, and kept as strings rather than deleted only for the length of this comment:
     // these were the print-only proficiency wording for the one-page CV (#161). The meter was hidden in
     // print then, so a level-1 keyword printed beside a level-4 one as equals, and the calibration was

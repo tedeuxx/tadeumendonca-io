@@ -38,9 +38,38 @@ describe('CVSection', () => {
     // "Skills", not "Habilidades" — the heading is deliberately untranslated in the pt edition
     // (owner, 2026-07-31), because English IS the pt-BR usage for this section of a CV.
     expect(screen.getByText('Skills')).toBeInTheDocument();
-    // Each leveled skill shows the 4-square proficiency meter (AWS L100–L400 model).
-    expect(screen.getAllByRole('img', { name: /Proficiency level/ }).length).toBeGreaterThan(0);
+    // Each leveled skill shows the 4-square proficiency meter (AWS L100–L400 model), and its accessible
+    // name is in THIS render's language. The assertion here used to read `/Proficiency level/` — English,
+    // inside a render that asserts `Experiência` and `Formação` three lines up. It passed, because the
+    // label was a hardcoded English literal, so the test agreed with the bug instead of catching it.
+    expect(screen.getAllByRole('img', { name: /Nível \d+ de 4/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
+  });
+
+  // BOTH editions, because a single-locale assertion is what let the English literal live: it agreed with
+  // whichever language it was written in and never compared the two. The pair below fails if the label
+  // stops resolving through the catalog — one side goes silent whichever direction it breaks in.
+  it('announces the proficiency meter in the reader’s own language', () => {
+    const { unmount } = renderWithLocale(<CVSection profile={profile} />, { locale: 'pt' });
+    expect(screen.getAllByRole('img', { name: /Nível \d+ de 4/ }).length).toBeGreaterThan(0);
+    // And NOT the English one — the defect this closes was English leaking into the pt edition, so the
+    // negative is the half that actually pins it.
+    expect(screen.queryAllByRole('img', { name: /Proficiency level/ })).toHaveLength(0);
+    unmount();
+
+    renderWithLocale(<CVSection profile={profile} />, { locale: 'en' });
+    expect(screen.getAllByRole('img', { name: /Proficiency level \d+ of 4/ }).length).toBeGreaterThan(0);
+    expect(screen.queryAllByRole('img', { name: /Nível/ })).toHaveLength(0);
+  });
+
+  // `{max}` comes from the same constant that generates the squares, so the announced ladder cannot
+  // disagree with the drawn one. Asserted against the DOM rather than the constant: reading `LEVEL_MAX`
+  // back would only prove the constant equals itself.
+  it('announces the same number of rungs as it draws', () => {
+    renderWithLocale(<CVSection profile={profile} />);
+    const meter = screen.getAllByRole('img', { name: /Nível \d+ de \d+/ })[0];
+    const announced = Number(/de (\d+)/.exec(meter.getAttribute('aria-label') ?? '')?.[1]);
+    expect(meter.children).toHaveLength(announced);
   });
 
   it('shows the portrait beside the name when the profile carries one', () => {
