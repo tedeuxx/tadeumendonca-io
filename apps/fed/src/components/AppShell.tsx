@@ -4,8 +4,8 @@
 //
 // The landing owns the anchors (#artigos, #contato); nav points at them through `/#…` so the same
 // link works from a sub-route (full load back to the landing) and as an in-page jump on the landing
-// itself. `/me`, `/ramp-up`, `/architecture` and `/portfolio` are real routes and the nav links them
-// as routes.
+// itself. `/me`, `/ramp-up`, `/architecture`, `/portfolio` and `/library` are real routes and the nav
+// links them as routes.
 //
 // `#portfolio` IS STILL AN ANCHOR ON THE LANDING — it just has no nav entry (#315). The section stays
 // as a teaser; what changed is that the menu item named after the catalog now lands ON the catalog
@@ -48,6 +48,11 @@ const NAV: NavEntry[] = [
   { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
   { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
   { href: '/architecture', labelKey: 'nav.architecture', route: true },
+  // #166's second slice. The route shipped one slice earlier WITHOUT this entry, deliberately: linking
+  // readers at an empty shelf is worse than not linking. It sits beside `/ramp-up` and `/architecture`
+  // because it is the same kind of thing — a surface the reader goes to read — and ahead of `/me`, which
+  // stays last as the destination the rest of the nav argues towards.
+  { href: '/library', labelKey: 'nav.library', route: true },
   { href: '/me', labelKey: 'nav.profile', route: true },
 ];
 const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => id !== undefined);
@@ -192,10 +197,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           style={{ minHeight: 'var(--header-h)' }}
         >
           <Brand />
-          {/* Desktop nav switches on at `lg` (1024px), not `md` (768px): the full row — Brand + six
-              links + locale toggle, longer in pt — needs ~880px, so between 768–880px it used to overflow
-              the viewport (horizontal scroll) AND wrap the links to two lines. Keeping the hamburger until
-              `lg` guarantees the full nav only renders where it fits (#159). */}
+          {/* Desktop nav switches on at `lg` (1024px), not `md` (768px): the full row — Brand + the nav
+              links + locale toggle, longer in pt — needs well past 768px, so between 768–880px it used to
+              overflow the viewport (horizontal scroll) AND wrap the links to two lines. Keeping the
+              hamburger until `lg` guarantees the full nav only renders where it fits (#159).
+              The count is deliberately NOT written here any more: it said "six links" and #166 made it
+              seven, which is the class of prose that goes stale silently (#262). What holds the invariant
+              is `e2e/responsive-overflow.spec.ts`, which sweeps 320→1280px on every route in pt-BR (the
+              worst case for this row) and fails on a single overflowing pixel — a measurement, not a
+              sentence. A seventh entry is exactly the change that would have made a hard-coded number
+              lie while the guard stayed honest. */}
           <div className="hidden items-center lg:flex">
             <NavItems activeSection={activeSection} />
             <LocaleToggle />

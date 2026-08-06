@@ -64,13 +64,69 @@ export interface LibraryEntry {
 /**
  * The shelf.
  *
- * EMPTY ON PURPOSE in this slice, and this is a decision rather than a placeholder awaiting content:
- * a stand-in book is reader-facing prose in the owner's voice that ships and is then removed, and it is
- * exactly the class of artifact an OG scraper pins permanently (ADR-0005/0041). The surface's empty state
- * is chrome copy in the message catalog instead, which is a sentence the site can honestly stand behind
- * while the shelf is being filled.
+ * ORDER IS AUTHORED, NOT SORTED. The page renders this array as written, so the sequence is an editorial
+ * statement: foundations first, then the structure you build on them. Read as a pair the two entries are
+ * a ladder rather than two reviews, which is the argument a two-book shelf can make and a sorted one
+ * cannot. If a sort is ever wanted (by rating, by date read) it is a decision to take deliberately —
+ * it would silently discard this.
+ *
+ * THE TAKEAWAY CONVENTION, and it is written down here because the next person to add a book will read
+ * this file and not this commit message:
+ *
+ *   1. WHO THE BOOK IS FOR, first, in both editions.
+ *   2. THEN what it gives, or what it costs — and anything about the READING EXPERIENCE is the owner's
+ *      own, hedged as his ("eu senti" / "I found it"), addressed to a reader with his background.
+ *
+ * The second half of rule 2 is the load-bearing one. "The book presupposes an academic background" is a
+ * verdict handed down about the work and it is not something a reader can check; "coming from IT, I found
+ * it heavy on information" is one reader warning a similar reader, which is the register this site is
+ * written in and the only version the owner has standing to report. A first-person observation that has
+ * hardened into a flat claim about a class is a recurring defect in this repo's copy, caught on
+ * `/architecture` the same day this shelf was filled.
+ *
+ * What that convention buys is what makes the RATINGS honest: opening on who the book serves turns a 3
+ * and a 4 from verdicts on quality into the distance between what each book delivers and what a
+ * particular reader needs. Entry 1 gives foundations to someone who went looking for tactics; entry 2
+ * gives structure to someone starting out. A reader decides for themselves from that, which is the
+ * service this shelf exists to provide.
+ *
+ * If a later entry breaks the shape, let that be because someone decided to — not because nobody noticed
+ * the shape was there.
  */
-export const library: LibraryEntry[] = [];
+export const library: LibraryEntry[] = [
+  {
+    title: 'AI Engineering',
+    authors: ['Chip Huyen'],
+    publisher: "O'Reilly",
+    // No `year`. It is an optional FACT and the edition year is not verified for either entry — an
+    // implausible-year guard is worth nothing if the way past it is to guess a plausible one.
+    url: 'https://www.oreilly.com/library/view/ai-engineering/9781098166298/',
+    rating: 3,
+    // The 3 is not a complaint about the book, and the copy is written so a reader cannot read it as one:
+    // it is the gap between foundations (what the book delivers) and tactics (what the owner went to it
+    // for). It also has to sit honestly beside `/ramp-up`'s own line on this title — "se for ler um, leia
+    // esse" / "if you read one, read this" — which is a recommendation about GROUNDING. Both are true at
+    // once, and this entry is what says what the grounding costs a reader arriving from software.
+    takeaway: {
+      pt: 'Pra quem quer uma visão panorâmica dos fundamentos que sustentam a era atual da IA. Vindo de TI e engenharia de software, eu senti muita informação e pouca tática — a entrega é a base, não um caminho pra começar a construir amanhã.',
+      en: 'For the reader who wants a panoramic view of the fundamentals the current AI era is built on. Coming from IT and software engineering, I found it a lot of information and short on tactics — what it delivers is the grounding, not a way to start building tomorrow.',
+    },
+  },
+  {
+    title: 'Building Applications with AI Agents',
+    authors: ['Michael Albada'],
+    publisher: "O'Reilly",
+    url: 'https://www.oreilly.com/library/view/building-applications-with/9781098176495/',
+    rating: 4,
+    // `te deixa na cara do gol` is the owner's own football idiom. "An open goal" is its English PEER, not
+    // its translation — a literal rendering ("leaves you in front of the goal") is a calque, and the
+    // calque running en-ward is the same defect class the catalog keeps catching running pt-ward.
+    takeaway: {
+      pt: 'Pra quem quer começar a construir aplicações de IA. Mais estruturado: um cookbook dos marcos por que passa uma solução desse tipo, com boas referências pra pesar no caminho — se você não sabe por onde começar, ele te deixa na cara do gol.',
+      en: 'For the reader who wants to start building AI applications. More structured: a cookbook of the milestones a solution like that goes through, with good references to weigh along the way — if you do not know where to start, it leaves you with an open goal.',
+    },
+  },
+];
 
 /** `url` normalised for identity comparison: trimmed, trailing slashes dropped, lowercased — the same
  *  normalisation `repoCards.ts` applies to a repo URL, so a stray slash or a casing difference cannot
@@ -92,11 +148,18 @@ const yearMax = () => new Date().getFullYear() + 1;
  * The shape guard — A PURE VALIDATOR OVER WHATEVER IT IS HANDED, and that is the load-bearing design
  * choice in this file rather than a style preference.
  *
- * `library` is empty in this slice. Any guard written as `for (const e of library) expect(...)` is
- * therefore GREEN FOREVER while asserting nothing, and stays green through the whole window in which the
- * shelf is being filled — which is precisely the window it exists to protect. An assertion that cannot
- * fail is worse than no assertion, because it reads as coverage. This repo has shipped that defect more
- * than once.
+ * `library` was empty when this was written, and any guard written as `for (const e of library)
+ * expect(...)` would therefore have been GREEN FOREVER while asserting nothing, right through the window
+ * in which the shelf was being filled — precisely the window it exists to protect. An assertion that
+ * cannot fail is worse than no assertion, because it reads as coverage. This repo has shipped that defect
+ * more than once.
+ *
+ * THE SHELF IS NO LONGER EMPTY, AND THAT CHANGES NOTHING HERE — which is the point of having built it
+ * this way. The rules are still proven against fixtures that violate one rule each; the real corpus is
+ * now ALSO checked (below, and no longer vacuously), but it is a second, weaker property and never a
+ * substitute. Two books cannot exercise a blank-author rule, an implausible-year rule or a duplicate-URL
+ * rule, and a validator whose tests depend on the corpus goes quietly blind every time the corpus
+ * changes. `library.test.ts` asserts both halves and says which is which.
  *
  * So the rules live in a function that takes its input, and the tests hand it SYNTHETIC FIXTURES that
  * violate each rule one at a time. The corpus is irrelevant to whether the rules are proven: they are

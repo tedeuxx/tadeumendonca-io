@@ -95,6 +95,8 @@ Metade dessa estante ainda está saindo capítulo por capítulo enquanto eu leio
 
 Os links vão pro catálogo da O'Reilly; ler exige assinatura.
 
+Os que eu terminei e sobre os quais eu tinha algo a dizer estão na [Biblioteca](/library), com nota de 1 a 5 e o que eu tirei de cada um.
+
 ### YouTube
 
 Três pra começar — um por canal, escolhidos pra mostrar por que o canal merece o lugar dele aqui, não porque têm o número maior. Assiste um, e se colar, segue o canal.

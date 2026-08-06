@@ -7,7 +7,8 @@
 // Repo cards: the same lone-URL facade, for a curated GitHub repo — a paragraph that is only a registered
 // repo URL becomes a static <RepoCard> (data/repoCards.ts). Both are opt-in by URL; anything else, and any
 // unregistered URL, stays a plain link.
-import { Children, isValidElement, type ReactNode } from 'react';
+import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
@@ -16,6 +17,46 @@ import { RepoCard } from './RepoCard';
 import { Diagram } from './Diagram';
 import { AdrTable } from './AdrTable';
 import { repoCardFor } from '../data/repoCards';
+import { useLocalePath } from '../i18n';
+
+/**
+ * A link markdown authored, with SITE-INTERNAL ones localized and routed (#166).
+ *
+ * The problem this closes: markdown is authored once per locale but a site path is not. `[Biblioteca]
+ * (/library)` written in `rampup.pt.md` would render as a bare `/library` — a path this site does not
+ * prerender and never advertises, which resolves only by a client-side redirect that reads the BROWSER's
+ * language. So a Portuguese page would hand a reader with an English browser the English shelf, which is
+ * precisely the property ADR-0036's locale prefix exists to deliver and the defect #204 fixed for
+ * articles. Everywhere else on the site the fix is already in place — `AppShell` builds every nav href
+ * through `useLocalePath` — and markdown was the one surface that could not.
+ *
+ * Authors therefore write the LOGICAL path (`/library`) and this resolves it to the active locale's real,
+ * prerendered URL (`/pt/library`), through react-router so it is a navigation rather than a full reload.
+ * That also keeps the two editions authoring the identical link text, which is what the ramp-up parity
+ * guard compares.
+ *
+ * SCOPE, narrow on purpose: only `/`-rooted paths, and not `//host` (protocol-relative, an external URL
+ * wearing a leading slash). Absolute URLs, `mailto:` and in-page `#anchor` links are untouched, so this
+ * is inert on every markdown file that exists today — none of them authored a root-relative link.
+ */
+function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  // Called unconditionally, before the branch — a hook behind an `if` is a hook that changes order
+  // between a link with an href and one without.
+  const lp = useLocalePath();
+  const internal = href !== undefined && href.startsWith('/') && !href.startsWith('//');
+  if (internal) {
+    return (
+      <RouterLink to={lp(href)} {...props}>
+        {children}
+      </RouterLink>
+    );
+  }
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
+}
 
 /**
  * Whether this <pre> is the ```adr-index marker (#318).
@@ -74,6 +115,12 @@ function loneUrl(children: ReactNode): string | null {
 }
 
 const components: Components = {
+  a({ children, ...rest }) {
+    // `node` is react-markdown's AST handle — it must never reach the DOM.
+    const { node, ...props } = rest;
+    void node;
+    return <MarkdownLink {...props}>{children}</MarkdownLink>;
+  },
   pre({ children, ...rest }) {
     const { node, ...props } = rest;
     void node;

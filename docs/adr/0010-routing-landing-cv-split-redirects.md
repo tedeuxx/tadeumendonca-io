@@ -282,6 +282,43 @@ amendment, which no longer applies: the site is launched, so **`/pt/library` and
 world on merge** and are permanent from the first share. This is the first surface this ADR has added
 under that rule.
 
+## Amendment (2026-08-06) — `/library`'s deferred half, discharged
+The amendment above deferred two things to "the slice that lands the first books" and that slice landed
+(#166): `/library` now carries a **nav entry in both editions** — "Biblioteca" / "Library", beside
+`/ramp-up` and `/architecture`, ahead of `/me` — and a **cross-link from `/ramp-up`'s reading list**. The
+paragraph above is left standing rather than edited: it recorded a real decision that held for the window
+it was made for, and superseding beats rewriting. This says it is discharged.
+
+**Nothing about the routing contract changed.** The route, its two prefixed URLs, its sitemap entries and
+its hreflang set all shipped in the earlier slice; the arithmetic guards in `e2e/per-locale.spec.ts` do
+not move. What changed is only how a reader *reaches* an address that already existed — which is exactly
+why the nav entry could be deferred without deferring the surface.
+
+**One thing did have to be built to make the cross-link correct, and it is worth recording because it
+applies to every markdown surface from here.** Long-form bodies are authored per locale but a site path is
+not, and a bare `[Biblioteca](/library)` in `rampup.pt.md` renders an **unprefixed** path — one this site
+never prerenders and never advertises, which resolves only through a client-side redirect that reads the
+*browser's* language. A Portuguese page would therefore have handed a reader with an English browser the
+English shelf: the same defect [#204](https://github.com/tedeuxx/tadeumendonca-io/issues/204) fixed for
+articles, arriving through a different door. `AppShell` had solved this for chrome since
+[ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) by building every href through `useLocalePath`;
+markdown was the one surface that could not. So **authors write the LOGICAL path and `<Markdown>` resolves
+it to the active locale**, through react-router. Absolute URLs, `mailto:` and `#anchor` links are
+untouched, and no markdown file in the repo authored a root-relative link before this one — so the change
+is inert everywhere it is not wanted. It also keeps the two editions authoring the **identical** link,
+which is what the ramp-up source-parity guard compares.
+
+**The accepted cost of two hand-authored lists is now guarded, in a shape different from the one intake
+prescribed.** Intake asked for "the ramp-up's publisher URLs are a subset of `library.ts`'s" — written
+against an empty shelf, and false against the real content: `/ramp-up` lists six books, four of them still
+*reading* or *queued*, while the shelf's published rule is *only what I have finished gets in*. Neither
+containment direction is an invariant (the shelf is deliberately broader than AI-engineering, the reading
+list deliberately includes unread books). What is one is that **where the two lists overlap they must
+agree** — same title, same URL, and marked finished on `/ramp-up` if it is rated on `/library` — since two
+lists can only contradict each other about a book they both name. Facts only, never prose. The guard
+carries its own non-vacuity assertion, because an intersection-scoped check stops being able to fail on
+exactly the edit it exists to catch.
+
 ## Links
 - Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
@@ -295,7 +332,9 @@ under that rule.
   dual localized slugs still deferred) · amended (2026-07-30) to **narrow** that amendment's
   "it cannot drift from them" claim, now that [ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a
   diagram — the page's first statement about the system rather than a pointer to one — on
-  `/architecture` · **amended (2026-08-05) for `/library`, a sixth public surface** (#166 — one English
+  `/architecture` · **amended (2026-08-06)** to discharge `/library`'s deferred nav entry and `/ramp-up`
+  cross-link, and to record that markdown now resolves site-internal links to the active locale ·
+  **amended (2026-08-05) for `/library`, a sixth public surface** (#166 — one English
   slug prefixed twice, bilingual label; **chrome around typed data**, following `/portfolio` rather than
   the markdown surfaces; ships with an authored empty state before its books; the first surface added
   under the post-launch rule, so both URLs are permanent from merge). Its slug reasoning is deliberately
