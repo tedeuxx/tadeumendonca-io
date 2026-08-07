@@ -162,7 +162,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.githubstatus.com)",
       "WebFetch(domain:status.sonarcloud.io)",
-      "WebFetch(domain:status.sonarqube.com)"
+      "WebFetch(domain:status.sonarqube.com)",
+      "Bash(bash .scratch/*)"
     ],
     "deny": [
       "Edit(.claude/**)",
