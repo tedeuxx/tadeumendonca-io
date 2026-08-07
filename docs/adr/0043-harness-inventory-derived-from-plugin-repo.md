@@ -612,12 +612,24 @@ already takes about the gloss on its own edges: **authored here, and checked by 
 
 ### What this amendment does NOT decide, and it is the constraint most likely to be broken by accident
 
-**No count moves.** `tedeuxx/tadeumendonca-skills`#156 is **open and deliberately held as a draft**
+~~**No count moves.** `tedeuxx/tadeumendonca-skills`#156 is **open and deliberately held as a draft**
 (verified 2026-08-06); the plugin's `main` still registers **two** `SessionStart` hooks and **four** in
-total, and `harness.json` in this repo agrees with it. The page therefore continues to say *2 hooks ·
-SessionStart* and *two of the four*, because those are true today and writing *3* or *5* now would
-publish a claim that is false until that PR lands — trading one wrong number for another on the page
-that exists to not do that. **The counts follow the merge**, through the generator, in a separate change.
+total… **The counts follow the merge**, through the generator, in a separate change.~~
+
+**DISCHARGED 2026-08-07.** `-skills`#156 merged (`59fc4f6`); plugin `main` at **0.4.54** registers
+**five** hooks, **three** of them on `SessionStart`. The generator was re-run and the page now says
+*3 hooks · SessionStart* and *two of the five* — the separate change this clause pointed at, which is
+the MR carrying this note.
+
+**Struck rather than edited, and this is why:** the constraint was correct and was honoured. Rewriting
+it to describe the new counts would erase the only record that the sequencing was deliberate — that a
+page was knowingly left saying *two* for a day because *three* would have been false until a merge in
+another repository. That is the decision worth keeping, not the number.
+
+**The clause was still standing in the present tense in the MR that discharged it**, found by the gate
+rather than by the author. A record whose own resolution condition has been met, saying "no count
+moves" in a diff that moves every count, is the same defect class this record exists to prevent —
+arriving inside the change that satisfies it.
 
 Nor does this decide anything about the hook itself: whether a recursive delete belongs on `SessionStart`
 at all is the plugin's decision, recorded in the plugin's own library, not here. This record governs only
