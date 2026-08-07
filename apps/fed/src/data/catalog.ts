@@ -80,7 +80,20 @@ export interface CatalogProject {
   tagline: Record<Locale, string>;
   /** 1–2 sentences: the real problem it solves. Prose, authored per locale. */
   description: Record<Locale, string>;
-  /** Primary stack / tools (shown as chips) — FACTS. */
+  /**
+   * Primary stack / tools (shown as chips) — FACTS.
+   *
+   * THE CRITERION IS "what defines the project", not "the N most characteristic". There is no cap and
+   * no ranking, and that is written down because its absence already cost something: `tadeumendonca-io`
+   * shipped without `GitHub Actions` while `tadeumendonca-skills` shipped with it — and Actions does
+   * MORE work in `-io`, where it runs the gates, the deploy, and the post-deploy check that the live
+   * edge function is still this repo's. `/architecture` treats that check as proof rather than as
+   * plumbing, so the card was omitting the one tool the page argues hardest about.
+   *
+   * A card carrying fewer chips carries them because the project uses fewer tools, never because a
+   * limit trimmed the list. If a cap is ever wanted, it is a decision to take deliberately here —
+   * silently dropping the sixth is how this one went missing.
+   */
   stack: string[];
   /**
    * Reader-first payoff — what someone takes away from studying it. Rendered after a localized label
@@ -158,7 +171,7 @@ export const catalog: CatalogProject[] = [
         'where to start reading the repo, and what to reuse: the ADRs record the load-bearing decisions, ' +
         'from plan-first to deploy — with the trade-off each one cost.',
     },
-    stack: ['React', 'Vite', 'TypeScript', 'Terraform', 'Claude Code'],
+    stack: ['React', 'Vite', 'TypeScript', 'Terraform', 'GitHub Actions', 'Claude Code'],
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-io',
     // No liveUrl: this entry IS this site — the reader is already on it, so a "View live" link
     // would just point at the page they're viewing. The GitHub link is the useful one here (#175).
