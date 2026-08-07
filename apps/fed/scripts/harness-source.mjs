@@ -264,7 +264,14 @@ export function collectPersonas(pluginDir) {
  * `hooks/scripts/` holds more files than there are hooks, roughly half of them the hooks' own `.test.sh`
  * suites. Counting the directory would inventory the tests as hooks; counting the wiring inventories what
  * is actually registered, which is the thing the diagram claims. It is also the field that drifted:
- * nothing anywhere counted `session-plugin-version`, and the plugin's README still draws three.
+ * nothing anywhere counted `session-plugin-version`, and the plugin's README ~~still draws~~ **drew**
+ * three — until `-skills`#156, which wired `H1`–`H5` and listed all three `SessionStart` hooks in its
+ * event table. Dated rather than deleted: the drift is why this generator reads the WIRING instead of
+ * the README, and a corrected sentence with no trace would leave that reasoning unattached.
+ *
+ * **Found by the gate on the MR that reconciled this repo to five hooks, two lines below a paragraph
+ * the same pass had just re-flowed for the new count.** Third instance in one session of the same
+ * shape: the claim was corrected where it was quoted and left standing where it was not.
  *
  * `matcher` is carried because it is half of what a `PreToolUse` hook IS — a guard re-pointed from `Bash`
  * to something else is present on both sides with a different field, which is exactly the `changed` case
