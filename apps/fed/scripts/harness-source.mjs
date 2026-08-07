@@ -264,7 +264,21 @@ export function collectPersonas(pluginDir) {
  * `hooks/scripts/` holds more files than there are hooks, roughly half of them the hooks' own `.test.sh`
  * suites. Counting the directory would inventory the tests as hooks; counting the wiring inventories what
  * is actually registered, which is the thing the diagram claims. It is also the field that drifted:
- * nothing anywhere counted `session-plugin-version`, and the plugin's README still draws three.
+ * nothing anywhere counted `session-plugin-version`, and when this was written (2026-08-03) the
+ * plugin's README drew three. It drew four from `5baea18` (2026-08-03, *"the README drew three hooks,
+ * hooks.json registers four"* — the hook itself, `session-plugin-version.sh`, had been added the day
+ * before in `e9f96c3`, and nothing redrew the diagram) and five from `-skills`#156 (2026-08-06,
+ * `session-scratch`), whose event table now lists all three `SessionStart` hooks. Dated rather than
+ * deleted: the drift is why this generator reads the WIRING instead of the README, and a corrected
+ * sentence with no trace would leave that reasoning unattached.
+ *
+ * TWO WRONG HISTORIES WERE WRITTEN HERE BEFORE THIS ONE, and both were wrong the same way — asserted
+ * from a PR in hand instead of from the README's own log, which `git log -S 'H4['` answers in one
+ * command. The first said it drew three "until #156", collapsing two moves into one. The second, the
+ * gate's own prescribed replacement, dated the four-hook move to 2026-08-04 and credited it with
+ * ADDING `session-plugin-version` — the commit says it FIXED THE DRAWING for a hook that already
+ * existed, which is the same defect this generator exists to remove, one layer up. Measured: the hook
+ * lands 08-02, the README catches up 08-03.
  *
  * `matcher` is carried because it is half of what a `PreToolUse` hook IS — a guard re-pointed from `Bash`
  * to something else is present on both sides with a different field, which is exactly the `changed` case
