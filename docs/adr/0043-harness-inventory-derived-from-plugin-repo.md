@@ -128,6 +128,11 @@ date on which those three wrong numbers were copied.
 
    *(Amended 2026-08-04: `advises` is for **every** persona — the count that stood here went stale on a
    roster change it does not govern. See the amendment below.)*
+
+   *(Amended 2026-08-06: the classing rule stands — `hook:SessionStart` still maps to `documents` — but
+   the **reason** given for it does not generalise. A `SessionStart` hook has no tool call to refuse and
+   may still **act**: `session-scratch.sh` empties `.scratch/` before the session begins. The set stays
+   closed at three and the page's prose narrows instead. See the amendment below.)*
 2. **One uniform "component" shape with no enforcement field** — *Why not:* the diagram would then draw a
    shell script that refuses a tool call and a persona that someone has to remember to dispatch as peers.
    That is not a drawing preference; it is the page making a safety claim it cannot support, on the one
@@ -525,6 +530,98 @@ components test asserted *manifest ⊆ drawing* and nothing in the other directi
 left in the fence passed: the manifest lost the row, and the cross-repo drift check compares the manifest
 to the plugin, never the page to the manifest. `architecture-diagrams.test.mjs` now compares the persona
 node's label to the manifest's persona list **as an exact set**, in both editions.
+
+## Amendment, 2026-08-06 — a `SessionStart` hook can ACT, so the PAGE'S PROSE narrows; the closed set does not widen
+
+**Decides one thing:** when a `SessionStart` hook does something other than report, the **page's prose
+narrows** rather than the `enforcement` set gaining a fourth value. The set stays at three —
+`denies` · `advises` · `documents` — and `hook:SessionStart` keeps mapping to `documents`. What changes
+is what `/architecture` is allowed to say about that class: **not** *"they only report"*, but *"they act
+at session start, with no tool call to refuse"*.
+
+**Class: safe.** It decides how a page may word a claim; it changes no mechanism, no schema and no
+generator behaviour. By [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-31 amendment an
+amendment that decides is `quality-assurance`'s to merge, and this is not one of the records that decide
+*how work is decided*.
+
+### The sentence this re-points, and why its reasoning stopped holding
+
+In *What the manifest is allowed to assert about a component*, option 1:
+
+> Hooks are classed by their **event**, not by being hooks: the two `SessionStart` hooks carry
+> `documents`, because a hook that runs once at session start has no tool call to refuse.
+
+**The classing rule survives verbatim; its stated reason does not, and only for the second clause.** "No
+tool call to refuse" is still true — a `SessionStart` hook is not handed a tool invocation and cannot
+return a denial. What was smuggled in beside it, and never argued, is that having nothing to refuse
+implies having nothing to *do*. That inference was sound about every hook this record was written
+against, because on 2026-08-03 both `SessionStart` hooks printed a line and exited.
+
+It is not sound in general, and the plugin now has the counterexample. `hooks/scripts/session-scratch.sh`
+runs on `SessionStart` and **empties `<repo-root>/.scratch/` on both enumerated repositories** —
+`find "$scratch" -mindepth 1 -delete`, a recursive delete of the user's files, executed before the
+session begins. It refuses nothing. It reports afterwards. It is not a `documents` component in any sense
+a reader of that word would recognise.
+
+*Checked, not assumed, on 2026-08-06:* the script and its `-mindepth 1 -delete` are on the plugin branch
+`feat/scratch-is-ephemeral-per-session`; `apps/fed/scripts/harness-source.mjs` maps
+`'hook:SessionStart': 'documents'` in `ENFORCEMENT_BY_SHAPE`, keyed on the event with no per-script
+branch, so the generator will class it `documents` with every check green.
+
+**That is the failure this amendment exists to pre-empt, and its shape is the point.** Nothing breaks.
+The generator emits a well-formed row, the drift check passes, the diagram tests pass, and the page
+publishes — in both editions, under a fully green build, by a mechanism working exactly as designed —
+that the `SessionStart` hooks *only report*. A false claim on the one page whose thesis is that its
+claims are checkable, produced by the checking machinery rather than in spite of it.
+
+### The rejected option: a fourth enforcement class
+
+**A fourth value** — `acts`, or some sibling of it, for a hook that changes state without refusing a
+call. It is the more precise answer and it is refused for the third time in this record, on the reason
+that has not changed: the closed set is what keeps the diagram from lying, so widening it is not a small
+act. It would touch the generator, the manifest, `assertEnforcement`, every fixture, the drawing's edge
+styles and the `accDescr` in both editions — and it would buy a distinction the prose can carry for the
+cost of one sentence.
+
+There is precedent directly on point rather than by analogy. This record's 2026-08-04 amendment faced the
+same fork over `product-lead` — a lens that **blocks by convention** classed `advises` alongside lenses
+that only advise — and took the same branch: **the class stayed, the page drew the difference in prose.**
+Taking the other branch here would leave the record having answered one instance of a question one way
+and the next instance the other way, which is worse than either answer.
+
+*Left open honestly:* if a third such case arrives, that is the signal the set is genuinely too coarse
+and the fourth class should be reopened as its own record, not as an amendment to this one. Two is a
+pattern the prose absorbs; three is a schema saying it needs a field.
+
+### The accepted cost, stated so it is not rediscovered as an oversight
+
+**The classing stays coarser than the practice**, and this is now the second place it is coarse. A reader
+who takes `documents` at face value about a `SessionStart` row will be wrong about `session-scratch.sh`
+in a direction that matters — they will believe a script that reports is a script that only reports.
+What stands between that reader and the wrong belief is a **sentence on a page**, checked by nobody, in
+two editions that must agree. That is strictly weaker than a schema value the generator would throw on,
+and it is what is being bought with the stability of the closed set.
+
+**The per-locale duplication cost this record already books applies again**, and the prose is the part
+the harness cannot verify: `architecture-diagrams.test.mjs` asserts that each `accDescr` contains
+`REFUSE`/`RECUSAM`, `ADVISE`/`ACONSELHAM`, `DOCUMENT`/`DOCUMENTAM` and the *fails silently* clause — it
+asserts nothing about how the `SessionStart` class is characterised, and **no guard is added here**. A
+test asserting the absence of a phrase would pass against every rewording of the same false claim, which
+is the kind of check that reads as coverage and is not. The honest position is the one this record
+already takes about the gloss on its own edges: **authored here, and checked by nothing.**
+
+### What this amendment does NOT decide, and it is the constraint most likely to be broken by accident
+
+**No count moves.** `tedeuxx/tadeumendonca-skills`#156 is **open and deliberately held as a draft**
+(verified 2026-08-06); the plugin's `main` still registers **two** `SessionStart` hooks and **four** in
+total, and `harness.json` in this repo agrees with it. The page therefore continues to say *2 hooks ·
+SessionStart* and *two of the four*, because those are true today and writing *3* or *5* now would
+publish a claim that is false until that PR lands — trading one wrong number for another on the page
+that exists to not do that. **The counts follow the merge**, through the generator, in a separate change.
+
+Nor does this decide anything about the hook itself: whether a recursive delete belongs on `SessionStart`
+at all is the plugin's decision, recorded in the plugin's own library, not here. This record governs only
+what this site is allowed to assert about the inventory it publishes.
 
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
