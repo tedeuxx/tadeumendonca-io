@@ -177,13 +177,15 @@ Subtraction alone reads as a hole, so what remains is gated: static analysis in 
 
 *(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) what is left when there is no backend)*
 
-**And one security control here was built, paid for, and cut.** The regional WAF that protected the dynamic tier became a superseded record in July 2026 — and the bill above is the other side of the same event: those **USD 12.80 a month** of idle web ACLs were it, still charging after it had stopped protecting anything. The uncomfortable part stays written where it already was: the trust root is a documented hole in a floor, and no `plan` will tell you when it drifts.
+**And one security control here was built, paid for, and cut.** The regional WAF that protected the dynamic tier became a superseded record in July 2026, and part of the idle spend in the bill above was it — still charging after it had stopped protecting anything. Those are one event seen from the money and from the decision.
+
+But the commit that removed it took out **two** web ACLs, and only one has an ADR: the regional one. The CloudFront-scope ACL went with it and **is not in the decision library** — on a page arguing that the library is the point. That is a cut the record does not fully account for, and the honest place to say so is here. The other uncomfortable part stays where it already was: the trust root is a documented gap in a floor, and no `plan` will tell you when it drifts.
 
 *(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) the WAF that was cut)*
 
 ### If you need the backend back, the record tells you which decision to reverse
 
-This is what makes the growth path concrete rather than a promise that the architecture "could scale". A system that grew into needing a server does not need this site redesigned — it needs **one specific decision reopened**, and each of the five above names the one that closed it:
+A recorded reversal is what makes the growth path concrete rather than a promise that the architecture "could scale". A system that grew into needing a server does not need this site redesigned — it needs **one specific decision reopened**, and each of the five above names the one that closed it:
 
 - **dynamic data or accounts** → reverse [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md), and 0025 is the shape it had;
 - **per-request rendering** → reverse [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md); 0026 and 0027 are two things that were tried at the edge;
