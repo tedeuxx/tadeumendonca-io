@@ -12,6 +12,12 @@ export interface Entry {
   en: string;
 }
 
+// DOCUMENT TITLES (ADR-0045). A section group's `title` leaf is its document title, and it must LEAD with
+// that section's `nav.*` label — the exact word the reader clicked. Anything after the label is optional
+// and secondary. `nav` below is therefore the source of truth for the first words of five tabs, not just
+// for the header bar; `messages.test.ts` asserts the relationship for every group that has a `title`, in
+// both locales, so adding a section with a divergent title is a failing test rather than a review catch.
+// The visible H1 (`heading`) is a DIFFERENT object and is deliberately editorial — never collapse them.
 const strings = {
   nav: {
     // The skip link (#250). It lives here, not in an a11y group, because this catalog groups by WHERE a
@@ -138,7 +144,10 @@ const strings = {
   // language — the parity rule, not an interim.
   rampup: {
     heading: { pt: 'Ramp-Up — Virando AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
-    // Document title (the site name is appended by useDocumentHead).
+    // Document title (ADR-0045; the site name is appended by useDocumentHead). Already compliant before
+    // the convention existed — it leads with `nav.rampup` ("Ramp-up") and qualifies after — so it is left
+    // alone deliberately. Rewriting a conforming title would have regenerated an OG card scrapers have
+    // already pinned (ADR-0041), for no reader gain.
     title: { pt: 'Ramp-up para AI Engineer', en: 'Ramp-up to AI Engineer' },
     kicker: { pt: 'Plano aberto · em andamento', en: 'Open plan · in progress' },
     metaDescription: {
@@ -152,8 +161,14 @@ const strings = {
   // (the ADRs, the two public repos, catalog-ready) rather than restating it.
   architecture: {
     heading: { pt: 'Arquitetura — a planta, em aberto', en: 'Architecture — the blueprint, in the open' },
-    // Document title (the site name is appended by useDocumentHead).
-    title: { pt: 'Como este site é construído', en: 'How this site is built' },
+    // Document title (ADR-0045; the site name is appended by useDocumentHead). This is the defect the
+    // convention was written for: the tab said "Como este site é construído" and the word the reader
+    // clicked — Arquitetura — appeared nowhere in it, so with several tabs open the page could not be
+    // found by the name it was opened under. The tail is the OLD title, kept rather than dropped: this
+    // string is also the og:title, the ShareButton title and the JSON-LD headline (MarkdownPage), and a
+    // bare "Arquitetura" would have made an unfurled card thinner than the one it replaces.
+    // The HEADING is untouched and stays editorial. Different objects, different jobs — see ADR-0045.
+    title: { pt: 'Arquitetura — como este site é construído', en: 'Architecture — how this site is built' },
     kicker: { pt: 'A planta · aberta', en: 'The blueprint · open' },
     metaDescription: {
       // `agent-led verification` stays English in both locales, like `agentic` and `AI-native` (#245).
@@ -181,8 +196,10 @@ const strings = {
   // ADR-0010, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
   library: {
     heading: { pt: 'Biblioteca — o que eu leio, e o que ficou', en: 'Library — what I read, and what stuck' },
-    // Document title (the site name is appended by useDocumentHead). The bare noun, not the heading:
-    // a <title> is read in a tab and in a SERP, where the subtitle is what gets truncated away anyway.
+    // Document title (ADR-0045; the site name is appended by useDocumentHead). The bare noun, not the
+    // heading: a <title> is read in a tab and in a SERP, where the subtitle is what gets truncated away
+    // anyway. This key is where the convention was already being followed by instinct — ADR-0045 only
+    // wrote down what it was doing and made it checkable.
     title: { pt: 'Biblioteca', en: 'Library' },
     // `em montagem` / `being put together`, not `em curadoria` / `being curated`. Two reasons, and the
     // second is why it changed: *being curated* is everyday English while `em curadoria` in pt-BR is
@@ -252,6 +269,11 @@ const strings = {
   },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
+    // Document title (ADR-0045). Identical to `heading` TODAY, and that coincidence is precisely why it
+    // is now its own key: the page used to pass `portfolio.heading`, so the day the heading grows a
+    // subtitle — every other section's already has one — the tab would silently stop being the word the
+    // reader clicked. Same string, a source that cannot drift.
+    title: { pt: 'Portfólio', en: 'Portfolio' },
     // `se formam`, not `graduam`: in BR Portuguese this sense of `graduar` is pronominal, so the bare
     // form is the English intransitive wearing a Portuguese ending — the same defect class as the
     // "clarear a barra" draft this section's bar line went through. Shipped copy, found only because

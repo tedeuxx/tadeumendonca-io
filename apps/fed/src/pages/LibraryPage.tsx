@@ -89,6 +89,7 @@ export function LibraryPage({ entries = library }: { entries?: readonly LibraryE
   const { t } = useLocale();
 
   useDocumentHead({
+    // ADR-0045: the document title leads with the `nav.library` label. Here it IS the label, with no tail.
     title: t('library.title'),
     description: t('library.metaDescription'),
     canonicalPath: '/library',
