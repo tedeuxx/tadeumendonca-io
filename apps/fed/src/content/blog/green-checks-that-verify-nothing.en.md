@@ -4,6 +4,7 @@ slug: green-checks-that-verify-nothing
 date: '2026-08-08T21:00:00.000Z'
 tag: agentic
 track: engenharia
+hasVideo: true
 excerpt: "One session of agentic development left me seven passing checks that proved nothing. Five of them are below, each with the file you can open — and the reason the loop accumulates them faster than it removes them."
 takeaway: 'why a passing check can be worth nothing, and the one habit that finds it.'
 ---
