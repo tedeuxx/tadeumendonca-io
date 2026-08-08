@@ -141,7 +141,16 @@ test.describe('routes', () => {
   // shared <Markdown>, so this journey proves the whole chain — route answers, markdown renders, and
   // the YouTube links became click-to-load facades rather than eager third-party frames.
   test('/ramp-up serves the plan, with the videos behind a facade', async ({ page }) => {
+    // Recorded from before the navigation, because the defect this guards is a request the page makes
+    // ON RENDER — by the time an assertion could query the DOM, it has already gone out.
+    // Every URL, filtered AFTER the navigation against the host the page actually loaded from, so the
+    // spec needs no hardcoded base and works against local, staging and the live apex alike.
+    const requested: string[] = [];
+    page.on('request', (req) => requested.push(req.url()));
+
     await page.goto('/pt/ramp-up');
+    const site = new URL(page.url()).host;
+    const offSite = () => requested.filter((u) => u.startsWith('http') && new URL(u).host !== site);
     await expect(page.getByRole('heading', { level: 1, name: /Ramp-Up/ })).toBeVisible();
     // This file pins the context to pt-BR, and the BODY is bilingual too — so the Portuguese edition
     // is what must render here. Asserting the English heading would pass only against a stale build.
@@ -156,14 +165,29 @@ test.describe('routes', () => {
     // against the channel it is attributed to, and on this page the attribution is the claim. A count
     // alone passes a silent swap — one wrong id keeps the count and republishes someone else's video
     // under a verified name.
-    const thumbs = await page.locator('img[src*="/vi/"]').evaluateAll((imgs) =>
+    const thumbs = await page.locator('img[src^="/video/"]').evaluateAll((imgs) =>
       imgs.map((img) => img.getAttribute('src') ?? ''),
     );
     for (const id of ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg', 'I4B37S1dyQQ']) {
-      expect(thumbs.some((src) => src.includes(`/vi/${id}/`))).toBe(true);
+      expect(thumbs).toContain(`/video/${id}.png`);
     }
 
-    // Clicking one swaps in the privacy-preserving player.
+    // Each poster is really served. A facade pointing at a 404 is the state that invites someone to
+    // "fix" it by putting the ytimg URL back, which is the defect returning.
+    for (const src of thumbs) {
+      const res = await page.request.get(src);
+      expect(res.status(), src).toBe(200);
+      expect(res.headers()['content-type'], src).toContain('image/png');
+    }
+
+    // THE CLAIM ITSELF, on the served build. Four published sentences on /architecture say the only
+    // third party at runtime is analytics, and analytics has not been consented to here — so before
+    // the click this list must be empty. It was not: the facade fetched i.ytimg.com/vi/<id>/… on
+    // render, and every check above passed anyway, because none of them was looking at the network.
+    expect(requested.length, 'nothing recorded means this assertion cannot fail').toBeGreaterThan(0);
+    expect(offSite(), 'a third-party request before any click').toEqual([]);
+
+    // Clicking one swaps in the privacy-preserving player — and only then does a third party appear.
     await facades.first().click();
     await expect(page.locator('iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed\//);
   });

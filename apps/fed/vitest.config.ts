@@ -58,6 +58,14 @@ export default defineConfig({
         // check-harness-drift.mjs additionally requires a second repository on disk, which `npm test`
         // must never need.
         'scripts/harness-source.mjs',
+        // The decision half of the video-facade poster pipeline: which videos the content embeds, which
+        // art must therefore exist, and whether the committed set still matches. Added here on the rule
+        // the entries above spell out — this list is an ALLOWLIST, so a tested file left off it reads as
+        // 0% on new code to SonarCloud while the local average stays comfortably high.
+        //
+        // gen-video-thumbs.mjs is deliberately NOT here, on the same rule as gen-og-articles.mjs: it is a
+        // browser harness with no unit-testable surface left once the decisions moved into this module.
+        'scripts/video-thumbs.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',

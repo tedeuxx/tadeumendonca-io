@@ -56,6 +56,14 @@ professional record — published here to be read, not relicensed.
   - `apps/fed/scripts/og-copy.mjs` — the words set on the share cards
   - `apps/fed/public/og-default.png`, `apps/fed/public/og-default.*.png`,
     `apps/fed/public/og/**` — the generated share cards, which carry those words
+  - `apps/fed/public/video/**`, `apps/fed/src/content/videos.json` — the video
+    facade's poster art and the captions it carries. Same class as the share
+    cards: this site's own design, generated from words written here. They are
+    **not** YouTube thumbnails and are not derived from any — that version of
+    the fix was rejected precisely because the thumbnail is the video owner's
+    work and neither YouTube's terms nor this file could make it grantable. The
+    captions name other people's channels and talks; naming a work is not a
+    claim to it, and nothing about those channels is granted or reserved here
   - `apps/fed/src/assets/avatar.jpg`, and any other portrait of the author
 
 **The modules in that list are MIT; their contents are not.** `profile.ts`,
@@ -80,8 +88,8 @@ they identify credentials held by the author. This file says nothing about
 what you may do with them; whoever wants to use them goes to the issuer.
 
 The rest of `apps/fed/public/` — `robots.txt`, `favicon.svg`, the touch icon —
-is functional and is MIT. **Except the share cards named in the reserved list
-above, which are also in that directory.**
+is functional and is MIT. **Except the share cards and the video posters named
+in the reserved list above, which are also in that directory.**
 
 
 IF YOU REDISTRIBUTE
