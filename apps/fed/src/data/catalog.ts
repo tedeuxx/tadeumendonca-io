@@ -50,12 +50,22 @@ export interface CatalogProject {
    * How this card points at the project's releases (#329). Absent means no release affordance at all.
    *
    * - `'this-build'` — **only valid for THIS repo.** Shows the tag baked in from the root `VERSION` file
-   *   and links that tag's own notes. Exact rather than approximate, and the invariant that makes it so
-   *   is *every tree the deploy publishes carries its own tag* — asserted in `deploy.yml`'s `gate`, not
-   *   merely intended. On a merge and on a deliberate `part` dispatch the `release` job bumps
-   *   `VERSION` in the same commit the build consumes; on a `part: none` republish nothing is bumped and
-   *   the tree already carried its tag from the run that made it. Three paths, one guarantee: the tag
-   *   shipped IS the tag that exists.
+   *   and links that tag's own notes. The invariant behind it is *every tree the deploy publishes
+   *   carries its own tag* — but read HOW it is held, because it is held two different ways and only one
+   *   of them is a check.
+   *
+   *   On a merge and on a deliberate `part` dispatch, `release` bumps `VERSION` in the same commit the
+   *   build consumes, and `deploy.yml`'s `gate` **asserts** it: that step is gated on
+   *   `needs.release.result == 'success'`, so it runs on exactly those two paths and reddens the run if
+   *   the tag does not point at the tree being published.
+   *
+   *   On a `part: none` republish it is **not asserted** — `release` is skipped, the assert is skipped
+   *   with it, and `gate` builds `github.sha` unchecked. There the tag is INHERITED from the run that
+   *   last bumped, which is sound while two conditions hold that this path does not enforce: that the
+   *   dispatch came from `main` (the main-only guard is a step *inside* `release`, so it never runs
+   *   here), and that the merge which produced that tree actually tagged (`release` wedged for four
+   *   consecutive merges on 2026-07-23). Neither is hypothetical, and republishing outside them ships a
+   *   footer linking a Release that describes an ancestor. Asserted on two paths, inherited on the third.
    * - `'plugin-build'` — **only valid for `tedeuxx/tadeumendonca-skills`.** Shows that plugin's tag and
    *   links its notes. The value is *derived and checked*, never authored: the deploy reads it from a
    *   tokenless checkout of that repo into `VITE_PLUGIN_VERSION`, and a committed `plugin-release.json`
