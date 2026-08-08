@@ -46,12 +46,26 @@ editorial, and it is copy doing a job. The title is an **address** — what a ta
 result and an unfurl carry — and its job is to be **findable**, not interesting. A convention that
 pointed one at the other would retire one of the two.
 
-Second, **the title is not one surface.** On the markdown-shell pages (`/architecture`, `/ramp-up`,
-`/library`) a single `title` prop feeds four outputs —
-[`MarkdownPage.tsx:19`](../../apps/fed/src/components/MarkdownPage.tsx) says so on the prop itself:
-`document.title`, `og:title`, the `ShareButton` title and the JSON-LD `headline`. One of those four is
-pinned by scrapers on first fetch and cannot be taken back (ADR-0041). Every clause below is shaped by
-that asymmetry.
+Second, **the title is not one surface, and the count is per page rather than site-wide.**
+
+- On the **two** markdown-shell pages — `/architecture` and `/ramp-up`, the only importers of
+  `MarkdownPage` (`ArchitecturePage.tsx:14`, `RampUpPage.tsx:16`) — a single `title` prop feeds **four**
+  outputs. [`MarkdownPage.tsx:19`](../../apps/fed/src/components/MarkdownPage.tsx) says so on the prop
+  itself: `document.title`, `og:title`, the `ShareButton` title and the JSON-LD `headline`.
+- On every **other** route — `/portfolio`, `/library`, `/me`, `/` — the title feeds **two**:
+  `document.title` and `og:title`. `useDocumentHead.ts:167` emits `og:title` **unconditionally**, beside
+  `og:site_name` and `og:locale`, so there is no route whose title is the tab alone.
+
+*Stated at that resolution because the first draft of this record got it wrong*, and got it wrong in the
+direction that matters: it listed `/library` among the markdown-shell pages and priced the rejected
+option below on **three** four-output surfaces instead of two. `LibraryPage.tsx:3` says plainly that
+markdown → `MarkdownPage` "is what `/ramp-up` and `/architecture` are"; the claim was contradicted by a
+comment in the very file it named, and was reached by generalising from the prop's doc comment without
+grepping the importers. Falsifier, one command: `grep -rn MarkdownPage apps/fed/src/pages/`.
+
+**The `og:title` half is the constraint, and it is universal.** It is pinned by scrapers on first fetch
+and cannot be taken back (ADR-0041) — on **every** route, not on a privileged few. Every clause below is
+shaped by that asymmetry.
 
 ## Decision drivers
 - **The tab must contain the word the reader clicked.** The reported defect, and the whole objective.
@@ -77,14 +91,34 @@ that asymmetry.
    with no mechanical guard, and that is deliberate rather than overlooked.
 2. **It EQUALS the section's `nav.*` label** — the strictest reading of the pattern the owner named,
    and the strongest rejected option, because `/portfolio` — the example he pointed at — is an
-   *equality* case: its tab is exactly *Portfólio*. *Why not:* on the three markdown-shell surfaces the
-   title is also the `og:title`, the share title and the JSON-LD headline. A bare *Arquitetura* would
-   unfurl **thinner than the card it replaces** — the reader in a timeline would be given a one-word
-   label where they previously got a sentence — and it would additionally force a rewrite of
-   `/ramp-up`, whose title is already correct under option 1, buying a pinned-card regeneration
-   (ADR-0041) for no reader gain. **This is a copy call and it is the owner's to reverse**; it is
-   recorded here as considered rather than unseen, and *"the rule is equality, drop the tails"* remains
-   a one-line change to this record plus two strings.
+   *equality* case: its tab is exactly *Portfólio*. Rejected, and **the reasoning below replaces an
+   earlier draft of this clause that priced it wrongly**; the correction is kept visible because the
+   first price was the one argument offered for the rejection, and a reader who saw it deserves to know
+   it did not hold. *Why not, in the order the reasons actually bite:*
+
+   - **Equality buys nothing on the surface where the defect was reported.** A browser tab shows roughly
+     15–25 characters before it truncates, so the reader who clicks *Arquitetura* sees the leading label
+     and the tail never reaches them either way. Dropping the tail changes nothing about the tab.
+     *(Stated as a general property of tab rendering, not measured in this repo — it varies by browser
+     and window; the direction is not in doubt, the exact cutoff is.)*
+   - **It costs the most where the cost cannot be taken back — the LinkedIn card.** LinkedIn renders
+     `og:title` plus the domain and **drops `og:description`**, and `MarkdownPage` passes no `image`, so
+     `/architecture` falls back to the default per-locale card. Under equality the entire page-specific
+     text of that unfurl would be *"Arquitetura · tadeumendonca.io"* — generic art plus one word — on the
+     surface [ADR-0038](./0038-content-distribution-linkedin-and-x.md) names as a primary distribution
+     channel, and pinned per URL by the first scraper to fetch it (ADR-0041). SERP and X carry the
+     description alongside the title, so they absorb a bare label; LinkedIn is where the thin card is
+     actually paid, and it is the least reversible of the three.
+   - **As a *rule* it forces `/ramp-up` to become bare *"Ramp-up"*, which does not describe itself.**
+     *Arquitetura* survives alone on a site whose subject is the site; *Ramp-up* alone says nothing about
+     what the ramp is toward. So equality would also spend a pinned-card regeneration on a title that is
+     already correct under option 1, in exchange for a worse string.
+
+   **This remains a copy call and it is the owner's to reverse** — it is recorded as considered rather
+   than unseen, and *"the rule is equality, drop the tails"* is still a one-line change to this record
+   plus two strings. **The conclusion did not change when the price was corrected; the grounds did**, and
+   the grounds are now the two that survive scrutiny: equality gains nothing on the tab, and loses the
+   card.
 3. **The title is the H1** — reject, and it is the seam this record exists to hold. It would delete
    *"Arquitetura — a planta, em aberto"* from the argument it is making, or bloat every tab with a
    subtitle that a SERP truncates away anyway. Address and argument are different objects with different
@@ -176,8 +210,10 @@ it is priced in option 2 above, not something to resolve inside the record.
   closed on every route rather than on the one that was noticed.
 - **A section added later is covered the day it exists**, because the check derives its subjects from the
   catalog. The convention does not depend on the next author having read this file.
-- The address is **decoupled from the argument**: an editorial H1 rewrite can no longer move a tab, an
-  OG title, a share title and a JSON-LD headline as a side effect.
+- The address is **decoupled from the argument**: an editorial H1 rewrite can no longer move a tab and a
+  pinned `og:title` as a side effect. On `/portfolio`, where the shipped decoupling actually lives, that
+  is those two outputs; the rule's value is that a future section wired through `MarkdownPage` cannot
+  reintroduce the coupling at four.
 - The seam is pinned on both sides — `ArchitecturePage.test.tsx` asserts the composed title leads with
   *Arquitetura* **and** that the H1 is still *"Arquitetura — a planta, em aberto"*, which is worth having
   precisely because the two now start with the same word and collapsing them looks harmless.
@@ -193,12 +229,29 @@ it is priced in option 2 above, not something to resolve inside the record.
   the key is the only thing pointing back here.
 - **`/me` sits outside the derived check** and is covered by one page test. Its exception is the kind
   that rots quietly, because the catalog-wide assertion will stay green while saying nothing about it.
-- **The one-word section names are now load-bearing for SEO.** `nav.*` was header chrome; changing a nav
-  label now moves five document titles and three OG titles, one of which is pinned per URL. That is a
-  new coupling this record creates, and it is the price of having a single source for the address.
-- **Three surfaces inherit a four-way constraint.** Any future title change on `/architecture`,
-  `/ramp-up` or `/library` is simultaneously a tab change, an unfurl change, a share-sheet change and a
-  structured-data change. It cannot be evaluated as "just the tab" again.
+- **The one-word section names are now load-bearing for SEO, and the exposure is total rather than
+  partial.** `nav.*` was header chrome. Changing a nav label now moves **five document titles and all
+  five of the corresponding `og:title`s**, across **ten** prerendered URLs (two locales, ADR-0036), and
+  **every one of them is pinned per URL** on first fetch (ADR-0041). There is no cheap subset: `og:title`
+  is emitted unconditionally at `useDocumentHead.ts:167`, so no route's title is the tab alone.
+
+  *An earlier draft of this line said "three OG titles, one of which is pinned per URL", and it is
+  corrected here rather than silently replaced* — this is the sentence a future reader prices a nav
+  rename from, and it understated that price to roughly 60% of the truth. Worse, it contradicted this
+  MR's own `e2e/seo.spec.ts`, which asserts `og:title === <title>` on all twelve prerendered pairs: the
+  test and the record disagreed inside one merge, and the test was right.
+
+  **The live case, named because there is one:** `nav.profile` is now the first words of `/me`'s document
+  title **and** of its `og:title`. The route rename already shipped (`/cv → /me`, 2026-07-24, with
+  back-compat redirects — ADR-0010's amendment) and the label is already neutral, so what remains open is
+  **label copy**. This record changes what that costs: relabelling `nav.profile` stops being a chrome
+  edit and becomes a re-pin of the OG card on the CV surface, in both locales. Not an argument against
+  doing it — an argument for doing it **once**, deliberately, rather than as a wording tweak.
+- **Two surfaces inherit a four-way constraint.** Any future title change on `/architecture` or
+  `/ramp-up` — the two `MarkdownPage` importers — is simultaneously a tab change, an unfurl change, a
+  share-sheet change and a structured-data change, and cannot be evaluated as "just the tab" again.
+  `/portfolio`, `/library` and `/me` inherit the two-way version: tab and unfurl. **The unfurl half is
+  the irreversible one on all five.**
 - **The E2E spells its expected strings out**, so a *deliberate* future title change turns it red and
   must be updated in the same commit. That is the guard working, and it is still a maintenance cost.
 
