@@ -138,28 +138,32 @@ two medium-adapted drafts, scaffolded by `gen-distribution` since the 2026-07-27
 accepted costs" section above still stands as written; this amendment does not get to delete a cost by
 renaming it.
 
-### Baseline, measured 2026-08-08
+### Baseline, measured 2026-08-08 against `origin/main` at `6e1d66c`
 
-These are **measurements**, each with the command **and the ref** that produced them. The ref is not
-pedantry here; see the correction below.
+These are **measurements**, each with the command **and the ref** that produced them. The ref is pinned to
+a commit rather than to a day because `main` moved twice under this record while it was being written; see
+the correction below.
 
 - **One published article.** `git ls-tree --name-only origin/main apps/fed/src/content/blog/` →
   `my-commitment.en.md` and `my-commitment.pt.md`, one article in two locales. Its frontmatter `date` is
   `2026-07-26T22:00:00.000Z` — launch day.
-- **Zero published since. Thirteen days.**
-  `git log --oneline origin/main -- apps/fed/src/content/blog/` → `b2b59bc`, the i18n restructure, and
-  nothing after it.
+- **Zero published since. Thirteen days** — but not zero *written*, and the difference is the next bullet.
+- **A second article was published and unpublished the same day.**
+  `green-checks-that-verify-nothing` merged in PR #382 at `2026-08-08T04:22:52Z` (`cca7a7c`, merge
+  `e099079`) and was reverted by PR #389 at `2026-08-08T13:25:17Z` (`6e1d66c`), on the owner's decision
+  that it was the wrong piece for the week's slot — a priority correction, not an abandonment. The article
+  is **held**, and the count returned to one. Recorded because a reader finding a thirteen-day gap in
+  `main`'s history six months from now would otherwise have no account of the work inside it.
 - **"Published" means the file is in `blog/` on `origin/main`** — not in a working tree, not on a feature
-  branch. Searching `apps/fed/src` and `apps/fed/scripts` for `new Date()` finds no publish-date filter,
-  so a file that reaches `main` is live on the next deploy; nothing else is live at all.
-- **One article is in flight and is not published.** `green-checks-that-verify-nothing` sits on
-  `content/green-checks-that-verify-nothing` (commit `cca7a7c`) in **open** PR #382. It counts toward
-  nothing until it merges.
-- **One distribution draft, for the one published article.** `ls .brand/distribution/` →
-  `my-commitment.md`. Pair completeness therefore reads **complete** — over a corpus of one, which is the
-  weakness of that instrument rather than a result. See the pricing below.
+  branch, and **not merely once merged**, as the round trip above shows. Searching `apps/fed/src` and
+  `apps/fed/scripts` for `new Date()` finds no publish-date filter, so a file that is on `main` is live on
+  the next deploy; nothing else is live at all.
+- **Two distribution drafts, one published article.** `ls .brand/distribution/` → `my-commitment.md` and
+  `green-checks-that-verify-nothing.md`. The instrument now reads **over**-complete: it holds a pair for an
+  article that is not published. That is the sharpest available statement of its weakness — it tracks
+  neither publication nor reach. See the pricing below.
 - **No rate is stated, on purpose.** One publication has no interval. There is nothing to divide, and
-  "0/week" is a description of a thirteen-day silence, not an estimated rate.
+  "0/week" describes a thirteen-day silence; it does not estimate a rate.
 
 **Correction, and the near-miss that produced it.** Three baselines were carried during drafting. First
 "0.5 articles/week" — wrong. Then "0/week: one article, nothing since, thirteen days" — right. Then this
@@ -174,11 +178,12 @@ anyone measuring cadence later: name the ref, and the ref is `origin/main`.** Wo
 `git log` on a path both answer a different question than "what is published" — the second for the reason
 given under the reader pricing below.
 
-**The rule was then tested, unintentionally.** The review that gated this amendment began with its own
-working tree on the same unmerged article branch — the identical trap — and did not fall into it, because
-it named the ref on every check. That is the second reproduction of the failure and the first of the
-remedy, which is the only reason it is written down: the discipline is cheap and it demonstrably works,
-where remembering which branch you are on demonstrably does not.
+**Naming the ref was not sufficient, which is why the heading above pins a commit.** The correction was
+written against `origin/main` and was still wrong within the hour: PR #382 merged at `04:22:52Z` and the
+commit carrying the corrected baseline was authored at `04:27:32Z`, five minutes later, without re-running
+anything. `origin/main` is a moving ref, so a claim about it is only true at an instant — and on this day
+it moved twice, publishing and then unpublishing the same article. Hence `origin/main at 6e1d66c`: a
+reader can check the baseline at the commit it was taken at, whatever `main` holds when they arrive.
 
 ### The recommendation that was overruled
 
@@ -208,25 +213,35 @@ instruments exist as **commands a human chooses to run**, and they are not equal
 
 - **Articles per week — sound, public, CI-capable, and it must name its ref.** Read the frontmatter
   `date` of the files **`git ls-tree origin/main` lists**, never of the files a checkout happens to hold.
-  It needs no private material and runs on a clean clone. Two failure modes, both measured here.
+  It needs no private material and runs on a clean clone. Three failure modes, all measured here.
+
   **One: a working tree counts unmerged branches as published** — this record nearly shipped that number.
-  **Two: git commit dates carry no information about publication, for any path in this repository.**
-  `git log --diff-filter=A -- apps/fed/src/content/blog/` puts `my-commitment` at 2026-07-31, five days
-  after it was published, and the cause is not a path that moved: `origin/main`'s history **begins** that
-  day, at two parentless root commits (`git rev-list --max-parents=0 origin/main` → `528b685`, `b2b59bc`;
-  the latter is a `bump:` commit by `github-actions[bot]` importing 250 files). Every path dates to the
-  import, not just content that was ever restructured — `git log --diff-filter=A --format="%h %ad"
-  --date=short origin/main -- iac/versions.tf docs/adr/0001-*.md LICENSE` returns the same commit and the
-  same day. **`--follow` does not recover an earlier date**; it was run, and it returns only the two roots.
-  So the article was published *before the repository's earliest commit*, and what `git log` measures on
-  any path here is **the history horizon**. The frontmatter date is the instrument; the ref decides which
-  files are in scope at all.
-- **Pair completeness via `.brand/distribution/` — weak in three ways, and it currently reads green.**
+  **Two: `origin/main` is a moving ref**, so pin the commit — this record shipped a baseline that a merge
+  five minutes earlier had already falsified.
+  **Three: for any path present at the repository's history horizon, commit dates carry no information
+  about publication.** `git log --diff-filter=A -- apps/fed/src/content/blog/` puts `my-commitment` at
+  2026-07-31, five days after it was published, and the cause is not a path that moved: `origin/main`'s
+  history **begins** that day, at two parentless root commits (`git rev-list --max-parents=0 origin/main`
+  → `528b685`, `b2b59bc`; the latter is a `bump:` commit by `github-actions[bot]` importing 250 files).
+  Every path present at the import dates to the import, not just content that was ever restructured —
+  `git log --diff-filter=A --format="%h %ad" --date=short origin/main -- iac/versions.tf
+  docs/adr/0001-*.md LICENSE` returns the same commit and the same day. **`--follow` does not recover an
+  earlier date**; it was run, and it returns only the two roots. `my-commitment` was published *before the
+  repository's earliest commit*, so for it, `git log` measures the history horizon and nothing else.
+
+  **The counterpart, which is the useful half from here on:** for a path added *after* the horizon,
+  `--diff-filter=A` on `origin/main` dates the merge and is a sound date proxy — the same command returns
+  `cca7a7c 2026-08-08`, matching that article's frontmatter exactly. **But it is not a presence test**, and
+  the round trip above proves it: `cca7a7c` is still reported as an add although the article was reverted
+  and is not published. Dating an article and deciding whether an article is published are different
+  questions, and only `ls-tree` answers the second. The frontmatter is the instrument for *when*; the
+  ref decides *which files exist at all*.
+- **Pair completeness via `.brand/distribution/` — weak in three ways, and it currently reads *over*-green.**
   `.brand/` is gitignored (`.gitignore:31`), so the check exists only on the owner's machine: no CI, no
-  fresh clone, no reviewer and no agent can run it. It measures **draft generation, not publication** —
-  it can read green while neither surface has the post. And today it *does* read green, one draft for one
-  published article, which demonstrates the third weakness: over a corpus of one it cannot distinguish
-  "complete" from "trivially complete". It is a leading indicator of intent, never evidence of reach.
+  fresh clone, no reviewer and no agent can run it. It measures **draft generation, not publication** — it
+  can read green while neither surface has the post. And today it reads two drafts against one published
+  article, which is the third weakness demonstrated rather than argued: it counts a pair for a piece that
+  was reverted out of production. It is a leading indicator of intent, never evidence of reach.
 
 No instrument is proposed here as work; only the owner opens work. What this amendment records is that the
 cadence is a standard **held by the owner's attention**, exactly like the fan-out obligation above it, and
