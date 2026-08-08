@@ -10,6 +10,12 @@
 // focus moves in on open, is trapped while open, returns to the trigger on close, `Escape` dismisses,
 // the dialog carries an accessible name, and the backdrop click closes.
 //
+// FIVE OPTIONS SINCE #387, not four — three deeplinks plus two clipboard writes. The list is a vertical
+// stack of full-width rows separated by a top border, so a row is added by adding a row; the panel is
+// `max-w-sm` and bottom-anchored below `sm`, and the sweep in `responsive-overflow.spec.ts` covers the
+// widths where that could bite. No layout change was needed and none was made — worth stating, because
+// "the modal has four options" was load-bearing nowhere and looks like it should have been.
+//
 // `prefers-reduced-motion` is honoured by the GLOBAL reset in `styles/index.css`, which neuters
 // `transition-duration` to 0.01ms under `reduce` — not, as an earlier version of this comment claimed,
 // by this file having no transitions. It has three (`transition-colors` on the close control,
@@ -17,23 +23,85 @@
 // naming the wrong mechanism is how the next component "follows the pattern" by omitting a transition
 // it could have had.
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
-import { X as CloseIcon, Link2, Check } from 'lucide-react';
+import { X as CloseIcon, Link2, Check, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useT } from '../i18n';
 import { SHARE_TARGETS, shareHref } from './shareTargets';
+
+/**
+ * What the last clipboard attempt on one control did.
+ *
+ * `failed` is the state that did not exist before #387, and its absence was the defect: a rejected
+ * `writeText` left the label reading "Copy link" forever, which is indistinguishable from the reader
+ * having not clicked yet. A button that appears to work and does not is worse than one that says it
+ * could not.
+ */
+export type CopyStatus = 'idle' | 'copied' | 'failed';
+
+/**
+ * One clipboard row in the option list.
+ *
+ * Extracted because there are two of them now and they differ only in their idle icon, their idle label
+ * and what they write — while the state machine (idle → copied | failed), the announcement and the
+ * layout are identical. Two hand-written rows is how the copy option and the markdown option would come
+ * to announce their failures differently.
+ */
+function CopyRow({
+  status,
+  label,
+  Icon,
+  onClick,
+}: {
+  status: CopyStatus;
+  label: string;
+  // `LucideIcon`, not a hand-written `ComponentType<{ size?: number }>` — lucide's own `size` is
+  // `string | number`, so the narrower shape is not assignable and every icon in this file is one of
+  // these. The suite never saw it: vitest does not typecheck, and `npm run typecheck` is the gate that
+  // can.
+  Icon: LucideIcon;
+  onClick: () => void;
+}) {
+  const t = useT();
+  const StateIcon = status === 'copied' ? Check : status === 'failed' ? AlertTriangle : Icon;
+  const text = status === 'copied' ? t('share.copied') : status === 'failed' ? t('share.copyFailed') : label;
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex w-full items-center gap-3 border-t border-border py-3 text-left font-mono text-sm uppercase tracking-wider transition-[padding] duration-150 hover:pl-2"
+      >
+        <StateIcon size={18} className="shrink-0 text-primary" />
+        {/* The label IS the feedback, so its changes have to be announced — a sighted reader sees the
+            icon and the word swap, and without a live region a screen-reader user gets nothing at all
+            for either outcome. Polite rather than assertive: it is a confirmation, not an interruption. */}
+        <span aria-live="polite">{text}</span>
+      </button>
+    </li>
+  );
+}
 
 export function ShareModal({
   title,
   path,
   onClose,
-  onCopy,
-  copied,
+  onCopyLink,
+  linkStatus,
+  onCopyMarkdown,
+  markdownStatus,
   returnFocusTo,
 }: {
   title: string;
   path: string;
   onClose: () => void;
-  onCopy: () => void;
-  copied: boolean;
+  onCopyLink: () => void;
+  linkStatus: CopyStatus;
+  /**
+   * Absent when the caller has no body to offer — the markdown row is then not rendered at all (#387).
+   * A page that adds the share affordance without a payload gets four working options rather than a
+   * fifth that copies an empty document, and it gets that WITHOUT anyone maintaining a route list.
+   */
+  onCopyMarkdown?: () => void;
+  markdownStatus: CopyStatus;
   /**
    * The control to hand focus back to on close. Passed in rather than inferred from
    * `document.activeElement` at mount — the first version did infer it, and it was a guess that
@@ -148,20 +216,17 @@ export function ShareModal({
               </a>
             </li>
           ))}
-          <li>
-            <button
-              type="button"
-              onClick={onCopy}
-              className="flex w-full items-center gap-3 border-t border-border py-3 text-left font-mono text-sm uppercase tracking-wider transition-[padding] duration-150 hover:pl-2"
-            >
-              {copied ? (
-                <Check size={18} className="shrink-0 text-primary" />
-              ) : (
-                <Link2 size={18} className="shrink-0 text-primary" />
-              )}
-              <span>{copied ? t('share.copied') : t('share.copyLink')}</span>
-            </button>
-          </li>
+          {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
+              row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
+          <CopyRow status={linkStatus} label={t('share.copyLinkToClipboard')} Icon={Link2} onClick={onCopyLink} />
+          {onCopyMarkdown && (
+            <CopyRow
+              status={markdownStatus}
+              label={t('share.copyMarkdown')}
+              Icon={FileText}
+              onClick={onCopyMarkdown}
+            />
+          )}
         </ul>
       </div>
     </div>

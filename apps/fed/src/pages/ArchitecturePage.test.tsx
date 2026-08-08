@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { ArchitecturePage } from './ArchitecturePage';
 import { renderWithLocale } from '../test-utils';
+
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.unstubAllGlobals();
+});
 
 const renderPage = (locale: 'pt' | 'en' = 'pt') => renderWithLocale(<ArchitecturePage />, { locale });
 
@@ -137,5 +142,42 @@ describe('ArchitecturePage', () => {
       'https://github.com/tedeuxx/tadeumendonca-io',
       'https://github.com/tedeuxx/tadeumendonca-skills',
     ]);
+  });
+
+  // COPY-AS-MARKDOWN AGAINST THE SHIPPED BODY (#387). The payload builder has its own unit tests against
+  // synthetic input; this is the one that reads the file that actually ships, and it is where the
+  // `adr-index` defect lives — `architecture.{en,pt}.md` carries an EMPTY fence that only the renderer
+  // expands, so a verbatim copy hands the reader three backticks and nothing.
+  it.each(['pt', 'en'] as const)('copies the shipped body with no bare adr-index fence (%s edition)', async (locale) => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderPage(locale);
+
+    fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: locale === 'pt' ? 'Copiar markdown para a área de transferência' : 'Copy markdown to clipboard',
+      }),
+    );
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    const payload = writeText.mock.calls[0][0] as string;
+
+    expect(payload).not.toContain('adr-index');
+    // THE WHOLE GENERATED LINK, label included — not the URL alone. The body's own prose at
+    // `architecture.{pt,en}.md:300` already links `…/docs/adr/README.md`, so a bare `toContain` on that
+    // URL is satisfied by the BODY and stays green even if the fence resolves to something else entirely.
+    // Found by mutation: reverting `ADR_INDEX_URL` to the bare directory left the URL-only assertion
+    // passing. Pinning the label is what makes this an assertion about the substitution.
+    const adrLink =
+      locale === 'pt' ? 'Índice de decisões (ADRs), no repositório' : 'Decision index (ADRs), in the repository';
+    expect(payload).toContain(
+      `[${adrLink}](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)`,
+    );
+    // …and the mermaid fences that SHOULD survive did. Dropping every fence would pass the assertion
+    // above while silently gutting four diagrams a reader can render on GitHub.
+    expect(payload).toContain('```mermaid');
+    // The canonical URL of the edition being copied, clean.
+    expect(payload).toContain(`https://tadeumendonca.io/${locale}/architecture`);
+    expect(payload).not.toContain('utm_');
   });
 });

@@ -63,8 +63,12 @@ export function MarkdownPage({
         <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
             <span>{kicker}</span>
-            {/* ShareButton prepends the origin — it takes a PATH, not an absolute URL. */}
-            <ShareButton title={title} url={localizedPath} size="sm" />
+            {/* ShareButton prepends the origin — it takes a PATH, not an absolute URL. `body` is the
+                ALREADY-RESOLVED string this shell renders below, which is what makes copy-as-markdown
+                (#387) free and correct on /ramp-up: the caller resolved `{{years}}` before handing it
+                here, so the clipboard gets the same text the reader is looking at. Passing the import
+                instead would put a literal `{{years}}` in someone's notes. */}
+            <ShareButton title={title} url={localizedPath} body={body} size="sm" />
           </div>
           {/* THE HEADING RUNS THE FULL MEASURE OF THE RULE BENEATH IT (#392) — and `text-balance` was
               the bigger half of the cause, not `max-w-[22ch]`. Deleting the cap alone is the obvious

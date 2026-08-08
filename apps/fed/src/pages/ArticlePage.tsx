@@ -68,7 +68,10 @@ export function ArticlePage() {
               <time dateTime={article.date}>{fmtDate(article.date, locale)}</time>
               {article.tag && <span>· #{article.tag}</span>}
               <span>· {t(TRACK_KEY[article.track])}</span>
-              <ShareButton title={article.title} url={lp(articleShareUrl(article))} size="sm" />
+              {/* `article.body` is the frontmatter-stripped remainder `content.ts` already returns — the
+                  raw glob is module-private and never exported, so no `slug`/`date`/`track` can reach the
+                  clipboard (#387). It is also the exact string rendered below. */}
+              <ShareButton title={article.title} url={lp(articleShareUrl(article))} body={article.body} size="sm" />
             </div>
             <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
               {article.title}
