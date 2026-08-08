@@ -6,7 +6,7 @@ tag: agentic
 track: engenharia
 hasVideo: true
 excerpt: "One session of agentic development left me seven passing checks that proved nothing. Five are below, each with the file you can open — and the reason the loop accumulates them faster than it removes them."
-takeaway: 'why a passing check can be worth nothing, and the one habit that finds it.'
+takeaway: 'why a passing check can be worth nothing, and the one question review cannot answer.'
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
