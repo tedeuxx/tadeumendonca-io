@@ -5,7 +5,7 @@ date: '2026-08-08T21:00:00.000Z'
 tag: agentic
 track: engenharia
 hasVideo: true
-excerpt: "One session of agentic development left me seven passing checks that proved nothing. Five of them are below, each with the file you can open — and the reason the loop accumulates them faster than it removes them."
+excerpt: "One session of agentic development left me seven passing checks that proved nothing. Five are below, each with the file you can open — and the reason the loop accumulates them faster than it removes them."
 takeaway: 'why a passing check can be worth nothing, and the one habit that finds it.'
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
@@ -34,9 +34,9 @@ That is not a new observation. What is new is the rate. I now produce far more v
 
 ## The fifth, which reading was never going to find
 
-Articles carry a `track`, and the parser keeps a known value and falls back to `engenharia` for anything else. Every fixture and every published article carries `track: engenharia` — which is *also* the fallback. Both branches of that ternary returned the same value. A membership test that always answered *false* would have passed the entire suite.
+Articles carry a `track`, and the parser keeps a known value and falls back to `engenharia` for anything else. Every fixture and every published article carried `track: engenharia` — which is *also* the fallback. Both branches of that ternary returned the same value. A membership test that always answered *false* would have passed the entire suite.
 
-There is nothing to notice. [The parser](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.ts) looks right, the tests look thorough, and the coverage line counts the branch as taken. It surfaced only when someone changed the source to break it on purpose and watched for a red that never came. [The test](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.test.ts) now pins the other value explicitly, which is a one-line fix for a defect that no amount of careful reading was going to produce.
+There is nothing to notice. [The parser](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.ts) looks right, the tests look thorough, and the coverage line counts the branch as taken. And nothing found it on purpose: it surfaced as a side effect of an unrelated tidy-up, turning a two-element array into a Set because a Set says at the declaration what an array only implied. The defect was what the change exposed, not what anyone went looking for. [The test](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.test.ts) now pins the other value explicitly — and mutation is what proved the replacement could fail, in both directions, which is the job it actually does here.
 
 ## Why the loop makes this easier to accumulate, not harder
 
@@ -48,7 +48,7 @@ So the honest shape of it is not "the agent made mistakes I would not have made"
 
 ## What I do now, and what it still does not fix
 
-One habit, and it is mechanical rather than clever: **break the source, not the test.** Change the line the assertion exists to protect, run it, and confirm it goes red. If it stays green the assertion is decoration. It costs a minute and it is the only thing on this page that actually found any of the five.
+One habit, and it is mechanical rather than clever: **break the source, not the test.** Change the line the assertion exists to protect, run it, and confirm it goes red. If it stays green the assertion is decoration. It costs a minute, and I want to be exact about what it buys: it did not find any of the five. Four came out of reading a gate I already distrusted, and the fifth fell out of an unrelated tidy-up. What mutation did was settle, in every one of the five, whether the replacement could actually fail — which is the question review cannot answer and the one the whole page is about.
 
 It does not fix everything, and two of the gaps are structural. It only reaches assertions I think to mutate — the fifth one above sat under a suite nobody suspected. And it cannot touch a filter that skips a job at all, because there is no source to break: the job did not run, so there is nothing to make red. That class needs a different answer, which is that an aggregate check has to report *what* it verified rather than only that it passed. Mine does that now. It did not before, and I do not know how long it had been that way.
 

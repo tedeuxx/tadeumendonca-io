@@ -34,9 +34,9 @@ Isso não é observação nova. O que é novo é a taxa. Hoje eu produzo muito m
 
 ## O quinto, que leitura nenhuma ia encontrar
 
-Os artigos carregam uma `track`, e o parser mantém um valor conhecido e cai pra `engenharia` em qualquer outro caso. Acontece que toda fixture e todo artigo publicado carrega `track: engenharia` — que é *também* o fallback. Os dois braços daquele ternário devolviam o mesmo valor. Um teste de pertinência que respondesse *false* sempre teria passado na suíte inteira.
+Os artigos carregam uma `track`, e o parser mantém um valor conhecido e cai pra `engenharia` em qualquer outro caso. Acontece que toda fixture e todo artigo publicado carregava `track: engenharia` — que é *também* o fallback. Os dois braços daquele ternário devolviam o mesmo valor. Um teste de pertinência que respondesse *false* sempre teria passado na suíte inteira.
 
-Não há o que notar. [O parser](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.ts) parece certo, os testes parecem completos, e a cobertura conta o branch como exercitado. Aquilo só apareceu quando alguém alterou o código de propósito pra quebrar e ficou esperando um vermelho que não veio. [O teste](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.test.ts) hoje fixa o outro valor explicitamente — correção de uma linha pra um defeito que leitura cuidadosa nenhuma ia produzir.
+Não há o que notar. [O parser](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.ts) parece certo, os testes parecem completos, e a cobertura conta o branch como exercitado. E ninguém achou aquilo de propósito: apareceu como efeito colateral de uma arrumação sem relação nenhuma, trocar um array de dois elementos por um Set porque o Set diz na declaração o que o array só insinuava na chamada. O defeito foi o que a mudança expôs, não o que alguém foi procurar. [O teste](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/content.test.ts) hoje fixa o outro valor explicitamente — e foi a mutação que provou que a substituição consegue falhar, nas duas direções, que é o serviço que ela de fato presta aqui.
 
 ## Por que o loop facilita acumular isso, e não o contrário
 
@@ -48,7 +48,7 @@ Então o formato honesto disso não é "o agente cometeu erros que eu não comet
 
 ## O que eu faço hoje, e o que isso continua não resolvendo
 
-Um hábito, e ele é mecânico em vez de esperto: **quebre o código, não o teste.** Altere a linha que a asserção existe pra proteger, rode, e confirme que fica vermelho. Se continuar verde, a asserção é enfeite. Custa um minuto e é a única coisa nesta página que de fato encontrou algum dos cinco.
+Um hábito, e ele é mecânico em vez de esperto: **quebre o código, não o teste.** Altere a linha que a asserção existe pra proteger, rode, e confirme que fica vermelho. Se continuar verde, a asserção é enfeite. Custa um minuto — e eu quero ser exato sobre o que ele compra: não foi ele que achou nenhum dos cinco. Quatro saíram de ler um gate de que eu já desconfiava, e o quinto caiu de uma arrumação sem relação nenhuma. O que a mutação fez foi decidir, em todos os cinco, se a substituição conseguia de fato falhar — que é a pergunta que revisão não responde e é sobre ela que esta página inteira fala.
 
 Não resolve tudo, e dois dos buracos são estruturais. Só alcança asserção que me ocorre mutar — o quinto ali em cima estava debaixo de uma suíte que ninguém suspeitava. E não encosta num filtro que pula um job, porque não há código pra quebrar: o job não rodou, então não existe nada pra ficar vermelho. Essa classe pede outra resposta, que é o check agregado ter que reportar *o que* ele verificou, e não só que passou. O meu faz isso hoje. Não fazia antes, e eu não sei há quanto tempo estava assim.
 
