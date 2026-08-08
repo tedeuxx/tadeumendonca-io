@@ -6,7 +6,7 @@ tag: agentic
 track: engenharia
 hasVideo: true
 excerpt: "Uma sessão de desenvolvimento agentic me deixou sete checks passando que não provavam nada. Cinco estão aqui, cada um com o arquivo que você pode abrir — e o motivo de o loop acumular esse tipo de coisa mais rápido do que remove."
-takeaway: 'por que um check que passa pode não valer nada, e o único hábito que encontra isso.'
+takeaway: 'por que um check que passa pode não valer nada, e a pergunta que revisão não responde.'
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
