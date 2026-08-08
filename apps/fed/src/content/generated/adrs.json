@@ -313,5 +313,12 @@
     "file": "0045-document-title-leads-with-section-label.md",
     "status": "accepted",
     "amended": false
+  },
+  {
+    "id": "0046",
+    "title": "A video-derived article earns its place by receipt, stands without the video, and never runs in a streak",
+    "file": "0046-video-derived-articles-earn-their-place-by-receipt.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
