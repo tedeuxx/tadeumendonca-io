@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { ShareButton, articleShareUrl } from './ShareButton';
 import { ShareLinks } from './ShareLinks';
-import { MODAL_TARGETS, SHARE_TARGETS } from './shareTargets';
+import { SHARE_TARGETS } from './shareTargets';
 import { renderWithLocale } from '../test-utils';
 
 afterEach(() => {
@@ -258,12 +258,34 @@ describe('copy as markdown', () => {
     expect(document.activeElement).toBe(items[0]);
   });
 
-  // The derived list cannot silently DROP a destination: `MODAL_TARGETS` resolves names against
-  // `SHARE_TARGETS` and throws on an unknown key, but a target nobody ordered would simply be absent.
-  // That gap cannot throw, so it is asserted — as set equality, in both directions.
-  it('orders every destination the shared list defines, and invents none', () => {
-    expect([...MODAL_TARGETS].map((t) => t.key).sort()).toEqual([...SHARE_TARGETS].map((t) => t.key).sort());
-    expect(MODAL_TARGETS).toHaveLength(SHARE_TARGETS.length);
+  // BOTH ROWS CONFIRMING AT ONCE is reachable, and after the reorder they are ADJACENT: the dialog does
+  // not close on copy, and each row holds `copied` for 1.5s, so copying one and then the other puts both
+  // in that state together. `share.copied` is a single shared string, so the labels are identical BY
+  // DESIGN — what must not also be identical is the row. Before this, both also swapped to `Check`, and
+  // the two rows were character-for-character the same thing.
+  //
+  // The test ENTERS the collision state and asserts it was entered, because "the rows differ" is
+  // trivially true in every other state and would otherwise pass without ever reaching the case it names.
+  it('keeps the two clipboard rows distinguishable while both are confirming', async () => {
+    openWith({ body: 'Corpo.' });
+    fireEvent.click(screen.getByRole('button', { name: COPY_LINK_PT }));
+    fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
+
+    const confirming = await screen.findAllByText('Copiado');
+    expect(confirming, 'both rows must be confirming, or this asserts nothing').toHaveLength(2);
+
+    const rows = confirming.map((span) => span.closest('button')!);
+    expect(rows[0]).not.toBe(rows[1]);
+    // Same words, different row — the icon is what still says WHICH copy succeeded.
+    expect(rows[0].innerHTML).not.toEqual(rows[1].innerHTML);
+  });
+
+  // ONE ORDERED SOURCE, pinned at the source as well as through the DOM. The derived `MODAL_TARGETS` is
+  // gone: it existed only to keep the footer still while the owner ruled on it, he ruled, and a second
+  // ordering whose reason has expired is how #314's drift starts again. This asserts the shared list's
+  // own order, so a reorder here is a deliberate act with a red test in front of it.
+  it('defines one shared destination order', () => {
+    expect(SHARE_TARGETS.map((t) => t.key)).toEqual(['linkedin', 'x', 'whatsapp']);
   });
 });
 
@@ -302,6 +324,26 @@ describe('the two share entry points', () => {
   // would read as a choice of format; the footer has no second row, so the comparative argument does not
   // reach it and it keeps the published short label. Pinned in one test, both spellings visible together,
   // because the failure worth catching is one of them silently adopting the other's.
+  // THE FOOTER'S ORDER HAD THE SAME GAP THE MODAL DID — every assertion on this block checked each
+  // platform independently, so any permutation passed. Pinned the same way: one array comparison of the
+  // whole row in DOM order, which is what a partial reorder (two links swapped) survives when you assert
+  // only the first and last.
+  //
+  // Copy-link LEADS, matching the modal. That placement is the one ordering fact `shareTargets.ts` cannot
+  // enforce — the clipboard control is not in the list, having no href builder — so it is asserted here.
+  it('renders copy-link first, then the shared destination order', () => {
+    vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
+    renderWithLocale(<ShareLinks title="Hello" path="/pt/blog/x" />, { locale: 'pt' });
+    const nav = screen.getByRole('navigation');
+    const controls = Array.from(nav.querySelectorAll<HTMLElement>('a[href], button'));
+    expect(controls.map((el) => el.getAttribute('aria-label') ?? el.textContent)).toEqual([
+      COPY_LINK_SHORT_PT,
+      'Compartilhar no LinkedIn: Hello',
+      'Compartilhar no X: Hello',
+      'Compartilhar no WhatsApp: Hello',
+    ]);
+  });
+
   it('both offer the copy-link destination — the modal naming the clipboard, the footer not', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
     const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" />, { locale: 'pt' });

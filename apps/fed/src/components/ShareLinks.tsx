@@ -45,6 +45,28 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
       <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-muted-foreground">
         {t('share.linksHeading')}
       </span>
+      {/* COPY-LINK LEADS HERE TOO (#387), matching the modal. The owner ordered the dialog and then
+          extended the ruling — *"ajusta o rodapé também"* — so both entry points now put the clipboard
+          first and then `SHARE_TARGETS` in its own order.
+
+          The counter-argument, recorded so it is not re-litigated: this block's job is DISTRIBUTION, and
+          leading with the three deeplinks suits a reader deciding where to SEND the article rather than
+          how to save it. Overruled, and the reason is about a contradiction rather than about tidiness —
+          copy-link is the only option that never leaves the page and the one just ranked first, and here
+          it sat last while styled identically to the deeplinks, so it did not read as a different KIND of
+          thing at all. A stated priority inverted on the surface a reader reaches after finishing the
+          article is worse than a defensible alternative order.
+
+          The label stays `share.copyLink`, the short published string — no copy moves with this. The
+          modal names the clipboard because a second copy row sits beside it; there is still no second row
+          here, and the markdown option remains modal-only. */}
+      <button
+        type="button"
+        onClick={() => void copy()}
+        className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-primary hover:underline"
+      >
+        {copied ? t('share.copied') : t('share.copyLink')}
+      </button>
       {SHARE_TARGETS.map((target) => (
         <a
           key={target.key}
@@ -60,13 +82,6 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
           {target.label}
         </a>
       ))}
-      <button
-        type="button"
-        onClick={() => void copy()}
-        className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-primary hover:underline"
-      >
-        {copied ? t('share.copied') : t('share.copyLink')}
-      </button>
     </nav>
   );
 }

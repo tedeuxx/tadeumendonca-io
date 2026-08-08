@@ -28,23 +28,27 @@ export interface ShareTarget {
   href: (url: string, title: string) => string;
 }
 
+/**
+ * The destinations, IN THE ORDER BOTH ENTRY POINTS RENDER THEM (#387): LinkedIn, X, WhatsApp.
+ *
+ * THE ORDER IS PART OF THE SHARED CONTRACT, not a per-component choice. It was briefly not: the modal was
+ * reordered first and read a derived `MODAL_TARGETS` so the footer would not move silently before the
+ * owner had ruled on it. He then ruled — *"ajusta o rodapé também"* — and the derived list was collapsed
+ * back into this one. Keeping a second ordering whose only reason was a divergence that no longer exists
+ * is how #314's original drift starts over.
+ *
+ * THE CLIPBOARD CONTROL IS NOT IN THIS LIST and cannot be: it has no `href` builder and never leaves the
+ * page. Both entry points render it FIRST, ahead of this list. That is the one ordering fact this file
+ * cannot enforce for them, so it is stated here and asserted in both components' tests.
+ *
+ * WHY COPY-LINK LEADS, since the opposite is defensible and was argued: the footer's job is distribution,
+ * and putting the three deeplinks first suits a reader deciding *where to send it* rather than *how to
+ * save it*. That was overruled. Copy-link is the only option that never leaves the page, it is the one
+ * the owner ranked first, and in the footer it was last while styled identically to the three deeplinks —
+ * so it did not even read as a different KIND of thing. A stated priority contradicted on the surface a
+ * reader reaches after finishing the article is worse than a defensible alternative order.
+ */
 export const SHARE_TARGETS: readonly ShareTarget[] = [
-  // WhatsApp takes ONE `text` parameter — no separate title field — so title and URL are joined with a
-  // newline. Without it the two run together in the message box.
-  {
-    key: 'whatsapp',
-    label: 'WhatsApp',
-    nameKey: 'share.onWhatsapp',
-    Icon: WhatsappMark,
-    href: (u, t) => `https://wa.me/?text=${encodeURIComponent(`${t}\n${u}`)}`,
-  },
-  {
-    key: 'x',
-    label: 'X',
-    nameKey: 'share.onX',
-    Icon: XMark,
-    href: (u, t) => `https://x.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(u)}`,
-  },
   // LinkedIn ignores any title parameter and reads the OG card from the URL itself — which is why the
   // per-locale OG tags are what actually decides how a shared article looks there.
   {
@@ -54,31 +58,23 @@ export const SHARE_TARGETS: readonly ShareTarget[] = [
     Icon: LinkedinMark,
     href: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}`,
   },
+  {
+    key: 'x',
+    label: 'X',
+    nameKey: 'share.onX',
+    Icon: XMark,
+    href: (u, t) => `https://x.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(u)}`,
+  },
+  // WhatsApp takes ONE `text` parameter — no separate title field — so title and URL are joined with a
+  // newline. Without it the two run together in the message box.
+  {
+    key: 'whatsapp',
+    label: 'WhatsApp',
+    nameKey: 'share.onWhatsapp',
+    Icon: WhatsappMark,
+    href: (u, t) => `https://wa.me/?text=${encodeURIComponent(`${t}\n${u}`)}`,
+  },
 ];
-
-/**
- * THE MODAL'S ORDER, owner-specified (#387): LinkedIn, then X, then WhatsApp — beneath the two clipboard
- * rows, which the modal renders first.
- *
- * A SEPARATE ORDERING RATHER THAN A REORDER OF `SHARE_TARGETS`, and that is the load-bearing choice here.
- * `SHARE_TARGETS` is rendered by BOTH entry points; reordering it in place would silently reorder the
- * article footer's `ShareLinks` too, and the owner named an order for the MODAL. Whether it binds the
- * footer is his call, so this leaves the footer exactly as it shipped and makes the difference visible
- * instead of inferring an answer. **The two entry points now render the same three destinations in
- * different orders** — deliberate, and reported rather than smoothed over.
- *
- * DERIVED, NOT RETYPED. A second literal list of targets is a second place to add a destination to, and
- * #314 exists because two such lists drifted. This resolves keys against the canonical set and throws on
- * an unknown one; the reverse gap — a target in `SHARE_TARGETS` that nobody ordered — cannot throw here
- * (it would simply be absent), so `ShareButton.test.tsx` asserts the two sets are equal.
- */
-const MODAL_TARGET_ORDER: readonly ShareSource[] = ['linkedin', 'x', 'whatsapp'];
-
-export const MODAL_TARGETS: readonly ShareTarget[] = MODAL_TARGET_ORDER.map((key) => {
-  const target = SHARE_TARGETS.find((t) => t.key === key);
-  if (!target) throw new Error(`MODAL_TARGET_ORDER names "${key}", which is not in SHARE_TARGETS.`);
-  return target;
-});
 
 /**
  * The absolute, UTM-tagged article URL for one target.
@@ -95,6 +91,6 @@ export const MODAL_TARGETS: readonly ShareTarget[] = MODAL_TARGET_ORDER.map((key
 export const shareHref = (target: ShareTarget, path: string, title: string): string =>
   target.href(withShareUtm(`${SITE_URL}${path}`, target.key), title);
 
-/** The copy-link destination — in the modal it is the FIRST option, and the only one that never leaves
- *  the page. (In the footer it is still last; that block is unchanged.) */
+/** The copy-link destination — the FIRST option in both entry points now (#387), and the only one that
+ *  never leaves the page. */
 export const copyLinkUrl = (path: string): string => withShareUtm(`${SITE_URL}${path}`, 'copy-link');

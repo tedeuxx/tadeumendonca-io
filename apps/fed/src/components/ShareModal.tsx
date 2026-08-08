@@ -23,9 +23,9 @@
 // naming the wrong mechanism is how the next component "follows the pattern" by omitting a transition
 // it could have had.
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
-import { X as CloseIcon, Link2, Check, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
+import { X as CloseIcon, Link2, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useT } from '../i18n';
-import { MODAL_TARGETS, shareHref } from './shareTargets';
+import { SHARE_TARGETS, shareHref } from './shareTargets';
 
 /**
  * What the last clipboard attempt on one control did.
@@ -61,7 +61,23 @@ function CopyRow({
   onClick: () => void;
 }) {
   const t = useT();
-  const StateIcon = status === 'copied' ? Check : status === 'failed' ? AlertTriangle : Icon;
+  // THE ROW KEEPS ITS OWN ICON WHILE CONFIRMING, and that is a fix rather than a style choice (#387).
+  //
+  // `share.copied` is one shared string, so both clipboard rows read "Copiado" while confirming. Once the
+  // owner's reorder put them ADJACENT, a `Check` on both made the two rows character-for-character
+  // identical — and the dialog does not close on copy, so a reader reaches that state by copying one and
+  // then going to find the other. With three network rows between them the collision could not happen.
+  //
+  // Holding the idle icon keeps the row's IDENTITY through the state change: the label says what
+  // happened, the icon says which row it happened to. Chosen over naming the format in the confirmation
+  // ("Link copiado" / "Markdown copiado") because that adds two published strings to a slice whose copy is
+  // already ratified, and this needs none.
+  //
+  // `failed` still swaps to `AlertTriangle`, and the same collision exists there in principle. Left as is:
+  // the warning glyph is carrying error semantics that a link-or-file icon would not, and when both rows
+  // have failed nothing was copied either way — the reader's question is "did it work", not "which one".
+  // Stated rather than left for someone to rediscover.
+  const StateIcon = status === 'failed' ? AlertTriangle : Icon;
   const text = status === 'copied' ? t('share.copied') : status === 'failed' ? t('share.copyFailed') : label;
   return (
     <li>
@@ -177,15 +193,24 @@ export function ShareModal({
       // undocumented default, and the reason is written down here so the next reader does not have to
       // repeat the search.
       //
-      // `/85` rather than opaque: at 85% the page behind composites to roughly #2D2D2D where its
-      // off-white text was — clearly recessed, still faintly legible, so the reader keeps their place on
-      // the page they were reading. Fully opaque would be a page transition, not a dialog.
+      // `/85` rather than opaque. `rgba(10,10,10,0.85)` over a colour B composites to `0.85·10 + 0.15·B`,
+      // so behind the site's own off-white (#F5F4EF, 245) the page lands at 45 — #2D2D2D — and over the
+      // page's own ground it stays #0A0A0A. Clearly recessed, still faintly legible, so the reader keeps
+      // their place on the page they were reading. Fully opaque would be a page transition, not a dialog.
+      //
+      // ONE COMPOSITE, FOR THE ONE COLOUR THAT OCCURS HERE. An earlier revision of this comment also
+      // quoted #3B3B3B for "white content" — 59, which that formula cannot produce from any real colour
+      // (it needs B = 337). It was the /80-over-pure-white value, left behind when the alpha became /85,
+      // and it contradicted the #2D2D2D three lines above it. Nothing measures the composite — the E2E
+      // asserts the backdrop's OWN channels — so an arithmetic slip here is invisible to the suite, which
+      // is exactly why a second number for a colour this site never renders was worth deleting rather
+      // than correcting.
       //
       // SEPARATION STILL COMES FROM THE BORDER, which is what makes a near-black panel on a near-black
       // scrim legible at all: `--border-strong` is `50 23% 95%`, the same off-white as the text, drawn 2px
-      // on the panel below. That contrast is independent of whatever sits behind the scrim — against
-      // white content the wash lands near #3B3B3B, against the page's own background it stays #0A0A0A,
-      // and the border reads against both. No shadow is reached for; ADR-0008 is the reason and it holds.
+      // on the panel below. #F5F4EF against a #2D2D2D-to-#0A0A0A field reads across that whole range, so
+      // the cue does not depend on what sits behind the scrim. No shadow is reached for; ADR-0008 is the
+      // reason and it holds.
       className="fixed inset-0 z-50 flex items-end justify-center bg-background/85 p-4 sm:items-center"
       // The backdrop closes on click. `onMouseDown` rather than `onClick`: a click whose press started
       // INSIDE the panel and released on the backdrop (a drag while selecting the link text) fires
@@ -225,10 +250,10 @@ export function ShareModal({
             than a preference: they differ by ONE WORD, so three network rows between them would make the
             reader compare across a gap. They were described as a pair when they were asked for.
 
-            The network order is `MODAL_TARGETS`, deliberately NOT `SHARE_TARGETS` — the article footer
-            renders the same three from that list and the owner named an order for THIS dialog. The two
-            entry points therefore order the same destinations differently, on purpose; the argument is in
-            `shareTargets.ts`. */}
+            The network order is `SHARE_TARGETS`' own, which the footer now renders too — the owner
+            extended the ruling to it, so the brief divergence (and the derived list that carried it) is
+            gone. Both entry points place the clipboard control first and then this list; that pairing is
+            the one ordering fact the shared module cannot enforce, so it is asserted in both tests. */}
         <ul>
           {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
               row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
@@ -241,7 +266,7 @@ export function ShareModal({
               onClick={onCopyMarkdown}
             />
           )}
-          {MODAL_TARGETS.map(({ key, label, nameKey, Icon, ...rest }) => (
+          {SHARE_TARGETS.map(({ key, label, nameKey, Icon, ...rest }) => (
             <li key={key}>
               <a
                 href={shareHref({ key, label, nameKey, Icon, ...rest }, path, title)}

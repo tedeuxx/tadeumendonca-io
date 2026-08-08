@@ -94,4 +94,53 @@ test.describe('content detail', () => {
     expect(body).not.toContain(encodeURIComponent('/my-commitment'));
     expect(body).not.toContain('localhost');
   });
+
+  // THE FOOTER BLOCK'S ORDER, on the served page (#387). The owner ordered the modal and then extended it
+  // here — copy-link first, then LinkedIn, X, WhatsApp — and nothing pinned this block's order before,
+  // exactly as nothing pinned the modal's: every assertion checked each platform independently, so any
+  // permutation passed. One array comparison, because a partial swap survives a first/last check.
+  test('the footer share block leads with copy-link, then the shared destination order', async ({ page }) => {
+    await page.goto('/pt/blog/meu-compromisso');
+    await page.waitForLoadState('networkidle');
+
+    const nav = page.getByRole('navigation', { name: 'Compartilhar este artigo' });
+    const names = await nav
+      .locator('a[href], button')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label') ?? el.textContent?.trim()));
+
+    expect(names).toEqual([
+      'Copiar link',
+      'Compartilhar no LinkedIn: Meu Compromisso',
+      'Compartilhar no X: Meu Compromisso',
+      'Compartilhar no WhatsApp: Meu Compromisso',
+    ]);
+  });
+
+  // COPY-LINK MOVING TO THE FRONT CHANGES WHAT WRAPS. This is an inline `flex-wrap` row and the article
+  // page is NOT in `responsive-overflow.spec.ts`'s sweep — that spec drives six routes and no article —
+  // so nothing measured this block at a phone width at all, before or after the move.
+  for (const width of [320, 375, 390]) {
+    test(`the footer share block fits at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/pt/blog/meu-compromisso');
+      await page.waitForLoadState('networkidle');
+
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow, `the article overflows by ${overflow}px at ${width}px wide`).toBeLessThanOrEqual(0);
+
+      // Every control is inside the viewport horizontally — a wrapped row is fine, a clipped one is not.
+      const nav = page.getByRole('navigation', { name: 'Compartilhar este artigo' });
+      const controls = nav.locator('a[href], button');
+      const count = await controls.count();
+      expect(count).toBe(4);
+      for (let i = 0; i < count; i += 1) {
+        const box = await controls.nth(i).boundingBox();
+        expect(box, `control ${i} has no box`).not.toBeNull();
+        expect(box!.x).toBeGreaterThanOrEqual(0);
+        expect(box!.x + box!.width, `control ${i} is clipped at ${width}px`).toBeLessThanOrEqual(width);
+      }
+    });
+  }
 });
