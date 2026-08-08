@@ -46,6 +46,12 @@ const toRepoPath = (key: string): string => {
 const repoModules = {
   ...import.meta.glob('../../../../docs/**/*.md', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../iac/**/*.tf', { eager: true, query: '?raw' }),
+  // #374. `iac/.checkov.yaml` is cited by the security subsection because the scanner's DEVIATION —
+  // written in the file, with its reason — is the auditable half of "no CMK, SSM String only". It is a
+  // DOTFILE, so it needs its own literal entry: the `iac/**/*` patterns above do not match a leading
+  // dot, and a `*.yaml` glob would have looked right and resolved nothing. Measured, not assumed — the
+  // suite went red on exactly this link before the line was added.
+  ...import.meta.glob('../../../../iac/.checkov.yaml', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../iac/cloudfront-functions/*.js', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../apps/fed/scripts/*.mjs', { eager: true, query: '?raw' }),
   ...import.meta.glob('../../../../.github/workflows/*.yml', { eager: true, query: '?raw' }),
