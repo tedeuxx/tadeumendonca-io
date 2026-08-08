@@ -114,6 +114,25 @@ jobs:
               # gate. Measured over the month before this line: `CLAUDE.md` 11 commits against
               # `docs/adr/` 17, so the precedent above already pays the larger bill.
               - 'CLAUDE.md'
+              # THE FOURTH INSTANCE OF THE SAME RULE — the authored source of a guarded claim belongs in
+              # the filter — and it arrived with the deliberate `part` input on `deploy`'s dispatch.
+              # `apps/fed/scripts/deploy-workflow.test.mjs` reads
+              # `.github/workflows/deploy.yml` directly and asserts the properties that make a version
+              # reach the footer: that the bump part is an input rather than the literal `patch`, that a
+              # deliberate dispatch still runs the tag/tree assert, and that no downstream job identifies
+              # a tree by a moving ref. Without this line that guard is correct and NEVER RUNS ON ITS OWN
+              # TRIGGER — a deploy.yml-only PR matches nothing here, `vitest` skips, `build-test` reports
+              # "nothing was verified" and passes, and the red lands later on an unrelated author.
+              #
+              # NOT added to the deploy gate's filter for the reason `docs/adr/**` gives above and one
+              # sharper: `.github/workflows/deploy.yml` is ALREADY in both of that gate's pathspecs, so
+              # there is nothing to widen there.
+              #
+              # The cost, stated rather than glossed: every deploy.yml-only PR now runs the full `app`
+              # gate — lint, typecheck, vitest, build, E2E — for a file none of those tools reads except
+              # the one test. That is the same bill `CLAUDE.md` already pays, and the same reason: a guard
+              # that does not run on its own trigger is not a guard.
+              - '.github/workflows/deploy.yml'
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
             # therefore has to rebuild and re-run E2E, but has nothing for eslint/tsc/vitest/Sonar to

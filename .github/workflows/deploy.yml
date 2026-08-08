@@ -38,14 +38,48 @@ name: deploy
 # ACCEPTED COST, inherent to bump-before-deploy and undesignable-away: the release step is load-bearing
 # for deployment. It wedged once, for four merges; then that only stopped the tagging, now it stops the
 # site shipping. `workflow_dispatch` below is the unconditional manual deploy and the rollback path.
+#
+# HOW A MINOR OR A MAJOR IS CUT, AND WHY IT IS THIS WORKFLOW RATHER THAN A SECOND ONE
+#
+# The digits carry CONTENT meaning: major = a milestone with a release plan · minor = a new publication ·
+# patch = edits to published content or app bugfixes · reader-invisible work bumps nothing beyond the
+# automatic patch. `1.0.0` is the architecture publication, and until the `part` input below existed there
+# was NO ROUTE TO PRODUCE IT: the bump was the literal string `patch`, in one place, with no input.
+#
+# The automatic patch on every merge STAYS the default, and that is a sustainability decision rather than
+# an aesthetic one. This repo has taken 203 patches against one real publication — roughly 20:1. A human
+# choosing a part on every merge answers "nothing" nineteen times out of twenty, which is the shape of a
+# criterion that dies by `n/a`. So the rare event gets the deliberate path, at the moment the owner is
+# already deciding to publish; the common event keeps costing nobody a decision.
+#
+# ⚠️ AND IT IS *THIS* WORKFLOW BECAUSE THE BUMP COMMIT IS THE TREE THAT GETS DEPLOYED. `tadeumendonca-skills`
+# cuts its deliberate release from a separate `release.yml`, and copying that shape here would be a silent
+# hole: a second workflow's `bump:` commit lands on main and is skipped by BOTH guards below (`release`'s
+# `if:` and `gate`'s), so the tag would be cut and the site would NEVER SHIP IT — the footer would keep
+# naming the old version, under two green runs. Bumping from inside this workflow keeps the one property
+# the whole file is built on: the run that creates the version is the run that publishes it.
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    # Two inputs rather than one, because merging infra-apply in here would otherwise have silently
+    # Three inputs rather than one, because merging infra-apply in here would otherwise have silently
     # widened what a manual deploy DOES: the documented rollback path would start running
     # `terraform apply` against real AWS. Publishing is the default; applying is opt-in.
     inputs:
+      part:
+        # `none` is the DEFAULT and it is the whole reason this input is safe to add. A manual deploy is
+        # the rollback path and the republish path — it must keep republishing what is already released,
+        # unchanged, which is what `none` preserves. Choosing anything else is the deliberate act, and it
+        # is the only way a minor or a major is ever produced in this repo.
+        description: "Cut a deliberate version (none = republish what is already released)"
+        type: choice
+        required: true
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
       deploy_app:
         description: "Publish the site (build, S3 sync, invalidation)"
         type: boolean
@@ -72,10 +106,21 @@ jobs:
   # Release is the one the site's footer links to.
   # ---------------------------------------------------------------------------------------------
   release:
-    # `github.event_name == 'push'` first: on workflow_dispatch `github.event.head_commit` is null, so
-    # the startsWith alone coerces to false and would silently disable every manual deploy. A manual
-    # deploy deliberately does NOT bump — it republishes what is already released.
-    if: github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'bump:')
+    # Two bumping paths, and they are kept apart on purpose:
+    #
+    #   push, message NOT bump:            → the AUTOMATIC patch. Nobody decides anything.
+    #   push, message IS  bump:            → this job's own commit. Never re-enters (or every merge loops).
+    #   workflow_dispatch, part != none    → the DELIBERATE cut. The only route to a minor or a major.
+    #   workflow_dispatch, part == none    → skipped. A manual deploy republishes what is already
+    #                                        released — that is the rollback path and it must not move
+    #                                        the version.
+    #
+    # `github.event_name == 'push'` is tested FIRST on the push branch: on workflow_dispatch
+    # `github.event.head_commit` is null, so the startsWith alone coerces to false and would silently
+    # disable every manual deploy.
+    if: >-
+      (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'bump:')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.part != 'none')
     runs-on: ubuntu-latest
     permissions:
       contents: write # push the bump commit + tag, create the Release
@@ -84,10 +129,28 @@ jobs:
     concurrency:
       group: release-main
       cancel-in-progress: false
+    env:
+      # The default is `patch` and it is reached by every push, because on a push the `inputs` context is
+      # null and `inputs.part` is the empty string — falsy, so the `||` falls through. On a dispatch this
+      # is whatever the owner chose, and the job does not run at all when that is `none`.
+      PART: ${{ github.event_name == 'workflow_dispatch' && inputs.part || 'patch' }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       sha: ${{ steps.version.outputs.sha }}
     steps:
+      # FIRST, before the checkout, because the checkout below is hardcoded to `main` and would otherwise
+      # bump main while the run's UI reports the branch that was dispatched. That is not a hypothetical
+      # cosmetic mismatch: `gate` then checks out the sha this job reports, so a minor dispatched from a
+      # feature branch would tag main's tree and publish main's content under a run that reads as a
+      # branch deploy. Refusing costs a re-dispatch; the alternative is a publish nobody asked for.
+      - name: Refuse to cut a version from anywhere but main
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          echo "::error::a deliberate $PART bump was dispatched from $REF, but a version is only ever cut from main. Re-dispatch from main."
+          exit 1
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -111,21 +174,26 @@ jobs:
       # Rebase onto whatever landed while this job was starting. `concurrency` serializes RUNS, but it
       # cannot stop main moving between this job's checkout and its push — two merges seconds apart is
       # enough, and that is exactly what happened on 2026-07-23.
-      - name: Bump patch version and push, rebasing if main moved
+      - name: Bump the version and push, rebasing if main moved
         run: |
           set -euo pipefail
+          # `$PART` is `patch` on every push and the owner's choice on a deliberate dispatch. It is read
+          # from the job env rather than interpolated into this script: `part` is a `choice`, so the value
+          # is already constrained to the four options, and keeping it out of the expression layer means
+          # nothing here depends on that constraint holding.
+          echo "bumping the $PART part"
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main          # re-read VERSION from the real tip, not a stale one
             # Fail with a diagnosis, not a traceback. If the tag we are about to create already exists
             # remotely, bump-my-version dies with a raw Python CalledProcessError that says nothing about
             # the actual situation — which is how the 2026-07-23 wedge presented for four merges running.
-            next="v$(bump-my-version show new_version --increment patch)"
+            next="v$(bump-my-version show new_version --increment "$PART")"
             if git ls-remote --exit-code --tags origin "refs/tags/$next" >/dev/null 2>&1; then
               echo "::error::$next already exists on the remote while VERSION is $(cat VERSION). A previous run pushed the tag without its commit. Delete the orphaned tag, then re-run."
               exit 1
             fi
-            bump-my-version bump patch --verbose
+            bump-my-version bump "$PART" --verbose
             # --atomic is the load-bearing flag. Without it a push is NOT all-or-nothing: on
             # 2026-07-23 the branch was rejected (non-fast-forward) while the TAG went through,
             # leaving v0.1.39 pointing at a commit that never reached main. Every later run then
@@ -190,10 +258,15 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   # Decides only. No AWS, no OIDC, installs nothing.
   #
-  # The `if:` handles three events and must keep them apart:
-  #   push, message NOT bump:  → release ran  → gate runs
-  #   push, message IS  bump:  → release's own commit → NOTHING runs (or every merge deploys twice)
-  #   workflow_dispatch        → release skipped → gate runs, filters bypassed
+  # The `if:` handles four cases and must keep them apart:
+  #   push, message NOT bump:         → release bumped   → gate runs on the bump commit
+  #   push, message IS  bump:         → release's own commit → NOTHING runs (or every merge deploys twice)
+  #   workflow_dispatch, part != none → release bumped   → gate runs on the bump commit, filters bypassed
+  #   workflow_dispatch, part == none → release skipped  → gate runs on the dispatched sha, filters bypassed
+  #
+  # The last two are why nothing below may key off `github.event_name` to answer *did this run bump?*.
+  # It used to be a correct proxy — only a push could bump. It is not one now, and `needs.release.result`
+  # is the thing that actually means it.
   # ---------------------------------------------------------------------------------------------
   gate:
     needs: release
@@ -214,9 +287,17 @@ jobs:
       - name: Checkout the commit that carries the version
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # On a push this is the bump commit `release` just created. On a dispatch `release` is skipped
-          # and the output is empty, so this falls back to whatever ref was dispatched.
-          ref: ${{ needs.release.outputs.sha || github.ref }}
+          # `release` reports the bump commit on BOTH bumping paths (a push, and a dispatch that named a
+          # part), so the fallback is now reached only by a `part: none` dispatch — the republish.
+          #
+          # The fallback is `github.sha`, NOT `github.ref`, and that is a fix rather than a tidy-up.
+          # `github.ref` is a NAME: actions/checkout resolves it when this step runs, so a republish
+          # dispatched against `main` would build whatever main happens to be at that moment — not the
+          # tree the operator was looking at when they pressed the button. `github.sha` is the commit the
+          # run was created for, on both events, and it cannot move underneath the run. Everything else in
+          # this workflow already refuses to identify a tree by a moving name ("a tag name is a weaker
+          # promise than a sha", below); this was the one place that still did.
+          ref: ${{ needs.release.outputs.sha || github.sha }}
           fetch-depth: 0 # the filter below diffs this release against the previous TAG
 
       - name: Resolve what is being published
@@ -231,8 +312,19 @@ jobs:
       # Now redundant by construction (we checked out the sha `release` reported), and kept anyway: it is
       # the assertion that the two halves of this workflow agree. If it ever fires, the handoff above is
       # broken and the alternative is publishing a footer that links a Release describing something else.
+      #
+      # ⚠️ THE PREDICATE IS "DID THIS RUN BUMP?", NOT "WAS THIS A PUSH?". It read
+      # `github.event_name != 'workflow_dispatch'`, which was the same question back when only a push
+      # could bump. Now that a dispatch can cut a minor or a major, that spelling would have SKIPPED the
+      # assert on exactly the run it matters most for — the one deliberate release of the year, whose
+      # footer is the thing linking `v1.0.0`. `needs.release.result` says what the old expression meant.
+      #
+      # It is deliberately NOT weakened to "the tag is an ancestor of HEAD". That weaker form would be
+      # needed only if a push could land WITHOUT bumping, and this workflow keeps the automatic patch on
+      # every merge precisely so that never happens. Every tree this job hands downstream carries its own
+      # tag, and the strict equality is what makes the footer's Release link provably describe this build.
       - name: Assert this tree carries its own tag
-        if: github.event_name != 'workflow_dispatch'
+        if: needs.release.result == 'success'
         run: |
           set -euo pipefail
           want="v$(cat VERSION)"
@@ -247,12 +339,23 @@ jobs:
         env:
           DISPATCH_APP: ${{ inputs.deploy_app }}
           DISPATCH_IAC: ${{ inputs.apply_infra }}
+          BUMPED: ${{ needs.release.result }}
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "app=$DISPATCH_APP" >> "$GITHUB_OUTPUT"
+            app="$DISPATCH_APP"
+            # A dispatch that CUT a version must publish the site, whatever the checkbox said. The version
+            # is a build input — the footer renders it and links its Release — so a run that tags v1.0.0
+            # with `deploy_app: false` leaves the tag existing and the live site naming the previous one,
+            # with two green jobs and nothing to signal it. That is the exact failure a second `release.yml`
+            # would have produced; refusing to reproduce it here means overriding the input, out loud.
+            if [ "$BUMPED" = "success" ] && [ "$app" != "true" ]; then
+              app=true
+              echo "::notice::this dispatch cut a new version, so the site WILL be published even though deploy_app was false — a tag whose version never reaches the footer is a release that did not happen"
+            fi
+            echo "app=$app" >> "$GITHUB_OUTPUT"
             echo "iac=$DISPATCH_IAC" >> "$GITHUB_OUTPUT"
-            echo "::notice::manual dispatch — NO surface filter applied. publish site: $DISPATCH_APP · terraform apply: $DISPATCH_IAC"
+            echo "::notice::manual dispatch — NO surface filter applied. publish site: $app · terraform apply: $DISPATCH_IAC"
             exit 0
           fi
           # Diagnosed rather than left to git's raw `fatal: No names found`. It fails CLOSED — red job,
