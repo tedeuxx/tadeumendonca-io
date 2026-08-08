@@ -37,7 +37,10 @@ const step = (job, namePart) => {
 
 describe('deploy.yml — the deliberate version path', () => {
   it('offers every SemVer part on the dispatch, so 1.0.0 can be produced at all', () => {
-    // The defect this repo shipped for 203 patches: there was no input, and `1.0.0` was unreachable.
+    // The defect this repo shipped for every tag cut before this input existed: there was no input, and
+    // `1.0.0` was unreachable — which is why every one of those tags is a `v0.1.N` (`git tag --list`). No
+    // count is written here; it moves on every merge, and a literal in a comment is stale before the next
+    // PR opens.
     const part = triggers.workflow_dispatch.inputs.part;
     expect(part.type).toBe('choice');
     expect(part.options).toEqual(['none', 'patch', 'minor', 'major']);
