@@ -8,7 +8,10 @@ import { useT } from '../i18n';
 export function PortfolioPage() {
   const t = useT();
   useDocumentHead({
-    title: t('portfolio.heading'),
+    // `portfolio.title`, not `portfolio.heading` (ADR-0045). Same string today; the point is that a title
+    // is not a heading, so it must not be sourced from one — this page was the reference for the
+    // convention and was the one place still reading the heading key.
+    title: t('portfolio.title'),
     description: t('portfolio.metaDescription'),
     canonicalPath: '/portfolio',
   });

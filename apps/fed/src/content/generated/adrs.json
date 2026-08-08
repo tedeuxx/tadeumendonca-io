@@ -299,5 +299,12 @@
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
     "status": "accepted",
     "amended": true
+  },
+  {
+    "id": "0045",
+    "title": "A document title is an address — it leads with the section's `nav.*` label, never with the page's heading",
+    "file": "0045-document-title-leads-with-section-label.md",
+    "status": "accepted",
+    "amended": false
   }
 ]

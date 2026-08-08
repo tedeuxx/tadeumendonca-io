@@ -44,11 +44,15 @@ describe('renderAdrTitle', () => {
   // six, at forty. A comment naming a guarantee its assertion does not make is this repo's recurring
   // defect, and it appeared here in the suite for the module written to fix that class.
   //
-  // Six is a real number about the library, so it goes where it can fail. When an ADR heading gains or
+  // Seven is a real number about the library, so it goes where it can fail. When an ADR heading gains or
   // loses markup this turns red, someone looks, and the number moves deliberately.
+  //
+  // It moved from six to seven on 2026-08-08: ADR-0045's heading carries `nav.*` as a code span. That is
+  // the guard working exactly as written — the number was not bumped to clear a red gate, it was bumped
+  // because a seventh title really does carry markup, and it is rendered as an element like the other six.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(6);
+    expect(withMarkup).toHaveLength(7);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);
