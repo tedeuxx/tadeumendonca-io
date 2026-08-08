@@ -199,8 +199,11 @@ Two consequences worth stating outright, because they are what the other model g
   the **`app`** workflow rather than only by `iac` — gate ownership is by what a file IS, not its
   directory (ADR-0018 amendment). It is filtered by **both**: `app` proves the rewrite logic, `iac` proves
   the edge is running it, since `frontend.tf` reads that file and an edit to it is a Terraform diff.
-- **`docs/`** — **`docs/adr/`** is the decision library (43 records; `docs/adr/README.md` is the index and
-  the reading order). Also `docs/catalog-ready.md` — the bar a project must clear to be published in the
+- **`docs/`** — **`docs/adr/`** is the decision library (`docs/adr/README.md` is the index, the reading
+  order **and** the count). **No number is written here on purpose** — a literal count is correct until
+  the next record lands and silently wrong afterwards, with nothing asserting it;
+  `ls docs/adr/0*.md | wc -l` is the answer whenever one is actually wanted.
+  Also `docs/catalog-ready.md` — the bar a project must clear to be published in the
   portfolio — and `docs/iac-deploy-policy.{md,json}`. **Read the relevant ADR before changing anything it
   decides**; the ADRs *are* the architecture documentation, this file is the map.
 - **`.brand/`** — **gitignored, local-only, never published.** See below.
