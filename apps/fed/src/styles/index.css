@@ -520,3 +520,23 @@ body {
   max-width: 100%;
   border-radius: 0;
 }
+/* GFM tables (#402). The scroll container is on the wrapping div — see the `table` handler in
+   Markdown.tsx — so these rules are only the cell rhythm, matched to `AdrTable` so the two tables that
+   share /architecture look like one decision rather than two. */
+.markdown th,
+.markdown td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-bottom: var(--rule) solid hsl(var(--border));
+}
+.markdown thead th {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(var(--muted-foreground));
+}
+.markdown tbody tr:last-child th,
+.markdown tbody tr:last-child td {
+  border-bottom: 0;
+}

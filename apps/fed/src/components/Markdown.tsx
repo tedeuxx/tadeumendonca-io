@@ -148,6 +148,32 @@ const components: Components = {
     if (diagram) return <Diagram source={diagram.source} caption={diagram.caption} />;
     return <pre {...props}>{children}</pre>;
   },
+  /**
+   * A GFM table, wrapped in its own scroll container (#402).
+   *
+   * Not cosmetic and not optional: a <table> does not wrap. The moment the tables started rendering,
+   * `/pt/architecture` pushed the whole PAGE sideways at 320px and the overflow sweep went red — the
+   * same failure `.markdown code`'s `overflow-wrap` comment already describes, and the reason
+   * `.markdown pre` carries `overflow-x: auto`. The table scrolls instead of the document.
+   *
+   * A WRAPPER rather than `display: block` on the table itself, which is the other common fix: changing
+   * a table's display drops its table semantics for some screen readers, and this page's other table
+   * (`AdrTable`) already solves it exactly this way — a scrolling div around an untouched table. Two
+   * tables on one page resolving the same problem differently is how the next person picks the wrong one.
+   *
+   * `tabIndex={0}` because a scrollable region that only a mouse can pan is unreachable by keyboard.
+   */
+  table({ children, ...rest }) {
+    const { node, ...props } = rest;
+    void node;
+    return (
+      <div className="my-8 overflow-x-auto border border-border" tabIndex={0}>
+        <table className="w-full border-collapse text-left text-sm" {...props}>
+          {children}
+        </table>
+      </div>
+    );
+  },
   p({ children, ...rest }) {
     // `node` is react-markdown's AST handle — it must never reach the DOM.
     const { node, ...props } = rest;

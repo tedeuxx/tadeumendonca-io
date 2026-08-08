@@ -66,6 +66,19 @@ describe('Markdown — GFM tables render as tables (#402)', () => {
     expect(container.textContent).not.toContain('|');
   });
 
+  // A table does not wrap, so a rendering table pushed /pt/architecture sideways at 320px and took the
+  // overflow sweep red — three E2E specs, caught only because they run against the BUILT site. The
+  // container is the fix, and this is the unit-level guard for it; the sweep is the real one.
+  it('wraps the table in a keyboard-reachable horizontal scroll container', () => {
+    const { container } = renderWithLocale(<Markdown>{TABLE}</Markdown>, { locale: 'pt' });
+
+    const scroller = container.querySelector('.overflow-x-auto');
+    expect(scroller).not.toBeNull();
+    expect(scroller).toHaveAttribute('tabindex', '0');
+    // The table is INSIDE it — a scroller that is not an ancestor of the table scrolls nothing.
+    expect(scroller?.querySelector('table')).not.toBeNull();
+  });
+
   it('renders a link authored INSIDE a table cell', () => {
     const cellLink = ['| adr | doc |', '|---|---|', '| 0025 | [record](/library) |'].join('\n');
     const { container } = renderWithLocale(<Markdown>{cellLink}</Markdown>, { locale: 'pt' });
