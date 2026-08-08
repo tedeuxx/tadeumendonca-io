@@ -440,6 +440,36 @@ body {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
+
+/* THE CITATION APPARATUS IS NOT THE ARGUMENT (#366).
+ *
+ * `/architecture` cites its records with `*(→ [ADR-0002](…) label · …)*`. The `*…*` wrapper was
+ * written to DEMOTE the pointer and bought nothing: there was no `.markdown em` rule, so the whole
+ * span rendered at body size, in the accent colour, with an accent underline. The citation was
+ * typographically LOUDER than the claim it supports — which is the mechanical cause of the owner's
+ * "deselegante", and it is weight rather than placement.
+ *
+ * `em:has(a)` and not `em`, deliberately: emphasis carries real prose all over these files
+ * (`*página*`, `*cortada*`, `*em que*`), and demoting that would be a different change. Measured on
+ * `architecture.pt.md` — the ONLY emphasis spans containing a link are the seven pointers.
+ *
+ * NOT A `display` CHANGE, and that is a requirement rather than a preference: a crawler and a reader
+ * with CSS off must still receive the pointer, because the mapping *this claim → these records* is
+ * what the page promises. Reducing weight keeps it; hiding it would silently narrow the contract. */
+.markdown em:has(a) {
+  font-size: 0.875em;
+  font-style: normal;
+  color: hsl(var(--muted-foreground));
+}
+.markdown em:has(a) a {
+  color: inherit;
+  border-bottom-color: hsl(var(--border));
+}
+.markdown em:has(a) a:hover {
+  background: transparent;
+  color: hsl(var(--primary));
+  border-bottom-color: hsl(var(--primary));
+}
 .markdown ul,
 .markdown ol {
   padding-left: 1.4em;
