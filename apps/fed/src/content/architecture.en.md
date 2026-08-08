@@ -325,7 +325,7 @@ The plugin is the half you can install. The workspace around it adds more, and t
 
 ### Who works on this, and what each one argues against
 
-The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. Everything cut generated no argument with anybody: it was a handoff, and the handoff was precisely why it never ran. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain.
+The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. Everything cut in that first wave generated no argument with anybody: it was a handoff, and the handoff was precisely why it never ran. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain.
 
 | who | what it owns | what it argues against |
 |---|---|---|

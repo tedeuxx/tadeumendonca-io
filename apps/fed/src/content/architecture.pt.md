@@ -325,7 +325,7 @@ O plugin é a metade que você instala. O workspace em volta dele acrescenta mai
 
 ### Quem trabalha nisto, e contra quem cada um argumenta
 
-Os agentes são a parte disto que mais parece um organograma e menos é um. **Uma persona existe onde se quer uma discordância** — não onde um organograma tem uma caixinha — e foi esse único critério que levou o time de dezenove para seis e depois para cinco. Tudo que foi cortado não gerava discussão com ninguém: era um repasse, e o repasse era exatamente o motivo de nunca rodar. Uma emenda posterior alargou o critério para quatro razões em vez de uma, porque dois movimentos já tinham sido feitos e a versão de uma linha não explicava nenhum dos dois.
+Os agentes são a parte disto que mais parece um organograma e menos é um. **Uma persona existe onde se quer uma discordância** — não onde um organograma tem uma caixinha — e foi esse único critério que levou o time de dezenove para seis e depois para cinco. Tudo que foi cortado nessa primeira leva não gerava discussão com ninguém: era um repasse, e o repasse era exatamente o motivo de nunca rodar. Uma emenda posterior alargou o critério para quatro razões em vez de uma, porque dois movimentos já tinham sido feitos e a versão de uma linha não explicava nenhum dos dois.
 
 | quem | o que é dele | contra quem argumenta |
 |---|---|---|
