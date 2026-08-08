@@ -48,7 +48,7 @@ Então o formato honesto disso não é "o agente cometeu erros que eu não comet
 
 ## O que eu faço hoje, e o que isso continua não resolvendo
 
-Um hábito, e ele é mecânico em vez de esperto: **quebre o código, não o teste.** Altere a linha que a asserção existe pra proteger, rode, e confirme que fica vermelho. Se continuar verde, a asserção é enfeite. Custa um minuto — e eu quero ser exato sobre o que ele compra: não foi ele que achou nenhum dos cinco. Quatro saíram de ler um gate de que eu já desconfiava, e o quinto caiu de uma arrumação sem relação nenhuma. O que a mutação fez foi decidir, em todos os cinco, se a substituição conseguia de fato falhar — que é a pergunta que revisão não responde e é sobre ela que esta página inteira fala.
+Um hábito, e ele é mecânico em vez de esperto: **quebre o código, não o teste.** Altere a linha que a asserção existe pra proteger, rode, e confirme que fica vermelho. Se continuar verde, a asserção é enfeite. Custa um minuto, e vale ser exato sobre o que ele compra. Descoberta, não — não foi assim que nenhum destes veio à tona. Ele responde a única pergunta que revisão não responde: se a asserção consegue falhar.
 
 Não resolve tudo, e dois dos buracos são estruturais. Só alcança asserção que me ocorre mutar — o quinto ali em cima estava debaixo de uma suíte que ninguém suspeitava. E não encosta num filtro que pula um job, porque não há código pra quebrar: o job não rodou, então não existe nada pra ficar vermelho. Essa classe pede outra resposta, que é o check agregado ter que reportar *o que* ele verificou, e não só que passou. O meu faz isso hoje. Não fazia antes, e eu não sei há quanto tempo estava assim.
 

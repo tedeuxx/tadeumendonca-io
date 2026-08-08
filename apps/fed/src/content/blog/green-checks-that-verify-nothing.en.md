@@ -48,7 +48,7 @@ So the honest shape of it is not "the agent made mistakes I would not have made"
 
 ## What I do now, and what it still does not fix
 
-One habit, and it is mechanical rather than clever: **break the source, not the test.** Change the line the assertion exists to protect, run it, and confirm it goes red. If it stays green the assertion is decoration. It costs a minute, and I want to be exact about what it buys: it did not find any of the five. Four came out of reading a gate I already distrusted, and the fifth fell out of an unrelated tidy-up. What mutation did was settle, in every one of the five, whether the replacement could actually fail — which is the question review cannot answer and the one the whole page is about.
+One habit, and it is mechanical rather than clever: **break the source, not the test.** Change the line the assertion exists to protect, run it, and confirm it goes red. If it stays green the assertion is decoration. It costs a minute, and it is worth being exact about what it buys. Not discovery — it is not how any of these came to light. It answers the one question review cannot: whether an assertion can fail at all.
 
 It does not fix everything, and two of the gaps are structural. It only reaches assertions I think to mutate — the fifth one above sat under a suite nobody suspected. And it cannot touch a filter that skips a job at all, because there is no source to break: the job did not run, so there is nothing to make red. That class needs a different answer, which is that an aggregate check has to report *what* it verified rather than only that it passed. Mine does that now. It did not before, and I do not know how long it had been that way.
 
