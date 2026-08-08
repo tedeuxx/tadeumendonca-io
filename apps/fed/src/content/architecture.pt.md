@@ -2,7 +2,7 @@ _Este site é o argumento. Esta página é a planta — como ele é construído,
 
 ## A tese
 
-Para um site de prova de engenharia, o código é o pitch — então o honesto é mostrar a máquina, não só o resultado dela. Esta é a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA pula — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering. O site é a saída pública desse loop.
+Para um site de prova de engenharia, o código é o pitch — então o honesto é mostrar a máquina, não só o resultado dela. Esta é a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering. O site é a saída pública desse loop.
 
 ## O formato
 
@@ -33,7 +33,7 @@ flowchart TB
 
 *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) analytics dependente de consentimento)*
 
-É também por isso que a conta logo abaixo é o que é: **o nome e a zona hospedada cobram com ou sem visitante, e o que uma visita acrescenta em cima deles arredonda pra nada.**
+É também por isso que a conta logo abaixo é o que é: **o domínio e a hosted zone cobram com ou sem visitante, e o que uma visita acrescenta em cima deles arredonda pra nada.**
 
 O que nada disso situa é onde uma URL limpa vira um arquivo:
 
@@ -49,9 +49,7 @@ flowchart LR
   S --> C
 ```
 
-Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dez linhas executáveis de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório. Ela roda a cada requisição de *página*; os assets do build são um behavior separado, que nunca a invoca — as imagens de OG passam por ela e seguem intactas, porque o último segmento do caminho tem extensão.
-
-Essa verificação é o preço de colocar lógica na borda, não um capricho: a versão de uma função é publicada independentemente da distribuição, então nada no deploy do site prova qual delas está de fato rodando.
+Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dez linhas executáveis de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório.
 
 **"Sem backend" levanta uma pergunta antes das outras — como um crawler enxerga isto — e a resposta é que nada precisa rodar para ele enxergar.** Um buscador ou um scraper de unfurl pede uma URL e recebe **HTML completo com as tags OG dentro**, direto de um arquivo estático, não um shell vazio que só vira página depois que o JavaScript roda. **Nada é montado quando ele pede**: cada rota é renderizada uma vez, no build, nos dois idiomas. Sem SSR, sem renderização na borda — a função acima reescreve URL e nada mais.
 
@@ -88,9 +86,9 @@ A ironia do primeiro exemplo está a duas seções daqui: aquele Lambda@Edge tem
 
 Em pessoas, o que está acima custou uma. Fins de semana, em paralelo com consultoria.
 
-## Quanto custa de verdade: USD 6,57 por mês — e USD 6,42 disso é o nome
+## USD 6,57 por mês
 
-Esse número mede o que este site **acrescentou**, não aquilo de que ele **depende**: assinaturas que já existiam e cobrariam igual se ele fosse apagado amanhã ficam de fora. E mede aquilo **em que** o site roda, não aquilo com que eu o **construo**. As subseções abaixo voltam às duas. Sem esse recorte, "USD 6,57" é um número solto, e um número solto não é conferível.
+Esse número mede o que este site **acrescentou**, não aquilo de que ele **depende**: assinaturas que já existiam e cobrariam igual se ele fosse apagado amanhã ficam de fora. E mede aquilo **em que** o site roda, não aquilo com que eu o **construo**. O que vem abaixo volta às duas. Sem esse recorte, "USD 6,57" é um número solto, e um número solto não é conferível.
 
 Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fácil de ninguém conferir. Então segue a conta da AWS: as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026**, o registro lido da tabela de preço do registrador. Nenhuma das duas estimada:
 
@@ -99,57 +97,23 @@ Dizer "custo quase zero" é a coisa mais fácil desta página — e a mais fáci
 - **S3** — cerca de USD 0,15/mês, e são *escritas* de deploy, não leituras.
 - **CloudFront** — na prática USD 0,00 com esse volume.
 
-**A maior linha da conta é a que foi escolha — e um nome mais barato derruba o total.** Em vez de imprimir uma tabela de preços que envelhece, ou de citar uma comparação que eu não medi, fica o comando que responde isso para o nome que você quiser, pelo mesmo registrador que este usa: `aws route53domains list-prices --tld com`. Replique esta stack sob um nome mais barato e o número mensal acima deixa de ser dominado por uma preferência minha.
+A escolha é o `.io`: caro entre os domínios de topo, e eu o escolhi por branding, não por custo — essa é a razão honesta, e é a única linha daqui que você pode recusar. Nada mais nesta conta se mexe com o domínio: a hosted zone, o bucket e a distribuição não ligam para qual ele é.
 
-A escolha é o `.io`: caro entre os domínios de topo, e eu o escolhi por branding, não por custo — essa é a razão honesta, e é a única linha daqui que você pode recusar. Nada mais nesta conta se mexe com o nome: a hosted zone, o bucket e a distribuição não ligam para qual ele é.
+### Os fornecedores que poderiam faturar isto
 
-Repare no formato disso, porque não é um efeito pequeno e é uma divisão em três, não uma razão: **o nome são 6,42, publicar são 0,15, e responder requisição é zero.** Registro e DNS custam mais que todo o resto desta conta somado, quarenta vezes mais; os 0,15 são o build empurrando arquivo pro S3, não leitor puxando; e a parte que de fato atende um visitante arredonda pra nada.
+**Entra aqui tudo que cobra para manter o site publicado no ar, ou que cobraria sob alguma condição** — o recorte é a segunda regra lá de cima: aquilo **em que** o site roda, não aquilo com que eu o **construo**.
 
-As linhas de hospedagem são medição com data, não fato permanente — nenhuma fatura fechou nesse ritmo ainda.
+- **AWS** — **USD 6,57/mês**, e é a única cobrança que este site criou; dela, os 5,92 do registro anual amortizado e os 0,50 da hosted zone cobram com ou sem visitante.
+- **GitHub Team** — pago, e a assinatura é anterior ao site, embora a carga de CI em cima dela seja inteiramente dele.
+- **iCloud+** — pago, também anterior ao site; carrega o e-mail com domínio próprio no apex, e o [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisiona os registros MX, DKIM e SPF dele, então não é algo adjacente a esta infraestrutura: está dentro dela. *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) e-mail próprio via iCloud)*
+- **GitHub Actions** — **zero porque os repositórios são públicos**: uma propriedade dos repositórios, não do plano, então sobrevive a um downgrade e não sobrevive a fechá-los.
+- **SonarCloud** — **zero pela mesma condição**, numa conta separada: o tier gratuito dele é para projetos públicos, e o gate dele barra um merge.
+- **Terraform Cloud** — **zero porque a infraestrutura é pequena**: o último plan resolveu contra cerca de cinquenta recursos, e esse teto é contado em recursos, não em tráfego nem em gasto.
+- **Claude Max** — pago, e **fora do total de propósito**: é com o que eu construo o site, não aquilo em que ele roda.
 
-E repare *por que* a fonte é dividida, porque esse foi o erro que esta seção já cometeu uma vez: a série de custo diário é uma janela, e **uma cobrança que se repete menos vezes do que a sua janela é longa fica invisível pra ela.** A renovação é anual e cai em outubro, então ler a conta estava certo e respondia uma pergunta diferente da que eu tinha feito. "Medido, não estimado" não protege de medir o intervalo errado.
+Dois desses zeros dependem de os repositórios continuarem públicos e um depende de a infraestrutura continuar pequena; nenhum depende de tráfego.
 
-A única computação nesse caminho é a função de edge lá de cima, cobrada por invocação e arredondando pra zero neste volume; não existe linha de *servidor* nenhuma. É isso que "sem backend" compra: um **piso** sem computação nenhuma — nada parado ali cobrando por capacidade, embora o nome e a zona hospedada cobrem de todo jeito.
-
-O que ele não compra é indiferença a tráfego — S3 e CloudFront são cobrados puramente por uso, então a parte variável é zero aqui por causa do free tier e de payloads pequenos, não porque não haja o que escalar.
-
-### Os outros fornecedores, e por que um número só é o formato errado
-
-A AWS é um dos fornecedores que poderiam faturar este site — e esse é o critério, declarado em vez de virar contagem, porque número envelhece na primeira dependência nova. **Entra aqui tudo que cobra para manter o site publicado no ar, ou que cobraria sob alguma condição.** O recorte é a segunda regra declarada lá em cima — aquilo **em que** o site roda, não aquilo com que eu o **construo** — e a seção final volta nele. Aplicado com honestidade, ele ainda revela mais do que uma lista de zeros — e o interessante é que os itens não se comportam do mesmo jeito.
-
-**Dois cobram hoje, e nenhuma das duas cobranças foi criada por este site.** O **GitHub** hospeda o código e roda todos os gates, num plano **Team** pago — a assinatura é anterior ao site, embora a carga de CI em cima dela seja inteiramente dele, e cobrada a zero por um motivo que aparece dois parágrafos abaixo. O **iCloud+** carrega o e-mail com domínio próprio no apex — o [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisiona os registros MX, DKIM e SPF dele, então não é algo adjacente a esta infraestrutura: está dentro dela. As duas assinaturas já existiam antes do site e cobrariam exatamente o mesmo se ele fosse apagado amanhã — e é por isso que os USD 6,57 não as absorvem — a primeira regra lá em cima, aplicada. "Roda com quase nada" vale para o que o site acrescentou, não para tudo de que ele depende.
-
-*(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) e-mail próprio via iCloud)*
-
-**O resto cobra zero, sob condições que são justamente a parte que interessa:**
-
-- **O GitHub Actions é gratuito porque os repositórios são públicos** — uma propriedade dos repositórios, não do plano, então sobreviveria a um downgrade e não sobrevive a fechá-los. Aí passa a consumir minutos de uma franquia mensal, e este pipeline roda o conjunto inteiro de gates **a cada pull request que mexe na aplicação** — instalação, auditoria, lint, checagem de tipos, unitários, build, E2E e uma varredura do Sonar; os workflows filtram por caminho, e os ADRs estão dentro desse filtro porque esta página os publica, então quem roda bem menos é prosa *fora* desses caminhos —, e **de novo no merge**, que ainda por cima publica e roda um segundo E2E contra o site no ar. O número que aparece não é pequeno, e nada no código teria mudado.
-- **O SonarCloud depende da mesma condição**, numa conta separada: o tier gratuito dele é para projetos públicos. O gate dele barra um merge, então ele é estrutural no loop cobrando exatamente zero — que é o caso mais claro de por que escrever só o zero seria a resposta mais enganosa.
-- **O tier gratuito do Terraform Cloud cobre este workspace** porque a infraestrutura é pequena: o último plan resolveu contra cerca de cinquenta recursos, bem dentro do limite. Esse teto é contado em **recursos** — não em tráfego, nem em gasto — então é o único limite aqui que uma **decisão** move, e não um público.
-
-A analytics aparece lá em cima como o único terceiro em runtime e está deliberadamente fora desta lista: depende de consentimento e é gratuita em qualquer volume que este site vá produzir, o que faz dela uma questão de privacidade, não de cobrança.
-
-Então o formato honesto é **uma conta medida, um conjunto de zeros condicionais e duas assinaturas que cobrariam com ou sem este site** — e nenhum fornecedor aqui se move com leitores. Fechar um repositório, crescer o parque, registrar um nome: tudo decisão. As únicas linhas cobradas por tráfego em tudo isso estão dentro da conta da AWS, e são as duas que arredondam pra nada.
-
-**E isso também vale para a medida, que é a parte escondida por um total só.** Dos USD 6,57, USD 5,92 são o registro anual amortizado e USD 0,50 a zona hospedada fixa — 6,42 antes de um único arquivo ser servido. Os 0,15 restantes são o build escrevendo no S3, não leitores lendo de lá.
-
-**Isso está em texto e não em tabela, de propósito.** Uma linha escrita `GitHub — USD 0,00` convida o leitor a somar e parar. O que importa não é a célula estar vazia, e sim que ela está vazia **por um motivo que alguém escolheu** — e que esse motivo se reverte por decisão, não por tráfego.
-
-### O que o número ainda deixa de fora
-
-É a conta de um provedor só, deliberadamente — e o eixo acima é o que torna isso honesto em vez de parcial: os USD 6,57 são o que este site **acrescentou**, não aquilo de que ele depende. Então ficam de fora as duas assinaturas que cobrariam com ou sem ele, fica de fora a assinatura do Claude Max em que este trabalho roda, e ficam de fora todas as minhas horas. **Só infraestrutura e ferramental**, e nem isso inteiro.
-
-Isso precisa estar escrito, senão o número mente por omissão: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** São duas perguntas diferentes, e esta seção responde só a primeira.
-
-### Pra que serve o guardrail, na prática
-
-A mesma leitura mostrou cerca de **USD 12,80 por mês** que o site não estava usando: web ACLs de WAF e endereços IPv4 públicos ociosos, associados a nada, esquecidos quando o backend foi aposentado. Mais de oitenta vezes o que custa publicar o site. **Esses já saíram** — removidos em julho de 2026, e é a série diária de custo que confirma que as cobranças param, não um console vazio dando a entender isso. Não é tudo: sobrou um resíduo da mesma época, **abaixo de um dólar por mês**, ainda sendo cobrado enquanto eu descubro o que ele guarda — linha da conta, não do site, e o estado honesto disto na hora em que escrevo.
-
-Eu descobri lendo a fatura, o que é tarde. Então quem vigia agora é um orçamento no nível da conta, em `iac/budget.tf`, e duas coisas nele são deliberadas. Ele **não** é escopado às tags deste projeto — se fosse, só enxergaria gasto que este repo criou, e este era justamente do tipo que ele não criou. E a sensibilidade mora nos **limiares**, não no teto: um teto precisa comportar o pior mês legítimo, que aqui é o mês da renovação, então ele é surdo por construção a qualquer coisa menor que ele mesmo. O alarme que importa dispara em 15% — perto de USD 12, quieto no ritmo normal, e acordado pra qualquer novo custo recorrente de uns USD 8/mês. Um par convencional de 50/80 só se manifestaria em USD 40, várias vezes o gasto real, e ficaria um ano calado sobre um serviço novo de USD 30/mês.
-
-É isso que você tira daqui, e tem dois lados: infraestrutura que você para de usar não para de cobrar, e quem deveria pegar isso precisa olhar mais **amplo** do que aquilo que você está construindo e mais **baixo** do que aquilo que te dá medo.
-
-*(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) o guarda de orçamento)*
+Fora do total ficam também todas as minhas horas: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.**
 
 ## O que foi cortado — e tinha sido construído antes, que é a parte que importa
 
@@ -163,35 +127,41 @@ A versão fácil desta seção é *"mantivemos o escopo enxuto"*. Isso é postur
 | [ADR-0028](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0028-superseded-gitflow-two-env.md) | GitFlow com staging e produção | [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk, ambiente único |
 | [ADR-0029](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0029-superseded-offline-first-pwa.md) | PWA offline-first instalável | [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) SPA estática, sem backend |
 
-Essas cinco são as que esta seção percorre, todas em julho de 2026 — o backend e a maquinaria que vinha junto, e é por isso que um fluxo de staging e um PWA offline-first estão na lista ao lado do servidor. Não são todas as reversões. O índice logo abaixo traz as decisões que sustentam peso, e as substituídas são mais que as cinco de cima. Nenhuma foi apagada em silêncio: **o registro substituído continua lá e diz o que o substituiu**, que é o único jeito de um leitor distinguir uma decisão de uma racionalização. Clique em qualquer linha e você tem o que foi decidido, o que custou, e por que deixou de estar certo.
-
 **O que o objetivo de fato exigia era conteúdo**, e nada daquela maquinaria servia a isso. Um banco sem nada para guardar. Auth sem ninguém para autenticar. Um ambiente de staging para um site cujo revert é um merge. Cada uma era defensável quando foi decidida, e nenhuma sobreviveu à pergunta *"para que isso serve, aqui"*.
 
-### Segurança aqui é sobretudo o que não foi construído
+### Pra que serve o guardrail, na prática
 
-Não há WAF, não há chave gerenciada por mim, e nenhum parâmetro cifrado. Isso não é economia: **sem servidor, sem banco e sem auth, classes inteiras de risco deixam de existir em vez de serem mitigadas** — injeção num banco, bypass de autenticação, execução remota no servidor, segredo em runtime. O que sobra é o bundle que vai pro navegador e as dependências dele. A parte auditável dessa decisão é que o scanner de infraestrutura **sabe por que não reclama**: o desvio está escrito no próprio arquivo de configuração dele, com a razão, e não numa exceção silenciosa.
+A leitura da conta lá em cima mostrou cerca de **USD 12,80 por mês** que o site não estava usando: web ACLs de WAF e endereços IPv4 públicos ociosos, associados a nada, esquecidos quando o backend foi aposentado. Mais de oitenta vezes o que custa publicar o site. **Esses já saíram** — removidos em julho de 2026, e é a série diária de custo que confirma que as cobranças param, não um console vazio dando a entender isso. Não é tudo: sobrou um resíduo da mesma época, **abaixo de um dólar por mês**, ainda sendo cobrado enquanto eu descubro o que ele guarda — linha da conta, não do site, e o estado honesto disto na hora em que escrevo.
 
-*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) sem WAF, sem CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) o desvio, com o motivo)*
+Eu descobri lendo a fatura, o que é tarde. Então quem vigia agora é um orçamento no nível da conta, em `iac/budget.tf`, e duas coisas nele são deliberadas. Ele **não** é escopado às tags deste projeto — se fosse, só enxergaria gasto que este repo criou, e este era justamente do tipo que ele não criou. E a sensibilidade mora nos **limiares**, não no teto: um teto precisa comportar o pior mês legítimo, que aqui é o mês da renovação, então ele é surdo por construção a qualquer coisa menor que ele mesmo. O alarme que importa dispara em 15% — perto de USD 12, quieto no ritmo normal, e acordado pra qualquer novo custo recorrente de uns USD 8/mês. Um par convencional de 50/80 só se manifestaria em USD 40, várias vezes o gasto real, e ficaria um ano calado sobre um serviço novo de USD 30/mês.
 
-Subtração sozinha lê como buraco, então o que restou tem gate: análise estática no SonarCloud e uma auditoria de dependências que **barra o merge**, não avisa. E os pacotes são instalados sem rodar os scripts deles — `--ignore-scripts` em toda instalação do pipeline, porque o mesmo runner que instala é o que depois assume a role de deploy. A raiz de confiança entre a conta AWS e o GitHub é o outro pedaço, e ela está duas seções abaixo, em detalhe, porque é lá que alguém replicando isto vai procurar.
+É isso que você tira daqui, e tem dois lados: infraestrutura que você para de usar não para de cobrar, e quem deveria pegar isso precisa olhar mais **amplo** do que aquilo que você está construindo e mais **baixo** do que aquilo que te dá medo.
 
-*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) o que resta quando não há backend)*
-
-**E um controle de segurança daqui foi construído, pago e cortado.** O WAF regional que protegia a camada dinâmica virou registro substituído em julho de 2026, e parte do gasto ocioso da conta lá em cima era ele — cobrando depois de já não proteger nada. As duas coisas são o mesmo evento visto do dinheiro e da decisão.
-
-Mas havia **duas** web ACLs — uma na borda do CloudFront e a regional — e só a regional tem ADR. A do CloudFront **não está na biblioteca de decisões**, numa página que argumenta que a biblioteca é o ponto. Isso é um corte que o registro não contabiliza inteiro, e o lugar honesto de dizer isso é aqui. A outra parte desconfortável fica onde já estava: a raiz de confiança é um buraco documentado num piso, e nenhum `plan` avisa quando ela sai do lugar.
-
-*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) o WAF que foi cortado)*
+*(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) o guarda de orçamento)*
 
 ### Se você precisar do backend de volta, o registro diz qual decisão reverter
 
-Uma reversão registrada é o que torna o caminho de crescimento concreto em vez de uma promessa de que a arquitetura "escalaria". Um sistema que passou a precisar de servidor não exige que este site seja redesenhado — precisa de **uma decisão específica reaberta**, e cada uma das cinco acima nomeia a que a fechou:
+Uma reversão registrada é o que torna o caminho de crescimento concreto em vez de uma promessa de que a arquitetura "escalaria". Um sistema que passou a precisar de servidor não exige que este site seja redesenhado — precisa de **uma decisão específica reaberta**, e cada uma das cinco reversões acima nomeia a que a fechou:
 
 - **dados dinâmicos ou contas** → reverter a [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md), e a 0025 é o formato que aquilo tinha;
 - **renderização por requisição** → reverter a [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md); 0026 e 0027 são duas coisas que já foram tentadas na borda;
 - **uma mudança que você não reverte com um merge** → reverter a [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), e a 0028 é o fluxo de dois ambientes que ela substituiu.
 
 A trilha de build no diagrama acima é onde as duas metades se encontram: acrescentar um servidor significa tirar trabalho **de dentro dela**, não pendurar uma camada na lateral.
+
+## Segurança aqui é sobretudo o que não foi construído
+
+Não há WAF, não há chave gerenciada por mim, e nenhum parâmetro cifrado. Isso não é economia: **sem servidor, sem banco e sem auth, classes inteiras de risco deixam de existir em vez de serem mitigadas** — injeção num banco, bypass de autenticação, execução remota no servidor, segredo em runtime. O que sobra é o bundle que vai pro navegador e as dependências dele. A parte auditável dessa decisão é que o scanner de infraestrutura **sabe por que não reclama**: o desvio está escrito no próprio arquivo de configuração dele, com a razão, e não numa exceção silenciosa.
+
+*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) sem WAF, sem CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) o desvio, com o motivo)*
+
+Subtração sozinha lê como buraco, então o que restou tem gate: análise estática no SonarCloud e uma auditoria de dependências que **barra o merge**, não avisa. E os pacotes são instalados sem rodar os scripts deles — `--ignore-scripts` em toda instalação do pipeline, porque o mesmo runner que instala é o que depois assume a role de deploy. A raiz de confiança entre a conta AWS e o GitHub é o outro pedaço, e ela está mais abaixo, em detalhe, porque é lá que alguém replicando isto vai procurar.
+
+*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) o que resta quando não há backend)*
+
+Havia **duas** web ACLs — uma na borda do CloudFront e a regional — e só a regional tem ADR. A do CloudFront **não está na biblioteca de decisões**, numa página que argumenta que a biblioteca é o ponto. Isso é um corte que o registro não contabiliza inteiro, e o lugar honesto de dizer isso é aqui. A outra parte desconfortável fica onde já estava: a raiz de confiança é um buraco documentado num piso, e nenhum `plan` avisa quando ela sai do lugar.
+
+*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) o WAF que foi cortado)*
 
 ## Cada decisão, e em que pé ela está
 
@@ -218,7 +188,7 @@ Tudo acima é maquinaria. Isto é o que ela produziu — a parte que dá pra usa
 - **Um convite, nunca um redirecionamento, quando seu navegador discorda da URL que você abriu.** Dá pra dispensar e ele lembra, então não fica insistindo — e o link que te mandaram continua funcionando exatamente como foi mandado.
 - **Artigos, cada um com slug próprio por idioma**, filtráveis por trilha na landing sem a barra de endereço mudar embaixo de você. *(→ [ADR-0037](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0037-localized-article-slugs.md) slugs de artigo por idioma)*
 - **Um CV em `/me`, e o mesmo CV em PDF** — impresso a partir da página no ar durante o build, então o download não tem como discordar da página de onde saiu. *(→ [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) o PDF do CV)*
-- **Um portfólio em `/portfolio`**, onde um projeto entra passando pela régua escrita que está linkada no fim desta página.
+- **Um portfólio em `/portfolio`**, com a régua pra entrar escrita e pública — [docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md), o gate de prova de engenharia.
 - **Um plano de ramp-up em `/ramp-up`** — o raciocínio, o roteiro e as fontes exatas da virada para AI Engineering, em aberto enquanto ainda está em andamento.
 - **Uma estante de leitura em `/library`** — uma estante curada, e não uma lista, cada entrada carregando o que eu achei dela.
 - **Esta página, em `/architecture`** — a construção inteira em aberto: o formato em que ela roda, quanto custa, as decisões por trás dela, e o que foi cortado.
@@ -287,7 +257,7 @@ flowchart TB
 
 **Dos componentes do próprio plugin, exatamente um tipo consegue te barrar**, e essa é a versão honesta do convite a adotar. (A caixa que *não* é componente do plugin — *Aí os gates, aí o merge* — é um ponteiro de volta pro primeiro diagrama, e aqueles gates barram sim: o SonarCloud e o check terminal `build-test` bloqueiam um merge. Eles moram nos workflows deste repositório, e não no plugin, e é justamente por isso que não são linhas do inventário abaixo.) Dois dos cinco hooks rodam no `PreToolUse`: o runtime do agente chama eles *antes* da ferramenta rodar, eles devolvem uma negativa e o comando não acontece. Os outros três rodam no `SessionStart`, um evento que não entrega chamada nenhuma de ferramenta pra recusar, e é por isso que não estão desenhados como piso. **A classe diz** o que um hook de início de sessão *não consegue barrar*, e não que ele só observa — um hook nesse evento roda antes da primeira chamada de ferramenta e pode agir, e este desenho não tem forma pra isso. **E um deles age:** `session-wip` e `session-plugin-version` só reportam; `session-scratch` esvazia o diretório de scratch. Isso é um fato sobre cada script, não uma propriedade do evento, **e é por isso que** o desenho não pode ser lido como uma promessa sobre o que eles fazem. As personas aconselham, e *aconselhar* é uma afirmação sobre o julgamento que elas produzem, não sobre onde elas sentam: uma delas, a `quality-assurance`, tem uma cadeira garantida por mecanismo — o mesmo hook de permissão só deixa aquele agent type rodar o comando de merge — e ser a única que *pode* fazer o merge é uma propriedade diferente de ser verificada em como fez. A `product-lead` é a imagem espelhada disso: ela **barra** um merge quando encontra uma afirmação publicada que não é verdade — mas por convenção, não por hook, então nada recusa o comando de merge em nome dela e o desenho não teria como mostrá-la como piso sem mentir. Nos dois casos o julgamento não é verificado por nada, e o guia deste repositório diz com todas as letras que uma lente que ninguém aciona *falha em silêncio*. Os comandos não são nem uma coisa nem outra — são a forma escrita de uma decisão já tomada, pra ninguém rediscutir ela às duas da manhã.
 
-**O inventário é digitado aqui e ancorado no plugin** — o que é uma afirmação mais estreita que *gerado*, e é a que de fato se sustenta. Cada nome, evento, matcher, caminho e contagem acima está escrito à mão no diagrama; o que torna isso confiável é uma corrente de dois elos. Um teste compara o desenho, nó a nó e contagem a contagem, com um [manifesto versionado](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), então a figura não consegue divergir dele em nenhum dos dois idiomas. E um [job de CI](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compara esse manifesto com a árvore viva do plugin de três formas — um componente que falta no manifesto, uma linha do manifesto sem nada por trás, e uma que existe dos dois lados tendo mudado de forma. Adicione, aposente ou renomeie uma persona lá e o build deste repositório fica vermelho.
+**Renomeie uma persona no plugin e o build deste repositório fica vermelho.** O diagrama acima é escrito à mão: um teste compara o desenho, nó a nó e contagem a contagem, com um [manifesto versionado](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), nas duas edições; e um [job de CI](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compara esse manifesto com a árvore viva do plugin.
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) o inventário ancorado no plugin)*
 
@@ -303,13 +273,11 @@ Ele é também a parte *contra* a qual as fronteiras de capacidade acima foram d
 
 Por que o time de personas é de **cinco** e não de dezenove é uma decisão registrada, então vale a regra que rege esta página: apontar, não reescrever. Foram **dois** cortes — de dezenove para seis, e depois de seis para cinco — e uma emenda posterior alargou o critério por trás deles, que hoje nomeia quatro razões pelas quais uma persona pode existir. Uma das quatro é que o contexto do orquestrador é um recurso finito que o desenho gasta de propósito. [As emendas do ADR-0002 no repositório do plugin](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md) trazem os três movimentos e o que cada corte custou. O plural importa: *"cinco por causa da janela de contexto"* é uma simplificação que o próprio arquivo recusa.
 
-Esse recurso foi lido uma vez, e a forma honesta dessa leitura é um **piso**, não um número. Medido na própria sessão deste repositório em 7–8 de agosto de 2026, pelas transcrições da sessão: o que ficou dentro dos subagentes é **mais de uma ordem de grandeza** maior do que o que voltou ao orquestrador em forma de veredito. A economia é real e é limitada — a sessão **compactou duas vezes** assim mesmo, e os vereditos que voltaram ainda responderam por **uma fatia grande de tudo que o orquestrador consumiu vindo de uma ferramenta**.
+Esse recurso foi lido uma vez, e a forma honesta dessa leitura é um **piso**, não um número. Medido na própria sessão deste repositório em 7–8 de agosto de 2026, pelas transcrições da sessão: o que ficou dentro dos subagentes é **mais de uma ordem de grandeza** maior do que o que voltou ao orquestrador em forma de veredito. A economia é real e é limitada: os vereditos que voltaram ainda responderam por **uma fatia grande de tudo que o orquestrador consumiu vindo de uma ferramenta**.
 
-**Nenhuma estimativa pontual dessa economia é publicada, e a razão que decide isso é a fonte.** É uma transcrição de sessão privada, numa máquina só: não está em nenhum dos dois repositórios, gate nenhum alcança, e nada nesta página a recalcula. Isso faz dela uma leitura, e não um artefato que você possa conferir. Duas razões menores apontam para o mesmo lado: a população continua crescendo enquanto você mede, e há quatro denominadores em jogo — acionamentos, transcrições, agentes que retornaram, retornos — então qualquer razão única escolhe um deles em silêncio.
+**Uma tarefa custa ao orquestrador o veredito, não a execução.** É isso que subagente compra — e é por isso que o único botão do harness é o tamanho do veredito, girado pelo jeito como as instruções de cada persona são escritas.
 
-O que sobrevive à aritmética é o formato, e ele é uma afirmação de desenho, não uma medição:
-
-> Uma tarefa custa ao orquestrador o **veredito**, não a **execução** — o que faz do tamanho do veredito o único botão que o harness tem, e ele se gira pelo jeito como as instruções de cada persona são escritas. Isso é um limite, não uma fuga: os vereditos se acumulam do mesmo jeito, e esta sessão compactou duas vezes apesar disso.
+Não é fuga: os vereditos se acumulam do mesmo jeito, e esta sessão compactou duas vezes assim mesmo. Número dessa economia não é publicado porque a fonte é uma transcrição de sessão privada que gate nenhum alcança.
 
 ### O que o workspace do Claude Code acrescenta, e onde cada parte de fato mora
 
@@ -319,7 +287,7 @@ O plugin é a metade que você instala. O workspace em volta dele acrescenta mai
 
 *(→ [ADR-0038](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0038-content-distribution-linkedin-and-x.md) as duas superfícies, rascunhadas e nunca postadas sem supervisão)*
 
-**O controle remoto é uma preferência da minha conta, não configuração deste repositório** — e é essa distinção que faz isto estar escrito assim, e não do jeito óbvio. Ele se acopla à sessão que já está rodando na minha workstation, que é o que me deixa acompanhar uma execução e destravá-la de qualquer lugar sem a sessão parar. **O artefato não está em nenhum dos dois repositórios.** Faça um fork disto e você não leva nada disso, porque não há o que levar: é configuração no escopo do usuário, então viaja comigo e não com o código — e apresentar isso como parte do harness seria fantasiar um hábito de operação como algo que você poderia adotar.
+**O remote control é uma preferência da minha conta, não configuração deste repositório** — e é essa distinção que faz isto estar escrito assim, e não do jeito óbvio. Ele se acopla à sessão que já está rodando na minha workstation, que é o que me deixa acompanhar uma execução e destravá-la de qualquer lugar sem a sessão parar. **O artefato não está em nenhum dos dois repositórios.** Faça um fork disto e você não leva nada disso, porque não há o que levar: é configuração no escopo do usuário, então viaja comigo e não com o código — e apresentar isso como parte do harness seria fantasiar um hábito de operação como algo que você poderia adotar.
 
 **Artifacts é mais fraco ainda, e aparece aqui só como depoimento.** É uma superfície do fornecedor, sem linha no manifesto — um `grep -rn -i "claude artifact"` no plugin inteiro não devolve absolutamente nada. Então o que dá pra dizer com honestidade é em primeira pessoa e nada além disso: eu uso pra segurar um rascunho onde eu consiga continuar olhando pra ele enquanto a sessão anda. Isso é uma frase sobre como eu trabalho, não uma propriedade desta arquitetura.
 
@@ -343,17 +311,11 @@ Os movimentos, e o que cada corte custou, estão registrados em vez de resumidos
 
 ### Onde mora a documentação do próprio loop
 
-Esta página descreve o loop longamente e, até agora, nunca disse onde lê-lo — o que é uma lacuna numa página cuja regra é apontar para a cópia canônica.
-
-**Nenhum gerador cobre isso.** A verificação entre repositórios que mantém o inventário honesto lê o `agents/`, o `hooks/` e o `commands/` do plugin; ela não lê o `docs/`. Estendê-la significaria um coletor novo, um artefato versionado novo, uma cerca nova pra renderizar aquilo e mais um artefato pro job de deriva comparar — um check de CI novo e mais um jeito de este repositório ficar vermelho dias depois por uma mudança feita no outro. Isso é uma fatia por si só, e não uma pra comprar a caminho de um release.
-
-Então o que fica aqui aponta pra árvore viva, que é o índice mais fresco disponível e não custa nada pra continuar verdadeiro:
+**Nenhum gerador cobre isso**, então o que fica aqui aponta pra árvore viva — o índice mais fresco disponível, e o que não custa nada pra continuar verdadeiro:
 
 - **[a biblioteca de decisões da metodologia](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/docs/adr)** — os ADRs do próprio loop, os que decidem como o trabalho é decidido, mantidos à parte das decisões de produto deste site lá em cima.
 - **[o desenho independente de harness](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — o loop escrito sem depender de nenhum runtime de agente em particular, que é o documento pra ler se você está adotando, e não inspecionando.
 - **[a proposta original](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/proposals/agentic-dev-loop.md)** — onde tudo isso foi argumentado antes de qualquer parte existir.
-
-Uma listagem de diretório é gerada a partir da árvore por definição, então ela não descola como um índice copiado descola. O que ela não consegue é te avisar que um documento mudou de ideia — o mesmo limite que o inventário acima assume sobre si, chegando aqui pelo mesmo motivo.
 
 ## O registro de decisões É a documentação
 
@@ -369,13 +331,12 @@ Está tudo público — dois repos, sem segredos:
 
 [https://github.com/tedeuxx/tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)
 
-**A régua:** um projeto só entra no portfólio quando **cumpre** a **[docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md)** — o gate de prova de engenharia. Este site é a única entrada que não veio por ela, porque ele *é* a prateleira; o que o sustenta está nesta página — os ADRs acima, os gates, e as limitações que ele assume logo abaixo. A régua está escrita e é pública, então dá pra ler e decidir se ela é sua.
-
 ### Onde está o passo a passo, e por que não aqui
 
-Os passos de "do fork até no ar" estão nos READMEs, não nesta página. É a mesma regra que rege o resto daqui: a página aponta para o detalhe canônico em vez de reescrevê-lo. Um guia passo a passo morando aqui seria uma segunda cópia do que um README já é dono — e a cópia que morava aqui já tinha envelhecido, descrevendo workflows que foram renomeados por baixo dela. O **[README deste repo](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live)** cobre o caminho de nuvem inteiro, do domínio até o primeiro merge; o **[README do plugin](https://github.com/tedeuxx/tadeumendonca-skills#run-it)** cobre a metade do loop, que se instala sem nenhuma conta em nuvem e sem nada pra fazer deploy.
+Os passos de "do fork até no ar" estão nos READMEs, não nesta página. É a mesma regra que rege o resto daqui: a página aponta para o detalhe canônico em vez de reescrevê-lo. Um guia passo a passo morando aqui seria uma segunda cópia do que um README já é dono — e a cópia que morava aqui já tinha envelhecido, descrevendo workflows que foram renomeados por baixo dela.
 
-Dois desses passos são decisão, não procedimento, e são os que vale ler antes de começar em vez de no meio de um problema.
+- **[O README deste repo](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live)** — o caminho de nuvem inteiro, do domínio até o primeiro merge.
+- **[O README do plugin](https://github.com/tedeuxx/tadeumendonca-skills#run-it)** — a metade do loop, que se instala sem nenhuma conta em nuvem e sem nada pra fazer deploy.
 
 **O Terraform daqui não cria o provedor OIDC do GitHub, nem a role que roda o próprio Terraform.** Esses dois nascem fora, pela CLI da AWS, e ficam fora do Terraform pra sempre. São duas razões independentes e só uma delas um dia deixaria de valer: a primeira execução precisaria da credencial que ela ainda não criou, e — a que não expira — uma role capaz de reescrever a própria trust policy é uma role sem teto. O registro traz as duas, junto com a parte desconfortável de escrever: isto é um buraco documentado num piso, o caminho manual reabre toda vez que a policy dessa role muda, e nenhum `plan` vai te avisar que ela saiu do lugar.
 
@@ -387,12 +348,10 @@ Dois desses passos são decisão, não procedimento, e são os que vale ler ante
 
 O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
 
-## Duas limitações honestas
+## Três limitações honestas
 
 Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
 
 E os quatro desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Três deles você consegue conferir, em três forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. O quarto você não consegue conferir de jeito nenhum. Que o loop é seguido do jeito que está desenhado não é algo que esta página prove — nada aqui mostra que alguma mudança específica percorreu aquele trajeto. Aquele é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.
 
-**Nomear o orquestrador acrescentou uma afirmação que não tem desenho por trás, e este release acrescentou mais cinco, então o que se conta aqui são afirmações e não figuras — dez agora: sete você confere, e três você não.** Quatro das cinco novas se resolvem: a lista de funcionalidades em rotas que você abre e nas decisões ao lado delas, o rascunhador de publicação num script com testes próprios, o time de personas no registro do próprio plugin, e o índice de documentação numa árvore viva. A segunda que não dá pra conferir é o orquestrador e tudo que foi dito sobre ele, e ela deixa de se resolver em duas camadas. O ator em si não está em desenho nenhum daqui nem em inventário nenhum — não é componente do plugin, então a verificação de deriva que mantém a figura do harness honesta é estruturalmente incapaz de enxergá-lo, e nada aqui fica vermelho quando aquela descrição deixa de ser verdade. E a leitura ao lado dele — declarada como piso justamente por isso — saiu de transcrições de sessão que estão na minha máquina e não são publicadas, então o que você tem é depoimento com um método junto, não algo que dá pra rodar de novo.
-
-**A terceira é a metade do workspace que repositório nenhum guarda.** Controle remoto é uma configuração da minha conta e artifacts é uma superfície do fornecedor sem linha no manifesto; um `grep` por ele no plugin inteiro não devolve nada, o que é a verificação e também a resposta. Os dois estão marcados como depoimento, e um fork deste repositório não leva nenhum dos dois — então, exatamente como a leitura acima, são coisas em que você acredita na minha palavra ou não, e nada aqui resolve isso.
+**E há a metade do workspace que repositório nenhum guarda.** Remote control é uma configuração da minha conta e artifacts é uma superfície do fornecedor sem linha no manifesto; um `grep` por ele no plugin inteiro não devolve nada, o que é a verificação e também a resposta. Os dois estão marcados como depoimento, e um fork deste repositório não leva nenhum dos dois — então, exatamente como a leitura acima, são coisas em que você acredita na minha palavra ou não, e nada aqui resolve isso.
