@@ -242,7 +242,7 @@
     "title": "Curated repos render as static cards in long-form — a lone-URL facade + a leaf-bilingual field",
     "file": "0035-static-repo-cards-in-longform.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0036",

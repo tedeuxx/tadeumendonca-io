@@ -1,6 +1,8 @@
-// Shared markdown renderer (/frontend/markdown) — react-markdown + rehype-highlight for code blocks,
-// consistent with the edge prerender. highlight.js theme is imported once here. react-markdown
-// sanitizes by default (no raw HTML), so this is safe for user-authored content.
+// Shared markdown renderer (/frontend/markdown) — react-markdown + remark-gfm for tables and
+// autolinks + rehype-highlight for code blocks, consistent with the edge prerender. highlight.js theme
+// is imported once here. react-markdown sanitizes by default (no raw HTML), so this is safe for
+// user-authored content — and remark-gfm does not change that: it is a remark (source) plugin and
+// grants no HTML passthrough.
 //
 // Video embeds: a paragraph that is nothing but a YouTube link becomes a lazy <VideoEmbed> facade.
 // That keeps videos INSIDE articles without rehype-raw or a bare iframe — the sanitizer stays on.
@@ -10,6 +12,7 @@
 import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 import { VideoEmbed, youtubeId } from './VideoEmbed';
@@ -107,9 +110,19 @@ function mermaidBlock(children: ReactNode): { source: string; caption: string } 
 }
 
 /**
- * The URL of a paragraph that is nothing but a link: either a bare URL on its own line (plain text,
- * since we don't enable GFM autolinking) or an explicit `[url](url)` whose label IS its href.
+ * The URL of a paragraph that is nothing but a link — an explicit `[url](url)` whose label IS its href,
+ * or a bare URL on its own line, which GFM autolinks into exactly that shape.
  * Anything with surrounding prose is left alone — an inline link must stay an inline link.
+ *
+ * THE STRING BRANCH IS NOW THE DEAD-ISH ONE, and that is the change worth flagging. Before
+ * `remark-gfm`, a bare URL arrived here as PLAIN TEXT and the `typeof only === 'string'` branch is what
+ * every lone URL in `rampup.{pt,en}.md` hit. GFM autolinks them, so those 22 URLs now arrive as an <a>
+ * and take the element branch instead. They still resolve because an autolink's label equals its href —
+ * which is the element branch's exact condition, and is asserted rather than assumed in Markdown.test.tsx.
+ *
+ * The string branch is kept because it is not reachable-only-under-GFM: `<https://x>` and any future
+ * plugin change put a bare string back here, and a facade that silently stopped working would look like
+ * a content bug rather than a renderer one.
  */
 function loneUrl(children: ReactNode): string | null {
   const nodes = Children.toArray(children).filter((c) => typeof c !== 'string' || c.trim() !== '');
@@ -137,6 +150,39 @@ const components: Components = {
     if (diagram) return <Diagram source={diagram.source} caption={diagram.caption} />;
     return <pre {...props}>{children}</pre>;
   },
+  /**
+   * A GFM table, wrapped in its own scroll container.
+   *
+   * Not cosmetic and not optional: a <table> does not wrap. The moment the tables started rendering,
+   * `/pt/architecture` pushed the whole PAGE sideways at 320px and the overflow sweep went red — the
+   * same failure `.markdown code`'s `overflow-wrap` comment already describes, and the reason
+   * `.markdown pre` carries `overflow-x: auto`. The table scrolls instead of the document.
+   *
+   * A WRAPPER rather than `display: block` on the table itself, which is the other common fix: changing
+   * a table's display drops its table semantics for some screen readers, and this page's other table
+   * (`AdrTable`) already solves it exactly this way — a scrolling div around an untouched table. Two
+   * tables on one page resolving the same problem differently is how the next person picks the wrong one.
+   *
+   * `tabIndex={0}` because a scrollable region that only a mouse can pan is unreachable by keyboard.
+   *
+   * `data-markdown-table` is a TEST HOOK and is load-bearing for one reason: `AdrTable` renders a wrapper
+   * with these same classes, but it is `w-full` and is MEANT to fit rather than scroll. A selector that
+   * cannot tell the two apart asserts the wrong invariant on one of them — which it did, on first run.
+   *
+   * The `min-width` that makes the container engage lives in the stylesheet with the other `.markdown`
+   * rules — see `.markdown table` in `styles/index.css` for why it exists.
+   */
+  table({ children, ...rest }) {
+    const { node, ...props } = rest;
+    void node;
+    return (
+      <div className="my-8 overflow-x-auto border border-border" tabIndex={0} data-markdown-table="">
+        <table className="w-full border-collapse text-left text-sm" {...props}>
+          {children}
+        </table>
+      </div>
+    );
+  },
   p({ children, ...rest }) {
     // `node` is react-markdown's AST handle — it must never reach the DOM.
     const { node, ...props } = rest;
@@ -158,7 +204,12 @@ export function Markdown({ children }: { children: string }) {
       {/* `mermaid` is declared plain text, not highlighted. It is not a registered language, and
           highlighting rewrites the source into <span>s — which the diagram handler then reads back as
           its lookup key, so every diagram would silently miss. */}
+      {/* `remark-gfm` is what makes a pipe table a <table>. react-markdown is CommonMark-only and
+          a table is a GFM extension, so without this the pipes render as literal text in a <p> — which is
+          how two tables shipped to /architecture unrendered. It also enables autolink literals, which is
+          the one behaviour change to be aware of: see `loneUrl` above. */}
       <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { plainText: ['mermaid'] }]]}
         components={components}
       >
