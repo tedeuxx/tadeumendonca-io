@@ -9,6 +9,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+// The two clipboard labels, owner-ratified verbatim (#387). Held as constants because they are asserted
+// from a dozen places and because the property under test is that the DESTINATION is named — a test that
+// re-typed 'Copiar link' would keep passing against the old, published label.
+const COPY_LINK_PT = 'Copiar link para a área de transferência';
+const COPY_MD_PT = 'Copiar markdown para a área de transferência';
+const COPY_MD_EN = 'Copy markdown to clipboard';
+
 // The three native-share-sheet tests that lived here are GONE, not broken and re-stubbed. The header
 // button no longer calls `navigator.share`: #314 unified the two entry points behind one target list,
 // and the sheet could not be part of it because it is an OS surface the footer block cannot offer. That
@@ -18,9 +25,11 @@ afterEach(() => {
 // What replaced them asserts the property #314 actually bought: the two entry points offer the SAME
 // destinations. That is the last test in this file and it is the reason the slice exists.
 describe('ShareButton', () => {
+  // Opened WITH a body, so the dialog under test is the five-option one every shipped route renders. The
+  // four-option shape (no body) has its own test below — it is a real configuration, not the default.
   const open = (locale: 'pt' | 'en' = 'pt') => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" body="Corpo." />, { locale });
     fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
     return screen.getByRole('dialog');
   };
@@ -102,7 +111,7 @@ describe('ShareButton', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText } });
     renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Copiar link' }));
+    fireEvent.click(screen.getByRole('button', { name: COPY_LINK_PT }));
     await waitFor(() => expect(writeText).toHaveBeenCalled());
     expect(writeText.mock.calls[0][0]).toContain('/pt/blog/meu-compromisso');
     // #272: the source names what actually happened. `copy-link`, never `share-sheet` — nothing emits
@@ -115,7 +124,108 @@ describe('ShareButton', () => {
   it('renders the dialog in English when the locale is en', () => {
     const dialog = open('en');
     expect(dialog).toHaveAccessibleName('Share options');
-    expect(within(dialog).getByRole('button', { name: 'Copy link' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Copy link to clipboard' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: COPY_MD_EN })).toBeInTheDocument();
+  });
+});
+
+// #387 — the fifth option. These are separate from the four-option suite above because they fail for
+// different reasons: the payload can be right while the control is unreachable, and the control can be
+// present while the failure path is silent.
+describe('copy as markdown', () => {
+  const RAMPUP_BODY = 'Sao {{years}} anos.\n\nEstão na [Biblioteca](/library).';
+
+  const openWith = (props: { body?: string }, locale: 'pt' | 'en' = 'pt') => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" {...props} />, { locale });
+    fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
+    return writeText;
+  };
+
+  it('offers a fifth control beside the four that already existed', () => {
+    openWith({ body: 'Corpo.' });
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getAllByRole('link')).toHaveLength(3);
+    expect(within(dialog).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: COPY_MD_PT })).toBeInTheDocument();
+  });
+
+  // The scope mechanism, asserted as behaviour rather than trusted as a prop signature. A route list
+  // would rot; "no body, no option" cannot.
+  it('offers NO markdown control when the caller passes no body', () => {
+    openWith({});
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).queryByRole('button', { name: COPY_MD_PT })).toBeNull();
+    expect(within(dialog).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+  });
+
+  it('writes the assembled document — title, clean canonical URL, absolute links', async () => {
+    const writeText = openWith({ body: RAMPUP_BODY });
+    fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    const payload = writeText.mock.calls[0][0] as string;
+    expect(payload).toMatch(/^# Hello\n/);
+    expect(payload).toContain('https://tadeumendonca.io/pt/blog/meu-compromisso');
+    expect(payload).toContain('[Biblioteca](https://tadeumendonca.io/pt/library)');
+    // The decision the owner made, and the one an "improvement" toward consistency would undo.
+    expect(payload).not.toContain('utm_');
+  });
+
+  it('confirms in the active locale, on the markdown control and not on the link one', async () => {
+    openWith({ body: 'Corpo.' });
+    fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
+    expect(await screen.findByText('Copiado')).toBeInTheDocument();
+    // The link row is untouched — two controls, two independent states. A single shared `copied` flag
+    // would light both up and this is the assertion that sees it.
+    expect(screen.getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+  });
+
+  // THE FAILURE STATE IS THE POINT OF CHANGING SHIPPED CODE. A silent `catch {}` leaves the label reading
+  // "Copiar markdown…" forever, which is indistinguishable from not having clicked — and the reader
+  // pastes nothing and blames their notes app.
+  it('says so, visibly, when the clipboard write is rejected', async () => {
+    const writeText = vi.fn().mockRejectedValue(new DOMException('denied', 'NotAllowedError'));
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
+    fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
+    expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
+    expect(screen.queryByText('Copiado')).toBeNull();
+  });
+
+  // The other rejection shape, and it is not the same code path: on a non-secure origin `navigator.clipboard`
+  // is UNDEFINED, so the call throws a synchronous TypeError rather than returning a rejected promise. A
+  // `catch` that only handles the async form leaves this one as an unhandled throw in the click handler.
+  it('survives a browser with no clipboard API at all, and still says so', async () => {
+    vi.stubGlobal('navigator', {});
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
+    fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
+    expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
+  });
+
+  it('reports a failed LINK copy too — the state is per control, and both were silent before', async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error('blocked'));
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
+    fireEvent.click(screen.getByRole('button', { name: COPY_LINK_PT }));
+    expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
+  });
+
+  // The focus trap enumerates its controls live rather than caching them (see ShareModal), so a fifth row
+  // is picked up for free — "for free" being a claim, which is why it is checked.
+  it('keeps the focus trap enumerating every control, the fifth included', () => {
+    openWith({ body: 'Corpo.' });
+    const dialog = screen.getByRole('dialog');
+    const items = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    // close · WhatsApp · X · LinkedIn · copy link · copy markdown
+    expect(items).toHaveLength(6);
+    expect(items[items.length - 1]).toHaveAccessibleName(COPY_MD_PT);
+    items[items.length - 1].focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(items[0]);
   });
 });
 
@@ -153,11 +263,11 @@ describe('the two share entry points', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
     const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
-    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Copiar link' })).toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
     modal.unmount();
 
     renderWithLocale(<ShareLinks title="Hello" path="/pt/blog/x" />, { locale: 'pt' });
-    expect(within(screen.getByRole('navigation')).getByRole('button', { name: 'Copiar link' })).toBeInTheDocument();
+    expect(within(screen.getByRole('navigation')).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
   });
 });
 

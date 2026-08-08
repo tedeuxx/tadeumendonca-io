@@ -27,6 +27,19 @@ const ADR_BASE = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr
 export const adrHref = (record: AdrRecord): string => `${ADR_BASE}/${record.file}`;
 
 /**
+ * The library itself, as one URL (#387).
+ *
+ * The copy-as-markdown payload cannot carry the rendered table — the ` ```adr-index ` fence is EMPTY in
+ * source, so a verbatim copy hands the reader three backticks and nothing — and it deliberately does not
+ * reproduce 45 rows either. It links the index instead, which is the page's own stated principle applied
+ * to itself.
+ *
+ * Derived from `ADR_BASE` rather than typed again: the directory a row points INTO and the directory the
+ * index IS are the same directory, and a second literal is a second thing to update on a repo move.
+ */
+export const ADR_INDEX_URL = ADR_BASE;
+
+/**
  * Every record, id-ascending.
  *
  * Ordering is fixed here rather than left to the artifact, even though the generator also sorts. Two

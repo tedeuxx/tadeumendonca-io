@@ -499,8 +499,42 @@ const strings = {
     close: { pt: 'Fechar', en: 'Close' },
     // The fourth destination, and the only one that never leaves the page. pt says `link` rather than
     // `ligação` — `link` is the ordinary BR-Portuguese word here, and the same rule that keeps technical
-    // nouns in English on the CV and the strip applies.
-    copyLink: { pt: 'Copiar link', en: 'Copy link' },
+    // nouns in English on the CV and the strip applies. NOT `url`: it is the more technical of the two,
+    // and this site's register is deliberately not discouraging to a lay reader.
+    //
+    // THE DESTINATION IS NOW NAMED (#387), and that is what changed — "Copiar link" said what was copied
+    // and never where it went. `área de transferência` / `clipboard` is what makes it obvious; the label
+    // grew because a fifth option arrived beside it and "Copiar link" / "Copiar markdown" side by side
+    // reads as a choice of FORMAT with no statement of destination. Both are stated, in parallel, so
+    // neither has to be inferred from the other. Owner-ratified verbatim.
+    //
+    // This is PUBLISHED COPY changing, not a new string: `copyLink` renders in the modal AND in the
+    // article footer's `ShareLinks`, so both entry points get the longer label. That is deliberate — one
+    // key, one meaning, and the argument for naming the destination is not weaker in the footer.
+    copyLink: {
+      pt: 'Copiar link para a área de transferência',
+      en: 'Copy link to clipboard',
+    },
+    copyMarkdown: {
+      pt: 'Copiar markdown para a área de transferência',
+      en: 'Copy markdown to clipboard',
+    },
+    // THE FAILURE HAS TO BE VISIBLE (#387). A clipboard write is permission-sensitive and rejects in more
+    // contexts than it looks — a non-secure origin, an embedded frame, a Safari call that lost its user
+    // activation. Both copy paths used to swallow that in a `catch {}`, which is defensible for a
+    // 60-character URL the reader can still select by hand, and indefensible for a payload they believe
+    // is an entire article: they paste nothing and blame their notes app. `copied` stays the shared
+    // success state for both controls.
+    copyFailed: { pt: 'Não foi possível copiar', en: "Couldn't copy" },
+    // The copied text's attribution line — the canonical URL, clean, directly under the generated title.
+    source: { pt: 'Fonte', en: 'Source' },
+    // Stands in for the ` ```adr-index ` fence, which is EMPTY in source and expands into a live table
+    // only in the renderer. Copied verbatim it is three backticks; copied through this it is the link the
+    // page would have told you to follow anyway.
+    adrIndexLink: {
+      pt: 'Índice de decisões (ADRs), no repositório',
+      en: 'Decision index (ADRs), in the repository',
+    },
   },
   video: {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },

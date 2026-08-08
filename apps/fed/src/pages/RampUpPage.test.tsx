@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { RampUpPage } from './RampUpPage';
 import { renderWithLocale } from '../test-utils';
+
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.unstubAllGlobals();
+});
 
 const renderPage = (locale: 'pt' | 'en' = 'pt') => renderWithLocale(<RampUpPage />, { locale });
 
@@ -163,5 +168,44 @@ describe('RampUpPage', () => {
     expect(oreilly).toHaveLength(6);
     oreilly.forEach((a) => expect(a.getAttribute('href')).toMatch(/^https:\/\/www\.oreilly\.com\/library\/view\//));
     expect(container.querySelectorAll('a[href*="learning.oreilly.com"]')).toHaveLength(0);
+  });
+
+  // COPY-AS-MARKDOWN AGAINST THE SHIPPED BODY (#387). This page is where BOTH remaining payload defects
+  // actually live: `rampup.{pt,en}.md` carries the literal `{{years}}` token, resolved by this page before
+  // render, and `[Biblioteca](/library)` — the site's only root-relative markdown link, and a dead link
+  // the moment it leaves the origin.
+  //
+  // The `{{years}}` half is the assertion the design is built around, and it is green only because the
+  // shell is handed the RENDERED body. Passing `BODIES[locale]` to `<ShareButton body=…>` instead of the
+  // resolved string turns this red and nothing else in the suite notices — mutation-checked, by doing it.
+  it.each(['pt', 'en'] as const)('copies the RESOLVED body, with working links (%s edition)', async (locale) => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderPage(locale);
+
+    fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: locale === 'pt' ? 'Copiar markdown para a área de transferência' : 'Copy markdown to clipboard',
+      }),
+    );
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    const payload = writeText.mock.calls[0][0] as string;
+
+    expect(payload).not.toContain('{{years}}');
+    // Positively: the figure the token resolves to is in there. Asserting only the absence would also be
+    // green if the whole sentence had gone missing. The published value is the EVERGREEN FLOOR — "18+",
+    // not a bare count (#124) — so the `+` is part of the shape, and a regex without it would fail
+    // against correct output.
+    expect(payload).toMatch(/\d+\+ (anos|years)/);
+
+    expect(payload).not.toContain('](/library)');
+    expect(payload).toContain(`[${locale === 'pt' ? 'Biblioteca' : 'Library'}](https://tadeumendonca.io/${locale}/library)`);
+
+    // Nothing else was rewritten on the way past: the O'Reilly catalogue links are the largest external
+    // set on the page and an over-broad rewrite would be visible here first.
+    expect(payload).toContain('https://www.oreilly.com/library/view/');
+    expect(payload).toContain(`https://tadeumendonca.io/${locale}/ramp-up\n`);
+    expect(payload).not.toContain('utm_');
   });
 });
