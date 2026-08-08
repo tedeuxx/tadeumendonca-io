@@ -174,6 +174,12 @@ anyone measuring cadence later: name the ref, and the ref is `origin/main`.** Wo
 `git log` on a path both answer a different question than "what is published" — the second for the reason
 given under the reader pricing below.
 
+**The rule was then tested, unintentionally.** The review that gated this amendment began with its own
+working tree on the same unmerged article branch — the identical trap — and did not fall into it, because
+it named the ref on every check. That is the second reproduction of the failure and the first of the
+remedy, which is the only reason it is written down: the discipline is cheap and it demonstrably works,
+where remembering which branch you are on demonstrably does not.
+
 ### The recommendation that was overruled
 
 `product-lead` measured the target and **recommended against it**: one *post* per week with articles at a
@@ -202,12 +208,19 @@ instruments exist as **commands a human chooses to run**, and they are not equal
 
 - **Articles per week — sound, public, CI-capable, and it must name its ref.** Read the frontmatter
   `date` of the files **`git ls-tree origin/main` lists**, never of the files a checkout happens to hold.
-  It needs no private material and runs on a clean clone. Two failure modes, both measured here:
-  a working tree counts unmerged branches as published (this record nearly shipped that number), and
-  **git history dates the wrong event** — `git log --diff-filter=A -- apps/fed/src/content/blog/` puts
-  `my-commitment` at 2026-07-31, five days after publication, because the i18n restructure (`b2b59bc`)
-  moved the path. The frontmatter is the instrument; the commit date is an artifact of refactors; the
-  ref decides which files are in scope at all.
+  It needs no private material and runs on a clean clone. Two failure modes, both measured here.
+  **One: a working tree counts unmerged branches as published** — this record nearly shipped that number.
+  **Two: git commit dates carry no information about publication, for any path in this repository.**
+  `git log --diff-filter=A -- apps/fed/src/content/blog/` puts `my-commitment` at 2026-07-31, five days
+  after it was published, and the cause is not a path that moved: `origin/main`'s history **begins** that
+  day, at two parentless root commits (`git rev-list --max-parents=0 origin/main` → `528b685`, `b2b59bc`;
+  the latter is a `bump:` commit by `github-actions[bot]` importing 250 files). Every path dates to the
+  import, not just content that was ever restructured — `git log --diff-filter=A --format="%h %ad"
+  --date=short origin/main -- iac/versions.tf docs/adr/0001-*.md LICENSE` returns the same commit and the
+  same day. **`--follow` does not recover an earlier date**; it was run, and it returns only the two roots.
+  So the article was published *before the repository's earliest commit*, and what `git log` measures on
+  any path here is **the history horizon**. The frontmatter date is the instrument; the ref decides which
+  files are in scope at all.
 - **Pair completeness via `.brand/distribution/` — weak in three ways, and it currently reads green.**
   `.brand/` is gitignored (`.gitignore:31`), so the check exists only on the owner's machine: no CI, no
   fresh clone, no reviewer and no agent can run it. It measures **draft generation, not publication** —
