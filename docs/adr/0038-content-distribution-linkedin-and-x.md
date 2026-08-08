@@ -109,6 +109,130 @@ no scraper can read.
 - **ADR-0024's parallel clause is unaffected.** The CV sync process stays private working material; this
   narrowing is scoped to distribution drafts only.
 
+## Amendment (2026-08-08) — the cadence is **one article per week**, and the pair is that article's fan-out
+
+The decision above says a publication reaches both surfaces. It never said **how often a publication
+happens**, while reasoning from an unquantified cadence premise in its own drivers ("Cadence is
+weekends-only; a standard that costs a remembered decision each time will be skipped"). The owner has now
+set that number, and named it as the standard rather than a preference. It is appended here rather than
+recorded separately because the number is the **unit the existing obligation attaches to**, not a new
+obligation.
+
+### The rule, stated so a reviewer can apply it without asking
+
+1. **One article per week is the unit of cadence.** A week with an article published is a week met.
+2. **Every article fans out to LinkedIn and X in the same batch** — the obligation the decision above
+   already carries, now with a period attached to it.
+3. **The direction is one-way: article ⇒ pair, not pair ⇒ article.** The owner's words were *"todo novo
+   artigo semanal gera um post"* — every article generates a post. Nothing here forbids a standalone
+   post, and a reviewer must not block one. Option 2 above rejected X-as-ad-hoc-signal as a *distribution
+   strategy*; it did not forbid ad-hoc signal.
+4. **A missed week is named, not carried.** Two missed weeks do not owe two articles the following week.
+   *This clause is the writer's reading, not the owner's words* — it is here because a compounding ruler
+   produces the exact abandonment curve the recommendation below predicts, and because the debt has no
+   ledger anywhere. Overrule it in review if the intent was otherwise.
+
+**"Never separate work" is narrowed, deliberately.** The pair is not separately *decided* and not
+separately *scheduled* — that is the real reduction, and it is genuine. It is still separately *written*:
+two medium-adapted drafts, scaffolded by `gen-distribution` since the 2026-07-27 amendment. The "Bad /
+accepted costs" section above still stands as written; this amendment does not get to delete a cost by
+renaming it.
+
+### Baseline, measured 2026-08-08
+
+These are **measurements**, each with the command **and the ref** that produced them. The ref is not
+pedantry here; see the correction below.
+
+- **One published article.** `git ls-tree --name-only origin/main apps/fed/src/content/blog/` →
+  `my-commitment.en.md` and `my-commitment.pt.md`, one article in two locales. Its frontmatter `date` is
+  `2026-07-26T22:00:00.000Z` — launch day.
+- **Zero published since. Thirteen days.**
+  `git log --oneline origin/main -- apps/fed/src/content/blog/` → `b2b59bc`, the i18n restructure, and
+  nothing after it.
+- **"Published" means the file is in `blog/` on `origin/main`** — not in a working tree, not on a feature
+  branch. Searching `apps/fed/src` and `apps/fed/scripts` for `new Date()` finds no publish-date filter,
+  so a file that reaches `main` is live on the next deploy; nothing else is live at all.
+- **One article is in flight and is not published.** `green-checks-that-verify-nothing` sits on
+  `content/green-checks-that-verify-nothing` (commit `cca7a7c`) in **open** PR #382. It counts toward
+  nothing until it merges.
+- **One distribution draft, for the one published article.** `ls .brand/distribution/` →
+  `my-commitment.md`. Pair completeness therefore reads **complete** — over a corpus of one, which is the
+  weakness of that instrument rather than a result. See the pricing below.
+- **No rate is stated, on purpose.** One publication has no interval. There is nothing to divide, and
+  "0/week" is a description of a thirteen-day silence, not an estimated rate.
+
+**Correction, and the near-miss that produced it.** Three baselines were carried during drafting. First
+"0.5 articles/week" — wrong. Then "0/week: one article, nothing since, thirteen days" — right. Then this
+writer "corrected" that to **two published articles**, by counting `blog/*.en.md` in a working tree that
+was sitting on the unmerged feature branch, and reading a branch as the published state. The owner caught
+it against `origin/main` before the record left the branch.
+
+It is recorded rather than tidied because the failure lands inside this amendment's own argument: the
+section arguing that a baseline must carry its command was itself produced by a command with no ref, and
+a command with no ref measures whatever the checkout happens to be. **The rule that falls out of it, for
+anyone measuring cadence later: name the ref, and the ref is `origin/main`.** Working-tree counts and
+`git log` on a path both answer a different question than "what is published" — the second for the reason
+given under the reader pricing below.
+
+### The recommendation that was overruled
+
+`product-lead` measured the target and **recommended against it**: one *post* per week with articles at a
+slower measured beat, on the argument that the take for six of the eight queued content items exists in
+no file, and that a jump from zero published in thirteen days to one article per week is a target missed in week one
+and abandoned by week three.
+
+**The owner heard that and set the article target anyway.** He is the decider, this is his cadence and his
+public presence, and the recommendation is recorded here because a record whose only rejected options are
+the ones nobody argued for documents nothing.
+
+What the recommendation did **not** have, and what moves the cost honestly in the owner's favour: it
+priced the post as a second authoring act. Under this amendment it is a fan-out of the first — one decision,
+one schedule slot, one shipping batch, with the generator scaffolding both surfaces from the article's own
+frontmatter. The weekly unit is *an article and its fan-out*, not *an article plus a post*. That does not
+make the drafts free (see the narrowing above), and it does not answer the "six of eight have no take"
+finding, which stands unrebutted.
+
+### What reads this rule, and the honest answer
+
+**Nothing reads it today.** Checked: no file under `.github/workflows/` references `content/blog` or the
+distribution drafts (the `distribution` hits in `deploy.yml` are CloudFront). No gate, no workflow and no
+script consumes either signal. This is the same limit the "Bad / accepted costs" section already admits
+for the fan-out — *still manual, therefore still skippable* — now extended to the cadence. Two candidate
+instruments exist as **commands a human chooses to run**, and they are not equal:
+
+- **Articles per week — sound, public, CI-capable, and it must name its ref.** Read the frontmatter
+  `date` of the files **`git ls-tree origin/main` lists**, never of the files a checkout happens to hold.
+  It needs no private material and runs on a clean clone. Two failure modes, both measured here:
+  a working tree counts unmerged branches as published (this record nearly shipped that number), and
+  **git history dates the wrong event** — `git log --diff-filter=A -- apps/fed/src/content/blog/` puts
+  `my-commitment` at 2026-07-31, five days after publication, because the i18n restructure (`b2b59bc`)
+  moved the path. The frontmatter is the instrument; the commit date is an artifact of refactors; the
+  ref decides which files are in scope at all.
+- **Pair completeness via `.brand/distribution/` — weak in three ways, and it currently reads green.**
+  `.brand/` is gitignored (`.gitignore:31`), so the check exists only on the owner's machine: no CI, no
+  fresh clone, no reviewer and no agent can run it. It measures **draft generation, not publication** —
+  it can read green while neither surface has the post. And today it *does* read green, one draft for one
+  published article, which demonstrates the third weakness: over a corpus of one it cannot distinguish
+  "complete" from "trivially complete". It is a leading indicator of intent, never evidence of reach.
+
+No instrument is proposed here as work; only the owner opens work. What this amendment records is that the
+cadence is a standard **held by the owner's attention**, exactly like the fan-out obligation above it, and
+that the first candidate is the cheap one if that is ever to change.
+
+### What this does not change, including the one trigger this rule touches
+
+- **Automated posting stays rejected.** Option 4's "why not" ends *"Revisit if cadence ever justifies it"*
+  — and this amendment is the first time "cadence" has a number, so a later reader could reasonably read
+  the trigger as fired. **It is not.** One article per week is two manual publishing acts per week, and the
+  other two reasons option 4 was rejected — the lean posture (ADR-0001) and ask-first on external surfaces
+  — are independent of frequency and unchanged by it. The clause is touched, not met.
+- **The obligation is unchanged.** A publication is still not done until it exists on both surfaces, and a
+  half-shipped pair is still *incomplete and tracked*, not tolerated.
+- **This is not an editorial production quota.** The cadence is recorded here as the unit the distribution
+  obligation attaches to. If article frequency is ever to be justified on its own merits — audience,
+  reach, the repositioning — that is a different decision and gets its own record; nothing here pre-empts
+  it.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
