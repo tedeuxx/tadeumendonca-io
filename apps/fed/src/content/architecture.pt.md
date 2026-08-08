@@ -40,7 +40,7 @@ O que nada disso situa é onde uma URL limpa vira um arquivo:
 ```mermaid
 flowchart LR
   accTitle: Como uma requisição vira uma página
-  accDescr: Um leitor pede uma URL sem barra final. O CloudFront roda a função spa-rewrite no viewer-request, que acrescenta index.html. Daí o caminho segue num sentido só e se junta de novo no fim — um hit de cache leva direto à página servida; um miss busca o objeto pré-renderizado na origem S3, e a origem leva à mesma página servida. O leitor aparece uma vez, no começo, e a página servida uma vez, no fim.
+  accDescr: Um leitor pede uma URL sem barra final. O CloudFront roda a função spa-rewrite no viewer-request, que acrescenta index.html. Daí o caminho segue num sentido só e se junta de novo no fim — um hit de cache leva direto à página servida; um miss busca o objeto pré-renderizado na origem S3, e a origem leva à mesma página servida.
   R["Leitor pede /pt/me"] --> V["CloudFront viewer-request"]
   V --> F["função spa-rewrite"]
   F -- "uri vira /pt/me/index.html" --> C{"Está em cache na borda?"}
@@ -255,9 +255,8 @@ flowchart TB
   linkStyle 1 stroke-dasharray:6 4
 ```
 
-**Dos componentes do próprio plugin, exatamente um tipo consegue te barrar**, e essa é a versão honesta do convite a adotar. As partes, e o que cada uma consegue de fato fazer:
+**Dos componentes do próprio plugin, exatamente um tipo consegue te barrar**, e essa é a versão honesta do convite a adotar. (A caixa que *não* é componente do plugin — *Aí os gates, aí o merge* — é um ponteiro de volta pro primeiro diagrama, e aqueles gates barram sim: o SonarCloud e o check terminal `build-test` bloqueiam um merge. Eles moram nos workflows deste repositório, e não no plugin, e é justamente por isso que não são linhas do inventário.) As partes, e o que cada uma consegue de fato fazer:
 
-- **A caixa que *não* é componente do plugin** — *Aí os gates, aí o merge* — é um ponteiro de volta pro primeiro diagrama, e aqueles gates barram sim: o SonarCloud e o check terminal `build-test` bloqueiam um merge. Eles moram nos workflows deste repositório, e não no plugin, e é justamente por isso que não são linhas do inventário.
 - **Dois dos cinco hooks rodam no `PreToolUse`.** O runtime do agente chama eles *antes* da ferramenta rodar, eles devolvem uma negativa e o comando não acontece. **Eles são o piso.**
 - **Os outros três rodam no `SessionStart`**, um evento que não entrega chamada nenhuma de ferramenta pra recusar, e é por isso que não estão desenhados como piso. **A classe diz** o que um hook de início de sessão *não consegue barrar*, e não que ele só observa — um hook nesse evento roda antes da primeira chamada de ferramenta e pode agir, e este desenho não tem forma pra isso. **E um deles age:** `session-wip` e `session-plugin-version` só reportam; `session-scratch` esvazia o diretório de scratch. Isso é um fato sobre cada script, não uma propriedade do evento, **e é por isso que** o desenho não pode ser lido como uma promessa sobre o que eles fazem.
 - **As personas aconselham**, e *aconselhar* é uma afirmação sobre o julgamento que elas produzem, não sobre onde elas sentam: uma delas, a `quality-assurance`, tem uma cadeira garantida por mecanismo — o mesmo hook de permissão só deixa aquele agent type rodar o comando de merge — e ser a única que *pode* fazer o merge é uma propriedade diferente de ser verificada em como fez. A `product-lead` é a imagem espelhada disso: ela **barra** um merge quando encontra uma afirmação publicada que não é verdade — mas por convenção, não por hook, então nada recusa o comando de merge em nome dela e o desenho não teria como mostrá-la como piso sem mentir. Nos dois casos o julgamento não é verificado por nada, e o guia deste repositório diz com todas as letras que uma lente que ninguém aciona *falha em silêncio*.
@@ -267,7 +266,7 @@ flowchart TB
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) o inventário ancorado no plugin)*
 
-**O que essa verificação não enxerga**, pela mesma razão que o resto da página assume os seus limites: ela compara **identidade** — um hook que mantém o nome e muda o que faz publica uma descrição velha com o build verde.
+**O que essa verificação não enxerga:** ela compara **identidade**, então um hook que mantém o nome e muda o que faz publica uma descrição velha com o build verde — e o vermelho chega no próximo build daqui, não no merge de lá.
 
 É nesse mecanismo que caem também os dois termos do parágrafo de abertura — e eles não caem do mesmo jeito, o que vale dizer com precisão. **AI-DLC** não é meu: é o nome que a AWS deu a um ciclo de entrega cujas etapas são executadas e verificadas por agentes, e não em volta deles, e a primeira figura é como isso é praticado aqui. **Agent Harness Engineering** é a afirmação que eu faço, e é esta figura — que o harness é uma coisa que se constrói, se conta e se verifica, e não um jeito de escrever prompt. Adotar uma metodologia não custa nada dizer; a segunda precisa ser paga, e o pagamento é que ela *pode* ser inventariada, a partir do repositório onde mora, com um build que quebra quando o inventário deixa de ser verdade.
 
