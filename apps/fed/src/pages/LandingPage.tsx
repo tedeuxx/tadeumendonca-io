@@ -21,6 +21,11 @@ export function LandingPage() {
   const lp = useLocalePath();
 
   useDocumentHead({
+    // DELIBERATE EXCEPTION to ADR-0045. The rule is "lead with the section's nav label", and `/` is not a
+    // section — it is the site, and it has no nav entry to lead with. The site name is the whole title
+    // here, which is also why `useDocumentHead` emits it bare: it appends SITE_NAME only when the title
+    // does not already contain it, so this route reads `tadeumendonca.io`, not `tadeumendonca.io ·
+    // tadeumendonca.io`.
     title: 'tadeumendonca.io',
     description: defaultDescription(locale),
     canonicalPath: '/',

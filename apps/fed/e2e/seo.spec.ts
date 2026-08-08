@@ -149,6 +149,60 @@ test.describe('SEO discovery', () => {
     expect([...seen]).toHaveLength(1);
   });
 
+  // ADR-0045 — a document title is an ADDRESS, and it must carry the name of the section the reader
+  // clicked. Asserted on the SERVED bytes of every prerendered route in both locales, which is the only
+  // place the two halves of the rule meet: the catalog holds a PREFIX (useDocumentHead appends
+  // " · tadeumendonca.io"), and a unit test that stops at the key never sees the composed string a tab,
+  // a bookmark or a SERP line actually shows.
+  //
+  // `<title>` and `og:title` are checked TOGETHER because they are one value with two blast radii. The
+  // tab is free to fix; the OG title is pinned by every scraper that fetched the URL first (ADR-0041),
+  // so a route where the two disagree means the head is being assembled twice and the irreversible copy
+  // is the half nobody looked at.
+  //
+  // The lead words are spelled out rather than imported: this is the reader-visible string, and a test
+  // that reads it from the same catalog the page reads cannot fail when the catalog is wrong.
+  //
+  // `/blog/:slug` is absent on purpose — an article is a document, not a section, so its own name IS its
+  // address (ADR-0045). Its title is already pinned by the og:image:alt test below, which asserts the
+  // og:title starts with the article's own alt.
+  test('every route titles itself with the section the reader clicked, in both locales', async ({ request }) => {
+    const routes = [
+      // The exception, first: `/` is the site, not a section — no nav label to lead with, and the site
+      // name is the whole title (useDocumentHead does not append a suffix it already contains).
+      { path: '/pt/', title: 'tadeumendonca.io' },
+      { path: '/en/', title: 'tadeumendonca.io' },
+      { path: '/pt/me/', lead: 'Perfil' },
+      { path: '/en/me/', lead: 'Profile' },
+      { path: '/pt/portfolio/', lead: 'Portfólio' },
+      { path: '/en/portfolio/', lead: 'Portfolio' },
+      { path: '/pt/library/', lead: 'Biblioteca' },
+      { path: '/en/library/', lead: 'Library' },
+      { path: '/pt/ramp-up/', lead: 'Ramp-up' },
+      { path: '/en/ramp-up/', lead: 'Ramp-up' },
+      // The reported defect: the tab said "Como este site é construído" and never said "Arquitetura".
+      { path: '/pt/architecture/', lead: 'Arquitetura' },
+      { path: '/en/architecture/', lead: 'Architecture' },
+    ];
+
+    const offenders: string[] = [];
+    for (const route of routes) {
+      const html = await (await request.get(route.path)).text();
+      const title = /<title>([^<]*)<\/title>/.exec(html)?.[1];
+      const og = /property="og:title" content="([^"]*)"/.exec(html)?.[1];
+
+      if (!title) offenders.push(`${route.path} → no <title>`);
+      else if ('title' in route && title !== route.title) offenders.push(`${route.path} → "${title}" ≠ "${route.title}"`);
+      else if ('lead' in route && !title.startsWith(route.lead!))
+        offenders.push(`${route.path} → "${title}" does not lead with "${route.lead}"`);
+      // Composed, not the bare key: the site name is appended to every section title.
+      else if ('lead' in route && !title.endsWith(' · tadeumendonca.io'))
+        offenders.push(`${route.path} → "${title}" is missing the appended site name`);
+      if (og !== title) offenders.push(`${route.path} → og:title "${og}" ≠ <title> "${title}"`);
+    }
+    expect(offenders, `routes whose title is not their address:\n${offenders.join('\n')}`).toEqual([]);
+  });
+
   // #269. Each article advertises its OWN card, per locale, and the card RESOLVES.
   //
   // The 200 is the point, not decoration. A per-article `og:image` that 404s is the least reversible
