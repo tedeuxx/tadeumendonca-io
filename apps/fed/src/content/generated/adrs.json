@@ -299,12 +299,5 @@
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
     "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0044",
-    "title": "What the three version digits mean, now that a route to all of them exists",
-    "file": "0044-version-parts-deliberate-major-minor.md",
-    "status": "accepted",
-    "amended": false
   }
 ]
