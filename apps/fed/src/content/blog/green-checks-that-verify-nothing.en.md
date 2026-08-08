@@ -10,17 +10,9 @@ takeaway: 'why a passing check can be worth nothing, and the one habit that find
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
-Y Combinator published this conversation with Boris Cherny, who built Claude Code, and it is worth the full hour. I am not going to summarise it. I want to put one thing beside it, from the other end of the tool.
+Boris Cherny's thesis in that conversation, paraphrased rather than quoted: the model is the product, and the layer around it should stay thin enough to get out of the model's way. He is right, and it is why the thing works.
 
-I build this site with an agentic loop, in the open, on weekends. Paraphrasing the maker's position rather than quoting it: the model is the product, and the layer around it should stay thin enough to get out of the model's way. I think that is right, and it is why the thing works.
-
-What I did not expect is what happens downstream of it. When the tooling gets out of the way, the only thing still holding the line is your gates — and **an agentic loop is extremely good at producing something that passes.** That is the whole value of it. It is also the failure mode, because a check that verifies nothing looks exactly like a check that verifies everything. Both are green. In one session I found seven of them here. Five are below.
-
-## A check that passes for the wrong reason
-
-A gate has a name and a mechanism, and the name is a claim about the mechanism. Usually they agree. When they stop agreeing nothing anywhere says so: the check still reports success, and success is the only thing anyone reads. There is no failing state for a check that has quietly stopped checking.
-
-That is not a new observation. What is new is the rate. I now produce far more verification than I read closely, and the reading is the part that did not scale.
+The part nobody mentions is what is left standing once it does get out of the way. **Your gates are left standing — and an agentic loop is extremely good at producing something that passes.** A check that verifies nothing looks exactly like a check that verifies everything. Both are green. In one session I found seven of them here; five are below, and the first one is the worst.
 
 ## Four, from one session
 

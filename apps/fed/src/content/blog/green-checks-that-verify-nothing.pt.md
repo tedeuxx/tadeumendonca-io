@@ -10,17 +10,9 @@ takeaway: 'por que um check que passa pode não valer nada, e o único hábito q
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
-A Y Combinator publicou essa conversa com Boris Cherny, que construiu o Claude Code, e vale a hora inteira. Não vou resumir. Quero colocar uma coisa ao lado dela, vista da outra ponta da ferramenta.
+A tese do Boris Cherny nessa conversa, parafraseando em vez de citar: o modelo é o produto, e a camada em volta tem que ser fina o bastante pra sair da frente dele. Está certo, e é por isso que funciona.
 
-Eu construo este site com um loop agentic, em público, nos fins de semana. Parafraseando a posição dele em vez de citar: o modelo é o produto, e a camada em volta tem que ser fina o bastante pra sair da frente do modelo. Acho que está certo, e é por isso que a coisa funciona.
-
-O que eu não esperava é o que acontece depois disso. Quando a ferramenta sai da frente, o que segura a linha são os seus gates — e **um loop agentic é excelente em produzir algo que passa.** Esse é o valor inteiro dele. É também o modo de falha, porque um check que não verifica nada é visualmente idêntico a um que verifica tudo. Os dois estão verdes. Numa sessão eu achei sete aqui. Cinco estão abaixo.
-
-## Um check que passa pelo motivo errado
-
-Um gate tem um nome e um mecanismo, e o nome é uma afirmação sobre o mecanismo. Normalmente os dois concordam. Quando param de concordar, nada em lugar nenhum avisa: o check continua reportando sucesso, e sucesso é a única coisa que alguém lê. Não existe estado de falha pra um check que simplesmente parou de checar.
-
-Isso não é observação nova. O que é novo é a taxa. Hoje eu produzo muito mais verificação do que consigo ler com atenção, e a leitura é justamente a parte que não escalou.
+A parte que ninguém conta é o que sobra quando ela sai da frente. **Sobram os seus gates — e um loop agentic é excelente em produzir algo que passa.** Um check que não verifica nada é visualmente idêntico a um que verifica tudo. Os dois estão verdes. Numa sessão eu achei sete aqui; cinco estão abaixo, e o primeiro é o pior.
 
 ## Quatro, de uma sessão só
 
