@@ -28,7 +28,7 @@ describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
       { locale: 'en' },
     );
     expect(container.querySelector('[data-testid="repo-card"]')).toBeNull();
-    // Under GFM this bare URL IS autolinked (#402) — it is an <a>, not plain text as this used to say.
+    // Under GFM this bare URL IS autolinked — it is an <a>, not plain text as this used to say.
     // The key property is unchanged and is what the name promises: it did not become a card. The
     // autolinking itself is asserted in the autolink describe below, where it can actually fail.
     expect(container).toHaveTextContent('https://github.com/karpathy/some-other-repo');
@@ -47,7 +47,7 @@ describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
 // ELEMENT (`table`/`th`/`td`), not on the text: the broken render contains the very same characters, so
 // a text assertion here passes in both worlds and is exactly the un-failable assertion this repo keeps
 // producing. Mutation-checked by removing the plugin — see the MR.
-describe('Markdown — GFM tables render as tables (#402)', () => {
+describe('Markdown — GFM tables render as tables', () => {
   const TABLE = ['| removed | replaced by |', '|---|---|', '| ADR-0025 | ADR-0002 |'].join('\n');
 
   it('renders a pipe table as a real <table>, not literal pipes in a paragraph', () => {
@@ -95,7 +95,7 @@ describe('Markdown — GFM tables render as tables (#402)', () => {
 // `loneUrl`'s string branch and started reaching its element branch. They resolve because an autolink's
 // label equals its href — that was a prediction when the change was written, and these are the
 // assertions that make it a checked one.
-describe('Markdown — bare URLs autolink under GFM, and the facades survive it (#402)', () => {
+describe('Markdown — bare URLs autolink under GFM, and the facades survive it', () => {
   it('autolinks a bare URL that is NOT a facade, instead of leaving it as text', () => {
     const { container } = renderWithLocale(
       <Markdown>{'https://github.com/karpathy/some-other-repo'}</Markdown>,

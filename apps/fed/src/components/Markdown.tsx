@@ -1,6 +1,8 @@
-// Shared markdown renderer (/frontend/markdown) — react-markdown + rehype-highlight for code blocks,
-// consistent with the edge prerender. highlight.js theme is imported once here. react-markdown
-// sanitizes by default (no raw HTML), so this is safe for user-authored content.
+// Shared markdown renderer (/frontend/markdown) — react-markdown + remark-gfm for tables and
+// autolinks + rehype-highlight for code blocks, consistent with the edge prerender. highlight.js theme
+// is imported once here. react-markdown sanitizes by default (no raw HTML), so this is safe for
+// user-authored content — and remark-gfm does not change that: it is a remark (source) plugin and
+// grants no HTML passthrough.
 //
 // Video embeds: a paragraph that is nothing but a YouTube link becomes a lazy <VideoEmbed> facade.
 // That keeps videos INSIDE articles without rehype-raw or a bare iframe — the sanitizer stays on.
@@ -112,7 +114,7 @@ function mermaidBlock(children: ReactNode): { source: string; caption: string } 
  * or a bare URL on its own line, which GFM autolinks into exactly that shape.
  * Anything with surrounding prose is left alone — an inline link must stay an inline link.
  *
- * THE STRING BRANCH IS NOW THE DEAD-ISH ONE, and that is the change worth flagging (#402). Before
+ * THE STRING BRANCH IS NOW THE DEAD-ISH ONE, and that is the change worth flagging. Before
  * `remark-gfm`, a bare URL arrived here as PLAIN TEXT and the `typeof only === 'string'` branch is what
  * every lone URL in `rampup.{pt,en}.md` hit. GFM autolinks them, so those 22 URLs now arrive as an <a>
  * and take the element branch instead. They still resolve because an autolink's label equals its href —
@@ -149,7 +151,7 @@ const components: Components = {
     return <pre {...props}>{children}</pre>;
   },
   /**
-   * A GFM table, wrapped in its own scroll container (#402).
+   * A GFM table, wrapped in its own scroll container.
    *
    * Not cosmetic and not optional: a <table> does not wrap. The moment the tables started rendering,
    * `/pt/architecture` pushed the whole PAGE sideways at 320px and the overflow sweep went red — the
@@ -195,7 +197,7 @@ export function Markdown({ children }: { children: string }) {
       {/* `mermaid` is declared plain text, not highlighted. It is not a registered language, and
           highlighting rewrites the source into <span>s — which the diagram handler then reads back as
           its lookup key, so every diagram would silently miss. */}
-      {/* `remark-gfm` is what makes a pipe table a <table> (#402). react-markdown is CommonMark-only and
+      {/* `remark-gfm` is what makes a pipe table a <table>. react-markdown is CommonMark-only and
           a table is a GFM extension, so without this the pipes render as literal text in a <p> — which is
           how two tables shipped to /architecture unrendered. It also enables autolink literals, which is
           the one behaviour change to be aware of: see `loneUrl` above. */}

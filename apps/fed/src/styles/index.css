@@ -520,7 +520,7 @@ body {
   max-width: 100%;
   border-radius: 0;
 }
-/* GFM tables (#402). The scroll container is on the wrapping div — see the `table` handler in
+/* GFM tables. The scroll container is on the wrapping div — see the `table` handler in
    Markdown.tsx — so these rules are only the cell rhythm, matched to `AdrTable` so the two tables that
    share /architecture look like one decision rather than two. */
 .markdown th,
