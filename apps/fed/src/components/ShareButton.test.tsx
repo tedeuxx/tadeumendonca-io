@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { ShareButton, articleShareUrl } from './ShareButton';
 import { ShareLinks } from './ShareLinks';
+import { MODAL_TARGETS, SHARE_TARGETS } from './shareTargets';
 import { renderWithLocale } from '../test-utils';
 
 afterEach(() => {
@@ -90,7 +91,8 @@ describe('ShareButton', () => {
   // branches and the reverse one had no assertion at all.
   // DOM ORDER, which is the order focus actually moves in. The first version of this helper did
   // `getAllByRole('link').concat(getAllByRole('button'))` — all links, then all buttons — while the
-  // dialog renders close · WhatsApp · X · LinkedIn · copy. So it compared against an invented order and
+  // dialog renders close · copy link · copy markdown · LinkedIn · X · WhatsApp. So it compared against an
+  // invented order and
   // both assertions failed for a reason that had nothing to do with the trap. Caught only because the
   // assertion had just been made capable of failing.
   const focusablesIn = (dialog: HTMLElement) =>
@@ -220,18 +222,48 @@ describe('copy as markdown', () => {
     expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
   });
 
+  // THE ORDER IS OWNER-SPECIFIED AND NOTHING PINNED IT BEFORE THIS TEST. Every existing check on the
+  // modal's contents asserted each platform independently — three separate `getByRole` calls, or a
+  // `toHaveLength(3)` — so any permutation passed all of them. An order the owner named, with nothing
+  // that goes red when it changes, is the false-green class this branch has already produced twice.
+  //
+  // Asserted as ONE array comparison rather than as five index lookups: a partial reorder (two rows
+  // swapped) satisfies "the first is copy link" and "the last is WhatsApp" while being wrong in between.
+  it('renders the owner-specified order: copy link, copy markdown, then LinkedIn, X, WhatsApp', () => {
+    openWith({ body: 'Corpo.' });
+    const dialog = screen.getByRole('dialog');
+    const items = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    // Accessible names, in DOM order — which is the order focus moves in and the order a screen reader
+    // announces. The close control leads because it sits in the header, above the list.
+    expect(items.map((el) => el.getAttribute('aria-label') ?? el.textContent)).toEqual([
+      'Fechar',
+      COPY_LINK_PT,
+      COPY_MD_PT,
+      'Compartilhar no LinkedIn: Hello',
+      'Compartilhar no X: Hello',
+      'Compartilhar no WhatsApp: Hello',
+    ]);
+  });
+
   // The focus trap enumerates its controls live rather than caching them (see ShareModal), so a fifth row
-  // is picked up for free — "for free" being a claim, which is why it is checked.
+  // is picked up for free — "for free" being a claim, which is why it is checked. Separate from the order
+  // test above: the trap can be right while the order is wrong, and vice versa.
   it('keeps the focus trap enumerating every control, the fifth included', () => {
     openWith({ body: 'Corpo.' });
     const dialog = screen.getByRole('dialog');
     const items = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
-    // close · WhatsApp · X · LinkedIn · copy link · copy markdown
     expect(items).toHaveLength(6);
-    expect(items[items.length - 1]).toHaveAccessibleName(COPY_MD_PT);
     items[items.length - 1].focus();
     fireEvent.keyDown(document, { key: 'Tab' });
     expect(document.activeElement).toBe(items[0]);
+  });
+
+  // The derived list cannot silently DROP a destination: `MODAL_TARGETS` resolves names against
+  // `SHARE_TARGETS` and throws on an unknown key, but a target nobody ordered would simply be absent.
+  // That gap cannot throw, so it is asserted — as set equality, in both directions.
+  it('orders every destination the shared list defines, and invents none', () => {
+    expect([...MODAL_TARGETS].map((t) => t.key).sort()).toEqual([...SHARE_TARGETS].map((t) => t.key).sort());
+    expect(MODAL_TARGETS).toHaveLength(SHARE_TARGETS.length);
   });
 });
 

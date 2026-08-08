@@ -57,6 +57,30 @@ export const SHARE_TARGETS: readonly ShareTarget[] = [
 ];
 
 /**
+ * THE MODAL'S ORDER, owner-specified (#387): LinkedIn, then X, then WhatsApp — beneath the two clipboard
+ * rows, which the modal renders first.
+ *
+ * A SEPARATE ORDERING RATHER THAN A REORDER OF `SHARE_TARGETS`, and that is the load-bearing choice here.
+ * `SHARE_TARGETS` is rendered by BOTH entry points; reordering it in place would silently reorder the
+ * article footer's `ShareLinks` too, and the owner named an order for the MODAL. Whether it binds the
+ * footer is his call, so this leaves the footer exactly as it shipped and makes the difference visible
+ * instead of inferring an answer. **The two entry points now render the same three destinations in
+ * different orders** — deliberate, and reported rather than smoothed over.
+ *
+ * DERIVED, NOT RETYPED. A second literal list of targets is a second place to add a destination to, and
+ * #314 exists because two such lists drifted. This resolves keys against the canonical set and throws on
+ * an unknown one; the reverse gap — a target in `SHARE_TARGETS` that nobody ordered — cannot throw here
+ * (it would simply be absent), so `ShareButton.test.tsx` asserts the two sets are equal.
+ */
+const MODAL_TARGET_ORDER: readonly ShareSource[] = ['linkedin', 'x', 'whatsapp'];
+
+export const MODAL_TARGETS: readonly ShareTarget[] = MODAL_TARGET_ORDER.map((key) => {
+  const target = SHARE_TARGETS.find((t) => t.key === key);
+  if (!target) throw new Error(`MODAL_TARGET_ORDER names "${key}", which is not in SHARE_TARGETS.`);
+  return target;
+});
+
+/**
  * The absolute, UTM-tagged article URL for one target.
  *
  * TAGGED BEFORE the href builder encodes it (#272). Appending after encoding puts a raw `&` inside
@@ -71,5 +95,6 @@ export const SHARE_TARGETS: readonly ShareTarget[] = [
 export const shareHref = (target: ShareTarget, path: string, title: string): string =>
   target.href(withShareUtm(`${SITE_URL}${path}`, target.key), title);
 
-/** The copy-link destination — the fourth option, and the only one that never leaves the page. */
+/** The copy-link destination — in the modal it is the FIRST option, and the only one that never leaves
+ *  the page. (In the footer it is still last; that block is unchanged.) */
 export const copyLinkUrl = (path: string): string => withShareUtm(`${SITE_URL}${path}`, 'copy-link');

@@ -21,8 +21,12 @@ import { test, expect, type Page } from '@playwright/test';
 // suite can fail on it.
 
 const LABELS = {
-  pt: { share: 'Compartilhar', copyMarkdown: 'Copiar markdown para a área de transferência' },
-  en: { share: 'Share', copyMarkdown: 'Copy markdown to clipboard' },
+  pt: {
+    share: 'Compartilhar',
+    copyLink: 'Copiar link para a área de transferência',
+    copyMarkdown: 'Copiar markdown para a área de transferência',
+  },
+  en: { share: 'Share', copyLink: 'Copy link to clipboard', copyMarkdown: 'Copy markdown to clipboard' },
 } as const;
 
 const openModal = async (page: Page, locale: 'pt' | 'en') => {
@@ -117,7 +121,10 @@ test.describe('copying the page as markdown', () => {
 // it only exists after a click. Narrow widths only — that is where a taller panel with a longer label has
 // anywhere to go wrong.
 test.describe('the five-option modal at narrow widths', () => {
-  for (const width of [320, 390, 768]) {
+  // 375 is in the sweep on purpose: it is the width the pt labels were observed stacking to two lines
+  // each. The reorder changes no label, so it cannot change what wraps — but it changes what sits at the
+  // bottom of a taller panel, which is the part that could push a row below the fold.
+  for (const width of [320, 375, 390, 768]) {
     test(`fits and stays reachable at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 700 });
       await page.goto('/pt/architecture');
@@ -130,32 +137,97 @@ test.describe('the five-option modal at narrow widths', () => {
       );
       expect(overflow, `the open modal overflows by ${overflow}px at ${width}px wide`).toBeLessThanOrEqual(0);
 
-      // The new row is on screen, not pushed below the fold of a panel that outgrew the viewport.
-      const markdown = dialog.getByRole('button', { name: LABELS.pt.copyMarkdown });
-      await expect(markdown).toBeVisible();
-      const box = await markdown.boundingBox();
-      expect(box, 'the markdown row has no box').not.toBeNull();
-      expect(box!.y + box!.height).toBeLessThanOrEqual(700);
-      expect(box!.x).toBeGreaterThanOrEqual(0);
-      expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+      // BOTH ENDS OF THE LIST are checked, because the reorder moved which row is at risk. The markdown
+      // row is now second from the top and WhatsApp is last, so a panel that outgrows the viewport now
+      // clips a DESTINATION rather than the new control — asserting only the new row would have gone
+      // blind to the fold exactly when the order changed.
+      for (const [what, locator] of [
+        ['the markdown row', dialog.getByRole('button', { name: LABELS.pt.copyMarkdown })],
+        ['the last destination', dialog.getByRole('link', { name: /Compartilhar no WhatsApp/ })],
+      ] as const) {
+        await expect(locator).toBeVisible();
+        const box = await locator.boundingBox();
+        expect(box, `${what} has no box`).not.toBeNull();
+        expect(box!.y, `${what} is above the viewport at ${width}px`).toBeGreaterThanOrEqual(0);
+        expect(box!.y + box!.height, `${what} is below the fold at ${width}px`).toBeLessThanOrEqual(700);
+        expect(box!.x).toBeGreaterThanOrEqual(0);
+        expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+      }
     });
   }
 
-  // The focus trap reads its controls live, so a fifth row is enumerated for free — "for free" being a
-  // claim about a real browser's sequential focus navigation, which jsdom does not implement at all. The
-  // unit test can only assert the wrap; this asserts that Tab actually reaches the new control.
-  test('the keyboard reaches the fifth control and the trap still wraps', async ({ page }) => {
+  // THE BACKDROP DARKENS THE PAGE RATHER THAN LIGHTENING IT (#387), measured as COMPUTED COLOUR rather
+  // than asserted as a class name — a class assertion is a restatement of the source and would pass on a
+  // token whose value had been inverted underneath it.
+  //
+  // The defect this locks out: `bg-foreground/70` washed a near-black page to 70% warm off-white, so the
+  // dialog read as a white sheet even though its panel was already the site's own near-black.
+  test('the backdrop darkens the page, and the panel still separates by its border', async ({ page }) => {
     await page.goto('/pt/architecture');
     const dialog = await openModal(page, 'pt');
 
-    const markdown = dialog.getByRole('button', { name: LABELS.pt.copyMarkdown });
-    // Six controls: close · WhatsApp · X · LinkedIn · copy link · copy markdown. Focus opens on the
-    // first, so five Tabs land on the last.
-    for (let i = 0; i < 5; i += 1) await page.keyboard.press('Tab');
-    await expect(markdown).toBeFocused();
+    const colours = await dialog.evaluate((panel) => {
+      const backdrop = panel.parentElement!;
+      const panelStyle = getComputedStyle(panel);
+      return {
+        backdrop: getComputedStyle(backdrop).backgroundColor,
+        panel: panelStyle.backgroundColor,
+        border: panelStyle.borderTopColor,
+        borderWidth: parseFloat(panelStyle.borderTopWidth),
+      };
+    });
+    const channels = (colour: string) => (colour.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const alpha = (colour: string) => {
+      const parts = (colour.match(/[\d.]+/g) ?? []).map(Number);
+      return parts.length > 3 ? parts[3] : 1;
+    };
+
+    // Dark. Under the old value these were ~245 each.
+    for (const channel of channels(colours.backdrop)) {
+      expect(channel, `the backdrop is ${colours.backdrop} — it should darken, not lighten`).toBeLessThanOrEqual(40);
+    }
+    // Still a SCRIM: translucent, so the reader keeps their place on the page behind it. Fully opaque
+    // would be a page transition rather than a dialog, and this is what would catch that.
+    expect(alpha(colours.backdrop)).toBeLessThan(1);
+
+    // THE ELEVATION CUE. A near-black panel on a near-black scrim is legible only because the border is
+    // the site's off-white, 2px. ADR-0008 forbids a shadow, so this is the whole separation mechanism and
+    // it is asserted rather than assumed.
+    for (const channel of channels(colours.panel)) expect(channel).toBeLessThanOrEqual(40);
+    for (const channel of channels(colours.border)) {
+      expect(channel, `the panel border is ${colours.border} — it is the only separation cue`).toBeGreaterThanOrEqual(200);
+    }
+    expect(colours.borderWidth).toBeGreaterThanOrEqual(2);
+  });
+
+  // THE OWNER-SPECIFIED ORDER, WALKED WITH THE KEYBOARD (#387). The unit test pins DOM order; this pins
+  // the order focus actually moves in, which is a different claim and the one a keyboard reader
+  // experiences. jsdom implements no sequential focus navigation at all, so it cannot make it.
+  //
+  // Every step is asserted rather than only the destination: tabbing five times and checking where you
+  // landed passes on any permutation of the four rows in between.
+  test('the keyboard walks the options in the specified order and wraps', async ({ page }) => {
+    await page.goto('/pt/architecture');
+    const dialog = await openModal(page, 'pt');
+
+    const sequence = [
+      dialog.getByRole('button', { name: 'Fechar' }),
+      dialog.getByRole('button', { name: LABELS.pt.copyLink, exact: true }),
+      dialog.getByRole('button', { name: LABELS.pt.copyMarkdown, exact: true }),
+      dialog.getByRole('link', { name: /Compartilhar no LinkedIn/ }),
+      dialog.getByRole('link', { name: /Compartilhar no X/ }),
+      dialog.getByRole('link', { name: /Compartilhar no WhatsApp/ }),
+    ];
+
+    // Focus opens on the first control; each Tab advances one row.
+    await expect(sequence[0]).toBeFocused();
+    for (let i = 1; i < sequence.length; i += 1) {
+      await page.keyboard.press('Tab');
+      await expect(sequence[i]).toBeFocused();
+    }
 
     // One more wraps back to the first rather than escaping to the browser chrome.
     await page.keyboard.press('Tab');
-    await expect(dialog.getByRole('button', { name: 'Fechar' })).toBeFocused();
+    await expect(sequence[0]).toBeFocused();
   });
 });

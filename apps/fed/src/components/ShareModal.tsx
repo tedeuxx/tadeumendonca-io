@@ -25,7 +25,7 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { X as CloseIcon, Link2, Check, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useT } from '../i18n';
-import { SHARE_TARGETS, shareHref } from './shareTargets';
+import { MODAL_TARGETS, shareHref } from './shareTargets';
 
 /**
  * What the last clipboard attempt on one control did.
@@ -165,7 +165,28 @@ export function ShareModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/70 p-4 sm:items-center"
+      // THE BACKDROP DARKENS (#387). It was `bg-foreground/70` — and `--foreground` is `50 23% 95%`,
+      // a warm off-white — so opening this dialog washed a near-black page (`--background: 0 0% 4%`) to
+      // 70% off-white. The panel was already the site's own near-black; what read as "a white modal" was
+      // the bright field around it. A scrim on a dark site that LIGHTENS is the inversion of what a scrim
+      // is for.
+      //
+      // The colour was never a decision: `git log -S "bg-foreground/70"` returns exactly one commit, the
+      // one that created this file, and the header below documents the backdrop as flat and argues the
+      // border-as-elevation choice while recording no reason for its colour. So this changes an
+      // undocumented default, and the reason is written down here so the next reader does not have to
+      // repeat the search.
+      //
+      // `/85` rather than opaque: at 85% the page behind composites to roughly #2D2D2D where its
+      // off-white text was — clearly recessed, still faintly legible, so the reader keeps their place on
+      // the page they were reading. Fully opaque would be a page transition, not a dialog.
+      //
+      // SEPARATION STILL COMES FROM THE BORDER, which is what makes a near-black panel on a near-black
+      // scrim legible at all: `--border-strong` is `50 23% 95%`, the same off-white as the text, drawn 2px
+      // on the panel below. That contrast is independent of whatever sits behind the scrim — against
+      // white content the wash lands near #3B3B3B, against the page's own background it stays #0A0A0A,
+      // and the border reads against both. No shadow is reached for; ADR-0008 is the reason and it holds.
+      className="fixed inset-0 z-50 flex items-end justify-center bg-background/85 p-4 sm:items-center"
       // The backdrop closes on click. `onMouseDown` rather than `onClick`: a click whose press started
       // INSIDE the panel and released on the backdrop (a drag while selecting the link text) fires
       // `click` on the backdrop and would close the dialog mid-selection.
@@ -198,8 +219,29 @@ export function ShareModal({
           </button>
         </div>
 
+        {/* ORDER IS OWNER-SPECIFIED (#387): copy link · copy markdown · LinkedIn · X · WhatsApp.
+
+            THE TWO CLIPBOARD ROWS SIT TOGETHER AND LEAD, and the pairing is the half with a reason rather
+            than a preference: they differ by ONE WORD, so three network rows between them would make the
+            reader compare across a gap. They were described as a pair when they were asked for.
+
+            The network order is `MODAL_TARGETS`, deliberately NOT `SHARE_TARGETS` — the article footer
+            renders the same three from that list and the owner named an order for THIS dialog. The two
+            entry points therefore order the same destinations differently, on purpose; the argument is in
+            `shareTargets.ts`. */}
         <ul>
-          {SHARE_TARGETS.map(({ key, label, nameKey, Icon, ...rest }) => (
+          {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
+              row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
+          <CopyRow status={linkStatus} label={t('share.copyLinkToClipboard')} Icon={Link2} onClick={onCopyLink} />
+          {onCopyMarkdown && (
+            <CopyRow
+              status={markdownStatus}
+              label={t('share.copyMarkdown')}
+              Icon={FileText}
+              onClick={onCopyMarkdown}
+            />
+          )}
+          {MODAL_TARGETS.map(({ key, label, nameKey, Icon, ...rest }) => (
             <li key={key}>
               <a
                 href={shareHref({ key, label, nameKey, Icon, ...rest }, path, title)}
@@ -216,17 +258,6 @@ export function ShareModal({
               </a>
             </li>
           ))}
-          {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
-              row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
-          <CopyRow status={linkStatus} label={t('share.copyLinkToClipboard')} Icon={Link2} onClick={onCopyLink} />
-          {onCopyMarkdown && (
-            <CopyRow
-              status={markdownStatus}
-              label={t('share.copyMarkdown')}
-              Icon={FileText}
-              onClick={onCopyMarkdown}
-            />
-          )}
         </ul>
       </div>
     </div>
