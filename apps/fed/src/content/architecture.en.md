@@ -208,6 +208,24 @@ Every page's content — the CV, this page, the articles — is markdown or type
 
 *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete · [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
 
+## What the site does, from the reader's side
+
+Everything above is machinery. This is what it produced — the part you can use without reading a line of any of it.
+
+**This list is authored, not derived.** The decision index above is generated from `docs/adr/` and the harness inventory below is pinned to another repository; **this one is typed by hand and no check compares it to the code**, so it can fall behind the site in a way neither of those can. It carries no total for the same reason: a count is the first thing to go stale, and every entry below names a route you can open or a decision you can read instead.
+
+- **Two complete editions, Portuguese and English.** Every route is first-class under `/pt` and `/en`, prerendered with its own head — so a forwarded link arrives in the language it was read in, rather than in the recipient's. *(→ [ADR-0036](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0036-per-locale-urls-prerender-hreflang.md) per-locale URLs)*
+- **An offer, never a redirect, when your browser disagrees with the URL you opened.** It is dismissible and remembered, so it does not nag — and the link someone sent you keeps working exactly as sent.
+- **Articles, each with its own slug per language**, filterable on the landing by track without the address bar changing underneath you. *(→ [ADR-0037](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0037-localized-article-slugs.md) localized article slugs)*
+- **A CV at `/me`, and the same CV as a PDF** — printed from the live page during the build, so the download cannot disagree with the page it came from. *(→ [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
+- **A portfolio at `/portfolio`**, which a project enters by clearing the written gate linked at the end of this page.
+- **A ramp-up plan at `/ramp-up`** — the reasoning, the roadmap and the exact sources for moving into AI Engineering, in the open while it is still in progress.
+- **A reading shelf at `/library`** — a curated shelf rather than a list, each entry carrying what I made of it.
+- **This page, at `/architecture`** — the whole build in the open: the shape it runs on, what it costs, the decisions behind it, and what was cut.
+- **Share affordances that tag what they produced**, so a link's life after it leaves here is readable rather than guessed at. *(→ [ADR-0039](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0039-share-campaign-tagging.md) share campaign tagging)*
+- **Videos that load nothing until you ask.** A video inside an article is a facade over a poster generated at build and served from this origin; no third-party frame, cookie or request happens before the click.
+- **Analytics that waits for consent** — inert until you say yes. *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) consent-gated analytics)*
+
 ## The dev-loop is the product
 
 The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site.
@@ -293,6 +311,50 @@ What survives the arithmetic is the shape, which is a design claim rather than a
 
 > A task costs the orchestrator its **verdict**, not its **execution** — which makes verdict length the one knob the harness holds, and it is turned by how the persona briefs are written. That is a bound and not an escape: the verdicts accumulate anyway, and this session compacted twice regardless.
 
+### What the Claude Code workspace adds, and where each part actually lives
+
+The plugin is the half you can install. The workspace around it adds more, and the parts below are named at deliberately different strengths, because only one of them is in a repository at all. That ordering is the useful part: it is the same distinction the inventory above draws between something that can stop you and something somebody has to remember.
+
+**Publication is scaffolded, and the load-bearing part is a refusal.** [`gen-distribution.mjs`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/gen-distribution.mjs) drafts the LinkedIn and the X post for an article from that article's own frontmatter, writes them to a gitignored directory, and never overwrites one I have already voiced. **It is not automated publishing and must not be read as any**: it posts nothing and holds no credential, because ADR-0038 considered automating the fan-out and rejected it — a class of unattended public writes is not worth the two drafts it saves, and every post is still approved by hand. What it does mechanically is decline: it resolves the share URL by **looking it up in the prerendered route list** and throws when nothing matches, rather than emitting a link to a page no scraper can read OG tags from. A generator that refuses is worth more here than one that produces.
+
+*(→ [ADR-0038](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0038-content-distribution-linkedin-and-x.md) both surfaces, drafted and never posted unattended)*
+
+**Remote control is a preference on my account, not configuration of this repository** — and the distinction is the whole reason it is written this way rather than the obvious way. It attaches to the session already running on my workstation, which is what lets me follow a run and unblock it from anywhere without the session stopping. **The artifact is in neither repository.** Fork this and you get none of it, because there is nothing to get: it is a user-scope setting, so it travels with me and not with the code, and presenting it as part of the harness would be dressing an operating habit as something you could adopt.
+
+**Artifacts is weaker still, and is offered here only as testimony.** It is a vendor surface with no row in the manifest — `grep -rn -i "claude artifact"` across the plugin returns nothing at all. So what I can honestly say is first-person and nothing more: I use it to hold a draft where I can keep looking at it while a session moves past. That is a sentence about how I work, not a property of this architecture.
+
+### Who works on this, and what each one argues against
+
+The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain.
+
+| who | what it owns | what it argues against |
+|---|---|---|
+| `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue |
+| `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations |
+| `developer` | the slice end to end — app, infrastructure, pipeline, and the tests written as it goes | nothing. It builds, and it is what the gate is pointed at |
+| `quality-assurance` | delivery against the Definition of Done, and separately whether a change can break production | `developer`, on both axes in one pass — and it is the only one the permission hook lets merge |
+| `harness-reviewer` | the machinery itself: hooks, permissions, briefs, commands, the plugin | **me** — and that is the interesting case |
+
+**`harness-reviewer` is the one that does not fit the rule as first written**, which is why the rule was widened instead of defended. Its counterpart is not another persona; it is me wearing the harness-engineer hat, which is the one seat in this loop that had nobody to argue with. Second-order effects of a configuration change are invisible from inside the change — that is the whole reason it exists. It gates nothing, and nothing forces it to be dispatched, so it fails the same silent way every lens here does.
+
+The moves, and what each cut cost, are recorded rather than summarised here: [ADR-0002's amendments](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md) and [the harness-agnostic design](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md), both in the plugin repository. That is this page's rule applied again — link the canonical detail rather than restate it.
+
+**And this table is authored, unlike the persona names in the drawing above.** Those are compared against the manifest and against the plugin's live tree, so retiring a persona reddens a build here. Nothing compares *this* table to anything. If a role changes hands, the drawing goes red and these rows quietly do not.
+
+### Where the loop's own documentation lives
+
+This page describes the loop at length and, until now, never said where to read it — which is a gap on a page whose rule is to point at the canonical copy.
+
+**No generator covers it.** The cross-repo check that keeps the inventory honest reads the plugin's `agents/`, `hooks/` and `commands/`; it does not read its `docs/`. Extending it would mean a new collector, a new committed artifact, a new fence to render it and another artifact for the drift job to compare — a new CI check and a new way for this repository to turn red days later over a change made in the other one. That is a slice of its own, and not one to buy on the way to a release.
+
+So this points at the live tree instead, which is the freshest index available and costs nothing to keep true:
+
+- **[the methodology decision library](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/docs/adr)** — the loop's own ADRs, the ones that decide how work is decided, kept separately from this site's product decisions above.
+- **[the harness-agnostic design](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — the loop written down without reference to any particular agent runtime, which is the document to read if you are adopting rather than inspecting.
+- **[the original proposal](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/proposals/agentic-dev-loop.md)** — where all of it was argued before any of it existed.
+
+A directory listing is generated from the tree by definition, so it cannot drift the way a copied index does. What it cannot do is tell you a document changed its mind — the same limit the inventory above states about itself, arriving here for the same reason.
+
 ## The decision record IS the documentation
 
 No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **Architecture Decision Record**, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
@@ -331,4 +393,6 @@ This is a single-author site, tuned to one person's positioning — not a genera
 
 And all four diagrams above show the **shape** of a thing, not a run of it. Three of them you can check, in three different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. The fourth you cannot check at all. That the loop is followed the way it is drawn is not something this page proves — nothing here shows that any particular change took the route in the picture. That one is a claim about how I work, and no artifact on this page can settle it for you.
 
-**Naming the orchestrator added a claim with no diagram behind it, which changes what is being counted here — five claims now, not four pictures: three you can check, and two you cannot.** The second uncheckable one is the orchestrator and everything said about it, and it fails to resolve in two layers. The actor itself is in no diagram here and in no inventory — it is not a plugin component, so the drift check that keeps the harness figure honest is structurally unable to see it, and nothing here goes red when that description stops being true. And the reading beside it — stated as a floor precisely because of this — came from session transcripts that sit on my machine and are not published, so what you have is testimony with a method attached rather than something you can re-run.
+**Naming the orchestrator added a claim with no diagram behind it, and this release added five more, so what is counted here is claims rather than pictures — ten now: seven you can check, and three you cannot.** Four of the five new ones resolve: the feature list to routes you can open and the decisions beside them, the publication scaffold to a script with its own tests, the roster to the plugin's own record, the documentation index to a live tree. The second uncheckable one is the orchestrator and everything said about it, and it fails to resolve in two layers. The actor itself is in no diagram here and in no inventory — it is not a plugin component, so the drift check that keeps the harness figure honest is structurally unable to see it, and nothing here goes red when that description stops being true. And the reading beside it — stated as a floor precisely because of this — came from session transcripts that sit on my machine and are not published, so what you have is testimony with a method attached rather than something you can re-run.
+
+**The third is the half of the workspace no repository holds.** Remote control is a setting on my account and artifacts is a vendor surface with no row in the manifest; a `grep` for it across the plugin returns nothing, which is the check and also the answer. Both are marked as testimony, and a fork of this repository gets neither — so, exactly like the reading above, they are things you can take my word for or not, and nothing here will settle it.
