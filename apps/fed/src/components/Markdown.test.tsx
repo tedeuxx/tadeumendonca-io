@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { screen } from '@testing-library/react';
 import { Markdown } from './Markdown';
 import { renderWithLocale } from '../test-utils';
 
@@ -27,8 +28,9 @@ describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
       { locale: 'en' },
     );
     expect(container.querySelector('[data-testid="repo-card"]')).toBeNull();
-    // react-markdown does not autolink a bare URL (no GFM), so it stays plain text — the key property is
-    // simply that it did NOT become a card.
+    // Under GFM this bare URL IS autolinked (#402) — it is an <a>, not plain text as this used to say.
+    // The key property is unchanged and is what the name promises: it did not become a card. The
+    // autolinking itself is asserted in the autolink describe below, where it can actually fail.
     expect(container).toHaveTextContent('https://github.com/karpathy/some-other-repo');
   });
 
@@ -36,6 +38,79 @@ describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
     const { container } = renderWithLocale(<Markdown>{'Just a sentence.'}</Markdown>, { locale: 'en' });
     expect(container.querySelector('p')).toHaveTextContent('Just a sentence.');
     expect(container.querySelector('[data-testid="repo-card"]')).toBeNull();
+  });
+});
+
+// GFM tables. react-markdown is CommonMark-only by default and a table is a GFM extension, so before
+// `remark-gfm` was enabled the pipes rendered as literal text inside a <p> — which is how two tables
+// shipped to production unrendered, the second one in v1.0.0. The assertion is deliberately on the
+// ELEMENT (`table`/`th`/`td`), not on the text: the broken render contains the very same characters, so
+// a text assertion here passes in both worlds and is exactly the un-failable assertion this repo keeps
+// producing. Mutation-checked by removing the plugin — see the MR.
+describe('Markdown — GFM tables render as tables (#402)', () => {
+  const TABLE = ['| removed | replaced by |', '|---|---|', '| ADR-0025 | ADR-0002 |'].join('\n');
+
+  it('renders a pipe table as a real <table>, not literal pipes in a paragraph', () => {
+    const { container } = renderWithLocale(<Markdown>{TABLE}</Markdown>, { locale: 'pt' });
+
+    const table = container.querySelector('table');
+    expect(table).not.toBeNull();
+    expect(container.querySelectorAll('th')).toHaveLength(2);
+    expect(container.querySelectorAll('tbody td')).toHaveLength(2);
+    expect(container.querySelector('th')).toHaveTextContent('removed');
+    expect(container.querySelector('tbody td')).toHaveTextContent('ADR-0025');
+  });
+
+  it('leaves no literal pipe characters behind once the table is parsed', () => {
+    const { container } = renderWithLocale(<Markdown>{TABLE}</Markdown>, { locale: 'pt' });
+    expect(container.textContent).not.toContain('|');
+  });
+
+  it('renders a link authored INSIDE a table cell', () => {
+    const cellLink = ['| adr | doc |', '|---|---|', '| 0025 | [record](/library) |'].join('\n');
+    const { container } = renderWithLocale(<Markdown>{cellLink}</Markdown>, { locale: 'pt' });
+
+    const link = container.querySelector('tbody a');
+    expect(link).toHaveTextContent('record');
+    // The `a` handler still runs inside a cell — a table must not bypass locale routing (#166).
+    expect(link).toHaveAttribute('href', '/pt/library');
+  });
+});
+
+// GFM autolink literals are the RISK this change carried, not a feature anyone asked for. Enabling GFM
+// turns every bare URL into an <a>, so the 22 lone URLs in `rampup.{pt,en}.md` stopped reaching
+// `loneUrl`'s string branch and started reaching its element branch. They resolve because an autolink's
+// label equals its href — that was a prediction when the change was written, and these are the
+// assertions that make it a checked one.
+describe('Markdown — bare URLs autolink under GFM, and the facades survive it (#402)', () => {
+  it('autolinks a bare URL that is NOT a facade, instead of leaving it as text', () => {
+    const { container } = renderWithLocale(
+      <Markdown>{'https://github.com/karpathy/some-other-repo'}</Markdown>,
+      { locale: 'en' },
+    );
+    expect(container.querySelector('a')).toHaveAttribute(
+      'href',
+      'https://github.com/karpathy/some-other-repo',
+    );
+  });
+
+  it('still builds a video facade from a bare YouTube URL — now via the autolinked element', () => {
+    const { container } = renderWithLocale(
+      <Markdown>{'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}</Markdown>,
+      { locale: 'pt' },
+    );
+    // Queried by the facade's play button, the way VideoEmbed's own suite does it.
+    expect(screen.getByRole('button', { name: /Reproduzir vídeo/ })).toBeInTheDocument();
+    expect(container.querySelector('img')).toHaveAttribute('src', '/video/dQw4w9WgXcQ.png');
+  });
+
+  it('leaves a URL with surrounding prose as an inline link, not a facade', () => {
+    const { container } = renderWithLocale(
+      <Markdown>{'See https://github.com/karpathy/nanoGPT for the code.'}</Markdown>,
+      { locale: 'en' },
+    );
+    expect(container.querySelector('[data-testid="repo-card"]')).toBeNull();
+    expect(container.querySelector('p a')).toHaveAttribute('href', 'https://github.com/karpathy/nanoGPT');
   });
 });
 

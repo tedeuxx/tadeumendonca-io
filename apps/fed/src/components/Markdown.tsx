@@ -10,6 +10,7 @@
 import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 import { VideoEmbed, youtubeId } from './VideoEmbed';
@@ -107,9 +108,19 @@ function mermaidBlock(children: ReactNode): { source: string; caption: string } 
 }
 
 /**
- * The URL of a paragraph that is nothing but a link: either a bare URL on its own line (plain text,
- * since we don't enable GFM autolinking) or an explicit `[url](url)` whose label IS its href.
+ * The URL of a paragraph that is nothing but a link — an explicit `[url](url)` whose label IS its href,
+ * or a bare URL on its own line, which GFM autolinks into exactly that shape.
  * Anything with surrounding prose is left alone — an inline link must stay an inline link.
+ *
+ * THE STRING BRANCH IS NOW THE DEAD-ISH ONE, and that is the change worth flagging (#402). Before
+ * `remark-gfm`, a bare URL arrived here as PLAIN TEXT and the `typeof only === 'string'` branch is what
+ * every lone URL in `rampup.{pt,en}.md` hit. GFM autolinks them, so those 22 URLs now arrive as an <a>
+ * and take the element branch instead. They still resolve because an autolink's label equals its href —
+ * which is the element branch's exact condition, and is asserted rather than assumed in Markdown.test.tsx.
+ *
+ * The string branch is kept because it is not reachable-only-under-GFM: `<https://x>` and any future
+ * plugin change put a bare string back here, and a facade that silently stopped working would look like
+ * a content bug rather than a renderer one.
  */
 function loneUrl(children: ReactNode): string | null {
   const nodes = Children.toArray(children).filter((c) => typeof c !== 'string' || c.trim() !== '');
@@ -158,7 +169,12 @@ export function Markdown({ children }: { children: string }) {
       {/* `mermaid` is declared plain text, not highlighted. It is not a registered language, and
           highlighting rewrites the source into <span>s — which the diagram handler then reads back as
           its lookup key, so every diagram would silently miss. */}
+      {/* `remark-gfm` is what makes a pipe table a <table> (#402). react-markdown is CommonMark-only and
+          a table is a GFM extension, so without this the pipes render as literal text in a <p> — which is
+          how two tables shipped to /architecture unrendered. It also enables autolink literals, which is
+          the one behaviour change to be aware of: see `loneUrl` above. */}
       <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { plainText: ['mermaid'] }]]}
         components={components}
       >
