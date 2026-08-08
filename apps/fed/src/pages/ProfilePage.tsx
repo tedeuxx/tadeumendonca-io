@@ -19,6 +19,11 @@ export function ProfilePage() {
   const { data: profile } = useProfile();
 
   useDocumentHead({
+    // ADR-0045: leads with the `nav.profile` label — the word the reader clicked — and appends the name,
+    // which is the secondary half the convention allows. It reads the nav key DIRECTLY rather than
+    // through a `profile.title`, because the personal name is data (src/data/profile.ts), not chrome, so
+    // the composition cannot live in the catalog. That is why `profile` is the one section without a
+    // `title` leaf, and why messages.test.ts's derived check does not cover it — ProfilePage.test.tsx does.
     title: profile ? `${t('nav.profile')} — ${profile.name}` : t('nav.profile'),
     description: profile?.summary,
     canonicalPath: '/me',

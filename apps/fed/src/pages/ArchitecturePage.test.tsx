@@ -14,6 +14,36 @@ describe('ArchitecturePage', () => {
     expect(screen.getByRole('heading', { name: /O registro de decisões É a documentação/ })).toBeInTheDocument();
   });
 
+  // ADR-0045 — the defect the owner reported, asserted on the COMPOSED string rather than on the catalog
+  // key. `useDocumentHead` appends " · tadeumendonca.io", so the key is only ever a prefix and a test
+  // that stops at the key is not testing what a tab shows. `messages.test.ts` holds the catalog-wide
+  // rule; this holds the wiring — that THIS page is the one passing THAT key.
+  it.each([
+    ['pt', 'Arquitetura — como este site é construído · tadeumendonca.io'],
+    ['en', 'Architecture — how this site is built · tadeumendonca.io'],
+  ] as const)('titles the tab with the section name the reader clicked (%s)', (locale, expected) => {
+    document.title = '';
+    renderPage(locale);
+    expect(document.title).toBe(expected);
+    // og:title is the same string — one prop feeds four surfaces (MarkdownPage), and the OG half is the
+    // irreversible one: scrapers pin a card on first fetch (ADR-0041).
+    expect(document.head.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe(expected);
+  });
+
+  // THE SEAM ADR-0045 REFUSES TO CROSS, pinned on the rendered page and not only in the catalog. The
+  // title now leads with "Arquitetura" and so does the heading, which makes collapsing the two look
+  // harmless — and it is the one change this slice was told not to make. The H1 is the page's argument;
+  // the title is its address.
+  it.each([
+    ['pt', 'Arquitetura — a planta, em aberto'],
+    ['en', 'Architecture — the blueprint, in the open'],
+  ] as const)('leaves the editorial H1 alone (%s)', (locale, heading) => {
+    document.title = '';
+    renderPage(locale);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(heading);
+    expect(document.title.startsWith(heading)).toBe(false);
+  });
+
   it('serves the whole page in the visitor language — chrome AND body', () => {
     const { unmount } = renderPage('pt');
     expect(screen.getByText('A planta · aberta')).toBeInTheDocument();

@@ -24,6 +24,11 @@ export function ArticlePage() {
   // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
   const eds = slug ? getEditions(slug, locale) : undefined;
 
+  // DELIBERATE EXCEPTION to ADR-0045. An article is a document, not a section: its own name IS the
+  // address a reader bookmarks, searches for and shares, and prefixing it with a section label would
+  // spend the front of the tab — and the front of a SERP line — on the word every article would repeat.
+  // The not-found arm is the same reasoning: "Artigo não encontrado" is the state, and it is what the
+  // reader needs to see first.
   useDocumentHead(
     article && eds
       ? {

@@ -297,6 +297,31 @@ the bundle, so the bump must precede the build that ships. The artifact `app` bu
 Playwright-tested therefore **cannot** be promoted — it carries the previous version. The PR's e2e
 tests an artifact that differs from production by one string.
 
+**A minor or a major is cut from `deploy`, never from a second workflow.** The automatic
+`patch` on every merge stays the default — **every tag in the repository is a `0.1.N` patch**
+(`git tag --list | grep -cv '^v0\.1\.'` → 0), a universal that holds until the first deliberate
+non-patch and is therefore falsified by this very input being used. No count is written down here on
+purpose: it rises on every merge, so a literal is stale within hours. **Reader-facing merges are rarer
+than the tag count suggests** — north of 200 merged PRs (`gh pr list --state merged`) against four
+publications to date, so fewer than one merge in thirty is a publication and the honest reading is
+nearer one in sixty. A human choosing a part on every merge would therefore answer "nothing" at least
+twenty-nine times in thirty. The rare event gets the deliberate path instead: `workflow_dispatch` carries a `part` input
+(`none` | `patch` | `minor` | `major`), defaulting to **`none`** so that a manual deploy keeps being
+purely the republish/rollback path.
+
+**Why it is `deploy` and not a `release.yml` beside it**, which is the shape `tadeumendonca-skills`
+uses and the shape that would silently fail here: **the bump commit is the tree that gets deployed.** A
+second workflow's `bump:` commit lands on `main` and is skipped by *both* guards in `deploy` —
+`release`'s `if:` and `gate`'s — so the tag would be cut and never shipped, the footer would keep
+naming the previous version, and two runs would be green about it. Cutting from inside `deploy` keeps
+the one property the file is built on: **the run that creates a version is the run that publishes it.**
+Two consequences follow and are enforced rather than documented: a bumping dispatch forces `app=true`
+whatever `deploy_app` said, and the gate's tag/tree assert now keys off `needs.release.result` rather
+than `github.event_name` — the old spelling meant "did this run bump?" only while a push was the sole
+bumping path, and would have skipped the assert on the one deliberate release of the year.
+`apps/fed/scripts/deploy-workflow.test.mjs` holds these as unit tests, which is why
+`.github/workflows/deploy.yml` is in `app`'s `code` filter.
+
 **`terraform-apply` runs before `deploy-app`, and that is a data dependency, not caution.**
 `deploy-app` resolves `/{env}/frontend/s3-bucket-name` and `/{env}/frontend/cloudfront-distribution-id`
 from SSM — parameters Terraform creates. On a cold environment it cannot even start.
@@ -408,6 +433,8 @@ unverified. That is a weaker guarantee than #195 had, and it is the price of the
 **Two smaller notes.** `deploy`'s `workflow_dispatch` grew two boolean inputs (`deploy_app`,
 `apply_infra`, the latter defaulting **false**), because absorbing `infra-apply` would otherwise have
 silently widened the documented rollback path into something that runs `terraform apply` against real
-AWS. And `app` keeps its **push-to-`main`** trigger even though the diagram draws only the PR edge:
+AWS. (It has since grown a third, `part` — see *Rules the design has to obey* above; it defaults to
+`none` for the same reason `apply_infra` defaults to `false`.) And `app` keeps its
+**push-to-`main`** trigger even though the diagram draws only the PR edge:
 SonarCloud needs a main-branch analysis to have a "new code" baseline, and without it the quality gate
 slowly stops meaning what it says.
