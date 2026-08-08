@@ -570,3 +570,22 @@ body {
 .markdown tbody tr:last-child td {
   border-bottom: 0;
 }
+
+/* THE DIAGRAM BOX. `diagram-canvas` was a class name on Diagram.tsx with no rule anywhere — a hook
+   somebody named and never used — so nothing centred the picture and a diagram narrower than the box sat
+   hard against its left edge. Mermaid emits each SVG with `width="100%"` and an INLINE `max-width` in px,
+   so a small diagram (the layers one is 357px) fills nothing like the ~920px body and the empty space all
+   went to the right.
+
+   `margin-inline: auto` and NOT `justify-content: center` on a flex parent. The box is declared an
+   overflow-x scroller so that a wide diagram scrolls inside it rather than pushing the page sideways
+   (see the comment in Diagram.tsx), and flex centring puts an overflowing child's left half into the
+   unreachable negative scroll area. Auto margins resolve to ZERO when there is no free space, so
+   whatever the overflow case does today it is left exactly as it was — measured at 320/390/768/1280 in
+   both editions, no box scrolled at any of them, because mermaid's `width="100%"` clamps the SVG to the
+   box before the scroller can ever engage. `display: block` is already Tailwind preflight's default for
+   svg; it is restated here so the rule does not depend on preflight staying that way. */
+.diagram-canvas > svg {
+  display: block;
+  margin-inline: auto;
+}
