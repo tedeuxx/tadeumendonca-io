@@ -40,13 +40,13 @@ What none of that places is where a clean URL becomes a file:
 ```mermaid
 flowchart LR
   accTitle: How a request becomes a page
-  accDescr: A reader requests a slash-less URL. CloudFront runs the spa-rewrite function on viewer-request, which appends index.html. A cache hit answers from the edge; a miss fetches the prerendered object from the S3 origin.
+  accDescr: A reader requests a slash-less URL. CloudFront runs the spa-rewrite function on viewer-request, which appends index.html. From there the path runs one way and rejoins at the end — a cache hit goes straight to the served page; a miss fetches the prerendered object from the S3 origin, and the origin leads to the same served page. The reader appears once, at the start, and the served page once, at the end.
   R["Reader asks for /en/me"] --> V["CloudFront viewer-request"]
   V --> F["spa-rewrite function"]
   F -- "uri becomes /en/me/index.html" --> C{"Cached at the edge?"}
-  C -- "hit" --> R
+  C -- "hit" --> P["Page served"]
   C -- "miss" --> S["S3 origin: prerendered dist/"]
-  S --> C
+  S --> P
 ```
 
 There is no application in that path — so the only logic between a reader and a file is [ten executable lines of JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), and it carries [its own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) plus a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo.
@@ -203,7 +203,7 @@ The interesting part isn't the stack — it's how it's built: **agent-led verifi
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
 ```mermaid
-flowchart LR
+flowchart TD
   accTitle: Where the human sits in the loop
   accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates, which loop back on red. A fresh-context reviewer then judges the change and can send it back. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to a human go or no-go, which is the last thing before production and can also return the work.
   I["Issue"] --> P["Plan, decided by the human"]
@@ -255,15 +255,21 @@ flowchart TB
   linkStyle 1 stroke-dasharray:6 4
 ```
 
-**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch. (The box that is *not* a plugin component — *Then the gates, then the merge* — is a pointer back to the first diagram, and those gates certainly do stop you: SonarCloud and the terminal `build-test` check block a merge outright. They live in this repo's workflows rather than in the plugin, which is why they are not rows in the inventory below.) Two of the five hooks run on `PreToolUse`: the agent runtime calls them *before* a tool runs, they return a denial, and the command does not happen. The other three run at `SessionStart`, an event that hands a hook no tool call to refuse, which is why they are not drawn as a floor. **The class says** what a session-start hook *cannot stop*, not that it merely watches — a hook on that event runs before the first tool call and can act, and this drawing has no shape for that. **And one of them acts:** `session-wip` and `session-plugin-version` only report; `session-scratch` empties the scratch directory. That is a fact about each script, not a property of the event, **and that is why** the drawing cannot be read as a promise about what they do. The personas advise, and *advise* is a claim about the judgement they produce, not about where they sit: one of them, `quality-assurance`, has a mechanically enforced seat — the same permission hook lets only that agent type run the merge command — and being the only one who *may* merge is a different property from being checked on how it merged. `product-lead` is the mirror image of that: it **blocks** a merge when it finds a published claim that is untrue — but by convention rather than by hook, so nothing refuses the merge command on its behalf and the drawing cannot honestly show it as a floor. Nothing checks the judgement in either case, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. The commands are neither — they are the written form of a decision already taken, so nobody re-litigates it at 2am.
+**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch. The parts, and what each one can actually do:
+
+- **The box that is *not* a plugin component** — *Then the gates, then the merge* — is a pointer back to the first diagram, and those gates certainly do stop you: SonarCloud and the terminal `build-test` check block a merge outright. They live in this repo's workflows rather than in the plugin, which is why they are not rows in the inventory.
+- **Two of the five hooks run on `PreToolUse`.** The agent runtime calls them *before* a tool runs, they return a denial, and the command does not happen. **They are the floor.**
+- **The other three run at `SessionStart`**, an event that hands a hook no tool call to refuse, which is why they are not drawn as a floor. **The class says** what a session-start hook *cannot stop*, not that it merely watches — a hook on that event runs before the first tool call and can act, and this drawing has no shape for that. **And one of them acts:** `session-wip` and `session-plugin-version` only report; `session-scratch` empties the scratch directory. That is a fact about each script, not a property of the event, **and that is why** the drawing cannot be read as a promise about what they do.
+- **The personas advise**, and *advise* is a claim about the judgement they produce, not about where they sit: one of them, `quality-assurance`, has a mechanically enforced seat — the same permission hook lets only that agent type run the merge command — and being the only one who *may* merge is a different property from being checked on how it merged. `product-lead` is the mirror image of that: it **blocks** a merge when it finds a published claim that is untrue — but by convention rather than by hook, so nothing refuses the merge command on its behalf and the drawing cannot honestly show it as a floor. Nothing checks the judgement in either case, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*.
+- **The commands are neither** — they are the written form of a decision already taken, so nobody re-litigates it at 2am.
 
 **Rename a persona in the plugin and this repository's build goes red.** The drawing above is authored by hand: a test compares it, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), in both editions; and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree.
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
-**What that does not buy is freshness, and the gap is structural rather than an oversight.** The plugin is a *different repository*, and nothing in this one can trigger on a merge in it. So the red arrives at the next build here — which may be days later, and on a change that has nothing to do with it. **This page can be wrong for that whole window and will not say so.** Two smaller limits, for the same reason the rest of this page states its own: the check compares **identity**, so a hook that keeps its name and changes what it does publishes a stale description under a green build; and the short glosses on the edges — *denies the call*, *advises, if dispatched* — are **authored here** and checked by nothing.
+**What that check cannot see**, for the same reason the rest of this page states its own limits: it compares **identity** — a hook that keeps its name and changes what it does publishes a stale description under a green build.
 
-That is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first picture is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
+That mechanism is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first picture is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
 
 ### The orchestrator is the part of the harness you cannot install
 
@@ -271,9 +277,7 @@ It is in none of the inventory above — not in the drawing, not in the manifest
 
 It is also the party the capability boundaries above are drawn *against*. `permission-guard` refuses the merge command from every agent type except `quality-assurance`, and the gloss on the persona edge — *advises, if dispatched* — names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
 
-Why the roster is **five** rather than nineteen is a decision with a record, so the rule this page runs on applies: link it rather than restate it. It took **two** cuts — nineteen to six, then six to five — and a later amendment widened the criterion behind them, which now names four reasons a persona may exist at all. One of the four is that the orchestrator's context is a finite resource the design spends deliberately. [ADR-0002's amendments in the plugin repo](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md) carry all three moves and what each cut cost. The plural matters: *"five because of the context window"* is a simplification the file itself refuses.
-
-That resource has been read once, and the honest form of the reading is a **floor**, not a figure. Measured on this repo's own session of 7–8 August 2026, by parsing the session transcripts: what stayed inside the subagents was **over an order of magnitude** more context than what came back to the orchestrator as verdicts. The saving is real and it is bounded: those returned verdicts were still a **large slice of everything the orchestrator took in from a tool**.
+**Its context is a finite resource**, and it has been read once: the honest form of that reading is a **floor**, not a figure. Measured on this repo's own session of 7–8 August 2026, by parsing the session transcripts: what stayed inside the subagents was **over an order of magnitude** more context than what came back to the orchestrator as verdicts. The saving is real and it is bounded: those returned verdicts were still a **large slice of everything the orchestrator took in from a tool**.
 
 **A task costs the orchestrator its verdict, not its execution.** That is what a subagent buys — and it is why the one knob the harness holds is verdict length, turned by how the persona briefs are written.
 
@@ -293,7 +297,7 @@ The plugin is the half you can install. The workspace around it adds more, and t
 
 ### Who works on this, and what each one argues against
 
-The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain.
+The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain. One of the four is that the orchestrator's context is a finite resource the design spends deliberately — and the plural matters: *"five because of the context window"* is a simplification ADR-0002's own amendments, linked below, refuse.
 
 | who | what it owns | what it argues against |
 |---|---|---|

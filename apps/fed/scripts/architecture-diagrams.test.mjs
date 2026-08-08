@@ -41,6 +41,31 @@ function graphOf(source) {
   return { nodes, edges: edges.map((e) => e.join('->')).sort() };
 }
 
+/** Is any node reachable from itself? A left-to-right flow that loops back reads as a cycle, and the
+ *  request diagram is now asserted to have none — see the convergence block below. */
+function hasCycle(graph) {
+  const adj = new Map();
+  for (const e of graph.edges) {
+    const [a, b] = e.split('->');
+    adj.set(a, [...(adj.get(a) ?? []), b]);
+  }
+  return graph.nodes.some((start) => {
+    const queue = [...(adj.get(start) ?? [])];
+    const seen = new Set(queue);
+    while (queue.length) {
+      const cur = queue.shift();
+      if (cur === start) return true;
+      for (const next of adj.get(cur) ?? []) {
+        if (!seen.has(next)) {
+          seen.add(next);
+          queue.push(next);
+        }
+      }
+    }
+    return false;
+  });
+}
+
 /** Is `to` reachable from `from` by following directed edges? */
 function reaches(graph, from, to) {
   const adj = new Map();
@@ -140,8 +165,29 @@ describe('the infrastructure diagram earns its place', () => {
     expect(reaches(graph, 'F', 'S'), 'the rewrite must sit BEFORE the origin, not beside it').toBe(true);
   });
 
-  it('shows the answer coming back, not a one-way pipe', () => {
-    expect(reaches(graph, 'S', 'R')).toBe(true);
+  // WAS `reaches(S, R)` — "the answer comes back" drawn as an edge INTO the request node. That is what
+  // made the picture unreadable in a left-to-right flow: two edges pointed backwards and the cache
+  // diamond was fork and join at once, four edges on one node. The claim the caption actually makes is
+  // that both cache outcomes end at the same served page, so that is what is asserted now: convergence
+  // on P, from the hit branch and through the origin, with the reader appearing once at the start.
+  it('converges on the served page, from the hit branch and through the origin', () => {
+    // The hit branch is pinned as an EDGE, not as reachability: `reaches(C, P)` is satisfied through
+    // the miss branch, so it would stay green with the hit arrow pointing anywhere at all.
+    expect(graph.edges, 'a cache hit must end at the served page').toContain('C->P');
+    expect(graph.edges, 'a miss must go to the origin').toContain('C->S');
+    expect(reaches(graph, 'S', 'P'), 'the origin must reach the same served page').toBe(true);
+  });
+
+  // The other half, and the one that fails on a restored backward edge: nothing points at an earlier
+  // step. Mutation-checked by putting `S --> C` back — `hasCycle` goes true and this fails.
+  //
+  // The second expectation is NOT redundant, though it is subsumed today: every node here is reachable
+  // from R, so any edge into R is already a cycle. It earns its place only for an edge into R from a node
+  // the reader cannot reach — which no mutation of the current five edges can produce, and which is the
+  // shape a later addition could. Said out loud rather than left to look stronger than it is.
+  it('flows one way — nothing returns to the reader or to an earlier step', () => {
+    expect(hasCycle(graph), 'an edge points backwards in a left-to-right flow').toBe(false);
+    expect(graph.edges.filter((e) => e.endsWith('->R'))).toEqual([]);
   });
 
   // The rewrite is the only logic in the path and the thing a sentence cannot place. If the diagram
@@ -218,7 +264,9 @@ describe('the dev-loop diagram shows where the human stands', () => {
 // What this can and cannot guarantee, stated because ADR-0043 requires the page to be honest about it:
 // it pins IDENTITY — names, events, matchers, counts, the orphan — into both editions. It says nothing
 // about whether the short glosses on the edges describe those components correctly. Those are authored
-// here and checked by nothing, and the page says so in both editions.
+// here and checked by nothing. The page carries that limit in its honest-limitations section — the check
+// covers only the parts that are NAMES, never what those parts do — rather than beside the diagram,
+// where the sentence naming the glosses themselves was cut as redundant with it.
 describe('the components diagram carries the inventory it was generated from', () => {
   const harness = generated('harness.json');
   const of = (kind) => harness.filter((c) => c.kind === kind);
