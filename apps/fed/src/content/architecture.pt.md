@@ -208,6 +208,23 @@ O conteúdo de cada página — o CV, esta página, os artigos — é markdown o
 
 *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) render no build · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) toda URL OG-completa · [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) o PDF do CV)*
 
+## O que o site faz, do lado do leitor
+
+Tudo acima é maquinaria. Isto é o que ela produziu — a parte que dá pra usar sem ler uma linha de nada disso.
+
+**Esta lista é escrita à mão, não derivada**, e a distinção importa numa página cujas outras tabelas não são. O índice de decisões acima é gerado a partir do `docs/adr/`, e o inventário do harness logo abaixo é ancorado em outro repositório; **esta aqui foi digitada e nenhuma verificação a compara com o código**, então ela pode ficar para trás do site de um jeito que nenhuma das duas outras pode. E ela não traz total nenhum, pelo mesmo motivo: contagem é a primeira coisa a envelhecer, e cada item abaixo nomeia uma rota que você abre ou uma decisão que você lê.
+
+- **Duas edições completas, português e inglês.** Cada rota é de primeira classe sob `/pt` e `/en`, pré-renderizada com head próprio e card de OG próprio — então um link encaminhado chega no idioma em que foi lido, e não no de quem recebeu. *(→ [ADR-0036](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0036-per-locale-urls-prerender-hreflang.md) URLs por idioma)*
+- **Um convite, nunca um redirecionamento, quando seu navegador discorda da URL que você abriu.** Dá pra dispensar e ele lembra, então não fica insistindo — e o link que te mandaram continua funcionando exatamente como foi mandado.
+- **Artigos, cada um com slug próprio por idioma**, filtráveis por trilha na landing sem a barra de endereço mudar embaixo de você. *(→ [ADR-0037](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0037-localized-article-slugs.md) slugs de artigo por idioma)*
+- **Um CV em `/me`, e o mesmo CV em PDF** — impresso a partir da página no ar durante o build, então o download não tem como discordar da página de onde saiu. *(→ [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) o PDF do CV)*
+- **Um portfólio em `/portfolio`**, onde um projeto entra passando pela régua escrita que está linkada no fim desta página.
+- **Um plano de ramp-up em `/ramp-up`** — o raciocínio, o roteiro e as fontes exatas da virada para AI Engineering, em aberto enquanto ainda está em andamento.
+- **Uma estante de leitura em `/library`**, e esta página em `/architecture`.
+- **Botões de compartilhamento que marcam o que produziram**, para que a vida de um link depois que ele sai daqui seja legível em vez de adivinhada. *(→ [ADR-0039](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0039-share-campaign-tagging.md) marcação de campanha no compartilhamento)*
+- **Vídeos que não carregam nada até você pedir.** Um vídeo dentro de um artigo é uma fachada sobre um poster gerado no build e servido desta origem; nenhum frame, cookie ou requisição de terceiro acontece antes do clique.
+- **Analytics que espera consentimento** — o único terceiro em runtime, e inerte até você dizer sim. *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) analytics dependente de consentimento)*
+
 ## O dev-loop é o produto
 
 A parte interessante não é a stack — é como ele é construído: **agent-led verification, human-residual** (verificação liderada pelo agente, humano no resíduo). O agente prova o "pronto" com gates mecânicos e evidência real (lint, tipos, testes ≥85%, um build verde, SonarCloud, E2E funcional, um revisor de contexto fresco); o humano fica com as decisões irreversíveis e arquiteturais. Esse loop vive num plugin reutilizável à parte — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — então é uma metodologia que você pode adotar, não algo sob medida só pra este site.
@@ -293,6 +310,50 @@ O que sobrevive à aritmética é o formato, e ele é uma afirmação de desenho
 
 > Uma tarefa custa ao orquestrador o **veredito**, não a **execução** — o que faz do tamanho do veredito o único botão que o harness tem, e ele se gira pelo jeito como as instruções de cada persona são escritas. Isso é um limite, não uma fuga: os vereditos se acumulam do mesmo jeito, e esta sessão compactou duas vezes apesar disso.
 
+### O que o workspace do Claude Code acrescenta, e onde cada parte de fato mora
+
+O plugin é a metade que você instala. O workspace em volta dele acrescenta mais, e as partes abaixo são nomeadas em forças deliberadamente diferentes, porque só uma delas está em algum repositório. Essa ordem é justamente a parte útil: é a mesma distinção que o inventário acima faz entre uma coisa que consegue te barrar e uma coisa que alguém precisa lembrar de acionar.
+
+**A publicação é rascunhada, e a parte que sustenta peso é uma recusa.** O [`gen-distribution.mjs`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/gen-distribution.mjs) rascunha o post do LinkedIn e o do X a partir do frontmatter do próprio artigo, escreve os dois num diretório fora do versionamento, e nunca sobrescreve um que eu já tenha passado na voz. **Isso não é publicação automatizada e não pode ser lido como se fosse**: ele não posta nada e não guarda credencial nenhuma, porque o ADR-0038 considerou automatizar o disparo e recusou — uma classe de escrita pública sem supervisão não vale os dois rascunhos que economiza, e toda publicação continua aprovada na mão. O que ele faz por mecanismo é declinar: resolve a URL de compartilhamento **procurando na lista de rotas pré-renderizadas** e estoura quando nada bate, em vez de emitir um link para uma página de onde nenhum scraper consegue ler tags OG. Um gerador que recusa vale mais aqui do que um que produz.
+
+*(→ [ADR-0038](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0038-content-distribution-linkedin-and-x.md) as duas superfícies, rascunhadas e nunca postadas sem supervisão)*
+
+**O controle remoto é uma preferência da minha conta, não configuração deste repositório** — e é essa distinção que faz isto estar escrito assim, e não do jeito óbvio. Há dois caminhos até uma sessão na frente da qual eu não estou sentado: um que se acopla a uma sessão rodando na minha própria máquina, e um que a roda na infraestrutura da Anthropic, sem máquina minha envolvida. **Nenhum dos dois artefatos está em nenhum dos repositórios.** Faça um fork disto e você não leva nada disso, porque não há o que levar: é configuração no escopo do usuário, então viaja comigo e não com o código — e apresentar isso como parte do harness seria vestir um hábito de operação de uma coisa que você poderia adotar.
+
+**Artifacts é mais fraco ainda, e aparece aqui só como depoimento.** É uma superfície do fornecedor, sem linha no manifesto e sem menção em lugar nenhum dos dois repositórios — um `grep -rn -i "claude artifact"` no plugin inteiro não devolve absolutamente nada. Então o que dá pra dizer com honestidade é em primeira pessoa e nada além disso: eu uso pra segurar um rascunho onde eu consiga continuar olhando pra ele enquanto a sessão anda. Isso é uma frase sobre como eu trabalho, não uma propriedade desta arquitetura, e é por isso que a contagem no fim desta página anda um pra cima do lado que não se resolve.
+
+### Quem trabalha nisto, e contra quem cada um argumenta
+
+Os agentes são a parte disto que mais parece um organograma e menos é um. **Uma persona existe onde se quer uma discordância** — não onde um organograma tem uma caixinha — e foi esse único critério que levou o time de dezenove para seis e depois para cinco. Tudo que foi cortado não gerava discussão com ninguém: era um repasse, e o repasse era exatamente o motivo de nunca rodar. Uma emenda posterior alargou o critério para quatro razões em vez de uma, porque dois movimentos já tinham sido feitos e a versão de uma linha não explicava nenhum dos dois.
+
+| quem | o que é dele | contra quem argumenta |
+|---|---|---|
+| `product-lead` | o leitor, valor, ordem, tamanho da fatia — e posicionamento, voz, e a verdade de qualquer coisa publicada | o `tech-lead`; e é a única lente que **barra** em vez de aconselhar, diante de uma afirmação publicada que não é verdade |
+| `tech-lead` | arquitetura, medição, sequenciamento — e é ele que escreve os ADRs | o `product-lead`, de propósito: produto-e-mercado e sistema são otimizações genuinamente diferentes |
+| `developer` | a fatia inteira — aplicação, infraestrutura, pipeline, e os testes escritos junto | ninguém. Ele constrói, e é pra ele que o gate está apontado |
+| `quality-assurance` | a entrega contra a Definition of Done, e à parte se a mudança pode quebrar a produção | o `developer`, nos dois eixos numa passada só — e é o único que o hook de permissão deixa fazer merge |
+| `harness-reviewer` | a maquinaria em si: hooks, permissões, instruções das personas, comandos, o plugin | **eu** — e esse é o caso interessante |
+
+**O `harness-reviewer` é o que não cabe na regra como ela foi escrita primeiro**, e foi por isso que a regra foi alargada em vez de defendida. O contraponto dele não é outra persona; sou eu com o chapéu de engenheiro de harness, que é a única cadeira deste loop que não tinha com quem discutir. Efeito de segunda ordem de uma mudança de configuração é invisível de dentro da própria mudança — é essa a razão inteira de ele existir. Ele não barra nada, e nada obriga que seja acionado, então ele falha do mesmo jeito silencioso que toda lente daqui.
+
+Os três movimentos, e o que cada corte custou, estão registrados em vez de resumidos aqui: [as emendas do ADR-0002](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md) e [o desenho independente de harness](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md), os dois no repositório do plugin. É a regra desta página aplicada de novo — apontar o detalhe canônico em vez de reescrevê-lo.
+
+**E esta tabela é escrita à mão, ao contrário dos nomes de persona no desenho lá em cima.** Aqueles são comparados com o manifesto e com a árvore viva do plugin, então aposentar uma persona deixa um build daqui vermelho. Nada compara *esta* tabela com coisa nenhuma. Se um papel mudar de mãos, o desenho fica vermelho e estas linhas caladamente não.
+
+### Onde mora a documentação do próprio loop
+
+Esta página descreve o loop à exaustão e, até agora, nunca disse onde lê-lo — o que é uma lacuna numa página cuja regra é apontar para a cópia canônica.
+
+**Nenhum gerador cobre isso, e eu não escrevi um.** A verificação entre repositórios que mantém o inventário honesto lê o `agents/`, o `hooks/` e o `commands/` do plugin; ela não lê o `docs/`. Estendê-la significaria um coletor novo, um artefato versionado novo, uma cerca nova pra renderizar aquilo e mais um artefato pro job de deriva comparar — um check de CI novo e mais um jeito de este repositório ficar vermelho dias depois por uma mudança feita no outro. Isso é uma fatia por si só, e não uma pra comprar a caminho de um release.
+
+Então o que fica aqui aponta pra árvore viva, que é o índice mais fresco disponível e não custa nada pra continuar verdadeiro:
+
+- **[a biblioteca de decisões da metodologia](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/docs/adr)** — os ADRs do próprio loop, os que decidem como o trabalho é decidido, mantidos à parte das decisões de produto deste site lá em cima.
+- **[o desenho independente de harness](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — o loop escrito sem depender de nenhum runtime de agente em particular, que é o documento pra ler se você está adotando, e não inspecionando.
+- **[a proposta original](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/proposals/agentic-dev-loop.md)** — onde tudo isso foi argumentado antes de qualquer parte existir.
+
+Uma listagem de diretório é gerada a partir da árvore por definição, então ela não descola como um índice copiado descola. O que ela não consegue é te avisar que um documento mudou de ideia — o mesmo limite que o inventário acima assume sobre si, chegando aqui pelo mesmo motivo.
+
 ## O registro de decisões É a documentação
 
 Nada de doc de arquitetura separado que descola da realidade. Toda decisão que sustenta peso — e as revertidas, mantidas como histórico — é um **Architecture Decision Record**, lido através do keystone da biblioteca: *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.
@@ -331,4 +392,6 @@ Este é um site de autor único, afinado ao posicionamento de uma pessoa — nã
 
 E os quatro desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Três deles você consegue conferir, em três forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. O quarto você não consegue conferir de jeito nenhum. Que o loop é seguido do jeito que está desenhado não é algo que esta página prove — nada aqui mostra que alguma mudança específica percorreu aquele trajeto. Aquele é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.
 
-**Nomear o orquestrador acrescentou uma afirmação que não tem desenho por trás, o que muda o que está sendo contado aqui — são cinco afirmações agora, não quatro figuras: três você confere, e duas você não.** A segunda que não dá pra conferir é o orquestrador e tudo que foi dito sobre ele, e ela deixa de se resolver em duas camadas. O ator em si não está em desenho nenhum daqui nem em inventário nenhum — não é componente do plugin, então a verificação de deriva que mantém a figura do harness honesta é estruturalmente incapaz de enxergá-lo, e nada aqui fica vermelho quando aquela descrição deixa de ser verdade. E a leitura ao lado dele — declarada como piso justamente por isso — saiu de transcrições de sessão que estão na minha máquina e não são publicadas, então o que você tem é depoimento com um método junto, não algo que dá pra rodar de novo.
+**Nomear o orquestrador acrescentou uma afirmação que não tem desenho por trás, e este release acrescentou mais cinco, então o que se conta aqui são afirmações e não figuras — dez agora: sete você confere, e três você não.** Quatro das cinco novas se resolvem: a lista de funcionalidades em rotas que você abre e nas decisões ao lado delas, o rascunhador de publicação num script com testes próprios, o time de personas no registro do próprio plugin, e o índice de documentação numa árvore viva. A segunda que não dá pra conferir é o orquestrador e tudo que foi dito sobre ele, e ela deixa de se resolver em duas camadas. O ator em si não está em desenho nenhum daqui nem em inventário nenhum — não é componente do plugin, então a verificação de deriva que mantém a figura do harness honesta é estruturalmente incapaz de enxergá-lo, e nada aqui fica vermelho quando aquela descrição deixa de ser verdade. E a leitura ao lado dele — declarada como piso justamente por isso — saiu de transcrições de sessão que estão na minha máquina e não são publicadas, então o que você tem é depoimento com um método junto, não algo que dá pra rodar de novo.
+
+**A terceira é a metade do workspace que repositório nenhum guarda.** Controle remoto é uma configuração da minha conta e artifacts é uma superfície do fornecedor sem linha no manifesto; um `grep` por ele no plugin inteiro não devolve nada, o que é a verificação e também a resposta. Os dois estão marcados como depoimento onde aparecem, e um fork deste repositório não leva nenhum dos dois — então, exatamente como a leitura acima, são coisas em que você acredita na minha palavra ou não, e nada aqui resolve isso.
