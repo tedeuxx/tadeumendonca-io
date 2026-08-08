@@ -78,7 +78,7 @@ In people, everything above cost one person. Weekends, alongside consulting work
 
 ## What it actually costs: USD 6.57 a month, and USD 6.42 of that is the name
 
-**Two rules define what this number is, and you deserve them before it.** It measures what this site **added**, not what it **depends on**: subscriptions that already existed and would bill the same if it were deleted tomorrow stay out. And it measures what the site **runs on**, not what I **build** it with — different questions, and the two subsections below return to each. Without that scope, "USD 6.57" is a loose number, and a loose number is not checkable.
+This figure measures what the site **added**, not what it **depends on**: subscriptions that already existed and would bill the same if it were deleted tomorrow stay out. And it measures what the site **runs on**, not what I **build** it with. The subsections below return to both. Without that scope, "USD 6.57" is a loose number, and a loose number is not checkable.
 
 "Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the AWS bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
 
@@ -87,9 +87,9 @@ In people, everything above cost one person. Weekends, alongside consulting work
 - **S3** — about USD 0.15/month, and it is deploy *writes*, not reads.
 - **CloudFront** — effectively USD 0.00 at this traffic.
 
-**The biggest line is the one that was a choice — and a cheaper name brings the total down.** Rather than print a price table that goes stale, or quote a comparison I have not measured, here is the command that answers it for whatever name you want, through the same registrar this one uses: `aws route53domains list-prices --tld com`. Replicate this stack under a cheaper name and the figure above stops being dominated by a preference of mine.
+**The biggest line is the one that was a choice — and a cheaper name brings the total down.** Rather than print a price table that goes stale, or quote a comparison I have not measured, here is the command that answers it for whatever name you want, through the same registrar this one uses: `aws route53domains list-prices --tld com`. Replicate this stack under a cheaper name and the monthly figure above stops being dominated by a preference of mine.
 
-`.io` is expensive as top-level domains go, and I picked it for branding, not for cost — that is the honest reason, and it is the single line here you can decline. Nothing else on this bill moves with the name: the hosted zone, the bucket and the distribution do not care what it is.
+The choice is the `.io`: expensive as top-level domains go, and I picked it for branding, not for cost — that is the honest reason, and it is the single line here you can decline. Nothing else on this bill moves with the name: the hosted zone, the bucket and the distribution do not care what it is.
 
 Note the shape, because it is not a small effect and it is a three-way split rather than a ratio: **the name is 6.42, publishing is 0.15, and answering requests is zero.** Registration and DNS cost more than everything else in this bill combined, forty times over; the 0.15 is the build pushing files to S3, not readers pulling them; and the part that actually serves a visitor rounds to nothing.
 
@@ -97,7 +97,7 @@ Treat the serving lines as a measurement with a date on it rather than a standin
 
 ### The other providers, and why one number is the wrong shape
 
-AWS is one of the providers that could invoice this — and that is the criterion, stated rather than left to a count, because a number goes stale the moment a dependency is added. **Anything that bills to keep the published site up, or would bill on a condition, belongs here.** The scope is the second rule stated above — what the site *runs on*, not what I build it *with* — and the closing section returns to it. Applied honestly it still turns up more than a list of zeros, and the interesting part is that they do not all behave the same way.
+AWS is one of the providers that could invoice this — and that is the criterion, stated rather than left to a count, because a number goes stale the moment a dependency is added. **Anything that bills to keep the published site up, or would bill on a condition, belongs here.** The scope is the second rule stated above — what the site **runs on**, not what I **build** it with — and the closing section returns to it. Applied honestly it still turns up more than a list of zeros, and the interesting part is that they do not all behave the same way.
 
 **Two bill today, and neither charge was created by this site.** **GitHub** hosts the code and runs every gate, on a paid plan — the subscription predates the site, though the CI load on it is entirely the site's own, and priced at zero for a reason two paragraphs down. **iCloud+** carries the custom-domain email at the apex — [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records, so it is not adjacent to this infrastructure, it is inside it *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) custom email via iCloud)*. Both subscriptions existed before the site and would bill exactly the same if it were deleted tomorrow, which is why the USD 6.57 does not absorb them — the first rule above, applied. "Runs on almost nothing" is true of what the site added, not of everything it depends on.
 
