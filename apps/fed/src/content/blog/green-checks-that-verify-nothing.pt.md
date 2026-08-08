@@ -7,7 +7,9 @@ track: engenharia
 excerpt: "Uma sessão de desenvolvimento agentic me deixou sete checks passando que não provavam nada. Cinco estão aqui, cada um com o arquivo que você pode abrir — e o motivo de o loop acumular esse tipo de coisa mais rápido do que remove."
 takeaway: 'por que um check que passa pode não valer nada, e o único hábito que encontra isso.'
 ---
-A Y Combinator publicou uma conversa com Boris Cherny, que construiu o Claude Code — [o vídeo está aqui](https://www.youtube.com/watch?v=qyPCVqFUyDo), e vale a hora. Não vou resumir. Quero colocar uma coisa ao lado dele, vista da outra ponta da ferramenta.
+https://www.youtube.com/watch?v=qyPCVqFUyDo
+
+A Y Combinator publicou essa conversa com Boris Cherny, que construiu o Claude Code, e vale a hora inteira. Não vou resumir. Quero colocar uma coisa ao lado dela, vista da outra ponta da ferramenta.
 
 Eu construo este site com um loop agentic, em público, nos fins de semana. Parafraseando a posição dele em vez de citar: o modelo é o produto, e a camada em volta tem que ser fina o bastante pra sair da frente do modelo. Acho que está certo, e é por isso que a coisa funciona.
 

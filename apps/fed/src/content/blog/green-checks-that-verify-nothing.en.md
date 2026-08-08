@@ -7,7 +7,9 @@ track: engenharia
 excerpt: "One session of agentic development left me seven passing checks that proved nothing. Five of them are below, each with the file you can open — and the reason the loop accumulates them faster than it removes them."
 takeaway: 'why a passing check can be worth nothing, and the one habit that finds it.'
 ---
-Y Combinator published a conversation with Boris Cherny, who built Claude Code — [the video is here](https://www.youtube.com/watch?v=qyPCVqFUyDo), and it is worth the hour. I am not going to summarise it. I want to put one thing beside it, from the other end of the tool.
+https://www.youtube.com/watch?v=qyPCVqFUyDo
+
+Y Combinator published this conversation with Boris Cherny, who built Claude Code, and it is worth the full hour. I am not going to summarise it. I want to put one thing beside it, from the other end of the tool.
 
 I build this site with an agentic loop, in the open, on weekends. Paraphrasing the maker's position rather than quoting it: the model is the product, and the layer around it should stay thin enough to get out of the model's way. I think that is right, and it is why the thing works.
 
