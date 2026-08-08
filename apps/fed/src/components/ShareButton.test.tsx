@@ -9,10 +9,16 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-// The two clipboard labels, owner-ratified verbatim (#387). Held as constants because they are asserted
-// from a dozen places and because the property under test is that the DESTINATION is named — a test that
-// re-typed 'Copiar link' would keep passing against the old, published label.
+// The MODAL's two clipboard labels, owner-ratified verbatim (#387). Held as constants because they are
+// asserted from a dozen places and because the property under test is that the DESTINATION is named — a
+// test that re-typed 'Copiar link' would keep passing against the label it replaced.
+//
+// `getByRole({ name })` here matches the WHOLE accessible name, not a substring — unlike Playwright's
+// default, which is what let the E2E in `content.spec.ts` assert the old label against the new one and
+// stay green. So the short and long spellings genuinely exclude each other in this file.
 const COPY_LINK_PT = 'Copiar link para a área de transferência';
+/** The FOOTER's label, unchanged from what shipped — `ShareLinks` has no second copy row. */
+const COPY_LINK_SHORT_PT = 'Copiar link';
 const COPY_MD_PT = 'Copiar markdown para a área de transferência';
 const COPY_MD_EN = 'Copy markdown to clipboard';
 
@@ -259,15 +265,24 @@ describe('the two share entry points', () => {
     expect(fromModal).toHaveLength(3); // WhatsApp, X, LinkedIn — a change here must be deliberate
   });
 
-  it('both offer the copy-link destination the header used to have alone', () => {
+  // THE DESTINATION IS SHARED; THE LABEL IS NOT, and that asymmetry is deliberate (#387). The modal names
+  // the clipboard because a second copy row sits beside it and "Copiar link" / "Copiar markdown" alone
+  // would read as a choice of format; the footer has no second row, so the comparative argument does not
+  // reach it and it keeps the published short label. Pinned in one test, both spellings visible together,
+  // because the failure worth catching is one of them silently adopting the other's.
+  it('both offer the copy-link destination — the modal naming the clipboard, the footer not', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
     const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
-    expect(within(screen.getByRole('dialog')).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+    const dialog = within(screen.getByRole('dialog'));
+    expect(dialog.getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+    expect(dialog.queryByRole('button', { name: COPY_LINK_SHORT_PT })).toBeNull();
     modal.unmount();
 
     renderWithLocale(<ShareLinks title="Hello" path="/pt/blog/x" />, { locale: 'pt' });
-    expect(within(screen.getByRole('navigation')).getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();
+    const footer = within(screen.getByRole('navigation'));
+    expect(footer.getByRole('button', { name: COPY_LINK_SHORT_PT })).toBeInTheDocument();
+    expect(footer.queryByRole('button', { name: COPY_LINK_PT })).toBeNull();
   });
 });
 

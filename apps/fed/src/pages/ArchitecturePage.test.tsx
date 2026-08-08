@@ -163,7 +163,16 @@ describe('ArchitecturePage', () => {
     const payload = writeText.mock.calls[0][0] as string;
 
     expect(payload).not.toContain('adr-index');
-    expect(payload).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr)');
+    // THE WHOLE GENERATED LINK, label included — not the URL alone. The body's own prose at
+    // `architecture.{pt,en}.md:300` already links `…/docs/adr/README.md`, so a bare `toContain` on that
+    // URL is satisfied by the BODY and stays green even if the fence resolves to something else entirely.
+    // Found by mutation: reverting `ADR_INDEX_URL` to the bare directory left the URL-only assertion
+    // passing. Pinning the label is what makes this an assertion about the substitution.
+    const adrLink =
+      locale === 'pt' ? 'Índice de decisões (ADRs), no repositório' : 'Decision index (ADRs), in the repository';
+    expect(payload).toContain(
+      `[${adrLink}](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)`,
+    );
     // …and the mermaid fences that SHOULD survive did. Dropping every fence would pass the assertion
     // above while silently gutting four diagrams a reader can render on GitHub.
     expect(payload).toContain('```mermaid');

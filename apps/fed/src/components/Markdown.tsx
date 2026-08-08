@@ -42,6 +42,11 @@ import { isInternalHref } from '../lib/markdownLinks';
  * THE PREDICATE ITSELF NOW LIVES IN `lib/markdownLinks` (#387) — the copy-as-markdown payload has to make
  * exactly this set of links absolute, and two places deciding one rule is how the renderer and the
  * clipboard would come to disagree about a link nobody checked.
+ *
+ * "EXACTLY THIS SET" MEANS ANCHORS, and it is worth saying which handler is missing rather than which are
+ * present: this file registers `a`, `pre` and `p` and NO `img`, so an image target is never localized
+ * here — the browser resolves it against the origin. The payload matches that by rejecting `!`-prefixed
+ * targets; if an `img` handler is ever added, `shareMarkdown.ts` is the second place that has to learn it.
  */
 function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   // Called unconditionally, before the branch — a hook behind an `if` is a hook that changes order

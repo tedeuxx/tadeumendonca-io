@@ -216,7 +216,9 @@ export function ShareModal({
               </a>
             </li>
           ))}
-          <CopyRow status={linkStatus} label={t('share.copyLink')} Icon={Link2} onClick={onCopyLink} />
+          {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
+              row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
+          <CopyRow status={linkStatus} label={t('share.copyLinkToClipboard')} Icon={Link2} onClick={onCopyLink} />
           {onCopyMarkdown && (
             <CopyRow
               status={markdownStatus}

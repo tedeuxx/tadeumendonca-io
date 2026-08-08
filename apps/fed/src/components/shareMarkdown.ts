@@ -24,8 +24,31 @@
 import { SITE_URL } from '../lib/site';
 import { isInternalHref } from '../lib/markdownLinks';
 
-/** A markdown link/image target, with its optional `"title"` — `](/x)` and `](/x "y")` alike. */
-const LINK_TARGET = /\]\(\s*([^()\s]+)((?:\s+"[^"]*")?)\s*\)/g;
+/**
+ * A markdown INLINE LINK — `[label](/x)` and `[label](/x "title")` — and deliberately NOT an image.
+ *
+ * THE LEADING `!` IS CAPTURED IN ORDER TO BE REJECTED, and that is the only reason this matches the label
+ * rather than just the `](…)` tail. `Markdown.tsx` registers handlers for `a`, `pre` and `p` and NOT for
+ * `img` — one grep, there is no `img` key in its `components` — so the renderer applies `isInternalHref`
+ * to anchors alone. An image target rewritten here would diverge from the renderer in the worst available
+ * direction: `![Card](/og-default.png)` renders correctly on the page, because the browser resolves it
+ * against the origin, while the copy would carry `…/pt/og-default.png` — a locale-prefixed asset path
+ * that exists nowhere. That is precisely the "true on the page, false in a document" class this slice
+ * exists to close, manufactured by the fix rather than left by it.
+ *
+ * With images excluded the two sets are IDENTICAL — anchors, one predicate — which is what
+ * `lib/markdownLinks.ts` claims and what makes extracting the rule worth anything.
+ *
+ * THE RESIDUAL, stated because it is real and strictly smaller: an image authored root-relative still
+ * copies as authored, and is as broken off-site as it was before. It is inert today — `grep -rn '](/'
+ * src/content/` returns the two `/library` lines and nothing else — and no origin rule is invented here
+ * for an asset class no body uses. Between "wrong in a new way" and "unchanged", for a case that does not
+ * exist, unchanged wins.
+ *
+ * A label containing nested brackets is not matched and is left as authored: no body writes one, and the
+ * failure direction is inert rather than incorrect.
+ */
+const LINK_TARGET = /(!?)\[([^\]]*)\]\(\s*([^()\s]+)((?:\s+"[^"]*")?)\s*\)/g;
 
 /**
  * A fenced block whose info string opens with `adr-index`.
@@ -54,10 +77,12 @@ export interface MarkdownPayloadInput {
   adrIndexUrl: string;
 }
 
-/** Root-relative link targets → absolute URLs in the reader's own edition. External targets untouched. */
+/** Root-relative link targets → absolute URLs in the reader's own edition. Everything else untouched. */
 const absolutizeLinks = (body: string, localizePath: (path: string) => string): string =>
-  body.replace(LINK_TARGET, (whole, target: string, title: string) =>
-    isInternalHref(target) ? `](${SITE_URL}${localizePath(target)}${title})` : whole,
+  body.replace(LINK_TARGET, (whole, bang: string, label: string, target: string, title: string) =>
+    bang === '' && isInternalHref(target)
+      ? `[${label}](${SITE_URL}${localizePath(target)}${title})`
+      : whole,
   );
 
 /** The empty ADR-index marker → a link to the library it would have expanded into. */

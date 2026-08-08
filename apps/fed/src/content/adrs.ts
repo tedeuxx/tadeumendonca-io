@@ -27,17 +27,24 @@ const ADR_BASE = 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr
 export const adrHref = (record: AdrRecord): string => `${ADR_BASE}/${record.file}`;
 
 /**
- * The library itself, as one URL (#387).
+ * The library's CURATED INDEX, as one URL (#387).
  *
  * The copy-as-markdown payload cannot carry the rendered table — the ` ```adr-index ` fence is EMPTY in
  * source, so a verbatim copy hands the reader three backticks and nothing — and it deliberately does not
  * reproduce 45 rows either. It links the index instead, which is the page's own stated principle applied
  * to itself.
  *
+ * `README.md`, NOT the bare directory, and the reason is coherence rather than correctness — both
+ * resolve. The body of `architecture.{pt,en}.md:300` ALREADY links the library, as `…/docs/adr/README.md`,
+ * so a generated link one level out would put two destinations for one object inside a single copied
+ * document — and the generated one would be a filename listing where the prose says "the decision
+ * library". The README is also the closer stand-in for the `<AdrTable/>` it replaces: an index, not a
+ * directory.
+ *
  * Derived from `ADR_BASE` rather than typed again: the directory a row points INTO and the directory the
- * index IS are the same directory, and a second literal is a second thing to update on a repo move.
+ * index LIVES IN are the same, and a second literal is a second thing to update on a repo move.
  */
-export const ADR_INDEX_URL = ADR_BASE;
+export const ADR_INDEX_URL = `${ADR_BASE}/README.md`;
 
 /**
  * Every record, id-ascending.

@@ -41,7 +41,18 @@ test.describe('content detail', () => {
     for (const name of [/Compartilhar no WhatsApp/, /Compartilhar no X/, /Compartilhar no LinkedIn/]) {
       await expect(dialog.getByRole('link', { name })).toBeVisible();
     }
-    await expect(dialog.getByRole('button', { name: 'Copiar link' })).toBeVisible();
+    // `exact: true` IS LOAD-BEARING (#387). Playwright matches an accessible name by CASE-INSENSITIVE
+    // SUBSTRING by default, so the previous `{ name: 'Copiar link' }` was satisfied by the shipped label,
+    // by the longer one that replaced it in the modal, AND by a revert to either — an assertion about
+    // published copy that could not go red when the copy changed. `messages.test.ts` asserts
+    // non-emptiness, not the literal, so nothing else covered it.
+    await expect(
+      dialog.getByRole('button', { name: 'Copiar link para a área de transferência', exact: true }),
+    ).toBeVisible();
+    // The fifth row, pinned exactly here too, so this test sees the modal's whole copy surface.
+    await expect(
+      dialog.getByRole('button', { name: 'Copiar markdown para a área de transferência', exact: true }),
+    ).toBeVisible();
 
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();

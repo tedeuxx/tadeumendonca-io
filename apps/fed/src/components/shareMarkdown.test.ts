@@ -53,8 +53,25 @@ describe('the copied markdown payload', () => {
     expect(build('[A](/library "A estante")')).toContain(`[A](${SITE_URL}/pt/library "A estante")`);
   });
 
-  it('rewrites image targets too — the syntax is the same and so is the breakage', () => {
-    expect(build('![Card](/og-default.png)')).toContain(`![Card](${SITE_URL}/pt/og-default.png)`);
+  // THE RENDERER HAS NO `img` HANDLER, so it never localizes an image — the browser resolves
+  // `/og-default.png` against the origin and the page is correct. Rewriting it HERE would hand the reader
+  // `…/pt/og-default.png`, a locale-prefixed asset path that exists nowhere: the exact "true on the page,
+  // false in a document" defect this slice closes, manufactured by the fix rather than left by it. An
+  // earlier revision of this test asserted that rewrite as intended behaviour.
+  //
+  // Inert today — no body authors a root-relative image — and pinned so it stays inert.
+  it('leaves image targets alone — the renderer does not localize them either', () => {
+    const out = build('![Card](/og-default.png)');
+    expect(out).toContain('![Card](/og-default.png)');
+    expect(out).not.toContain(`${SITE_URL}/pt/og-default.png`);
+  });
+
+  // The two forms side by side, which is what makes `!` the operative character rather than a coincidence
+  // of the fixture: identical target, one linked and one embedded, opposite outcomes.
+  it('rewrites a link and skips an image pointing at the same path', () => {
+    const out = build('[Shelf](/library) and ![Shelf](/library)');
+    expect(out).toContain(`[Shelf](${SITE_URL}/pt/library)`);
+    expect(out).toContain('![Shelf](/library)');
   });
 
   it('leaves external, protocol-relative, mailto and anchor targets exactly as authored', () => {

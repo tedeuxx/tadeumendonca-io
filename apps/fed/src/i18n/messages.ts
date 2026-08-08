@@ -502,16 +502,23 @@ const strings = {
     // nouns in English on the CV and the strip applies. NOT `url`: it is the more technical of the two,
     // and this site's register is deliberately not discouraging to a lay reader.
     //
-    // THE DESTINATION IS NOW NAMED (#387), and that is what changed — "Copiar link" said what was copied
-    // and never where it went. `área de transferência` / `clipboard` is what makes it obvious; the label
-    // grew because a fifth option arrived beside it and "Copiar link" / "Copiar markdown" side by side
-    // reads as a choice of FORMAT with no statement of destination. Both are stated, in parallel, so
-    // neither has to be inferred from the other. Owner-ratified verbatim.
+    // STILL THE FOOTER'S LABEL, UNCHANGED, and that is a decision rather than an oversight (#387).
+    copyLink: { pt: 'Copiar link', en: 'Copy link' },
+    // THE MODAL'S PAIR, where the destination is named — owner-ratified verbatim.
     //
-    // This is PUBLISHED COPY changing, not a new string: `copyLink` renders in the modal AND in the
-    // article footer's `ShareLinks`, so both entry points get the longer label. That is deliberate — one
-    // key, one meaning, and the argument for naming the destination is not weaker in the footer.
-    copyLink: {
+    // A SEPARATE KEY, not a rewrite of `copyLink`, because the reason the label grew is COMPARATIVE: two
+    // adjacent rows reading "Copiar link" / "Copiar markdown" offer a choice of FORMAT and state no
+    // destination, so `área de transferência` / `clipboard` is what makes the destination obvious. In the
+    // footer there is no second row beside it — the copy-as-markdown option is modal-only — so the
+    // justification does not reach there, and the first revision of this slice propagated the label
+    // anyway: 40 characters in a `text-xs` uppercase row beside LINKEDIN / X / WHATSAPP, ~310px of a
+    // ~335px phone row, wrapping onto its own line. The label would have grown 3.5× exactly where its
+    // argument does not apply, in the one placement whose job is distribution.
+    //
+    // The cost of two keys is that a future rewording has to touch both. That is the right cost: they say
+    // the same thing for different reasons, and the day the footer gains a second copy row it should
+    // adopt this key rather than have its own quietly drift.
+    copyLinkToClipboard: {
       pt: 'Copiar link para a área de transferência',
       en: 'Copy link to clipboard',
     },

@@ -55,8 +55,18 @@ test.describe('copying the page as markdown', () => {
 
     // The three payload defects, checked against the served build rather than against a fixture.
     expect(text).not.toContain('adr-index');
-    expect(text).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr)');
-    expect(text).not.toMatch(/\]\(\/(?!\/)/);
+    // THE WHOLE GENERATED LINK, label included. The body's own prose already links `…/docs/adr/README.md`,
+    // so asserting the URL alone is satisfied by the body and cannot see the fence resolving wrongly —
+    // that exact false-green was found by mutation. The URL is the CURATED index rather than the bare
+    // directory, so one copied document does not carry two destinations for one object.
+    expect(text).toContain(
+      '[Índice de decisões (ADRs), no repositório](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)',
+    );
+    // No root-relative LINK target survives. Scoped to links rather than to every `](/…)`, because an
+    // image is deliberately left as authored (the renderer does not localize one either) — a blanket
+    // assertion here would go red the day someone writes `![x](/og-default.png)`, for behaviour this
+    // slice chose on purpose.
+    expect(text).not.toMatch(/(^|[^!])\[[^\]]*\]\(\/(?!\/)/m);
     // …and what must SURVIVE. A transform that dropped every fence would satisfy the line above while
     // silently gutting the diagrams a reader can render straight on GitHub.
     expect(text).toContain('```mermaid');
