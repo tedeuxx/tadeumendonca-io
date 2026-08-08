@@ -529,9 +529,18 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
   const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
-  // The one article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path.
-  const ARTICLE = { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` };
-  const LOGICAL_COUNT = SHARED.length + 1; // + the article
+  // Each article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path — which is
+  // why articles are listed as pairs here rather than folded into SHARED. The list is authored, not
+  // derived: deriving it from the content directory would make this assertion agree with whatever the
+  // sitemap generator produced, and the drift it exists to catch is exactly the two disagreeing.
+  const ARTICLES = [
+    { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
+    {
+      pt: `${SITE}/pt/blog/checks-verdes-que-nao-verificam-nada`,
+      en: `${SITE}/en/blog/green-checks-that-verify-nothing`,
+    },
+  ];
+  const LOGICAL_COUNT = SHARED.length + ARTICLES.length;
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text();
@@ -543,9 +552,11 @@ test.describe('sitemap advertises every per-locale URL', () => {
       expect(body).toContain(`<loc>${pt}</loc>`);
       expect(body).toContain(`<loc>${en}</loc>`);
     }
-    // The article's per-locale <loc>s.
-    expect(body).toContain(`<loc>${ARTICLE.pt}</loc>`);
-    expect(body).toContain(`<loc>${ARTICLE.en}</loc>`);
+    // Each article's per-locale <loc>s.
+    for (const article of ARTICLES) {
+      expect(body).toContain(`<loc>${article.pt}</loc>`);
+      expect(body).toContain(`<loc>${article.en}</loc>`);
+    }
     // The old shared-slug EN URL is NEVER advertised (it is a not-found now).
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // The x-default homepage entry.
