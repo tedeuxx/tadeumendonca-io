@@ -187,7 +187,10 @@ Two consequences worth stating outright, because they are what the other model g
 - **Single environment** (the `tadeumendonca-io` TFC workspace); the public
   site serves at the **apex** `tadeumendonca.io`.
 - **Single version** (numeric SemVer, root `VERSION`): the deploy's **`release`** job auto-bumps the patch
-  on every push to `main`, tags `vX.Y.Z`, publishes a Release. The `bump:` commit is loop-guarded. It is
+  on every push to `main`, tags `vX.Y.Z`, publishes a Release. A **deliberate** minor or major is the same
+  job on a `workflow_dispatch` from `main`, via its **`part`** input (`none` | `patch` | `minor` | `major`,
+  default `none`) — [ADR-0044](./docs/adr/0044-version-parts-deliberate-major-minor.md) decides what each
+  digit means. The `bump:` commit is loop-guarded. It is
   the deploy's *first* job rather than a workflow of its own because `VERSION` is a **build input** — the
   bundle's footer renders it, so the bump has to precede the build that ships.
 

@@ -635,6 +635,82 @@ Nor does this decide anything about the hook itself: whether a recursive delete 
 at all is the plugin's decision, recorded in the plugin's own library, not here. This record governs only
 what this site is allowed to assert about the inventory it publishes.
 
+## Amendment, 2026-08-08 — the "related record" pointed at an ADR that was never written, and the number it used now resolves to a different decision
+
+**Decides one thing:** the *Related record* line in `## Links` is **struck, not repaired**, because the
+record it cites does not exist and never did — and the decision it described is, as of this date, still
+unrecorded in either library.
+
+**Class: safe.** It corrects a pointer in this record and decides nothing about permissions, the manifest,
+the generator or the page. It changes no field the decision index publishes — see *What this does not
+change* below.
+
+### What the pointer said, and what is actually there
+
+The struck line cited `./0044-committed-permission-floor-local-overlay-ephemeral.md` as *"the other
+decision taken on 2026-08-03 about the harness… that one decides how permissions are governed."*
+
+Measured on 2026-08-08:
+
+| checked | command / path | result |
+|---|---|---|
+| the file was ever added, on any branch | `git log --all --diff-filter=A -- "docs/adr/0044-*"` | only the three commits of PR #393, which add a **different** record — `0044-version-parts-deliberate-major-minor.md` |
+| when the pointer was written | `git log -S "0044-committed-permission-floor-local-overlay-ephemeral" --all --reverse` — **`--reverse`, and take the FIRST hit** | `4e32d6f`, 2026-08-03 — the commit that created *this* record. The pointer was forward-looking from the moment it was written and was never valid, not for a minute. **The `--reverse` is not decoration:** this amendment quotes the dead filename, so the commit carrying *this table* is itself a later hit. Written without it, the row would have been falsified by the act of writing it — the exact defect class the MR this rides in exists to remove |
+| a matching record in this library | `docs/adr/` 0001–0043 | none decides the committed-floor/local-overlay question |
+| a matching record in the methodology library | `tadeumendonca-skills/docs/adr/` 0001–0008 | none. The two nearest are **ADR-0004** *Autonomy and permission model* (2026-07-22, amended 2026-08-03) and **ADR-0008** *Which layer carries a control* (2026-08-04). Both are about permissions; **neither decides which settings belong in the committed floor and which may live only in an untracked local overlay** |
+| whether the gap is otherwise recorded | Issue [#384](https://github.com/tedeuxx/tadeumendonca-io/issues/384), 2026-08-08 | states it independently: *"No ADR says which class a setting belongs to."* |
+
+**So the honest reading is: the author intended a companion record, and it was not written.** The subject
+it names is real — `452ce95` (2026-08-04) reports the effective floor of this repo having diverged from
+its published one, with an untracked `.claude/settings.local.json` of 82 entries and no `deny` block
+governing every session — but that was a commit, not a decision record, and **it happened a day after
+this pointer was written.** Whether the author on 2026-08-03 had that specific decision in view, or
+something adjacent, cannot be determined from any artifact this amendment could find. **This record does
+not guess.** The true sentence is the one it now carries: *this pointed at a record that was never
+written; the decision it describes may or may not have been taken, and as of 2026-08-08 it is not written
+down anywhere.*
+
+### Why the two other repairs lose
+
+- **Repoint at the methodology library** (ADR-0004 or ADR-0008 in `tadeumendonca-skills`). Rejected. It
+  reads as the cheapest fix and is the most dangerous one: it would assert that *this* is what the author
+  meant, on the basis that both records are about permissions. Neither one decides the
+  committed-vs-local-overlay question — checked above, and confirmed by #384 finding that axis unwritten
+  five days later. **Cost of taking it:** a reader following the link lands somewhere real, finds a
+  plausible permissions decision, and never learns that the companion they were promised does not exist.
+  A wrong link that resolves is worse than one that 404s, which is the same failure mode this amendment
+  exists to prevent.
+- **Delete the line silently.** Rejected. Everyone who read this record between 2026-08-03 and today was
+  told a companion decision exists. Deleting the sentence removes the evidence that they were told, and
+  removes the only trace that a permissions record was believed to be coming — which is live information,
+  since it is still owed. **Cost of taking it:** the gap stops being visible from the one record that
+  points at it, and `supersede-never-delete` is applied to files but not to claims.
+
+The struck-and-amended form keeps both: the original sentence stays legible for anyone who followed it,
+and the correction is dated next to it.
+
+### The number, and why it must not be re-used here
+
+**ADR-0044 in this library is `0044-version-parts-deliberate-major-minor.md`** — the record about which
+SemVer part a change takes. It is a different decision and it keeps the number; nothing is renumbered by
+this amendment. That is precisely why the struck line could not be left standing, and the distinction is
+worth stating exactly. **The `href` 404s either way** — it names
+`0044-committed-permission-floor-local-overlay-ephemeral.md`, a filename that exists at no head. What
+changes on that record's merge is the **label**: *"ADR-0044"* stops naming nothing and starts naming the
+version-parts decision, so a reader who resolves the number — via `docs/adr/README.md`, via
+`/architecture`, or by listing the directory — lands on a real record about version digits that this line
+introduces as *"how permissions are governed"*. **A 404 tells the reader something is wrong; a resolving
+number tells them nothing at all**, which is the failure this strike prevents.
+
+### What this does not change
+
+`apps/fed/scripts/adr-source.mjs` publishes five fields per record — `id`, `title`, `file`, `status`,
+`amended` (`adr-source.mjs:96`). This amendment changes the body only: the title is untouched, the status stays `accepted`, and
+`amended` was **already `true`** for this record, set by the three earlier `## Amendment` headings
+(2026-08-04 ×2, 2026-08-06) and present as `"amended": true` in the committed
+`apps/fed/src/content/generated/adrs.json`. **No row on `/architecture` moves, and the drift check has
+nothing new to compare.**
+
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
   dev-loop **components** diagram, complementing the **flow** diagram shipped by
@@ -652,8 +728,9 @@ what this site is allowed to assert about the inventory it publishes.
 - **Applies [ADR-0015](./0015-oidc-immutable-subject-least-privilege.md)** to a CI path filter: this
   mechanism stays out of `deploy`'s gate because that gate's outputs decide whether a credentialed job
   runs. See `.github/workflows/README.md`.
-- **Related record:** [ADR-0044](./0044-committed-permission-floor-local-overlay-ephemeral.md) — the other
+- ~~**Related record:** [ADR-0044](./0044-committed-permission-floor-local-overlay-ephemeral.md) — the other
   decision taken on 2026-08-03 about the harness. Deliberately a separate record: this one decides how a
-  page is built, that one decides how permissions are governed.
+  page is built, that one decides how permissions are governed.~~ **Struck 2026-08-08: that record was
+  never written, and the number now belongs to a different decision. See the amendment above.**
 - Source read to produce the counts above: `tadeumendonca-skills` at `agents/`, `hooks/hooks.json`,
   `hooks/scripts/inventory-counts.test.sh`, `.github/workflows/docs-test.yml`, `commands/`, `README.md`.
