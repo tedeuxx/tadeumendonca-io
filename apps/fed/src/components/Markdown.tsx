@@ -164,12 +164,19 @@ const components: Components = {
    * tables on one page resolving the same problem differently is how the next person picks the wrong one.
    *
    * `tabIndex={0}` because a scrollable region that only a mouse can pan is unreachable by keyboard.
+   *
+   * `data-markdown-table` is a TEST HOOK and is load-bearing for one reason: `AdrTable` renders a wrapper
+   * with these same classes, but it is `w-full` and is MEANT to fit rather than scroll. A selector that
+   * cannot tell the two apart asserts the wrong invariant on one of them — which it did, on first run.
+   *
+   * The `min-width` that makes the container engage lives in the stylesheet with the other `.markdown`
+   * rules — see `.markdown table` in `styles/index.css` for why it exists.
    */
   table({ children, ...rest }) {
     const { node, ...props } = rest;
     void node;
     return (
-      <div className="my-8 overflow-x-auto border border-border" tabIndex={0}>
+      <div className="my-8 overflow-x-auto border border-border" tabIndex={0} data-markdown-table="">
         <table className="w-full border-collapse text-left text-sm" {...props}>
           {children}
         </table>

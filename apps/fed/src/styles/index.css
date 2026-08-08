@@ -521,8 +521,38 @@ body {
   border-radius: 0;
 }
 /* GFM tables. The scroll container is on the wrapping div — see the `table` handler in
-   Markdown.tsx — so these rules are only the cell rhythm, matched to `AdrTable` so the two tables that
-   share /architecture look like one decision rather than two. */
+   Markdown.tsx — so these rules are the cell rhythm, matched to `AdrTable` so the two tables that
+   share /architecture look like one decision rather than two, plus the two rules below that stop the
+   table shrinking. */
+
+/* THE TABLE MUST NOT SHRINK TO FIT. This is the half that a 320px-only check misses. At 320 the table
+   was already wider than the viewport, so the container scrolled and everything looked correct. At
+   390px — most phones — it FIT, and it bought that fit by compressing columns until words broke.
+   `min-width` means it stops compressing and scrolls instead, which is what the container is for.
+   40rem = 640px, measured against the 920px the body actually gets inside `max-w-5xl` at 1280 and the
+   701px it gets at 768 — so on both desktop widths the table sizes past the floor and does not scroll.
+   Asserted from BOTH sides in e2e/markdown-table-narrow.spec.ts: it must scroll at 320/390 and must not
+   at 1280, so "make the table enormous everywhere" is not a passing answer. */
+.markdown table {
+  min-width: 40rem;
+}
+
+/* AND THE IDENTIFIERS MUST STAY WHOLE. `.markdown code` carries `overflow-wrap: anywhere`, written for
+   a long token in a PROSE paragraph where breaking mid-token is the lesser evil against pushing the
+   page sideways. That reasoning does not survive a table cell: in a ~58px column it rendered
+   `product-lead` as `pro / duct / - / lea / d` and `quality-assurance` in six pieces. A cell has the
+   escape a paragraph does not — the table scrolls — so here the token wins and the column widens.
+
+   `nowrap` AND NOT JUST `overflow-wrap: normal`, which was the first attempt and got six fragments down
+   to two but not to one: a HYPHEN is a legitimate break opportunity that `word-break: normal` still
+   allows, so `product-lead` kept splitting as `product-` / `lead`. Every name in these tables is
+   hyphenated, so the hyphen was the whole remaining defect. `AdrTable` reaches for the same
+   `whitespace-nowrap` on its id column, for the same reason. */
+.markdown th code,
+.markdown td code {
+  white-space: nowrap;
+}
+
 .markdown th,
 .markdown td {
   padding: 0.75rem;
