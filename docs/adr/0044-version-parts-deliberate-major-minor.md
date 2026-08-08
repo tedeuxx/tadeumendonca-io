@@ -1,4 +1,4 @@
-# 0044. What the three version digits mean, now that a route to all of them exists
+# 0044. Version digits carry content meaning — major and minor are a deliberate dispatch, patch stays automatic
 
 - **Status:** accepted
 - **Date:** 2026-08-08
@@ -16,8 +16,11 @@
 
 ## Context & problem
 
-**The repo has never left `0.1`.** `git tag --list` returns 202 tags, `v0.1.4` through `v0.1.205`, and
-**every one of them is `0.1.N`** — the major has never moved and neither has the minor. That is not a
+**The repo has never left `0.1`.** `git tag --list | grep -cv '^v0\.1\.'` returns **0** — **every tag in
+the repository is `0.1.N`**, and the major has never moved and neither has the minor. *The universal
+rather than the count, deliberately:* the number of tags rises on every merge and is false minutes after
+it is written, while the universal holds until the first deliberate non-patch — which is the event this
+record exists to enable. This claim is falsified by its own decision taking effect. That is not a
 choice anyone made; it is the only outcome the pipeline could produce, because `deploy.yml` bumped the
 literal string `patch` in one place with no input anywhere.
 
@@ -34,7 +37,10 @@ There is a second forcing condition, and it is what makes the *meaning* hard rat
 undecided. **Intake and delivery run at the same rate here, by design.** Measured on 2026-08-08 over
 `label:product` in the seven days from 2026-08-01: **22 issues created** in the window and **21 closed**
 in the window (two different populations, both counted directly —
-`gh issue list --label product --search "created:>=2026-08-01"` and the same with `closed:>=`). The loop
+`gh issue list --label product --search "created:>=2026-08-01"` and the same with `closed:>=`). **Both had
+moved to 23 and 22 by the end of the same day, which is not an erratum but the measurement restating
+itself:** re-run the two commands and the pair will differ again, and the gap between them will not.
+The loop
 is a machine for grinding work down, and grinding generates findings; the backlog does not drain and is
 not meant to. **So any definition of MAJOR shaped as "when enough is done" or "when the backlog is at
 N %" can never fire.** A percentage against a moving denominator is theatre.
@@ -82,8 +88,11 @@ N %" can never fire.** A percentage against a moving denominator is theatre.
 
 2. **The publication-counter model with a required `semver:` label, and reader-invisible work bumping
    nothing** (the parked draft on `docs/adr-version-digits-publication-counter`). *Why not, and it is two
-   independent reasons:* it costs **a judgement on every PR** to buy a correct digit on roughly one PR in
-   twenty — the measured shape of this repo's traffic — and the class it most needs to separate,
+   independent reasons:* it costs **a judgement on every PR** to buy a correct digit on **fewer than one PR
+   in thirty** — north of 200 merged PRs (`gh pr list --state merged`) against four publications to date, so
+   the true figure is nearer one in sixty; thirty is the floor, taken from the most generous count available
+   (`git log --diff-filter=A -- "apps/fed/src/content/**/*.md"` returns 8 files, 6 of them in the repo's
+   initial import) — and the class it most needs to separate,
    *application bugfix* from *refactor*, **is not derivable at all**: the same files, the same paths, only
    intent between them. A required label on every PR to catch a case a machine cannot check is ceremony
    with a false-mechanism claim attached. *What it buys and this loses, and it is real:* under that model
@@ -199,9 +208,12 @@ cases, so the test is not abstract:
 Three facts about the state this first major is cut in. They are checked, and the record is more useful
 with them than without:
 
-- **The section is already published.** `apps/fed/src/content/architecture.{en,pt}.md` is live on `main` —
-  15 commits against it, most recently `115e505` on 2026-08-07, verified present on `origin/main`. So the
-  cut is gated on the owner declaring the page done, not on a merge.
+- **The section is already published.** `apps/fed/src/content/architecture.{en,pt}.md` is live on `main`:
+  `git merge-base --is-ancestor 115e505 origin/main` exits 0, so the commit that last edited the page at
+  the time of writing is contained in `main`. So the cut is gated on the owner declaring the page done,
+  not on a merge. **Containment rather than a count, deliberately** — an earlier draft asserted a number
+  of commits against the file, which proves churn rather than publication and is false again on the next
+  merge. Containment is monotone: once true, it stays true.
 - **No cohort is declared, and none is owed** — the section above.
 - **What gates the cut is prose.** The outstanding work is #380, an addition to the architecture section
   itself.
@@ -219,11 +231,12 @@ one is a revision of it.
 
 **Good**
 
-- `1.0.0` becomes reachable, which it demonstrably was not: 202 tags, all `0.1.N`.
+- `1.0.0` becomes reachable, which it demonstrably was not: every tag in the repository is `0.1.N`
+  (`git tag --list | grep -cv '^v0\.1\.'` → 0).
 - MAJOR and MINOR gain a meaning before the first one is cut, rather than after — the ordering that was
   wrong in this repo's other version decisions.
-- The cost is where the rarity is: a judgement a few times a year, on a dispatch, and none on the ~19 of
-  20 merges that are reader-invisible.
+- The cost is where the rarity is: a judgement a few times a year, on a dispatch, and none on the **29 in
+  30 or more** merges that are reader-invisible — see option 2 for the derivation.
 - **The release-plan discipline gets a start line rather than an intention.** `1.0.0` is the date it
   begins, which is checkable — every major after it either has a plan or visibly does not.
 - The record and `deploy.yml` now say the same thing about `1.0.0`. They did not: the workflow comment at
@@ -253,8 +266,9 @@ one is a revision of it.
   comes *after* it.
 - **The major absorbs the minor on that cut.** The publication carrying `1.0.0` does not also get a minor;
   bumping the major resets the lower components. That is `bump-my-version`'s default behaviour for the
-  `parse`/`serialize` pair in `.bumpversion.toml` and **it has never been exercised in this repo** — 202
-  tags, every one a patch bump — so the first major dispatch is also the first execution of that path.
+  `parse`/`serialize` pair in `.bumpversion.toml` and **it has never been exercised in this repo** — every
+  tag is a patch bump, without exception — so the first major dispatch is also the first execution of that
+  path.
 
 ## What is not decided here
 

@@ -47,15 +47,27 @@ name: deploy
 # was NO ROUTE TO PRODUCE IT: the bump was the literal string `patch`, in one place, with no input.
 #
 # The automatic patch on every merge STAYS the default, and that is a sustainability decision rather than
-# an aesthetic one. The load-bearing fact is a SHAPE, not a count: every tag cut BEFORE the `part` input
-# existed is a `v0.1.N` — an unbroken run from v0.1.4, well past two hundred of them, against one real
-# publication. `git tag --list | wc -l` is the derivation; the count itself is deliberately not written
-# here, because it rises on every merge and any literal is false within hours of being typed. (An earlier
-# revision stated it twice in two contradictory values, and the "corrected" one was stale before the
-# correction was posted.) Roughly 20:1 per merge: a human
-# choosing a part on every merge answers "nothing" nineteen times out of twenty, which is the shape of a
-# criterion that dies by `n/a`. So the rare event gets the deliberate path, at the moment the owner is
-# already deciding to publish; the common event keeps costing nobody a decision.
+# an aesthetic one. The load-bearing fact is a UNIVERSAL, not a count:
+#
+#     git tag --list | grep -cv '^v0\.1\.'   →  0
+#
+# Every tag in the repository is a `0.1.N` patch, without exception. That claim is stable until the first
+# deliberate non-patch — i.e. it is falsified by the `part` input below actually being used, which is the
+# point. The NUMBER of tags is deliberately not written here: it rises on every merge and any literal is
+# false within hours of being typed. (An earlier revision of this comment stated it twice, in two
+# contradictory values, and the "corrected" one was already stale when the correction was posted.)
+#
+# The rarity is derived the same way, and stated as a FLOOR because both terms move:
+#
+#     gh pr list --state merged --limit 500 --json number --jq length     # merged PRs, north of 200
+#     git log --diff-filter=A -- "apps/fed/src/content/**/*.md"           # publications, four to date
+#
+# Fewer than one merge in thirty is reader-facing, and the honest reading is nearer one in sixty; thirty is
+# the floor taken from the most generous count available. (An earlier revision said "roughly 20:1 … the
+# measured shape of this repo's traffic". Nothing was measured, and it contradicted the sentence beside it.)
+# So a human choosing a part on every merge answers "nothing" at least twenty-nine times in thirty, which is
+# the shape of a criterion that dies by `n/a`. The rare event gets the deliberate path, at the moment the
+# owner is already deciding to publish; the common event keeps costing nobody a decision.
 #
 # ⚠️ AND IT IS *THIS* WORKFLOW BECAUSE THE BUMP COMMIT IS THE TREE THAT GETS DEPLOYED. `tadeumendonca-skills`
 # cuts its deliberate release from a separate `release.yml`, and copying that shape here would be a silent

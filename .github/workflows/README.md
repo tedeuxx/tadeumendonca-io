@@ -298,11 +298,14 @@ Playwright-tested therefore **cannot** be promoted — it carries the previous v
 tests an artifact that differs from production by one string.
 
 **A minor or a major is cut from `deploy`, never from a second workflow.** The automatic
-`patch` on every merge stays the default — **every tag cut before this input existed is a `v0.1.N`
-patch** (`git tag --list`, an unbroken run from `v0.1.4`), well past two hundred of them against one
-publication, roughly 20:1. No exact count is written down here on purpose: it rises on every merge, so
-a literal is stale within hours, and `git tag --list | wc -l` is what stays true. At that ratio a human
-choosing a part on every merge answers "nothing" nineteen times out of twenty. The rare event gets the deliberate path instead: `workflow_dispatch` carries a `part` input
+`patch` on every merge stays the default — **every tag in the repository is a `0.1.N` patch**
+(`git tag --list | grep -cv '^v0\.1\.'` → 0), a universal that holds until the first deliberate
+non-patch and is therefore falsified by this very input being used. No count is written down here on
+purpose: it rises on every merge, so a literal is stale within hours. **Reader-facing merges are rarer
+than the tag count suggests** — north of 200 merged PRs (`gh pr list --state merged`) against four
+publications to date, so fewer than one merge in thirty is a publication and the honest reading is
+nearer one in sixty. A human choosing a part on every merge would therefore answer "nothing" at least
+twenty-nine times in thirty. The rare event gets the deliberate path instead: `workflow_dispatch` carries a `part` input
 (`none` | `patch` | `minor` | `major`), defaulting to **`none`** so that a manual deploy keeps being
 purely the republish/rollback path.
 

@@ -302,7 +302,7 @@
   },
   {
     "id": "0044",
-    "title": "What the three version digits mean, now that a route to all of them exists",
+    "title": "Version digits carry content meaning — major and minor are a deliberate dispatch, patch stays automatic",
     "file": "0044-version-parts-deliberate-major-minor.md",
     "status": "accepted",
     "amended": false
