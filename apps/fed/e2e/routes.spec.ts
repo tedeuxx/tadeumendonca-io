@@ -226,6 +226,31 @@ test.describe('routes', () => {
     // browser's HSL→RGB rounding lands one unit under #FF5A00. Pinned as the browser computes it rather
     // than as the hex is written, or the test is right about the design system and red about the product.
     expect(await mark.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 89, 0)');
+
+    // #366. THE SLICE'S ENTIRE DELIVERABLE IS A COMPUTED STYLE, and before this assertion nothing in the
+    // repo took weight as its object — `architecture-links.test.ts`, `ArchitecturePage.test.tsx` and the
+    // journeys above all assert on `href`. Deleting the three `em:has(a)` rules from index.css left
+    // 631/631 green while the defect they fix returned silently. That is the gap this closes.
+    //
+    // `fontStyle` and NOT colour, deliberately: a colour pin has to be written as the browser computes it
+    // (see the rounding note above, and `--muted-foreground` has the same trap), and it would go red on a
+    // palette change that is not this rule's business. `font-style: normal` is the rule OVERRIDING the
+    // browser's italic default for `<em>` — so if the rule is deleted the element reverts to italic and
+    // this goes red, which is exactly the mutation that must not pass.
+    //
+    // The size check is the other half of "quieter than the argument": the pointer must be SMALLER than
+    // the prose it annotates. Asserted as a relation rather than a value so it survives a type-scale change.
+    const pointer = page.locator('.markdown em:has(a)').first();
+    await expect(pointer).toBeVisible();
+    const [pointerStyle, bodySize] = await Promise.all([
+      pointer.evaluate((el) => ({
+        fontStyle: getComputedStyle(el).fontStyle,
+        fontSize: parseFloat(getComputedStyle(el).fontSize),
+      })),
+      page.locator('.markdown p').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+    ]);
+    expect(pointerStyle.fontStyle, 'the ADR pointer is demoted, not italic prose').toBe('normal');
+    expect(pointerStyle.fontSize, 'the citation is quieter than the argument').toBeLessThan(bodySize);
   });
 
   // #318. The decision index is compiled from `docs/adr/` at build time, so what is worth asserting on
