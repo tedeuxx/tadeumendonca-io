@@ -165,17 +165,24 @@ describe('the infrastructure diagram earns its place', () => {
     expect(reaches(graph, 'F', 'S'), 'the rewrite must sit BEFORE the origin, not beside it').toBe(true);
   });
 
-  // WAS `reaches(S, R)` — "the answer comes back" drawn as an edge INTO the request node. That is what
-  // made the picture unreadable in a left-to-right flow: two edges pointed backwards and the cache
-  // diamond was fork and join at once, four edges on one node. The claim the caption actually makes is
-  // that both cache outcomes end at the same served page, so that is what is asserted now: convergence
-  // on P, from the hit branch and through the origin, with the reader appearing once at the start.
-  it('converges on the served page, from the hit branch and through the origin', () => {
-    // The hit branch is pinned as an EDGE, not as reachability: `reaches(C, P)` is satisfied through
-    // the miss branch, so it would stay green with the hit arrow pointing anywhere at all.
-    expect(graph.edges, 'a cache hit must end at the served page').toContain('C->P');
-    expect(graph.edges, 'a miss must go to the origin').toContain('C->S');
+  // THE DIAGRAM WAS REDRAWN, not rewired again. The owner's verdict on it was blunt — it is hard to read
+  // — and the previous round answered that by removing the backward edges while keeping six nodes and a
+  // decision diamond. This version is four nodes and four edges: ask, rewrite, and one fork whose two
+  // branches end in the same place. The separate `viewer-request` node and the `Cached at the edge?`
+  // diamond are gone, both folded into labels, because neither was a STEP — one was where the function
+  // runs and the other was a question about the node before it.
+  //
+  // So the fork now hangs off F rather than off a diamond, and the assertions move with it. Pinned as
+  // EDGES rather than as reachability, for the reason the previous version recorded: `reaches(F, P)` is
+  // satisfied through the miss branch, so it would stay green with the hit arrow pointing anywhere.
+  it('converges on the served page, from the cached branch and through the origin', () => {
+    expect(graph.edges, 'a cache hit must end at the served page').toContain('F->P');
+    expect(graph.edges, 'a miss must go to the origin').toContain('F->S');
     expect(reaches(graph, 'S', 'P'), 'the origin must reach the same served page').toBe(true);
+    // And it really is four steps. A count is a weak assertion on its own; it earns its place here
+    // because "hard to read" was the defect, and the fix WAS the reduction — a later edit that grows the
+    // graph back has to argue with this line rather than slip past it.
+    expect(graph.nodes.sort()).toEqual(['F', 'P', 'R', 'S']);
   });
 
   // The other half, and the one that fails on a restored backward edge: nothing points at an earlier
@@ -246,10 +253,25 @@ describe('the dev-loop diagram shows where the human stands', () => {
   // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a reviewer
   // drawn as a pure fork: this very review is the counterexample, and a diagram that cannot show work
   // coming back describes a loop that never rejects anything.
+  //
+  // THE THREE RETURN EDGES NOW MEET IN ONE NODE, and that is the redraw rather than a re-styling. The
+  // owner's verdict was that the picture is hard to read; three separate arrows climbing back to the
+  // build node across the whole height of the graph is what made it so, and turning `LR` into `TD` moved
+  // them without removing them. `V` is a join, not an invented step — it is labelled with the STATE the
+  // work is in, and it is the only edge that re-enters the build.
+  //
+  // So the property is asserted as REACHABILITY, which is what "work comes back" always meant, plus the
+  // single re-entry as an edge. Written this way on purpose: `reaches` alone would stay green if the
+  // three were split apart again, and the single channel is the claim being made.
   it('lets work come back — from the gates, from the reviewer, and from the human', () => {
-    expect(graph.edges).toContain('G->B');
-    expect(graph.edges).toContain('R->B');
-    expect(graph.edges).toContain('H->B');
+    expect(reaches(graph, 'G', 'B'), 'a red gate must return the work').toBe(true);
+    expect(reaches(graph, 'R', 'B'), 'a reviewer must be able to send it back').toBe(true);
+    expect(reaches(graph, 'H', 'B'), 'a no-go must return the work').toBe(true);
+    expect(graph.edges, 'one return channel, not three').toContain('V->B');
+    expect(graph.edges.filter((e) => e.endsWith('->B')), 'nothing else re-enters the build').toEqual([
+      'P->B',
+      'V->B',
+    ]);
   });
 });
 

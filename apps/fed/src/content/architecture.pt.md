@@ -1,8 +1,43 @@
 _Este site é o argumento. Esta página é a planta — como ele é construído, e como você construiria o seu._
 
-## A tese
+## Três coisas
 
-Para um site de prova de engenharia, o código é o pitch — então o honesto é mostrar a máquina, não só o resultado dela. Esta é a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering. O site é a saída pública desse loop.
+Isto aqui são três coisas.
+
+- **Um site estático.** React, Vite e TypeScript num bucket atrás do CloudFront — sem servidor, sem banco, sem auth. É o que você está lendo agora.
+- **Um plugin de dev-loop.** As personas, os hooks e os comandos que decidem *como* o trabalho é feito: versionado num repositório à parte, instalável em qualquer projeto, e o que ele entrega é uma verificação que não depende de quem escreveu o código.
+- **Um runtime de agente.** O Claude Code, que executa aquilo — o orquestrador, os subagentes, o piso de permissões. É a única das três que eu não escrevi.
+
+Não são três produtos. **É uma coisa só**, e este site é o que ela produz em público.
+
+Essa é a parte que se perde quando alguém apresenta "um projeto feito com IA": mostra-se o resultado, nunca a máquina. Aqui é ao contrário — num site de prova de engenharia o código é o pitch, então o honesto é mostrar a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering.
+
+### Os três pilares, e o que fica na interseção
+
+As três não são camadas de um mesmo sistema, e essa é a parte que o desenho abaixo existe pra deixar óbvia: **cada uma existe sem as outras duas**. O site roda sem o plugin. O plugin instala em qualquer repositório. O runtime não é meu. O que fica no meio é a única coisa que nenhuma das três entrega sozinha.
+
+```venn
+accTitle: Os três pilares, e o que fica na interseção
+accDescr: Três círculos do mesmo tamanho, sobrepostos, com uma interseção comum no centro. O primeiro círculo é a solução, o repositório tadeumendonca-io, e dentro dele estão a SPA em React com Vite e TypeScript, o Terraform que provisiona CloudFront e S3, o pipeline com os gates e o deploy, e o conteúdo em markdown no próprio repositório. O segundo é a customização do harness, o repositório tadeumendonca-skills, e dentro dele estão as personas no diretório agents, os hooks registrados em hooks.json, os comandos no diretório commands e os ADRs de metodologia. O terceiro é o runtime do harness, o Claude Code, e dentro dele estão o orquestrador e os subagentes, os eventos PreToolUse e SessionStart, a política de permissões e as ferramentas com o MCP. No centro, onde os três se sobrepõem, está escrito Agent Harness Engineering, com a palavra Agent entre parênteses. A afirmação do desenho é essa: nenhum dos três círculos sozinho é a disciplina, ela é o que existe onde os três se encontram.
+centre: (Agent) Harness | Engineering
+pillar: A solução | tadeumendonca-io
+- SPA React · Vite · TS
+- Terraform: CloudFront, S3
+- Pipeline: gates, deploy
+- Markdown no repositório
+pillar: A customização | tadeumendonca-skills
+- Personas em agents/
+- Hooks em hooks.json
+- Comandos em commands/
+- ADRs de metodologia
+pillar: O runtime | Claude Code
+- Orquestrador, subagentes
+- PreToolUse · SessionStart
+- Política de permissões
+- Ferramentas e MCP
+```
+
+O que fica na interseção é o trabalho de verdade: decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que o inventário disso continua verdadeiro. O `Agent` fica entre parênteses de propósito: hoje se fala em *harness engineering* referindo só a prática, e os parênteses ligam um termo ao outro sem fingir que são duas coisas diferentes.
 
 ## O formato
 
@@ -40,16 +75,12 @@ O que nada disso situa é onde uma URL limpa vira um arquivo:
 ```mermaid
 flowchart LR
   accTitle: Como uma requisição vira uma página
-  accDescr: Um leitor pede uma URL sem barra final. O CloudFront roda a função spa-rewrite no viewer-request, que acrescenta index.html. Daí o caminho segue num sentido só e se junta de novo no fim — um hit de cache leva direto à página servida; um miss busca o objeto pré-renderizado na origem S3, e a origem leva à mesma página servida.
-  R["Leitor pede /pt/me"] --> V["CloudFront viewer-request"]
-  V --> F["função spa-rewrite"]
-  F -- "uri vira /pt/me/index.html" --> C{"Está em cache na borda?"}
-  C -- "hit" --> P["Página servida"]
-  C -- "miss" --> S["Origem S3: dist/ pré-renderizado"]
+  accDescr: Três passos e uma bifurcação, da esquerda para a direita. Um leitor pede /pt/me, sem barra final. O CloudFront roda a função spa-rewrite no viewer-request e a uri vira /pt/me/index.html. Daí saem dois caminhos que terminam no mesmo lugar - se o objeto está em cache na borda, a página é servida direto; se não está, ele é buscado como arquivo pré-renderizado na origem S3, e é essa origem que leva à mesma página servida. Nada volta para um passo anterior.
+  R["Leitor pede<br/>/pt/me"] --> F["CloudFront · viewer-request<br/>spa-rewrite: a uri vira /pt/me/index.html"]
+  F -- "está em cache" --> P["Página servida"]
+  F -- "não está" --> S["Origem S3<br/>/pt/me/index.html, já pronto"]
   S --> P
 ```
-
-Não existe aplicação nesse caminho — então a única lógica entre um leitor e um arquivo são [dez linhas executáveis de JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), e elas carregam [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório.
 
 **"Sem backend" levanta uma pergunta antes das outras — como um crawler enxerga isto — e a resposta é que nada precisa rodar para ele enxergar.** Um buscador ou um scraper de unfurl pede uma URL e recebe **HTML completo com as tags OG dentro**, direto de um arquivo estático, não um shell vazio que só vira página depois que o JavaScript roda. **Nada é montado quando ele pede**: cada rota é renderizada uma vez, no build, nos dois idiomas. Sem SSR, sem renderização na borda — a função acima reescreve URL e nada mais.
 
@@ -57,17 +88,67 @@ O limite viaja junto com a afirmação, porque é a parte que um leitor consegue
 
 *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) render no build, sem SSR · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) toda URL OG-completa)*
 
+### A pilha AWS, camada a camada
+
+Os dois desenhos acima mostram **tempo** — quando cada coisa acontece. Este mostra **inventário**: quais serviços da AWS estão no ar e em que camada cada um fica. A prosa desta página cita todos eles em algum lugar, e a conta lá embaixo cobra por alguns; nenhum desenho os tinha juntos.
+
+```mermaid
+flowchart TB
+  accTitle: A pilha AWS, camada a camada
+  accDescr: Quatro camadas empilhadas. Nome e confiança, fora do Terraform deste repositório - a hosted zone do Route 53 com o registro A alias, e o certificado do ACM em us-east-1; as duas chegam na distribuição. Entrega, na borda - a distribuição do CloudFront, que termina o TLS e mantém o cache, e a CloudFront Function spa-rewrite, que ela executa no viewer-request. Origem, o armazenamento - o Origin Access Control, que a distribuição usa para assinar a requisição de origem, e por trás dele os dois buckets S3 privados, o do site e o de assets, que só respondem a s3:GetObject vindo daquela distribuição. Identidade de deploy - o provedor OIDC do GitHub, a role IAM de deploy que confia num subject imutável, e o SSM Parameter Store de onde o pipeline lê o nome do bucket e o id da distribuição; a role escreve o dist no bucket do site e pede a invalidação na distribuição. Não há camada de computação servindo requisição, não há banco, não há VPC e não há segredo lido em runtime.
+  subgraph nome["NOME E CONFIANÇA — fora do Terraform daqui"]
+    direction LR
+    Z["Route 53<br/>hosted zone · registro A alias"]
+    T["ACM<br/>certificado em us-east-1"]
+  end
+  subgraph borda["ENTREGA — a borda"]
+    direction LR
+    E["CloudFront<br/>distribuição · TLS · cache"]
+    FN["CloudFront Function<br/>spa-rewrite · viewer-request"]
+  end
+  subgraph origem["ORIGEM — armazenamento privado"]
+    direction LR
+    OAC["Origin Access Control"]
+    B1["S3 · site<br/>privado"]
+    B2["S3 · assets<br/>privado"]
+  end
+  subgraph deploy["IDENTIDADE DE DEPLOY"]
+    direction LR
+    OP["Provedor OIDC do GitHub"]
+    RO["IAM · role de deploy<br/>subject imutável"]
+    SSM["SSM Parameter Store<br/>nome do bucket · id da distribuição"]
+  end
+  Z -- "alias" --> E
+  T -- "TLS" --> E
+  E -- "viewer-request" --> FN
+  E -- "requisição de origem assinada" --> OAC
+  OAC -- "só s3:GetObject" --> B1
+  OAC -- "só s3:GetObject" --> B2
+  OP -- "web identity" --> RO
+  RO -- "lê" --> SSM
+  RO -- "publica dist/" --> B1
+  RO -- "invalidação" --> E
+```
+
+Duas coisas aqui valem ser ditas em voz alta. A **hosted zone e o certificado não são criados pelo Terraform deste repositório** — os dois já existem na conta e entram por `data source`, o que é escolha e não esquecimento: eles sobrevivem a um `destroy` completo desta stack, e é por isso que a linha de USD 0,50 da hosted zone continuaria cobrando mesmo sem site nenhum. E o bucket do site **não é público em nenhum sentido**: a policy dele permite `s3:GetObject` só para o serviço do CloudFront, e só quando o `AWS:SourceArn` é o desta distribuição.
+
+A única lógica que roda entre um leitor e um arquivo é a função da segunda camada: [dez linhas executáveis](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), com [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório.
+
+*(→ [`iac/frontend.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/frontend.tf) a distribuição, a função e as policies de bucket · [`iac/iam.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/iam.tf) a role de deploy e o subject OIDC)*
+
 ## Por que este site existe
 
 Para aprender IA você precisa criar os use cases. Você não aprende sem eles. Tudo precisa de um usuário, uma aplicação, uma funcionalidade, um business case — e é aí que eu continuo vendo a lacuna. No trabalho com IA de que estive perto, a modelagem é forte e a outra metade é rala: systems integration, legado que não dá pra trocar, as complicações comuns de TI corporativa. É nessa outra metade que eu passei dezoito anos. Este site é um use case, e o repositório aberto deixa qualquer um conferir.
 
 Comecei o ano perdido. Um projeto que não estava indo bem, um monte de obrigações de catch-up nas ferramentas de IA, e a coisa foi degradando até eu sair de férias. E tem um detalhe que eu suspeito que muita gente sênior está vivendo e não diz em voz alta: **eu tinha as ferramentas de desenvolvimento agêntico na mão — Claude Code, Kiro — e mesmo assim me sentia de fora do hype.**
 
+E tem uma razão para isto ser público em vez de um caderno. Vivemos num mundo com opções de configuração demais — qual harness, quais hooks, que persona, que gate, qual modelo — e ninguém tem sessões suficientes para testar todas sozinho. **Trocar a experiência de cada um usando IA é o que vai acelerar esse aprendizado**, e é por isso que o que está aqui é o setup inteiro, aberto, e não só a conclusão a que ele chegou.
+
 Desenvolvimento de software é minha paixão. Nada me diverte mais que ver uma aplicação funcionando bonitinha. O que essas ferramentas me devolveram foi isso, numa escala que sozinho eu não alcançava.
 
-O caso que me provou isso não foi este site. Foi um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. Comecei a construir por fora, na volta das férias, e aquilo foi crescendo e amadurecendo. **Eu jamais teria conseguido desenvolver esse mecanismo sem uma agentic development tool** — não no prazo que eu tinha.
+O caso que me provou isso não foi este site. Foi um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. Comecei a construir por fora, na volta das férias, e aquilo foi crescendo e amadurecendo. **Eu jamais teria conseguido desenvolver esse mecanismo sem uma agentic development tool** — e não era só o prazo. Eu estava dividindo as responsabilidades de tech lead naquele projeto **ao mesmo tempo** em que me dedicava ao desenvolvimento com agente, em paralelo. É essa a parte que a ferramenta comprou: não velocidade de digitação, e sim as duas coisas caberem na mesma semana.
 
-Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, e esta, pública. Consultoria não me dá mais o que eu quero fazer: produto digital. Gosto de criar apps.
+Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, com **Kiro**, e esta, pública, com **Claude Code**. A separação é deliberada — dois harness diferentes rodando o mesmo tipo de trabalho é o que me deixa comparar, e é assim que dá pra separar o que é do modelo do que é do setup em volta dele. Consultoria não me dá mais o que eu quero fazer: produto digital. Gosto de criar apps.
 
 ## Quem fez o quê
 
@@ -149,21 +230,15 @@ Uma reversão registrada é o que torna o caminho de crescimento concreto em vez
 
 A trilha de build no diagrama acima é onde as duas metades se encontram: acrescentar um servidor significa tirar trabalho **de dentro dela**, não pendurar uma camada na lateral.
 
-## Segurança aqui é sobretudo o que não foi construído
-
-Não há WAF, não há chave gerenciada por mim, e nenhum parâmetro cifrado. Isso não é economia: **sem servidor, sem banco e sem auth, classes inteiras de risco deixam de existir em vez de serem mitigadas** — injeção num banco, bypass de autenticação, execução remota no servidor, segredo em runtime. O que sobra é o bundle que vai pro navegador e as dependências dele. A parte auditável dessa decisão é que o scanner de infraestrutura **sabe por que não reclama**: o desvio está escrito no próprio arquivo de configuração dele, com a razão, e não numa exceção silenciosa.
-
-*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) sem WAF, sem CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) o desvio, com o motivo)*
-
-Subtração sozinha lê como buraco, então o que restou tem gate: análise estática no SonarCloud e uma auditoria de dependências que **barra o merge**, não avisa. E os pacotes são instalados sem rodar os scripts deles — `--ignore-scripts` em toda instalação do pipeline, porque o mesmo runner que instala é o que depois assume a role de deploy. A raiz de confiança entre a conta AWS e o GitHub é o outro pedaço, e ela está mais abaixo, em detalhe, porque é lá que alguém replicando isto vai procurar.
-
-*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) o que resta quando não há backend)*
-
-Havia **duas** web ACLs — uma na borda do CloudFront e a regional — e só a regional tem ADR. A do CloudFront **não está na biblioteca de decisões**, numa página que argumenta que a biblioteca é o ponto. Isso é um corte que o registro não contabiliza inteiro, e o lugar honesto de dizer isso é aqui. A outra parte desconfortável fica onde já estava: a raiz de confiança é um buraco documentado num piso, e nenhum `plan` avisa quando ela sai do lugar.
-
-*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) o WAF que foi cortado)*
-
 ## Cada decisão, e em que pé ela está
+
+**Por que MADR, e por que o formato pesa mais quando quem lê é um agente.** [MADR](https://adr.github.io/madr/) é um formato de seções fixas — contexto, opções consideradas, decisão, consequências — e três propriedades dele são a razão de a biblioteca ser assim:
+
+- **Uma decisão por arquivo.** Quem precisa saber por que não existe ambiente de staging aqui lê um arquivo, não um documento de arquitetura inteiro. O contexto gasto é o da decisão, não o da vizinhança dela — e para um agente isso não é conforto, é o recurso que ele tem menos.
+- **Seções fixas.** O "porquê" e as opções que perderam ficam em lugares previsíveis, então recuperar a razão de uma escolha não depende de interpretar prosa. É exatamente aí que um leitor, humano ou não, inventa a metade que faltou.
+- **`status` e `superseded-by`.** Uma decisão revertida continua no repositório e **diz** que foi revertida. Sem isso, o registro de uma arquitetura aposentada lê como instrução — que é a forma mais barata de fazer um agente reconstruir algo que foi cortado de propósito. A tabela abaixo traz essa coluna, e é onde as decisões revertidas aparecem marcadas em vez de sumirem.
+
+O limite é o de sempre nesta página: **nada aqui recupera um ADR sozinho.** Não há índice semântico e não há injeção automática de contexto; um agente lê estes arquivos porque o guia do repositório aponta para eles. O formato torna a leitura barata quando ela acontece — ele não faz ela acontecer.
 
 A tabela abaixo **não foi digitada aqui**. Ela é gerada a partir de `docs/adr/`, commitada como artefato e conferida no CI: acrescentar ou substituir uma decisão sem regenerar o índice deixa o pipeline vermelho, então ou a página bate com a biblioteca ou nada é publicado. Um índice copiado à mão para uma biblioteca desse tamanho envelhece em uma semana e nada avisa — este é o mesmo mecanismo dos diagramas acima, e pelo mesmo motivo.
 
@@ -202,20 +277,58 @@ A parte interessante não é a stack — é como ele é construído: **agent-led
 
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) os gates de CI)*
 
+Duas figuras, e elas respondem perguntas diferentes. A primeira é o **formato** do loop: quem fecha cada unidade de trabalho, e em que camada.
+
+```mermaid
+flowchart TB
+  accTitle: O formato do loop — as camadas e as unidades de trabalho
+  accDescr: O dono gera a demanda e ela chega às duas lentes da camada um, product-lead e tech-lead, que discordam por construção e fecham juntas uma única descrição. O que sai dali é uma user story com o rótulo ready. O orquestrador, que é a sessão principal, lê essa story e aciona a camada dois, onde o developer constrói a fatia inteira. O que o developer entrega é um merge request, um por story. A camada três é o gate - quality-assurance, em contexto fresco, sem viés de autoria, e é o único que pode fazer o merge. O merge na main é o deploy. Cada camada entrega um artefato acabado para a próxima, e não uma opinião - é por isso que o custo de reconciliar leituras se paga dentro de uma camada e não entre camadas.
+  O["Dono<br/>gera a demanda"]
+  subgraph T1["CAMADA 1 · INTAKE — a descrição fecha aqui"]
+    direction LR
+    PL["product-lead"]
+    TL["tech-lead"]
+  end
+  US["USER STORY · rótulo ready<br/>a lista de tarefas é a decomposição"]
+  ORCH["ORQUESTRADOR · a sessão principal<br/>aciona cada persona · nunca mergeia"]
+  subgraph T2["CAMADA 2 · CONSTRUÇÃO"]
+    DEV["developer<br/>aplicação · infra · pipeline · testes"]
+  end
+  MR["MERGE REQUEST · um por story"]
+  subgraph T3["CAMADA 3 · GATE — contexto fresco"]
+    QA["quality-assurance<br/>duas lentes numa passada"]
+  end
+  M["merge na main = o deploy"]
+  O --> PL
+  O --> TL
+  PL --> US
+  TL --> US
+  US --> ORCH
+  ORCH --> DEV
+  DEV --> MR
+  MR --> QA
+  QA --> M
+```
+
+**A camada é a unidade de reconciliação, e é isso que o desenho está afirmando.** Cada uma entrega para a próxima um artefato acabado — uma descrição fechada, uma fatia construída, um veredito — e não uma opinião que alguém precise pesar contra outra. É por isso que duas personas na mesma camada precisam de uma razão, e por isso que o time é de cinco.
+
+A segunda figura é a outra pergunta: **onde o humano fica.**
+
 ```mermaid
 flowchart TD
   accTitle: Onde o humano fica no loop
-  accDescr: Uma issue vira um plano que o humano alinha antes de existir código. O agente constrói a fatia e roda os gates mecânicos, que voltam para a construção no vermelho. Um revisor de contexto fresco então julga a mudança e pode devolvê-la. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar um artigo — passa por um go ou no-go humano, que é a última coisa antes da produção e também pode devolver o trabalho.
+  accDescr: Uma issue vira um plano que o humano alinha antes de existir código. O agente constrói a fatia e roda os gates mecânicos. Um revisor de contexto fresco então julga a mudança. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira - infraestrutura, as regras do próprio loop, publicar um artigo - passa por um go ou no-go humano, que é a última coisa antes da produção. Os três pontos que podem recusar - os gates no vermelho, o revisor pedindo mudanças, e o humano no no-go - desembocam todos numa mesma caixa, devolvido, e é ela que volta para a construção. Um canal de volta só, e não três.
   I["Issue"] --> P["Plano, decidido pelo humano"]
   P --> B["Agente constrói a fatia"]
   B --> G["Gates mecânicos"]
-  G -- "vermelho" --> B
   G -- "verde" --> R["Revisor de contexto fresco"]
-  R -- "mudanças" --> B
   R -- "classe segura" --> M["Merge = deploy"]
   R -- "classe de fronteira" --> H["Go / no-go humano"]
   H -- "go" --> M
-  H -- "no-go" --> B
+  G -- "vermelho" --> V["Devolvido"]
+  R -- "mudanças" --> V
+  H -- "no-go" --> V
+  V --> B
 ```
 
 O humano aparece duas vezes, e as duas aparições são trabalhos diferentes. No plano, decidindo o que vale ser construído e como — arquitetura eu nunca decido sozinho. No fim, só no que é classe de fronteira, decidindo se aquilo sobe. No meio, o agente constrói e a máquina prova, e a maior parte das mudanças chega à produção sem ninguém nesse caminho.
@@ -226,7 +339,7 @@ E o custo disso, já que o resto desta página assume os seus: quem decide que u
 
 ### Do que o loop é feito, e o que cada parte consegue de fato fazer
 
-A figura acima responde *por onde o trabalho passa*. Ela não diz do que o loop é **feito** — e é essa a pergunta de quem está decidindo se adota isso. São dois desenhos separados de propósito: um só, tentando ser os dois, teria que dar a mesma seta pra um hook que recusa um comando e pra uma lente que alguém precisa lembrar de acionar, e essa diferença é a coisa mais útil desta página.
+As duas figuras acima respondem *por onde o trabalho passa* e *quem fecha cada etapa*. Nenhuma delas diz do que o loop é **feito** — e é essa a pergunta de quem está decidindo se adota isso. É um terceiro desenho de propósito: um só, tentando ser os três, teria que dar a mesma seta pra um hook que recusa um comando e pra uma lente que alguém precisa lembrar de acionar, e essa diferença é a coisa mais útil desta página.
 
 ```mermaid
 flowchart TB
@@ -266,9 +379,16 @@ flowchart TB
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) o inventário ancorado no plugin)*
 
-**O que essa verificação não enxerga:** ela compara **identidade**, então um hook que mantém o nome e muda o que faz publica uma descrição velha com o build verde — e o vermelho chega no próximo build daqui, não no merge de lá.
-
 É nesse mecanismo que caem também os dois termos do parágrafo de abertura — e eles não caem do mesmo jeito, o que vale dizer com precisão. **AI-DLC** não é meu: é o nome que a AWS deu a um ciclo de entrega cujas etapas são executadas e verificadas por agentes, e não em volta deles, e a primeira figura é como isso é praticado aqui. **Agent Harness Engineering** é a afirmação que eu faço, e é esta figura — que o harness é uma coisa que se constrói, se conta e se verifica, e não um jeito de escrever prompt. Adotar uma metodologia não custa nada dizer; a segunda precisa ser paga, e o pagamento é que ela *pode* ser inventariada, a partir do repositório onde mora, com um build que quebra quando o inventário deixa de ser verdade.
+
+### Os quatro elementos do harness, e o que cada um entrega
+
+A lista acima é sobre **força** — o que cada tipo de componente consegue ou não consegue barrar. Esta é a outra pergunta, e é a que alguém avaliando o setup faz primeiro: **o que cada elemento entrega para o valor da solução inteira**. Cada item aponta para o arquivo ou o diretório vivo no repositório do plugin, porque é lá que o detalhe mora.
+
+- **[Agents](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/agents)** — subagente é um recurso do runtime, e é o único que troca contexto por veredito: a execução inteira fica na sessão do subagente e o que volta é a conclusão. O que isso entrega para a arquitetura é uma revisão em **contexto novo**, sem o viés de quem escreveu — a propriedade que nenhuma instrução de auto-revisão consegue produzir, porque quem escreveu e quem julga seriam o mesmo contexto.
+- **[A pirâmide de perfis](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — as cinco personas não estão num mesmo plano: dois leads que discordam por construção em cima, um builder no meio, um gate embaixo. O que ela entrega é **discordância onde ela é útil e handoff onde não é** — e a regra que decide isso é explícita, custo de reconciliação se paga *dentro* de uma camada e não entre camadas, e é o que segurou o time em cinco em vez de dezenove.
+- **[Hooks](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/hooks/scripts)** — a única parte do plugin que roda código e **recusa**. Dois respondem no `PreToolUse`, antes da ferramenta acontecer; os três de `SessionStart` rodam antes da primeira chamada — dois reportam e um esvazia o diretório de scratch. O que eles entregam é o piso irreversível sem depender de alguém lembrar dele, e o registro de qual evento chama qual script está em [`hooks/hooks.json`](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/hooks/hooks.json).
+- **[Comandos e skills](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/commands)** — cada arquivo é uma decisão já tomada, escrita: qual serviço da AWS para qual cenário, que gate é bloqueante, como uma versão é cortada. Os que valem para qualquer repositório ficam em [`commands/principles`](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/commands/principles). O que eles entregam é **ausência de re-decisão** — e como o plugin é instalado e não lido do disco, um dos hooks de sessão diz qual build está de fato rodando, porque uma skill corrigida e não recarregada é uma skill que não teve efeito.
 
 ### O orquestrador é a parte do harness que você não consegue instalar
 
@@ -276,11 +396,11 @@ Ele não está em nada do inventário acima — nem no desenho, nem no manifesto
 
 Ele é também a parte *contra* a qual as fronteiras de capacidade acima foram desenhadas. O `permission-guard` recusa o comando de merge vindo de qualquer agent type que não seja o `quality-assurance`, e a glosa na aresta das personas — *aconselha, se acionada* — nomeia o acionamento como o modo de falha sem nomear quem aciona. Quem aciona é o orquestrador, e uma lente que ele esquece é uma lente que ninguém rodou.
 
-**O contexto dele é um recurso finito**, e foi lido uma vez: a forma honesta dessa leitura é um **piso**, não um número. Medido na própria sessão deste repositório em 7–8 de agosto de 2026, pelas transcrições da sessão: o que ficou dentro dos subagentes é **mais de uma ordem de grandeza** maior do que o que voltou ao orquestrador em forma de veredito. A economia é real e é limitada: os vereditos que voltaram ainda responderam por **uma fatia grande de tudo que o orquestrador consumiu vindo de uma ferramenta**.
+**E o contexto dele acaba.** Essa é a restrição que desenha o resto: a sessão principal tem uma janela finita, e tudo que ela lê fica lá dentro até a janela estourar.
 
-**Uma tarefa custa ao orquestrador o veredito, não a execução.** É isso que subagente compra — e é por isso que o único botão do harness é o tamanho do veredito, girado pelo jeito como as instruções de cada persona são escritas.
+É isso que um subagente compra. Ele lê, roda, erra e refaz **dentro da sessão dele**; o que chega ao orquestrador é a conclusão. Uma tarefa custa ao orquestrador **o veredito, não a execução** — e é por isso que a única alavanca real deste harness é o tamanho do veredito, girada escrevendo as instruções de cada persona.
 
-Não é fuga: os vereditos se acumulam do mesmo jeito, e esta sessão compactou duas vezes assim mesmo. Número dessa economia não é publicado porque a fonte é uma transcrição de sessão privada que gate nenhum alcança.
+Medi uma vez, na sessão deste repositório, em 7–8 de agosto de 2026: o que ficou dentro dos subagentes foi **mais de uma ordem de grandeza** maior do que o que voltou. E a economia tem teto — mesmo assim, os vereditos que voltaram foram **uma fatia grande** de tudo que o orquestrador leu. Não é fuga: esta sessão compactou duas vezes de qualquer jeito. O número não é publicado porque a fonte é uma transcrição de sessão privada, que gate nenhum alcança.
 
 ### O que o workspace do Claude Code acrescenta, e onde cada parte de fato mora
 
@@ -341,6 +461,10 @@ Os passos de "do fork até no ar" estão nos READMEs, não nesta página. É a m
 - **[O README deste repo](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live)** — o caminho de nuvem inteiro, do domínio até o primeiro merge.
 - **[O README do plugin](https://github.com/tedeuxx/tadeumendonca-skills#run-it)** — a metade do loop, que se instala sem nenhuma conta em nuvem e sem nada pra fazer deploy.
 
+**Por que OIDC, e não uma chave.** A alternativa óbvia é gerar um par de access key para um usuário IAM e guardar como secret no GitHub. Funciona no primeiro dia, e é uma credencial de longa duração vivendo num sistema que não é meu: ela vale até alguém revogar, chega junto em qualquer lugar para onde o log daquele job vaze, e a rotação vira um processo humano que ninguém faz no prazo. Com OIDC **não há segredo guardado**: o runner apresenta um token que o GitHub assina para aquele job, a AWS troca esse token por credenciais **temporárias** da role, e elas expiram sozinhas sem ninguém revogar nada. O que fica no repositório é o ARN da role, que não é segredo.
+
+Isso muda o que um vazamento significa, e é essa a razão de a decisão ser essa. Uma chave vazada é acesso até ser revogada. Um token vazado é acesso até expirar — **e só se quem o pegou também satisfizer a condição do trust**, que aqui é o subject exato daquele repositório e mais nada. Menos privilégio permanente, nada para rotacionar, e o raio de impacto delimitado pela política da role em vez de pela velocidade com que alguém percebe. A troca é que a raiz dessa confiança precisa nascer fora, e o parágrafo seguinte é sobre exatamente isso.
+
 **O Terraform daqui não cria o provedor OIDC do GitHub, nem a role que roda o próprio Terraform.** Esses dois nascem fora, pela CLI da AWS, e ficam fora do Terraform pra sempre. São duas razões independentes e só uma delas um dia deixaria de valer: a primeira execução precisaria da credencial que ela ainda não criou, e — a que não expira — uma role capaz de reescrever a própria trust policy é uma role sem teto. O registro traz as duas, junto com a parte desconfortável de escrever: isto é um buraco documentado num piso, o caminho manual reabre toda vez que a policy dessa role muda, e nenhum `plan` vai te avisar que ela saiu do lugar.
 
 *(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) raiz de confiança fora do Terraform)*
@@ -351,10 +475,12 @@ Os passos de "do fork até no ar" estão nos READMEs, não nesta página. É a m
 
 O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
 
-## Três limitações honestas
+## Onde esta abordagem ainda não prova o que promete
 
-Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Pegue o padrão, não os detalhes.
+Tudo acima defende uma coisa só: **AI-DLC** — um ciclo de entrega cujas etapas são executadas e verificadas por agentes, com o humano no resíduo. A promessa dessa abordagem é que o "pronto" é **provado por mecanismo**, e não afirmado por quem construiu. Uma página que mostrasse só onde isso funciona seria propaganda. Então esta seção é o inverso, e ela é parte do argumento e não um apêndice dele: **onde a verificação liderada pelo agente ainda não alcança, e o que continua dependendo da minha palavra.**
 
-E os quatro desenhos acima mostram o **formato** de uma coisa, não uma execução dela. Três deles você consegue conferir, em três forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. O quarto você não consegue conferir de jeito nenhum. Que o loop é seguido do jeito que está desenhado não é algo que esta página prove — nada aqui mostra que alguma mudança específica percorreu aquele trajeto. Aquele é uma afirmação sobre como eu trabalho, e nenhum artefato desta página resolve isso pra você.
+**Um autor só, e nenhuma outra mão.** Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Nada aqui foi testado contra uma segunda pessoa discordando do setup, que é justamente o caso em que um loop de agentes é mais difícil. Pegue o padrão, não os detalhes.
+
+**Os desenhos mostram o formato, não uma execução dele** — e é essa a fronteira exata do que um gate consegue verificar. Sete figuras acima; **quatro** você consegue conferir, em forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas e a pilha AWS são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si — com a ressalva que o próprio desenho carrega, de que a hosted zone e o certificado entram por `data source` e não são criados aqui. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. **As outras três você não consegue conferir, e por motivos diferentes.** Os dois desenhos do loop mostram um trajeto que esta página não prova ter sido percorrido: nenhum artefato daqui mostra que alguma mudança específica passou por aquelas camadas. E o dos três pilares não é mecanismo nenhum — é o recorte com que eu enxergo o problema, e um recorte não tem como estar errado do jeito que um desenho de infraestrutura tem. É exatamente aqui que o AI-DLC ainda é uma afirmação: **a máquina prova a fatia, e não prova o método.**
 
 **E há a metade do workspace que repositório nenhum guarda.** Remote control é uma configuração da minha conta e artifacts é uma superfície do fornecedor sem linha no manifesto; um `grep` por ele no plugin inteiro não devolve nada, o que é a verificação e também a resposta. Os dois estão marcados como depoimento, e um fork deste repositório não leva nenhum dos dois — então, exatamente como a leitura acima, são coisas em que você acredita na minha palavra ou não, e nada aqui resolve isso.

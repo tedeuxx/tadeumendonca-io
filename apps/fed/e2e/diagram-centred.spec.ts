@@ -32,12 +32,33 @@ test.describe('the architecture diagrams are centred in their frame', () => {
               title: svg?.querySelector('title')?.textContent ?? '(no title)',
               left: s ? s.left - b.left : NaN,
               right: s ? b.right - s.right : NaN,
+              // Is the scroller actually engaged? Asked as `scrollWidth > clientWidth` and NOT by
+              // comparing the SVG's width to the box's rect, which was the first version and was wrong
+              // by exactly the padding: `getBoundingClientRect()` is the BORDER box, so a figure
+              // overflowing the CONTENT area by 11px looked like it fitted, and then failed the centring
+              // assertion it had been let through to. Every mermaid SVG carries `width="100%"` and can
+              // never engage this; the three-pillar figure has a deliberate `min-width` floor and does.
+              overflows: el.scrollWidth > el.clientWidth + 1,
             };
           }),
         );
 
         expect(boxes.length, 'no diagram box found — the class name went stale').toBeGreaterThan(0);
         for (const box of boxes) {
+          if (box.overflows) {
+            // AN OVERFLOWING DIAGRAM CANNOT BE CENTRED, and pretending otherwise is what would put its
+            // left half in the unreachable negative scroll area — the exact failure `margin-inline: auto`
+            // was chosen over flex centring to avoid. The requirement for this case is the other one:
+            // nothing sits left of the scroller's own origin, so panning right reaches all of it.
+            //
+            // Not asserted as `left === 0`: the box carries 16px of padding, so a correctly placed
+            // overflowing child starts one padding in, not at the border edge.
+            expect(
+              Math.round(box.left),
+              `"${box.title}" overflows and starts ${Math.round(box.left)}px left of its scroll box`,
+            ).toBeGreaterThanOrEqual(0);
+            continue;
+          }
           // Slack on both sides, not "left is small": a diagram that fills its box has ~equal padding on
           // both sides too, and that is a pass. The failure this locks in is all the slack on one side —
           // 0 left and hundreds right — so the assertion is the DIFFERENCE. 1px of tolerance for the
