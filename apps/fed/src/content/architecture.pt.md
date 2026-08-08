@@ -167,9 +167,25 @@ Essas cinco são as que esta seção percorre, todas em julho de 2026 — o back
 
 **O que o objetivo de fato exigia era conteúdo**, e nada daquela maquinaria servia a isso. Um banco sem nada para guardar. Auth sem ninguém para autenticar. Um ambiente de staging para um site cujo revert é um merge. Cada uma era defensável quando foi decidida, e nenhuma sobreviveu à pergunta *"para que isso serve, aqui"*.
 
+### Segurança aqui é sobretudo o que não foi construído
+
+Não há WAF, não há chave gerenciada por mim, e nenhum parâmetro cifrado. Isso não é economia: **sem servidor, sem banco e sem auth, classes inteiras de risco deixam de existir em vez de serem mitigadas** — injeção num banco, bypass de autenticação, execução remota no servidor, segredo em runtime. O que sobra é o bundle que vai pro navegador e as dependências dele. A parte auditável dessa decisão é que o scanner de infraestrutura **sabe por que não reclama**: o desvio está escrito no próprio arquivo de configuração dele, com a razão, e não numa exceção silenciosa.
+
+*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) sem WAF, sem CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) o desvio, com o motivo)*
+
+Subtração sozinha lê como buraco, então o que restou tem gate: análise estática no SonarCloud e uma auditoria de dependências que **barra o merge**, não avisa. E os pacotes são instalados sem rodar os scripts deles — `--ignore-scripts` em toda instalação do pipeline, porque o mesmo runner que instala é o que depois assume a role de deploy. A raiz de confiança entre a conta AWS e o GitHub é o outro pedaço, e ela está duas seções abaixo, em detalhe, porque é lá que alguém replicando isto vai procurar.
+
+*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) o que resta quando não há backend)*
+
+**E um controle de segurança daqui foi construído, pago e cortado.** O WAF regional que protegia a camada dinâmica virou registro substituído em julho de 2026, e parte do gasto ocioso da conta lá em cima era ele — cobrando depois de já não proteger nada. As duas coisas são o mesmo evento visto do dinheiro e da decisão.
+
+Mas havia **duas** web ACLs — uma na borda do CloudFront e a regional — e só a regional tem ADR. A do CloudFront **não está na biblioteca de decisões**, numa página que argumenta que a biblioteca é o ponto. Isso é um corte que o registro não contabiliza inteiro, e o lugar honesto de dizer isso é aqui. A outra parte desconfortável fica onde já estava: a raiz de confiança é um buraco documentado num piso, e nenhum `plan` avisa quando ela sai do lugar.
+
+*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) o WAF que foi cortado)*
+
 ### Se você precisar do backend de volta, o registro diz qual decisão reverter
 
-É isso que torna o caminho de crescimento concreto em vez de uma promessa de que a arquitetura "escalaria". Um sistema que passou a precisar de servidor não exige que este site seja redesenhado — precisa de **uma decisão específica reaberta**, e cada uma das cinco acima nomeia a que a fechou:
+Uma reversão registrada é o que torna o caminho de crescimento concreto em vez de uma promessa de que a arquitetura "escalaria". Um sistema que passou a precisar de servidor não exige que este site seja redesenhado — precisa de **uma decisão específica reaberta**, e cada uma das cinco acima nomeia a que a fechou:
 
 - **dados dinâmicos ou contas** → reverter a [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md), e a 0025 é o formato que aquilo tinha;
 - **renderização por requisição** → reverter a [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md); 0026 e 0027 são duas coisas que já foram tentadas na borda;

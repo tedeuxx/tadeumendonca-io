@@ -88,7 +88,69 @@ and local installs too. *Why not now:* it also silences hooks in **local dev**, 
 needing one fails confusingly and far from its cause. Revisit if a third install site appears or the two
 workflow lines drift.
 
+## Amendment (2026-08-07) — the mechanism moved, the decision did not; and the count was the wrong thing to record
+Nothing below reopens the posture. The four risk classes a backendless site removes, and the conclusion
+that SAST plus package scanning is therefore the whole of what remains, are unchanged and still correct.
+**Three descriptions of the machinery aged**, and one of them aged in a way worth naming as a class.
+
+**1. The file name.** The text above names `.github/workflows/build-test.yml`. That file has not existed
+since **2026-07-31** (`b9ef46d`, "four workflows, named after what they guard"); the app gate is
+`.github/workflows/app.yml`. What survived the rename is the terminal **job** `build-test`, whose name is
+pinned by branch protection and must not change — so every sentence above that means *the job* is still
+accurate, and only the ones that spell a `.yml` are wrong. Verified: `ls .github/workflows/` returns
+`app.yml`, `claude.yml`, `deploy.yml`, `github.yml`, `iac.yml`, and this ADR is the only file in
+`docs/adr/` that still says `build-test.yml`.
+
+**2. The audit is a job, not a step — and that changed what "blocking" rests on.** The decision above
+describes "a blocking `audit-ci` step in `build-test`, placed right after `Install`". It is now its own
+job, `npm-audit` (`app.yml:157`): checkout, install, `npm run audit`. The threshold, the config file and
+the allowlist-with-expiry are untouched.
+
+What the split changed is *how* the block is delivered, and this is the part the record owes. As a step
+inside the required job, a failing audit failed that job directly — blocking was intrinsic. As a separate
+job it blocks only because the required aggregator lists it in `needs` (`app.yml:453`) **and** runs with
+`if: always()` plus `contains(needs.*.result, 'failure')` (`:462`, `:466`). Without that shape a bare
+`needs:` aggregator is *skipped* when a dependency fails, and a skipped required check **satisfies branch
+protection** — a red audit would merge. So the claim this ADR has always made, that a HIGH/CRITICAL
+production advisory blocks the merge, is still true and is now **derived** rather than direct: it holds
+because of two lines in a different job. That dependency is recorded here so a future edit to the
+aggregator is visibly an edit to this ADR's control, not just to a workflow. (ADR-0018's 2026-07-23
+amendment is where the aggregator shape itself is decided; it is not restated.)
+
+*Not verified by me:* the contents of branch protection on `main` — reading it is outside my permissions.
+The claim that `build-test` is the required context rests on `app.yml:434`'s own comment, which asserts it.
+
+**3. `--ignore-scripts`: the count is replaced by the property, deliberately.** The 2026-07-27 amendment
+recorded "two hand-edited workflow lines" and closed by saying to revisit "if a third install site appears
+or the two workflow lines drift". There are **nine** install sites today — seven in `app.yml`, two in
+`deploy.yml`. The trigger fired, and by a factor of four and a half, with nothing anywhere able to notice.
+
+So the number is not re-recorded with a bigger number. The invariant is stated as a property with its
+derivation, which is what the amendment should have written the first time:
+
+> **Every dependency install in the pipeline runs `npm ci --ignore-scripts`.** Derivation, one command:
+> `grep -rn "run: npm ci" .github/workflows/ | grep -cv -- "--ignore-scripts"` must be **0**. Measured
+> 2026-08-07: 9 matching install steps, 0 without the flag.
+
+The difference is not cosmetic. A count written into a record that is not the file it counts is
+**self-invalidating**: it is falsified by the ordinary act of adding a job, and no reader of the workflow
+has any reason to come here and update it. A property plus the command that decides it is falsified only
+when the invariant actually breaks, and it tells the next reader how to check rather than asking them to
+trust a date. The published architecture page already had this right — it says "`--ignore-scripts` on
+every install in the pipeline", the property, while the record it cites was still carrying the number.
+
+*What this still does not buy, and it is the honest cost:* the property is **asserted, not enforced**.
+Nothing fails if the tenth install site omits the flag; the derivation above is a command a human or an
+agent must choose to run. That is precisely the weakness the rejected `apps/fed/.npmrc` option would
+close, by making the invariant true by construction instead of by nine correct edits. **That option's
+stated revisit condition is now met** — its "why not now" was local-dev confusion, which is a real cost
+and unchanged, so this amendment records that the trigger fired and leaves the choice open. It is the
+owner's, not this record's, and adopting it would be a new decision with its own trade-off, not an
+amendment to this one.
+
 ## Links
 - Driven by ADR-0001, ADR-0002 · SAST is ADR-0020 · infra floor is ADR-0015, ADR-0017 · package-vulnerability
   scanning (Dependabot + `audit-ci`) delivered by Issue #52 · the `--ignore-scripts` amendment delivered by
   Issue #192 (PR #194); the deploy role it protects is ADR-0015, the gates it runs in are ADR-0018.
+- The 2026-08-07 mechanism amendment rides with Issue #374 / PR #377 (the architecture page that cites this
+  record); the workflow split it describes is `b9ef46d`, and the aggregator shape it depends on is ADR-0018.

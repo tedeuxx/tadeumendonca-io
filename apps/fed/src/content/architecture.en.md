@@ -167,9 +167,25 @@ Those five are the ones this section walks through, all in July 2026 — the bac
 
 **What the objective actually needed was content**, and none of that machinery served it. A database with nothing to store. Auth with nobody to authenticate. A staging environment for a site whose revert is a merge. Each one was defensible when it was decided and none survived the question *"what is this for, here."*
 
+### Security here is mostly what was not built
+
+There is no WAF, no key I manage, and no encrypted parameter. That is not thrift: **with no server, no database and no auth, whole classes of risk stop existing rather than being mitigated** — injection into a database, auth bypass, server-side RCE, secrets at runtime. What is left is the bundle that reaches the browser and its dependencies. The auditable part of that decision is that the infrastructure scanner **knows why it does not complain**: the deviation is written into its own config file, with the reason, rather than as a silent exception.
+
+*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) no WAF, no CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) the deviation, with its reason)*
+
+Subtraction alone reads as a gap, so what remains is gated: static analysis in SonarCloud, and a dependency audit that **blocks the merge** rather than warning. And packages install without running their own scripts — `--ignore-scripts` on every install in the pipeline, because the runner that installs is the one that later assumes the deploy role. The trust root between the AWS account and GitHub is the other half, and it is spelled out two sections below, because that is where someone replicating this will look for it.
+
+*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) what is left when there is no backend)*
+
+**And one security control here was built, paid for, and cut.** The regional WAF that protected the dynamic tier became a superseded record in July 2026, and part of the idle spend in the bill above was it — still charging after it had stopped protecting anything. Those are one event seen from the money and from the decision.
+
+But there were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL **is not in the decision library**, on a page arguing that the library is the point. That is a cut the record does not fully account for, and the honest place to say so is here. The other uncomfortable part stays where it already was: the trust root is a documented hole in a floor, and no `plan` will tell you when it drifts.
+
+*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) the WAF that was cut)*
+
 ### If you need the backend back, the record tells you which decision to reverse
 
-This is what makes the growth path concrete rather than a promise that the architecture "could scale". A system that grew into needing a server does not need this site redesigned — it needs **one specific decision reopened**, and each of the five above names the one that closed it:
+A recorded reversal is what makes the growth path concrete rather than a promise that the architecture "could scale". A system that grew into needing a server does not need this site redesigned — it needs **one specific decision reopened**, and each of the five above names the one that closed it:
 
 - **dynamic data or accounts** → reverse [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md), and 0025 is the shape it had;
 - **per-request rendering** → reverse [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md); 0026 and 0027 are two things that were tried at the edge;
