@@ -17,10 +17,22 @@ const ROUTES = [
   '/pt/ramp-up',
 ];
 
-// Every measurement below is FONT-METRIC dependent, so the web face has to be applied before a line box is
-// read. This is not defensive padding — without it the SAME build measured 619.8px and 900.8px for the
-// widest line on the same route, because a fallback face breaks the heading at a different word.
-// `networkidle` says the requests finished; it does not say the face is in use.
+// Every measurement below is FONT-METRIC dependent — a line box is a function of the face laying it out —
+// so the face is awaited before any line is read. `networkidle` says the requests finished; it does not say
+// the face is applied, and the built CSS is `font-display: swap`, so there is a real window in which layout
+// runs on the fallback.
+//
+// What the face is actually worth here, measured on this build at 1280px on `/en/architecture`: web face
+// 900.75px, fallback 880.02px. A 2.3% shift, and both clear the 0.9 threshold below — so on today's copy
+// the font state cannot flip an assertion, and removing this await is a silent no-op. It is kept because
+// the hazard is real in kind, the guard costs nothing, and that margin is a property of the current
+// headings rather than of the check.
+//
+// An earlier version of this comment cited a 619.8px/900.8px split as evidence for the await. That was
+// wrong: on one build, one page load and one font state, toggling `text-wrap` ALONE reproduces exactly
+// that pair (balance 619.84px, pretty 900.75px), while toggling the font alone moves it to 880.02px /
+// 597.77px. 619.8px is the `text-balance` signature, not a fallback-face signature. How those two readings
+// came to be taken for one source state under two font states is not known, and is not guessed at here.
 const settle = async (page: Page) => {
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => document.fonts.ready);
