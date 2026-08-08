@@ -499,8 +499,49 @@ const strings = {
     close: { pt: 'Fechar', en: 'Close' },
     // The fourth destination, and the only one that never leaves the page. pt says `link` rather than
     // `ligação` — `link` is the ordinary BR-Portuguese word here, and the same rule that keeps technical
-    // nouns in English on the CV and the strip applies.
+    // nouns in English on the CV and the strip applies. NOT `url`: it is the more technical of the two,
+    // and this site's register is deliberately not discouraging to a lay reader.
+    //
+    // STILL THE FOOTER'S LABEL, UNCHANGED, and that is a decision rather than an oversight (#387).
     copyLink: { pt: 'Copiar link', en: 'Copy link' },
+    // THE MODAL'S PAIR, where the destination is named — owner-ratified verbatim.
+    //
+    // A SEPARATE KEY, not a rewrite of `copyLink`, because the reason the label grew is COMPARATIVE: two
+    // adjacent rows reading "Copiar link" / "Copiar markdown" offer a choice of FORMAT and state no
+    // destination, so `área de transferência` / `clipboard` is what makes the destination obvious. In the
+    // footer there is no second row beside it — the copy-as-markdown option is modal-only — so the
+    // justification does not reach there, and the first revision of this slice propagated the label
+    // anyway: 40 characters in a `text-xs` uppercase row beside LINKEDIN / X / WHATSAPP, ~310px of a
+    // ~335px phone row, wrapping onto its own line. The label would have grown 3.5× exactly where its
+    // argument does not apply, in the one placement whose job is distribution.
+    //
+    // The cost of two keys is that a future rewording has to touch both. That is the right cost: they say
+    // the same thing for different reasons, and the day the footer gains a second copy row it should
+    // adopt this key rather than have its own quietly drift.
+    copyLinkToClipboard: {
+      pt: 'Copiar link para a área de transferência',
+      en: 'Copy link to clipboard',
+    },
+    copyMarkdown: {
+      pt: 'Copiar markdown para a área de transferência',
+      en: 'Copy markdown to clipboard',
+    },
+    // THE FAILURE HAS TO BE VISIBLE (#387). A clipboard write is permission-sensitive and rejects in more
+    // contexts than it looks — a non-secure origin, an embedded frame, a Safari call that lost its user
+    // activation. Both copy paths used to swallow that in a `catch {}`, which is defensible for a
+    // 60-character URL the reader can still select by hand, and indefensible for a payload they believe
+    // is an entire article: they paste nothing and blame their notes app. `copied` stays the shared
+    // success state for both controls.
+    copyFailed: { pt: 'Não foi possível copiar', en: "Couldn't copy" },
+    // The copied text's attribution line — the canonical URL, clean, directly under the generated title.
+    source: { pt: 'Fonte', en: 'Source' },
+    // Stands in for the ` ```adr-index ` fence, which is EMPTY in source and expands into a live table
+    // only in the renderer. Copied verbatim it is three backticks; copied through this it is the link the
+    // page would have told you to follow anyway.
+    adrIndexLink: {
+      pt: 'Índice de decisões (ADRs), no repositório',
+      en: 'Decision index (ADRs), in the repository',
+    },
   },
   video: {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },

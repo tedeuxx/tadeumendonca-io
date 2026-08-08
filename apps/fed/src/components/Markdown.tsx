@@ -18,6 +18,7 @@ import { Diagram } from './Diagram';
 import { AdrTable } from './AdrTable';
 import { repoCardFor } from '../data/repoCards';
 import { useLocalePath } from '../i18n';
+import { isInternalHref } from '../lib/markdownLinks';
 
 /**
  * A link markdown authored, with SITE-INTERNAL ones localized and routed (#166).
@@ -36,15 +37,22 @@ import { useLocalePath } from '../i18n';
  * guard compares.
  *
  * SCOPE, narrow on purpose: only `/`-rooted paths, and not `//host` (protocol-relative, an external URL
- * wearing a leading slash). Absolute URLs, `mailto:` and in-page `#anchor` links are untouched, so this
- * is inert on every markdown file that exists today — none of them authored a root-relative link.
+ * wearing a leading slash). Absolute URLs, `mailto:` and in-page `#anchor` links are untouched.
+ *
+ * THE PREDICATE ITSELF NOW LIVES IN `lib/markdownLinks` (#387) — the copy-as-markdown payload has to make
+ * exactly this set of links absolute, and two places deciding one rule is how the renderer and the
+ * clipboard would come to disagree about a link nobody checked.
+ *
+ * "EXACTLY THIS SET" MEANS ANCHORS, and it is worth saying which handler is missing rather than which are
+ * present: this file registers `a`, `pre` and `p` and NO `img`, so an image target is never localized
+ * here — the browser resolves it against the origin. The payload matches that by rejecting `!`-prefixed
+ * targets; if an `img` handler is ever added, `shareMarkdown.ts` is the second place that has to learn it.
  */
 function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   // Called unconditionally, before the branch — a hook behind an `if` is a hook that changes order
   // between a link with an href and one without.
   const lp = useLocalePath();
-  const internal = href !== undefined && href.startsWith('/') && !href.startsWith('//');
-  if (internal) {
+  if (isInternalHref(href)) {
     return (
       <RouterLink to={lp(href)} {...props}>
         {children}
