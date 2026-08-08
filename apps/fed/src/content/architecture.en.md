@@ -6,7 +6,9 @@ For a proof-of-engineering site, the code is the pitch — so the honest thing i
 
 ## The shape
 
-A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No backend: no server, no database, no auth. Cost near-zero, attack surface minimal, nothing to keep running at 3am. *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
+A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No backend: no server, no database, no auth. Cost near-zero, attack surface minimal, nothing to keep running at 3am.
+
+*(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
 In layers, and **the interesting thing about this picture is what is not in it** — there is no application tier and no data tier, because everything that would normally live at runtime happens at build time instead:
 
@@ -27,7 +29,9 @@ flowchart TB
   P -- "publishes" --> O
 ```
 
-**The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md))*. What a backend would do per request — resolve content, render HTML, build the OG tags — happens once, in the build lane, and ships as files.
+**The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated. What a backend would do per request — resolve content, render HTML, build the OG tags — happens once, in the build lane, and ships as files.
+
+*(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) consent-gated analytics)*
 
 That is also why the bill below is what it is: **the name and the hosted zone bill whether anyone comes or not, and what a visit adds on top of them rounds to nothing.**
 
@@ -72,7 +76,9 @@ But the method is not dispatch. It starts from my idea. Then I **listen to how t
 
 And listening pays. They carry more seniority than I do in the frameworks and languages this is built in — I add architecture and direction. **I recurrently learn ways to use AWS services I did not know were possible.** On this site it was Lambda@Edge OG rendering: I had no idea it could stand in for SSR and solve crawler indexing. On another system it was semantic search on Amazon S3 Vectors: I did not know you could assemble it from serverless pieces and pay on demand, instead of for a provisioned OpenSearch cluster running around the clock. The trade is throughput and latency — AWS itself positions the two as tiers, not as alternatives.
 
-The irony of that first example sits two sections down: that Lambda@Edge is [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md), and it was **cut**. It worked, it taught me something, and then it proved unnecessary — build-time prerendering delivers the same served HTML with nothing running. Both are true at once.
+The irony of that first example sits two sections down: that Lambda@Edge has a decision on record, and it was **cut**. It worked, it taught me something, and then it proved unnecessary — build-time prerendering delivers the same served HTML with nothing running. Both are true at once.
+
+*(→ [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md) Lambda@Edge OG, superseded)*
 
 In people, everything above cost one person. Weekends, alongside consulting work.
 
@@ -105,7 +111,9 @@ It does not buy indifference to traffic — S3 and CloudFront are purely usage-p
 
 AWS is one of the providers that could invoice this — and that is the criterion, stated rather than left to a count, because a number goes stale the moment a dependency is added. **Anything that bills to keep the published site up, or would bill on a condition, belongs here.** The scope is the second rule stated above — what the site **runs on**, not what I **build** it with — and the closing section returns to it. Applied honestly it still turns up more than a list of zeros, and the interesting part is that they do not all behave the same way.
 
-**Two bill today, and neither charge was created by this site.** **GitHub** hosts the code and runs every gate, on a paid **Team** plan — the subscription predates the site, though the CI load on it is entirely the site's own, and priced at zero for a reason two paragraphs down. **iCloud+** carries the custom-domain email at the apex — [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records, so it is not adjacent to this infrastructure, it is inside it *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) custom email via iCloud)*. Both subscriptions existed before the site and would bill exactly the same if it were deleted tomorrow, which is why the USD 6.57 does not absorb them — the first rule above, applied. "Runs on almost nothing" is true of what the site added, not of everything it depends on.
+**Two bill today, and neither charge was created by this site.** **GitHub** hosts the code and runs every gate, on a paid **Team** plan — the subscription predates the site, though the CI load on it is entirely the site's own, and priced at zero for a reason two paragraphs down. **iCloud+** carries the custom-domain email at the apex — [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records, so it is not adjacent to this infrastructure, it is inside it. Both subscriptions existed before the site and would bill exactly the same if it were deleted tomorrow, which is why the USD 6.57 does not absorb them — the first rule above, applied. "Runs on almost nothing" is true of what the site added, not of everything it depends on.
+
+*(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) custom email via iCloud)*
 
 **The rest bill zero, on conditions that are the part worth knowing:**
 
@@ -133,7 +141,9 @@ The same reading turned up roughly **USD 12.80 a month** the site was not using:
 
 I found them by reading the bill, which is late. So what watches now is an account-wide budget in `iac/budget.tf`, and two things about it are deliberate. It is **not** scoped to this project's tags — otherwise it would only ever see spend this repo created, and this was exactly the kind it did not. And the sensitivity lives in the **thresholds**, not the ceiling: a ceiling has to be sized for your worst legitimate month, which here is the October renewal, so it is by construction deaf to anything smaller than itself. The alarm that matters fires at 15% — around USD 12, quiet at the normal run rate, and awake to any new recurring cost of roughly USD 8/month. A conventional 50/80 pair would first have spoken at USD 40, several times actual spend, and stayed silent for a year about a new USD 30/month service.
 
-That is the transferable part, and it is two-sided: infrastructure you stop using does not stop billing, and the thing meant to catch it has to look **wider** than what you are building and **lower** than what you are afraid of. *(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf))*
+That is the transferable part, and it is two-sided: infrastructure you stop using does not stop billing, and the thing meant to catch it has to look **wider** than what you are building and **lower** than what you are afraid of.
+
+*(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) the budget guard)*
 
 ## What was cut — and it was built first, which is the part that matters
 
@@ -172,11 +182,15 @@ That is this page's own principle applied to the one list it cannot avoid reprod
 
 ## Content is markdown in the repo, resolved at build
 
-Every page's content — the CV, this page, the articles — is markdown or typed data in the repo. Each route is **prerendered** at build (a headless snapshot) so the OG/SEO tags and crawlable HTML land in the served files — no SSR, no edge rendering. The downloadable CV PDF is printed from the live `/me` by the same step. *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete · [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
+Every page's content — the CV, this page, the articles — is markdown or typed data in the repo. Each route is **prerendered** at build (a headless snapshot) so the OG/SEO tags and crawlable HTML land in the served files — no SSR, no edge rendering. The downloadable CV PDF is printed from the live `/me` by the same step.
+
+*(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete · [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
 
 ## The dev-loop is the product
 
-The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site. *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
+The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site.
+
+*(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
 ```mermaid
 flowchart LR
@@ -233,7 +247,9 @@ flowchart TB
 
 **Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch. (The box that is *not* a plugin component — *Then the gates, then the merge* — is a pointer back to the first diagram, and those gates certainly do stop you: SonarCloud and the terminal `build-test` check block a merge outright. They live in this repo's workflows rather than in the plugin, which is why they are not rows in the inventory below.) Two of the five hooks run on `PreToolUse`: the agent runtime calls them *before* a tool runs, they return a denial, and the command does not happen. The other three run at `SessionStart`, an event that hands a hook no tool call to refuse, which is why they are not drawn as a floor. **The class says** what a session-start hook *cannot stop*, not that it merely watches — a hook on that event runs before the first tool call and can act, and this drawing has no shape for that. **And one of them acts:** `session-wip` and `session-plugin-version` only report; `session-scratch` empties the scratch directory. That is a fact about each script, not a property of the event, **and that is why** the drawing cannot be read as a promise about what they do. The personas advise, and *advise* is a claim about the judgement they produce, not about where they sit: one of them, `quality-assurance`, has a mechanically enforced seat — the same permission hook lets only that agent type run the merge command — and being the only one who *may* merge is a different property from being checked on how it merged. `product-lead` is the mirror image of that: it **blocks** a merge when it finds a published claim that is untrue — but by convention rather than by hook, so nothing refuses the merge command on its behalf and the drawing cannot honestly show it as a floor. Nothing checks the judgement in either case, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. The commands are neither — they are the written form of a decision already taken, so nobody re-litigates it at 2am.
 
-**The inventory is typed here and pinned to the plugin** — which is a narrower claim than *generated*, and the one that is actually true. Every name, event, matcher, path and count above is written by hand into the diagram; what makes it trustworthy is a chain of two. A test compares the drawing, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), so the fence cannot drift from it in either locale. And a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree three ways — a component the manifest is missing, a manifest row with nothing behind it, and one that is present on both sides having changed shape. Add, retire or rename a persona over there and this repo's build goes red. *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md))*
+**The inventory is typed here and pinned to the plugin** — which is a narrower claim than *generated*, and the one that is actually true. Every name, event, matcher, path and count above is written by hand into the diagram; what makes it trustworthy is a chain of two. A test compares the drawing, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), so the fence cannot drift from it in either locale. And a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree three ways — a component the manifest is missing, a manifest row with nothing behind it, and one that is present on both sides having changed shape. Add, retire or rename a persona over there and this repo's build goes red.
+
+*(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
 **What that does not buy is freshness, and the gap is structural rather than an oversight.** The plugin is a *different repository*, and nothing in this one can trigger on a merge in it. So the red arrives at the next build here — which may be days later, and on a change that has nothing to do with it. **This page can be wrong for that whole window and will not say so.** Two smaller limits, for the same reason the rest of this page states its own: the check compares **identity**, so a hook that keeps its name and changes what it does publishes a stale description under a green build; and the short glosses on the edges — *denies the call*, *advises, if dispatched* — are **authored here** and checked by nothing.
 
@@ -241,7 +257,9 @@ That is also where the two terms in the opening paragraph land — and they do n
 
 ## The decision record IS the documentation
 
-No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **[Architecture Decision Record](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)**, read through the keystone [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md): *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
+No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **Architecture Decision Record**, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
+
+*(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
 
 ## Replicate it for your own context
 
@@ -259,9 +277,13 @@ The fork-to-live steps are in the READMEs, not on this page. That is the same ru
 
 Two of those steps are decisions rather than procedure, and they are the ones worth reading before you start rather than while you are stuck.
 
-**Terraform here does not create the GitHub OIDC provider, nor the role that runs Terraform itself.** Those are created out of band, with the AWS CLI, and they stay outside Terraform permanently. There are two independent reasons and only one of them would ever go away: the first run would need the credential it has not created yet, and — the one that does not expire — a role able to rewrite its own trust policy has no ceiling on it. **[ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md)** records both, along with the part that is uncomfortable to write down: this is a documented hole in a floor, the hand path reopens every time that role's policy is revised, and no `plan` will ever tell you it has drifted.
+**Terraform here does not create the GitHub OIDC provider, nor the role that runs Terraform itself.** Those are created out of band, with the AWS CLI, and they stay outside Terraform permanently. There are two independent reasons and only one of them would ever go away: the first run would need the credential it has not created yet, and — the one that does not expire — a role able to rewrite its own trust policy has no ceiling on it. The record holds both, along with the part that is uncomfortable to write down: this is a documented hole in a floor, the hand path reopens every time that role's policy is revised, and no `plan` will ever tell you it has drifted.
 
-**The roles trust an *immutable* subject** — by numeric ID rather than by name, because a name can be transferred to someone else and the IDs cannot. It is the step most likely to cost you an afternoon, since getting it wrong fails as an unhelpful `sts:AssumeRoleWithWebIdentity` denial. **[ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md)** has the form, the trade-off, and the rename that taught it.
+*(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) trust root outside Terraform)*
+
+**The roles trust an *immutable* subject** — by numeric ID rather than by name, because a name can be transferred to someone else and the IDs cannot. It is the step most likely to cost you an afternoon, since getting it wrong fails as an unhelpful `sts:AssumeRoleWithWebIdentity` denial. The exact form, the trade-off, and the rename that taught it are on record.
+
+*(→ [ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md) immutable subject)*
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 

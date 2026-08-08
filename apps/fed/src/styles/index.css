@@ -440,6 +440,48 @@ body {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
+
+/* THE CITATION APPARATUS IS NOT THE ARGUMENT (#366).
+ *
+ * `/architecture` cites its records with `*(→ [ADR-0002](…) label · …)*`. The `*…*` wrapper was
+ * written to DEMOTE the pointer and bought nothing: there was no `.markdown em` rule, so the whole
+ * span rendered at body size, in the accent colour, with an accent underline. The citation was
+ * typographically LOUDER than the claim it supports — which is the mechanical cause of the owner's
+ * "deselegante", and it is weight rather than placement.
+ *
+ * `em:has(a)` and not `em`, deliberately: emphasis carries real prose all over these files
+ * (`*página*`, `*cortada*`, `*em que*`), and demoting that would be a different change. Measured across
+ * every markdown file under `src/content/` — the only emphasis spans containing a link are the pointers.
+ * No count here on purpose: the commit that first wrote this comment as "seven" raised it to eleven in
+ * the same diff, which is the drift this page exists to argue against.
+ *
+ * THE PREMISE IS UNGUARDED, and forward rather than current. Nothing asserts that emphasis-with-link
+ * stays confined to the pointer idiom. The day an article writes `*veja [o guia](…)*`, that emphasis
+ * silently loses its italic and drops to muted — a voice change in one file caused by a rule shipped
+ * for another, with nothing going red. Whether that is worth a guard is `tech-lead`'s call.
+ *
+ * NOT A `display` CHANGE, and that is a requirement rather than a preference: a crawler and a reader
+ * with CSS off must still receive the pointer, because the mapping *this claim → these records* is
+ * what the page promises. Reducing weight keeps it; hiding it would silently narrow the contract. */
+.markdown em:has(a) {
+  font-size: 0.875em;
+  font-style: normal;
+  color: hsl(var(--muted-foreground));
+}
+/* The underline stays at the pointer's OWN colour, not at `--border`. Measured: `--border` is about
+ * 1.4:1 against the background — below the threshold at which a hairline is perceptible — and with
+ * `color: inherit` the link would carry no colour differentiation AND no visible underline, making it
+ * legible as text and undiscoverable as a link. That is the same defect as the loud version, at the
+ * other end. Quieter than the argument, still findable. */
+.markdown em:has(a) a {
+  color: inherit;
+  border-bottom-color: currentColor;
+}
+.markdown em:has(a) a:hover {
+  background: transparent;
+  color: hsl(var(--primary));
+  border-bottom-color: hsl(var(--primary));
+}
 .markdown ul,
 .markdown ol {
   padding-left: 1.4em;
