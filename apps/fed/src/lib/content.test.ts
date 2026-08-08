@@ -10,13 +10,8 @@ import {
   type BlogPost,
 } from './content';
 
-// Slugs are per-locale now (ADR-0037): an article's EN edition and PT edition carry DIFFERENT slugs. The
-// filename KEY (the canonical English slug) is the grouping identity.
-//
-// This said "the one live article" until a second one was published. The constants below still name the
-// FIRST article deliberately — these cases are about the per-locale slug rule, and one article exercises
-// it completely — but the corpus is no longer a single piece, and any future assertion that reads the
-// whole corpus has to be written knowing that.
+// Slugs are per-locale now (ADR-0037): the EN edition and the PT edition of the one live article carry
+// DIFFERENT slugs. The filename KEY (the canonical English slug) is the grouping identity.
 const EN_SLUG = 'my-commitment';
 const PT_SLUG = 'meu-compromisso';
 

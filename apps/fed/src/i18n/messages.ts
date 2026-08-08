@@ -121,15 +121,6 @@ const strings = {
     //
     // The per-item `hasVideo` badge is the right home for the claim, and stays: it can only ever be
     // true, because it is rendered from the article that has one.
-    //
-    // SUPERSEDED IN PART, 2026-08-08 (#210, PR #382): "not one published article sets it" was true
-    // when written and stopped being true with `green-checks-that-verify-nothing`, which opens with
-    // the Boris Cherny video on the owner's instruction — the first article on the site to embed one.
-    // The DECISION does not move: a subtitle promising videos would still be a capability stated as
-    // track record at n=1, and the per-item badge is still the honest home. What changed is the
-    // premise, and it is recorded here rather than left for the next reader to discover that the
-    // sentence above no longer describes the tree. Revisit the subtitle only if enough articles carry
-    // one that the plural stops being a promise.
     subtitle: {
       pt: 'Escrita técnica com trade-offs explícitos',
       en: 'Technical writing with explicit trade-offs',
