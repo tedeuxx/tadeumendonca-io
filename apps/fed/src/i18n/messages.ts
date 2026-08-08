@@ -328,6 +328,25 @@ const strings = {
     // The scoping work in #255/#256/#258 did not rescue the universal; it made it harder to stand
     // behind, by putting the carve-out into published copy.
     //
+    // AMENDED #407, and the amendment is why this comment is worth keeping rather than shortening.
+    // The paragraph quoted two paragraphs up — "this site is the one entry that did not come through
+    // it" — was CUT from both editions of /architecture in that PR, on the owner's paragraph-by-
+    // paragraph review. So the sentence a reader could catch this copy on is no longer published.
+    //
+    // THAT CHANGES NOTHING HERE, and the reason is the distinction this comment already turns on:
+    // the objection was never that the exception was *published*, it was that the exception is
+    // *true*. It still is — `catalog.ts` lists `tadeumendonca-io`, and that entry's own comment
+    // records that it is the shelf rather than an item on it. Deleting the disclosure removed the
+    // reader's evidence, not the counterexample. A universal here would now be a claim that is false
+    // and no longer conveniently falsifiable, which is worse than the state this draft was written
+    // to escape.
+    //
+    // #407 also had to fix the SAME defect on /architecture, in the other direction: cutting that
+    // paragraph left the feature bullet reading "a project enters by clearing the written bar" — an
+    // unqualified universal, with the bar's own link stapled into it. It now names the bar and
+    // quantifies nothing, matching this key. Both surfaces are back on one shape; the shape is the
+    // one below, and it is the same shape for the same reason.
+    //
     // So this names the STANDARD and quantifies nothing: there is a bar for getting listed, here it is,
     // go read it. It still does #246's job — it turns "the only item" into "a shelf with an entry
     // requirement" — and it is true whatever the shelf currently holds, including while the shelf holds
