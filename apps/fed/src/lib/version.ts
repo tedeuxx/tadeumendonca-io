@@ -1,5 +1,5 @@
-// The running site's version, read from the ROOT `VERSION` file — the same file `version-main` bumps
-// and tags on every push to `main`.
+// The running site's version, read from the ROOT `VERSION` file — the same file `deploy.yml`'s `release`
+// job bumps and tags on every push to `main`, and on a deliberate minor/major dispatch.
 //
 // Imported with Vite's `?raw` rather than injected through a `define`. The define route means reading
 // the file in vite.config.ts AND again in vitest.config.ts (vitest does not read the app's Vite config),
@@ -18,7 +18,7 @@ import pluginRelease from '../content/generated/plugin-release.json';
 
 export const SITE_VERSION = raw.trim();
 
-/** The GitHub Release `version-main` published for this exact build. */
+/** The GitHub Release `deploy.yml`'s `release` job published for this exact build. */
 export const releaseUrl = (version = SITE_VERSION) =>
   `https://github.com/tedeuxx/tadeumendonca-io/releases/tag/v${version}`;
 
@@ -26,9 +26,12 @@ export const releaseUrl = (version = SITE_VERSION) =>
 // THE PLUGIN'S version (#345, ADR-0043's 2026-08-04 amendment) — a SECOND repository's clock, which is
 // why it does not work the way `SITE_VERSION` does.
 //
-// `SITE_VERSION` is exact because there is one clock: the deploy's `release` job bumps the root VERSION
-// in the same commit the build consumes. `tedeuxx/tadeumendonca-skills` has its own, so this value is
-// resolved in TWO LEVELS:
+// `SITE_VERSION` is exact because there is one clock: `deploy.yml` never publishes a tree that does not
+// already carry its own tag — the `release` job bumps the root VERSION in the same commit the build
+// consumes, and the `gate` job ASSERTS the tag resolves to that commit before anything is built. (The
+// deliberate minor/major dispatch and the `part: none` republish both stay inside that one clock, which
+// is why the cut was made in `deploy.yml` rather than in a second workflow.)
+// `tedeuxx/tadeumendonca-skills` has a clock of its own, so THAT value is resolved in TWO LEVELS:
 //
 //   1. `VITE_PLUGIN_VERSION` — the deploy reads the plugin's VERSION from a tokenless checkout and passes
 //      it in. The BUILD reads it as an env var, the same way it reads `VITE_GA_MEASUREMENT_ID`; how the
