@@ -37,7 +37,19 @@ name: deploy
 #
 # ACCEPTED COST, inherent to bump-before-deploy and undesignable-away: the release step is load-bearing
 # for deployment. It wedged once, for four merges; then that only stopped the tagging, now it stops the
-# site shipping. `workflow_dispatch` below is the unconditional manual deploy and the rollback path.
+# site shipping. `workflow_dispatch` below is the manual deploy and the rollback path FOR THE SITE.
+#
+# ⚠️ IT IS NOT THE ROLLBACK PATH FOR INFRASTRUCTURE, AND THAT IS DELIBERATE. It was, briefly, via an
+# `apply_infra` input; that input is gone and `terraform-apply` below refuses to run on anything but a
+# push. Rolling infrastructure back is REVERT THE COMMIT AND MERGE — which is what /principles/dev-loop
+# prescribes anyway ("failure = revert + forward fix") and what ADR-0003's forward-fix discipline already
+# says this repo does. The capability removed is real and is recorded as a cost, not waved away.
+#
+# WHY, in one line, because the reasoning is not obvious from the shape: `workflow_dispatch` runs against a
+# REF, `--ref` takes any branch, and anything that can push a branch could therefore have applied ITS OWN
+# `iac/` tree to live AWS under `AWS_INFRA_OIDC_ROLE_ARN` — the role this file itself calls "strictly more
+# powerful than the deploy role". The main-only refusal in `release` did not cover it: that job is skipped
+# entirely when `part` is `none`, so its guard was never evaluated on exactly the dispatch that mattered.
 #
 # HOW A MINOR OR A MAJOR IS CUT, AND WHY IT IS THIS WORKFLOW RATHER THAN A SECOND ONE
 #
@@ -79,9 +91,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    # Three inputs rather than one, because merging infra-apply in here would otherwise have silently
-    # widened what a manual deploy DOES: the documented rollback path would start running
-    # `terraform apply` against real AWS. Publishing is the default; applying is opt-in.
+    # TWO inputs, and the absent third is the point. `apply_infra` used to sit here, defaulting to false,
+    # on the reasoning that "publishing is the default; applying is opt-in". Opt-in was the wrong axis: the
+    # question is not how hard the button is to press, it is WHOSE TREE gets applied. A dispatch names a
+    # ref, `gate` checks out that ref's sha, and `terraform-apply` applied `iac/` FROM IT — so the input
+    # made "can push a branch" equivalent to "can apply infrastructure". A default of `false` is not a
+    # control; it is a suggestion to whoever is filling in the form, and the caller fills in the form.
     inputs:
       part:
         # `none` is the DEFAULT and it is the whole reason this input is safe to add. A manual deploy is
@@ -98,13 +113,12 @@ on:
           - minor
           - major
       deploy_app:
+        # Still here, and safe for the reason `apply_infra` was not: publishing builds the dispatched tree
+        # and syncs it to S3 under the DEPLOY role, which is scoped to the bucket and the distribution.
+        # Bad content is one revert-and-republish away. `terraform apply` from an arbitrary tree is not.
         description: "Publish the site (build, S3 sync, invalidation)"
         type: boolean
         default: true
-      apply_infra:
-        description: "Run terraform apply (real AWS infrastructure)"
-        type: boolean
-        default: false
 
 # Read-only by DEFAULT. `contents: write` and `id-token: write` are granted per job, to the one job that
 # needs each, so no deciding job ever holds a credential.
@@ -281,6 +295,9 @@ jobs:
   #   workflow_dispatch, part != none → release bumped   → gate runs on the bump commit, filters bypassed
   #   workflow_dispatch, part == none → release skipped  → gate runs on the dispatched sha, filters bypassed
   #
+  # "Filters bypassed" is about the APP surface only. On both dispatch rows `iac` is hardcoded `false`
+  # below, so no dispatch reaches `terraform-apply` — the bypass buys a republish, never an apply.
+  #
   # The last two are why nothing below may key off `github.event_name` to answer *did this run bump?*.
   # It used to be a correct proxy — only a push could bump. It is not one now, and `needs.release.result`
   # is the thing that actually means it.
@@ -355,7 +372,6 @@ jobs:
         id: changes
         env:
           DISPATCH_APP: ${{ inputs.deploy_app }}
-          DISPATCH_IAC: ${{ inputs.apply_infra }}
           BUMPED: ${{ needs.release.result }}
         run: |
           set -euo pipefail
@@ -371,8 +387,13 @@ jobs:
               echo "::notice::this dispatch cut a new version, so the site WILL be published even though deploy_app was false — a tag whose version never reaches the footer is a release that did not happen"
             fi
             echo "app=$app" >> "$GITHUB_OUTPUT"
-            echo "iac=$DISPATCH_IAC" >> "$GITHUB_OUTPUT"
-            echo "::notice::manual dispatch — NO surface filter applied. publish site: $app · terraform apply: $DISPATCH_IAC"
+            # HARDCODED false, not an input, and this is the first of the two independent refusals.
+            # A dispatch NEVER applies infrastructure: it runs against a ref the caller chose, and applying
+            # `iac/` from a caller-chosen tree hands the infra role — "strictly more powerful than the
+            # deploy role" — to anything that can push a branch. Infra applies on a merge to main only,
+            # which is already the normal path and already what the surface filter below exists for.
+            echo "iac=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::manual dispatch — NO surface filter applied. publish site: $app · terraform apply: never on a dispatch (revert and merge to roll infrastructure back)"
             exit 0
           fi
           # Diagnosed rather than left to git's raw `fatal: No names found`. It fails CLOSED — red job,
@@ -441,10 +462,21 @@ jobs:
   # Terraform apply against the single workspace. Formerly infra-apply.yml.
   # On apply this writes the app SSM params (/{env}/{frontend,storage,iam}/*) that deploy-app reads —
   # which is why it is upstream of it.
+  #
+  # REACHABLE ONLY FROM A PUSH TO main. Two independent conditions say so: `gate` hardcodes
+  # `iac=false` on every dispatch, and the `if:` below additionally requires a push. This job holds the
+  # infra role and applies whatever `iac/` is in the tree it checks out, so "which trees can reach it" is
+  # the whole security property — and a `workflow_dispatch` ref is chosen by the caller.
   # ---------------------------------------------------------------------------------------------
   terraform-apply:
     needs: gate
-    if: needs.gate.outputs.iac == 'true'
+    # `github.event_name == 'push'` is the SECOND of two independent refusals, and it is deliberately
+    # redundant with `gate` hardcoding `iac=false` on a dispatch. Redundant, not belt-and-braces theatre:
+    # the two fail for different reasons. `gate`'s is a value in a shell script that a later edit could
+    # re-parameterise without anyone noticing (that is exactly how `apply_infra` arrived); this one is a
+    # property of the JOB, visible in the file's structure, and it holds even if the gate output is ever
+    # wrong. The rule it encodes is flat and has no exception: infrastructure applies on a merge to main.
+    if: needs.gate.outputs.iac == 'true' && github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: staging
     permissions:

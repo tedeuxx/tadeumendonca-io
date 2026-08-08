@@ -28,6 +28,7 @@ const workflow = yaml.load(source);
 const triggers = workflow.on ?? workflow[true];
 const release = workflow.jobs.release;
 const gate = workflow.jobs.gate;
+const terraformApply = workflow.jobs['terraform-apply'];
 
 const step = (job, namePart) => {
   const found = job.steps.filter((s) => s.name?.includes(namePart));
@@ -106,5 +107,64 @@ describe('deploy.yml — a version that never reaches the footer is not a releas
     const checkout = step(gate, 'Checkout the commit that carries the version');
     expect(checkout.with.ref).toBe('${{ needs.release.outputs.sha || github.sha }}');
     expect(source).not.toContain('|| github.ref }}');
+  });
+});
+
+// A `workflow_dispatch` runs against a ref the CALLER names, `gate` checks out that ref's sha, and
+// `terraform-apply` applies `iac/` from the tree it is handed under AWS_INFRA_OIDC_ROLE_ARN — the role
+// this workflow calls "strictly more powerful than the deploy role". So anything able to push a branch
+// was able to apply its own infrastructure. The `apply_infra` input defaulted to `false`, which reads
+// like a control and is not one: the caller fills in the form.
+//
+// The main-only refusal in `release` did not cover it. That job's `if:` requires `inputs.part != 'none'`,
+// so a `part: none` dispatch skips the job and never evaluates its guard — the guard was correct and
+// unreachable on exactly the dispatch that mattered.
+//
+// These assertions are the regression test for that removal. They are structural on purpose: each one names a
+// condition whose REMOVAL re-opens the hole, so deleting the condition reddens the suite rather than
+// quietly restoring the capability.
+describe('deploy.yml — infrastructure applies on a merge, never on a dispatch', () => {
+  it('offers no input that could ask a dispatch to apply infrastructure', () => {
+    // The input is gone, not defaulted-off. Asserted on the parsed inputs AND on the raw source, because
+    // re-adding it under any default at all is the regression, and a plumbed-but-unused input would still
+    // parse away cleanly here while sitting in the file ready to be wired back up.
+    expect(Object.keys(triggers.workflow_dispatch.inputs)).toEqual(['part', 'deploy_app']);
+    expect(triggers.workflow_dispatch.inputs.apply_infra).toBeUndefined();
+    // A bare `not.toContain('apply_infra')` is what this started as, and it was wrong: the file's comments
+    // NAME the removed input to explain why it is gone, and a rule that forbids describing its own history
+    // would be paid for by deleting the explanation. So the two spellings that would restore the
+    // capability are forbidden, and prose is left alone — the declaration, and any read of it.
+    expect(source).not.toMatch(/^\s*apply_infra:/m);
+    expect(source).not.toContain('inputs.apply_infra');
+  });
+
+  it('refuses to apply on anything but a push, as a property of the job itself', () => {
+    // The second of two independent refusals, and the one that survives a wrong gate output.
+    const condition = terraformApply.if.replace(/\s+/g, ' ');
+    expect(condition).toContain("github.event_name == 'push'");
+    expect(condition).toContain("needs.gate.outputs.iac == 'true'");
+  });
+
+  it('hardcodes iac=false on the dispatch branch of the surface filter', () => {
+    // The first refusal. The dispatch branch must emit a literal false — not an input, not a variable —
+    // and must not carry a DISPATCH_IAC env to read one from.
+    const changes = step(gate, 'What did this release touch?');
+    expect(changes.env.DISPATCH_IAC).toBeUndefined();
+    expect(changes.run).toContain('echo "iac=false" >> "$GITHUB_OUTPUT"');
+    // And `iac` may not be written from a dispatch-supplied value in either shape the input could take:
+    // an expression interpolated straight into the script, or a job env var carrying one. `iac=$iac` on
+    // the push branch is lowercase and stays legal — that one is computed from the surface diff, which is
+    // the whole point of the filter. (The first draft of this line forbade `echo "iac=$` outright and
+    // reddened on the push branch, which would have been a test demanding the filter stop filtering.)
+    expect(changes.run).not.toMatch(/iac=\$\{\{/);
+    expect(changes.run).not.toMatch(/iac=\$[A-Z_]+/);
+  });
+
+  it('still lets a dispatch publish the site, which is the rollback path that remains', () => {
+    // The cost is bounded deliberately: the SITE rollback survives, only the INFRA one goes. If
+    // this ever fails, the change removed more than it was scoped to remove.
+    expect(triggers.workflow_dispatch.inputs.deploy_app.default).toBe(true);
+    const changes = step(gate, 'What did this release touch?');
+    expect(changes.env.DISPATCH_APP).toBe('${{ inputs.deploy_app }}');
   });
 });
