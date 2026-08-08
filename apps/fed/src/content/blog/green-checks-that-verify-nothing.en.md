@@ -10,7 +10,7 @@ takeaway: 'why a passing check can be worth nothing, and the one habit that find
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
-Boris Cherny's thesis in that conversation, paraphrased rather than quoted: the model is the product, and the layer around it should stay thin enough to get out of the model's way. He is right, and it is why the thing works.
+Above: Boris Cherny, who built Claude Code, in conversation with Y Combinator. His thesis, paraphrased rather than quoted: the model is the product, and the layer around it should stay thin enough to get out of the model's way. He is right, and it is why the thing works.
 
 The part nobody mentions is what is left standing once it does get out of the way. **Your gates are left standing — and an agentic loop is extremely good at producing something that passes.** A check that verifies nothing looks exactly like a check that verifies everything. Both are green. In one session I found seven of them here; five are below, and the first one is the worst.
 

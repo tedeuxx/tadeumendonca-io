@@ -10,7 +10,7 @@ takeaway: 'por que um check que passa pode não valer nada, e o único hábito q
 ---
 https://www.youtube.com/watch?v=qyPCVqFUyDo
 
-A tese do Boris Cherny nessa conversa, parafraseando em vez de citar: o modelo é o produto, e a camada em volta tem que ser fina o bastante pra sair da frente dele. Está certo, e é por isso que funciona.
+Acima, Boris Cherny — que construiu o Claude Code — numa conversa com a Y Combinator. A tese dele, parafraseando em vez de citar: o modelo é o produto, e a camada em volta tem que ser fina o bastante pra sair da frente dele. Está certo, e é por isso que funciona.
 
 A parte que ninguém conta é o que sobra quando ela sai da frente. **Sobram os seus gates — e um loop agentic é excelente em produzir algo que passa.** Um check que não verifica nada é visualmente idêntico a um que verifica tudo. Os dois estão verdes. Numa sessão eu achei sete aqui; cinco estão abaixo, e o primeiro é o pior.
 
