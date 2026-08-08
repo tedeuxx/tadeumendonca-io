@@ -49,7 +49,9 @@ describe('RampUpPage', () => {
     const logical = (href: string | null) => href?.replace(/^\/(?:pt|en)(?=\/|$)/, '') ?? null;
     const sourcesOf = (container: HTMLElement) => ({
       links: [...container.querySelectorAll('a')].map((a) => logical(a.getAttribute('href'))),
-      videos: [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src')),
+      // `/video/<id>.png` — the committed local poster. It was `img[src*="/vi/"]`, YouTube's own path,
+      // until the facade stopped fetching from i.ytimg.com on render.
+      videos: [...container.querySelectorAll('img[src^="/video/"]')].map((img) => img.getAttribute('src')),
       sections: container.querySelectorAll('h2').length,
     });
 
@@ -112,13 +114,15 @@ describe('RampUpPage', () => {
     // Pin WHICH videos: each was chosen and verified against the channel it is attributed to, so a
     // wrong or silently-swapped id is the failure worth catching. A host-shaped assertion would miss
     // it. I4B37S1dyQQ is the Y Combinator talk added by #165 — a source, not a starting pick.
-    const thumbs = [...container.querySelectorAll('img[src*="/vi/"]')].map((img) => img.getAttribute('src') ?? '');
+    const thumbs = [...container.querySelectorAll('img[src^="/video/"]')].map((img) => img.getAttribute('src') ?? '');
     expect(thumbs).toHaveLength(4);
     ['rKV5JcALQoQ', 'fl1DSmwQKKY', 'P1-8da1GgBg', 'I4B37S1dyQQ'].forEach((id) =>
-      expect(thumbs.some((src) => src.includes(`/vi/${id}/`))).toBe(true),
+      expect(thumbs).toContain(`/video/${id}.png`),
     );
-    // The one request the facade does make must not block the page.
-    container.querySelectorAll('img[src*="/vi/"]').forEach((img) => expect(img).toHaveAttribute('loading', 'lazy'));
+    // The poster is now a LOCAL asset (public/video/<id>.png). The selector changed with it, and the
+    // change is the fix: `/vi/` was YouTube's path, and this test passing on it was the page proving
+    // it fetched from i.ytimg.com on render. It still must not block the page.
+    container.querySelectorAll('img[src^="/video/"]').forEach((img) => expect(img).toHaveAttribute('loading', 'lazy'));
 
     // …and clicking one does swap in the player, so the facade is a facade and not a dead thumbnail.
     // Target the facade by its label — the page also renders a ShareButton, so index 0 is not it.

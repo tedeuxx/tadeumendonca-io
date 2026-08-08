@@ -29,6 +29,31 @@ describe('VideoEmbed', () => {
       expect.stringContaining('youtube-nocookie.com/embed/dQw4w9WgXcQ'),
     );
   });
+
+  // The assertion above was true and NARROWER THAN THE CLAIM. The component's header promised zero
+  // third-party requests before a click; the not-playing branch fetched `i.ytimg.com/vi/<id>/…` on
+  // render, and no test looked, because "is there an iframe" is not "is there a third-party request".
+  // A frame is only the loudest way to make one.
+  //
+  // So this asserts the claim rather than one instance of it: every URL-bearing attribute in the
+  // rendered markup, checked against being same-origin. It fails on a reintroduced ytimg thumbnail, on
+  // a preconnect to Google, on a font or pixel from anywhere — the whole class, not the one spelling.
+  it('makes no third-party request at all before the click', () => {
+    const { container } = renderWithLocale(<VideoEmbed id="dQw4w9WgXcQ" />);
+
+    const urls = [...container.querySelectorAll('*')].flatMap((el) =>
+      ['src', 'href', 'srcset', 'poster', 'data-src'].map((a) => el.getAttribute(a)).filter((v): v is string => !!v),
+    );
+    expect(urls.length, 'nothing to check means this assertion cannot fail').toBeGreaterThan(0);
+    for (const url of urls) {
+      expect(url, `third-party URL in the not-playing branch: ${url}`).toMatch(/^\/(?!\/)/);
+    }
+  });
+
+  it('points the poster at the committed local asset for that video', () => {
+    const { container } = renderWithLocale(<VideoEmbed id="dQw4w9WgXcQ" />);
+    expect(container.querySelector('img')).toHaveAttribute('src', '/video/dQw4w9WgXcQ.png');
+  });
 });
 
 describe('Markdown video embedding', () => {
