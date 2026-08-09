@@ -157,13 +157,13 @@ Building software is what I love. Nothing is more fun to me than seeing an appli
 >
 > — Donald Knuth, 1974
 
-![“Computer programming is an art, because it applies accumulated knowledge to the world, because it requires skill and ingenuity, and especially because it produces objects of beauty.” — Donald Knuth, 1974](/photos/knuth-cv-museum.jpg "Fifty years before me, someone had already named the part I like most — and the wall is in the museum that exists to record it.")
+![White serif lettering standing off a pale museum wall, angled away from the camera, with Donald Knuth's name and the year 1974 below it to the right.](/photos/knuth-cv-museum.jpg "Fifty years before me, someone had already named the part I like most — and the wall is in the museum that exists to record it.")
 
 The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from my holiday, and it grew and matured from there. **I would never have delivered that mechanism without an agentic development tool** — and it was not only the deadline. I was carrying tech-lead responsibilities on that project **at the same time** as doing the hands-on agent development, in parallel. That is what the tool bought: not typing speed, but both of those fitting into the same week.
 
 Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. During working hours, I don't always get to work directly on building digital products, and that is where I want to spend more of my time. I like building apps.
 
-![Me and my partner outside Google's visitor centre in Mountain View, beside a row of the company's coloured bicycles.](/photos/google-visitor-centre.jpg "The first three are what I saw on that holiday. This one is what I decided to do about it when I got back.")
+![Me and my partner outside Google's visitor centre in Mountain View, beside a row of the company's coloured bicycles.](/photos/google-visitor-centre.jpg "The first three are what I saw on that holiday. This one is the only one I am in — the decision, not the evidence.")
 
 *The photographs on this page are mine — Silicon Valley.*
 

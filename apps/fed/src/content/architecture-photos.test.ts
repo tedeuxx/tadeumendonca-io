@@ -43,9 +43,8 @@ const en = imagesIn(architectureEn);
 const pt = imagesIn(architecturePt);
 
 // The wall's words, as they appear on the photograph. Authored here as ONE string and compared against
-// both the blockquote and both alts, which is the whole point: the accepted cost of putting the
-// quotation in prose AND in alt text is that a translator could drift them, and this is the mitigation
-// that was promised instead of a promise.
+// the blockquote, which is now the ONLY place on the page that delivers them. It is also the string the
+// alt is asserted NOT to contain — see `never delivers the quotation twice` below.
 const KNUTH =
   'Computer programming is an art, because it applies accumulated knowledge to the world, ' +
   'because it requires skill and ingenuity, and especially because it produces objects of beauty.';
@@ -97,27 +96,48 @@ describe('the photographs are the same set, in the same order, in both editions'
     });
   });
 
-  // The Knuth photograph is the exception that proves which half is structural: its ALT is the wall's own
-  // English words in BOTH editions (the quotation is not translated), while its caption still is.
-  it('carries the wall’s words verbatim in the alt, in both editions', () => {
-    for (const body of [en, pt]) {
-      const knuth = body.find((p) => p.src.includes('knuth'));
-      expect(knuth, 'the Knuth photograph is missing from an edition').toBeDefined();
-      expect(flat(knuth!.alt)).toContain(KNUTH);
-      expect(flat(knuth!.alt)).toContain('Donald Knuth, 1974');
-    }
-  });
-
-  // THE REDUNDANCY RULING, made mechanical. The caption must not restate the quotation — that is the only
-  // place the "told twice" failure can enter once the blockquote sits above the photograph. Checked on a
-  // distinctive fragment rather than the whole sentence, because a partial restatement is the realistic
-  // regression and the whole string is the one nobody would paste by accident.
-  it('never restates the quotation in a caption', () => {
+  // WHAT REPLACED THE VERBATIM-ALT ASSERTION, and why it is the one that pins something.
+  //
+  // Until this change the Knuth alt repeated the quotation word for word, and a test required it to. The
+  // intent was real — keep the alt and the blockquote from drifting apart — but the ruling it encoded was
+  // only ever applied for the SIGHTED reader: they meet the words once, in type, with the photograph as
+  // evidence. A screen-reader user met them twice, back to back, the blockquote and then the identical
+  // string as the image. In the pt edition it was worse still: an English paragraph delivered by a pt-BR
+  // voice, the only English block in that edition.
+  //
+  // So the alt now DESCRIBES the frame, which is what an alt is for and what ADR-0048's second condition
+  // already said, and the assertion is inverted rather than deleted. Deleting it would leave the drift it
+  // was aimed at unwatched in the other direction: the realistic regression now is somebody "helpfully"
+  // pasting the quotation back into the alt, which is exactly the redundancy this ruling refuses.
+  //
+  // Checked on a distinctive fragment rather than the whole sentence, for both alt and caption: a PARTIAL
+  // restatement is the regression that actually happens, and the full string is the one nobody pastes by
+  // accident. The `alt` half is the new claim; the `caption` half is the original assertion, unchanged.
+  it('never delivers the quotation twice — not in a caption, not in an alt', () => {
     for (const p of [...en, ...pt]) {
       expect(p.caption, `${p.src}: the caption restates the quotation`).not.toContain(
         'objects of beauty',
       );
+      expect(p.alt, `${p.src}: the alt re-delivers the quotation the blockquote already gave`).not.toContain(
+        'objects of beauty',
+      );
     }
+  });
+
+  // The consequence of that inversion, asserted directly so the Knuth photograph is not merely covered by
+  // a loop over all four: it now follows the same rule as the other three, and its alt is authored in each
+  // edition's own language. Non-identity across editions is the check that catches an alt left in English
+  // in the pt file — the precise defect the old rule mandated.
+  it('authors the Knuth alt per edition, describing the frame rather than quoting it', () => {
+    const knuthEn = en.find((p) => p.src.includes('knuth'));
+    const knuthPt = pt.find((p) => p.src.includes('knuth'));
+    expect(knuthEn, 'the Knuth photograph is missing from the en edition').toBeDefined();
+    expect(knuthPt, 'the Knuth photograph is missing from the pt edition').toBeDefined();
+    expect(flat(knuthEn!.alt)).not.toContain(KNUTH);
+    expect(flat(knuthPt!.alt)).not.toContain(KNUTH);
+    expect(knuthPt!.alt, 'the Knuth alt is the same string in both editions — untranslated').not.toBe(
+      knuthEn!.alt,
+    );
   });
 });
 
@@ -148,10 +168,12 @@ describe('the Knuth quotation is prose, above its photograph', () => {
   ])('puts the blockquote BEFORE the photograph in the %s edition', (_locale, body) => {
     const lines = body.split('\n');
     // The `>` is load-bearing in this locator, and leaving it out was a real mistake caught by the
-    // mutation run: the ALT TEXT also contains the quotation verbatim — deliberately, so a reader who
-    // meets the image alone still gets the words — so a bare content match found the image line and the
-    // comparison degenerated into `n < n`. It still went red, for the wrong reason and with a message
-    // that named neither element. The blockquote is the thing being asserted, so it is what is located.
+    // mutation run: the alt text USED TO contain the quotation verbatim, so a bare content match found the
+    // image line and the comparison degenerated into `n < n` — red for the wrong reason, with a message
+    // that named neither element. The alt no longer carries the quotation, which is precisely why the `>`
+    // stays: without it this locator would now be correct by accident, and would silently go back to
+    // matching two lines the moment anyone pasted the quotation into the alt again. The blockquote is the
+    // thing being asserted, so it is what is located.
     const quoteLine = lines.findIndex(
       (l) => l.trimStart().startsWith('>') && l.includes('Computer programming is an art'),
     );

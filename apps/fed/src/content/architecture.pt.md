@@ -157,13 +157,13 @@ Desenvolvimento de software é minha paixão. Nada me diverte mais que ver uma a
 >
 > — Donald Knuth, 1974
 
-![“Computer programming is an art, because it applies accumulated knowledge to the world, because it requires skill and ingenuity, and especially because it produces objects of beauty.” — Donald Knuth, 1974](/photos/knuth-cv-museum.jpg "Cinquenta anos antes de mim, alguém já tinha nomeado a parte de que eu mais gosto — e a parede fica no museu que existe pra registrar isso.")
+![Letras serifadas brancas em relevo sobre uma parede clara de museu, vista de ângulo, com o nome de Donald Knuth e o ano de 1974 abaixo, à direita.](/photos/knuth-cv-museum.jpg "Cinquenta anos antes de mim, alguém já tinha nomeado a parte de que eu mais gosto — e a parede fica no museu que existe pra registrar isso.")
 
 O caso que me provou isso não foi este site. Foi um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. Comecei a construir por fora, na volta das férias, e aquilo foi crescendo e amadurecendo. **Eu jamais teria conseguido desenvolver esse mecanismo sem uma agentic development tool** — e não era só o prazo. Eu estava dividindo as responsabilidades de tech lead naquele projeto **ao mesmo tempo** em que me dedicava ao desenvolvimento com agente, em paralelo. É essa a parte que a ferramenta comprou: não velocidade de digitação, e sim as duas coisas caberem na mesma semana.
 
 Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, com **Kiro**, e esta, pública, com **Claude Code**. A separação é deliberada — dois harness diferentes rodando o mesmo tipo de trabalho é o que me deixa comparar, e é assim que dá pra separar o que é do modelo do que é do setup em volta dele. Durante o expediente, nem sempre atuo diretamente no desenvolvimento de produto digital, e é onde eu quero passar mais tempo. Gosto de criar apps.
 
-![Eu e minha companheira do lado de fora do centro de visitantes do Google, em Mountain View, ao lado de uma fileira de bicicletas coloridas da empresa.](/photos/google-visitor-centre.jpg "As três primeiras são o que eu vi nas férias. Esta é o que eu decidi fazer com aquilo na volta.")
+![Eu e minha companheira do lado de fora do centro de visitantes do Google, em Mountain View, ao lado de uma fileira de bicicletas coloridas da empresa.](/photos/google-visitor-centre.jpg "As três primeiras são o que eu vi nas férias. Esta é a única em que eu apareço — a decisão, não a evidência.")
 
 *As fotos desta página são minhas — Vale do Silício.*
 
