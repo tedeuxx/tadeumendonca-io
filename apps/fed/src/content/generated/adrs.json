@@ -313,5 +313,12 @@
     "file": "0045-document-title-leads-with-section-label.md",
     "status": "accepted",
     "amended": false
+  },
+  {
+    "id": "0047",
+    "title": "A figure mermaid cannot draw is authored as a typed fence over fixed geometry — its arrangement asserted arithmetically, not pinned by a build artifact",
+    "file": "0047-authored-svg-figures-outside-the-mermaid-pipeline.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
