@@ -159,27 +159,37 @@ describe('the two editions describe the same system', () => {
 
 // THE PUBLISHED COUNT OF THE FIGURES, against the file's own contents.
 //
-// The limitations section says "Sete figuras acima" / "Seven figures above" and then splits it — four you
-// can check, three you cannot. Those are hand-typed numbers ABOUT THIS FILE, and they went stale once
+// The limitations section says "Sete desenhos acima" / "Seven drawings above" and then splits it — four
+// you can check, three you cannot. Those are hand-typed numbers ABOUT THIS FILE, and they went stale once
 // already: the page said "four" while carrying six, and a person caught it rather than a gate. The page's
 // own rule is the argument for closing it — it excuses the reader-facing feature list from carrying a
 // total on the grounds that nothing can check one, and here something can, because this suite is already
 // parsing every fence in both editions.
+//
+// THE NOUN MOVED IN #415, from `figuras`/`figures` to `desenhos`/`drawings`, and the reason is what this
+// block counts: `mermaidFences + vennFences` is the number of DRAWN figures, and four photographs landed
+// on the page above this sentence. "Seven figures" was true against the fence scan and false to any
+// reader counting what they see — a total that is only correct if you already know which things it was
+// silently excluding. Each edition now reuses the noun its own sentence already opens with ("Os desenhos
+// mostram o formato" / "The drawings show the shape of a thing"), so no new term was coined and this
+// suite still asserts the number rather than the word.
 describe('the published figure count matches the figures', () => {
   // Written out because the prose spells them, and the mapping is what makes the assertion a real one:
   // a number that only ever appears as a word cannot be compared to an integer without it.
   // The trailing `; **` is load-bearing, not decoration. `/(\S+) figuras acima/` alone matched the
   // dev-loop section's "As **duas** figuras acima" three hundred lines earlier and read the total as
   // two — a regex finding a real sentence that is not the one being asserted about, which is the failure
-  // mode a looser pattern hides best.
+  // mode a looser pattern hides best. It is STILL load-bearing after the #415 noun change and for the
+  // same reason, one collision further up: "Os dois desenhos acima mostram tempo" / "The two drawings
+  // above show time" sits three hundred lines earlier and would read the total as two.
   const WORDS = {
     en: {
-      total: /(\S+) figures above; \*\*/,
+      total: /(\S+) drawings above; \*\*/,
       split: /\*\*(\S+)\*\* of them you can check/,
       rest: /The other (\S+) you cannot check/,
     },
     pt: {
-      total: /(\S+) figuras acima; \*\*/,
+      total: /(\S+) desenhos acima; \*\*/,
       split: /\*\*(\S+)\*\* você consegue conferir/,
       rest: /As outras (\S+) você não consegue conferir/,
     },
