@@ -430,11 +430,28 @@ rule's **purpose** — a red must not be ambiguous — is preserved explicitly i
 diagnoses a setup failure as a setup failure and says outright that the site was published and is now
 unverified. That is a weaker guarantee than #195 had, and it is the price of the job split.
 
-**Two smaller notes.** `deploy`'s `workflow_dispatch` grew two boolean inputs (`deploy_app`,
-`apply_infra`, the latter defaulting **false**), because absorbing `infra-apply` would otherwise have
-silently widened the documented rollback path into something that runs `terraform apply` against real
-AWS. (It has since grown a third, `part` — see *Rules the design has to obey* above; it defaults to
-`none` for the same reason `apply_infra` defaults to `false`.) And `app` keeps its
+**Two smaller notes.** `deploy`'s `workflow_dispatch` carries two inputs — `part` (see *Rules the design
+has to obey* above, defaulting to `none`) and `deploy_app`.
+
+~~It grew a third, `apply_infra`, defaulting **false**, because absorbing `infra-apply` would otherwise
+have silently widened the documented rollback path into something that runs `terraform apply` against
+real AWS.~~ **Struck 2026-08-08: the input is removed and `terraform-apply` now refuses to run on
+anything but a push to `main`.** The default of `false` was never a control. A dispatch runs against a ref
+the **caller** names, `gate` checks out that ref's sha, and `terraform-apply` applied `iac/` from that
+tree under `AWS_INFRA_OIDC_ROLE_ARN` — so "can push a branch" was equivalent to "can apply
+infrastructure", and the checkbox was a suggestion to the party doing the asking. The main-only refusal
+inside `release` did not cover it either: that job is skipped when `part` is `none`, so its guard was
+never evaluated on precisely the dispatch that mattered. Struck rather than deleted because the original
+reasoning was sound about the *risk* and wrong about the *mechanism*, and that distinction is the useful
+part of the record.
+
+**The cost is real and is not hidden here: there is no longer a manual infrastructure rollback.** Rolling
+infra back is *revert the commit and merge*, which is what ADR-0003's forward-fix discipline already
+prescribes — so the loss is aligned with the stated principle rather than against it, but it is a loss.
+A break-glass path, if one is ever wanted, is a **separate** `workflow_dispatch`-only workflow that stays
+human-denied; deliberately not this one.
+
+And `app` keeps its
 **push-to-`main`** trigger even though the diagram draws only the PR edge:
 SonarCloud needs a main-branch analysis to have a "new code" baseline, and without it the quality gate
 slowly stops meaning what it says.

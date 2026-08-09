@@ -246,7 +246,11 @@ now never issues a token.
 2026-07-23, for four merges) left deploys working and merely stopped tagging. Now it stops the site from
 shipping. This is **inherent to "bump before deploy" and cannot be designed away** — only mitigated:
 
-- `workflow_dispatch` remains an unconditional manual deploy, and is the rollback path.
+- ~~`workflow_dispatch` remains an unconditional manual deploy, and is the rollback path.~~
+  **Struck 2026-08-09 — see the amendment below.** It is still the manual deploy and the rollback path
+  **for the site**. It is neither for **infrastructure**: `terraform-apply` now refuses to run on
+  anything but a push to `main`. Struck rather than edited because this sentence is what an on-call
+  reader reaches for during an incident, and the mitigation it promises is half gone.
 - `version-main` fails loudly with a diagnosis rather than silently.
 - The change **self-verifies on its own merge**: its bump's range contains `.github/workflows/deploy.yml`,
   so the filter must match or the deploy visibly does not happen.
@@ -369,6 +373,99 @@ like an outage.
 predicates over `var.environment` at all. State the value you mean, with a comment saying why. A branch
 that cannot be exercised is not a safeguard — it is an assertion nobody can test, and this one was false.
 
+## Amendment, 2026-08-09 — the manual infrastructure rollback is removed, and this record was the place that promised it
+
+**A capability that existed before PR #402 does not exist after it.** Stated first, in those words,
+because this record is where someone will look during an incident and the mitigation it listed is the
+thing that changed.
+
+### What is no longer true
+
+The 2026-07-30 amendment's accepted-cost list carries *"`workflow_dispatch` remains an unconditional
+manual deploy, and is the rollback path."* That sentence is struck in place above. After #402:
+
+- `workflow_dispatch` is the manual deploy and the rollback path **for the site**. Unchanged.
+- It is **not** either for **infrastructure**. The `apply_infra` input is removed, `gate` hardcodes
+  `iac=false` on the dispatch branch, and `terraform-apply` additionally requires
+  `github.event_name == 'push'`.
+- **Rolling infrastructure back is now: revert the commit, merge.** There is no button.
+
+### Why the capability was removed rather than narrowed
+
+`workflow_dispatch` runs against a ref the **caller** names. `gate` checks out
+`needs.release.outputs.sha || github.sha`, and on a `part: none` dispatch the release job is skipped, so
+the fallback — the dispatched ref's sha — wins. `terraform-apply` then checked out that sha and applied
+`iac/` **from the caller's tree**, under the role this workflow itself describes as *"strictly more
+powerful than the deploy role"*. So *"can push a branch"* was equivalent to *"can apply infrastructure
+to the live environment"*.
+
+The `apply_infra` default of `false` was not a control. It is a suggestion to whoever fills in the form,
+and the caller fills in the form. **The main-only refusal already in this repo did not cover it either**
+— it lives inside the `release` job, whose `if:` requires `inputs.part != 'none'`, so a `part: none`
+dispatch skips the job and never evaluates the guard. It was correct, and unreachable on exactly the
+dispatch that mattered.
+
+**One link in the derivation is a hypothesis and is labelled one.** Whether `workflow_dispatch` reads the
+workflow **definition** from the dispatched ref (documented GitHub behaviour) could not be settled here —
+`gh api` is denied at the permission floor. What *was* settled empirically from this repo's own run
+history is weaker and sufficient: a `workflow_dispatch` from the non-default branch `develop` ran
+repeatedly in June, so **`--ref` is honoured for the run**. The finding does not rest on the definition
+link — the tree that gets *applied* is chosen by `github.sha` → `gate`'s checkout → `terraform-apply`'s
+checkout, which is settled inside this repo and pinned by an existing assertion. The definition-source
+link would only enable a strictly larger attack.
+
+### The scope of the fix: it closes the class, not the one instance
+
+Worth stating precisely, because *"we fixed the `apply_infra` hole"* and *"a dispatch cannot apply
+infrastructure"* are different claims and only the second is what was bought. Four properties of the repo
+at this branch, each checked in the file rather than assumed:
+
+- **`deploy.yml`'s `on:` is `push: branches: [main]` plus `workflow_dispatch`, and nothing else.** That is
+  what makes the second refusal a genuine *main-only* control rather than merely a *not-a-dispatch* one:
+  with no other push branch and no other trigger, `github.event_name == 'push'` **implies** `main`. The
+  guard is written as an event test and reads as a weaker claim than it is — which is exactly why the
+  implication is recorded here, since adding a second `push` branch later would silently break it.
+- **`gate`'s `iac` output has exactly two writers**: the hardcoded `iac=false` on the dispatch branch, and
+  the surface-diff computation on the push branch. There is no third path that could set it true.
+- **`terraform apply` is executed in exactly one workflow** — `deploy.yml`, in `terraform-apply`. No other
+  workflow in `.github/workflows/` runs one.
+- **`iac.yml` has no dispatch path at all**: it triggers on `pull_request` only, and it plans rather than
+  applies.
+
+So there is no second route from a `workflow_dispatch` to a `terraform apply` anywhere in this repo, and
+`deploy.yml` is the only workflow carrying a `workflow_dispatch` in the first place. **The removed
+capability is the class, not an instance of it.** The counting is the load-bearing part: had `iac` had a
+third writer, or `terraform apply` a second site, both refusals could hold and the property still fail.
+
+### The cost, priced rather than smoothed
+
+**The loss is real.** An infrastructure change that breaks the live environment can no longer be undone
+by one person clicking one button; it is undone by a revert commit going through the PR gates and the
+merge. That is slower, and it is slower at the worst moment.
+
+**It is aligned with this record's own stated discipline, which is why it was accepted rather than
+mitigated.** This ADR's *Bad / accepted costs* already reads *"a fast forward-fix discipline
+(revert-on-`main` + re-deploy) replaces a promotion rollback"*, and `/principles/dev-loop` prescribes
+*failure = revert + forward fix* for `trunk-single-env`. The removed capability was the **exception** to
+the discipline this record chose, not an instance of it. **Alignment is not the same as costlessness**,
+and this section exists so nobody reads the first sentence as cancelling the second.
+
+**No break-glass workflow is added, deliberately.** If one is ever wanted it is a separate
+`workflow_dispatch`-only workflow that stays denied to the agent — pointedly not the one an agent may
+dispatch. Recorded as *not built* rather than as *not needed*, so the next person meets a decision
+instead of a gap.
+
+### What this does not change
+
+The `part` input and its `none` default, the automatic patch bump on every merge, the `app=true`
+override on a version-cutting dispatch, and `deploy_app`'s default of `true` are all untouched.
+`deploy_app` is safe for the reason `apply_infra` was not: publishing runs under the **deploy** role,
+scoped to the bucket and the distribution, and bad content is one revert-and-republish away.
+
+The under-scoped main-only refusal inside `release` is **left alone on purpose**. It is still narrower
+than a reader would guess; this change makes its gap harmless, and widening it would mean touching the
+release path, which #402 was scoped not to do.
+
 ## Consequences
 **Good**
 - Minimal branching/ops overhead; the pipeline mirrors the site's actual size.
@@ -383,3 +480,14 @@ that cannot be exercised is not a safeguard — it is an assertion nobody can te
 ## Links
 - Driven by ADR-0001 · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
   · relies on the CI-gate ADR (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
+- **2026-08-09 amendment evidence:** PR #402 (`fix/dispatch-cannot-apply-infra`, at `130b98a8`) for the
+  change and its four mutation-checked assertions in `apps/fed/scripts/deploy-workflow.test.mjs`;
+  `.github/workflows/deploy.yml` at that branch for the two refusals (`gate`'s hardcoded `iac=false` and
+  `terraform-apply`'s `github.event_name == 'push'`). The **class-scope** claims above were each checked
+  against the branch rather than relayed: `deploy.yml`'s `on:` block (push `main` + `workflow_dispatch`
+  only), the two writers of `gate`'s `iac` output, the single executed `terraform apply`, and `iac.yml`'s
+  `pull_request`-only trigger. Settled empirically from this repo's run history: a `workflow_dispatch`
+  from the non-default branch `develop` ran repeatedly in June, so **`--ref` is honoured for the run**.
+  The definition-source link is **unsettled and labelled a hypothesis** — `gh api` is denied at the floor.
+  The methodology half of this decision (*which layer can carry a control*) is the 2026-08-08 amendment
+  to **ADR-0008** in `tadeumendonca-skills`, which cannot ride in this repo's MR.
