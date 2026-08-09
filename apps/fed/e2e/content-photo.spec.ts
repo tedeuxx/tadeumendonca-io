@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // The photographs on /architecture, in a real viewport (#415).
 //
@@ -47,7 +47,7 @@ const QUOTE_FRAGMENT = 'it produces objects of beauty';
  * a box from the width/height attributes, so every geometry assertion here would pass on four broken
  * images. It is the only thing standing between a renamed asset and a page of alt text.
  */
-async function loadEveryPhotograph(page: import('@playwright/test').Page) {
+async function loadEveryPhotograph(page: Page) {
   await page.evaluate(async () => {
     const imgs = [...document.querySelectorAll('figure[data-photo] img')] as HTMLImageElement[];
     for (const img of imgs) img.loading = 'eager';
