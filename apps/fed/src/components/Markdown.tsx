@@ -9,6 +9,9 @@
 // Repo cards: the same lone-URL facade, for a curated GitHub repo — a paragraph that is only a registered
 // repo URL becomes a static <RepoCard> (data/repoCards.ts). Both are opt-in by URL; anything else, and any
 // unregistered URL, stays a plain link.
+// Photographs: the SAME lone-paragraph facade, for a registered content photograph (#415) — a paragraph
+// that is only `![alt](/photos/x.jpg "caption")` becomes a <PhotoFigure> with the committed file's
+// intrinsic size. Opt-in by src (data/photos.ts); an unregistered image target stays a plain <img>.
 import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown, { type Components } from 'react-markdown';
@@ -20,7 +23,9 @@ import { RepoCard } from './RepoCard';
 import { Diagram } from './Diagram';
 import { VennFence } from './VennDiagram';
 import { AdrTable } from './AdrTable';
+import { PhotoFigure } from './PhotoFigure';
 import { repoCardFor } from '../data/repoCards';
+import { photoFor } from '../data/photos';
 import { useLocalePath } from '../i18n';
 import { isInternalHref } from '../lib/markdownLinks';
 
@@ -48,9 +53,18 @@ import { isInternalHref } from '../lib/markdownLinks';
  * clipboard would come to disagree about a link nobody checked.
  *
  * "EXACTLY THIS SET" MEANS ANCHORS, and it is worth saying which handler is missing rather than which are
- * present: this file registers `a`, `pre` and `p` and NO `img`, so an image target is never localized
- * here — the browser resolves it against the origin. The payload matches that by rejecting `!`-prefixed
- * targets; if an `img` handler is ever added, `shareMarkdown.ts` is the second place that has to learn it.
+ * present: this file registers `a`, `pre`, `table` and `p`, and STILL NO `img`. #415 added photographs to
+ * a content body and did NOT change that — the facade is on `p`, for the reason `isAdrIndex` and
+ * `mermaidBlock` already record twice: react-markdown delivers a lone image as `<p><img></p>`, so an `img`
+ * handler returning a <figure> would nest a block element inside a paragraph, which is invalid HTML and a
+ * hydration mismatch on a prerendered page.
+ *
+ * So an image target is never localized here — the browser resolves it against the origin — and that half
+ * is unchanged. THE HALF THAT DID CHANGE is what `shareMarkdown.ts` does about it: it no longer leaves
+ * image targets alone, it absolutizes them to the ORIGIN, without the locale prefix, precisely BECAUSE
+ * this file does not localize them. Four photographs turned a residual it had recorded as inert into four
+ * broken references in every copied payload. See `absolutizeTargets` there — one function handles both
+ * halves, and its doc block carries the whole argument for why they differ by exactly `localizePath`.
  */
 function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   // Called unconditionally, before the branch — a hook behind an `if` is a hook that changes order
@@ -155,6 +169,35 @@ function loneUrl(children: ReactNode): string | null {
   return Children.toArray(only.props.children).join('') === href ? href : null;
 }
 
+/**
+ * The image of a paragraph that is nothing but one image — react-markdown's delivery shape for a lone
+ * `![alt](/src "caption")` on its own line, which is `<p><img></p>`.
+ *
+ * A `p` FACADE RATHER THAN AN `img` HANDLER, and the reason is written twice already in this file: a
+ * handler on `img` that returned a <figure> would nest a block element inside the <p> react-markdown has
+ * already opened — invalid HTML, and a hydration mismatch on a prerendered page, which is the same defect
+ * `isAdrIndex` and `mermaidBlock` avoid by hooking `pre` instead of `code`. This is the shape the file
+ * already uses three times (VideoEmbed, RepoCard, the table wrapper), so it is not a fourth mechanism.
+ *
+ * The MARKDOWN TITLE SLOT is the caption. That keeps authoring in standard CommonMark — it renders on
+ * GitHub, `shareMarkdown.ts`'s `LINK_TARGET` already captures the title as group 4 so captions round-trip
+ * for free, and the words stay in the content file per locale rather than in a component nobody
+ * translating the page would think to open.
+ *
+ * A paragraph mixing an image with prose is left ALONE, exactly as `loneUrl` leaves an inline link alone:
+ * an inline image must stay an inline image, and the figure treatment is opt-in by being the whole
+ * paragraph. Whitespace-only siblings are filtered for the same reason `loneUrl` filters them — the
+ * parser leaves them around a lone child and they are not content.
+ */
+function loneImage(children: ReactNode): { src?: string; alt?: string; title?: string } | null {
+  const nodes = Children.toArray(children).filter((c) => typeof c !== 'string' || c.trim() !== '');
+  if (nodes.length !== 1) return null;
+  const only = nodes[0];
+  if (!isValidElement<{ src?: string; alt?: string; title?: string }>(only)) return null;
+  if (only.type !== 'img') return null;
+  return { src: only.props.src, alt: only.props.alt, title: only.props.title };
+}
+
 const components: Components = {
   a({ children, ...rest }) {
     // `node` is react-markdown's AST handle — it must never reach the DOM.
@@ -215,6 +258,22 @@ const components: Components = {
       if (id) return <VideoEmbed id={id} />;
       const repo = repoCardFor(url);
       if (repo) return <RepoCard repo={repo} />;
+    }
+    const image = loneImage(children);
+    if (image) {
+      const photo = photoFor(image.src);
+      // BOTH WORDS ARE REQUIRED, and a missing one is a hard failure rather than a silent unlabelled
+      // figure — the same rule `mermaidBlock` applies to `accTitle:` and for the same reason. An empty
+      // alt on a photograph that carries a quotation publishes it to nobody using a screen reader; an
+      // empty caption publishes a holiday snapshot with no stated reason to be on the page, which is
+      // exactly what this Issue's editorial bar rejects. Failing loudly here is what makes the e2e
+      // "non-empty alt and caption" assertion a second line of defence rather than the only one.
+      if (photo) {
+        if (!image.alt) throw new Error(`A photograph must carry alt text — ${photo.src} has none.`);
+        if (!image.title)
+          throw new Error(`A photograph must carry a caption (the markdown title slot) — ${photo.src}.`);
+        return <PhotoFigure photo={photo} alt={image.alt} caption={image.title} />;
+      }
     }
     return <p {...props}>{children}</p>;
   },

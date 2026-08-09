@@ -341,3 +341,31 @@ measurement mattered in the first place.
 **Links added by this amendment**
 - **Scope narrowed by [ADR-0047](./0047-authored-svg-figures-outside-the-mermaid-pipeline.md)** — a figure
   mermaid cannot draw is authored outside this pipeline, under stated conditions.
+
+## Amendment (2026-08-09) — the rejection of a checked-in raster is a rejection about DIAGRAMS, and its argument is why the next record exists
+**Considered options** rejects *"a hand-drawn SVG (or an exported PNG) checked in as an asset"* in terms
+that read as universal — *"an `<img>` makes every label a picture of a word — invisible to the crawler, to
+the screen reader, to selection and to translation"*. Read as written, that forbids every raster in every
+content body. It was never asked to decide that, and `/architecture` now carries four photographs.
+
+**Nothing here is relaxed, reversed or softened.** The two clauses of that rejection are both about a
+**diagram**: that a hand-drawn diagram's source of truth sits in a tool outside the repo where no check can
+observe the drift, and that a diagram's labels must be text. Neither clause reaches a photograph, because a
+photograph has no in-repo source it could drift from and no labels we author. What a photograph *does*
+share is the second clause's consequence, and that is the useful part: **it cannot carry words the page
+depends on.**
+
+So [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md) **applies this argument rather than
+contradicting it**. A content photograph is a captioned figure carrying evidence, and any text it depicts —
+the Knuth quotation on a museum wall — is authored beside it as prose precisely because *an `<img>` makes
+every label a picture of a word*. This record's sentence is the reason that one's design is shaped the way
+it is.
+
+**Read the rejection as scoped to figures this pipeline could otherwise have produced.** A checked-in
+raster **standing in for a diagram** remains rejected here, on the reasoning above, and always was the case
+being decided.
+
+**Links added by this amendment**
+- **Scope narrowed by [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — a photograph is a
+  captured figure, not a drawn one; its load-bearing words are authored beside it, on this record's own
+  argument.

@@ -12,6 +12,8 @@ These are not three products. **It is one thing**, and this site is what it prod
 
 On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
 
+![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine.")
+
 ### The three pillars, and what sits in the intersection
 
 The three are not tiers of one system, and that is what the drawing below exists to make obvious: **each one exists without the other two**. The site runs without the plugin. The plugin installs in any repository. The runtime is not mine. What sits in the middle is the one thing none of the three delivers on its own.
@@ -146,11 +148,24 @@ I started the year lost. A project that was not going well, a pile of catch-up o
 
 And there is a reason this is public rather than a notebook. We live in a world with far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and it is why what is here is the whole setup, in the open, rather than only the conclusion it reached.
 
+![The onboard display inside a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Strangers comparing how they had configured the same tool. One train, one morning, no measurement. This is not data; it is what I saw.")
+
 Building software is what I love. Nothing is more fun to me than seeing an application up and running, looking just right. What these tools gave back was exactly that, at a scale I could not reach on my own.
+
+> "Computer programming is an art, because it applies accumulated knowledge to the world,
+> because it requires skill and ingenuity, and especially because it produces objects of beauty."
+>
+> — Donald Knuth, 1974
+
+![White serif lettering standing off a pale museum wall, angled away from the camera, with Donald Knuth's name and the year 1974 below it to the right.](/photos/knuth-cv-museum.jpg "Fifty years before me, someone had already named the part I like most — and the wall is in the museum that exists to record it.")
 
 The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from my holiday, and it grew and matured from there. **I would never have delivered that mechanism without an agentic development tool** — and it was not only the deadline. I was carrying tech-lead responsibilities on that project **at the same time** as doing the hands-on agent development, in parallel. That is what the tool bought: not typing speed, but both of those fitting into the same week.
 
 Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. During working hours, I don't always get to work directly on building digital products, and that is where I want to spend more of my time. I like building apps.
+
+![Me and my partner outside Google's visitor centre in Mountain View, beside a row of the company's coloured bicycles.](/photos/google-visitor-centre.jpg "The first three are what I saw on that holiday. This one is the only one I am in — the decision, not the evidence.")
+
+*The photographs on this page are mine — Silicon Valley.*
 
 ## Who did what
 
@@ -381,7 +396,7 @@ flowchart TB
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
-That mechanism is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first picture is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
+That mechanism is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first diagram is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
 
 ### The four harness elements, and what each one delivers
 
@@ -483,7 +498,7 @@ Everything above argues for one thing: **AI-DLC** — a delivery lifecycle whose
 
 **One author, and nobody else's hands.** This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else has ever worked on it. Nothing here has been tested against a second person disagreeing with the setup, which is precisely the case an agent loop finds hardest. Take the pattern, not the specifics.
 
-**The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Seven figures above; **four** of them you can check, at different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers and the AWS stack are what this repo actually builds: `iac/` and the build script settle it between them — with the caveat the drawing itself carries, that the hosted zone and the certificate arrive as `data source`s and are not created here. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. **The other three you cannot check, for different reasons.** The two loop drawings show a route this page does not prove was taken: no artifact here shows that any particular change passed through those tiers. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
+**The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Seven drawings above; **four** of them you can check, at different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers and the AWS stack are what this repo actually builds: `iac/` and the build script settle it between them — with the caveat the drawing itself carries, that the hosted zone and the certificate arrive as `data source`s and are not created here. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. **The other three you cannot check, for different reasons.** The two loop drawings show a route this page does not prove was taken: no artifact here shows that any particular change passed through those tiers. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
 
 **And the record itself has a hole — it is the exception announced further up.** There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL was built, was cut, and **is not in the decision library**. It is the one place this page's own rule was not followed, and its record is this sentence rather than a file. That is the weakness, stated in full: **an announced exception costs less than a recorded decision** — no date, no context, none of the options that lost, and no gate counts it. Which is why it lives here, beside what rests on my word, rather than in the table above.
 

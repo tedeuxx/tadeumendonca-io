@@ -8,9 +8,13 @@
 //
 //   1. a root-relative link (`[Biblioteca](/library)`) — resolved by the renderer through `useLocalePath`,
 //      dead in every reader's notes;
-//   2. the empty ` ```adr-index ` fence — expanded by the renderer into a live table, three backticks and
+//   2. a root-relative IMAGE (`![…](/photos/x.jpg)`) — resolved by the browser against the origin on the
+//      page, and a dead reference everywhere else. Recorded here as an inert residual until #415 put four
+//      photographs on /architecture; see `absolutizeTargets` for why it resolves WITHOUT the locale
+//      prefix while a link resolves with one;
+//   3. the empty ` ```adr-index ` fence — expanded by the renderer into a live table, three backticks and
 //      nothing in a paste;
-//   3. `{{years}}` — NOT handled here, and that is the design: the callers pass the body they RENDER
+//   4. `{{years}}` — NOT handled here, and that is the design: the callers pass the body they RENDER
 //      (`RampUpPage` resolves it through `withYears` first), so reading the same string the reader reads
 //      is what makes the token a non-issue. A transform here would be a second resolver for a problem
 //      that only exists if you read the import instead.
@@ -25,25 +29,11 @@ import { SITE_URL } from '../lib/site';
 import { isInternalHref } from '../lib/markdownLinks';
 
 /**
- * A markdown INLINE LINK — `[label](/x)` and `[label](/x "title")` — and deliberately NOT an image.
+ * A markdown inline LINK or IMAGE — `[label](/x)`, `[label](/x "title")` and the `!`-prefixed forms.
  *
- * THE LEADING `!` IS CAPTURED IN ORDER TO BE REJECTED, and that is the only reason this matches the label
- * rather than just the `](…)` tail. `Markdown.tsx` registers handlers for `a`, `pre` and `p` and NOT for
- * `img` — one grep, there is no `img` key in its `components` — so the renderer applies `isInternalHref`
- * to anchors alone. An image target rewritten here would diverge from the renderer in the worst available
- * direction: `![Card](/og-default.png)` renders correctly on the page, because the browser resolves it
- * against the origin, while the copy would carry `…/pt/og-default.png` — a locale-prefixed asset path
- * that exists nowhere. That is precisely the "true on the page, false in a document" class this slice
- * exists to close, manufactured by the fix rather than left by it.
- *
- * With images excluded the two sets are IDENTICAL — anchors, one predicate — which is what
- * `lib/markdownLinks.ts` claims and what makes extracting the rule worth anything.
- *
- * THE RESIDUAL, stated because it is real and strictly smaller: an image authored root-relative still
- * copies as authored, and is as broken off-site as it was before. It is inert today — `grep -rn '](/'
- * src/content/` returns the two `/library` lines and nothing else — and no origin rule is invented here
- * for an asset class no body uses. Between "wrong in a new way" and "unchanged", for a case that does not
- * exist, unchanged wins.
+ * THE LEADING `!` IS CAPTURED IN ORDER TO BE TREATED DIFFERENTLY, and it used to be captured in order to
+ * be REJECTED. That earlier rule was right for the world it was written in and is wrong now, so it is
+ * replaced rather than accumulated — see `absolutizeTargets` below for the whole argument.
  *
  * A label containing nested brackets is not matched and is left as authored: no body writes one, and the
  * failure direction is inert rather than incorrect.
@@ -77,13 +67,33 @@ export interface MarkdownPayloadInput {
   adrIndexUrl: string;
 }
 
-/** Root-relative link targets → absolute URLs in the reader's own edition. Everything else untouched. */
-const absolutizeLinks = (body: string, localizePath: (path: string) => string): string =>
-  body.replace(LINK_TARGET, (whole, bang: string, label: string, target: string, title: string) =>
-    bang === '' && isInternalHref(target)
-      ? `[${label}](${SITE_URL}${localizePath(target)}${title})`
-      : whole,
-  );
+/**
+ * Root-relative targets → absolute URLs. LINKS get the reader's own edition; IMAGES get the bare origin.
+ *
+ * THE TWO HALVES DIFFER BY EXACTLY ONE THING — `localizePath` — and that asymmetry is the decision, not
+ * an oversight. `Markdown.tsx` registers no `img` handler (#415 added photographs and deliberately did
+ * not add one), so the renderer localizes anchors and nothing else: the browser resolves `/photos/x.jpg`
+ * against the origin. Running an image target through `localizePath` here would hand the reader
+ * `…/pt/photos/x.jpg` — a locale-prefixed asset path that exists nowhere — which is the "true on the
+ * page, false in a document" defect this whole payload exists to close, manufactured by the fix rather
+ * than left by it.
+ *
+ * THIS INVERTS A RULE THAT WAS CORRECT UNTIL #415, and the inversion is the point rather than a
+ * regression. The old comment here recorded a RESIDUAL: an image authored root-relative copied as
+ * authored and was "as broken off-site as it was before", judged acceptable because it was inert — no
+ * content body embedded one. Four photographs on /architecture ended that. Inert became four dead
+ * references in every copied payload, on the one page whose whole point is that it travels into
+ * somebody's notes. So the residual is closed in the only direction that matches the renderer: absolute,
+ * to the origin, unlocalized. `shareMarkdown.test.ts`'s "leaves image targets alone" case was rewritten
+ * with its comment rather than supplemented — a suite that asserted both behaviours would be describing a
+ * decision nobody made.
+ */
+const absolutizeTargets = (body: string, localizePath: (path: string) => string): string =>
+  body.replace(LINK_TARGET, (whole, bang: string, label: string, target: string, title: string) => {
+    if (!isInternalHref(target)) return whole;
+    const resolved = bang === '' ? localizePath(target) : target;
+    return `${bang}[${label}](${SITE_URL}${resolved}${title})`;
+  });
 
 /** The empty ADR-index marker → a link to the library it would have expanded into. */
 const resolveAdrIndex = (body: string, label: string, url: string): string =>
@@ -106,6 +116,6 @@ export function markdownPayload({
   adrIndexUrl,
 }: MarkdownPayloadInput): string {
   const canonical = `${SITE_URL}${path}`;
-  const resolved = resolveAdrIndex(absolutizeLinks(body, localizePath), adrIndexLabel, adrIndexUrl);
+  const resolved = resolveAdrIndex(absolutizeTargets(body, localizePath), adrIndexLabel, adrIndexUrl);
   return `# ${title}\n\n> ${sourceLabel}: ${canonical}\n\n${resolved.trim()}\n`;
 }

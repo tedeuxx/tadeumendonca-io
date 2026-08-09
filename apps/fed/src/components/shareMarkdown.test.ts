@@ -53,25 +53,36 @@ describe('the copied markdown payload', () => {
     expect(build('[A](/library "A estante")')).toContain(`[A](${SITE_URL}/pt/library "A estante")`);
   });
 
-  // THE RENDERER HAS NO `img` HANDLER, so it never localizes an image — the browser resolves
-  // `/og-default.png` against the origin and the page is correct. Rewriting it HERE would hand the reader
-  // `…/pt/og-default.png`, a locale-prefixed asset path that exists nowhere: the exact "true on the page,
-  // false in a document" defect this slice closes, manufactured by the fix rather than left by it. An
-  // earlier revision of this test asserted that rewrite as intended behaviour.
+  // AN IMAGE GOES TO THE ORIGIN, WITHOUT THE LOCALE PREFIX — and this case is the INVERSE of what it
+  // asserted until #415, deliberately rewritten rather than joined by a second case.
   //
-  // Inert today — no body authors a root-relative image — and pinned so it stays inert.
-  it('leaves image targets alone — the renderer does not localize them either', () => {
-    const out = build('![Card](/og-default.png)');
-    expect(out).toContain('![Card](/og-default.png)');
-    expect(out).not.toContain(`${SITE_URL}/pt/og-default.png`);
+  // What it used to say: leave image targets alone. That was correct in a world where no content body
+  // embedded one, and the source recorded it as an inert residual on exactly those grounds. Four
+  // photographs on /architecture ended the premise — an untouched `/photos/x.jpg` is a dead reference in
+  // every copied payload, on the page whose whole point is that it travels.
+  //
+  // Why WITHOUT the prefix, which is the half a link does not share: `Markdown.tsx` registers no `img`
+  // handler, so the renderer never localizes an image and the browser resolves it against the origin.
+  // Localizing here would produce `…/pt/photos/x.jpg`, an asset path that exists nowhere — the "true on
+  // the page, false in a document" defect manufactured by the fix rather than left by it.
+  it('sends an image target to the ORIGIN, with no locale prefix', () => {
+    const out = build('![Parede](/photos/knuth-cv-museum.jpg "Uma parede")');
+    expect(out).toContain(`![Parede](${SITE_URL}/photos/knuth-cv-museum.jpg "Uma parede")`);
+    // The relative form must be GONE, not merely accompanied — the failure being closed is a dead
+    // reference in someone else's notes.
+    expect(out).not.toContain('](/photos/knuth-cv-museum.jpg');
+    // And the prefix must not appear. This is the assertion that fails if someone "simplifies" the two
+    // branches into one by running the image through `localizePath` as well.
+    expect(out).not.toContain(`${SITE_URL}/pt/photos/`);
   });
 
   // The two forms side by side, which is what makes `!` the operative character rather than a coincidence
-  // of the fixture: identical target, one linked and one embedded, opposite outcomes.
-  it('rewrites a link and skips an image pointing at the same path', () => {
+  // of the fixture: identical target, one linked and one embedded, DIFFERENT absolute results — the link
+  // carries the reader's edition, the image does not.
+  it('localizes a link and does not localize an image pointing at the same path', () => {
     const out = build('[Shelf](/library) and ![Shelf](/library)');
     expect(out).toContain(`[Shelf](${SITE_URL}/pt/library)`);
-    expect(out).toContain('![Shelf](/library)');
+    expect(out).toContain(`![Shelf](${SITE_URL}/library)`);
   });
 
   it('leaves external, protocol-relative, mailto and anchor targets exactly as authored', () => {

@@ -278,9 +278,64 @@ a gate, caught it.
   background-equality check that ADR-0040's amendment #3 installed applies to it.
 - **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — a small, unmeasured amount of
   JavaScript, named above rather than implied.
+- **Scope note added 2026-08-09 by
+  [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — see the amendment below: this record's
+  bound was tested against a photograph and reads as governing **drawn** figures, and its measured
+  copy-payload claim no longer holds.
 - Implementation: `apps/fed/src/lib/vennSpec.ts`, `apps/fed/src/lib/vennSpec.test.ts`,
   `apps/fed/src/components/VennDiagram.tsx`, `apps/fed/src/components/VennDiagram.test.tsx`,
   `apps/fed/src/components/DiagramFigure.tsx`, `apps/fed/src/components/Diagram.tsx`,
   `apps/fed/src/components/Markdown.tsx`, `apps/fed/scripts/architecture-diagrams.test.mjs`,
   `apps/fed/e2e/routes.spec.ts`, `apps/fed/e2e/diagram-centred.spec.ts`,
   `apps/fed/src/styles/index.css`, `apps/fed/src/content/architecture.{en,pt}.md`.
+
+## Amendment (2026-08-09) — the no-third-path bound was tested against a photograph and governs DRAWN figures; and the copy-payload clause it MEASURED has stopped being true
+Everything above stands as the decision. Two of its claims have been tested by a case it did not consider —
+four photographs on `/architecture`, one of them a museum wall carrying a Knuth quotation — and one of them
+is now false.
+
+**1. The bound is about drawn figures.** **Decision outcome** offers the next author exactly two exits:
+extend this path *"under the same three conditions, sharing `DiagramFigure`"*, or establish that the figure
+is not worth a second mechanism. A photograph **satisfies none of the three conditions**, and the mismatch
+is structural rather than an oversight: its subject is not words we author, so there is nothing for the
+markdown body to hold; its arrangement is not arithmetically assertable, because there is no authored
+geometry to compute over; and it is a **raster**, which option 4 above rejects by name.
+
+So the bound is not stretched to cover it — it is **read as scoped**, which is what it always was. This
+record governs a figure that is **drawn**. A figure that is **captured** is
+[ADR-0048](./0048-content-photograph-is-a-captioned-figure.md), and merging the two would have required
+either weakening the arithmetic condition to nothing or claiming for a raster a guarantee no test can
+supply. **The no-third-path clause is not thereby dissolved:** a fourth *drawn* figure kind still extends
+this path or is not drawn, and that is unchanged.
+
+**One concrete finding worth carrying forward, because it is the cheapest way to see why the classes are
+separate.** `DiagramFigure`'s box wears `.diagram-canvas`, and `e2e/diagram-centred.spec.ts` selects that
+class **page-wide** and reads `el.querySelector('svg')`. On a photograph that is `null`, every measurement
+becomes `NaN`, and `NaN` fails every comparison — at all four widths, in both editions, on the first run.
+The shared shell that makes **two drawn** paths survivable is the wrong shell for a captured one, which is
+why 0048 shares only the caption treatment, as an exported class string.
+
+**2. THE ONE THAT IS NOW FALSE — the neutral clause *"the copy-as-markdown payload is unaffected, and this
+is measured, not argued"*.** That was true, and it was measured: `shareMarkdown.ts` stripped exactly one
+fence kind and deliberately left images alone, with a test saying so. It rested on a premise the source
+itself recorded — **no content body embedded a root-relative image**, so the residual was inert.
+
+Four photographs ended that premise. `shareMarkdown.ts` now **absolutizes image targets to the bare
+origin** while links keep `localizePath`, and the passing test that asserted the old behaviour was
+**inverted, with its comment rewritten** rather than joined by a second case — a suite asserting both would
+describe a decision nobody made. The asymmetry is the decision: `Markdown.tsx` still registers no `img`
+handler, so localizing an image here would produce `…/pt/photos/x.jpg`, an asset path that exists nowhere.
+
+**This is a change to that record's mechanism, not to this one's.** The ` ```venn ` fence still travels
+into the clipboard verbatim, on identical terms to the mermaid fences beside it, and nothing about this
+figure's payload behaviour changed. What is no longer true is the *scope* of the sentence: **the payload as
+a whole is not unaffected any more**, and a reader who takes that clause as a live statement about
+`shareMarkdown.ts` would be reading a claim that expired. See
+[ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)'s payload option group for the argument and
+the rejected alternatives.
+
+**Links added by this amendment**
+- **Scope noted by [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — this record's bound
+  governs drawn figures; a captured one is decided there.
+- **The copy-payload clause is narrowed**, and its underlying behaviour changed by that record —
+  [ADR-0035](./0035-static-repo-cards-in-longform.md)/#387 now absolutize image targets to the origin.
