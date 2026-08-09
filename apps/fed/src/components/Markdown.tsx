@@ -63,7 +63,8 @@ import { isInternalHref } from '../lib/markdownLinks';
  * is unchanged. THE HALF THAT DID CHANGE is what `shareMarkdown.ts` does about it: it no longer leaves
  * image targets alone, it absolutizes them to the ORIGIN, without the locale prefix, precisely BECAUSE
  * this file does not localize them. Four photographs turned a residual it had recorded as inert into four
- * broken references in every copied payload. See `absolutizeImages` there for the whole argument.
+ * broken references in every copied payload. See `absolutizeTargets` there — one function handles both
+ * halves, and its doc block carries the whole argument for why they differ by exactly `localizePath`.
  */
 function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
   // Called unconditionally, before the branch — a hook behind an `if` is a hook that changes order

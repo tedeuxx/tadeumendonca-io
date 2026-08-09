@@ -33,7 +33,7 @@ import { isInternalHref } from '../lib/markdownLinks';
  *
  * THE LEADING `!` IS CAPTURED IN ORDER TO BE TREATED DIFFERENTLY, and it used to be captured in order to
  * be REJECTED. That earlier rule was right for the world it was written in and is wrong now, so it is
- * replaced rather than accumulated — see `absolutizeImages` below for the whole argument.
+ * replaced rather than accumulated — see `absolutizeTargets` below for the whole argument.
  *
  * A label containing nested brackets is not matched and is left as authored: no body writes one, and the
  * failure direction is inert rather than incorrect.
