@@ -80,8 +80,11 @@ its claims are checkable.
 ### What a photograph is allowed to carry
 1. **The photograph is evidence; the words it depicts are authored beside it in prose** (chosen). The
    Knuth quotation is a real markdown blockquote **above** its photograph, with the attribution, and the
-   photograph's `alt` carries the wall's words verbatim so a reader who cannot see it is not told there is
-   a wall and left there.
+   photograph's `alt` ~~carries the wall's words verbatim so a reader who cannot see it is not told there
+   is a wall and left there~~ **describes the frame, per edition** — see condition 1 in **Decision
+   outcome** for why the first version of this clause was struck the same day: a reader who cannot see the
+   photograph has *already* been given the words by the blockquote, and repeating them in the `alt`
+   delivers the same claim twice with no way to tell it is the same object.
 2. **Let the photograph carry the quotation, with the caption pointing at it** — *why not, and this is the
    option the whole record exists to refuse:* it is exactly the failure ADR-0040 rejected a checked-in
    raster for, arriving through a different door. The quotation would be a picture of a word to the
@@ -174,9 +177,48 @@ its claims are checkable.
 Chosen: **a photograph in a content body is a captioned figure that carries evidence, never words the page
 depends on.** Concretely, three conditions, and they are the decision:
 
-1. **Its load-bearing text is authored beside it, as prose.** The Knuth quotation is a blockquote with its
-   attribution, above the photograph, and the wall's words are repeated verbatim in the `alt`. Asserted in
-   both editions, and asserted the other way too: a caption may not restate the quotation.
+1. **Its load-bearing text is authored beside it, as prose — once, and in one place.** The Knuth quotation
+   is a blockquote with its attribution, above the photograph. It appears **nowhere else**: not in a
+   caption, and ~~repeated verbatim in the `alt`~~ **not in an `alt` either** — struck the same day, inside
+   this record's own MR and before it had ever been in force, for the reason in the next paragraph. Asserted
+   in both editions, in both directions: no caption and no `alt` may re-deliver the quotation, and the Knuth
+   `alt` must **differ** between the editions.
+
+   **Why the strike is kept rather than the line quietly rewritten.** This library has already done exactly
+   this once — [ADR-0044](./0044-version-parts-deliberate-major-minor.md) struck two clauses inside its own
+   MR, before they had ever been in force, and kept the strikes. The reason applies unchanged here: the
+   deleted version is *evidence*, and this particular deletion is the most instructive sentence in the
+   record. What is deliberately **not** done is add an `## Amendment` heading, which would publish
+   *this decision has moved* about a decision that never shipped — the index derives that bit from such a
+   heading (`scripts/adr-source.mjs`), and it would be false.
+
+   **THE PRINCIPLE HAD ONE UNAPPLIED CORNER, AND IT WAS THE ONE READER IT MATTERED MOST TO.** This record's
+   whole claim is that a photograph is evidence and the load-bearing words are authored beside it. The `alt`
+   was the last place still treating the photograph as a **carrier** of those words — for the one reader who
+   cannot see the photograph at all. A sighted reader met the quotation once, in type, with the picture as
+   corroboration. A screen-reader user met it **twice, back to back**: the blockquote, then the byte-identical
+   string announced as the image. **Duplication for a sighted reader is redundancy; for a screen-reader user
+   it is the same claim delivered twice with no way to tell the two are the same object** — the second
+   delivery reads as a second source. In the pt edition it was worse: an English paragraph read aloud by a
+   pt-BR voice, the only English block in that edition. So the `alt` now does what condition 2 already asked
+   of it and describes the frame — white serif lettering standing off a pale museum wall, Knuth's name and
+   1974 below — authored per edition, in each edition's own language.
+
+   **The two conditions were in tension from the first draft, and the code picked one.** Condition 1 as
+   originally written asked the `alt` to carry the words; condition 2 asks it to describe the frame. Nothing
+   in the record noticed, because for a sighted reader they never collide. Recorded as a finding rather than
+   smoothed away: **a rule stated for the reader you can picture will have a corner where it is inverted for
+   the reader you cannot**, and the copy lens is what found it, not any check here.
+
+   **The assertion was inverted, not deleted** — the same move `shareMarkdown.ts`'s image case made in this
+   slice, and for the same reason. A test required the `alt` to contain the quotation verbatim, to stop the
+   two drifting apart; removing the quotation from the `alt` would have left that check pinning nothing.
+   It now asserts the opposite — the quotation appears in no `alt` and no caption, on a distinctive fragment
+   rather than the whole sentence, because a partial restatement is the realistic regression — plus the
+   editions' Knuth `alt`s differing, which is what catches an `alt` left in English in the pt file. **The
+   drift the old rule guarded against is still guarded; only the direction flipped.** A green that was never
+   observed to go red is not a gate, and a green that survives the removal of its own subject is the same
+   defect wearing better clothes.
 2. **`alt` and `caption` are both required and are two different strings.** `alt` describes what is in the
    frame for a reader who never sees it; the caption says what the photograph is doing on the page for a
    reader who does. A missing one **throws at render**, which fails the build, the prerender, the unit
@@ -227,6 +269,9 @@ in full:
   without which a `src` that 404s still lays out a box from the width/height attributes and every geometry
   assertion passes on four broken images;
 - **alt and caption are non-empty** as rendered, in both editions, and differ between them;
+- **the quotation is delivered exactly once** — it appears in no `alt` and no caption, in either edition,
+  and the Knuth `alt`s differ across editions, which is what catches one left untranslated. This is a
+  check about the **screen-reader** reader specifically, and it is the only one here that is;
 - the **quotation's own text node is inside the viewport** at 320 and 390 — measured in the *reader's*
   coordinates rather than the document's, which is the lesson ADR-0047's figure paid for, and guarded by a
   mutation that shoulders the element out of the viewport and requires the same measurement to go red.
@@ -239,7 +284,8 @@ it exists.
 
 **Good**
 - The words the page depends on are **real text in the prerendered bytes** — crawlable, selectable,
-  translatable, screen-readable — with the photograph as corroboration rather than as the carrier.
+  translatable, screen-readable — with the photograph as corroboration rather than as the carrier. **And
+  once**: the `alt` stopped being a second copy of them, which is the correction condition 1 records.
 - **A silent default became an explicit one.** `.markdown img` would have rendered all four with no gate
   red; every one of them now fails loudly if it loses its alt, its caption, its file or its declared size.
 - **The reservation is true by measurement**, both directions — a recrop that changes a shape and forgets
