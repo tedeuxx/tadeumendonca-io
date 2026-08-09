@@ -52,10 +52,23 @@ export function Hero() {
               on the landing, that is the change to make, deliberately.
 
               `#portfolio` stays a live anchor with a shareable URL; it simply has no chrome control
-              pointing at it now, which is what a section you meet by scrolling should be. */}
+              pointing at it now, which is what a section you meet by scrolling should be.
+
+              ARCHITECTURE CLOSES THE ROW (#420), and the position is the whole of the decision. The row
+              runs lighter to heavier: a reading path, then the articles anchor, then the shortlist —
+              `/architecture` is the deepest read on the site, so it goes last rather than interrupting
+              that gradient. It renders the existing `nav.architecture` key, which is what keeps this a
+              routing change and not a copy one: the reasoning recorded above binds it too, so the other
+              three are untouched in label and in order.
+
+              FOUR IS STILL A ROW, and it is the wrapping container that makes that true rather than an
+              opinion — `flex-wrap` on the parent, so the fourth control wraps to a second line at narrow
+              widths instead of overflowing. Measured at 320 and 390 against the built output, which is
+              where this repo has twice found what a test did not. */}
           <HeroLink to={lp('/ramp-up')}>{t('nav.rampup')}</HeroLink>
           <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
           <HeroLink to={lp('/portfolio')}>{t('nav.portfolio')}</HeroLink>
+          <HeroLink to={lp('/architecture')}>{t('nav.architecture')}</HeroLink>
         </div>
       </div>
 
