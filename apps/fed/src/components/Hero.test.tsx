@@ -72,6 +72,44 @@ describe('Hero', () => {
     expect(heroTarget).toBe('/pt/portfolio');
   });
 
+  // #420, and it is the SAME property #315 pinned for Portfolio rather than a new one: the Hero and the
+  // nav render the identical `nav.architecture` key, the nav is sticky and this row is the first block,
+  // so both words are on screen together on the landing. Two controls showing one word and going to two
+  // places is the defect; asserted as an equality between them so it fails if either side moves alone.
+  it('sends its Architecture CTA wherever the nav sends its own — they share a label', () => {
+    renderHero();
+    const heroTarget = screen.getByRole('link', { name: /Arquitetura/ }).getAttribute('href');
+    cleanup();
+    renderWithLocale(
+      <AppShell>
+        <div />
+      </AppShell>,
+      { locale: 'pt' },
+    );
+    const navTarget = screen.getByRole('link', { name: 'Arquitetura' }).getAttribute('href');
+    expect(heroTarget).toBe(navTarget);
+    expect(heroTarget).toBe('/pt/architecture');
+  });
+
+  it('localizes the Architecture CTA rather than shipping one edition to both readers', () => {
+    renderHero('en');
+    expect(screen.getByRole('link', { name: /Architecture/ })).toHaveAttribute(
+      'href',
+      '/en/architecture',
+    );
+  });
+
+  // THE ORDER IS THE DECISION, not an accident of the JSX, so it is asserted rather than left to
+  // whoever edits the block next. The row runs lighter to heavier commitment and `/architecture` is the
+  // deepest read, so it closes the row. Read off the DOM in document order — a set-membership check
+  // ("all four are present") is the shape that stays green through exactly the reshuffle this pins.
+  it('closes the row with Architecture, after the three that were already there', () => {
+    const { container } = renderHero();
+    const row = container.querySelector('header > div > div:last-of-type') as HTMLElement;
+    const labels = [...row.querySelectorAll('a')].map((a) => a.textContent?.replace('→', '').trim());
+    expect(labels).toEqual(['Ramp-up', 'Artigos', 'Portfólio', 'Arquitetura']);
+  });
+
   it('renders the stack marquee once for assistive tech (the loop copy is hidden)', () => {
     renderHero();
     const marquee = screen.getByLabelText('Stack');

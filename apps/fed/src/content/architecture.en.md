@@ -12,7 +12,7 @@ These are not three products. **It is one thing**, and this site is what it prod
 
 On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
 
-![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine.")
+![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine. At the Computer History Museum.")
 
 ### The three pillars, and what sits in the intersection
 
@@ -20,7 +20,7 @@ The three are not tiers of one system, and that is what the drawing below exists
 
 ```venn
 accTitle: The three pillars, and what sits in the intersection
-accDescr: Three circles of the same size, overlapping, with one shared intersection at the centre. The first circle is the solution, the tadeumendonca-io repository, and inside it sit the React SPA built with Vite and TypeScript, the Terraform that provisions CloudFront and S3, the pipeline with its gates and its deploy, and the markdown content held in the repository itself. The second is the harness customization, the tadeumendonca-skills repository, and inside it sit the personas in the agents directory, the hooks registered in hooks.json, the commands in the commands directory, and the methodology ADRs. The third is the harness runtime, Claude Code, and inside it sit the orchestrator and the subagents, the PreToolUse and SessionStart events, the permission policy, and the tools with MCP. At the centre, where all three overlap, it reads Agent Harness Engineering, with the word Agent in parentheses. That is the claim the drawing makes: none of the three circles is the discipline on its own, it is what exists where the three meet.
+accDescr: Three circles of the same size, overlapping, with one shared intersection at the centre. The first circle is the solution, the tadeumendonca-io repository, and inside it sit the React SPA built with Vite and TypeScript, the Terraform that provisions CloudFront and S3, the pipeline with its gates and its deploy, and the markdown content held in the repository itself. The second is the harness customization, the tadeumendonca-skills repository, and inside it sit the personas in the agents directory, the hooks registered in hooks.json, the skill library in the commands directory, the commands in no family — autonomy-on and new-issue — and the methodology ADRs. The third is the harness runtime, Claude Code, and inside it sit the orchestrator and the subagents, the PreToolUse and SessionStart events, the permission policy, and the tools with MCP. At the centre, where all three overlap, it reads Agent Harness Engineering, with the word Agent in parentheses. That is the claim the drawing makes: none of the three circles is the discipline on its own, it is what exists where the three meet.
 centre: (Agent) Harness | Engineering
 pillar: The solution | tadeumendonca-io
 - React SPA · Vite · TS
@@ -30,7 +30,8 @@ pillar: The solution | tadeumendonca-io
 pillar: The customization | tadeumendonca-skills
 - Personas in agents/
 - Hooks in hooks.json
-- Commands in commands/
+- Skills in commands/
+- Commands in no family
 - Methodology ADRs
 pillar: The runtime | Claude Code
 - Orchestrator, subagents
@@ -163,9 +164,11 @@ The case that proved it to me was not this site. It was an authentication and au
 
 Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. During working hours, I don't always get to work directly on building digital products, and that is where I want to spend more of my time. I like building apps.
 
-![Me and my partner outside Google's visitor centre in Mountain View, beside a row of the company's coloured bicycles.](/photos/google-visitor-centre.jpg "The first three are what I saw on that holiday. This one is the only one I am in — the decision, not the evidence.")
+![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the decision, not the evidence. At Google's visitor centre in Mountain View.")
 
-*The photographs on this page are mine — Silicon Valley.*
+San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with both fronts decided.
+
+*The photographs on this page are mine. One week, one city — this is not a survey; it is what was in front of me.*
 
 ## Who did what
 
