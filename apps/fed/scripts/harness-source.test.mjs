@@ -28,6 +28,8 @@ import {
   driftReport,
   enforcementFor,
   pluginPresent,
+  pluginLinkTargets,
+  pluginLinkReport,
   rosterDispatchNames,
   rosterDispatchReport,
 } from './harness-source.mjs';
@@ -440,5 +442,56 @@ describe('rosterDispatchReport — both directions, because both have happened',
     const report = rosterDispatchReport(['gone'], ['live']);
     expect(report).toContain('tedeuxx/tadeumendonca-skills');
     expect(report).toMatch(/NOT your change/);
+  });
+});
+
+// THE CROSS-REPO LINKS ON /architecture. The deciding half only — the `fs` half runs in
+// check-harness-drift.mjs, against the plugin checkout that job already pays for.
+describe('the plugin links /architecture publishes', () => {
+  const PAGE = [
+    'See [the personas](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/agents) and',
+    '[hooks.json](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/hooks/hooks.json).',
+    // Deliberate noise: a bare repo root, an anchored README link, and a link into the OTHER repo.
+    // None of the three is a path in the plugin tree, and treating any of them as one would produce a
+    // permanently red build for a link that works.
+    'Also [the repo](https://github.com/tedeuxx/tadeumendonca-skills) and',
+    '[run it](https://github.com/tedeuxx/tadeumendonca-skills#run-it) and',
+    '[a budget](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf).',
+  ].join('\n');
+
+  it('extracts blob and tree paths, and nothing that is not a path', () => {
+    expect(pluginLinkTargets(PAGE)).toEqual(['agents', 'hooks/hooks.json']);
+  });
+
+  it('says nothing when every target resolves', () => {
+    expect(pluginLinkReport(['agents', 'hooks/hooks.json'], () => true)).toBe('');
+  });
+
+  it('names the paths that do not resolve, and only those', () => {
+    const report = pluginLinkReport(['agents', 'commands/gone'], (p) => p === 'agents');
+    expect(report).toContain('commands/gone');
+    expect(report).not.toContain('- agents');
+  });
+
+  // The vacuous shape, asserted rather than trusted. An empty target list satisfies "nothing missing"
+  // perfectly, so a page that stopped citing the plugin — or a regex that stopped matching — would go
+  // green while checking nothing. That is the exact failure the manifest guard one file over exists to
+  // prevent, and it must not be reintroduced here.
+  it('fails on zero targets rather than passing on nothing', () => {
+    const report = pluginLinkReport([], () => true);
+    expect(report).toContain('cites no files');
+    expect(report).toContain('would now pass on anything');
+  });
+
+  it('de-duplicates, so one bad link cited twice is reported once', () => {
+    const report = pluginLinkReport(['commands/gone', 'commands/gone'], () => false);
+    expect(report.match(/commands\/gone/g)).toHaveLength(1);
+  });
+
+  // Attribution again: both editions cite a tree this repository does not own.
+  it('says it is not the reader-s change, and names both editions as the fix site', () => {
+    const report = pluginLinkReport(['gone'], () => false);
+    expect(report).toMatch(/NOT your change/);
+    expect(report).toContain('BOTH editions');
   });
 });

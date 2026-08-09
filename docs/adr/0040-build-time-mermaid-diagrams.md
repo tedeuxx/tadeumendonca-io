@@ -312,3 +312,32 @@ assertion green. Two of the five items in this amendment are the same failure, f
 - Implementation added by this slice: `apps/fed/e2e/routes.spec.ts` (the stroke-vs-canvas assertion),
   `apps/fed/scripts/architecture-diagrams.test.mjs` (the dev-loop claims and the `H`-prefix rule),
   `apps/fed/scripts/gen-diagrams.mjs` (`lineColor` corrected to `#F5F4EF`).
+
+## Amendment (2026-08-08) — the scope sentence is universal and is no longer true; the mechanism is unchanged
+**Decision outcome** opens *"a ` ```mermaid ` fence in a long-form markdown body is a diagram's source"*,
+and **Considered options** frames the whole question as *where a diagram's source lives*. Read as written,
+that covers every figure on the site. It no longer does.
+
+`/architecture` now carries one figure this pipeline cannot produce — three overlapping circles with the
+claim in their shared intersection. **mermaid draws no Venn**: not flowchart, not block, not
+`architecture-beta`, and no plugin path `gen-diagrams.mjs` could load through the build-time compile. That
+figure is authored as a ` ```venn ` fence over a fixed geometry and painted by a component, with its
+arrangement asserted arithmetically instead of pinned by an entry in `diagrams.json`. The decision, its
+three conditions, its rejected options and the one axis on which its guarantee is genuinely **weaker**
+than this one's are in [ADR-0047](./0047-authored-svg-figures-outside-the-mermaid-pipeline.md).
+
+**Nothing above is superseded and nothing is relaxed.** This mechanism remains the default and governs
+every figure mermaid can draw, which is every figure on that page but one; a figure mermaid *can* draw and
+that is authored the other way is a defect against this record. What changes is only the reach of the
+sentence: read *"a diagram's source"* as *"the source of a diagram mermaid can draw"*.
+
+**One clause of this record is load-bearing for ADR-0047 and is worth re-reading beside it.** The font
+note in **Considered options** — mermaid sizes every node box from the browser's **measured** text width,
+so a fallback font makes every label overflow *silently, and only on a machine other than the author's* —
+is the exact property the new path approximates with a pessimistic estimate rather than measures. That is
+the residual ADR-0047 records, and it is stated here too because this is where the reader learns why
+measurement mattered in the first place.
+
+**Links added by this amendment**
+- **Scope narrowed by [ADR-0047](./0047-authored-svg-figures-outside-the-mermaid-pipeline.md)** — a figure
+  mermaid cannot draw is authored outside this pipeline, under stated conditions.

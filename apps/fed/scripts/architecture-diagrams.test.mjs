@@ -41,6 +41,31 @@ function graphOf(source) {
   return { nodes, edges: edges.map((e) => e.join('->')).sort() };
 }
 
+/** Is any node reachable from itself? A left-to-right flow that loops back reads as a cycle, and the
+ *  request diagram is now asserted to have none — see the convergence block below. */
+function hasCycle(graph) {
+  const adj = new Map();
+  for (const e of graph.edges) {
+    const [a, b] = e.split('->');
+    adj.set(a, [...(adj.get(a) ?? []), b]);
+  }
+  return graph.nodes.some((start) => {
+    const queue = [...(adj.get(start) ?? [])];
+    const seen = new Set(queue);
+    while (queue.length) {
+      const cur = queue.shift();
+      if (cur === start) return true;
+      for (const next of adj.get(cur) ?? []) {
+        if (!seen.has(next)) {
+          seen.add(next);
+          queue.push(next);
+        }
+      }
+    }
+    return false;
+  });
+}
+
 /** Is `to` reachable from `from` by following directed edges? */
 function reaches(graph, from, to) {
   const adj = new Map();
@@ -65,6 +90,10 @@ function reaches(graph, from, to) {
 
 const en = mermaidFences(read('architecture.en.md'));
 const pt = mermaidFences(read('architecture.pt.md'));
+
+/** ```venn fences — the one figure kind mermaid cannot draw, so it never reaches `mermaidFences`. Counted
+ *  here because the page publishes a TOTAL that includes it. */
+const vennFences = (markdown) => [...markdown.matchAll(/^```venn[ \t]*$/gm)].length;
 
 /**
  * Pick a fence by its `accTitle` rather than by its position in the page.
@@ -128,6 +157,65 @@ describe('the two editions describe the same system', () => {
   });
 });
 
+// THE PUBLISHED COUNT OF THE FIGURES, against the file's own contents.
+//
+// The limitations section says "Sete figuras acima" / "Seven figures above" and then splits it — four you
+// can check, three you cannot. Those are hand-typed numbers ABOUT THIS FILE, and they went stale once
+// already: the page said "four" while carrying six, and a person caught it rather than a gate. The page's
+// own rule is the argument for closing it — it excuses the reader-facing feature list from carrying a
+// total on the grounds that nothing can check one, and here something can, because this suite is already
+// parsing every fence in both editions.
+describe('the published figure count matches the figures', () => {
+  // Written out because the prose spells them, and the mapping is what makes the assertion a real one:
+  // a number that only ever appears as a word cannot be compared to an integer without it.
+  // The trailing `; **` is load-bearing, not decoration. `/(\S+) figuras acima/` alone matched the
+  // dev-loop section's "As **duas** figuras acima" three hundred lines earlier and read the total as
+  // two — a regex finding a real sentence that is not the one being asserted about, which is the failure
+  // mode a looser pattern hides best.
+  const WORDS = {
+    en: {
+      total: /(\S+) figures above; \*\*/,
+      split: /\*\*(\S+)\*\* of them you can check/,
+      rest: /The other (\S+) you cannot check/,
+    },
+    pt: {
+      total: /(\S+) figuras acima; \*\*/,
+      split: /\*\*(\S+)\*\* você consegue conferir/,
+      rest: /As outras (\S+) você não consegue conferir/,
+    },
+  };
+  const NUMERALS = {
+    en: { three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, Seven: 7, Six: 6, Eight: 8 },
+    pt: { três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, Sete: 7, Seis: 6, Oito: 8 },
+  };
+
+  it.each([
+    ['en', 'architecture.en.md'],
+    ['pt', 'architecture.pt.md'],
+  ])('states the real number of figures in the %s edition, and splits it consistently', (locale, file) => {
+    const body = read(file);
+    const drawn = mermaidFences(body).length + vennFences(body);
+    expect(drawn, 'the fence scan found nothing — the assertions below would be vacuous').toBeGreaterThan(0);
+
+    const words = WORDS[locale];
+    const numerals = NUMERALS[locale];
+    const read1 = (re, what) => {
+      const m = re.exec(body);
+      if (!m) throw new Error(`the ${what} count sentence is gone from the ${locale} edition`);
+      const n = numerals[m[1]];
+      if (n === undefined) throw new Error(`unknown number word "${m[1]}" in the ${locale} edition`);
+      return n;
+    };
+
+    expect(read1(words.total, 'total'), 'the published total does not match the figures on the page').toBe(
+      drawn,
+    );
+    // And the split has to add up. A total that is right while its two halves are not is the shape a
+    // one-number check would let through, and this slice moved BOTH halves.
+    expect(read1(words.split, 'checkable') + read1(words.rest, 'uncheckable')).toBe(drawn);
+  });
+});
+
 describe('the infrastructure diagram earns its place', () => {
   const graph = graphOf(byTitle(en, 'How a request becomes a page').source);
 
@@ -140,8 +228,36 @@ describe('the infrastructure diagram earns its place', () => {
     expect(reaches(graph, 'F', 'S'), 'the rewrite must sit BEFORE the origin, not beside it').toBe(true);
   });
 
-  it('shows the answer coming back, not a one-way pipe', () => {
-    expect(reaches(graph, 'S', 'R')).toBe(true);
+  // THE DIAGRAM WAS REDRAWN, not rewired again. The owner's verdict on it was blunt — it is hard to read
+  // — and the previous round answered that by removing the backward edges while keeping six nodes and a
+  // decision diamond. This version is four nodes and four edges: ask, rewrite, and one fork whose two
+  // branches end in the same place. The separate `viewer-request` node and the `Cached at the edge?`
+  // diamond are gone, both folded into labels, because neither was a STEP — one was where the function
+  // runs and the other was a question about the node before it.
+  //
+  // So the fork now hangs off F rather than off a diamond, and the assertions move with it. Pinned as
+  // EDGES rather than as reachability, for the reason the previous version recorded: `reaches(F, P)` is
+  // satisfied through the miss branch, so it would stay green with the hit arrow pointing anywhere.
+  it('converges on the served page, from the cached branch and through the origin', () => {
+    expect(graph.edges, 'a cache hit must end at the served page').toContain('F->P');
+    expect(graph.edges, 'a miss must go to the origin').toContain('F->S');
+    expect(reaches(graph, 'S', 'P'), 'the origin must reach the same served page').toBe(true);
+    // And it really is four steps. A count is a weak assertion on its own; it earns its place here
+    // because "hard to read" was the defect, and the fix WAS the reduction — a later edit that grows the
+    // graph back has to argue with this line rather than slip past it.
+    expect(graph.nodes.sort()).toEqual(['F', 'P', 'R', 'S']);
+  });
+
+  // The other half, and the one that fails on a restored backward edge: nothing points at an earlier
+  // step. Mutation-checked by putting `S --> C` back — `hasCycle` goes true and this fails.
+  //
+  // The second expectation is NOT redundant, though it is subsumed today: every node here is reachable
+  // from R, so any edge into R is already a cycle. It earns its place only for an edge into R from a node
+  // the reader cannot reach — which no mutation of the current five edges can produce, and which is the
+  // shape a later addition could. Said out loud rather than left to look stronger than it is.
+  it('flows one way — nothing returns to the reader or to an earlier step', () => {
+    expect(hasCycle(graph), 'an edge points backwards in a left-to-right flow').toBe(false);
+    expect(graph.edges.filter((e) => e.endsWith('->R'))).toEqual([]);
   });
 
   // The rewrite is the only logic in the path and the thing a sentence cannot place. If the diagram
@@ -200,10 +316,25 @@ describe('the dev-loop diagram shows where the human stands', () => {
   // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a reviewer
   // drawn as a pure fork: this very review is the counterexample, and a diagram that cannot show work
   // coming back describes a loop that never rejects anything.
+  //
+  // THE THREE RETURN EDGES NOW MEET IN ONE NODE, and that is the redraw rather than a re-styling. The
+  // owner's verdict was that the picture is hard to read; three separate arrows climbing back to the
+  // build node across the whole height of the graph is what made it so, and turning `LR` into `TD` moved
+  // them without removing them. `V` is a join, not an invented step — it is labelled with the STATE the
+  // work is in, and it is the only edge that re-enters the build.
+  //
+  // So the property is asserted as REACHABILITY, which is what "work comes back" always meant, plus the
+  // single re-entry as an edge. Written this way on purpose: `reaches` alone would stay green if the
+  // three were split apart again, and the single channel is the claim being made.
   it('lets work come back — from the gates, from the reviewer, and from the human', () => {
-    expect(graph.edges).toContain('G->B');
-    expect(graph.edges).toContain('R->B');
-    expect(graph.edges).toContain('H->B');
+    expect(reaches(graph, 'G', 'B'), 'a red gate must return the work').toBe(true);
+    expect(reaches(graph, 'R', 'B'), 'a reviewer must be able to send it back').toBe(true);
+    expect(reaches(graph, 'H', 'B'), 'a no-go must return the work').toBe(true);
+    expect(graph.edges, 'one return channel, not three').toContain('V->B');
+    expect(graph.edges.filter((e) => e.endsWith('->B')), 'nothing else re-enters the build').toEqual([
+      'P->B',
+      'V->B',
+    ]);
   });
 });
 
@@ -218,7 +349,9 @@ describe('the dev-loop diagram shows where the human stands', () => {
 // What this can and cannot guarantee, stated because ADR-0043 requires the page to be honest about it:
 // it pins IDENTITY — names, events, matchers, counts, the orphan — into both editions. It says nothing
 // about whether the short glosses on the edges describe those components correctly. Those are authored
-// here and checked by nothing, and the page says so in both editions.
+// here and checked by nothing. The page carries that limit in its honest-limitations section — the check
+// covers only the parts that are NAMES, never what those parts do — rather than beside the diagram,
+// where the sentence naming the glosses themselves was cut as redundant with it.
 describe('the components diagram carries the inventory it was generated from', () => {
   const harness = generated('harness.json');
   const of = (kind) => harness.filter((c) => c.kind === kind);

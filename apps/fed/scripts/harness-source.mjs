@@ -495,3 +495,59 @@ export function rosterDispatchReport(fenceNames, livePersonaIds) {
     "rather than only deleting the name; the file's convention is supersede, never rewrite.",
   ].join('\n');
 }
+
+// ---------------------------------------------------------------------------------------------
+// CROSS-REPO LINKS ON /architecture.
+//
+// The page links into the plugin repository by hard-coded GitHub URL — the agents directory, the hook
+// scripts, hooks.json, the command families, the methodology ADRs, the design document. Those are exactly
+// the claims a reader is invited to check, and `architecture-links.test.ts` cannot see them: it resolves
+// paths in THIS repository, offline, and skips every cross-repo URL by design.
+//
+// So the guard rides here, where a tokenless checkout of the plugin has already been paid for by the
+// drift check. Same argument the roster check makes directly above: the expensive part is the checkout,
+// and a second reader of that tree costs nothing.
+//
+// WHAT IT CANNOT DO, said plainly rather than left to look stronger: it resolves paths against a checkout
+// of `main`, so it proves the path EXISTS — not that a `#anchor` on such a URL resolves, and not that the
+// file still says what the page claims. The same limit ADR-0043 already records for the inventory.
+
+/** Every `tadeumendonca-skills` blob/tree URL in a markdown body, as repo-relative paths. */
+export function pluginLinkTargets(markdown) {
+  const re = /https:\/\/github\.com\/tedeuxx\/tadeumendonca-skills\/(?:blob|tree)\/main\/([^)\s#]+)/g;
+  return [...markdown.matchAll(re)].map((m) => m[1]);
+}
+
+/**
+ * Compare those paths against a plugin checkout. Empty string means every one resolves.
+ *
+ * `exists` is injected rather than imported, so the deciding half stays testable without a second
+ * repository on disk — the same split `collectComponents` and its fixtures already use.
+ *
+ * ZERO TARGETS IS A FAILURE, not a pass. An empty list satisfies "nothing missing" perfectly, and that
+ * vacuous shape is the one this repo keeps paying for; it means either the page stopped pointing at the
+ * plugin or the regex stopped matching, and both are worth a red build.
+ */
+export function pluginLinkReport(targets, exists) {
+  if (targets.length === 0) {
+    return [
+      '/architecture cites no files in tedeuxx/tadeumendonca-skills at all.',
+      'Either the page stopped pointing at the plugin, or the URL pattern stopped matching.',
+      'This check would now pass on anything, which is why it fails instead.',
+    ].join('\n');
+  }
+  // `localeCompare`, not a bare `.sort()`. Default sort coerces to string and orders by UTF-16 code
+  // unit, which is a latent defect on any other input and merely arbitrary on paths — SonarCloud flags
+  // it CRITICAL (javascript:S2871) either way, and it turned the quality gate red the moment this line
+  // landed. Explicit here matches `rosterDispatchReport` directly above, which already sorts this way.
+  const missing = [...new Set(targets)].filter((p) => !exists(p)).sort((a, b) => a.localeCompare(b));
+  if (missing.length === 0) return '';
+  return [
+    '/architecture links to paths that do not exist in tedeuxx/tadeumendonca-skills:',
+    ...missing.map((p) => `  - ${p}`),
+    '',
+    'This is almost certainly NOT your change — the target lives in a separate repository.',
+    'Fix the link in apps/fed/src/content/architecture.{pt,en}.md, in BOTH editions: the link-parity',
+    'test compares the two, so a one-sided fix trades this failure for that one.',
+  ].join('\n');
+}
