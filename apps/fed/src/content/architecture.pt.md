@@ -444,7 +444,7 @@ Os movimentos, e o que cada corte custou, estão registrados em vez de resumidos
 
 ## O registro de decisões É a documentação
 
-Nada de doc de arquitetura separado que descola da realidade. Toda decisão que sustenta peso — e as revertidas, mantidas como histórico — é um **Architecture Decision Record**, lido através do keystone da biblioteca: *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.
+Nada de doc de arquitetura separado que descola da realidade. Decisão que sustenta peso — e as revertidas, mantidas como histórico — vira um **Architecture Decision Record**, com uma exceção conhecida que está registrada mais abaixo, lido através do keystone da biblioteca: *enxuto por design, calibrado pela estratégia.* O "porquê" de verdade por trás de qualquer coisa acima está lá, datado, com seu trade-off.
 
 *(→ [a biblioteca de decisões](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) enxuto por design)*
 

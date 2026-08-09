@@ -444,7 +444,7 @@ The moves, and what each cut cost, are recorded rather than summarised here: [AD
 
 ## The decision record IS the documentation
 
-No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **Architecture Decision Record**, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
+No separate architecture doc that drifts. A load-bearing decision — and the reversed ones, kept as history — becomes an **Architecture Decision Record**, with one known exception recorded further down, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
 
 *(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
 

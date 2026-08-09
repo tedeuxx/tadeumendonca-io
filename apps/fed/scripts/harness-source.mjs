@@ -536,7 +536,11 @@ export function pluginLinkReport(targets, exists) {
       'This check would now pass on anything, which is why it fails instead.',
     ].join('\n');
   }
-  const missing = [...new Set(targets)].filter((p) => !exists(p)).sort();
+  // `localeCompare`, not a bare `.sort()`. Default sort coerces to string and orders by UTF-16 code
+  // unit, which is a latent defect on any other input and merely arbitrary on paths — SonarCloud flags
+  // it CRITICAL (javascript:S2871) either way, and it turned the quality gate red the moment this line
+  // landed. Explicit here matches `rosterDispatchReport` directly above, which already sorts this way.
+  const missing = [...new Set(targets)].filter((p) => !exists(p)).sort((a, b) => a.localeCompare(b));
   if (missing.length === 0) return '';
   return [
     '/architecture links to paths that do not exist in tedeuxx/tadeumendonca-skills:',

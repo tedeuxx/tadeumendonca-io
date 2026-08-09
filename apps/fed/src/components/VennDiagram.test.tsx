@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { VennDiagram, VennFence, VENN_GEOMETRY } from './VennDiagram';
 import { Markdown } from './Markdown';
@@ -87,6 +87,117 @@ describe('VennDiagram', () => {
     // A viewBox, or it cannot size at all — the same assertion `diagram-source.test.mjs` makes of every
     // compiled mermaid SVG.
     expect(svg.getAttribute('viewBox')).toBe(`0 0 ${VENN_GEOMETRY.VIEW_W} ${VENN_GEOMETRY.VIEW_H}`);
+  });
+});
+
+// WHERE THE READER LANDS, and the reason this is stubbed rather than left to the E2E: jsdom has no
+// layout, so `scrollWidth === clientWidth === 0` and the overflow branch never executes on its own. That
+// left the placement, the affordance and the observer teardown as the only uncovered lines in this
+// slice — and they are the lines a copy lens had to catch in a browser, which is exactly the wrong place
+// to be finding them.
+//
+// The browser half is NOT replaced by this: `e2e/diagram-centred.spec.ts` measures the real thing at
+// 320/390/1280 and across a resize. What this adds is the arithmetic and the wiring, at unit speed and
+// with the scroll value asserted directly rather than inferred from a rectangle.
+describe('the pan placement, on a box that really overflows', () => {
+  const SCROLL_W = 1000;
+  const CLIENT_W = 300;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  /** Give jsdom the two numbers it cannot compute, and capture what the component writes back. */
+  function overflowing() {
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(SCROLL_W);
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(CLIENT_W);
+    // Spied on the SETTER rather than read back off the element: jsdom does no layout, so it silently
+    // discards an assignment to `scrollLeft` and reading it always returns 0. Asserting the read value
+    // would have passed on a component that never scrolled at all.
+    const written: number[] = [];
+    vi.spyOn(HTMLElement.prototype, 'scrollLeft', 'set').mockImplementation(function (v: number) {
+      written.push(v);
+    });
+    return written;
+  }
+
+  it('opens centred on the intersection and marks the box pannable', () => {
+    const written = overflowing();
+    const { container } = render(<VennDiagram spec={SPEC} />);
+
+    const box = container.querySelector('.diagram-canvas')!;
+    expect(box.hasAttribute('data-pannable'), 'an overflowing box must advertise that it pans').toBe(true);
+
+    // The intersection sits at CENTRE.x of a VIEW_W-wide viewBox, so it lands that fraction along the
+    // scrollable width; half the visible box is then subtracted to centre it. 520/1000 * 1000 − 150.
+    const expected =
+      (VENN_GEOMETRY.CENTRE.x / VENN_GEOMETRY.VIEW_W) * SCROLL_W - CLIENT_W / 2;
+    expect(written.at(-1)).toBeCloseTo(expected, 5);
+    // …and it is inside the scrollable range, which is the half a bare formula gets wrong.
+    expect(written.at(-1)).toBeGreaterThan(0);
+    expect(written.at(-1)).toBeLessThanOrEqual(SCROLL_W - CLIENT_W);
+  });
+
+  it('clamps rather than overshooting when the intersection sits past the end', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(400);
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(399);
+    const written: number[] = [];
+    vi.spyOn(HTMLElement.prototype, 'scrollLeft', 'set').mockImplementation(function (v: number) {
+      written.push(v);
+    });
+
+    render(<VennDiagram spec={SPEC} />);
+    // 520/1000 * 400 − 199.5 = 8.5, and the range is [0, 1]. Without the clamp the box would be told to
+    // scroll eight times further than it can, which browsers silently absorb and a test would not.
+    expect(written.at(-1)).toBe(1);
+  });
+
+  it('observes the box for resize, and disconnects when the figure goes away', () => {
+    overflowing();
+    const observed: Element[] = [];
+    let disconnected = 0;
+    let fire = () => {};
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(cb: () => void) {
+          fire = cb;
+        }
+        observe(el: Element) {
+          observed.push(el);
+        }
+        disconnect() {
+          disconnected += 1;
+        }
+      },
+    );
+
+    const { container, unmount } = render(<VennDiagram spec={SPEC} />);
+    expect(observed, 'the scroller itself must be observed, not the figure').toEqual([
+      container.querySelector('.diagram-canvas'),
+    ]);
+
+    // A resize that removes the overflow has to take the affordance off with it — a box advertising a
+    // pan it can no longer perform is decoration that lies.
+    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(CLIENT_W);
+    fire();
+    expect(container.querySelector('.diagram-canvas')!.hasAttribute('data-pannable')).toBe(false);
+
+    unmount();
+    expect(disconnected, 'the observer must be disconnected on unmount').toBe(1);
+  });
+
+  // The guard that keeps the two above from being the whole story: with no ResizeObserver — jsdom's real
+  // state, and the one that threw before it was feature-detected — the figure still renders and is still
+  // placed. That is the property the guard exists for, not merely "it does not crash".
+  it('still places the figure where the runtime has no ResizeObserver', () => {
+    const written = overflowing();
+    vi.stubGlobal('ResizeObserver', undefined);
+
+    const { container } = render(<VennDiagram spec={SPEC} />);
+    expect(container.querySelector('.diagram-canvas')!.hasAttribute('data-pannable')).toBe(true);
+    expect(written.at(-1)).toBeGreaterThan(0);
   });
 });
 
