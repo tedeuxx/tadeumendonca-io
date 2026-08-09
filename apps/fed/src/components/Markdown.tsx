@@ -18,6 +18,7 @@ import 'highlight.js/styles/github-dark.css';
 import { VideoEmbed, youtubeId } from './VideoEmbed';
 import { RepoCard } from './RepoCard';
 import { Diagram } from './Diagram';
+import { VennFence } from './VennDiagram';
 import { AdrTable } from './AdrTable';
 import { repoCardFor } from '../data/repoCards';
 import { useLocalePath } from '../i18n';
@@ -110,6 +111,25 @@ function mermaidBlock(children: ReactNode): { source: string; caption: string } 
 }
 
 /**
+ * A ```venn fence's body, if this <pre> is one.
+ *
+ * A SECOND fence kind, and the bar for adding one is the bar the `adr-index` comment sets: a second
+ * mechanism for the same job is a second thing to learn and to break. This is not the same job. mermaid
+ * cannot draw overlapping circles, and the three-pillar figure is exactly that — see the header of
+ * `VennDiagram.tsx` for what the separate path costs.
+ *
+ * Unlike `mermaidBlock` this returns the RAW body and validates nothing: `parseVennSpec` owns the
+ * grammar, throws on every authoring mistake, and is unit-tested without a renderer. Splitting the check
+ * out is what keeps the "must declare a caption" rule in one place per fence kind rather than here.
+ */
+function vennBlock(children: ReactNode): string | null {
+  const only = Children.toArray(children)[0];
+  if (!isValidElement<{ className?: string; children?: ReactNode }>(only)) return null;
+  if (!only.props.className?.split(/\s+/).includes('language-venn')) return null;
+  return Children.toArray(only.props.children).join('');
+}
+
+/**
  * The URL of a paragraph that is nothing but a link — an explicit `[url](url)` whose label IS its href,
  * or a bare URL on its own line, which GFM autolinks into exactly that shape.
  * Anything with surrounding prose is left alone — an inline link must stay an inline link.
@@ -148,6 +168,8 @@ const components: Components = {
     if (isAdrIndex(children)) return <AdrTable />;
     const diagram = mermaidBlock(children);
     if (diagram) return <Diagram source={diagram.source} caption={diagram.caption} />;
+    const venn = vennBlock(children);
+    if (venn) return <VennFence body={venn} />;
     return <pre {...props}>{children}</pre>;
   },
   /**
@@ -210,7 +232,7 @@ export function Markdown({ children }: { children: string }) {
           the one behaviour change to be aware of: see `loneUrl` above. */}
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[[rehypeHighlight, { plainText: ['mermaid'] }]]}
+        rehypePlugins={[[rehypeHighlight, { plainText: ['mermaid', 'venn'] }]]}
         components={components}
       >
         {children}

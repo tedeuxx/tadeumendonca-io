@@ -589,3 +589,21 @@ body {
   display: block;
   margin-inline: auto;
 }
+
+/* THE PAN AFFORDANCE, and it applies to exactly one figure today. `data-pannable` is set from
+   VennDiagram.tsx when the box actually scrolls — a layout fact no selector can ask about — and removed
+   when it does not, so it never fires on a mermaid diagram, all of which are clamped to the box by
+   `width="100%"`.
+
+   Why it exists: a touch reader gets NO scrollbar until they have already scrolled, so a clipped figure
+   reads as a complete one. Not hypothetical here — the three-pillar figure shows 352 of 712px at 390,
+   and the failure measured was a reader concluding it was a single circle. The inset shadow says "there
+   is more this way" in the one language a still screen can carry.
+
+   Both edges rather than just the right: the initial scroll opens CENTRED on the intersection, so when
+   this attribute is present there is always content hidden on both sides. */
+.diagram-canvas[data-pannable] {
+  box-shadow:
+    inset 14px 0 12px -12px hsl(var(--primary) / 0.55),
+    inset -14px 0 12px -12px hsl(var(--primary) / 0.55);
+}

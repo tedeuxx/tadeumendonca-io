@@ -336,6 +336,8 @@ test.describe('routes', () => {
     for (const name of [
       /As camadas, e a trilha de build que substitui as que faltam/,
       /Como uma requisição vira uma página/,
+      /A pilha AWS, camada a camada/,
+      /O formato do loop — as camadas e as unidades de trabalho/,
       /Onde o humano fica no loop/,
       /Do que o harness é feito/,
     ]) {
@@ -373,6 +375,60 @@ test.describe('routes', () => {
       expect(canvas, 'the canvas must have a real background to compare against').not.toBe('rgba(0, 0, 0, 0)');
       expect(strokes.filter((s) => s === canvas), `${name} draws edges in the background colour`).toEqual([]);
     }
+  });
+
+  // THE THREE-PILLAR FIGURE, which is the one diagram on this page mermaid did not compile. It is
+  // authored JSX over a fixed geometry (VennDiagram.tsx), so the loop above cannot cover it — that loop
+  // reads `svg path.flowchart-link`, a mermaid class this figure has none of, and enumerating it there
+  // would make the strokes assertion pass vacuously on zero elements.
+  //
+  // What is asserted is what would actually be wrong on the served page and is invisible to the unit
+  // tests: it is in the PRERENDERED bytes rather than drawn by JavaScript · it occupies a real box · its
+  // circles are painted in something other than the canvas colour · and every authored word is real
+  // <text>, which is the property inline SVG was chosen for and the one a screen reader and a crawler
+  // both depend on.
+  test('/architecture draws the three-pillar figure, prerendered and not in the canvas colour', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/pt/architecture');
+
+    const figure = page.getByRole('figure', { name: /Os três pilares, e o que fica na interseção/ });
+    await expect(figure).toBeVisible();
+
+    const box = await figure.boundingBox();
+    expect(box, 'the figure must occupy a real box').not.toBeNull();
+    expect(box!.width).toBeGreaterThan(300);
+    expect(box!.height).toBeGreaterThan(300);
+
+    // Three circles, and the label that only means anything if they overlap. Read off the <text>
+    // elements rather than through `getByText`, which also matches the <desc> — that description names
+    // the same words on purpose, so a text query resolves to two nodes and reports a strict-mode
+    // violation instead of the property being asked about.
+    await expect(figure.locator('svg circle')).toHaveCount(3);
+    const labels = await figure.locator('svg text').allTextContents();
+    expect(labels, 'the intersection must be labelled').toContain('(Agent) Harness');
+    expect(labels).toContain('Engineering');
+
+    // Real <text>, no HTML labels — the same pair the mermaid loop asserts, for the same reason.
+    expect(labels.length).toBeGreaterThan(12);
+    await expect(figure.locator('foreignObject')).toHaveCount(0);
+
+    // Background-equality, not contrast. A figure drawn entirely in the canvas colour satisfies every
+    // assertion above and shows a reader nothing — that defect reached production once on this page.
+    const canvas = await figure
+      .locator('.diagram-canvas')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(canvas, 'the canvas must have a real background to compare against').not.toBe('rgba(0, 0, 0, 0)');
+    const strokes = await figure
+      .locator('svg circle')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).stroke));
+    expect(strokes.filter((s) => s === canvas), 'the circles are drawn in the background colour').toEqual([]);
+
+    // And a reader with no JavaScript gets it. `page.goto` runs the app and would pass whether or not the
+    // figure was ever prerendered — the trap #170 already recorded for the compiled diagrams.
+    const html = await (await request.get('/pt/architecture/')).text();
+    expect(html, 'the figure must be in the prerendered bytes').toContain('(Agent) Harness');
   });
 
   test('reaches the architecture page from the nav', async ({ page }) => {

@@ -1,8 +1,45 @@
 _This site is the argument. This page is the blueprint — how it's built, and how you'd build your own._
 
-## The thesis
+## Three things
 
-For a proof-of-engineering site, the code is the pitch — so the honest thing is to show the machine, not just its output. This is the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering. The site is that loop's public output.
+This is three things.
+
+- **A static site.** React, Vite and TypeScript in a bucket behind CloudFront — no server, no database, no auth. It is what you are reading right now.
+- **A dev-loop plugin.** The personas, the hooks and the commands that decide *how* the work gets done: versioned in a separate repository, installable in any project, and what it delivers is a verification that does not depend on whoever wrote the code.
+- **An agent runtime.** Claude Code, which runs that — the orchestrator, the subagents, the permission floor. It is the one of the three I did not write.
+
+These are not three products. **It is one thing**, and this site is what it produces in public.
+
+On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
+
+### The three pillars, and what sits in the intersection
+
+The three are not tiers of one system, and that is what the drawing below exists to make obvious: **each one exists without the other two**. The site runs without the plugin. The plugin installs in any repository. The runtime is not mine. What sits in the middle is the one thing none of the three delivers on its own.
+
+```venn
+accTitle: The three pillars, and what sits in the intersection
+accDescr: Three circles of the same size, overlapping, with one shared intersection at the centre. The first circle is the solution, the tadeumendonca-io repository, and inside it sit the React SPA built with Vite and TypeScript, the Terraform that provisions CloudFront and S3, the pipeline with its gates and its deploy, and the markdown content held in the repository itself. The second is the harness customization, the tadeumendonca-skills repository, and inside it sit the personas in the agents directory, the hooks registered in hooks.json, the commands in the commands directory, and the methodology ADRs. The third is the harness runtime, Claude Code, and inside it sit the orchestrator and the subagents, the PreToolUse and SessionStart events, the permission policy, and the tools with MCP. At the centre, where all three overlap, it reads Agent Harness Engineering, with the word Agent in parentheses. That is the claim the drawing makes: none of the three circles is the discipline on its own, it is what exists where the three meet.
+centre: (Agent) Harness | Engineering
+pillar: The solution | tadeumendonca-io
+- React SPA · Vite · TS
+- Terraform: CloudFront, S3
+- Pipeline: gates, deploy
+- Markdown in the repo
+pillar: The customization | tadeumendonca-skills
+- Personas in agents/
+- Hooks in hooks.json
+- Commands in commands/
+- Methodology ADRs
+pillar: The runtime | Claude Code
+- Orchestrator, subagents
+- PreToolUse · SessionStart
+- The permission policy
+- Tools and MCP
+```
+
+What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in parentheses on purpose: *harness engineering* is commonly said today for the practice alone, and the brackets tie one term to the other without pretending they are two different things.
+
+The topics inside each circle are that pillar's **inventory**; what each one **delivers** has a section of its own further down, and it is worth naming which is which: the site's is *What the site does, from the reader's side*; the customization's is *The four harness elements*; the runtime's is *The orchestrator is the part of the harness you cannot install*.
 
 ## The shape
 
@@ -40,16 +77,12 @@ What none of that places is where a clean URL becomes a file:
 ```mermaid
 flowchart LR
   accTitle: How a request becomes a page
-  accDescr: A reader requests a slash-less URL. CloudFront runs the spa-rewrite function on viewer-request, which appends index.html. From there the path runs one way and rejoins at the end — a cache hit goes straight to the served page; a miss fetches the prerendered object from the S3 origin, and the origin leads to the same served page.
-  R["Reader asks for /en/me"] --> V["CloudFront viewer-request"]
-  V --> F["spa-rewrite function"]
-  F -- "uri becomes /en/me/index.html" --> C{"Cached at the edge?"}
-  C -- "hit" --> P["Page served"]
-  C -- "miss" --> S["S3 origin: prerendered dist/"]
+  accDescr: Three steps and one fork, left to right. A reader asks for /en/me, with no trailing slash. CloudFront runs the spa-rewrite function on viewer-request and the uri becomes /en/me/index.html. From there two paths end in the same place - if the object is cached at the edge the page is served straight away; if it is not, it is fetched as a prerendered file from the S3 origin, and that origin leads to the same served page. Nothing returns to an earlier step.
+  R["Reader asks for<br/>/en/me"] --> F["CloudFront · viewer-request<br/>spa-rewrite: the uri becomes /en/me/index.html"]
+  F -- "cached" --> P["Page served"]
+  F -- "not cached" --> S["S3 origin<br/>/en/me/index.html, already built"]
   S --> P
 ```
-
-There is no application in that path — so the only logic between a reader and a file is [ten executable lines of JavaScript](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), and it carries [its own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) plus a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo.
 
 **"No backend" raises one question before all others — how does a crawler see this — and the answer is that nothing has to run for it to.** A search engine or an unfurl scraper asks for a URL and gets **complete HTML with the OG tags already in it**, straight from a static file, not an empty shell that only becomes a page once JavaScript runs. **Nothing is assembled when it asks**: every route is rendered once, at build, in both languages. No SSR, no edge rendering — the function above rewrites a URL and does nothing else.
 
@@ -57,17 +90,67 @@ The limit travels with the claim, because it is the part a reader can falsify: *
 
 *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render, no SSR · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete)*
 
+### The AWS stack, layer by layer
+
+The two drawings above show **time** — when each thing happens. This one shows **inventory**: which AWS services are live, and which layer each one sits in. Every one of them is named somewhere in this page's prose, and the bill below charges for some of them; no drawing had them together.
+
+```mermaid
+flowchart TB
+  accTitle: The AWS stack, layer by layer
+  accDescr: Four stacked layers. Name and trust, and ALL THREE things in this layer are created outside this repository's Terraform - the Route 53 hosted zone with its A alias record, the ACM certificate in us-east-1, and the GitHub OIDC provider, which is the trust root and is made by hand with the AWS CLI. The first two reach the distribution; the third is what the deploy role presents in order to assume an identity. Delivery, at the edge - the CloudFront distribution, which terminates TLS and holds the cache, and the spa-rewrite CloudFront Function, which it runs on viewer-request. Origin, the storage - the Origin Access Control the distribution uses to sign its origin request, and behind it the two private S3 buckets, the site one and the assets one, which answer only s3:GetObject coming from that distribution. Deploy identity, and this layer IS created here - the IAM deploy role that trusts an immutable subject, and the SSM Parameter Store the pipeline reads the bucket name and the distribution id from; the role publishes the built dist to the site bucket and asks the distribution for an invalidation. There is no compute layer serving requests, no database, no VPC and no secret read at runtime.
+  subgraph nome["NAME AND TRUST — all three born outside this repo's Terraform"]
+    direction LR
+    Z["Route 53<br/>hosted zone · A alias record"]
+    T["ACM<br/>certificate in us-east-1"]
+    OP["GitHub OIDC provider<br/>the trust root, made with the CLI"]
+  end
+  subgraph borda["DELIVERY — the edge"]
+    direction LR
+    E["CloudFront<br/>distribution · TLS · cache"]
+    FN["CloudFront Function<br/>spa-rewrite · viewer-request"]
+  end
+  subgraph origem["ORIGIN — private storage"]
+    direction LR
+    OAC["Origin Access Control"]
+    B1["S3 · site<br/>private"]
+    B2["S3 · assets<br/>private"]
+  end
+  subgraph deploy["DEPLOY IDENTITY — this layer IS created here"]
+    direction LR
+    RO["IAM · deploy role<br/>immutable subject"]
+    SSM["SSM Parameter Store<br/>bucket name · distribution id"]
+  end
+  Z -- "alias" --> E
+  T -- "TLS" --> E
+  E -- "viewer-request" --> FN
+  E -- "signed origin request" --> OAC
+  OAC -- "s3:GetObject only" --> B1
+  OAC -- "s3:GetObject only" --> B2
+  OP -- "web identity" --> RO
+  RO -- "reads" --> SSM
+  RO -- "publishes dist/" --> B1
+  RO -- "invalidation" --> E
+```
+
+Two things here are worth saying out loud. **The whole first layer is born outside this repository's Terraform.** The hosted zone and the certificate already exist in the account and arrive as `data source`s — a choice rather than an omission: they survive a full `destroy` of this stack, which is why the hosted zone's USD 0.50 line would keep billing with no site at all. And the OIDC provider, which is the trust root, is made by hand with the AWS CLI and **stays outside Terraform permanently** — the why is further down, along with the uncomfortable part of admitting it. What is created here is the *role*, not the provider. The second: the site bucket **is not public in any sense** — its policy allows `s3:GetObject` only for the CloudFront service, and only when the `AWS:SourceArn` is this distribution's.
+
+The only logic that runs between a reader and a file is the function in the second layer: [ten executable lines](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), with [their own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) and a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo.
+
+*(→ [`iac/frontend.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/frontend.tf) the distribution, the function and the bucket policies · [`iac/iam.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/iam.tf) the deploy role and the OIDC subject)*
+
 ## Why this site exists
 
 To learn AI you have to build the use cases. You do not learn without them. Everything needs a user, an application, a feature, a business case — and that is where I keep seeing the gap. In the AI work I have been close to, the modelling is strong and the other half is thin: systems integration, legacy that cannot be replaced, the ordinary complications of corporate IT. That other half is where I have spent eighteen years. This site is a use case, and the open repository lets anyone check it.
 
 I started the year lost. A project that was not going well, a pile of catch-up obligations on AI tooling, and things degraded until I took my holiday. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tools in hand — Claude Code, Kiro — and still felt outside the hype.**
 
+And there is a reason this is public rather than a notebook. We live in a world with far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and it is why what is here is the whole setup, in the open, rather than only the conclusion it reached.
+
 Building software is what I love. Nothing is more fun to me than seeing an application up and running, looking just right. What these tools gave back was exactly that, at a scale I could not reach on my own.
 
-The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from my holiday, and it grew and matured from there. **I would never have delivered that mechanism without an agentic development tool** — not in the time I had.
+The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from my holiday, and it grew and matured from there. **I would never have delivered that mechanism without an agentic development tool** — and it was not only the deadline. I was carrying tech-lead responsibilities on that project **at the same time** as doing the hands-on agent development, in parallel. That is what the tool bought: not typing speed, but both of those fitting into the same week.
 
-Since then I have worked on two fronts: an internal one, at my job, and this one, in public. Consulting no longer gives me what I want to be doing: building digital products. I like building apps.
+Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. Consulting no longer gives me what I want to be doing: building digital products. I like building apps.
 
 ## Who did what
 
@@ -149,21 +232,15 @@ A recorded reversal is what makes the growth path concrete rather than a promise
 
 The build lane in the diagram above is the seam: adding a server means moving work **out** of it, not bolting a tier onto the side.
 
-## Security here is mostly what was not built
-
-There is no WAF, no key I manage, and no encrypted parameter. That is not thrift: **with no server, no database and no auth, whole classes of risk stop existing rather than being mitigated** — injection into a database, auth bypass, server-side RCE, secrets at runtime. What is left is the bundle that reaches the browser and its dependencies. The auditable part of that decision is that the infrastructure scanner **knows why it does not complain**: the deviation is written into its own config file, with the reason, rather than as a silent exception.
-
-*(→ [ADR-0017](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0017-no-waf-no-cmk-ssm-string-only.md) no WAF, no CMK · [`iac/.checkov.yaml`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/.checkov.yaml) the deviation, with its reason)*
-
-Subtraction alone reads as a gap, so what remains is gated: static analysis in SonarCloud, and a dependency audit that **blocks the merge** rather than warning. And packages install without running their own scripts — `--ignore-scripts` on every install in the pipeline, because the runner that installs is the one that later assumes the deploy role. The trust root between the AWS account and GitHub is the other half, and it is spelled out further down, because that is where someone replicating this will look for it.
-
-*(→ [ADR-0021](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0021-application-security-posture.md) what is left when there is no backend)*
-
-There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL **is not in the decision library**, on a page arguing that the library is the point. That is a cut the record does not fully account for, and the honest place to say so is here. The other uncomfortable part stays where it already was: the trust root is a documented hole in a floor, and no `plan` will tell you when it drifts.
-
-*(→ [ADR-0031](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0031-superseded-shared-regional-waf.md) the WAF that was cut)*
-
 ## Every decision, and where it stands
+
+**Why MADR, and why the format weighs more when the reader is an agent.** [MADR](https://adr.github.io/madr/) is a fixed-section format — context, options considered, decision, consequences — and three of its properties are the reason the library is shaped this way:
+
+- **One decision per file.** Anyone who needs to know why there is no staging environment here reads one file, not a whole architecture document. The context spent is the decision's, not its neighbourhood's — and for an agent that is not comfort, it is the resource it has least of.
+- **Fixed sections.** The "why" and the options that lost sit in predictable places, so recovering the reason for a choice does not depend on interpreting prose. That is exactly where a reader, human or not, invents the half that was missing.
+- **`status` and `superseded-by`.** A reversed decision stays in the repository and **says** it was reversed. Without that, the record of a retired architecture reads as instruction — which is the cheapest way to get an agent to rebuild something that was cut on purpose. The table below carries that column, and it is where the reversed decisions appear marked rather than gone.
+
+The limit is the usual one on this page: **nothing here retrieves an ADR by itself.** There is no semantic index and no automatic context injection; an agent reads these files because this repository's guide points at them. The format makes the reading cheap when it happens — it does not make it happen.
 
 The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating the index turns the pipeline red, so the page either matches the library or nothing ships. A hand-copied index of a library this size is stale within a week and nothing says so — this one is the same mechanism as the diagrams above, and for the same reason.
 
@@ -202,20 +279,58 @@ The interesting part isn't the stack — it's how it's built: **agent-led verifi
 
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
+Two figures, and they answer different questions. The first is the loop's **shape**: who closes each unit of work, and in which tier.
+
+```mermaid
+flowchart TB
+  accTitle: The shape of the loop — the tiers and the units of work
+  accDescr: The owner generates demand and it reaches the two lenses in tier one, product-lead and tech-lead, which disagree by design and together close a single description. What comes out is a user story carrying the label ready. The orchestrator, which is the main session, reads that story and dispatches tier two, where the developer builds the whole slice. What the developer delivers is a merge request, one per story. Tier three is the gate - quality-assurance, in a fresh context, with no authorship bias, and the only one that may merge. The merge to main is the deploy. Each tier hands the next a finished artifact rather than an opinion - which is why the cost of reconciling readings is paid within a tier and not across tiers.
+  O["Owner<br/>generates demand"]
+  subgraph T1["TIER 1 · INTAKE — the description closes here"]
+    direction LR
+    PL["product-lead"]
+    TL["tech-lead"]
+  end
+  US["USER STORY · label ready<br/>its task list is the decomposition"]
+  ORCH["ORCHESTRATOR · the main session<br/>dispatches every persona · never merges"]
+  subgraph T2["TIER 2 · BUILD"]
+    DEV["developer<br/>app · infrastructure · pipeline · tests"]
+  end
+  MR["MERGE REQUEST · one per story"]
+  subgraph T3["TIER 3 · GATE — fresh context"]
+    QA["quality-assurance<br/>two lenses in one pass"]
+  end
+  M["merge to main = the deploy"]
+  O --> PL
+  O --> TL
+  PL --> US
+  TL --> US
+  US --> ORCH
+  ORCH --> DEV
+  DEV --> MR
+  MR --> QA
+  QA --> M
+```
+
+**The tier is the unit of reconciliation, and that is what the drawing claims.** Each one hands the next a finished artifact — a closed description, a built slice, a verdict — rather than an opinion somebody has to weigh against another. That is why two personas in one tier need a reason, and why the roster is five.
+
+The second figure is the other question: **where the human stands.**
+
 ```mermaid
 flowchart TD
   accTitle: Where the human sits in the loop
-  accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates, which loop back on red. A fresh-context reviewer then judges the change and can send it back. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing an article — routes to a human go or no-go, which is the last thing before production and can also return the work.
+  accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates. A fresh-context reviewer then judges the change. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work - infrastructure, the loop's own rules, publishing an article - routes to a human go or no-go, which is the last thing before production. The three points that can refuse - the gates on red, the reviewer asking for changes, and the human on a no-go - all feed one box, sent back, and it is that box which returns to the build. One return channel, not three.
   I["Issue"] --> P["Plan, decided by the human"]
   P --> B["Agent builds the slice"]
   B --> G["Mechanical gates"]
-  G -- "red" --> B
   G -- "green" --> R["Fresh-context reviewer"]
-  R -- "changes" --> B
   R -- "safe class" --> M["Merge = deploy"]
   R -- "boundary class" --> H["Human go / no-go"]
   H -- "go" --> M
-  H -- "no-go" --> B
+  G -- "red" --> V["Sent back"]
+  R -- "changes" --> V
+  H -- "no-go" --> V
+  V --> B
 ```
 
 The human appears twice, and the two appearances are different jobs. At the plan, deciding what is worth building and how — the architectural calls are never made solo. At the end, on boundary-class work only, deciding whether it ships. In between, the agent builds and the machine proves, and most changes reach production without a person in that path at all.
@@ -226,7 +341,7 @@ And the cost of it, since the rest of this page states its own: what decides a c
 
 ### What the loop is made of, and what each part can actually do
 
-The picture above answers *how work moves*. It does not say what the loop is **made of** — and that is the question a reader deciding whether to adopt it is actually asking. The two are separate diagrams on purpose: one drawing that tried to be both would have to give a hook that refuses a command and a lens somebody has to remember to invoke the same arrow, and that difference is the most useful thing on this page.
+The two pictures above answer *how work moves* and *who closes each step*. Neither says what the loop is **made of** — and that is the question a reader deciding whether to adopt it is actually asking. This is a third drawing on purpose: one that tried to be all three would have to give a hook that refuses a command and a lens somebody has to remember to invoke the same arrow, and that difference is the most useful thing on this page.
 
 ```mermaid
 flowchart TB
@@ -266,9 +381,16 @@ flowchart TB
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
-**What that check cannot see:** it compares **identity**, so a hook that keeps its name and changes what it does publishes a stale description under a green build — and the red arrives at the next build here, not on the merge over there.
-
 That mechanism is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first picture is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
+
+### The four harness elements, and what each one delivers
+
+The list above is about **force** — what each kind of component can and cannot stop. This is the other question, and it is the one somebody assessing the setup asks first: **what each element delivers to the value of the whole solution**. Every item points at the live file or directory in the plugin repository, because that is where the detail lives.
+
+- **[Agents](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/agents)** — a subagent is a runtime feature, and it is the only one that trades context for a verdict: the whole execution stays inside the subagent's session and what comes back is the conclusion. What that delivers to the architecture is a review in a **fresh context**, without the bias of whoever wrote the thing — the property no self-review instruction can produce, because the author and the judge would be the same context.
+- **[The persona pyramid](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — the five personas are not on one plane: two leads that disagree by construction on top, one builder in the middle, one gate underneath. What it delivers is **disagreement where it is useful and a handoff where it is not** — and the rule that decides which is explicit, reconciliation cost is paid *within* a tier rather than across tiers, and it is what held the roster at five instead of nineteen.
+- **[Hooks](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/hooks/scripts)** — the only part of the plugin that runs code and **refuses**. Two answer on `PreToolUse`, before the tool happens; the three on `SessionStart` run before the first call — two report and one empties the scratch directory. What they deliver is the irreversible floor without depending on anyone remembering it, and the record of which event calls which script is [`hooks/hooks.json`](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/hooks/hooks.json).
+- **[Commands and skills](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/commands)** — each file is a decision already taken, written down: which AWS service for which scenario, which gate blocks, how a version is cut. The ones that hold for any repository live in [`commands/principles`](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/commands/principles). What they deliver is **the absence of a re-decision** — and since the plugin is installed rather than read off disk, one of the session hooks reports which build is actually running, because a skill that was fixed and not reloaded is a skill that had no effect.
 
 ### The orchestrator is the part of the harness you cannot install
 
@@ -276,11 +398,11 @@ It is in none of the inventory above — not in the drawing, not in the manifest
 
 It is also the party the capability boundaries above are drawn *against*. `permission-guard` refuses the merge command from every agent type except `quality-assurance`, and the gloss on the persona edge — *advises, if dispatched* — names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
 
-**Its context is a finite resource**, and it has been read once: the honest form of that reading is a **floor**, not a figure. Measured on this repo's own session of 7–8 August 2026, by parsing the session transcripts: what stayed inside the subagents was **over an order of magnitude** more context than what came back to the orchestrator as verdicts. The saving is real and it is bounded: those returned verdicts were still a **large slice of everything the orchestrator took in from a tool**.
+**And its context runs out.** That is the constraint the rest is drawn around: the main session has a finite window, and everything it reads stays in there until the window blows.
 
-**A task costs the orchestrator its verdict, not its execution.** That is what a subagent buys — and it is why the one knob the harness holds is verdict length, turned by how the persona briefs are written.
+That is what a subagent buys. It reads, runs, gets it wrong and redoes it **inside its own session**; what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution** — which is why the one real lever this harness has is verdict length, turned by writing the persona briefs.
 
-It is not an escape: the verdicts accumulate anyway, and this session compacted twice regardless. No figure for that saving is published, because the input is a private session transcript that no gate can reach.
+I measured it once, on this repo's own session, on 7–8 August 2026, **by parsing the session transcripts**: what stayed inside the subagents was **over an order of magnitude** more than what came back. And the saving has a ceiling — even so, the returned verdicts were a **large slice of everything the orchestrator took in from a tool**. It is not an escape: this session compacted twice anyway. The number is not published, because the input is a private session transcript that no gate can reach.
 
 ### What the Claude Code workspace adds, and where each part actually lives
 
@@ -322,7 +444,7 @@ The moves, and what each cut cost, are recorded rather than summarised here: [AD
 
 ## The decision record IS the documentation
 
-No separate architecture doc that drifts. Every load-bearing decision — and the reversed ones, kept as history — is an **Architecture Decision Record**, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
+No separate architecture doc that drifts. A load-bearing decision — and the reversed ones, kept as history — becomes an **Architecture Decision Record**, with one known exception recorded further down, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
 
 *(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
 
@@ -341,6 +463,10 @@ The fork-to-live steps are in the READMEs, not on this page. That is the same ru
 - **[This repo's README](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live)** — the cloud path end to end, from the domain to the first merge.
 - **[The plugin's README](https://github.com/tedeuxx/tadeumendonca-skills#run-it)** — the loop half, which installs with no cloud account and nothing to deploy.
 
+**Why OIDC, and not a key.** The obvious alternative is to mint an access key pair for an IAM user and store it as a GitHub secret. It works on day one, and it is a long-lived credential living in a system that is not mine: it is valid until somebody revokes it, it travels wherever that job's log leaks to, and rotation becomes a human process nobody performs on time. With OIDC there is **no stored secret**: the runner presents a token GitHub signs for that job, AWS exchanges that token for **temporary** credentials on the role, and they expire on their own with nobody revoking anything. What stays in the repository is the role ARN, which is not a secret.
+
+That changes what a leak means, and it is the whole reason for the decision. A leaked key is access until it is revoked. A leaked token is access until it expires — **and only if whoever took it can also satisfy the trust condition**, which here is that repository's exact subject and nothing else. Less standing privilege, nothing to rotate, and the blast radius bounded by the role's policy rather than by how fast somebody notices. The trade is that the root of that trust has to be created outside, and the next paragraph is about exactly that.
+
 **Terraform here does not create the GitHub OIDC provider, nor the role that runs Terraform itself.** Those are created out of band, with the AWS CLI, and they stay outside Terraform permanently. There are two independent reasons and only one of them would ever go away: the first run would need the credential it has not created yet, and — the one that does not expire — a role able to rewrite its own trust policy has no ceiling on it. The record holds both, along with the part that is uncomfortable to write down: this is a documented hole in a floor, the hand path reopens every time that role's policy is revised, and no `plan` will ever tell you it has drifted.
 
 *(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) trust root outside Terraform)*
@@ -351,10 +477,14 @@ The fork-to-live steps are in the READMEs, not on this page. That is the same ru
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
-## Three honest limitations
+## Where this approach still does not prove what it promises
 
-This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else's hands have been on it. Take the pattern, not the specifics.
+Everything above argues for one thing: **AI-DLC** — a delivery lifecycle whose stages are run and verified by agents, with the human in the residual. The promise of that approach is that "done" is **proved by mechanism** rather than asserted by whoever built it. A page that only showed where that works would be marketing. So this section is the inverse, and it is part of the argument rather than an appendix to it: **where agent-led verification does not yet reach, and what still rests on my word.**
 
-And all four diagrams above show the **shape** of a thing, not a run of it. Three of them you can check, in three different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. The fourth you cannot check at all. That the loop is followed the way it is drawn is not something this page proves — nothing here shows that any particular change took the route in the picture. That one is a claim about how I work, and no artifact on this page can settle it for you.
+**One author, and nobody else's hands.** This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else has ever worked on it. Nothing here has been tested against a second person disagreeing with the setup, which is precisely the case an agent loop finds hardest. Take the pattern, not the specifics.
+
+**The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Seven figures above; **four** of them you can check, at different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers and the AWS stack are what this repo actually builds: `iac/` and the build script settle it between them — with the caveat the drawing itself carries, that the hosted zone and the certificate arrive as `data source`s and are not created here. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. **The other three you cannot check, for different reasons.** The two loop drawings show a route this page does not prove was taken: no artifact here shows that any particular change passed through those tiers. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
+
+**And the record itself has a hole — it is the exception announced further up.** There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL was built, was cut, and **is not in the decision library**. It is the one place this page's own rule was not followed, and its record is this sentence rather than a file. That is the weakness, stated in full: **an announced exception costs less than a recorded decision** — no date, no context, none of the options that lost, and no gate counts it. Which is why it lives here, beside what rests on my word, rather than in the table above.
 
 **And there is the half of the workspace no repository holds.** Remote control is a setting on my account and artifacts is a vendor surface with no row in the manifest; a `grep` for it across the plugin returns nothing, which is the check and also the answer. Both are marked as testimony, and a fork of this repository gets neither — so, exactly like the reading above, they are things you can take my word for or not, and nothing here will settle it.
