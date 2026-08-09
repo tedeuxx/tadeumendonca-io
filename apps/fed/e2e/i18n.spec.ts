@@ -105,7 +105,7 @@ test.describe('i18n — the PT/EN toggle', () => {
 // each journey asserts both halves — the prose changed AND the facts did not.
 test.describe('i18n — the CV content follows the locale', () => {
   const CV_NAME = 'Luiz Tadeu Mendonça';
-  const OFFICIAL_ROLE = 'Senior Cloud Application Architect'; // an official title — English in both
+  const OFFICIAL_ROLE = 'Senior Delivery Consultant — App Modernization'; // an official title — English in both
 
   test.describe('pt-BR context', () => {
     test.use({ locale: 'pt-BR' });
