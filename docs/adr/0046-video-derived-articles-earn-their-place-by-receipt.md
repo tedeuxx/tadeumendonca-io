@@ -139,7 +139,14 @@ is the strongest available evidence that it is a rule and not a rationalisation 
 | [#378](https://github.com/tedeuxx/tadeumendonca-io/issues/378) | **kept, video dropped** | fails test 2, survives as an original |
 | [#379](https://github.com/tedeuxx/tadeumendonca-io/issues/379) · [#339](https://github.com/tedeuxx/tadeumendonca-io/issues/339) · [#259](https://github.com/tedeuxx/tadeumendonca-io/issues/259) | **pass both** | receipt nameable in one sentence, and each stands with the video deleted |
 
-**Ships, in order (test 3):** #379 · #339 · #210 (reframed, video dropped) · #259 · #378 (reframed).
+**Ranked, among survivors (test 3):** #379 · #339 · #210 (reframed, video dropped) · #259 · #378 (reframed).
+
+**That is a rank, not a publication sequence, and the difference is the cap.** #379 and #339 are adjacent
+*here* and **cannot be adjacent in publication**: both are video-derived, so an original goes between them
+— #210 and #378 are originals once reframed, and the rest of the queue supplies others. Test 3 orders the
+survivors; **the cap governs the interleave.** Spelled out because this is the line a reader will check the
+rule against, and a record that appears to break its own rule in its own worked example teaches the
+exception rather than the rule.
 
 **Deferred: [#405](https://github.com/tedeuxx/tadeumendonca-io/issues/405), on a ground this rule does not
 capture** — and that is recorded rather than smoothed over, because a rule presented as covering a case it
