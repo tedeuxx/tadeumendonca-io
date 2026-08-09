@@ -61,7 +61,7 @@ const sourceTemplate: ProfileSource = {
   experience: [
     {
       company: 'Amazon Web Services — Professional Services',
-      title: 'Senior Cloud Application Architect',
+      title: 'Senior Delivery Consultant — App Modernization',
       start_date: '2023-04',
       end_date: null,
       description: {
