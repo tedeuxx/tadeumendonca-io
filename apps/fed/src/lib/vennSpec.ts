@@ -95,33 +95,31 @@ const twoLines = (raw: string, what: string): [string, string] => {
  * fence renders as a plain code block rather than as a picture — still gets every word of the figure.
  * That is this rendering path's real cost, and keeping the spec legible is what bounds it.
  */
-export function parseVennSpec(body: string): VennSpec {
-  const lines = body.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+// THE TWO LINE GRAMMARS, hoisted out of the loop and written so the quantifiers cannot overlap.
+//
+// `\s*(.+)` and `\s+(.+)` are both ambiguous — `.` matches a space too, so on a long run of whitespace the
+// engine has a choice at every position and backtracks super-linearly. `(\S.*)` removes the choice by
+// requiring the capture to START at a non-space, which is what the surrounding code already assumed:
+// every line is trimmed before it reaches here, so a value that is nothing but whitespace cannot exist,
+// and both spellings reject the same inputs. Behaviour identical, one path through the matcher.
+const KEY_LINE = /^(accTitle|accDescr|centre|pillar):\s*(\S.*)$/;
+const ITEM_LINE = /^-\s+(\S.*)$/;
 
-  let accTitle = '';
-  let accDescr = '';
-  let centre: [string, string] | null = null;
-  const pillars: VennPillar[] = [];
-
-  for (const line of lines) {
-    const key = /^(accTitle|accDescr|centre|pillar):\s*(.+)$/.exec(line);
-    if (key) {
-      const [, name, value] = key;
-      if (name === 'accTitle') accTitle = value.trim();
-      else if (name === 'accDescr') accDescr = value.trim();
-      else if (name === 'centre') centre = twoLines(value, 'centre');
-      else pillars.push({ title: twoLines(value, 'a pillar title'), items: [] });
-      continue;
-    }
-    const item = /^-\s+(.+)$/.exec(line);
-    if (!item) fail(`unrecognised line ${JSON.stringify(line)}`);
-    if (pillars.length === 0) fail(`item ${JSON.stringify(line)} appears before any "pillar:"`);
-    pillars[pillars.length - 1].items.push(item[1].trim());
-  }
-
-  // Every one of these is a real authoring mistake that would otherwise reach a reader as a figure that
-  // is merely WRONG rather than absent — an unlabelled circle, a missing intersection, items spilling
-  // over a stroke. A picture reads as current and complete in a way prose does not.
+/**
+ * Everything that must be true once the whole fence has been read.
+ *
+ * SPLIT OUT OF `parseVennSpec` rather than inlined, and not only to satisfy a complexity threshold: these
+ * are two different jobs. Above, a line is turned into structure and the failures are SYNTAX. Here the
+ * structure is complete and the failures are about the FIGURE — an unlabelled circle, a missing
+ * intersection, items spilling over a stroke. Each is a real authoring mistake that would otherwise reach
+ * a reader as a figure that is merely wrong rather than absent, which a picture hides better than prose.
+ */
+function assertComplete(
+  accTitle: string,
+  accDescr: string,
+  centre: [string, string] | null,
+  pillars: VennPillar[],
+): asserts centre is [string, string] {
   if (!accTitle) fail('accTitle is missing — it is the accessible name and the visible caption');
   if (!accDescr) fail('accDescr is missing — it is the whole figure for a reader who cannot see it');
   if (!centre) fail('centre is missing — the intersection is the claim this figure makes');
@@ -132,6 +130,34 @@ export function parseVennSpec(body: string): VennSpec {
       fail(`pillar "${p.title[0]}" has ${p.items.length} items; ${MAX_ITEMS} is what the circle holds`);
     }
   }
+}
+
+export function parseVennSpec(body: string): VennSpec {
+  const lines = body.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+
+  let accTitle = '';
+  let accDescr = '';
+  let centre: [string, string] | null = null;
+  const pillars: VennPillar[] = [];
+
+  for (const line of lines) {
+    const key = KEY_LINE.exec(line);
+    if (key) {
+      const [, name, value] = key;
+      if (name === 'accTitle') accTitle = value.trim();
+      else if (name === 'accDescr') accDescr = value.trim();
+      else if (name === 'centre') centre = twoLines(value, 'centre');
+      else pillars.push({ title: twoLines(value, 'a pillar title'), items: [] });
+      continue;
+    }
+    const item = ITEM_LINE.exec(line);
+    if (!item) fail(`unrecognised line ${JSON.stringify(line)}`);
+    const open = pillars.at(-1);
+    if (!open) fail(`item ${JSON.stringify(line)} appears before any "pillar:"`);
+    open.items.push(item[1].trim());
+  }
+
+  assertComplete(accTitle, accDescr, centre, pillars);
 
   return { accTitle, accDescr, centre, pillars: pillars as [VennPillar, VennPillar, VennPillar] };
 }
