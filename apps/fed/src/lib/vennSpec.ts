@@ -37,9 +37,29 @@ export interface VennSpec {
 
 const PILLARS = 3;
 const TITLE_LINES = 2;
-/** The lobe fits four items at the authored type scale. Five overflows the circle silently — which is
- *  precisely the failure a picture hides, so it is refused here instead. */
-const MAX_ITEMS = 4;
+/**
+ * The lobe holds five items at the authored type scale.
+ *
+ * CORRECTED, and the correction is the reason this comment now says how the number was obtained. It read
+ * `4`, with the note *"five overflows the circle silently"* — which was an assumption, never measured,
+ * and false. Five fits. A cap that refuses a legal arrangement is the same class of defect as one that
+ * admits an illegal one; it survived because it was phrased like a measurement.
+ *
+ * WHAT ACTUALLY BINDS IS WIDTH, NOT COUNT. Items stack downward from the pillar's anchor, so each row
+ * sits nearer the circle below it and has less room than the one above. Running the geometry test's own
+ * arithmetic (`VennDiagram.test.tsx` — same pessimistic 0.62em glyph width, same in-own-circle /
+ * out-of-the-other-two predicate) over the fixed geometry gives, in characters per row:
+ *
+ *   side pillars (0 and 1):  29 | 28 | 27 | 26 | 20 | 14
+ *   bottom pillar (2):       50 | 48 | 44 | 40 | 35 | 28
+ *
+ * Five is where the cap sits because the SIXTH row affords 14 characters in a side pillar, which is not a
+ * line anyone writes — so refusing it here costs nothing and keeps the figure from growing into a list.
+ *
+ * This stays a COARSE guard on purpose: it counts, it cannot see width, so a thirty-character fifth item
+ * passes here and is caught by the geometry test, which is the check that actually knows.
+ */
+const MAX_ITEMS = 5;
 
 // A FUNCTION DECLARATION, not a const arrow, and that is a type-system requirement rather than style:
 // TypeScript only uses a `never` return to narrow the code after the call when the callee is a function

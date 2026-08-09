@@ -49,9 +49,9 @@ describe('the venn fence grammar', () => {
     ['four pillars', [VALID, 'pillar: Four | quatro', '- epsilon'].join('\n'), /3 pillars, got 4/],
     ['a pillar with no items — an empty circle', without(9), /no items/],
     [
-      'a pillar with five items — they would overflow the circle silently',
-      [...LINES.slice(0, 6), '- b3', '- b4', '- b5', ...LINES.slice(6)].join('\n'),
-      /4 is what the circle holds/,
+      'a pillar with six items — the sixth row affords 14 characters, which is not a line anyone writes',
+      [...LINES.slice(0, 6), '- b3', '- b4', '- b5', '- b6', ...LINES.slice(6)].join('\n'),
+      /5 is what the circle holds/,
     ],
     [
       'a one-line centre where the geometry needs two',
@@ -69,5 +69,15 @@ describe('the venn fence grammar', () => {
   // Without this, a parser that threw unconditionally would pass all eleven cases above.
   it('accepts the baseline the refusals are mutations of', () => {
     expect(() => parseVennSpec(VALID)).not.toThrow();
+  });
+
+  // THE OTHER HALF OF THE CAP, and it is the half that was missing while the cap read 4. A refusal test
+  // alone pins only the ceiling; it stays green when the ceiling is set too LOW, which is exactly the
+  // defect that shipped — five items were refused as an overflow they are not, on an unmeasured comment.
+  // So the last legal arrangement is asserted to be legal, not merely the first illegal one to be illegal.
+  it('accepts five items — the last arrangement the geometry affords', () => {
+    const five = [...LINES.slice(0, 6), '- b3', '- b4', '- b5', ...LINES.slice(6)].join('\n');
+    expect(() => parseVennSpec(five)).not.toThrow();
+    expect(parseVennSpec(five).pillars[0].items).toHaveLength(5);
   });
 });
