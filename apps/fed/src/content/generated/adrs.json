@@ -326,6 +326,13 @@
     "title": "A figure mermaid cannot draw is authored as a typed fence over fixed geometry — its arrangement asserted arithmetically, not pinned by a build artifact",
     "file": "0047-authored-svg-figures-outside-the-mermaid-pipeline.md",
     "status": "accepted",
+    "amended": true
+  },
+  {
+    "id": "0048",
+    "title": "A photograph is evidence, not a carrier of words — a content photograph is a captioned figure whose load-bearing text is authored beside it",
+    "file": "0048-content-photograph-is-a-captioned-figure.md",
+    "status": "accepted",
     "amended": false
   }
 ]
