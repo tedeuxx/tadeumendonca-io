@@ -12,6 +12,24 @@ import type { MutableRefObject, ReactNode } from 'react';
 const CANVAS = 'diagram-canvas overflow-x-auto border border-border bg-background p-4';
 
 /**
+ * The caption treatment every figure on /architecture shares — exported so `PhotoFigure` can look
+ * identical WITHOUT reusing this component (#415).
+ *
+ * A CLASS STRING RATHER THAN THE COMPONENT, and the distinction is checkable rather than stylistic.
+ * `.diagram-canvas` is selected page-wide by `e2e/diagram-centred.spec.ts`, which reads
+ * `el.querySelector('svg')` and measures from it. On a photograph that is `null`, every measurement
+ * becomes `NaN`, and `NaN` fails every comparison — at all four widths, in both editions, on the first
+ * run. The centring rule (`.diagram-canvas > svg`) does not select an `<img>` either, and the
+ * background-equality check in `e2e/routes.spec.ts` is meaningless on a raster.
+ *
+ * So what is genuinely shared here is the CAPTION, and it is shared as the one thing that can be:
+ * a string. A photograph and a drawing look like one decision to the reader and are two different
+ * things to a gate, which is the outcome both halves of this need.
+ */
+export const FIGCAPTION_CLASS =
+  'mt-2 font-mono text-xs uppercase tracking-wider text-muted-foreground';
+
+/**
  * `caption` is the reader-visible label, already in the active locale (each edition authors its own).
  *
  * The caption is a real <figcaption> and not only the SVG's internal <title>. mermaid emits accTitle as
@@ -55,9 +73,7 @@ export function DiagramFigure({
           {children}
         </div>
       )}
-      <figcaption className="mt-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-        {caption}
-      </figcaption>
+      <figcaption className={FIGCAPTION_CLASS}>{caption}</figcaption>
     </figure>
   );
 }

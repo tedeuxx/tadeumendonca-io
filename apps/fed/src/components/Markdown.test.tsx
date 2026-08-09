@@ -168,3 +168,93 @@ describe('Markdown — site-internal links are localized (#166)', () => {
     expect(link).toHaveAttribute('href', '/pt/library');
   });
 });
+
+// The photograph facade (#415). Hooked on `p` and NOT on `img`, for the reason `isAdrIndex` and
+// `mermaidBlock` record: react-markdown delivers a lone image as <p><img></p>, so an `img` handler
+// returning a <figure> would nest a block element inside a paragraph — invalid HTML and a hydration
+// mismatch on a prerendered page. These assertions are on the ELEMENT and its ancestry rather than on the
+// text, because the broken render carries exactly the same words.
+describe('Markdown — the lone-image photograph facade (#415)', () => {
+  const KNUTH = '![A wall at a museum](/photos/knuth-cv-museum.jpg "Where I was standing")';
+
+  it('turns a paragraph that is only a registered photograph into a captioned figure', () => {
+    const { container } = renderWithLocale(<Markdown>{KNUTH}</Markdown>, { locale: 'en' });
+    const figure = container.querySelector('figure[data-photo]');
+    expect(figure).not.toBeNull();
+    expect(figure!.querySelector('img')).toHaveAttribute('alt', 'A wall at a museum');
+    expect(figure!.querySelector('figcaption')).toHaveTextContent('Where I was standing');
+  });
+
+  // THE HYDRATION DEFECT, asserted directly. A <figure> inside a <p> is invalid HTML; the browser closes
+  // the paragraph and reparents it, so the prerendered tree and the client tree disagree and React
+  // discards the markup. Checked as ANCESTRY, which is the only form that can fail: both the correct and
+  // the broken render contain a figure and contain the caption text.
+  it('does not nest the figure inside a paragraph', () => {
+    const { container } = renderWithLocale(<Markdown>{KNUTH}</Markdown>, { locale: 'en' });
+    const figure = container.querySelector('figure[data-photo]')!;
+    expect(figure.closest('p')).toBeNull();
+    // And no empty paragraph is left behind where the image used to be.
+    expect(container.querySelector('p')).toBeNull();
+  });
+
+  it('reserves the box from the registry, so the page does not jump when the bytes land', () => {
+    const { container } = renderWithLocale(<Markdown>{KNUTH}</Markdown>, { locale: 'en' });
+    const img = container.querySelector('figure[data-photo] img')!;
+    expect(img).toHaveAttribute('width', '1600');
+    expect(img).toHaveAttribute('height', '704');
+  });
+
+  // The opt-in half, and the same shape as the repo-card facade above: an image this site did not measure
+  // stays a plain <img>. Inventing a size for it is the one thing worse than not reserving a box.
+  it('leaves an UNREGISTERED image as a plain image, not a figure', () => {
+    const { container } = renderWithLocale(
+      <Markdown>{'![Card](/og-default.png "Not a photo")'}</Markdown>,
+      { locale: 'en' },
+    );
+    expect(container.querySelector('figure[data-photo]')).toBeNull();
+    expect(container.querySelector('img')).toHaveAttribute('src', '/og-default.png');
+  });
+
+  // An inline image must stay inline, exactly as an inline link does. The facade is opt-in by being the
+  // WHOLE paragraph, and a rule that fired on any image would silently restructure prose.
+  it('leaves an image with surrounding prose inline, not a figure', () => {
+    const { container } = renderWithLocale(
+      <Markdown>{`Here it is ${KNUTH} in a sentence.`}</Markdown>,
+      { locale: 'en' },
+    );
+    expect(container.querySelector('figure[data-photo]')).toBeNull();
+    expect(container.querySelector('p')).not.toBeNull();
+    expect(container.querySelector('p img')).not.toBeNull();
+  });
+
+  // BOTH WORDS ARE REQUIRED, and the failure is loud. A photograph whose alt is empty publishes its
+  // content to nobody using a screen reader; one with no caption publishes a holiday snapshot with no
+  // stated reason to be there. Silent degradation is what a content author would never notice.
+  it('refuses a registered photograph with no alt text', () => {
+    expect(() =>
+      renderWithLocale(<Markdown>{'![](/photos/knuth-cv-museum.jpg "A caption")'}</Markdown>, {
+        locale: 'en',
+      }),
+    ).toThrow(/alt text/);
+  });
+
+  it('refuses a registered photograph with no caption', () => {
+    expect(() =>
+      renderWithLocale(<Markdown>{'![Some alt](/photos/knuth-cv-museum.jpg)'}</Markdown>, {
+        locale: 'en',
+      }),
+    ).toThrow(/caption/);
+  });
+
+  // The image target is NOT localized — no `img` handler is registered, so the browser resolves it
+  // against the origin. This is the renderer half of the contract `shareMarkdown.ts` mirrors by
+  // absolutizing images to the origin WITHOUT the locale prefix; the two have to agree, and pt is the
+  // locale where a stray prefix would show up.
+  it('leaves the image target unlocalized in the pt edition', () => {
+    const { container } = renderWithLocale(<Markdown>{KNUTH}</Markdown>, { locale: 'pt' });
+    expect(container.querySelector('figure[data-photo] img')).toHaveAttribute(
+      'src',
+      '/photos/knuth-cv-museum.jpg',
+    );
+  });
+});
