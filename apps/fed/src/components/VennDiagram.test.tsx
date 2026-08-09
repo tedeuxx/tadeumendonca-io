@@ -112,9 +112,19 @@ describe('the pan placement, on a box that really overflows', () => {
   function overflowing() {
     vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(SCROLL_W);
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(CLIENT_W);
-    // Spied on the SETTER rather than read back off the element: jsdom does no layout, so it silently
-    // discards an assignment to `scrollLeft` and reading it always returns 0. Asserting the read value
-    // would have passed on a component that never scrolled at all.
+    // Spied on the SETTER rather than read back off the element, and the reason is not the obvious one.
+    //
+    // CORRECTED, because the first version of this comment said jsdom discards the assignment and always
+    // reads back 0, and that is FALSE — measured, not assumed: `el.scrollLeft = 370` reads back 370, and
+    // `= 99999` reads back 99999 with `scrollWidth` and `clientWidth` both 0. jsdom retains the write and
+    // does NOT clamp it, which is where the real problem is:
+    //
+    //   · a read-back cannot tell "written 0" from "never written". Both are 0, and the second is what a
+    //     component whose placement never ran looks like — the exact failure these tests exist to catch;
+    //   · jsdom's retention is non-spec. A browser clamps to [0, scrollWidth − clientWidth], and the
+    //     dimensions here are prototype spies jsdom's own scroll bookkeeping never sees. Reading back
+    //     tells you what was assigned, not what any runtime would hold — so the clamp assertion below
+    //     has to be about the value the component COMPUTED, which is what the setter records.
     const written: number[] = [];
     vi.spyOn(HTMLElement.prototype, 'scrollLeft', 'set').mockImplementation(function (v: number) {
       written.push(v);
