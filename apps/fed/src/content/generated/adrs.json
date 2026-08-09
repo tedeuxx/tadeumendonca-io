@@ -315,6 +315,13 @@
     "amended": false
   },
   {
+    "id": "0046",
+    "title": "A video-derived article earns its place by receipt, stands without the video, and never runs in a streak",
+    "file": "0046-video-derived-articles-earn-their-place-by-receipt.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
     "id": "0047",
     "title": "A figure mermaid cannot draw is authored as a typed fence over fixed geometry — its arrangement asserted arithmetically, not pinned by a build artifact",
     "file": "0047-authored-svg-figures-outside-the-mermaid-pipeline.md",
