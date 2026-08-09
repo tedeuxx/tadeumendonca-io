@@ -14,6 +14,7 @@
 // WHAT IT DOES SHARE, deliberately: the <figure>, the `.diagram-canvas` box, the centring rule, the
 // scroll-inside-the-box contract and the caption-from-the-source rule all come from `DiagramFigure`, so
 // the two kinds of figure cannot drift apart on the properties a reader actually experiences.
+import { useEffect, useRef } from 'react';
 import { parseVennSpec, type VennSpec } from '../lib/vennSpec';
 import { DiagramFigure } from './DiagramFigure';
 
@@ -76,9 +77,53 @@ export function VennDiagram({ spec }: { spec: VennSpec }) {
   const id = `venn-${slug(spec.accTitle)}`;
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
+  const canvas = useRef<HTMLDivElement | null>(null);
+
+  // WHERE THE READER LANDS WHEN THE FIGURE DOES NOT FIT — and this is the half the `min-width` alone did
+  // not deliver, measured in a browser rather than reasoned about: at 390px the box shows 352 of 712px,
+  // and the intersection label sits ~370px in, so a phone reader arriving at scrollLeft 0 saw one circle,
+  // four bullets, and the claim cut mid-word or missing entirely. Every assertion passed — the E2E asked
+  // only that nothing sat left of the origin, and the geometry test works in viewBox units where the
+  // label is perfectly centred.
+  //
+  // So the scroll OPENS on the intersection. The reader lands on the claim and pans outward to the
+  // pillars, which is the figure's own reading order anyway. `min-width` is deliberately NOT lowered:
+  // shrinking further is what makes the type unreadable, and unreadable-but-whole was the trade this
+  // figure exists to refuse.
+  //
+  // `data-pannable` is the affordance. Nothing in a scroller tells a touch reader there is more —
+  // overlay scrollbars are invisible until you already scrolled — so the box takes an inset edge shadow
+  // when, and only when, it actually scrolls. Set from here rather than in CSS because "does this
+  // overflow" is a layout question no selector can ask.
+  useEffect(() => {
+    const box = canvas.current;
+    if (!box) return;
+    const place = () => {
+      const overflow = box.scrollWidth - box.clientWidth;
+      if (overflow <= 0) {
+        box.removeAttribute('data-pannable');
+        return;
+      }
+      box.setAttribute('data-pannable', '');
+      const centre = (CENTRE.x / VIEW_W) * box.scrollWidth - box.clientWidth / 2;
+      box.scrollLeft = Math.max(0, Math.min(overflow, centre));
+    };
+    place();
+    // A resize can cross the fits/does-not-fit boundary in either direction, and a reader rotating a
+    // phone is the ordinary case rather than an exotic one.
+    //
+    // Feature-detected rather than assumed: jsdom has no ResizeObserver, and an unguarded `new` there
+    // throws inside an effect — which took down every test that renders this page, including three that
+    // are about something else entirely. The first placement above is what actually matters and it has
+    // already run; the observer only keeps it true.
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(place);
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <DiagramFigure caption={spec.accTitle}>
+    <DiagramFigure caption={spec.accTitle} canvasRef={canvas}>
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         width="100%"

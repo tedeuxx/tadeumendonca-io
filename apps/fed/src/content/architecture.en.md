@@ -10,7 +10,7 @@ This is three things.
 
 These are not three products. **It is one thing**, and this site is what it produces in public.
 
-That is the part that gets lost when somebody presents "a project built with AI": the output is shown and the machine never is. Here it is the other way round — on a proof-of-engineering site the code is the pitch, so the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
+On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
 
 ### The three pillars, and what sits in the intersection
 
@@ -38,6 +38,8 @@ pillar: The runtime | Claude Code
 ```
 
 What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in parentheses on purpose: *harness engineering* is commonly said today for the practice alone, and the brackets tie one term to the other without pretending they are two different things.
+
+The topics inside each circle are that pillar's **inventory**; what each one **delivers** has a section of its own further down, and it is worth naming which is which: the site's is *What the site does, from the reader's side*; the customization's is *The four harness elements*; the runtime's is *The orchestrator is the part of the harness you cannot install*.
 
 ## The shape
 
@@ -95,11 +97,12 @@ The two drawings above show **time** — when each thing happens. This one shows
 ```mermaid
 flowchart TB
   accTitle: The AWS stack, layer by layer
-  accDescr: Four stacked layers. Name and trust, outside this repository's Terraform - the Route 53 hosted zone with its A alias record, and the ACM certificate in us-east-1; both reach the distribution. Delivery, at the edge - the CloudFront distribution, which terminates TLS and holds the cache, and the spa-rewrite CloudFront Function, which it runs on viewer-request. Origin, the storage - the Origin Access Control the distribution uses to sign its origin request, and behind it the two private S3 buckets, the site one and the assets one, which answer only s3:GetObject coming from that distribution. Deploy identity - the GitHub OIDC provider, the IAM deploy role that trusts an immutable subject, and the SSM Parameter Store the pipeline reads the bucket name and the distribution id from; the role publishes the built dist to the site bucket and asks the distribution for an invalidation. There is no compute layer serving requests, no database, no VPC and no secret read at runtime.
-  subgraph nome["NAME AND TRUST — outside this repo's Terraform"]
+  accDescr: Four stacked layers. Name and trust, and ALL THREE things in this layer are created outside this repository's Terraform - the Route 53 hosted zone with its A alias record, the ACM certificate in us-east-1, and the GitHub OIDC provider, which is the trust root and is made by hand with the AWS CLI. The first two reach the distribution; the third is what the deploy role presents in order to assume an identity. Delivery, at the edge - the CloudFront distribution, which terminates TLS and holds the cache, and the spa-rewrite CloudFront Function, which it runs on viewer-request. Origin, the storage - the Origin Access Control the distribution uses to sign its origin request, and behind it the two private S3 buckets, the site one and the assets one, which answer only s3:GetObject coming from that distribution. Deploy identity, and this layer IS created here - the IAM deploy role that trusts an immutable subject, and the SSM Parameter Store the pipeline reads the bucket name and the distribution id from; the role publishes the built dist to the site bucket and asks the distribution for an invalidation. There is no compute layer serving requests, no database, no VPC and no secret read at runtime.
+  subgraph nome["NAME AND TRUST — all three born outside this repo's Terraform"]
     direction LR
     Z["Route 53<br/>hosted zone · A alias record"]
     T["ACM<br/>certificate in us-east-1"]
+    OP["GitHub OIDC provider<br/>the trust root, made with the CLI"]
   end
   subgraph borda["DELIVERY — the edge"]
     direction LR
@@ -112,9 +115,8 @@ flowchart TB
     B1["S3 · site<br/>private"]
     B2["S3 · assets<br/>private"]
   end
-  subgraph deploy["DEPLOY IDENTITY"]
+  subgraph deploy["DEPLOY IDENTITY — this layer IS created here"]
     direction LR
-    OP["GitHub OIDC provider"]
     RO["IAM · deploy role<br/>immutable subject"]
     SSM["SSM Parameter Store<br/>bucket name · distribution id"]
   end
@@ -130,7 +132,7 @@ flowchart TB
   RO -- "invalidation" --> E
 ```
 
-Two things here are worth saying out loud. The **hosted zone and the certificate are not created by this repository's Terraform** — both already exist in the account and arrive as `data source`s, which is a choice rather than an omission: they survive a full `destroy` of this stack, and that is why the hosted zone's USD 0.50 line would keep billing with no site at all. And the site bucket **is not public in any sense**: its policy allows `s3:GetObject` only for the CloudFront service, and only when the `AWS:SourceArn` is this distribution's.
+Two things here are worth saying out loud. **The whole first layer is born outside this repository's Terraform.** The hosted zone and the certificate already exist in the account and arrive as `data source`s — a choice rather than an omission: they survive a full `destroy` of this stack, which is why the hosted zone's USD 0.50 line would keep billing with no site at all. And the OIDC provider, which is the trust root, is made by hand with the AWS CLI and **stays outside Terraform permanently** — the why is further down, along with the uncomfortable part of admitting it. What is created here is the *role*, not the provider. The second: the site bucket **is not public in any sense** — its policy allows `s3:GetObject` only for the CloudFront service, and only when the `AWS:SourceArn` is this distribution's.
 
 The only logic that runs between a reader and a file is the function in the second layer: [ten executable lines](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), with [their own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) and a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo.
 
@@ -400,7 +402,7 @@ It is also the party the capability boundaries above are drawn *against*. `permi
 
 That is what a subagent buys. It reads, runs, gets it wrong and redoes it **inside its own session**; what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution** — which is why the one real lever this harness has is verdict length, turned by writing the persona briefs.
 
-I measured it once, on this repo's own session, on 7–8 August 2026: what stayed inside the subagents was **over an order of magnitude** more than what came back. And the saving has a ceiling — even so, the returned verdicts were a **large slice** of everything the orchestrator read. It is not an escape: this session compacted twice anyway. The number is not published, because the input is a private session transcript that no gate can reach.
+I measured it once, on this repo's own session, on 7–8 August 2026, **by parsing the session transcripts**: what stayed inside the subagents was **over an order of magnitude** more than what came back. And the saving has a ceiling — even so, the returned verdicts were a **large slice of everything the orchestrator took in from a tool**. It is not an escape: this session compacted twice anyway. The number is not published, because the input is a private session transcript that no gate can reach.
 
 ### What the Claude Code workspace adds, and where each part actually lives
 
@@ -482,5 +484,7 @@ Everything above argues for one thing: **AI-DLC** — a delivery lifecycle whose
 **One author, and nobody else's hands.** This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else has ever worked on it. Nothing here has been tested against a second person disagreeing with the setup, which is precisely the case an agent loop finds hardest. Take the pattern, not the specifics.
 
 **The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Seven figures above; **four** of them you can check, at different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers and the AWS stack are what this repo actually builds: `iac/` and the build script settle it between them — with the caveat the drawing itself carries, that the hosted zone and the certificate arrive as `data source`s and are not created here. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*, never for what those parts do. **The other three you cannot check, for different reasons.** The two loop drawings show a route this page does not prove was taken: no artifact here shows that any particular change passed through those tiers. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
+
+**And the record itself has a hole it does not account for.** There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL was built, was cut, and **is not in the decision library**, on a page that claims a few sections above that every load-bearing decision is. It is the counter-example to this page's strongest claim, and the honest place to keep it is beside the other things that rest on my word.
 
 **And there is the half of the workspace no repository holds.** Remote control is a setting on my account and artifacts is a vendor surface with no row in the manifest; a `grep` for it across the plugin returns nothing, which is the check and also the answer. Both are marked as testimony, and a fork of this repository gets neither — so, exactly like the reading above, they are things you can take my word for or not, and nothing here will settle it.

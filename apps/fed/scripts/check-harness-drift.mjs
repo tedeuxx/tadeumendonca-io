@@ -15,7 +15,7 @@
 // (#216): a check that could not run must not read like one that did. In CI the checkout is
 // unconditional, so the skip path is for local runs only — and it exits 0, because a missing sibling is
 // not a defect in this repo.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,6 +31,8 @@ import {
   rosterDispatchReport,
   assertEnforcement,
   assertPluginVersion,
+  pluginLinkTargets,
+  pluginLinkReport,
 } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -147,6 +149,24 @@ if (rosterProblem) {
   process.exit(1);
 }
 
+// The THIRD artifact against the same tree: the cross-repo links on /architecture. Same reasoning as the
+// roster check above — the checkout is already paid for — and the same ordering rule: it runs last
+// because its failure is a hand edit in two markdown files, while the two above name a generator or a
+// list, and a reader should act on the mechanical fix first.
+//
+// Both editions, and the paths are POOLED rather than compared: the link-parity unit test already asserts
+// the two editions cite the same targets in the same order, so re-deriving that here would be a second
+// implementation of a rule that already has one.
+const pageLinks = ['architecture.pt.md', 'architecture.en.md'].flatMap((f) =>
+  pluginLinkTargets(readFileSync(join(FED, 'src', 'content', f), 'utf8')),
+);
+const linkProblem = pluginLinkReport(pageLinks, (p) => existsSync(join(pluginDir, p)));
+if (linkProblem) {
+  console.error(`::error::${linkProblem.split('\n')[0]}`);
+  console.error(linkProblem);
+  process.exit(1);
+}
+
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified, and CLAUDE.md dispatches the ${guideRoster.length} live persona(s)`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified, CLAUDE.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
 );

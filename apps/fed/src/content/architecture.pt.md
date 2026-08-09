@@ -10,7 +10,7 @@ Isto aqui são três coisas.
 
 Não são três produtos. **É uma coisa só**, e este site é o que ela produz em público.
 
-Essa é a parte que se perde quando alguém apresenta "um projeto feito com IA": mostra-se o resultado, nunca a máquina. Aqui é ao contrário — num site de prova de engenharia o código é o pitch, então o honesto é mostrar a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering.
+Num site de prova de engenharia o código é o pitch, e o que ele deve ao leitor não é o resultado — é a máquina que produziu o resultado. Então o honesto é mostrar a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering.
 
 ### Os três pilares, e o que fica na interseção
 
@@ -38,6 +38,8 @@ pillar: O runtime | Claude Code
 ```
 
 O que fica na interseção é o trabalho de verdade: decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que o inventário disso continua verdadeiro. O `Agent` fica entre parênteses de propósito: hoje se fala em *harness engineering* referindo só a prática, e os parênteses ligam um termo ao outro sem fingir que são duas coisas diferentes.
+
+Os tópicos dentro de cada círculo são o **inventário** de cada pilar; o que cada um **entrega** tem uma seção própria mais abaixo, e vale dizer qual é qual: a do site é *O que o site faz, do lado do leitor*; a da customização é *Os quatro elementos do harness*; a do runtime é *O orquestrador é a parte do harness que você não consegue instalar*.
 
 ## O formato
 
@@ -95,11 +97,12 @@ Os dois desenhos acima mostram **tempo** — quando cada coisa acontece. Este mo
 ```mermaid
 flowchart TB
   accTitle: A pilha AWS, camada a camada
-  accDescr: Quatro camadas empilhadas. Nome e confiança, fora do Terraform deste repositório - a hosted zone do Route 53 com o registro A alias, e o certificado do ACM em us-east-1; as duas chegam na distribuição. Entrega, na borda - a distribuição do CloudFront, que termina o TLS e mantém o cache, e a CloudFront Function spa-rewrite, que ela executa no viewer-request. Origem, o armazenamento - o Origin Access Control, que a distribuição usa para assinar a requisição de origem, e por trás dele os dois buckets S3 privados, o do site e o de assets, que só respondem a s3:GetObject vindo daquela distribuição. Identidade de deploy - o provedor OIDC do GitHub, a role IAM de deploy que confia num subject imutável, e o SSM Parameter Store de onde o pipeline lê o nome do bucket e o id da distribuição; a role escreve o dist no bucket do site e pede a invalidação na distribuição. Não há camada de computação servindo requisição, não há banco, não há VPC e não há segredo lido em runtime.
-  subgraph nome["NOME E CONFIANÇA — fora do Terraform daqui"]
+  accDescr: Quatro camadas empilhadas. Nome e confiança, e as TRÊS coisas desta camada nascem fora do Terraform deste repositório - a hosted zone do Route 53 com o registro A alias, o certificado do ACM em us-east-1, e o provedor OIDC do GitHub, que é a raiz de confiança e é criado à mão, pela CLI da AWS. As duas primeiras chegam na distribuição; o terceiro é o que a role de deploy apresenta para assumir identidade. Entrega, na borda - a distribuição do CloudFront, que termina o TLS e mantém o cache, e a CloudFront Function spa-rewrite, que ela executa no viewer-request. Origem, o armazenamento - o Origin Access Control, que a distribuição usa para assinar a requisição de origem, e por trás dele os dois buckets S3 privados, o do site e o de assets, que só respondem a s3:GetObject vindo daquela distribuição. Identidade de deploy, e esta camada sim é criada aqui - a role IAM de deploy que confia num subject imutável, e o SSM Parameter Store de onde o pipeline lê o nome do bucket e o id da distribuição; a role escreve o dist no bucket do site e pede a invalidação na distribuição. Não há camada de computação servindo requisição, não há banco, não há VPC e não há segredo lido em runtime.
+  subgraph nome["NOME E CONFIANÇA — os três nascem fora do Terraform daqui"]
     direction LR
     Z["Route 53<br/>hosted zone · registro A alias"]
     T["ACM<br/>certificado em us-east-1"]
+    OP["Provedor OIDC do GitHub<br/>a raiz de confiança, feita pela CLI"]
   end
   subgraph borda["ENTREGA — a borda"]
     direction LR
@@ -112,9 +115,8 @@ flowchart TB
     B1["S3 · site<br/>privado"]
     B2["S3 · assets<br/>privado"]
   end
-  subgraph deploy["IDENTIDADE DE DEPLOY"]
+  subgraph deploy["IDENTIDADE DE DEPLOY — esta camada é criada aqui"]
     direction LR
-    OP["Provedor OIDC do GitHub"]
     RO["IAM · role de deploy<br/>subject imutável"]
     SSM["SSM Parameter Store<br/>nome do bucket · id da distribuição"]
   end
@@ -130,7 +132,7 @@ flowchart TB
   RO -- "invalidação" --> E
 ```
 
-Duas coisas aqui valem ser ditas em voz alta. A **hosted zone e o certificado não são criados pelo Terraform deste repositório** — os dois já existem na conta e entram por `data source`, o que é escolha e não esquecimento: eles sobrevivem a um `destroy` completo desta stack, e é por isso que a linha de USD 0,50 da hosted zone continuaria cobrando mesmo sem site nenhum. E o bucket do site **não é público em nenhum sentido**: a policy dele permite `s3:GetObject` só para o serviço do CloudFront, e só quando o `AWS:SourceArn` é o desta distribuição.
+Duas coisas aqui valem ser ditas em voz alta. **A primeira camada inteira nasce fora do Terraform deste repositório.** A hosted zone e o certificado já existem na conta e entram por `data source` — o que é escolha e não esquecimento: eles sobrevivem a um `destroy` completo desta stack, e é por isso que a linha de USD 0,50 da hosted zone continuaria cobrando mesmo sem site nenhum. E o provedor OIDC, que é a raiz de confiança, é criado à mão pela CLI da AWS e **fica fora do Terraform pra sempre** — o porquê está mais abaixo, junto com a parte desconfortável de admitir isso. O que é criado aqui é a *role*, não o provedor. A segunda: o bucket do site **não é público em nenhum sentido** — a policy dele permite `s3:GetObject` só para o serviço do CloudFront, e só quando o `AWS:SourceArn` é o desta distribuição.
 
 A única lógica que roda entre um leitor e um arquivo é a função da segunda camada: [dez linhas executáveis](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), com [testes unitários próprios](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) e uma [verificação pós-deploy](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) de que a função no ar continua sendo a deste repositório.
 
@@ -400,7 +402,7 @@ Ele é também a parte *contra* a qual as fronteiras de capacidade acima foram d
 
 É isso que um subagente compra. Ele lê, roda, erra e refaz **dentro da sessão dele**; o que chega ao orquestrador é a conclusão. Uma tarefa custa ao orquestrador **o veredito, não a execução** — e é por isso que a única alavanca real deste harness é o tamanho do veredito, girada escrevendo as instruções de cada persona.
 
-Medi uma vez, na sessão deste repositório, em 7–8 de agosto de 2026: o que ficou dentro dos subagentes foi **mais de uma ordem de grandeza** maior do que o que voltou. E a economia tem teto — mesmo assim, os vereditos que voltaram foram **uma fatia grande** de tudo que o orquestrador leu. Não é fuga: esta sessão compactou duas vezes de qualquer jeito. O número não é publicado porque a fonte é uma transcrição de sessão privada, que gate nenhum alcança.
+Medi uma vez, na sessão deste repositório, em 7–8 de agosto de 2026, **lendo as transcrições da sessão**: o que ficou dentro dos subagentes foi **mais de uma ordem de grandeza** maior do que o que voltou. E a economia tem teto — mesmo assim, os vereditos que voltaram foram **uma fatia grande de tudo que o orquestrador consumiu vindo de uma ferramenta**. Não é fuga: esta sessão compactou duas vezes de qualquer jeito. O número não é publicado porque a fonte é uma transcrição de sessão privada, que gate nenhum alcança.
 
 ### O que o workspace do Claude Code acrescenta, e onde cada parte de fato mora
 
@@ -482,5 +484,7 @@ Tudo acima defende uma coisa só: **AI-DLC** — um ciclo de entrega cujas etapa
 **Um autor só, e nenhuma outra mão.** Este é um site de autor único, afinado ao posicionamento de uma pessoa — não é um template de propósito geral, e nunca passou pela mão de mais ninguém. Nada aqui foi testado contra uma segunda pessoa discordando do setup, que é justamente o caso em que um loop de agentes é mais difícil. Pegue o padrão, não os detalhes.
 
 **Os desenhos mostram o formato, não uma execução dele** — e é essa a fronteira exata do que um gate consegue verificar. Sete figuras acima; **quatro** você consegue conferir, em forças diferentes. Que o caminho da requisição é o que a borda de fato faz: a função, os testes dela e a comparação pós-deploy estão linkados. Que as camadas e a pilha AWS são o que este repositório de fato constrói: o `iac/` e o script de build resolvem isso entre si — com a ressalva que o próprio desenho carrega, de que a hosted zone e o certificado entram por `data source` e não são criados aqui. Que o harness tem as partes que o inventário nomeia: um build aqui falha quando ele deixa de bater com o repositório do plugin — mas **tarde**, já que nada aqui enxerga um merge de lá, e só para as partes que são *nomes*, nunca para o que essas partes fazem. **As outras três você não consegue conferir, e por motivos diferentes.** Os dois desenhos do loop mostram um trajeto que esta página não prova ter sido percorrido: nenhum artefato daqui mostra que alguma mudança específica passou por aquelas camadas. E o dos três pilares não é mecanismo nenhum — é o recorte com que eu enxergo o problema, e um recorte não tem como estar errado do jeito que um desenho de infraestrutura tem. É exatamente aqui que o AI-DLC ainda é uma afirmação: **a máquina prova a fatia, e não prova o método.**
+
+**E o próprio registro tem um buraco que ele não contabiliza.** Havia **duas** web ACLs — uma na borda do CloudFront e a regional — e só a regional tem ADR. A do CloudFront foi construída, foi cortada, e **não está na biblioteca de decisões**, numa página que afirma logo acima que toda decisão que sustenta peso está lá. É o contraexemplo da afirmação mais forte desta página, e o lugar honesto de deixá-lo é junto das outras coisas que dependem da minha palavra.
 
 **E há a metade do workspace que repositório nenhum guarda.** Remote control é uma configuração da minha conta e artifacts é uma superfície do fornecedor sem linha no manifesto; um `grep` por ele no plugin inteiro não devolve nada, o que é a verificação e também a resposta. Os dois estão marcados como depoimento, e um fork deste repositório não leva nenhum dos dois — então, exatamente como a leitura acima, são coisas em que você acredita na minha palavra ou não, e nada aqui resolve isso.

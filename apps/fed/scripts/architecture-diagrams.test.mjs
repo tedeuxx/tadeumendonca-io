@@ -91,6 +91,10 @@ function reaches(graph, from, to) {
 const en = mermaidFences(read('architecture.en.md'));
 const pt = mermaidFences(read('architecture.pt.md'));
 
+/** ```venn fences — the one figure kind mermaid cannot draw, so it never reaches `mermaidFences`. Counted
+ *  here because the page publishes a TOTAL that includes it. */
+const vennFences = (markdown) => [...markdown.matchAll(/^```venn[ \t]*$/gm)].length;
+
 /**
  * Pick a fence by its `accTitle` rather than by its position in the page.
  *
@@ -150,6 +154,65 @@ describe('the two editions describe the same system', () => {
       expect(fence.source).toMatch(/^\s*accTitle:\s*\S/m);
       expect(fence.source).toMatch(/^\s*accDescr:\s*\S/m);
     });
+  });
+});
+
+// THE PUBLISHED COUNT OF THE FIGURES, against the file's own contents.
+//
+// The limitations section says "Sete figuras acima" / "Seven figures above" and then splits it — four you
+// can check, three you cannot. Those are hand-typed numbers ABOUT THIS FILE, and they went stale once
+// already: the page said "four" while carrying six, and a person caught it rather than a gate. The page's
+// own rule is the argument for closing it — it excuses the reader-facing feature list from carrying a
+// total on the grounds that nothing can check one, and here something can, because this suite is already
+// parsing every fence in both editions.
+describe('the published figure count matches the figures', () => {
+  // Written out because the prose spells them, and the mapping is what makes the assertion a real one:
+  // a number that only ever appears as a word cannot be compared to an integer without it.
+  // The trailing `; **` is load-bearing, not decoration. `/(\S+) figuras acima/` alone matched the
+  // dev-loop section's "As **duas** figuras acima" three hundred lines earlier and read the total as
+  // two — a regex finding a real sentence that is not the one being asserted about, which is the failure
+  // mode a looser pattern hides best.
+  const WORDS = {
+    en: {
+      total: /(\S+) figures above; \*\*/,
+      split: /\*\*(\S+)\*\* of them you can check/,
+      rest: /The other (\S+) you cannot check/,
+    },
+    pt: {
+      total: /(\S+) figuras acima; \*\*/,
+      split: /\*\*(\S+)\*\* você consegue conferir/,
+      rest: /As outras (\S+) você não consegue conferir/,
+    },
+  };
+  const NUMERALS = {
+    en: { three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, Seven: 7, Six: 6, Eight: 8 },
+    pt: { três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, Sete: 7, Seis: 6, Oito: 8 },
+  };
+
+  it.each([
+    ['en', 'architecture.en.md'],
+    ['pt', 'architecture.pt.md'],
+  ])('states the real number of figures in the %s edition, and splits it consistently', (locale, file) => {
+    const body = read(file);
+    const drawn = mermaidFences(body).length + vennFences(body);
+    expect(drawn, 'the fence scan found nothing — the assertions below would be vacuous').toBeGreaterThan(0);
+
+    const words = WORDS[locale];
+    const numerals = NUMERALS[locale];
+    const read1 = (re, what) => {
+      const m = re.exec(body);
+      if (!m) throw new Error(`the ${what} count sentence is gone from the ${locale} edition`);
+      const n = numerals[m[1]];
+      if (n === undefined) throw new Error(`unknown number word "${m[1]}" in the ${locale} edition`);
+      return n;
+    };
+
+    expect(read1(words.total, 'total'), 'the published total does not match the figures on the page').toBe(
+      drawn,
+    );
+    // And the split has to add up. A total that is right while its two halves are not is the shape a
+    // one-number check would let through, and this slice moved BOTH halves.
+    expect(read1(words.split, 'checkable') + read1(words.rest, 'uncheckable')).toBe(drawn);
   });
 });
 
