@@ -332,6 +332,22 @@ describe('collectSkills — one library with a count, not sixty-nine rows', () =
     expect(() => collectSkills(fixture('plugin-skills-malformed'))).toThrow(/2 entr\(ies\)/);
   });
 
+  // CASE, and it is the alternative spelling that would have shipped a two-verdict check. macOS is
+  // case-insensitive by default and Linux is not, so `existsSync(.../SKILL.md)` against a directory
+  // holding `skill.md` is TRUE on the author's laptop and FALSE in the `harness-drift` job. The green
+  // one is the one the author sees. Asserted here as a THROW, which is the answer both platforms give
+  // once the check reads the directory listing instead of asking the filesystem to resolve a name.
+  it('does not accept a lower-case skill.md, on a case-insensitive filesystem or a case-sensitive one', () => {
+    expect(() => collectSkills(fixture('plugin-skills-case'))).toThrow(/vpc\/ has no SKILL\.md/);
+  });
+
+  // The third state of `skills/`: present and not a directory. The two readers used to disagree about
+  // it — one answered `command-families`, the other readdir'd a file and died as an unnamed ENOTDIR.
+  it('names a plain FILE called skills instead of failing as an ENOTDIR three frames down', () => {
+    expect(() => collectSkills(fixture('plugin-skills-not-a-dir'))).toThrow(/is not a directory/);
+    expect(() => pluginLayout(fixture('plugin-skills-not-a-dir'))).toThrow(/is not a directory/);
+  });
+
   // The vacuous-pass shape this module keeps paying for: zero agrees with every comparison downstream.
   // The fixture's `skills/` holds one dotted file, which is also how the dotfile skip is pinned — a
   // `.gitkeep` or a `.DS_Store` is not a failed skill, and without the skip this case would report the

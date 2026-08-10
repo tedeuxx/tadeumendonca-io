@@ -346,10 +346,30 @@ export function collectHooks(pluginDir) {
  * The nested throw stays where it is rather than being replaced in place: it is still correct while
  * families exist, and it costs nothing once they do not.
  */
+/**
+ * `skills/` if it is there and is a DIRECTORY, `null` if it is absent — and a throw for the third case.
+ *
+ * The third case is why this is a shared helper rather than an `existsSync` at each site. `pluginLayout`
+ * asked `existsSync && isDirectory` and `collectSkills` asked `existsSync` alone, so a plain FILE named
+ * `skills` at the plugin root made them disagree: the layout reported `command-families` while the
+ * collector went on to `readdirSync` a file and died as an `ENOTDIR` with no name in it. One reader,
+ * one answer, and the odd case named instead of split between them.
+ */
+function skillsDirOf(pluginDir) {
+  const dir = join(pluginDir, 'skills');
+  if (!existsSync(dir)) return null;
+  if (!statSync(dir).isDirectory()) {
+    throw new Error(
+      `${dir} exists and is not a directory. The skill library is a directory of skill directories; ` +
+        'a file by that name is neither layout, and guessing which one it meant is how a wrong count ships.',
+    );
+  }
+  return dir;
+}
+
 export function pluginLayout(pluginDir) {
-  const skillsDir = join(pluginDir, 'skills');
   const commandsDir = join(pluginDir, 'commands');
-  const hasSkills = existsSync(skillsDir) && statSync(skillsDir).isDirectory();
+  const hasSkills = skillsDirOf(pluginDir) !== null;
   const families = existsSync(commandsDir) ? dirsIn(commandsDir).sort() : [];
   if (hasSkills && families.length > 0) {
     throw new Error(
@@ -391,15 +411,23 @@ export function pluginLayout(pluginDir) {
  * Dotted entries are skipped — `.DS_Store` and `.gitkeep` are not failed skills.
  */
 export function collectSkills(pluginDir) {
-  const dir = join(pluginDir, 'skills');
-  if (!existsSync(dir)) return [];
+  // The one early return in this module, and it is an ALLOW path, so say where it lands: absent
+  // `skills/` is today's tree, and the two refusals below have nothing to refuse when the directory is
+  // not there. It is also the only fail-OPEN direction here — everything else throws.
+  const dir = skillsDirOf(pluginDir);
+  if (dir === null) return [];
 
   const names = [];
   const wrong = [];
   for (const entry of readdirSync(dir).filter((e) => !e.startsWith('.')).sort()) {
     if (!statSync(join(dir, entry)).isDirectory()) {
       wrong.push(`skills/${entry} is a file — a skill is a directory holding SKILL.md`);
-    } else if (!existsSync(join(dir, entry, 'SKILL.md'))) {
+      // `readdirSync(...).includes('SKILL.md')` and NOT `existsSync(join(..., 'SKILL.md'))`, which is
+      // the spelling that reads identically and is not. macOS is case-insensitive by default and Linux
+      // is not, so a plugin shipping `skill.md` would resolve here on a laptop and fail in the CI job —
+      // the same tree, two verdicts, and the one that is green is the one an author sees. An exact
+      // string comparison against the directory listing answers the same question on both.
+    } else if (!readdirSync(join(dir, entry)).includes('SKILL.md')) {
       wrong.push(`skills/${entry}/ has no SKILL.md`);
     } else {
       names.push(entry);

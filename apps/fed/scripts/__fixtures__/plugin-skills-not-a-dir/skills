@@ -1,0 +1,5 @@
+A plain FILE named `skills` at the plugin root — neither layout.
+
+It exists so the two readers cannot disagree about it again: `pluginLayout` used to answer
+`command-families` here while `collectSkills` went on to readdir a file and died as an ENOTDIR with no
+name in it.
