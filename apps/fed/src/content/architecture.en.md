@@ -166,9 +166,9 @@ Since then I have worked on two fronts: an internal one, at my job, with **Kiro*
 
 ![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the decision, not the evidence. At Google's visitor centre in Mountain View.")
 
-San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with both fronts decided.
+San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with the idea of what to do. The decision came later, while I was building — and what got built is here.
 
-*The photographs on this page are mine. One week, one city — this is not a survey; it is what was in front of me.*
+*The photographs on this page are mine. One week, the Valley — this is not a survey; it is what was in front of me.*
 
 ## Who did what
 

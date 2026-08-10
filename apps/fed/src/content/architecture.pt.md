@@ -166,9 +166,9 @@ Desde então tenho feito isso em duas frentes: uma interna, no meu trabalho, com
 
 ![Eu e minha companheira do lado de fora de um prédio baixo, ao lado de uma fileira de bicicletas coloridas estacionadas na calçada.](/photos/google-visitor-centre.jpg "A única em que eu apareço — a decisão, não a evidência. No visitor center do Google, em Mountain View.")
 
-São Francisco e o Vale, maio de 2026. Não teve lugar por onde eu passei sem alguma oferta de IA — no trem, na rua, na vitrine, no crachá de quem estava do lado. Voltei dessa semana com as duas frentes decididas.
+São Francisco e o Vale, maio de 2026. Não teve lugar por onde eu passei sem alguma oferta de IA — no trem, na rua, na vitrine, no crachá de quem estava do lado. Voltei dessa semana com a ideia do que fazer. A decisão veio depois, enquanto eu construía — e o que foi construído está aqui.
 
-*As fotos desta página são minhas. Uma semana, uma cidade — não é levantamento; é o que estava na minha frente.*
+*As fotos desta página são minhas. Uma semana, o Vale — não é levantamento; é o que estava na minha frente.*
 
 ## Quem fez o quê
 
