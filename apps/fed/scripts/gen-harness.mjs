@@ -11,7 +11,13 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectComponents, pluginPresent, readPluginVersion, resolvePluginDir } from './harness-source.mjs';
+import {
+  collectComponents,
+  pluginLayout,
+  pluginPresent,
+  readPluginVersion,
+  resolvePluginDir,
+} from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(FED, 'src', 'content', 'generated', 'harness.json');
@@ -54,9 +60,16 @@ writeFileSync(OUT, `${JSON.stringify(components, null, 2)}\n`);
 writeFileSync(VERSION_OUT, `${JSON.stringify({ version: pluginVersion }, null, 2)}\n`);
 
 const count = (kind) => components.filter((c) => c.kind === kind).length;
+// WHICH LAYOUT IT READ, printed rather than inferred by the operator (`-skills`#164). The plugin is
+// mid-migration from `commands/<family>/` to a flat `skills/`, and the two produce manifests that differ
+// by a whole kind. A run that silently read the layout the operator did not expect is the one thing this
+// output can cheaply prevent — and it is the same tree the CI job reads, with no `ref:` to pin it.
+const library = components.find((c) => c.kind === 'skill-library');
 console.log(
   `Wrote src/content/generated/harness.json with ${components.length} component(s): ` +
     `${count('hook')} hook(s), ${count('persona')} persona(s), ` +
-    `${count('command-family')} command famil(ies), ${count('command')} un-namespaced command(s).`,
+    `${count('command-family')} command famil(ies), ${count('command')} un-namespaced command(s)` +
+    `${library ? `, ${library.skills} skill(s)` : ''}.`,
 );
+console.log(`Plugin layout read: ${pluginLayout(pluginDir)}.`);
 console.log(`Wrote src/content/generated/plugin-release.json — plugin version ${pluginVersion}.`);

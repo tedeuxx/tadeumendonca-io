@@ -11,7 +11,7 @@
 // is well-formed and non-empty. It does NOT prove the manifest matches the plugin — nothing runnable
 // here can, and pretending otherwise is the failure this whole mechanism exists to remove.
 import { describe, it, expect } from 'vitest';
-import { readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
 import {
   WORKSPACE_ROOT,
@@ -23,7 +23,9 @@ import {
   collectComponents,
   collectHooks,
   collectPersonas,
+  collectSkills,
   componentKey,
+  pluginLayout,
   diffAgainstManifest,
   driftReport,
   enforcementFor,
@@ -111,9 +113,15 @@ describe('enforcementFor — a closed set that refuses what it does not know', (
     expect(enforcementFor('hook', 'SessionStart')).toBe('documents');
     expect(enforcementFor('command-family')).toBe('documents');
     expect(enforcementFor('command')).toBe('documents');
+    // The skill library documents in the strict sense this map means: it removes a re-decision. It
+    // neither refuses a tool call nor produces a judgement someone has to act on.
+    expect(enforcementFor('skill-library')).toBe('documents');
   });
 
   it('throws on an unknown kind and on an unknown hook event', () => {
+    // `skill` singular stays unknown DELIBERATELY, and this assertion is what keeps it that way: the
+    // manifest carries the library, not each skill, so a row that classed one skill would mean somebody
+    // changed the granularity without changing the argument for it.
     expect(() => enforcementFor('skill')).toThrow(/unrecognised harness component shape/);
     expect(() => enforcementFor('hook', 'Stop')).toThrow(/unrecognised harness component shape: "hook:Stop"/);
   });
@@ -246,6 +254,125 @@ describe('reading a plugin tree', () => {
       'command-family:beta',
       'command:loose',
     ]);
+  });
+});
+
+// ── THE TWO LAYOUTS (`-skills`#164, step 2) ──────────────────────────────────────────────────────
+//
+// The plugin is moving its knowledge library from `commands/<family>/<name>.md` to a flat
+// `skills/<name>/SKILL.md`. This repo reads that tree with NO `ref:` (app.yml's `harness-drift` job), so
+// there is no version to gate on: the collector must read whichever layout it is handed, on whichever
+// PR happens to run next. These fixtures are the only place the second layout exists before the plugin
+// has one — asserted here rather than after the fact, which is the whole point of landing this first.
+describe('pluginLayout — which of the two shapes this tree is in', () => {
+  it('reads today’s tree as command families', () => {
+    expect(pluginLayout(fixture('plugin'))).toBe('command-families');
+  });
+
+  it('reads a flat skills/ tree as flat-skills, with commands/ still read the same way', () => {
+    expect(pluginLayout(fixture('plugin-flat-skills'))).toBe('flat-skills');
+    // No mode switch in the command reader: under the new layout `commands/` simply has no
+    // subdirectories, so the family loop yields nothing and the typed commands come through as orphans.
+    expect(collectCommands(fixture('plugin-flat-skills'))).toEqual([
+      { kind: 'command', id: 'autonomy-on', file: 'commands/autonomy-on.md', enforcement: 'documents' },
+      { kind: 'command', id: 'new-issue', file: 'commands/new-issue.md', enforcement: 'documents' },
+    ]);
+  });
+
+  // THE INVARIANT THAT REPLACES THE NESTED-DIRECTORY THROW. That one protected a family COUNT from
+  // silently under-reporting, and it goes dormant when families stop existing. The property underneath
+  // it survives: every skill is counted exactly once, in exactly one place. A tree carrying both layouts
+  // counts some of them TWICE, and it is the state a half-finished migration actually produces.
+  it('refuses a tree in BOTH layouts, naming the families still standing', () => {
+    expect(() => pluginLayout(fixture('plugin-both-layouts'))).toThrow(/BOTH layouts/);
+    expect(() => pluginLayout(fixture('plugin-both-layouts'))).toThrow(/alpha, beta/);
+  });
+
+  // The refusal has to dominate the readers, not sit beside them: by the time the rows exist the double
+  // count IS the artifact, and `gen-harness` would have written it to disk.
+  it('fails the whole collection rather than emitting a doubly-counted manifest', () => {
+    expect(() => collectComponents(fixture('plugin-both-layouts'))).toThrow(/BOTH layouts/);
+  });
+});
+
+describe('collectSkills — one library with a count, not sixty-nine rows', () => {
+  // The granularity decision, pinned. Today's manifest carries no row per command FILE — five families
+  // with counts. The flat analogue at that same granularity is one library with a `skills` count. A row
+  // per skill would be a new granularity the inventory has never had, and every rename in the plugin
+  // would redden this repo on an author who did not cause it.
+  it('emits a single component carrying the size of the library', () => {
+    expect(collectSkills(fixture('plugin-flat-skills'))).toEqual([
+      { kind: 'skill-library', id: 'skills', file: 'skills', skills: 2, enforcement: 'documents' },
+    ]);
+  });
+
+  // The flatness invariant applies to `skills/` ITSELF and stops there. A skill directory carrying its
+  // own supporting files is the capability the form buys — `skills/vpc/reference/endpoint-costs.md` in
+  // the fixture is exactly that, and it must not be mistaken for a nested family.
+  it('does not walk below a skill directory, so supporting files are not a nested family', () => {
+    // The fixture's own precondition, asserted rather than assumed. Without this line the test is a
+    // second copy of the count above and would go on passing after somebody deleted the nested file —
+    // green about a property the tree no longer exercises, which is the vacuous shape this file's own
+    // header refuses elsewhere.
+    expect(existsSync(join(fixture('plugin-flat-skills'), 'skills', 'vpc', 'reference'))).toBe(true);
+    expect(collectSkills(fixture('plugin-flat-skills'))[0].skills).toBe(2);
+  });
+
+  // The layout that does not exist yet is ABSENT, not empty — and absent must produce nothing rather
+  // than a zero-count row, which would publish a library of nothing on today's tree.
+  it('yields nothing at all when there is no skills/ directory', () => {
+    expect(collectSkills(fixture('plugin'))).toEqual([]);
+  });
+
+  // Both silent options are wrong in the way ADR-0043 exists to prevent: skipping under-reports the
+  // figure /architecture prints, counting publishes a capability the plugin does not have.
+  it('refuses entries Claude Code cannot load, and names EVERY offender rather than the first', () => {
+    expect(() => collectSkills(fixture('plugin-skills-malformed'))).toThrow(/loose\.md is a file/);
+    expect(() => collectSkills(fixture('plugin-skills-malformed'))).toThrow(/no-doc\/ has no SKILL\.md/);
+    expect(() => collectSkills(fixture('plugin-skills-malformed'))).toThrow(/2 entr\(ies\)/);
+  });
+
+  // The vacuous-pass shape this module keeps paying for: zero agrees with every comparison downstream.
+  // The fixture's `skills/` holds one dotted file, which is also how the dotfile skip is pinned — a
+  // `.gitkeep` or a `.DS_Store` is not a failed skill, and without the skip this case would report the
+  // WRONG error.
+  it('refuses a skills/ that exists and holds nothing, skipping dotted entries', () => {
+    expect(() => collectSkills(fixture('plugin-skills-empty'))).toThrow(/holds no skill at all/);
+  });
+
+  it('places the library between the personas and the commands in the manifest order', () => {
+    expect(collectComponents(fixture('plugin-flat-skills')).map(componentKey)).toEqual([
+      'hook:guard.sh',
+      'persona:builder',
+      'skill-library:skills',
+      'command:autonomy-on',
+      'command:new-issue',
+    ]);
+  });
+
+  // The union-of-keys diff picks the new field up with no list to append to — the same property the ADR
+  // index paid for learning. Asserted because `skills` is the first field added to this manifest since
+  // that comparison was written, so it is the first real test of the claim.
+  it('reports a library whose size moved, through the field nobody listed', () => {
+    const before = [{ kind: 'skill-library', id: 'skills', file: 'skills', skills: 69, enforcement: 'documents' }];
+    const after = [{ ...before[0], skills: 68 }];
+    expect(diffAgainstManifest(after, before).changed.map(componentKey)).toEqual(['skill-library:skills']);
+  });
+
+  // The migration itself, end to end: the same repo read before and after the move reports the families
+  // gone, the library arrived, and the typed commands unchanged. This is the exact diff the drift check
+  // will print on the PR that goes red after step 3 merges — and it is red LEGIBLY, with a fix command,
+  // rather than a crash or a manifest that silently lost the library.
+  it('reports the move as orphaned families plus an arrived library, not as a silent loss', () => {
+    const diff = diffAgainstManifest(
+      collectComponents(fixture('plugin-flat-skills')),
+      collectComponents(fixture('plugin')),
+    );
+    expect(diff.missing.map(componentKey)).toContain('skill-library:skills');
+    expect(diff.orphaned.map(componentKey)).toEqual(
+      expect.arrayContaining(['command-family:alpha', 'command-family:beta']),
+    );
+    expect(driftReport(diff)).toContain('npm --prefix apps/fed run gen-harness');
   });
 });
 

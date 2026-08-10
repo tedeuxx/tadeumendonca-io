@@ -93,8 +93,8 @@ export function resolvePluginDir(raw) {
  *                nothing forces it to be dispatched at all. A lens nobody dispatches fails silently,
  *                and that is the half of `advises` worth keeping distinct from the merge seat above.
  * - `documents`— neither denies nor advises; it removes a re-decision or reports state. The command
- *                families, the un-namespaced commands, and the `SessionStart` hooks, which print
- *                context at session start and cannot refuse anything.
+ *                families, the skill library, the un-namespaced commands, and the `SessionStart` hooks,
+ *                which print context at session start and cannot refuse anything.
  *
  * NOTE what is NOT in here: the CI gates. ADR-0043 classes them `denies` and they genuinely do refuse a
  * merge — but they live in THIS repo's `.github/workflows/`, not in the plugin, so they are not derived
@@ -125,6 +125,7 @@ const ENFORCEMENT_BY_SHAPE = {
   'hook:PreToolUse': 'denies',
   'hook:SessionStart': 'documents',
   persona: 'advises',
+  'skill-library': 'documents',
   'command-family': 'documents',
   command: 'documents',
 };
@@ -307,6 +308,129 @@ export function collectHooks(pluginDir) {
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
 
+// ── THE TWO LAYOUTS (`-skills`#164) ──────────────────────────────────────────────────────────────
+//
+// The plugin is moving its knowledge library out of `commands/` and into a flat `skills/`, and this
+// module has to read BOTH — not as a courtesy, but because it has no way to tell them apart in advance.
+// `.github/workflows/app.yml` checks the plugin out with NO `ref:`, so `harness-drift` always compares
+// against the plugin's `main` HEAD; there is no version to gate on, and the tree changes shape under
+// this repo the moment a PR merges over there. A switch keyed on anything but the tree itself would be
+// a switch that is wrong for the window between the two merges.
+//
+// WHAT EACH LAYOUT IS:
+//   · `command-families` — today. `commands/<family>/<name>.md`, five families, plus un-namespaced
+//     commands at the root of `commands/`. No `skills/`.
+//   · `flat-skills` — after `-skills`#164 step 3. `skills/<name>/SKILL.md`, one level, no families;
+//     `commands/` keeps only the typed commands (`autonomy-on`, `new-issue`, and later `autonomy-off`).
+//
+// `commands/` is read the SAME WAY in both, which is why there is no mode switch in `collectCommands`:
+// under the new layout that directory simply has no subdirectories, so the family loop yields nothing
+// and the orphan reader yields the typed commands. The layout is a fact this reports, not a branch the
+// readers take.
+
+/**
+ * Which layout this tree is in — and the one state that is NEITHER, refused rather than reported.
+ *
+ * THIS IS WHAT REPLACES THE NESTED-DIRECTORY THROW, and the two guard the same property one layout
+ * apart. `collectCommands` throws on `commands/<family>/<nested>/` because a family holding a
+ * subdirectory publishes a count that no longer means what it says — the family would read 1 while
+ * holding 2. That invariant is about a number being honest, and it goes dormant when families stop
+ * existing, because there is no family count left to be dishonest.
+ *
+ * The property that survives the flattening is the one underneath it: **every skill is counted exactly
+ * once, in exactly one place.** A tree with `skills/` AND surviving families under `commands/` breaks
+ * that in the worst available way — it is not an undercount but a DOUBLE count, and it is the state a
+ * half-finished migration, an interrupted rebase or a bad merge in the plugin actually produces. So it
+ * is refused here, loudly, naming the families still standing.
+ *
+ * The nested throw stays where it is rather than being replaced in place: it is still correct while
+ * families exist, and it costs nothing once they do not.
+ */
+export function pluginLayout(pluginDir) {
+  const skillsDir = join(pluginDir, 'skills');
+  const commandsDir = join(pluginDir, 'commands');
+  const hasSkills = existsSync(skillsDir) && statSync(skillsDir).isDirectory();
+  const families = existsSync(commandsDir) ? dirsIn(commandsDir).sort() : [];
+  if (hasSkills && families.length > 0) {
+    throw new Error(
+      `the plugin tree is in BOTH layouts: skills/ exists and commands/ still holds ${families.length} ` +
+        `famil(ies) — ${families.join(', ')}. Every skill must be counted exactly once, and a tree in ` +
+        'both layouts counts some of them twice. Finish the move (tedeuxx/tadeumendonca-skills#164) or ' +
+        'check out a commit from before it started.',
+    );
+  }
+  return hasSkills ? 'flat-skills' : 'command-families';
+}
+
+/**
+ * The skill library, as ONE component with a count — not sixty-nine.
+ *
+ * THE GRANULARITY IS THE DECISION HERE, so it is argued rather than assumed. Today's manifest carries
+ * no row per command FILE: it carries five families, each with a `commands` count. The flat analogue at
+ * that same granularity is one library with a `skills` count, and that is what this emits. A row per
+ * skill would be a NEW granularity the inventory has never had, and it would buy identity at a price
+ * this repo pays on someone else's behalf: ADR-0043's accepted cost is that a plugin merge reddens the
+ * next PR HERE, from an author who did not cause it, and the plugin's live workstream is deepening and
+ * merging those very files. One count moves when the library's SIZE moves; sixty-nine ids move whenever
+ * anybody renames one.
+ *
+ * WHAT THAT COSTS, said plainly rather than left to look free: a skill RENAMED with the count unchanged
+ * is invisible to the drift check. That is exactly as invisible as a command renamed inside a family is
+ * today, so it is parity rather than a regression — but it is a real limit and the page must not be
+ * written as though the inventory pins skill names. It pins how many there are.
+ *
+ * THE FORM IS ASSERTED, NOT GUESSED. A Claude Code skill is a DIRECTORY holding `SKILL.md`; a loose
+ * `skills/vpc.md` is not loadable as one. Both silent options are wrong in the way ADR-0043 exists to
+ * prevent: ignoring it under-reports the figure `/architecture` publishes, and counting it publishes a
+ * capability the plugin does not have. So anything in `skills/` that is not a skill directory is
+ * refused, and EVERY offender is named in one throw rather than the first one found.
+ *
+ * An `skills/` that exists and holds nothing throws for the vacuous-pass reason this module keeps
+ * paying for: zero satisfies every downstream comparison perfectly.
+ *
+ * Dotted entries are skipped — `.DS_Store` and `.gitkeep` are not failed skills.
+ */
+export function collectSkills(pluginDir) {
+  const dir = join(pluginDir, 'skills');
+  if (!existsSync(dir)) return [];
+
+  const names = [];
+  const wrong = [];
+  for (const entry of readdirSync(dir).filter((e) => !e.startsWith('.')).sort()) {
+    if (!statSync(join(dir, entry)).isDirectory()) {
+      wrong.push(`skills/${entry} is a file — a skill is a directory holding SKILL.md`);
+    } else if (!existsSync(join(dir, entry, 'SKILL.md'))) {
+      wrong.push(`skills/${entry}/ has no SKILL.md`);
+    } else {
+      names.push(entry);
+    }
+  }
+
+  if (wrong.length > 0) {
+    throw new Error(
+      `skills/ holds ${wrong.length} entr(ies) Claude Code cannot load as a skill:\n  ${wrong.join('\n  ')}\n` +
+        'Counting them would publish a capability the plugin does not have; skipping them would ' +
+        'under-report the figure /architecture prints. Neither is acceptable, so this fails instead.',
+    );
+  }
+  if (names.length === 0) {
+    throw new Error(
+      'skills/ exists and holds no skill at all. A zero count agrees with every comparison downstream, ' +
+        'so an empty library would publish an inventory of nothing under a green build.',
+    );
+  }
+
+  return [
+    {
+      kind: 'skill-library',
+      id: 'skills',
+      file: 'skills',
+      skills: names.length,
+      enforcement: enforcementFor('skill-library'),
+    },
+  ];
+}
+
 /**
  * The command families, and the commands that are in no family.
  *
@@ -319,7 +443,9 @@ export function collectHooks(pluginDir) {
  * produced.
  *
  * A nested directory throws. Today the families are flat; if that stops being true, the count this
- * publishes silently stops meaning what it says.
+ * publishes silently stops meaning what it says. Once the plugin's families are gone (`-skills`#164)
+ * this loop iterates nothing and the throw is dormant rather than removed — see `pluginLayout` for the
+ * invariant that carries the same property into the flat layout.
  */
 export function collectCommands(pluginDir) {
   const dir = join(pluginDir, 'commands');
@@ -350,12 +476,17 @@ export function collectCommands(pluginDir) {
 }
 
 /** Fixed rather than alphabetical: the manifest is reviewed as a diff, and kind-grouped reads. */
-const KIND_ORDER = ['hook', 'persona', 'command-family', 'command'];
+const KIND_ORDER = ['hook', 'persona', 'skill-library', 'command-family', 'command'];
 
 export function collectComponents(pluginDir) {
+  // FIRST, before anything is counted. A tree in both layouts must fail as a tree, not as a manifest
+  // that happens to hold two overlapping rows — by the time the rows exist the double count is already
+  // the artifact, and `gen-harness` would have written it.
+  pluginLayout(pluginDir);
   const all = [
     ...collectHooks(pluginDir),
     ...collectPersonas(pluginDir),
+    ...collectSkills(pluginDir),
     ...collectCommands(pluginDir),
   ];
   return all.sort(
