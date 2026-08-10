@@ -73,14 +73,14 @@
     "kind": "command-family",
     "id": "backend",
     "file": "commands/backend",
-    "commands": 20,
+    "commands": 19,
     "enforcement": "documents"
   },
   {
     "kind": "command-family",
     "id": "frontend",
     "file": "commands/frontend",
-    "commands": 18,
+    "commands": 15,
     "enforcement": "documents"
   },
   {
