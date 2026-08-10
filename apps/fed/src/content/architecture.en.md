@@ -164,9 +164,9 @@ The case that proved it to me was not this site. It was an authentication and au
 
 Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. During working hours, I don't always get to work directly on building digital products, and that is where I want to spend more of my time. I like building apps.
 
-![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the decision, not the evidence. At Google's visitor centre in Mountain View.")
+![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the week, not the evidence. At Google's visitor centre in Mountain View.")
 
-San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with the idea of what to do. The decision came later, while I was building — and what got built is here.
+San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with the idea of what to do. The decision came later, while I was building — and its public front is this site.
 
 *The photographs on this page are mine. One week, the Valley — this is not a survey; it is what was in front of me.*
 
