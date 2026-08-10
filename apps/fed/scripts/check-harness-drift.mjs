@@ -24,6 +24,7 @@ import {
   collectPersonas,
   diffAgainstManifest,
   driftReport,
+  pluginLayout,
   pluginPresent,
   readPluginVersion,
   resolvePluginDir,
@@ -167,6 +168,11 @@ if (linkProblem) {
   process.exit(1);
 }
 
+// The LAYOUT is named in the success line, not only in the failure ones (`-skills`#164). The plugin is
+// checked out with no `ref:` above and in app.yml, so this job reads whatever `main` is at the moment it
+// runs — and across the migration that is two different tree shapes producing two different manifests.
+// A green run that does not say which one it compared leaves the one fact a reader would want unrecorded
+// in the only place it was ever observed.
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified, CLAUDE.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, CLAUDE.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
 );
