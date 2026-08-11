@@ -11,7 +11,7 @@
 // is well-formed and non-empty. It does NOT prove the manifest matches the plugin — nothing runnable
 // here can, and pretending otherwise is the failure this whole mechanism exists to remove.
 import { describe, it, expect } from 'vitest';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
 import {
   WORKSPACE_ROOT,
@@ -410,9 +410,12 @@ describe('collectSkills — one library with a count, not sixty-nine rows', () =
   // `skills/infrastructure/vpc/reference/` becomes a candidate skill and the cross-check reports a
   // library that does not exist.
   it('does not walk below a declared skill, so supporting files are not undeclared skills', () => {
-    expect(existsSync(join(fixture('plugin-declared-skills'), 'skills', 'infrastructure', 'vpc', 'reference'))).toBe(
-      true,
-    );
+    // THE FIXTURE'S PRECONDITION, and this one is load-bearing rather than ceremonial. The supporting
+    // directory holds a SKILL.md of its own; without that file this assertion CANNOT FAIL, because a
+    // walk that descends and a walk that stops both find nothing in a directory with no SKILL.md in it.
+    expect(
+      readdirSync(join(fixture('plugin-declared-skills'), 'skills', 'infrastructure', 'vpc', 'reference')),
+    ).toContain('SKILL.md');
     expect(skillDirsInTree(join(fixture('plugin-declared-skills'), 'skills'))).toEqual([
       'skills/infrastructure/iam',
       'skills/infrastructure/vpc',
