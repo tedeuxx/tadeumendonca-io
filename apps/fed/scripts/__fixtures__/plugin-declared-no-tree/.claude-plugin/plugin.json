@@ -1,0 +1,6 @@
+{
+  "name": "plugin-declared-no-tree",
+  "version": "1.0.7",
+  "description": "fixture: a manifest that declares skills over a tree with no skills/ directory",
+  "skills": ["./skills/infrastructure/vpc", "./skills/workflow/adr"]
+}

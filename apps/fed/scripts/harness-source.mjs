@@ -439,6 +439,91 @@ function pluginManifestOf(pluginDir) {
 }
 
 /**
+ * The IDENTITY of a declared path — what the filesystem resolves it to, where that is knowable.
+ *
+ * THE BUG THIS EXISTS TO CLOSE, measured rather than reasoned: the dedupe below compared the declared
+ * STRING while `verifyDeclaredSkills` resolves a PATH, so two spellings of one directory satisfied both
+ * cross-checks and published a count of 2 for a tree holding 1. Three spellings were measured doing it —
+ * `skills//<name>`, `skills/<fam>/./<name>` and, on a case-insensitive filesystem, `skills/VPC` beside
+ * `skills/vpc`. None is exotic; a hand-edited manifest produces the first two by accident.
+ *
+ * So the two directions are made to compare the same object. Segment normalisation collapses the empty
+ * and `.` segments — that part is platform-independent and is done on the string. CASE is not, and must
+ * not be: `skills/VPC` and `skills/vpc` are two different directories on Linux and one on macOS, so
+ * lower-casing here would invent a collision on the platform where none exists. The filesystem's own
+ * answer is the only correct arbiter, which is what `realpathSync` asks it.
+ *
+ * WHAT THAT LEAVES, said plainly rather than implied away: the case variant is refused on BOTH platforms
+ * but with DIFFERENT sentences — macOS resolves it to the same real path and reports it as declared
+ * twice; Linux cannot resolve it at all and `verifyDeclaredSkills` reports it as declared and missing.
+ * Two messages, one verdict, and the verdict is the property that matters: no platform reports a green
+ * count of 2. A single shared sentence would need a case-insensitive comparison, which is the thing that
+ * would be wrong on Linux.
+ *
+ * A path that does not resolve gets its normalised string as its key. That is deliberate: non-existence
+ * is `verifyDeclaredSkills`'s finding and its message is the better one, so this must not pre-empt it —
+ * it only has to keep two unresolvable spellings from colliding into one.
+ */
+function declaredIdentity(pluginDir, segments) {
+  const norm = segments.join('/');
+  const exact = exactPathOf(pluginDir, segments);
+  if (exact === null) return { key: norm, real: null };
+  try {
+    const real = realpathSync(exact);
+    return { key: real, real };
+  } catch {
+    return { key: exact, real: null };
+  }
+}
+
+/**
+ * Walk a declared path segment by segment, matching each name against its parent's DIRECTORY LISTING —
+ * `null` where any segment is not spelled exactly that way.
+ *
+ * THE LISTING, NOT `existsSync`, and not `realpathSync` either. This is the third site in this module
+ * where that distinction decides the answer, and the first two only guarded the `SKILL.md` filename:
+ * macOS resolves names case-insensitively and Linux does not, so `skills/…/VPC` beside `skills/…/vpc`
+ * EXISTS on a laptop and does not in CI. Measured on this slice, and it is the reason this helper exists
+ * rather than a `realpathSync` call: **macOS `realpath` does not canonicalise case** — handed the `VPC`
+ * spelling it returns `VPC`, so a resolved-path identity saw two different paths and passed the pair
+ * straight through to a count of 2. An exact listing comparison answers the same on both platforms, so
+ * the case variant is refused with ONE sentence everywhere: declared, and not in the tree.
+ */
+function exactPathOf(pluginDir, segments) {
+  let cur = pluginDir;
+  for (const segment of segments) {
+    let entries;
+    try {
+      entries = readdirSync(cur);
+    } catch {
+      return null;
+    }
+    if (!entries.includes(segment)) return null;
+    cur = join(cur, segment);
+  }
+  return cur;
+}
+
+/**
+ * Is a resolved declared path actually inside the plugin's own `skills/` tree?
+ *
+ * `resolvePluginDir` canonicalises the plugin ROOT and argues the containment case at length; nothing
+ * applied the same argument one level in, so a `skills/<name>` symlink pointing anywhere on the disk was
+ * followed and counted. Measured: a symlink out of the tree holding a `SKILL.md` was counted as a skill.
+ * The effect is a wrong count rather than a read of anything secret — this module only ever asks whether
+ * a directory listing contains `SKILL.md` — but it is the same containment claim, unenforced.
+ *
+ * Compared as a real path against a real path, with the separator appended so a sibling directory whose
+ * name merely STARTS with `skills` cannot pass as a child of it.
+ */
+function withinSkillsTree(pluginDir, real) {
+  const dir = skillsDirOf(pluginDir);
+  if (dir === null) return true;
+  const root = realpathSync(dir);
+  return real === root || real.startsWith(root + sep);
+}
+
+/**
  * The skill paths a plugin DECLARES, normalised — or `null` where it declares none.
  *
  * `null` and `[]` are different answers and the caller treats them differently: no array at all means
@@ -467,10 +552,15 @@ export function declaredSkillPaths(pluginDir) {
       bad.push(`${JSON.stringify(raw)} is not a non-empty string`);
       continue;
     }
-    // `./skills/x/y` and `skills/x/y` are the same declaration and must not count twice.
-    const norm = raw.trim().replace(/^\.\//, '').replace(/\/+$/, '');
-    const segments = norm.split('/');
-    if (norm.startsWith('/') || segments.includes('..')) {
+    // `./skills/x/y` and `skills/x/y` are the same declaration and must not count twice — and so are
+    // `skills//x/y` and `skills/x/./y`, which is why the empty and `.` segments are DROPPED rather than
+    // merely tolerated. The normalised form is what both directions compare, including the
+    // `declared.includes(...)` test in `verifyDeclaredSkills`: leaving `skills//x` in the list there
+    // meant the tree's `skills/x` matched a different entry and the undeclared check stayed quiet.
+    const cleaned = raw.trim().replace(/^\.\//, '').replace(/\/+$/, '');
+    const segments = cleaned.split('/').filter((s) => s !== '' && s !== '.');
+    const norm = segments.join('/');
+    if (cleaned.startsWith('/') || segments.includes('..')) {
       bad.push(`${raw} escapes the plugin tree`);
     } else if (segments[0] !== 'skills' || segments.length < 2) {
       // Refused rather than widened. The component this emits claims `file: "skills"`, and a declared
@@ -478,11 +568,16 @@ export function declaredSkillPaths(pluginDir) {
       // Widening the inventory to cover it is a shape decision for the ADR library, not something to
       // settle by loosening a condition in a derivation script.
       bad.push(`${raw} is not under skills/ — the inventory publishes this library as \`skills\``);
-    } else if (seen.has(norm)) {
-      bad.push(`${raw} is declared more than once`);
     } else {
-      seen.add(norm);
-      paths.push(norm);
+      const { key, real } = declaredIdentity(pluginDir, segments);
+      if (real !== null && !withinSkillsTree(pluginDir, real)) {
+        bad.push(`${raw} resolves to ${real}, outside the plugin's skills/ tree`);
+      } else if (seen.has(key)) {
+        bad.push(`${raw} is declared more than once — it resolves to the same directory as another entry`);
+      } else {
+        seen.add(key);
+        paths.push(norm);
+      }
     }
   }
 
@@ -576,8 +671,14 @@ function verifyDeclaredSkills(dir, declared) {
   const broken = [];
   for (const path of declared) {
     // `path` is `skills/<…>`; `dir` already IS `<plugin>/skills`, so drop the leading segment.
-    const full = join(dir, ...path.split('/').slice(1));
-    if (!existsSync(full)) {
+    const segments = path.split('/').slice(1);
+    const full = join(dir, ...segments);
+    // RESOLVED THROUGH THE LISTING rather than with `existsSync`, which is the same case trap this
+    // function already guards one level down for `SKILL.md` and did not guard for the directory path
+    // itself. `existsSync` answers TRUE on macOS for a declared `VPC` over a tree holding `vpc` and
+    // FALSE in CI — the same manifest, two verdicts, and the green one is the author's. Now both say
+    // the same thing.
+    if (exactPathOf(dir, segments) === null) {
       broken.push(`${path} is declared and does not exist in the tree`);
     } else if (!statSync(full).isDirectory()) {
       broken.push(`${path} is declared and is a file — a skill is a directory holding SKILL.md`);
@@ -644,12 +745,31 @@ function verifyDeclaredSkills(dir, declared) {
  */
 export function collectSkills(pluginDir) {
   // The one early return in this module, and it is an ALLOW path, so say where it lands: absent
-  // `skills/` is today's tree, and the two refusals below have nothing to refuse when the directory is
-  // not there. It is also the only fail-OPEN direction here — everything else throws.
+  // `skills/` is the pre-split tree, and the two refusals below have nothing to refuse when the
+  // directory is not there. It is also the only fail-OPEN direction here — everything else throws.
+  //
+  // AND IT USED TO RETURN BEFORE THE ARRAY WAS EVER READ, which made it fail open in the one direction
+  // this module is proudest of closing. Measured: a manifest declaring skills over a tree with no
+  // `skills/` directory returned `[]` and `pluginLayout` reported the OLD layout — a manifest
+  // over-claiming in its most extreme form, answered with silence. Downstream it does go red, as the
+  // library row orphaned, but with the wrong sentence: "no longer in the plugin" instead of "you
+  // declared N skills and there is no skills/ directory". The declaration is read FIRST now, so the
+  // refusal names the actual defect. That is a diagnosis fix, not an exposure fix, and it is written
+  // here rather than left to the diff to imply.
   const dir = skillsDirOf(pluginDir);
-  if (dir === null) return [];
+  const declaredOrNull = declaredSkillPaths(pluginDir);
+  if (dir === null) {
+    if (declaredOrNull !== null) {
+      throw new Error(
+        `.claude-plugin/plugin.json declares ${declaredOrNull.length} skill(s) and the plugin has no ` +
+          'skills/ directory at all. Claude Code registers nothing for any of them, so the manifest ' +
+          'claims a library that does not exist. Either ship the tree or remove the `skills` array.',
+      );
+    }
+    return [];
+  }
 
-  const declared = declaredSkillPaths(pluginDir);
+  const declared = declaredOrNull;
   const names = declared === null ? autoRegisteredSkills(dir) : verifyDeclaredSkills(dir, declared);
 
   if (names.length === 0) {

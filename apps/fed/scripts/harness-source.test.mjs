@@ -11,7 +11,7 @@
 // is well-formed and non-empty. It does NOT prove the manifest matches the plugin — nothing runnable
 // here can, and pretending otherwise is the failure this whole mechanism exists to remove.
 import { describe, it, expect } from 'vitest';
-import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
 import {
   WORKSPACE_ROOT,
@@ -181,10 +181,19 @@ describe('resolvePluginDir — resolve and validate as one step', () => {
   });
 
   it('refuses a missing argument instead of silently reading the current directory', () => {
-    // `resolve('')` is cwd — apps/fed — which IS inside the workspace, so containment alone would let a
-    // forgotten argument through and then read this repo as if it were the plugin. `pluginPresent` is the
-    // second half of the door and is what stops that; asserting it here keeps the pair visible.
-    expect(pluginPresent(resolvePluginDir(undefined))).toBe(false);
+    // TWO CLAIMS, SPLIT — and the split is the fix. The single assertion this replaces was
+    // `pluginPresent(resolvePluginDir(undefined))`, which reads the WORKING DIRECTORY: false when the
+    // suite runs with cwd `apps/fed`, true when it is run from a directory that happens to be a plugin
+    // tree. It went red exactly that way during this slice, from a runner invoked with a different cwd —
+    // a green that depended on where the author was standing, which is the same class of environmental
+    // pass as the case-sensitivity trap this file guards elsewhere.
+    //
+    // 1. the function invents no default — a missing argument resolves to the working directory itself,
+    //    which is what makes the second half of the door necessary rather than decorative.
+    expect(resolvePluginDir(undefined)).toBe(realpathSync(resolve('')));
+    // 2. and `pluginPresent` is that second half, asserted on a directory that is not a plugin tree on
+    //    any machine — this file's own directory — rather than on wherever the runner happened to start.
+    expect(pluginPresent(resolvePluginDir(import.meta.dirname))).toBe(false);
   });
 });
 
@@ -463,6 +472,62 @@ describe('collectSkills — one library with a count, not sixty-nine rows', () =
     expect(bad).toThrow(/escapes the plugin tree/);
     expect(bad).toThrow(/is not under skills\//);
     expect(bad).toThrow(/is not a non-empty string/);
+  });
+
+  // THE CLASS THE TWO REFUSALS ABOVE DO NOT COVER: two spellings of ONE directory. The dedupe compared
+  // the declared STRING while the tree check resolves a PATH, so both cross-checks passed and the count
+  // was 2 for a tree holding 1 — a wrong number published under a green build, which is the exact
+  // failure ADR-0043 exists to make impossible.
+  //
+  // Asserted on the COUNT as well as the message. A test that only matched the sentence would pass on a
+  // fix that refused one alias and silently kept counting the other, and the number is the thing the
+  // page publishes.
+  it('refuses two spellings of one skill directory, and does not count it twice', () => {
+    const alias = () => collectSkills(fixture('plugin-declared-alias'));
+    expect(alias).toThrow(/is declared more than once/);
+    expect(alias).toThrow(/resolves to the same directory/);
+    // Both aliases are named, not just the first one found.
+    expect(alias).toThrow(/declares 2 unusable skill path\(s\)/);
+  });
+
+  // The same class, one spelling further, and the one that decided HOW identity is computed. The first
+  // fix keyed the dedupe on `realpathSync`, which is the obvious answer and is WRONG on macOS: handed
+  // `skills/…/VPC` over a tree holding `vpc`, macOS `realpath` returns the `VPC` spelling rather than the
+  // canonical one, so the two keys differed and the count was still 2 — the fix looked applied and the
+  // measured defect survived it. Identity is the DIRECTORY LISTING instead, which answers the same on
+  // both platforms, so one sentence covers both: declared, and not in the tree.
+  //
+  // The message is asserted exactly, not as an alternation. An alternation here would have let the
+  // realpath version pass on macOS and hidden the whole point.
+  it('refuses a case variant of a declared skill, with the same verdict on either filesystem', () => {
+    expect(() => collectSkills(fixture('plugin-declared-case-alias'))).toThrow(
+      /skills\/infrastructure\/VPC is declared and does not exist in the tree/,
+    );
+  });
+
+  // Containment, one level in from `resolvePluginDir`. The symlink is made here and removed here rather
+  // than committed: a checkout on a filesystem with no symlink support would otherwise carry a file that
+  // is not what the fixture means.
+  it('refuses a declared skill that resolves out of the plugin tree', () => {
+    const dir = fixture('plugin-declared-symlink');
+    const link = join(dir, 'skills', 'elsewhere');
+    // The target is a real skill directory in ANOTHER fixture — outside this plugin, and no temp tree.
+    symlinkSync(join(fixture('plugin-declared-skills'), 'skills', 'workflow', 'adr'), link, 'dir');
+    try {
+      expect(() => collectSkills(dir)).toThrow(/outside the plugin's skills\/ tree/);
+    } finally {
+      rmSync(link, { force: true });
+    }
+  });
+
+  // The fail-OPEN direction, and the only one this module had left: the early return fired before the
+  // declaration was read, so a manifest claiming a library over a tree with no `skills/` directory
+  // answered `[]` in silence. It still goes red downstream as an orphaned row — this pins that the
+  // refusal names the real defect instead.
+  it('refuses a manifest that declares skills when there is no skills/ directory', () => {
+    expect(() => collectSkills(fixture('plugin-declared-no-tree'))).toThrow(
+      /declares 2 skill\(s\) and the plugin has no skills\/ directory/,
+    );
   });
 
   it('places the library between the personas and the commands in the manifest order', () => {
