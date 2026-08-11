@@ -129,6 +129,12 @@ date on which those three wrong numbers were copied.
    *(Amended 2026-08-04: `advises` is for **every** persona — the count that stood here went stale on a
    roster change it does not govern. See the amendment below.)*
 
+   *(Amended 2026-08-11: `documents` is for the command families **and for the skill library**, which is
+   a fourth **kind** — not a fourth enforcement value. `skill-library` entered the closed set of kinds in
+   [#428](https://github.com/tedeuxx/tadeumendonca-io/pull/428) with no amendment here, and this is where
+   that omission is repaired. The `enforcement` set is untouched and stays closed at three. See the
+   amendment below.)*
+
    *(Amended 2026-08-06: the classing rule stands — `hook:SessionStart` still maps to `documents` — but
    the **reason** given for it does not generalise. A `SessionStart` hook has no tool call to refuse and
    may still **act**: `session-scratch.sh` empties `.scratch/` before the session begins. The set stays
@@ -150,8 +156,15 @@ downstream of that file behaves exactly as it does for `adrs.json`.
 **What is derived and what is authored, stated precisely because the check only covers the first.**
 
 - **Derived** (compared against the plugin, three ways): each persona's `name` and file; each hook's
-  script name, event and matcher; each command family's directory and file count; and the un-namespaced
+  script name, event and matcher; ~~each command family's directory and file count~~; and the un-namespaced
   command. Identity and shape.
+
+  *(Amended 2026-08-11: the struck clause described a **walk of the plugin's tree**, and the library it
+  walked no longer exists in that form. At this head the manifest carries **zero `command-family` rows**
+  and one `skill-library` row whose count is read from the plugin's own `skills` **declaration** in
+  `.claude-plugin/plugin.json`. Derived-from-a-walk and derived-from-a-declaration are different
+  warrants; the clause is struck rather than edited because the old warrant is what this record argued
+  for. See the amendment below.)*
 - **Authored in this repo:** the short label a diagram node can carry. The plugin gives personas a
   `description` in frontmatter, but they run to a paragraph — `tech-lead`'s is six lines — and hooks
   carry no description field at all, because `hooks.json` is a wiring file. So the gloss is written here.
@@ -710,6 +723,146 @@ number tells them nothing at all**, which is the failure this strike prevents.
 (2026-08-04 ×2, 2026-08-06) and present as `"amended": true` in the committed
 `apps/fed/src/content/generated/adrs.json`. **No row on `/architecture` moves, and the drift check has
 nothing new to compare.**
+
+## Amendment, 2026-08-11 — the skill library's count is read from the plugin's own DECLARATION, not from a walk of its tree
+
+**Decides one thing:** where the plugin publishes a `skills` array in `.claude-plugin/plugin.json`, **that
+array is the inventory's source for the skill library** — its length is the published count, cross-checked
+against the tree in both directions — and walking the tree survives only as the fallback for a plugin that
+declares no array. The *What is derived and what is authored* clause above described a walk; that is no
+longer the reading, and the difference is a difference in **warrant**, not in implementation.
+
+**Class: safe.** It changes no permission, no gate filter and nothing about how work is decided. It does
+record a mechanism change rather than only a count — the mechanism ships in the MR carrying this note,
+which is where a record of it belongs (`/workflow/adr`: same MR as the change it justifies).
+
+*Everything below was verified against `apps/fed/scripts/harness-source.mjs` at this branch head, not
+against the brief that asked for the amendment. Where a claim was reasoned rather than run, it says so.*
+
+### The two readings are different warrants, and this is what the change buys and costs
+
+**What it buys is measured, and the measurement is the reason the obvious fix was refused.** Recorded in
+the module's own header, dated 2026-08-10, treatment against control, one variable, two byte-identical
+trees differing only in `.claude-plugin/plugin.json`:
+
+| tree | manifest | verdict |
+|---|---|---|
+| `skills/fam/nested/SKILL.md` | a `skills` array naming it | **RESOLVED** |
+| `skills/fam/nested/SKILL.md` | no `skills` array | **SKILL-NOT-AVAILABLE** |
+| `skills/flatctl/SKILL.md` | no `skills` array | **RESOLVED** |
+
+So **declaration, not depth, is what makes a skill loadable.** The declared array is therefore the only
+source that answers the question this inventory actually asks — *how many skills can this plugin load* —
+and a depth-walking collector would count skills the loader will not register. That is this record's
+founding error (publishing a capability the artifact does not have) arrived at from the opposite
+direction, which is why the more obvious fix — teach the walker a second level — is the wrong one.
+
+**What it costs, said plainly rather than left to look free: a walk cannot be wrong about what exists; a
+declaration can.** The tree is evidence. The array is the plugin asserting its own inventory, and this
+record exists because a hand-typed assertion said *19 personas* where the tree said *6*. The count is now
+derived from an assertion of that same family, distinguished only — and it is the whole distinction — by
+being **the assertion the loader itself reads**. A wrong array is a wrong page and a wrong plugin at once,
+which is a strictly better failure than a wrong page over a right plugin, but it is not the failure this
+record was originally designed against.
+
+That is why the cross-check runs in **both directions** and is load-bearing rather than belt-and-braces:
+`verifyDeclaredSkills` throws on a declared path with no `SKILL.md` behind it (a manifest that
+over-claims) and throws on a skill in the tree the array omits (authored and not loadable). The tree does
+not set the count; it is kept as the thing the count must agree with.
+
+### The fallback, verified
+
+With **no** `skills` array the generator walks the **top level of `skills/` only** — `autoRegisteredSkills`
+in `harness-source.mjs`, which refuses anything that is not `skills/<name>/SKILL.md` rather than
+descending. *Checked at this head, not assumed.* That is exactly the registration rule for an undeclared
+tree per the measurement above, so the fallback is not a cheaper approximation of the declaration: it is
+the same question answered by the rule that applies when there is nothing declared.
+
+### `skill-library` is a member of the closed set of KINDS, and #428 is where it entered
+
+The set of kinds this manifest may carry is closed and ordered in the generator — `hook` · `persona` ·
+`skill-library` · `command-family` · `command` (`KIND_ORDER`) — with `enforcementFor` throwing on anything
+it does not know. This record enumerated four of them and never gained the fifth:
+[#428](https://github.com/tedeuxx/tadeumendonca-io/pull/428) (merged 2026-08-10) introduced
+`skill-library` without amending here, and **this diff is where it goes live**, so this is where the
+enumeration is repaired.
+
+`command-family` **stays in the set although the live tree emits none.** That is deliberate, not
+oversight: a plugin still in the old layout produces family rows, and `layoutOf` refuses a tree in **both**
+layouts precisely so that no skill is counted twice during the move. The kind is retired when the layout
+is, not when this consumer's plugin stops using it.
+
+`skill-library` maps to `documents`, the same class the command families carried. **No enforcement value
+moves and the closed `enforcement` set stays at three** — the fourth-class question this record has now
+refused three times is untouched here.
+
+### The granularity, and one reason that went on the record wrongly
+
+The figure published is the library's **size** — 69 at this head — with **no per-family counts**. The
+reason offered for that in review was that ~~the manifest holds nothing about families~~. **That reason is
+false and is struck.** `declaredSkillPaths` returns `skills/<family>/<name>`: the family segment is
+present, and per-family counts are derivable at **exactly the evidentiary strength of the 69**, from the
+same array, checked by the same two-direction cross-check.
+
+What actually removed them is a **collapse to a length in the generator** — `collectSkills` emits
+`skills: names.length` and discards the paths.
+
+**The accurate reason is *not emitted yet*, not *not checkable*, and the difference is not pedantry.** The
+false reason points one way only: a later reader who believes per-family figures are unavailable to the
+generator has a licence to hand-type five numbers onto a published page, on the grounds that nothing could
+have checked them anyway. The true reason forbids exactly that — they are checkable, so if the page ever
+wants them, the generator emits them.
+
+The granularity decision itself is unchanged and is argued where it already stands (one library with a
+count, matching the granularity the inventory has always had), together with its accepted cost: **a skill
+renamed with the count unchanged is invisible to the drift check.** The inventory pins how many there are,
+never which they are.
+
+### The trust boundary this opens, which is open at this head
+
+**The dedupe compares STRINGS while the verification resolves PATHS.** `declaredSkillPaths` normalises
+only a leading `./` and trailing slashes before its `seen` check, then `verifyDeclaredSkills` resolves
+each entry with `join`, which collapses far more than that. Two spellings of one skill therefore survive
+as two declarations that both resolve, pass both cross-checks, and are indistinguishable from an honest
+artifact.
+
+*Measured 2026-08-11 against this head*, calling `collectSkills` on a fixture whose tree holds exactly one
+skill (`skills/vpc/SKILL.md`):
+
+| declared array | emitted |
+|---|---|
+| `["./skills/vpc", "skills//vpc"]` | `skills: 2` |
+| `["./skills/vpc", "skills/VPC"]` | `skills: 2` (macOS) |
+| `["./skills/vpc"]`, with `skills/vpc` a **symlink to a directory outside the plugin tree** | `skills: 1` — followed, counted, no refusal |
+| a `skills` array present, **no `skills/` directory at all** | `[]` — no row, no throw |
+
+Two of those rows carry a limit on the measurement and it is stated rather than smoothed over. The
+**case** row was run on macOS only; on a case-sensitive filesystem `existsSync` answers false and
+`verifyDeclaredSkills` throws *"declared and does not exist in the tree"* — that half is **reasoned from
+the code, not run**, and it is the worse shape of the two: green on the author's laptop, red in
+`harness-drift`, which is the exact split the module's `readdirSync`-over-`existsSync` comments elsewhere
+exist to avoid. The **no-`skills/`-directory** row returns before any refusal can fire, so the only thing
+standing between it and a silently vanished library is the drift check against a manifest that still
+carries the row — which survives one regeneration and no more. Both are the vacuous-pass failure this
+module already throws on when `skills/` exists and is empty; the declaration path simply does not reach
+that throw.
+
+**The property this record requires, stated as a property and not as an implementation:** *a declared
+path is normalised to a canonical, tree-resolved form before it is counted or compared, and a path that
+resolves outside the plugin tree — by any spelling, including a symlink — is refused rather than
+followed.* Whatever satisfies that is a correct fix; nothing here prescribes how.
+
+A fix is being built in parallel on this same branch by `developer`. **This amendment does not wait for
+it and does not describe it** — the property is what the record owes, and if the shipped fix chooses
+differently, this section is the place that difference has to be argued rather than discovered.
+
+### What this does not change
+
+The five fields `adr-source.mjs` publishes per record are untouched: the title is unchanged, the status
+stays `accepted`, and `amended` was already `true`. The `enforcement` set, the three-way drift comparison,
+the tokenless second checkout, the exclusion from `deploy`'s gate filter and the *identity is checked,
+description is not* limit all stand exactly as decided. Nothing here decides anything about the plugin's
+own layout move — that is `-skills`#164's decision, recorded in the methodology library, not this one.
 
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
