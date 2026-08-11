@@ -396,10 +396,40 @@ describe('the components diagram carries the inventory it was generated from', (
   // because its job is to prove the assertions below have something to bite on — pointing it at a kind
   // the manifest no longer carries would make it fail for the wrong reason and teach the next reader to
   // delete it.
+  // EVERY KIND THE BLOCK BELOW ITERATES, and the omission is the whole reason this is spelled out as a
+  // list rather than described. `command` was never in this guard, so `carries the typed commands`
+  // looped over an empty list and passed asserting nothing — measured: strip every `kind: command` row
+  // and it stayed green. This slice edited the very line above it (`command-family` -> `skill-library`)
+  // and walked past it, which is the third instance of this shape in one MR and the second found by
+  // somebody other than its author.
+  //
+  // So the rule this guard encodes, for whoever edits it next: a kind that any test below FILTERS FOR
+  // belongs here. A filter over a kind this list omits is an assertion that cannot fail.
   it('is asserting against a real manifest, not an empty one', () => {
     expect(of('persona').length).toBeGreaterThan(0);
     expect(of('hook').length).toBeGreaterThan(0);
     expect(of('skill-library').length).toBeGreaterThan(0);
+    expect(of('command').length).toBeGreaterThan(0);
+  });
+
+  // And the rule made mechanical, so the next kind cannot be forgotten the way `command` was. Every
+  // `of('<kind>')` in this file is read out of its own source and required to appear in the guard above
+  // — a filter added later fails HERE, in a test naming the omission, instead of passing silently in the
+  // test that uses it. This is the answer to "sweep for a fourth": the sweep is now a test.
+  it('guards every kind this file filters for', () => {
+    // `import.meta.filename`, not `new URL(import.meta.url)` — the lint config does not expose `URL` as
+    // a global to these scripts, and it landed in the same Node release as the `import.meta.dirname`
+    // this file already relies on.
+    const source = readFileSync(import.meta.filename, 'utf8');
+    const filtered = [...source.matchAll(/\bof\('([a-z-]+)'\)/g)].map((m) => m[1]);
+    const guarded = [...source.matchAll(/expect\(of\('([a-z-]+)'\)\.length\)\.toBeGreaterThan\(0\)/g)].map(
+      (m) => m[1],
+    );
+    expect(filtered.length, 'the scan found no filters — this assertion would be vacuous').toBeGreaterThan(0);
+    // `command-family` is deliberately excluded: it is filtered only by the guard that asserts it is
+    // GONE, which is the one case where an empty list is the point rather than a defect.
+    const unguarded = [...new Set(filtered)].filter((k) => k !== 'command-family' && !guarded.includes(k));
+    expect(unguarded, 'a kind is filtered for and not in the anti-vacuity guard').toEqual([]);
   });
 
   it.each([
