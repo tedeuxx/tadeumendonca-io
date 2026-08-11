@@ -320,8 +320,15 @@ export function collectHooks(pluginDir) {
 // WHAT EACH LAYOUT IS:
 //   · `command-families` — today. `commands/<family>/<name>.md`, five families, plus un-namespaced
 //     commands at the root of `commands/`. No `skills/`.
-//   · `flat-skills` — after `-skills`#164 step 3. `skills/<name>/SKILL.md`, one level, no families;
-//     `commands/` keeps only the typed commands (`autonomy-on`, `new-issue`, and later `autonomy-off`).
+//   · `skill-library` — after `-skills`#164. A `skills/` tree, no command families; `commands/` keeps
+//     only the typed commands (`autonomy-on`, `new-issue`, and later `autonomy-off`).
+//
+//     THIS VALUE WAS `flat-skills` AND THE NAME WAS A CLAIM THAT TURNED OUT FALSE. #428 named it for a
+//     shape the plugin had announced and did not ship: it shipped `skills/<family>/<name>/SKILL.md`, two
+//     levels. The label is renamed rather than left alone because it is PRINTED — `check-harness-drift`
+//     puts it in the green `::notice::` line, so the one run that records which tree was compared would
+//     have recorded it as flat while comparing a nested one. The depth is no longer in the name because
+//     the depth is no longer the point; see the block above `declaredSkillPaths`.
 //
 // `commands/` is read the SAME WAY in both, which is why there is no mode switch in `collectCommands`:
 // under the new layout that directory simply has no subdirectories, so the family loop yields nothing
@@ -379,7 +386,226 @@ export function pluginLayout(pluginDir) {
         'check out a commit from before it started.',
     );
   }
-  return hasSkills ? 'flat-skills' : 'command-families';
+  return hasSkills ? 'skill-library' : 'command-families';
+}
+
+// ── WHAT MAKES A SKILL LOADABLE: DECLARATION, NOT DEPTH (`-skills`#164 step 4) ───────────────────
+//
+// #428 taught this module ONE level — `skills/<name>/SKILL.md` — because that is the shape the plugin
+// had announced. It shipped TWO: `skills/<family>/<name>/SKILL.md`, 69 skills in five families, and this
+// collector threw on all five families at once. The tree is read with no `ref:`, so that throw landed on
+// every PR in this repo the moment the plugin merged.
+//
+// THE OBVIOUS FIX IS THE WRONG ONE, and the measurement is what says so. Teaching the walker a second
+// level — or teaching it to walk to any depth — encodes DEPTH as the thing that decides whether Claude
+// Code can load a skill. It is not. Measured 2026-08-10, treatment against control, one variable, with
+// two byte-identical trees differing only in `.claude-plugin/plugin.json`:
+//
+//   · `skills/fam/nested/SKILL.md`, plugin.json carrying a `skills` array naming it → RESOLVED.
+//   · `skills/fam/nested/SKILL.md`, no `skills` array, same tree            → SKILL-NOT-AVAILABLE.
+//   · `skills/flatctl/SKILL.md`,    no `skills` array, same tree            → RESOLVED.
+//
+// So the rule is: with a `skills` array, whatever it DECLARES is loadable, at any depth. Without one,
+// only the top level of `skills/` auto-registers. A depth-walking collector would count a nested skill
+// that no array declares — publishing a capability the plugin does not have, which is the precise error
+// ADR-0043 exists to prevent, arrived at from the opposite direction.
+//
+// THEREFORE THE DECLARED ARRAY IS THE SOURCE where it exists. It is a manifest the plugin publishes
+// about itself, and it answers the question this module is actually asking — what can be loaded — which
+// the tree can only ever approximate. The walk survives as the FALLBACK, for a plugin with no array,
+// where it is not an approximation but exactly the registration rule.
+//
+// BOTH DIRECTIONS ARE CHECKED when an array is present, for the same reason `diffAgainstManifest`
+// compares three ways rather than two: a declared path with no `SKILL.md` is a broken declaration, and a
+// skill in the tree that the array does not name is authored-but-unregistered. Counting the second
+// silently would under-report the library; ignoring the first would over-report it. Both are refused,
+// and every offender is named in one throw rather than the first one found.
+
+/** The plugin's own manifest. `null` where it is absent — that is the fallback path, not an error. */
+function pluginManifestOf(pluginDir) {
+  const file = join(pluginDir, '.claude-plugin', 'plugin.json');
+  if (!existsSync(file)) return null;
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(file, 'utf8'));
+  } catch (err) {
+    throw new Error(
+      `.claude-plugin/plugin.json is not valid JSON (${err.message}). It is the plugin's own manifest ` +
+        'and the inventory is derived from it, so a tree that cannot be parsed is refused rather than ' +
+        'quietly falling back to walking the directory, which would report a different number.',
+    );
+  }
+  return parsed;
+}
+
+/**
+ * The skill paths a plugin DECLARES, normalised — or `null` where it declares none.
+ *
+ * `null` and `[]` are different answers and the caller treats them differently: no array at all means
+ * "fall back to the registration rule for an undeclared tree", while an array that is present and empty
+ * is a plugin claiming to publish no skills, which is a real and failing state rather than a fallback.
+ *
+ * The entries in the live tree are `./skills/<family>/<name>` — DIRECTORY paths with a `./` prefix, not
+ * paths to `SKILL.md`. Asserted here rather than assumed, because a reader who expects the file form
+ * writes a check that never matches and a count that is silently zero.
+ */
+export function declaredSkillPaths(pluginDir) {
+  const manifest = pluginManifestOf(pluginDir);
+  if (manifest === null || manifest.skills === undefined) return null;
+  if (!Array.isArray(manifest.skills)) {
+    throw new Error(
+      `.claude-plugin/plugin.json has a \`skills\` field that is not an array (got ${typeof manifest.skills}). ` +
+        'Claude Code reads it as a list of skill directories; anything else is a malformed manifest.',
+    );
+  }
+
+  const seen = new Set();
+  const bad = [];
+  const paths = [];
+  for (const raw of manifest.skills) {
+    if (typeof raw !== 'string' || raw.trim() === '') {
+      bad.push(`${JSON.stringify(raw)} is not a non-empty string`);
+      continue;
+    }
+    // `./skills/x/y` and `skills/x/y` are the same declaration and must not count twice.
+    const norm = raw.trim().replace(/^\.\//, '').replace(/\/+$/, '');
+    const segments = norm.split('/');
+    if (norm.startsWith('/') || segments.includes('..')) {
+      bad.push(`${raw} escapes the plugin tree`);
+    } else if (segments[0] !== 'skills' || segments.length < 2) {
+      // Refused rather than widened. The component this emits claims `file: "skills"`, and a declared
+      // skill living somewhere else would make that claim false while the count still looked right.
+      // Widening the inventory to cover it is a shape decision for the ADR library, not something to
+      // settle by loosening a condition in a derivation script.
+      bad.push(`${raw} is not under skills/ — the inventory publishes this library as \`skills\``);
+    } else if (seen.has(norm)) {
+      bad.push(`${raw} is declared more than once`);
+    } else {
+      seen.add(norm);
+      paths.push(norm);
+    }
+  }
+
+  if (bad.length > 0) {
+    throw new Error(
+      `.claude-plugin/plugin.json declares ${bad.length} unusable skill path(s):\n  ${bad.join('\n  ')}`,
+    );
+  }
+  return paths.sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Every directory under `skills/` that HOLDS a `SKILL.md`, at any depth, as `skills/…` paths.
+ *
+ * Used only to cross-check the declared array — never as the count itself, which is the whole argument
+ * above. It does NOT descend into a directory that already has a `SKILL.md`: a skill's own supporting
+ * files are the capability the directory form buys (`skills/vpc/reference/…`), and treating them as
+ * candidate skills is the mistake the flat reader was explicitly written to avoid.
+ *
+ * `readdirSync(...).includes('SKILL.md')` and NOT `existsSync(join(dir, 'SKILL.md'))`, at this depth as
+ * at the last one. macOS resolves names case-insensitively and Linux does not, so the `existsSync`
+ * spelling answers TRUE on the author's laptop and FALSE in the `harness-drift` job for a tree shipping
+ * `skill.md` — the same tree, two verdicts, and the green one is the one the author sees.
+ */
+export function skillDirsInTree(dir, prefix = 'skills') {
+  const out = [];
+  for (const entry of readdirSync(dir).filter((e) => !e.startsWith('.')).sort()) {
+    const full = join(dir, entry);
+    if (!statSync(full).isDirectory()) continue;
+    if (readdirSync(full).includes('SKILL.md')) {
+      out.push(`${prefix}/${entry}`);
+    } else {
+      out.push(...skillDirsInTree(full, `${prefix}/${entry}`));
+    }
+  }
+  return out;
+}
+
+/**
+ * The skills a plugin with NO `skills` array registers: the top level of `skills/`, and nothing below it.
+ *
+ * THE REFUSAL MESSAGE IS THE MEASURED CLAIM, not the old one. It used to say the offenders were entries
+ * "Claude Code cannot load as a skill", which is FALSE of the shape that actually arrived — the plugin's
+ * five family directories load perfectly well, because its manifest declares every skill inside them.
+ * A refusal whose stated reason is untrue teaches the next reader the wrong rule, and the wrong rule
+ * here is exactly the one that would send them off to write a depth-walking collector.
+ *
+ * So it now says the thing that is true AND checkable in this branch: there is no `skills` array, and
+ * without one only the top level registers. The fix it names is the fix that works — declare them.
+ */
+function autoRegisteredSkills(dir) {
+  const names = [];
+  const wrong = [];
+  for (const entry of readdirSync(dir).filter((e) => !e.startsWith('.')).sort()) {
+    if (!statSync(join(dir, entry)).isDirectory()) {
+      wrong.push(`skills/${entry} is a file — a skill is a directory holding SKILL.md`);
+      // `readdirSync(...).includes('SKILL.md')` and NOT `existsSync(join(..., 'SKILL.md'))`, which is
+      // the spelling that reads identically and is not. macOS is case-insensitive by default and Linux
+      // is not, so a plugin shipping `skill.md` would resolve here on a laptop and fail in the CI job —
+      // the same tree, two verdicts, and the one that is green is the one an author sees. An exact
+      // string comparison against the directory listing answers the same question on both.
+    } else if (!readdirSync(join(dir, entry)).includes('SKILL.md')) {
+      wrong.push(`skills/${entry}/ has no SKILL.md`);
+    } else {
+      names.push(entry);
+    }
+  }
+
+  if (wrong.length > 0) {
+    throw new Error(
+      `.claude-plugin/plugin.json declares no \`skills\` array, and without one Claude Code registers ` +
+        `only skills/<name>/SKILL.md — the top level and no deeper. ${wrong.length} entr(ies) are not ` +
+        `at that shape, so this plugin does not register them:\n  ${wrong.join('\n  ')}\n` +
+        'Either move them to the top level, or declare them in the `skills` array, which makes a skill ' +
+        'loadable at any depth (measured: a nested skill resolved when the array named it and did not ' +
+        'when the array was absent, in two otherwise byte-identical trees).',
+    );
+  }
+  return names;
+}
+
+/**
+ * The skills a plugin DECLARES, verified against the tree in BOTH directions.
+ *
+ * Returns the declared paths, which are the inventory. The two refusals are different defects and are
+ * reported as different sentences rather than pooled into one count: a declaration with nothing behind
+ * it is a manifest that over-claims, and a skill the manifest does not name is one the plugin wrote and
+ * cannot load. A reader has to know which they have, because the fixes are opposite.
+ */
+function verifyDeclaredSkills(dir, declared) {
+  const broken = [];
+  for (const path of declared) {
+    // `path` is `skills/<…>`; `dir` already IS `<plugin>/skills`, so drop the leading segment.
+    const full = join(dir, ...path.split('/').slice(1));
+    if (!existsSync(full)) {
+      broken.push(`${path} is declared and does not exist in the tree`);
+    } else if (!statSync(full).isDirectory()) {
+      broken.push(`${path} is declared and is a file — a skill is a directory holding SKILL.md`);
+    } else if (!readdirSync(full).includes('SKILL.md')) {
+      // Same exact-listing comparison as above, and for the same reason, one level deeper.
+      broken.push(`${path} is declared and holds no SKILL.md`);
+    }
+  }
+  if (broken.length > 0) {
+    throw new Error(
+      `.claude-plugin/plugin.json declares ${broken.length} skill(s) that the tree does not back:\n  ` +
+        `${broken.join('\n  ')}\n` +
+        'A declared path with no SKILL.md behind it is a manifest that over-claims — Claude Code would ' +
+        'register nothing for it, while the inventory /architecture publishes counted it.',
+    );
+  }
+
+  const undeclared = skillDirsInTree(dir).filter((p) => !declared.includes(p));
+  if (undeclared.length > 0) {
+    throw new Error(
+      `skills/ holds ${undeclared.length} skill(s) that .claude-plugin/plugin.json does not declare:\n  ` +
+        `${undeclared.join('\n  ')}\n` +
+        'Once a plugin declares a `skills` array, that array is what Claude Code registers, so a skill ' +
+        'the array omits is authored and NOT loadable. Counting it would publish a capability the ' +
+        'plugin does not have; skipping it silently would let the library shrink with no signal.',
+    );
+  }
+  return declared;
 }
 
 /**
@@ -405,6 +631,12 @@ export function pluginLayout(pluginDir) {
  * capability the plugin does not have. So anything in `skills/` that is not a skill directory is
  * refused, and EVERY offender is named in one throw rather than the first one found.
  *
+ * WHAT THE COUNT MEANS, and it now has two derivations rather than one — see the block above. Where the
+ * plugin declares a `skills` array, the count is what it DECLARES, cross-checked against the tree in
+ * both directions. Where it declares none, the count is the top level of `skills/`, which is exactly
+ * what Claude Code auto-registers for such a tree. Both are "how many skills this plugin can load"; the
+ * difference is which rule answers it, and the rule is the plugin's to choose, not this reader's.
+ *
  * An `skills/` that exists and holds nothing throws for the vacuous-pass reason this module keeps
  * paying for: zero satisfies every downstream comparison perfectly.
  *
@@ -417,30 +649,9 @@ export function collectSkills(pluginDir) {
   const dir = skillsDirOf(pluginDir);
   if (dir === null) return [];
 
-  const names = [];
-  const wrong = [];
-  for (const entry of readdirSync(dir).filter((e) => !e.startsWith('.')).sort()) {
-    if (!statSync(join(dir, entry)).isDirectory()) {
-      wrong.push(`skills/${entry} is a file — a skill is a directory holding SKILL.md`);
-      // `readdirSync(...).includes('SKILL.md')` and NOT `existsSync(join(..., 'SKILL.md'))`, which is
-      // the spelling that reads identically and is not. macOS is case-insensitive by default and Linux
-      // is not, so a plugin shipping `skill.md` would resolve here on a laptop and fail in the CI job —
-      // the same tree, two verdicts, and the one that is green is the one an author sees. An exact
-      // string comparison against the directory listing answers the same question on both.
-    } else if (!readdirSync(join(dir, entry)).includes('SKILL.md')) {
-      wrong.push(`skills/${entry}/ has no SKILL.md`);
-    } else {
-      names.push(entry);
-    }
-  }
+  const declared = declaredSkillPaths(pluginDir);
+  const names = declared === null ? autoRegisteredSkills(dir) : verifyDeclaredSkills(dir, declared);
 
-  if (wrong.length > 0) {
-    throw new Error(
-      `skills/ holds ${wrong.length} entr(ies) Claude Code cannot load as a skill:\n  ${wrong.join('\n  ')}\n` +
-        'Counting them would publish a capability the plugin does not have; skipping them would ' +
-        'under-report the figure /architecture prints. Neither is acceptable, so this fails instead.',
-    );
-  }
   if (names.length === 0) {
     throw new Error(
       'skills/ exists and holds no skill at all. A zero count agrees with every comparison downstream, ' +
