@@ -70,38 +70,10 @@
     "enforcement": "advises"
   },
   {
-    "kind": "command-family",
-    "id": "backend",
-    "file": "commands/backend",
-    "commands": 19,
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command-family",
-    "id": "frontend",
-    "file": "commands/frontend",
-    "commands": 15,
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command-family",
-    "id": "infrastructure",
-    "file": "commands/infrastructure",
-    "commands": 21,
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command-family",
-    "id": "principles",
-    "file": "commands/principles",
-    "commands": 5,
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command-family",
-    "id": "workflow",
-    "file": "commands/workflow",
-    "commands": 9,
+    "kind": "skill-library",
+    "id": "skills",
+    "file": "skills",
+    "skills": 69,
     "enforcement": "documents"
   },
   {
