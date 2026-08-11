@@ -1,0 +1,10 @@
+{
+  "name": "plugin-declared-missing",
+  "version": "1.0.7",
+  "description": "fixture",
+  "skills": [
+    "./skills/infrastructure/vpc",
+    "./skills/infrastructure/ghost",
+    "./skills/workflow/empty-dir"
+  ]
+}

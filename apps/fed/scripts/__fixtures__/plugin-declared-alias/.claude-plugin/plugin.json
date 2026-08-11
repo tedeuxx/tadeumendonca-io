@@ -1,0 +1,10 @@
+{
+  "name": "plugin-declared-alias",
+  "version": "1.0.7",
+  "description": "fixture: one skill on disk, declared three ways",
+  "skills": [
+    "./skills/infrastructure/vpc",
+    "./skills/infrastructure//vpc",
+    "./skills/infrastructure/./vpc"
+  ]
+}

@@ -123,7 +123,32 @@ if (!Array.isArray(manifest) || manifest.length === 0) {
 }
 for (const component of manifest) assertEnforcement(component.enforcement);
 
-const diff = diffAgainstManifest(collectComponents(pluginDir), manifest);
+// THE COLLECTION IS GUARDED, and this is the difference between a signal and a stack trace.
+//
+// Every refusal in harness-source.mjs is deliberate and carefully worded — and until now all of them
+// arrived here as an UNCAUGHT throw, so what the `harness-drift` job actually printed was a Node stack
+// trace with the message buried in it and a non-zero exit nobody could act on. That is what this repo
+// got when the plugin shipped its two-level `skills/` tree: the module said exactly what was wrong, in
+// a form that read like a crash in this repo's own build.
+//
+// A COLLECTION FAILURE IS NOT DRIFT, so it does not borrow drift's fix line. `gen-harness` cannot help
+// here — regenerating from a tree this module refuses to read reproduces the same refusal. The tree is
+// what has to change, in the other repository, so that is what this says.
+let components;
+try {
+  components = collectComponents(pluginDir);
+} catch (err) {
+  console.error(`::error::the tedeuxx/tadeumendonca-skills tree could not be read — ${err.message.split('\n')[0]}`);
+  console.error(
+    `The plugin tree at ${pluginDir} could not be turned into an inventory:\n\n${err.message}\n\n` +
+      'This is almost certainly NOT your change — the plugin is a separate repository and a merge there\n' +
+      'cannot turn this repo red until the next run here. Running `gen-harness` will NOT fix it: the\n' +
+      'generator reads the same tree through the same reader and refuses it the same way.',
+  );
+  process.exit(1);
+}
+
+const diff = diffAgainstManifest(components, manifest);
 const report = driftReport(diff);
 
 if (report) {

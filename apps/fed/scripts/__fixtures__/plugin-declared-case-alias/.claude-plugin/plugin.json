@@ -1,0 +1,6 @@
+{
+  "name": "plugin-declared-case-alias",
+  "version": "1.0.7",
+  "description": "fixture: one skill on disk, declared once as authored and once in upper case",
+  "skills": ["./skills/infrastructure/vpc", "./skills/infrastructure/VPC"]
+}

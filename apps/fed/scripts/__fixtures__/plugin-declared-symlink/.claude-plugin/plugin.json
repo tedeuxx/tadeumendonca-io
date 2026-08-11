@@ -1,0 +1,6 @@
+{
+  "name": "plugin-declared-symlink",
+  "version": "1.0.7",
+  "description": "fixture: a declared skill that is a symlink out of the plugin tree",
+  "skills": ["./skills/infrastructure/vpc", "./skills/elsewhere"]
+}

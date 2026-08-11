@@ -1,0 +1,12 @@
+{
+  "name": "plugin-declared-bad-paths",
+  "version": "1.0.7",
+  "description": "fixture",
+  "skills": [
+    "./skills/infrastructure/vpc",
+    "./skills/infrastructure/vpc",
+    "../outside/escape",
+    "agents/not-a-skill",
+    ""
+  ]
+}

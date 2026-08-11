@@ -1,0 +1,10 @@
+{
+  "name": "plugin-declared-skills",
+  "version": "1.0.7",
+  "description": "fixture",
+  "skills": [
+    "./skills/infrastructure/vpc",
+    "./skills/infrastructure/iam",
+    "./skills/workflow/adr"
+  ]
+}
