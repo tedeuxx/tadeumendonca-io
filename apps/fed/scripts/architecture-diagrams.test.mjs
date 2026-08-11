@@ -368,6 +368,29 @@ describe('the components diagram carries the inventory it was generated from', (
   const enFence = byTitle(en, 'What the harness is made of');
   const ptFence = byTitle(pt, 'Do que o harness é feito');
 
+  // THE TWO SURFACES OF ONE CLAIM, and asserting the fence as a whole conflates them. A count appears
+  // twice in every fence here — once in the node a sighted reader sees, once in the `accDescr` a screen
+  // reader receives AS the drawing — so a whole-fence `toContain` is satisfied by EITHER one alone.
+  //
+  // That is not theoretical. Measured on this slice: changing the library node from `69 skills` to
+  // `68 skills`, and the command node from `2 commands` to `3 commands`, left a fence-wide assertion
+  // GREEN both times, because the accDescr still carried the true number. The drawing would have
+  // published a false count under a passing gate — with the accessible text right there disagreeing
+  // with it, which is worse than either being wrong alone.
+  //
+  // So both are read separately. Same technique the persona test uses on `PS[...]`, and for the same
+  // reason: the label is the enumeration the reader sees, so it is what must match.
+  const nodeLabel = (source, id) => {
+    const m = new RegExp(`${id}\\["([^"]*)"\\]`).exec(source);
+    if (!m) throw new Error(`the drawing has no node \`${id}\` — it was renamed or removed`);
+    return m[1];
+  };
+  const accDescrOf = (source) => {
+    const m = /^\s*accDescr:(.*)$/m.exec(source);
+    if (!m) throw new Error('the fence carries no accDescr');
+    return m[1];
+  };
+
   // The knowledge library is a `skill-library` row now, not five `command-family` rows: the plugin moved
   // `commands/<family>/<name>.md` to `skills/<family>/<name>/SKILL.md`. This guard follows the manifest,
   // because its job is to prove the assertions below have something to bite on — pointing it at a kind
@@ -427,38 +450,57 @@ describe('the components diagram carries the inventory it was generated from', (
     expect(absent, 'a hook is registered in hooks.json and not in the drawing').toEqual([]);
   });
 
-  // The counts, pinned as `<family> <n>` pairs. This is the assertion that fails when a command is added
-  // to the plugin: the manifest moves, this does not match, and the page cannot ship the old number.
+  // The library's SIZE and the directory it lives in — the two facts the manifest actually holds about
+  // it (#424). This replaces the per-family `<family> <n>` assertion, which the plugin's split retired:
+  // there are no `command-family` rows left to compare against, so that test could only ever have gone
+  // green on an empty list, and the previous slice made it fail loudly rather than leave it there.
   //
-  // THE PRECONDITION IS NOT DECORATION — without it this test now passes while asserting NOTHING. The
-  // manifest has no `command-family` rows since the plugin's split, so the filter runs over an empty
-  // list, `wrong` is `[]`, and `[] toEqual []` is green forever. That is precisely the assertion-that-
-  // cannot-fail shape this repo keeps paying for, and it would have gone green in the same run that left
-  // the page publishing five families the inventory no longer has.
+  // WHAT IS DELIBERATELY NOT ASSERTED, because the page must not imply more than the manifest proves:
+  // the five family names and their sizes are NOT pinned by anything. `collectSkills` emits one row with
+  // a count, on purpose — a row per skill would redden this repo's next PR every time somebody renames a
+  // skill over there. So the drawing publishes the count and the directory, the page says in its own
+  // limitations section that the size is what is pinned, and this test does not pretend otherwise.
   //
-  // So it fails LOUDLY instead, naming what it wants. Fixing it is a content edit in both editions of
-  // architecture.{en,pt}.md — the components fence has to describe the skill library the manifest now
-  // carries — and that edit is #424's, not this slice's.
+  // The exact-one precondition is the anti-vacuity guard, and it is stronger than `> 0`: two library
+  // rows would make `library[0]` an arbitrary pick, and a silent arbitrary pick is how a count assertion
+  // stops meaning what it says.
   it.each([
     ['en', () => enFence],
     ['pt', () => ptFence],
-  ])('states each command family with its current size in the %s edition', (_locale, fence) => {
-    const families = of('command-family');
+  ])('states the size of the skill library, and where it lives, in the %s edition', (_locale, fence) => {
+    const library = of('skill-library');
     expect(
-      families.length,
-      'the manifest carries no command-family rows, so this assertion can no longer fail — the plugin ' +
-        'moved its library to skills/ and the page must describe a skill-library instead (#424)',
-    ).toBeGreaterThan(0);
+      library.length,
+      'the manifest must carry exactly one skill-library row for this comparison to mean anything',
+    ).toBe(1);
     const source = fence().source;
-    const wrong = families
-      .filter((c) => !source.includes(`${c.id} ${c.commands}`))
-      .map((c) => `${c.id} should read ${c.commands}`);
-    expect(wrong).toEqual([]);
+    const label = nodeLabel(source, 'SK');
+    expect(label).toContain(`${library[0].skills} skills`);
+    expect(label, 'the drawing must say WHICH directory the library is').toContain(`${library[0].file}/`);
+    // `skills` is a loanword the pt edition already uses in its prose, so this token is the same in both
+    // editions — which is why the accDescr half needs no per-locale noun and the command total below does.
+    expect(accDescrOf(source), 'the accessible text must carry the same count as the node').toContain(
+      `${library[0].skills} skills`,
+    );
   });
 
-  // The orphans APPEAR rather than being filtered. A generator walking only the directories drops them
-  // silently, and the plugin's own suite asserts the root count for exactly this reason.
-  it('carries the un-namespaced commands in both editions', () => {
+  // The other direction, and the one a content edit alone would leave open: the retired framing must not
+  // come back. Five command families is not merely stale, it is a claim about a directory that no longer
+  // holds them — and nothing above would fail on a drawing that re-published it beside the new count.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('does not re-publish the retired command-family framing in the %s edition', (_locale, fence) => {
+    expect(of('command-family'), 'the manifest carries command families again — this guard is now wrong').toEqual([]);
+    expect(fence().source).not.toMatch(/command famil|famílias de comando/);
+  });
+
+  // The typed commands APPEAR rather than being filtered. A generator walking only the directories drops
+  // them silently, and the plugin's own suite asserts the root count for exactly this reason. They were
+  // "the commands in no family" until the split; there are no families left in `commands/`, so what makes
+  // them their own node now is what they ARE — the two files a person types, and the only two that carry
+  // an `argument-hint`.
+  it('carries the typed commands in both editions', () => {
     for (const c of of('command')) {
       expect(enFence.source).toContain(c.id);
       expect(ptFence.source).toContain(c.id);
@@ -474,8 +516,17 @@ describe('the components diagram carries the inventory it was generated from', (
       expect(source).toContain(`${pre} hooks · PreToolUse`);
       expect(source).toContain(`${session} hooks · SessionStart`);
     }
-    expect(enFence.source).toContain(`${of('command-family').length} command families`);
-    expect(ptFence.source).toContain(`${of('command-family').length} famílias de comando`);
+    // The two library totals, in each edition's own noun. `skills` is a loanword the pt edition already
+    // uses in its prose, so it is the same token in both — the COMMAND total is where the nouns diverge,
+    // and asserting both keeps this from being an English-only check that the pt drawing rides along on.
+    const commands = of('command').length;
+    for (const [fence, noun] of [
+      [enFence, 'commands'],
+      [ptFence, 'comandos'],
+    ]) {
+      expect(nodeLabel(fence.source, 'CM')).toContain(`${commands} ${noun}`);
+      expect(accDescrOf(fence.source)).toContain(`${commands} ${noun}`);
+    }
   });
 });
 
