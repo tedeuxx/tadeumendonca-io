@@ -24,6 +24,8 @@ import {
   collectHooks,
   collectPersonas,
   collectSkills,
+  declaredSkillPaths,
+  skillDirsInTree,
   componentKey,
   pluginLayout,
   diffAgainstManifest,
@@ -46,13 +48,18 @@ describe('the committed manifest is a manifest at all', () => {
   // The vacuous-pass guard, and it is the reason this describe block exists separately from the diff
   // tests. An EMPTY manifest agrees perfectly with an empty plugin read, so every comparison downstream
   // would be green while asserting nothing — the exact shape that has bitten this repo more than once.
+  // `command-family` LEFT and `skill-library` ARRIVED, and the set is updated rather than loosened.
+  // The plugin moved its knowledge library out of `commands/<family>/<name>.md` into
+  // `skills/<family>/<name>/SKILL.md`, so the committed manifest genuinely carries a different set of
+  // kinds. Rewriting this to `toContain` or dropping the sort would make it survive the NEXT such move
+  // silently, which is the one thing this assertion exists to prevent.
   it('is non-empty and carries every kind the diagram draws', () => {
     expect(manifest.length).toBeGreaterThan(10);
     expect([...new Set(manifest.map((c) => c.kind))].sort()).toEqual([
       'command',
-      'command-family',
       'hook',
       'persona',
+      'skill-library',
     ]);
   });
 
@@ -269,8 +276,8 @@ describe('pluginLayout — which of the two shapes this tree is in', () => {
     expect(pluginLayout(fixture('plugin'))).toBe('command-families');
   });
 
-  it('reads a flat skills/ tree as flat-skills, with commands/ still read the same way', () => {
-    expect(pluginLayout(fixture('plugin-flat-skills'))).toBe('flat-skills');
+  it('reads a skills/ tree as skill-library, with commands/ still read the same way', () => {
+    expect(pluginLayout(fixture('plugin-flat-skills'))).toBe('skill-library');
     // No mode switch in the command reader: under the new layout `commands/` simply has no
     // subdirectories, so the family loop yields nothing and the typed commands come through as orphans.
     expect(collectCommands(fixture('plugin-flat-skills'))).toEqual([
@@ -354,6 +361,105 @@ describe('collectSkills — one library with a count, not sixty-nine rows', () =
   // WRONG error.
   it('refuses a skills/ that exists and holds nothing, skipping dotted entries', () => {
     expect(() => collectSkills(fixture('plugin-skills-empty'))).toThrow(/holds no skill at all/);
+  });
+
+  // ── THE DECLARED MANIFEST (`-skills`#164 step 4) ───────────────────────────────────────────────
+  //
+  // The plugin shipped `skills/<family>/<name>/SKILL.md` — two levels — where the fixtures above have
+  // one, and this collector threw on all five families. The fix is NOT a second level: depth is not
+  // what makes a skill loadable. Measured against a control, two byte-identical trees differing only
+  // in `.claude-plugin/plugin.json`, a nested skill resolved when the array named it and was
+  // SKILL-NOT-AVAILABLE when it did not; a top-level skill resolved with no array at all.
+  //
+  // So these pin the DECLARATION as the source, and the top-level walk as the fallback for a plugin
+  // that declares nothing. `plugin-flat-skills` above has no `.claude-plugin/` at all, which is what
+  // keeps every assertion in this block's predecessor exercising the fallback rather than duplicating
+  // these.
+  it('counts what the plugin DECLARES, at whatever depth it declares it', () => {
+    expect(collectSkills(fixture('plugin-declared-skills'))).toEqual([
+      { kind: 'skill-library', id: 'skills', file: 'skills', skills: 3, enforcement: 'documents' },
+    ]);
+  });
+
+  // The live plugin.json spells them `./skills/<family>/<name>` — a DIRECTORY, with a `./` prefix, and
+  // not a path to SKILL.md. A reader that expects the file form matches nothing and reports zero, which
+  // is the silent-under-count this module refuses everywhere else. Pinned on the fixture's own strings.
+  it('normalises the ./-prefixed directory paths the plugin actually publishes', () => {
+    expect(declaredSkillPaths(fixture('plugin-declared-skills'))).toEqual([
+      'skills/infrastructure/iam',
+      'skills/infrastructure/vpc',
+      'skills/workflow/adr',
+    ]);
+  });
+
+  // NULL, not []. No array means "fall back to the top-level rule"; an array that is present and empty
+  // is a plugin claiming to publish nothing, and the two must not collapse into one answer.
+  it('answers null for a plugin that declares no skills array, and [] for one that declares none', () => {
+    expect(declaredSkillPaths(fixture('plugin-flat-skills'))).toBeNull();
+    expect(declaredSkillPaths(fixture('plugin-declared-empty'))).toEqual([]);
+    // And an empty array over a tree that HOLDS a skill is refused as undeclared rather than as an
+    // empty library. Written this way because the first draft of this test expected the empty-library
+    // message and the code was right: "you declared nothing and shipped a skill" is the actionable
+    // sentence, and the zero-count refusal stays for the tree that genuinely holds nothing
+    // (`plugin-skills-empty`, on the no-array path above).
+    expect(() => collectSkills(fixture('plugin-declared-empty'))).toThrow(/does not declare/);
+  });
+
+  // A skill's supporting files are the capability the directory form buys. The walk that cross-checks
+  // the declaration must not descend into a directory that already has a SKILL.md, or
+  // `skills/infrastructure/vpc/reference/` becomes a candidate skill and the cross-check reports a
+  // library that does not exist.
+  it('does not walk below a declared skill, so supporting files are not undeclared skills', () => {
+    expect(existsSync(join(fixture('plugin-declared-skills'), 'skills', 'infrastructure', 'vpc', 'reference'))).toBe(
+      true,
+    );
+    expect(skillDirsInTree(join(fixture('plugin-declared-skills'), 'skills'))).toEqual([
+      'skills/infrastructure/iam',
+      'skills/infrastructure/vpc',
+      'skills/workflow/adr',
+    ]);
+  });
+
+  // OVER-CLAIM: declared with nothing behind it. Claude Code registers nothing for such a path while the
+  // published inventory counted it, so the figure on /architecture would be higher than the capability.
+  it('refuses a manifest that declares skills the tree does not back, naming every one', () => {
+    expect(() => collectSkills(fixture('plugin-declared-missing'))).toThrow(
+      /skills\/infrastructure\/ghost is declared and does not exist/,
+    );
+    expect(() => collectSkills(fixture('plugin-declared-missing'))).toThrow(
+      /skills\/workflow\/empty-dir is declared and holds no SKILL\.md/,
+    );
+    expect(() => collectSkills(fixture('plugin-declared-missing'))).toThrow(/declares 2 skill\(s\)/);
+  });
+
+  // UNDER-DECLARE: a real skill the array omits. Authored and not loadable — counting it publishes a
+  // capability the plugin does not have, and skipping it silently lets the library shrink with no signal.
+  it('refuses a tree holding a skill the manifest does not declare', () => {
+    expect(() => collectSkills(fixture('plugin-undeclared-skill'))).toThrow(
+      /skills\/infrastructure\/forgotten/,
+    );
+    expect(() => collectSkills(fixture('plugin-undeclared-skill'))).toThrow(/does not declare/);
+  });
+
+  // THE CASE TRAP AT THE NEW DEPTH, and it is the one shape #428's own history says not to reintroduce.
+  // `existsSync(join(dir, 'SKILL.md'))` against a directory holding `skill.md` is TRUE on macOS and
+  // FALSE on Linux — the same tree, two verdicts, and the green one is the one the author sees. A throw
+  // is the answer both platforms give once the check reads the directory listing.
+  it('does not accept a lower-case skill.md inside a DECLARED skill directory', () => {
+    expect(() => collectSkills(fixture('plugin-declared-case'))).toThrow(
+      /skills\/infrastructure\/vpc is declared and holds no SKILL\.md/,
+    );
+  });
+
+  // The declaration is validated BEFORE the tree is consulted: a path that escapes the tree, or names
+  // something outside skills/, is a broken manifest rather than a missing directory, and saying so is
+  // the difference between a fixable message and an ENOENT.
+  it('refuses declarations that are not usable paths, before it reads the tree', () => {
+    const bad = () => collectSkills(fixture('plugin-declared-bad-paths'));
+    expect(bad).toThrow(/is declared more than once/);
+    expect(bad).toThrow(/escapes the plugin tree/);
+    expect(bad).toThrow(/is not under skills\//);
+    expect(bad).toThrow(/is not a non-empty string/);
   });
 
   it('places the library between the personas and the commands in the manifest order', () => {

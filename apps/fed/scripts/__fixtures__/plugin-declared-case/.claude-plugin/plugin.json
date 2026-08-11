@@ -1,0 +1,8 @@
+{
+  "name": "plugin-declared-case",
+  "version": "1.0.7",
+  "description": "fixture",
+  "skills": [
+    "./skills/infrastructure/vpc"
+  ]
+}

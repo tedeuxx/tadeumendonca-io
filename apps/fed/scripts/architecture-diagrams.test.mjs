@@ -368,10 +368,15 @@ describe('the components diagram carries the inventory it was generated from', (
   const enFence = byTitle(en, 'What the harness is made of');
   const ptFence = byTitle(pt, 'Do que o harness é feito');
 
+  // The knowledge library is a `skill-library` row now, not five `command-family` rows: the plugin moved
+  // `commands/<family>/<name>.md` to `skills/<family>/<name>/SKILL.md`. This guard follows the manifest,
+  // because its job is to prove the assertions below have something to bite on — pointing it at a kind
+  // the manifest no longer carries would make it fail for the wrong reason and teach the next reader to
+  // delete it.
   it('is asserting against a real manifest, not an empty one', () => {
     expect(of('persona').length).toBeGreaterThan(0);
     expect(of('hook').length).toBeGreaterThan(0);
-    expect(of('command-family').length).toBeGreaterThan(0);
+    expect(of('skill-library').length).toBeGreaterThan(0);
   });
 
   it.each([
@@ -424,12 +429,28 @@ describe('the components diagram carries the inventory it was generated from', (
 
   // The counts, pinned as `<family> <n>` pairs. This is the assertion that fails when a command is added
   // to the plugin: the manifest moves, this does not match, and the page cannot ship the old number.
+  //
+  // THE PRECONDITION IS NOT DECORATION — without it this test now passes while asserting NOTHING. The
+  // manifest has no `command-family` rows since the plugin's split, so the filter runs over an empty
+  // list, `wrong` is `[]`, and `[] toEqual []` is green forever. That is precisely the assertion-that-
+  // cannot-fail shape this repo keeps paying for, and it would have gone green in the same run that left
+  // the page publishing five families the inventory no longer has.
+  //
+  // So it fails LOUDLY instead, naming what it wants. Fixing it is a content edit in both editions of
+  // architecture.{en,pt}.md — the components fence has to describe the skill library the manifest now
+  // carries — and that edit is #424's, not this slice's.
   it.each([
     ['en', () => enFence],
     ['pt', () => ptFence],
   ])('states each command family with its current size in the %s edition', (_locale, fence) => {
+    const families = of('command-family');
+    expect(
+      families.length,
+      'the manifest carries no command-family rows, so this assertion can no longer fail — the plugin ' +
+        'moved its library to skills/ and the page must describe a skill-library instead (#424)',
+    ).toBeGreaterThan(0);
     const source = fence().source;
-    const wrong = of('command-family')
+    const wrong = families
       .filter((c) => !source.includes(`${c.id} ${c.commands}`))
       .map((c) => `${c.id} should read ${c.commands}`);
     expect(wrong).toEqual([]);
