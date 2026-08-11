@@ -818,7 +818,7 @@ count, matching the granularity the inventory has always had), together with its
 renamed with the count unchanged is invisible to the drift check.** The inventory pins how many there are,
 never which they are.
 
-### The trust boundary this opens, which is open at this head
+### The trust boundary this opens, ~~which is open at this head~~ — **closed at `db73a23`**, and the fix chose differently from the property stated below
 
 **The dedupe compares STRINGS while the verification resolves PATHS.** `declaredSkillPaths` normalises
 only a leading `./` and trailing slashes before its `seen` check, then `verifyDeclaredSkills` resolves
@@ -826,8 +826,9 @@ each entry with `join`, which collapses far more than that. Two spellings of one
 as two declarations that both resolve, pass both cross-checks, and are indistinguishable from an honest
 artifact.
 
-*Measured 2026-08-11 against this head*, calling `collectSkills` on a fixture whose tree holds exactly one
-skill (`skills/vpc/SKILL.md`):
+*Measured 2026-08-11 against ~~this head~~ `5373f7c`, the head this amendment was first written at* —
+every row below is the behaviour **before** the fix, and is kept as the evidence that motivated it —
+calling `collectSkills` on a fixture whose tree holds exactly one skill (`skills/vpc/SKILL.md`):
 
 | declared array | emitted |
 |---|---|
@@ -838,23 +839,111 @@ skill (`skills/vpc/SKILL.md`):
 
 Two of those rows carry a limit on the measurement and it is stated rather than smoothed over. The
 **case** row was run on macOS only; on a case-sensitive filesystem `existsSync` answers false and
-`verifyDeclaredSkills` throws *"declared and does not exist in the tree"* — that half is **reasoned from
-the code, not run**, and it is the worse shape of the two: green on the author's laptop, red in
+`verifyDeclaredSkills` throws *"declared and does not exist in the tree"* — that half is ~~**reasoned from
+the code, not run**~~ **run, and green, since `db73a23`** (struck 2026-08-11; see the closing subsection
+for what ran and where), and it is the worse shape of the two: green on the author's laptop, red in
 `harness-drift`, which is the exact split the module's `readdirSync`-over-`existsSync` comments elsewhere
-exist to avoid. The **no-`skills/`-directory** row returns before any refusal can fire, so the only thing
+exist to avoid. ~~The **no-`skills/`-directory** row returns before any refusal can fire, so the only thing
 standing between it and a silently vanished library is the drift check against a manifest that still
 carries the row — which survives one regeneration and no more. Both are the vacuous-pass failure this
 module already throws on when `skills/` exists and is empty; the declaration path simply does not reach
-that throw.
+that throw.~~ **Struck 2026-08-11: the declaration path now reaches a throw of its own — see the residuals
+in the closing subsection.**
 
-**The property this record requires, stated as a property and not as an implementation:** *a declared
+~~**The property this record requires, stated as a property and not as an implementation:** *a declared
 path is normalised to a canonical, tree-resolved form before it is counted or compared, and a path that
 resolves outside the plugin tree — by any spelling, including a symlink — is refused rather than
-followed.* Whatever satisfies that is a correct fix; nothing here prescribes how.
+followed.* Whatever satisfies that is a correct fix; nothing here prescribes how.~~
 
-A fix is being built in parallel on this same branch by `developer`. **This amendment does not wait for
+~~A fix is being built in parallel on this same branch by `developer`. **This amendment does not wait for
 it and does not describe it** — the property is what the record owes, and if the shipped fix chooses
-differently, this section is the place that difference has to be argued rather than discovered.
+differently, this section is the place that difference has to be argued rather than discovered.~~
+
+**Both paragraphs struck 2026-08-11.** The second was an instruction, and it was discharged: the fix
+landed two commits later on this same branch and **it did choose differently**. The first was struck
+*because* of that — *canonical, tree-resolved* names a mechanism that does not hold the property on a
+case-insensitive filesystem, so leaving it standing with a footnote would leave a reader hardening a
+future site reaching for `realpathSync`. The restated property and the argument for it are the next
+subsection, which is where the second paragraph said the difference had to be argued.
+
+### The boundary is closed at `db73a23`, and the canonical resolver is what closing it had to refuse
+
+**What closed it:** `b19380c` (*"resolve a declared skill path through the tree before counting it"*),
+with `db73a23` adding the anti-vacuity sweep over the resulting suite. Both are on this branch, ahead of
+the head this amendment was written at, and no `docs/` path moves in either — which is why this
+subsection exists rather than a repaired sentence above.
+
+**The restated property, and it is a restatement rather than a footnote:** *a declared path is resolved
+segment by segment through each parent's **directory listing**, so that one directory has exactly one
+identity on a case-sensitive and a case-insensitive filesystem alike; a path that resolves outside the
+plugin's `skills/` tree — by any spelling, including a symlink — is refused rather than followed.* The
+containment half is unchanged from the struck version. The identity half is not, and the change is the
+whole result.
+
+**Why the canonical resolver was refused.** `realpathSync` resolves **symlinks, not case**. Measured
+2026-08-11 against `db73a23`, on a fixture whose `skills/` holds exactly `vpc` and whose manifest
+declares both `./skills/vpc` and `skills/VPC`:
+
+| probe | answer |
+|---|---|
+| parent listing | `["vpc"]` |
+| `existsSync(.../VPC)` | `true` |
+| `statSync(.../VPC).isDirectory()` | `true` |
+| `readdirSync(.../VPC).includes('SKILL.md')` | `true` |
+| `readdirSync(.../skills).includes('VPC')` | **`false`** — the only one that differs |
+| `realpathSync(.../VPC)` tail segment | **`VPC`** — macOS does not canonicalise case |
+
+Five of the six answers a resolver could ask are the *same* on both filesystems only because they are all
+wrong in the same direction on one of them: they say the `VPC` spelling exists. The **listing** is the one
+answer that cannot differ between the two platforms, because it reports the bytes actually stored in the
+directory rather than the name the caller offered. So the fix compares against the listing at every
+segment (`exactPathOf`), and the case variant is refused with **one sentence on both platforms** —
+*"declared and does not exist in the tree"* — instead of the two-messages-one-verdict split the struck
+text accepted as unavoidable. **Mutation `N7b`**, which applies the `realpathSync` implementation at both
+sites, goes **red**; that is the assertion that the choice is load-bearing rather than stylistic.
+
+**The property is held at two sites, and the second one is what actually refuses the case variant.**
+`declaredIdentity` (the dedupe) and `verifyDeclaredSkills` (the cross-check) both walk the listing.
+Measured at `db73a23` on the fixture above: `declaredSkillPaths` alone returns **both** spellings —
+`['skills/vpc', 'skills/VPC']` — because an unresolvable path keys on its normalised string, so the two
+survive the dedupe as two distinct keys; `collectSkills` then throws from `verifyDeclaredSkills`. Reverting
+`declaredIdentity` alone therefore stays **green**, which is the fact worth recording: the two sites are
+not two independent refusals of the same input, they are **the same listing rule applied at two depths**,
+and for the case spelling only the deeper one refuses. A reader hardening one of them later needs to know
+the other exists **and** that the suite will not tell them which one they broke.
+
+**What ran, and where.** The Linux half is an executable assertion with one exact expected message
+(`harness-source.test.mjs:502`, `/skills\/infrastructure\/VPC is declared and does not exist in the tree/`),
+with **no `process.platform` conditional and no skip** anywhere in the file — checked by grep, not
+assumed. It is green on macOS locally (77/77, run 2026-08-11) and green on the Linux runner in CI: the
+`vitest` job on `app.yml`'s `ubuntu-latest` passes at this head. That is what retires the *reasoned, not
+run* caveat above.
+
+**The residuals, including one the fix creates.** Recorded here because a boundary reported closed with
+its remainder unstated is the false-mechanism defect this library exists to catch:
+
+- **Unicode normalisation replaces the case split.** A byte-exact listing comparison refuses an **NFD**
+  declaration over an **NFC** directory. Measured 2026-08-11 against `db73a23` with `réseau`:
+  `existsSync` **true**, `listing.includes` **false**, and `collectSkills` throws *"declared and does not
+  exist in the tree"* for a directory that exists and that the loader would register. This is a **false
+  red** — the safe direction, and the one the case trap failed in — and it is not live, because every
+  declared path in the plugin is ASCII. It becomes live the first time a skill is named with an accent.
+- **`withinSkillsTree`'s separator is correct and unpinned.** `real.startsWith(root + sep)` is what stops
+  a sibling directory whose name merely *starts* with `skills` passing as a child. Shipped behaviour is
+  correct; the gate measured that **removing `+ sep` leaves the suite 77/77 green**. This module's own
+  suite pins the identical character one level up, at `resolvePluginDir`, and calls it *"one character
+  nobody would miss in review"* (`harness-source.test.mjs:162`) — verified here: the declared-path tests
+  cover the symlink escape and never the prefix escape. **The record's claim that containment is enforced
+  is true and unguarded**, which is exactly the distinction this library refuses to blur. The missing
+  assertion is a gap in the safety net rather than a decision, so it is named here and **not decided
+  here**; closing it is ordinary work for the tracker.
+- The **no-`skills/`-directory** row above is **also closed, and the record nearly said otherwise.** The
+  first draft of this bullet claimed it was untouched by the fix, on the reasonable-sounding ground that
+  the fix was about path identity; probing it at `db73a23` returns a throw — *"declares 1 skill(s) and
+  the plugin has no `skills/` directory at all … Either ship the tree or remove the `skills` array"* —
+  not the silent `[]` measured at `5373f7c`. The vacuous pass the struck text said the declaration path
+  *"simply does not reach"* is now reached. Recorded with its near-miss because the residual list is the
+  part of a closure report a reader trusts without re-running.
 
 ### What this does not change
 
