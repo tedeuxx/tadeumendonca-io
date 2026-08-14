@@ -104,6 +104,7 @@ describe('the committed manifest is a manifest at all', () => {
   // dropped, another added) cannot pass it.
   it('carries the un-namespaced commands instead of silently dropping them', () => {
     expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
+      'autonomy-off',
       'autonomy-on',
       'new-issue',
     ]);
