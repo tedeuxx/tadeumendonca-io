@@ -38,26 +38,30 @@ irreversible/architectural judgment and the production go/no-go. The floor never
   minimal static attack surface (no server, no auth).
 - **Rigor calibrated to blast-radius** — heavy where irreversible/public, product-speed where cheap to revert.
 
-Depth lives in the plugin's `/principles/*` skills (`engineering-philosophy`, `verification-and-gates`,
-`dev-loop`, `permissions-and-environments`); for deliberate validation of a non-trivial decision, invoke the
-subagent that **owns** it. **The five below are the whole live roster** — this list is checked against the
-plugin's `agents/` by the `harness-drift` job in the `app` workflow, so a persona retired over there turns
-this paragraph red here rather than leaving a dispatch that fails when followed. The check reads only
-between the two markers, so the history further down this file is not in its scope.
+Depth lives in the plugin's `/principles/*` skills (`harness-engineering`, `verification-and-gates`);
+for deliberate validation of a non-trivial decision, invoke the subagent that **owns** it. **The six
+below are the whole live roster** — this list is checked against the plugin's `agents/` by the
+`harness-drift` job in the `app` workflow, so a persona retired over there turns this paragraph red here
+rather than leaving a dispatch that fails when followed. The check reads only between the two markers,
+so the history further down this file is not in its scope.
 
 <!-- roster:dispatch -->
-- **`tech-lead`** — a decision against the principles and the ADR library; it also writes the ADRs.
+- **`tech-lead`** — a decision against the principles and the ADR library; it also writes the product/system ADRs.
 - **`product-lead`** — what to build next, and whether published copy is true.
 - **`developer`** — builds a slice end to end against an approved spec.
+- **`writer`** — drafts articles, site copy and social-post language in the owner's voice; contained the same as the product lead (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
-- **`harness-reviewer`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation.
+- **`harness-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
 <!-- /roster:dispatch -->
 
 ~~**`security`** for the permission floor and supply chain~~ — **struck 2026-08-05.** That persona was
 retired in the plugin's roster merge and its two mandates were folded into **`quality-assurance`**, which
 now holds technical delivery and the production lens at once. The name was still routed here for a day,
-which made it the one instruction in this file that *failed when followed*. `harness-reviewer` had the
-opposite defect and is added above: it exists and was named nowhere.
+which made it the one instruction in this file that *failed when followed*.
+
+~~**`harness-reviewer`**~~ — **renamed `harness-lead`** in the plugin's own roster; updated here to match.
+`writer` (a sixth persona, added deliberately — it satisfies none of the roster's four persona-existence
+reasons, an owner override for a capability gap rather than a reasoned fit) is added above.
 (`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is

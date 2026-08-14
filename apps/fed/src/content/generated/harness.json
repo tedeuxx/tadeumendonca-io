@@ -17,14 +17,6 @@
   },
   {
     "kind": "hook",
-    "id": "session-scratch.sh",
-    "file": "hooks/scripts/session-scratch.sh",
-    "event": "SessionStart",
-    "matcher": null,
-    "enforcement": "documents"
-  },
-  {
-    "kind": "hook",
     "id": "session-wip.sh",
     "file": "hooks/scripts/session-wip.sh",
     "event": "SessionStart",
@@ -47,8 +39,8 @@
   },
   {
     "kind": "persona",
-    "id": "harness-reviewer",
-    "file": "agents/harness-reviewer.md",
+    "id": "harness-lead",
+    "file": "agents/harness-lead.md",
     "enforcement": "advises"
   },
   {
@@ -70,10 +62,22 @@
     "enforcement": "advises"
   },
   {
+    "kind": "persona",
+    "id": "writer",
+    "file": "agents/writer.md",
+    "enforcement": "advises"
+  },
+  {
     "kind": "skill-library",
     "id": "skills",
     "file": "skills",
-    "skills": 69,
+    "skills": 15,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "autonomy-off",
+    "file": "commands/autonomy-off.md",
     "enforcement": "documents"
   },
   {
