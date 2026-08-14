@@ -124,6 +124,15 @@ const ENFORCEMENT = ['denies', 'advises', 'documents'];
 const ENFORCEMENT_BY_SHAPE = {
   'hook:PreToolUse': 'denies',
   'hook:SessionStart': 'documents',
+  // `SubagentStart`/`SubagentStop` (#209, `-skills` dispatch-metrics-{start,stop}.sh): same shape as
+  // `SessionStart` above, not `PreToolUse` — read both scripts in full before assuming otherwise. Start
+  // is a near-no-op (a dependency probe that posts nothing); Stop posts a structured metrics comment to
+  // the dispatch's Issue, but it never inspects, blocks, or denies a tool call, and every exit path in
+  // both scripts is `exit 0`. Neither hook has a tool call in front of it to refuse — a subagent's start
+  // or stop is not a gated act the way a `Bash` invocation is — so `denies` would assert a mechanism
+  // neither script has. They report/log; that is `documents`.
+  'hook:SubagentStart': 'documents',
+  'hook:SubagentStop': 'documents',
   persona: 'advises',
   'skill-library': 'documents',
   'command-family': 'documents',

@@ -1,6 +1,22 @@
 [
   {
     "kind": "hook",
+    "id": "dispatch-metrics-start.sh",
+    "file": "hooks/scripts/dispatch-metrics-start.sh",
+    "event": "SubagentStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
+    "id": "dispatch-metrics-stop.sh",
+    "file": "hooks/scripts/dispatch-metrics-stop.sh",
+    "event": "SubagentStop",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
     "id": "permission-guard.sh",
     "file": "hooks/scripts/permission-guard.sh",
     "event": "PreToolUse",
@@ -71,7 +87,7 @@
     "kind": "skill-library",
     "id": "skills",
     "file": "skills",
-    "skills": 15,
+    "skills": 13,
     "enforcement": "documents"
   },
   {
