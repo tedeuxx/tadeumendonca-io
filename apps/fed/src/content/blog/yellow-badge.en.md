@@ -15,6 +15,13 @@ serviços e tecnologias e trabalhar em projetos chargeable em profissional servi
 coincidia. era uma questão de sorte." — the structural friction of AWS Professional Services: which
 client engagement you landed on decided whether you got to experiment with new tech, and that
 alignment wasn't something he controlled.
+The resolution to that tension (also verbatim, same date): "agora eu sinto que ao mesmo tempo que
+estou trabalhando com clientes em suas jornadas para a nuvem, também posso explorar cenários
+alternativos e provas de conceito just in time para prover melhores condições para tomadas de
+decisão" — agentic tooling lets exploration happen inside client work rather than competing with it
+for hours. "além disso, criar soluções completas e publicar no github baseado em ideias que podem
+agora tomar vida mesmo com tempo limitado pela atividade profissional" — ideas that used to stay
+ideas can now ship, and this site/harness is offered as the checkable instance of that claim.
 Still missing, owner-owed: the badge photo itself (cropped, corporate email handled — Issue #247's
 own acceptance criterion). See the placeholder marker below for where it goes.
 -->
@@ -45,5 +52,9 @@ Everything above this line is checkable against a timeline — dates, titles, or
 Here's the honest version, and it's a structural frustration more than a story: AWS Professional Services runs on two axes that don't always line up. There's the work that's actually chargeable — staffed, billable, on a client engagement — and there's the work that lets you experiment with genuinely new services and technology. They didn't always coincide. Which project you landed on decided which axis you got, and which axis you got was closer to luck than to something I could steer.
 
 2026 is the first year those two axes ran together on purpose rather than by chance — Claude Code and Kiro, inside the same oil & gas engagement that was paying the bills, not bolted onto it after hours. But the wanting predates that alignment. It was live through years where the engagement I was staffed on and the technology I wanted to learn just didn't happen to be the same thing, and there was nothing to do about that but wait for the next project.
+
+Here's what actually changed, concretely, not just in principle. Now I feel that at the same time I'm working with clients on their cloud journeys, I can also explore alternative scenarios and build just-in-time proofs of concept that give them better conditions for decision-making. That's the direct answer to the luck problem above: exploration used to depend on which project you landed on, because trying something genuinely new cost hours nobody was paying for. Now it's woven into whichever engagement I'm already on — the client's actual cloud journey is still the work, and the alternative approach or the quick PoC happens inside it, in service of it, instead of competing with it for the same hours.
+
+There's a second effect, separate from the client work: creating complete solutions and publishing them on GitHub, built from ideas that can now come to life even with time still limited by a full-time job. That used to be the failure mode on the other side of the luck problem — an idea with nowhere chargeable to live just stayed an idea, indefinitely, because professional work ate the hours it needed. This site and the harness behind it are that claim made checkable rather than asserted: you're reading one of the things that used to have nowhere to happen and now does.
 
 Which is the actual reason building this now reads as pursuit rather than pivot, and why it's different in kind from what came before: for the first time, what I want to learn and build and what I'm actually spending my time on are the same axis, not two that might or might not intersect depending on which client I land on. What's next isn't a break from the five and a half years. It's what stopped needing luck to happen.

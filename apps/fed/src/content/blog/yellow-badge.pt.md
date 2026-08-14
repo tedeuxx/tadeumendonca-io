@@ -15,6 +15,14 @@ experimentar novos serviços e tecnologias e trabalhar em projetos chargeable em
 services. nem sempre isso coincidia. era uma questão de sorte." — a fricção estrutural da AWS
 Professional Services: em qual engajamento de cliente você caía decidia se você tinha acesso a
 experimentar tecnologia nova, e esse alinhamento não era algo que ele controlava.
+A resolução dessa tensão (também verbatim, mesma data): "agora eu sinto que ao mesmo tempo que
+estou trabalhando com clientes em suas jornadas para a nuvem, também posso explorar cenários
+alternativos e provas de conceito just in time para prover melhores condições para tomadas de
+decisão" — ferramentas agênticas permitem que a exploração aconteça dentro do trabalho com cliente
+em vez de competir com ele pelas mesmas horas. "além disso, criar soluções completas e publicar no
+github baseado em ideias que podem agora tomar vida mesmo com tempo limitado pela atividade
+profissional" — ideias que antes ficavam paradas agora podem virar coisa publicada, e este
+site/harness é oferecido como a instância conferível dessa afirmação.
 Ainda falta, e é responsabilidade do dono: a foto do crachá em si (cortada, com o e-mail
 corporativo tratado — o próprio critério de aceite da Issue #247). Ver o marcador abaixo pra onde
 ela entra.
@@ -46,5 +54,9 @@ Tudo acima desta linha é conferível contra uma timeline — datas, cargos, org
 Aqui vai a versão honesta, e é mais uma fricção estrutural do que uma história: a AWS Professional Services roda sobre dois eixos que nem sempre se alinham. Tem o trabalho que é de fato chargeable — alocado, faturável, num engajamento de cliente — e tem o trabalho que permite experimentar serviços e tecnologias genuinamente novos. Eles nem sempre coincidiam. Em qual projeto você caía decidia qual eixo você tinha, e qual eixo você tinha era mais uma questão de sorte do que algo que eu conseguia direcionar.
 
 2026 é o primeiro ano em que esses dois eixos correram juntos de propósito, e não por acaso — Claude Code e Kiro, dentro do mesmo engajamento de óleo & gás que pagava as contas, não encaixados depois do expediente. Mas a vontade é anterior a esse alinhamento. Ela ficou viva por anos em que o engajamento em que eu estava alocado e a tecnologia que eu queria aprender simplesmente não coincidiam, e não havia o que fazer além de esperar o próximo projeto.
+
+Eis o que de fato mudou, concretamente, não só em princípio. Agora eu sinto que, ao mesmo tempo em que estou trabalhando com clientes em suas jornadas para a nuvem, também posso explorar cenários alternativos e provas de conceito just in time para prover melhores condições para tomadas de decisão. Essa é a resposta direta ao problema da sorte acima: explorar costumava depender de qual projeto você caía, porque tentar algo genuinamente novo custava horas que ninguém estava pagando. Agora isso está tecido dentro de qualquer engajamento em que eu já esteja — a jornada de nuvem real do cliente continua sendo o trabalho, e a abordagem alternativa ou o PoC rápido acontece dentro dela, a serviço dela, em vez de competir com ela pelas mesmas horas.
+
+Há um segundo efeito, separado do trabalho com cliente: criar soluções completas e publicar no GitHub, baseadas em ideias que agora podem tomar vida mesmo com o tempo ainda limitado por um trabalho de tempo integral. Esse costumava ser o outro lado do problema da sorte — uma ideia sem lugar chargeable pra viver simplesmente ficava ideia, indefinidamente, porque o trabalho profissional consumia as horas que ela precisava. Este site e o harness por trás dele são essa afirmação virando algo conferível em vez de apenas declarado: você está lendo uma das coisas que antes não tinham onde acontecer e agora têm.
 
 E é essa a razão real pela qual construir isso agora soa como busca, não como virada — e por que é diferente em espécie do que veio antes: pela primeira vez, o que eu quero aprender e construir e onde eu de fato gasto meu tempo são o mesmo eixo, não dois que podem ou não se cruzar dependendo de qual cliente eu pego. O que vem agora não é uma pausa nos cinco anos e meio. É o que parou de precisar de sorte pra acontecer.
