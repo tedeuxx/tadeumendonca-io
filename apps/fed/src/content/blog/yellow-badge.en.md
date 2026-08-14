@@ -9,9 +9,12 @@ takeaway: 'why the badge is late, and what five and a half years at AWS Professi
 ---
 <!--
 DRAFT — pending owner review. Written by the `writer` persona against Issue #247.
-The through-line below is sourced from the owner's own words (2026-08-14): "vou falar das minhas
-aspirações em dominar a tecnologia estando na aws, acho que funciona" — an aspiration to master this
-technology that was live *while* he was still at AWS, not something that arrived only after leaving.
+The through-line below is sourced from the owner's own words (2026-08-14, on why the aspiration is
+the harder half to show): "eu tinha uma dificuldade no meu trabalho diário que era experimentar novos
+serviços e tecnologias e trabalhar em projetos chargeable em profissional services. nem sempre isso
+coincidia. era uma questão de sorte." — the structural friction of AWS Professional Services: which
+client engagement you landed on decided whether you got to experiment with new tech, and that
+alignment wasn't something he controlled.
 Still missing, owner-owed: the badge photo itself (cropped, corporate email handled — Issue #247's
 own acceptance criterion). See the placeholder marker below for where it goes.
 -->
@@ -39,6 +42,8 @@ Two roles, one throughline underneath both: distributed systems, delivered insid
 
 Everything above this line is checkable against a timeline — dates, titles, org charts. It doesn't explain why I'm spending weekends now building an agent harness instead of just doing more of what the badge already certifies I'm good at.
 
-Here's the honest version, and it's smaller than a case study: I had an aspiration to master this — not "AI" as a category, the actual agentic, AI-native way of building software this site is about — while I was still at AWS. That aspiration ran alongside the work, not after it ended. 2026 is when it became visible in the deliveries themselves — Claude Code and Kiro, inside the same oil & gas engagement, not bolted onto it after hours. But the wanting predates that. It was there while the badge was still six months from existing.
+Here's the honest version, and it's a structural frustration more than a story: AWS Professional Services runs on two axes that don't always line up. There's the work that's actually chargeable — staffed, billable, on a client engagement — and there's the work that lets you experiment with genuinely new services and technology. They didn't always coincide. Which project you landed on decided which axis you got, and which axis you got was closer to luck than to something I could steer.
 
-Which is the actual reason the agentic work reads as pursuit rather than pivot: the five and a half years weren't time spent instead of chasing this. They were the years the aspiration was live in — the ones that gave it something to be tested against, in systems where constraints (legacy, compliance, data sovereignty) don't forgive a shortcut. What's next isn't a break from that. It's what the aspiration was pointing at the whole time.
+2026 is the first year those two axes ran together on purpose rather than by chance — Claude Code and Kiro, inside the same oil & gas engagement that was paying the bills, not bolted onto it after hours. But the wanting predates that alignment. It was live through years where the engagement I was staffed on and the technology I wanted to learn just didn't happen to be the same thing, and there was nothing to do about that but wait for the next project.
+
+Which is the actual reason building this now reads as pursuit rather than pivot, and why it's different in kind from what came before: for the first time, what I want to learn and build and what I'm actually spending my time on are the same axis, not two that might or might not intersect depending on which client I land on. What's next isn't a break from the five and a half years. It's what stopped needing luck to happen.

@@ -9,10 +9,13 @@ takeaway: 'por que o crachá chegou atrasado, e o que cinco anos e meio na AWS P
 ---
 <!--
 RASCUNHO — pendente de revisão do dono. Escrito pela persona `writer` contra a Issue #247.
-O fio condutor abaixo vem das próprias palavras do dono (2026-08-14): "vou falar das minhas
-aspirações em dominar a tecnologia estando na aws, acho que funciona" — uma aspiração de dominar
-essa tecnologia que já estava viva enquanto ele ainda estava na AWS, não algo que surgiu só depois
-de sair. Ainda falta, e é responsabilidade do dono: a foto do crachá em si (cortada, com o e-mail
+O fio condutor abaixo vem das próprias palavras do dono (2026-08-14, sobre por que a aspiração é a
+metade mais difícil de mostrar): "eu tinha uma dificuldade no meu trabalho diário que era
+experimentar novos serviços e tecnologias e trabalhar em projetos chargeable em profissional
+services. nem sempre isso coincidia. era uma questão de sorte." — a fricção estrutural da AWS
+Professional Services: em qual engajamento de cliente você caía decidia se você tinha acesso a
+experimentar tecnologia nova, e esse alinhamento não era algo que ele controlava.
+Ainda falta, e é responsabilidade do dono: a foto do crachá em si (cortada, com o e-mail
 corporativo tratado — o próprio critério de aceite da Issue #247). Ver o marcador abaixo pra onde
 ela entra.
 -->
@@ -40,6 +43,8 @@ Dois papéis, um fio condutor por baixo dos dois: sistemas distribuídos, entreg
 
 Tudo acima desta linha é conferível contra uma timeline — datas, cargos, organograma. O que isso não explica é por que estou gastando fins de semana agora construindo um harness de agentes em vez de só fazer mais do que o crachá já certifica que eu sei fazer bem.
 
-Aqui vai a versão honesta, e ela é menor do que um case: eu tinha uma aspiração de dominar isso — não "IA" como categoria, o jeito agêntico e AI-native de construir software que é o assunto deste site — enquanto ainda estava na AWS. Essa aspiração correu junto com o trabalho, não depois dele terminar. 2026 é quando ela ficou visível nas próprias entregas — Claude Code e Kiro, dentro do mesmo engajamento de óleo & gás, não encaixados depois do expediente. Mas a vontade é anterior a isso. Ela já estava lá enquanto o crachá ainda estava a seis meses de existir.
+Aqui vai a versão honesta, e é mais uma fricção estrutural do que uma história: a AWS Professional Services roda sobre dois eixos que nem sempre se alinham. Tem o trabalho que é de fato chargeable — alocado, faturável, num engajamento de cliente — e tem o trabalho que permite experimentar serviços e tecnologias genuinamente novos. Eles nem sempre coincidiam. Em qual projeto você caía decidia qual eixo você tinha, e qual eixo você tinha era mais uma questão de sorte do que algo que eu conseguia direcionar.
 
-E é essa a razão real pela qual o trabalho agêntico soa como busca, não como virada: os cinco anos e meio não foram tempo gasto em vez de perseguir isso. Foram os anos em que a aspiração ficou viva — os que deram a ela algo contra o que ser testada, em sistemas onde restrições (legado, compliance, soberania de dados) não perdoam atalho. O que vem agora não é uma pausa nisso. É o que a aspiração estava apontando o tempo todo.
+2026 é o primeiro ano em que esses dois eixos correram juntos de propósito, e não por acaso — Claude Code e Kiro, dentro do mesmo engajamento de óleo & gás que pagava as contas, não encaixados depois do expediente. Mas a vontade é anterior a esse alinhamento. Ela ficou viva por anos em que o engajamento em que eu estava alocado e a tecnologia que eu queria aprender simplesmente não coincidiam, e não havia o que fazer além de esperar o próximo projeto.
+
+E é essa a razão real pela qual construir isso agora soa como busca, não como virada — e por que é diferente em espécie do que veio antes: pela primeira vez, o que eu quero aprender e construir e onde eu de fato gasto meu tempo são o mesmo eixo, não dois que podem ou não se cruzar dependendo de qual cliente eu pego. O que vem agora não é uma pausa nos cinco anos e meio. É o que parou de precisar de sorte pra acontecer.
