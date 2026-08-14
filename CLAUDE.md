@@ -214,33 +214,36 @@ Two consequences worth stating outright, because they are what the other model g
   portfolio — and `docs/iac-deploy-policy.{md,json}`. **Read the relevant ADR before changing anything it
   decides**; the ADRs *are* the architecture documentation, this file is the map.
 - **`.brand/`** — **gitignored, local-only, never published.** See below.
-- **`.scratch/`** — **the one place for throwaway files**, gitignored, emptied at the start of every
-  new session by the plugin's `session-scratch` hook. See below.
 
-## Scratch — `<repo-root>/.scratch/`, and nothing survives a new session
+## Scratch — the session scratchpad, not a repo directory
 
-**`.scratch/` at the repo root is the ONE place for throwaway files.** Not `/tmp`, not the session
-scratchpad directory, not a stray path in the tracked tree. Write it, use it, expect it gone: a new
-session sweeps it. A *resumed* or compacted session does not — a pause is not a new session, and the
-PR body written before it is still owed to the command that consumes it.
+**A repo-root `.scratch/` used to be the documented place for throwaway files, emptied by the plugin's
+`session-scratch` hook. Both are retired**, mirroring the same call already made in the
+`tadeumendonca-skills` harness repo (#245 there): the hook is gone, so an ignored-but-unswept `.scratch/`
+was the worst of both worlds — invisible to `git status` and immortal. Carrying a repo-side scratch
+directory bought nothing a session-scoped scratchpad doesn't already buy, at the cost of a sweep hook, a
+`.gitignore` entry, and a rule that only lived in this file's prose.
 
-**The taxonomy matters more than the location**, because most of what accumulated never belonged in
-a scratch at all:
+**Use the harness's own session scratchpad instead** — the path it hands you at session start,
+session-specific and isolated from the tracked tree by construction. No repo directory to document, no
+sweep hook to maintain.
+
+**The taxonomy still matters, only the location column changed:**
 
 | what | where |
 |---|---|
-| PR bodies, commit messages | **`.scratch/`** — written once, consumed by `--body-file`, discarded. The only use that matches the purpose. |
+| PR bodies, commit messages | **the session scratchpad** — written once, consumed by `--body-file`, discarded when the session ends. |
 | lens and gate verdicts | **the PR comment.** Already the durable record, already machine-read. |
 | interview transcripts, raw source material | **`.brand/`** — private, gitignored, already the documented home for exactly this. |
 | a diagnostic probe | **a real spec under `apps/fed/e2e/`, or nothing.** One worth running twice is a spec; one worth running once is not worth a home. |
 | an isolated checkout | **not a scratch class.** Use the repo — WIP=1 already serialises — or a git worktree with its own install. |
 
-**`apps/fed/.scratch/` is retired** (#193 → #155) and is no longer ignored by `.gitignore` or by
-`eslint.config.mjs`, deliberately: a write there now reddens `npm run lint` immediately instead of
+**`apps/fed/.scratch/` stays retired** (#193 → #155) and is still not ignored by `.gitignore` or by
+`eslint.config.mjs`, deliberately: a write there reddens `npm run lint` immediately instead of
 accumulating unseen. The previous instance reached **seven files and ten days** precisely because it
 was quiet. Its original constraint still holds and is recorded where it lived — `@playwright/test`
-does not resolve from the repo root — which is now a reason not to put probes in a scratch at all,
-rather than a reason to keep a second scratch.
+does not resolve from the repo root — which is a reason not to put probes in a scratch at all, rather
+than a reason to keep one.
 
 ## Single workspace for the public presence
 This repo is the **one place** the owner's professional presence is maintained from — the site is one
