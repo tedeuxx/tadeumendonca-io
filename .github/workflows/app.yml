@@ -29,7 +29,7 @@ on:
       - "apps/**"
       - "packages/shared/**"
       - "iac/cloudfront-functions/**" # unit-tested here, not by `iac` (#205)
-      - "docs/adr/**" # authored source of the published decision index — see the `code` filter (#318)
+      - "docs/adr/**" # authored source of the published decision index — see the `test` filter (#318)
       - "VERSION" # a build input — see the `version` filter below
       - "tsconfig.base.json"
       - "package.json"
@@ -52,6 +52,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      test: ${{ steps.filter.outputs.test }}
+      harness: ${{ steps.filter.outputs.harness }}
       version: ${{ steps.filter.outputs.version }}
       any: ${{ steps.filter.outputs.code == 'true' || steps.filter.outputs.version == 'true' }}
     steps:
@@ -65,6 +67,14 @@ jobs:
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
         with:
           filters: |
+            # `code` gates eslint/tsc/npm-audit/build-static/playwright — the jobs that actually read
+            # application source or produce/exercise a build artifact. Kept narrow on purpose: this used
+            # to be the ONLY category, and folding docs/adr/**, CLAUDE.md and deploy.yml into it (as this
+            # comment used to explain, one guard at a time) meant an edit to any of those three ran the
+            # full gate even though none of eslint/tsc/npm-audit/build/playwright opens them. Split into
+            # `code` / `test` / `harness` below so each guard's authored source lights up only the job
+            # that actually checks it — surfaced by a real docs-only PR that ran Playwright for a
+            # `.gitignore` + `CLAUDE.md` change.
             code:
               - 'apps/**'
               - 'packages/shared/**'
@@ -79,11 +89,23 @@ jobs:
               # there: iac/frontend.tf embeds this file via `file()`, so an edit to it is a real Terraform
               # diff that has to be planned and applied. Two gates, two different claims, both required.
               - 'iac/cloudfront-functions/**'
-              # The SAME rule, one directory over, and it arrived with #318. `docs/adr/` is the AUTHORED
-              # SOURCE of the decision index published on /architecture: apps/fed/scripts/gen-adrs.mjs
-              # compiles it into a committed artifact, and adr-source.test.mjs fails when the two
-              # separate. Every other generated artifact here reads from `apps/fed/src/content/`, so its
-              # guard is self-triggering; this is the first whose source lives outside `apps/**`.
+
+            # `test` is a SUPERSET of `code` (dorny/paths-filter lets one path match more than one
+            # category — every `code` pattern is repeated here on purpose, not duplicated by accident):
+            # everything `code` needs, PLUS the authored source of two guards that only `vitest` (and,
+            # downstream, `sonarqube-scan`, which needs vitest's coverage artifact) actually reads.
+            test:
+              - 'apps/**'
+              - 'packages/shared/**'
+              - 'tsconfig.base.json'
+              - 'package.json'
+              - '.github/workflows/app.yml'
+              - 'iac/cloudfront-functions/**'
+              # `docs/adr/` is the AUTHORED SOURCE of the decision index published on /architecture:
+              # apps/fed/scripts/gen-adrs.mjs compiles it into a committed artifact, and
+              # adr-source.test.mjs fails when the two separate. Every other generated artifact here
+              # reads from `apps/fed/src/content/`, so its guard is self-triggering; this is the first
+              # whose source lives outside `apps/**`.
               #
               # Without this line the guard is correct and NEVER RUNS ON ITS OWN TRIGGER. An ADR-only PR
               # skips `vitest`, `build-test` reports "nothing was verified" and passes — and the page
@@ -96,43 +118,32 @@ jobs:
               # which the deploy pathspec already matches. Widening the deploy filter instead would
               # republish on ADR edits that changed no served byte.
               - 'docs/adr/**'
-              # THE THIRD INSTANCE OF THE SAME RULE — the authored source of a guarded claim belongs in
-              # the filter — and it arrived with #353. `CLAUDE.md` carries a `roster:dispatch` fence
-              # naming the subagents an agent may invoke, and `check-harness-drift.mjs` compares it to
-              # the plugin's `agents/`. Same argument as `docs/adr/**` directly above, so it is not
-              # restated: without this line the guard is correct and never runs on its own trigger, and
-              # the red lands on the next unrelated author instead.
+              # `apps/fed/scripts/deploy-workflow.test.mjs` reads `.github/workflows/deploy.yml` directly
+              # and asserts the properties that make a version reach the footer: that the bump part is an
+              # input rather than the literal `patch`, that a deliberate dispatch still runs the tag/tree
+              # assert, and that no downstream job identifies a tree by a moving ref. Without this line
+              # that guard is correct and NEVER RUNS ON ITS OWN TRIGGER — a deploy.yml-only PR matches
+              # nothing here, `vitest` skips, `build-test` reports "nothing was verified" and passes.
               #
-              # Why the guard is worth its filter entry: the sentence it protects is the one instruction
-              # in that file that FAILS WHEN FOLLOWED if it goes stale — it routes a decision to a
-              # subagent, and a retired name simply errors. It did, for a day.
-              #
-              # NOT in the deploy gate's filter, for the reason given above and one more: `CLAUDE.md`
-              # ships no served byte at all, so a deploy triggered by it would republish nothing.
-              #
-              # The cost, stated rather than glossed: every `CLAUDE.md`-only PR now runs the full `app`
-              # gate. Measured over the month before this line: `CLAUDE.md` 11 commits against
-              # `docs/adr/` 17, so the precedent above already pays the larger bill.
-              - 'CLAUDE.md'
-              # THE FOURTH INSTANCE OF THE SAME RULE — the authored source of a guarded claim belongs in
-              # the filter — and it arrived with the deliberate `part` input on `deploy`'s dispatch.
-              # `apps/fed/scripts/deploy-workflow.test.mjs` reads
-              # `.github/workflows/deploy.yml` directly and asserts the properties that make a version
-              # reach the footer: that the bump part is an input rather than the literal `patch`, that a
-              # deliberate dispatch still runs the tag/tree assert, and that no downstream job identifies
-              # a tree by a moving ref. Without this line that guard is correct and NEVER RUNS ON ITS OWN
-              # TRIGGER — a deploy.yml-only PR matches nothing here, `vitest` skips, `build-test` reports
-              # "nothing was verified" and passes, and the red lands later on an unrelated author.
-              #
-              # NOT added to the deploy gate's filter for the reason `docs/adr/**` gives above and one
+              # NOT added to the deploy gate's filter, for the reason `docs/adr/**` gives above and one
               # sharper: `.github/workflows/deploy.yml` is ALREADY in both of that gate's pathspecs, so
               # there is nothing to widen there.
-              #
-              # The cost, stated rather than glossed: every deploy.yml-only PR now runs the full `app`
-              # gate — lint, typecheck, vitest, build, E2E — for a file none of those tools reads except
-              # the one test. That is the same bill `CLAUDE.md` already pays, and the same reason: a guard
-              # that does not run on its own trigger is not a guard.
               - '.github/workflows/deploy.yml'
+
+            # `harness` stands alone, gating ONLY `harness-drift`. `CLAUDE.md` carries a `roster:dispatch`
+            # fence naming the subagents an agent may invoke, and `check-harness-drift.mjs` — the ONLY job
+            # that reads CLAUDE.md — compares it to the plugin's `agents/`. Nothing else in this file opens
+            # CLAUDE.md: not eslint, not tsc, not vitest, not the build. It used to live in `code` (arrived
+            # with #353) on the argument that an authored source belongs in the filter that guards it —
+            # true, but that filter fanned out to every `code` job, so a CLAUDE.md-only PR ran the full
+            # app gate (measured over one month at the time: 11 commits) for a file only harness-drift
+            # reads. Split into its own category once that cost showed up on a real docs-only PR.
+            #
+            # NOT in the deploy gate's filter: `CLAUDE.md` ships no served byte at all, so a deploy
+            # triggered by it would republish nothing.
+            harness:
+              - 'CLAUDE.md'
+
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
             # therefore has to rebuild and re-run E2E, but has nothing for eslint/tsc/vitest/Sonar to
@@ -141,10 +152,12 @@ jobs:
             version:
               - 'VERSION'
 
-  # Fails fast on a broken lockfile and warms ~/.npm for every job below.
+  # Fails fast on a broken lockfile and warms ~/.npm for every job below. Condition is `test || version`,
+  # not `any` (code || version): `test` is a superset of `code` (see the filter above), so this already
+  # covers every job below except `harness-drift`, which needs no npm install at all.
   npm-ci:
     needs: changes
-    if: needs.changes.outputs.any == 'true'
+    if: needs.changes.outputs.test == 'true' || needs.changes.outputs.version == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -244,7 +257,7 @@ jobs:
   # needs this one: Sonar re-reads the source itself, but it cannot recompute coverage.
   vitest:
     needs: [changes, npm-ci]
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.test == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -385,13 +398,13 @@ jobs:
   #
   # WHAT THIS JOB CANNOT DO, said here because it is the accepted cost rather than a gap to fix later: it
   # is NOT self-triggering. The event that falsifies the manifest is a merge in the OTHER repo, and no
-  # filter in this one can match it — unlike `docs/adr/**`, which was added to the `code` filter above for
+  # filter in this one can match it — unlike `docs/adr/**`, which was added to the `test` filter above for
   # exactly this problem and could be, because the authored source is a path here. So the red lands on the
   # next run here, usually an unrelated PR and an author who did not cause it. The mitigation is in the
   # failure message, which names the plugin, says it is not your change, and gives the fix.
   harness-drift:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.harness == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -425,7 +438,7 @@ jobs:
   # infrastructural reason rather than a code one. The other gates still run.
   sonarqube-scan:
     needs: [changes, vitest]
-    if: needs.changes.outputs.code == 'true' && github.actor != 'dependabot[bot]'
+    if: needs.changes.outputs.test == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -488,25 +501,42 @@ jobs:
           exit 1
 
       # A path-filtered gate that matched nothing reports PASS exactly like one that ran every check, and
-      # that ambiguity is the second half of issue #79. Three cases, always distinguished.
+      # that ambiguity is the second half of issue #79. Every combination below is distinguished, not just
+      # a fixed count of cases — `code`/`test`/`harness`/`version` are independent booleans since the
+      # `code`/`test`/`harness` filter split, so listing "N cases" here would just be one more count to
+      # keep in sync by hand.
       - name: Report what was verified
         if: always()
         env:
           CODE: ${{ needs.changes.outputs.code }}
+          TEST: ${{ needs.changes.outputs.test }}
+          HARNESS: ${{ needs.changes.outputs.harness }}
           VERSION_ONLY: ${{ needs.changes.outputs.version }}
           SONAR: ${{ needs.sonarqube-scan.result }}
         run: |
           set -euo pipefail
-          if [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::no gated changes (apps/**, packages/shared, iac/cloudfront-functions, VERSION) — nothing was verified"
+          if [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
+            echo "::notice::no gated changes (apps/**, packages/shared, iac/cloudfront-functions, docs/adr, CLAUDE.md, VERSION) — nothing was verified"
             exit 0
           fi
           if [ "${{ job.status }}" != "success" ]; then
             echo "::notice::the app gate did NOT complete — a job failed, so the ones downstream of it never ran. Read the failing job, not this line."
             exit 0
           fi
-          if [ "$CODE" != "true" ]; then
+          if [ "$HARNESS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
+            echo "::notice::CLAUDE.md-only change — harness-drift ran; lint, typecheck, tests, build, E2E and Sonar had nothing to look at and did NOT run"
+            exit 0
+          fi
+          if [ "$TEST" = "true" ] && [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
+            echo "::notice::docs/adr or deploy.yml-only change — vitest and sonarqube-scan ran; lint, typecheck, build and Playwright had nothing to look at and did NOT run"
+            exit 0
+          fi
+          if [ "$CODE" != "true" ] && [ "$VERSION_ONLY" = "true" ]; then
             echo "::notice::VERSION-only change — build-static and Playwright ran; lint, typecheck, tests and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
-          echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright, harness-drift; sonarqube-scan: ${SONAR}"
+          if [ "$HARNESS" = "true" ]; then
+            echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright, harness-drift; sonarqube-scan: ${SONAR}"
+          else
+            echo "::notice::the app gate ran — npm-audit, eslint, tsc, vitest (coverage >=85%), build-static, playwright; sonarqube-scan: ${SONAR}"
+          fi
