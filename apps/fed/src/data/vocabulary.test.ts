@@ -78,6 +78,26 @@ const CLAIM_CLAUSE: ReadonlyArray<[string, string, RegExp]> = [
   ['architecture.pt.md', architecturePt, /é a afirmação que eu faço/],
 ];
 
+// AND THE SENTENCE THAT MUST PARENTHESISE — the same defect class as `CLAIM_CLAUSE`, from the other side.
+// `SURFACES` only forbids a BARE form on these two files, and `toContain(CURRENT)` is satisfied by the
+// `accDescr` further down, so the opening sentence — the one occurrence this page's whole rendering rule
+// is ABOUT — was guarded by nothing: reverting it to the strict form, or deleting the term from it, or
+// changing it in one edition only, all shipped green. The third is the one that matters most, since a
+// suite whose purpose is cross-surface consistency was reporting consistency while the editions diverged.
+//
+// SAME ANCHOR DISCIPLINE AS ABOVE, for the same #448 reason, and stated once here rather than twice:
+// the anchor's presence and uniqueness are asserted FIRST, so a reworded opening fails as a moved anchor
+// rather than passing as a satisfied one; emphasis markers are stripped rather than matched; and the
+// assertion is on the text ADJACENT to the anchor, not on a line number.
+//
+// THE ANCHOR IS PER EDITION, not a shared phrase. The two editions are written, not translated — they
+// share no clause — and assuming they did has already cost this page one round.
+const PARENTHESISED = '(Agent) Harness Engineering';
+const OPENING_CLAUSE: ReadonlyArray<[string, string, RegExp]> = [
+  ['architecture.en.md', architectureEn, /a loop built on AI-DLC & /],
+  ['architecture.pt.md', architecturePt, /um loop construído sobre AI-DLC & /],
+];
+
 describe('the practice is named consistently across every surface', () => {
   it.each(SURFACES)('%s names the current term', (_name, src) => {
     expect(src).toContain(CURRENT);
@@ -119,6 +139,20 @@ describe('the practice is named consistently across every surface', () => {
     // `(Agent) Harness Engineering` does not end with `Agent Harness Engineering`.
     const preceding = src.slice(0, src.search(clause)).replace(/\*/g, '').trimEnd();
     expect(preceding.endsWith(CURRENT)).toBe(true);
+  });
+
+  it.each(OPENING_CLAUSE)('%s parenthesises the term in the sentence that introduces it', (_name, src, clause) => {
+    // The anchor first, and exactly once — a reworded or duplicated opening reddens here, as an anchor
+    // that moved, before anything is asserted about the term itself.
+    const hits = src.match(new RegExp(clause.source, 'g')) ?? [];
+    expect(hits).toHaveLength(1);
+
+    // Then the rendering immediately after it. `Agent Harness Engineering` and a deleted term both fail:
+    // neither STARTS with the parenthesised form. Asterisks are stripped so the assertion survives the
+    // term gaining or losing its bold, exactly as `CLAIM_CLAUSE` does on the other side of its anchor.
+    const start = src.search(clause) + hits[0].length;
+    const following = src.slice(start, start + 80).replace(/\*/g, '').trimStart();
+    expect(following.startsWith(PARENTHESISED)).toBe(true);
   });
 
   // The strip is asserted through the exported list rather than the file, because here the DATA is
