@@ -55,11 +55,15 @@ const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 //
 // 1. BRACKETS EVERYWHERE. Rejected on what it costs the keyword surfaces, where the term can least
 //    defend itself: `og-copy.mjs`'s META_LINE renders ~320px wide and is where a pt reader meets the
-//    term first (og-copy.mjs:20-22); the CV headline (`profile.ts` :32/:35) is scanned inside
-//    LinkedIn's 220-character headline limit; and a bracket on `profile.ts:347` reads as an optional
-//    qualifier on a levelled competence claim. It would also have forced a republication of all four
-//    OG cards (og-copy.mjs:29 — every edit to that line republishes them), which scrapers have pinned,
-//    for no gain to any reader.
+//    term first (og-copy.mjs:20-22); the CV headline (`profile.ts` :32/:35) is SCANNED rather than
+//    read, so a bracket on the one line a recruiter meets the term in reads as a hedge; and a bracket
+//    on `profile.ts:347` reads as an optional qualifier on a levelled competence claim. LinkedIn's
+//    220-character headline limit is real but is NOT one of those reasons, and the margin is recorded
+//    here so the external fact stays checkable: measured at head, the en headline with `{{years}}` →
+//    18 is 202 characters, and `(Agent) ` over `Agent ` adds 2 — the parenthesised form would fit at
+//    204. The constraint does not bind; the two reasons above are what carry this rejection. Brackets
+//    everywhere would also have forced a republication of all four OG cards (og-copy.mjs:29 — every
+//    edit to that line republishes them), which scrapers have pinned, for no gain to any reader.
 //
 // 2. STRICT EVERYWHERE — drop the brackets from the figure too. This was `product-lead`'s position and
 //    it is OVERRULED, not absent. Its case was strong: it converges every surface at zero test cost,
@@ -71,6 +75,15 @@ const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 // the sentence declaring the term to be his, and a parenthesis makes optional the very word the claim
 // asserts.
 //
+// ONE ARGUMENT FOR THE BRACKETS WAS DROPPED RATHER THAN SOFTENED, and no test refuses its return
+// because it was never about the rendering rule. `architecture.*.md:43`'s gloss argued the brackets from
+// MARKET USAGE — that `harness engineering` is commonly said today for the practice alone. There is
+// no source for that in this repo or in the owner's private positioning source, and none was
+// invented, so the clause was removed from the published page rather than hedged. What remains is the
+// page's own use of the two forms, which a reader can check on the page itself. Restoring the market
+// premise needs the owner's own grounding and is a SEPARATE change — restoring it as a tidy-up, on the
+// grounds that the sentence reads thin without it, is exactly the failure this block exists to prevent.
+//
 // ONE ROUTE USED TO CARRY THE PARENTHESISED FORM OUT OF `/architecture` — an ADR title naming its own
 // subject, rendered on `/library`. That record was removed on the owner's decision (a typesetting rule
 // a test refuses is not re-decided, so it was never an ADR — tadeumendonca-io#456), so THE ROUTE NO
@@ -79,7 +92,9 @@ const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 // TWO THINGS ABOUT THE FIGURE THAT LIVE NOWHERE ELSE:
 //   · `architecture.*.md:23`, the `accDescr`, carries the STRICT form and describes the brackets in
 //     words, because parentheses are ambiguous when spoken. So a non-sighted reader meets the strict
-//     form exactly where a sighted reader meets the bracketed one. Deliberate, and a real asymmetry.
+//     form exactly where a sighted reader meets the bracketed one. Deliberate, and a real asymmetry —
+//     and, like `:24` below, NOTHING PINS IT: bracketing the `accDescr` tomorrow stays green, so the
+//     choice is disclosed here on the same terms rather than presented as if it were guarded.
 //   · `architecture.*.md:24`, the figure's `centre:`, is pinned by NOTHING. It reads
 //     `centre: (Agent) Harness | Engineering`, and the pipe means no bare-form pattern here can ever
 //     match that line in either rendering — so stripping its brackets tomorrow stays green. An honest
