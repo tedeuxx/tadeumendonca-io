@@ -970,12 +970,24 @@ itself to be, the bare content of that commit's own `VERSION` file, which reads 
 commit (the auto-bump to `1.0.29` landed one commit later, on top of it). `readPluginVersion` reads that
 file verbatim by design — Decision option 3 above already rejects hardcoding a literal for exactly this
 reason, *"a version string that can disagree with the git tag is worse than no version string at all."*
-So the honest, mechanism-produced result of this pin is that both levels agree on **`1.0.28`**, not the
+~~So the honest, mechanism-produced result of this pin is that both levels agree on **`1.0.28`**, not the
 string `1.0.0` — checked by running `gen-harness` against a worktree at the `v1.0.0` tag, which reproduces
 the already-committed `plugin-release.json` byte for byte. The content this pin was cut to name — 13
 skills, the 6-persona roster below — is exactly right; only the specific numeral this paragraph asserted
 the card will show was wrong, and is struck rather than silently fixed so the mismatch between the tag's
-name and its `VERSION` content is visible to whoever reads this record next.
+name and its `VERSION` content is visible to whoever reads this record next.~~
+
+**Corrected again, same day, once the mismatch above was itself fixed rather than left standing:**
+`tadeumendonca-skills`#279 set `VERSION`/`plugin.json`'s version field directly to `1.0.0` (a deliberate,
+owner-confirmed one-time departure from the normal auto-bump-only flow, not a routine bump), and #280
+recovered the auto-bump workflow after that landed it in a collision with the already-existing
+`v1.0.1`..`v1.0.29` tags. The `v1.0.0` tag was then deleted and recreated to point at #279's merge commit —
+the one where `VERSION` genuinely reads `1.0.0` — and its GitHub Release un-drafted. Re-running `gen-harness`
+against a worktree at the corrected tag now reproduces `plugin-release.json` reading `{"version": "1.0.0"}`
+byte for byte, verified independently by `quality-assurance` on this PR. **Both levels of the two-level
+resolution now genuinely agree on `1.0.0`** — the struck paragraph above is not wrong about what it
+measured at the time, only superseded by a correction to the artifact it was measuring, made in the same
+day and the same slice.
 
 **This is a reversal, named as one, not a drift.** The whole argument of the 2026-08-04 amendment above —
 *"why this shape rather than a committed value alone"* — is that resolving at deploy time collapses the gap
@@ -1016,8 +1028,8 @@ of the implementing PR; that is `quality-assurance`'s call against the DoD, info
 2. **Leave the deploy-time checkout tokenless/ref-less (still resolves freshest) and only regenerate the
    committed floor at `v1.0.0`.** Rejected: the deploy-time override is *job-wide* and reaches the build
    whenever the checkout succeeds — which is the normal case — so production would keep publishing whatever
-   `main` resolves to (`1.0.29` today, higher tomorrow) and the committed floor's pinned value (`1.0.28` — see
-   the correction above) would only ever be visible on a fork or a PR build where the checkout is skipped.
+   `main` resolves to (past `1.0.29` and climbing) and the committed floor's pinned value (`1.0.0`, per the
+   second correction above) would only ever be visible on a fork or a PR build where the checkout is skipped.
    That does not achieve what the owner asked for; it pins the one level nobody sees.
 3. **Hardcode `"1.0.0"` as a literal somewhere outside the resolution mechanism** (a constant in
    `catalog.ts`, or a second env var). Rejected: it duplicates the version the two-level mechanism already
@@ -1039,10 +1051,10 @@ of the implementing PR; that is `quality-assurance`'s call against the DoD, info
   machine that resolves it.
 
 **Bad / accepted costs**
-- **The staleness Decision 2 eliminated is back, by design.** The card will read a fixed value — measured
-  at implementation time to be `1.0.28`, the `v1.0.0` tag's own `VERSION` content, not the literal string
-  `1.0.0` (see the correction above) — through `-skills` cutting further PATCH releases (already at
-  `1.0.29` as of this writing) until someone deliberately moves the pin. Nothing in CI notices or flags
+- **The staleness Decision 2 eliminated is back, by design.** The card will read a fixed value —
+  `1.0.0`, the `v1.0.0` tag's own `VERSION` content after the second correction above — through
+  `-skills` cutting further PATCH releases (already past `1.0.31` as of this writing) until someone
+  deliberately moves the pin. Nothing in CI notices or flags
   this — there is no drift check between the pinned `ref:` and `-skills`'s `main`, and adding one is out
   of scope here (it would be, if ever wanted, the same class of mitigation this record's parent decision
   already named and deferred: a scheduled or triggered re-check).
