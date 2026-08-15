@@ -34,6 +34,34 @@ describe('RampUpPage', () => {
     expect(screen.queryByRole('heading', { name: /Primeiro, acerte a categoria/ })).toBeNull();
   });
 
+  // DECISION 2 ON #450, ASSERTED ON THE PAGE THAT WOULD HAVE PAID FOR IT. /ramp-up shares `MarkdownPage`
+  // with /architecture, and #450 added an end-of-page contact route plus share deeplinks to that shell.
+  // Rendering them unconditionally would hand a personal plan in progress a distribution affordance and a
+  // contact CTA nobody decided to give it — a reader-facing change to a second page, arriving as a side
+  // effect of a slice about a different one. So the shell's flag defaults to false and this page never
+  // passes it.
+  //
+  // MUTATION-CHECKED BY DOING IT: flipping `endMatter = false` to `= true` in MarkdownPage.tsx turns both
+  // assertions red. Queried by ACCESSIBLE NAME through the same strings the positive arm uses in
+  // MarkdownPage.test.tsx — a negative assertion with a wrong query passes on a healthy page and on a
+  // broken one alike, and this repo has shipped that defect before.
+  it.each(['pt', 'en'] as const)('renders no share block and no contact route (%s edition)', (locale) => {
+    renderPage(locale);
+    expect(
+      screen.queryByRole('navigation', {
+        name: locale === 'pt' ? 'Compartilhar este artigo' : 'Share this article',
+      }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole('heading', { name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me' }),
+    ).toBeNull();
+    // The header's compact ShareButton is UNCHANGED and must stay — this page's share affordance was never
+    // the thing in question, and asserting the absence without it would be green on a page that lost both.
+    expect(
+      screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }),
+    ).toBeInTheDocument();
+  });
+
   // The two editions are separate files, so they can drift. This pins the SOURCES — every outbound
   // link and every embedded video, in order — plus the section count. It does NOT check that the
   // prose means the same thing; a structurally identical bad translation passes, and that limit is

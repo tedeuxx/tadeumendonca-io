@@ -7,6 +7,7 @@
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { Hero } from '../components/Hero';
+import { ArchitectureBand } from '../components/ArchitectureBand';
 import { ArticlesSection } from '../components/ArticlesSection';
 import { AboutCard } from '../components/AboutCard';
 import { ContactLinks } from '../components/ContactLinks';
@@ -45,6 +46,15 @@ export function LandingPage() {
   return (
     <div>
       <Hero />
+
+      {/* THE /architecture BAND (#450) SITS ABOVE THE GRID, AND IT PUSHES THE ARTICLES DOWN. That is the
+          accepted trade, not an oversight of the spine declared at the top of this file: the launch points
+          three surfaces at /architecture, and the front door had no block naming that destination — only a
+          nav-weight control at the end of the hero row. Placed here rather than below the grid because a
+          teaser a reader reaches after the whole article list is a teaser for people who already stayed.
+          The band is deliberately NOT shrunk to protect the spine: a band small enough not to move the
+          articles is a band nobody reads, which spends the cost and buys nothing. */}
+      <ArchitectureBand />
 
       {/* Two-column region: articles are the main pane, the aside stays slim and secondary. */}
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px]">

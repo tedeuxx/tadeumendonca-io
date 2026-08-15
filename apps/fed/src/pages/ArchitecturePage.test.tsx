@@ -71,10 +71,22 @@ describe('ArchitecturePage', () => {
   it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.
-    const sourcesOf = (container: HTMLElement) => ({
-      links: [...container.querySelectorAll('a')].map((a) => a.getAttribute('href')),
-      sections: container.querySelectorAll('h2').length,
-    });
+    //
+    // SCOPED TO THE BODY SINCE #450. The page now renders a closing block after the body, and its share
+    // deeplinks carry the LOCALE-PREFIXED canonical URL — `…%2Fpt%2Farchitecture` against
+    // `…%2Fen%2Farchitecture`. Those are correct and must differ, so a container-wide comparison would go
+    // red on healthy output. The parity claim was always about the two markdown FILES; the scope now says
+    // so. `[data-testid="markdown-body"]` is the seam MarkdownPage marks for exactly this.
+    const sourcesOf = (root: HTMLElement) => {
+      const body = root.querySelector('[data-testid="markdown-body"]');
+      // A stale seam would make both editions equal and empty — which is the shape this whole test is
+      // written to refuse.
+      expect(body, 'the markdown body did not resolve — the seam went stale').not.toBeNull();
+      return {
+        links: [...body!.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+        sections: body!.querySelectorAll('h2').length,
+      };
+    };
 
     const pt = renderPage('pt');
     const ptSources = sourcesOf(pt.container);
@@ -142,6 +154,45 @@ describe('ArchitecturePage', () => {
       'https://github.com/tedeuxx/tadeumendonca-io',
       'https://github.com/tedeuxx/tadeumendonca-skills',
     ]);
+  });
+
+  // #450 — THIS IS THE PAGE THAT OPTS IN, and the only one. The launch points three surfaces here, and
+  // before this slice the page had a header ShareButton and nothing else: no end-of-document share block
+  // and no contact route at all, so an arrival who finished it had nothing to do next. Both blocks are
+  // asserted per locale — this suite renders at `pt` by default, and a pt-only check is green on a page
+  // whose English edition renders neither.
+  it.each(['pt', 'en'] as const)('closes with the contact route and the share deeplinks (%s)', (locale) => {
+    renderPage(locale);
+    expect(
+      screen.getByRole('navigation', {
+        name: locale === 'pt' ? 'Compartilhar este artigo' : 'Share this article',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me' }),
+    ).toBeInTheDocument();
+  });
+
+  // The contact route attaches BELOW the body's closing ask — the paragraph that asks the reader to get in
+  // touch — rather than floating anywhere on the page. The ask is `writer`'s copy in the markdown; the
+  // route is a component, because `contactChannels.ts` is the declared single source of truth for the
+  // owner's channels and a hardcoded address in a content file would be a second one.
+  it.each([
+    ['pt', /me chame para discutir o seu caso/],
+    ['en', /reach out and let's go through your case/],
+  ] as const)('attaches the contact route under the body\'s closing ask (%s)', (locale, ask) => {
+    const { container } = renderPage(locale);
+    const body = container.querySelector('[data-testid="markdown-body"]')!;
+    expect(body).toHaveTextContent(ask);
+
+    const contact = screen.getByRole('heading', {
+      name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me',
+    });
+    expect(body.compareDocumentPosition(contact) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // …and it is the shared channel list, not a mailto typed into the markdown. Both halves matter: the
+    // second assertion is what would catch the closing ask growing its own address later.
+    expect(container.querySelectorAll('a[href^="mailto:"]')).toHaveLength(1);
+    expect(body.querySelectorAll('a[href^="mailto:"]')).toHaveLength(0);
   });
 
   // COPY-AS-MARKDOWN AGAINST THE SHIPPED BODY (#387). The payload builder has its own unit tests against

@@ -12,6 +12,8 @@ import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
 import { useLocalePath } from '../i18n';
 import { ShareButton } from './ShareButton';
+import { ShareLinks } from './ShareLinks';
+import { ContactLinks } from './ContactLinks';
 
 interface MarkdownPageProps {
   /** Kicker label above the heading (font-mono, uppercase). */
@@ -28,6 +30,20 @@ interface MarkdownPageProps {
   jsonLdType: string;
   /** Already-resolved markdown body string — rendered verbatim, never transformed here. */
   body: string;
+  /**
+   * Renders the closing block after the body: the contact route, then the share deeplinks.
+   *
+   * OPT-IN, AND DEFAULTING TO FALSE IS THE WHOLE POINT (#450). This shell is shared with /ramp-up, and
+   * that page is a personal plan in progress that nobody decided to distribute — rendering the block
+   * unconditionally would hand it a distribution affordance and a contact CTA as a SIDE EFFECT of a slice
+   * about a different page. `MarkdownPage.test.tsx` asserts the default arm renders neither, and it is
+   * mutation-checked by flipping this default to `true`.
+   *
+   * ONE FLAG FOR BOTH BLOCKS, not two. They are one decision — "this page asks the reader for something"
+   * — taken once, for one page; two booleans that are only ever set together are redundant state, and the
+   * first caller to set one and not the other would be a page in a half-state nobody designed.
+   */
+  endMatter?: boolean;
 }
 
 export function MarkdownPage({
@@ -38,6 +54,7 @@ export function MarkdownPage({
   canonicalPath,
   jsonLdType,
   body,
+  endMatter = false,
 }: MarkdownPageProps) {
   // `canonicalPath` is the UNPREFIXED logical path; useDocumentHead prefixes it per locale for the
   // canonical + hreflang. The ShareButton and JSON-LD url want the concrete locale URL, so prefix here.
@@ -106,9 +123,40 @@ export function MarkdownPage({
           </h1>
         </header>
 
-        <div className="max-w-none text-[17px] leading-relaxed text-foreground/90">
+        {/* `data-testid` marks the BODY as a distinct region from the closing block below it. The
+            edition-parity checks compare every source a body cites between pt and en, and the share
+            deeplinks the closing block renders are locale-specific BY DESIGN — so an unscoped comparison
+            would go red on correct output the moment `endMatter` is passed. The seam is explicit here
+            rather than a positional `article > div` selector in the test. */}
+        <div
+          data-testid="markdown-body"
+          className="max-w-none text-[17px] leading-relaxed text-foreground/90"
+        >
           <Markdown>{body}</Markdown>
         </div>
+
+        {endMatter && (
+          <>
+            {/* THE CONTACT ROUTE SITS DIRECTLY UNDER THE BODY'S CLOSING ASK, and it is a COMPONENT rather
+                than a link in the markdown for one reason: `contactChannels.ts` declares itself the single
+                source of truth for the owner's public channels, and a hardcoded mailto in a content file
+                would be a second one — the exact drift that file exists to have already fixed once (X was
+                in the directory only, e-mail in the CTA only). `ContactLinks` is reused whole rather than
+                a bespoke row: it is the existing "where to find me" directory, already published on the
+                landing, and it renders CONTACT_CHANNELS in the shared order. */}
+            <div className="mt-[clamp(2rem,4vw,3rem)] border-t border-border pt-5">
+              <ContactLinks />
+            </div>
+
+            {/* AND THE DEEPLINKS CLOSE THE PAGE — the placement ArticlePage records verbatim and this
+                honours rather than re-derives: "A reader who has just finished is the one with something
+                to say about it" (#183). Offering the share above the ask would invert both. The header's
+                compact ShareButton stays; it is the phone affordance. */}
+            <div className="mt-[clamp(2rem,4vw,3rem)] border-t border-border pt-5">
+              <ShareLinks title={title} path={localizedPath} />
+            </div>
+          </>
+        )}
       </article>
     </div>
   );
