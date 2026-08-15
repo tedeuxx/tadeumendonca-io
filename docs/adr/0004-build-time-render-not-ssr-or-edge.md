@@ -76,8 +76,8 @@ This record carries the unscoped form twice, and the two are not equally defensi
   quotable-out-of-context.
 
 **What actually runs, checked rather than asserted:** `iac/cloudfront-functions/spa-rewrite.js` is a
-ten-line viewer-request CloudFront Function attached to the default cache behavior
-(`iac/frontend.tf:21-27`, `:75`), rewriting a directory-style route to its prerendered `index.html`.
+ten-line viewer-request CloudFront Function (`iac/frontend.tf:21-28`) attached to the default cache
+behavior (`:73-77`), rewriting a directory-style route to its prerendered `index.html`.
 Every request for a page passes through it. It is not new and was not introduced after this decision —
 it is ADR-0013's, and ADR-0026`:25` already named it as *"the URL-rewrite that remains."* The
 `/assets/*` behaviors carry no function association, which is why the accurate claim is "every request
