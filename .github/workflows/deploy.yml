@@ -631,12 +631,20 @@ jobs:
       #    that would MOVE #329's objection to the deploy rather than close it. A failed checkout falls
       #    through to the committed floor (src/content/generated/plugin-release.json), which holds a real,
       #    older tag. The resolve step then says out loud which source won.
+      #
+      # `ref: v1.0.0` below is a DELIBERATE PIN, not the "always resolves freshest" checkout the
+      # 2026-08-04 amendment above originally described. See ADR-0043's 2026-08-14 amendment for the
+      # reversal and why: the owner wants the card naming a specific reconciled milestone of
+      # tadeumendonca-skills rather than whatever PATCH its auto-bumper last touched. Un-pinning or
+      # moving the pin is a deliberate two-file edit (this `ref:` plus a `gen-harness` regeneration
+      # against a checkout of the new tag), not something that resolves itself on the next deploy.
       - name: Check out the plugin (tokenless, read-only, deleted below)
         id: plugin-checkout
         continue-on-error: true
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: tedeuxx/tadeumendonca-skills
+          ref: v1.0.0
           path: .plugin-version
           persist-credentials: false
 

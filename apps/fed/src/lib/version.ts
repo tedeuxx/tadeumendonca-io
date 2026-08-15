@@ -46,6 +46,13 @@ export const releaseUrl = (version = SITE_VERSION) =>
 // refused a build-time GitHub API call partly because *"what does the card show when the call fails"* had
 // no good answer. Here the question does not arise — nothing is fetched, and the lower level always holds
 // a tag that really exists. Nothing degrades; a less fresh source wins.
+//
+// AS OF ADR-0043's 2026-08-14 amendment, level 1's checkout (deploy.yml's `plugin-checkout` step) is
+// PINNED to a specific tag (`ref: v1.0.0`) rather than resolving tadeumendonca-skills' `main` tip — a
+// deliberate reversal of the "collapses the gap to the moment of the deploy" property this comment block
+// otherwise describes. Both levels are regenerated to agree on that same tag while the pin stands; see
+// the amendment for why and for what un-pinning requires. This module's own resolution mechanism
+// (`resolvePluginVersion` below) is unchanged by the pin — it still just prefers level 1 over level 2.
 
 /**
  * Resolve the two levels, and it is a FUNCTION so it can be tested without an env var.
