@@ -198,13 +198,34 @@ const strings = {
       // So: OPEN ON THE PROBLEM, matching the body's own first heading rather than the old completeness
       // framing ("Como este site é construído" / "How this site is built" survives as the document
       // TITLE, which is a different object — see the title note above). The pillar list is dropped, not
-      // shortened: it is what pushed the checkable claim past the cut. ONE of the two claims — the
-      // monthly bill — is inside the first 160 characters in both editions, verified by measurement;
-      // the ADR clause deliberately sits after it, because fitting both needed ~40 characters that only
-      // came out of the opening, and the opening is the hook. `agent-led verification` still leads the
-      // stack and still stays English in pt, per the two rules above.
-      pt: 'Eu tinha as ferramentas de desenvolvimento agêntico na mão e me sentia de fora do hype. O que saiu daí: um dev-loop de agent-led verification, USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
-      en: 'I had the agentic development tools in hand and still felt outside the hype. What came out of it: an agent-led verification dev-loop, a USD 6.57/month bill, and the load-bearing decisions on record as ADRs.',
+      // shortened: it is what pushed the checkable claim past the cut.
+      //
+      // THE FIRST ATTEMPT AT THAT OPENING BROKE THE TERM-FIRST RULE FOUR LINES ABOVE, and its own
+      // comment then claimed the rule was satisfied. Measured on that string: `agent-led verification`
+      // started at **pt 119 / en 101**, against **pt 43 / en 28** in the string it replaced — so the pt
+      // edition landed on ~120, the exact position the rule names as the failure, in the exact edition
+      // the rule says the failure was in. A record asserting a rule holds when it does not is worse
+      // than the regression it describes, which is why this note carries the numbers rather than a
+      // verdict.
+      //
+      // THE TWO PROPERTIES BOTH FIT, so no trade was needed and none is claimed. Term first, the
+      // problem immediately after the colon (the hook survives, one clause later), pillar list still
+      // dropped. Measured on the strings below:
+      //
+      //   pt — len 195 · `agent-led verification` at 15–37 · `USD 6,57/mês de conta` complete at 154
+      //   en — len 194 · `agent-led verification` at  3–25 · `a USD 6.57/month bill` complete at 144
+      //
+      // Both editions therefore carry the canonical term far inside every preview cut AND one checkable
+      // claim — the monthly bill — inside the first 160 characters. The ADR clause still sits after the
+      // cut deliberately: fitting it too costs the opening, and the opening is the hook.
+      // `agent-led verification` still leads the stack and still stays English in pt, per the two rules
+      // above.
+      //
+      // The term's POSITION is now gated, not only its presence: `e2e/per-locale.spec.ts` asserts it
+      // ends before character 120 in the served `og:description` of both editions. Containment alone is
+      // what let the regression above ship green.
+      pt: 'Um dev-loop de agent-led verification: ferramentas de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
+      en: 'An agent-led verification dev-loop: the agentic development tools in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
     },
   },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
