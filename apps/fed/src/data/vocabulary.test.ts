@@ -57,11 +57,21 @@ const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 //    defend itself: `og-copy.mjs`'s META_LINE renders ~320px wide and is where a pt reader meets the
 //    term first (og-copy.mjs:20-22); the CV headline (`profile.ts` :32/:35) is SCANNED rather than
 //    read, so a bracket on the one line a recruiter meets the term in reads as a hedge; and a bracket
-//    on `profile.ts:347` reads as an optional qualifier on a levelled competence claim. LinkedIn's
+//    on `profile.ts`'s levelled skills entry (`{ name: 'Agent Harness Engineering', level: 2 }` — cited
+//    by its literal rather than by a line, because the line moved twice while this comment said `:347`)
+//    reads as an optional qualifier on a levelled competence claim. LinkedIn's
 //    220-character headline limit is real but is NOT one of those reasons, and the margin is recorded
-//    here so the external fact stays checkable: measured at head, the en headline with `{{years}}` →
-//    18 is 202 characters, and `(Agent) ` over `Agent ` adds 2 — the parenthesised form would fit at
-//    204. The constraint does not bind; the two reasons above are what carry this rejection. Brackets
+//    here so the external fact stays checkable: the en headline with `{{years}}` → 18 is 164
+//    characters, and `(Agent) ` over `Agent ` adds 2 — the parenthesised form would fit at 166.
+//    THE FIGURE MOVED, and the reason is the point: the 202/204 pair published here until #451 (PR
+//    #457) was correct only for the longer headline that PR deleted. A measured number
+//    that outlives the string it measured is exactly what this block exists to prevent, so it now
+//    ships with the command that re-derives it from the source — run from the repo root, and it
+//    prints both figures:
+//      node -e "const s=require('fs').readFileSync('apps/fed/src/data/profile.ts','utf8');const b=s.split('headline: {')[1].split('},')[0].split('pt:')[0];const en=[...b.matchAll(/'([^']*)'/g)].map(m=>m[1]).join('').replace('{{years}}','18');console.log(en.length, en.length+2)"
+//    Nothing pins these two numbers — the command is the falsifier, not a test. The constraint binds
+//    even LESS at 164 than it did at 202, so this rejection is strengthened rather than weakened; the
+//    two reasons above are still what carry it, and never the limit. Brackets
 //    everywhere would also have forced a republication of all four OG cards (og-copy.mjs:29 — every
 //    edit to that line republishes them), which scrapers have pinned, for no gain to any reader.
 //
