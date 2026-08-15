@@ -228,6 +228,34 @@ test.describe('the portfolio body is per-locale', () => {
     });
   }
 
+  // CONTAINMENT IS NOT THE RULE `messages.ts` STATES, and that gap shipped: the assertion above was
+  // green while a rewrite moved `agent-led verification` from pt 43 → 119 and en 28 → 101 in the same
+  // string. The rule four lines above `architecture.metaDescription` is positional — *"Term FIRST,
+  // stack after. It used to sit around character 120 — inside the window LinkedIn, X and SERP previews
+  // cut"* — so a term present but past the cut satisfies every assertion here and none of the rule.
+  //
+  // 120 IS TAKEN FROM THE RULE'S OWN RECORDED FAILURE POINT, not from a fresh claim about any one
+  // platform's cut. The term must END before it, so the reader of a truncated card meets the whole
+  // term or the assertion reddens. At the string this landed with, the margin is large (pt ends at 37,
+  // en at 25) — the bound is a floor, not a target.
+  //
+  // PINNED ON THE TERM'S POSITION, NOT ON THE WHOLE STRING, deliberately: rewording the description
+  // around the term is routine and must stay free, while moving the term past the cut is the
+  // regression. Mutation-checked by pushing the pt term past 120 with the en edition untouched — pt
+  // reddened alone, `en` stayed green.
+  const OG_TERM_MUST_END_BEFORE = 120;
+  for (const locale of ['pt', 'en'] as const) {
+    test(`/${locale}/architecture puts the canonical term before the preview truncation`, async ({
+      request,
+    }) => {
+      const body = await (await request.get(`/${locale}/architecture/`)).text();
+      const og = /property="og:description" content="([^"]*)"/.exec(body)?.[1] ?? '';
+      const start = og.indexOf(ARCHITECTURE_OG[locale]);
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(start + ARCHITECTURE_OG[locale].length).toBeLessThan(OG_TERM_MUST_END_BEFORE);
+    });
+  }
+
   // /library, and it is here because the gate PROVED the hole rather than suspecting it: it reverted both
   // editions of `library.metaDescription` to the contents-form the copy lens had blocked, rebuilt, and got
   // 603 unit green and 120 E2E green with the wrong sentence sitting in the served HTML of both editions,
