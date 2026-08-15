@@ -57,12 +57,19 @@ that argues the term**, and draws the boundary the extension needs.
 `architecture.{en,pt}.md:43` argued the brackets from market usage — *"harness engineering is commonly
 said today for the practice alone"* — with no N and no citation, on a page whose thesis is rigor.
 `writer` **removed** that clause rather than sourcing it, and rewrote the gloss to argue from the page's
-own usage instead. What shipped on `:43` (verified in both editions on this branch) is: *"the brackets
-are not a hedge: they say the short form and the full one name one practice, not two. They belong where
-the term is being set out … Further down, where it stops being a label and becomes the claim, it is
-written out in full."* **Every claim in that sentence is checkable by reading the page.** This record's
-rationale is built on the same footing deliberately — see *What this record deliberately does not claim*
-below.
+own usage instead. What ships on `:43` at `22a2838`, verified in both editions on this branch, is:
+
+> *"A label has to be short and a claim has to be exact, and the brackets let one rendering do both: they
+> say the short form and the full one name one practice, not two. **They belong where the term is being
+> set out — the opening paragraph and the drawing above.** Further down, where it stops being a label and
+> becomes the claim, it is written out in full…"*
+
+**Every claim in that sentence is checkable by reading the page**, and that is now true of the
+enumeration too. It was not at `dbe5275`: the gloss then named *"the drawing above, and this paragraph"*
+— naming its own paragraph, which renders no form of the term, and omitting `:13`, which does. The copy
+lens found it, `writer` corrected it in `22a2838`, and **the register table below carried the identical
+defect and is corrected in the same pass** — see *The registers, by surface*. This record's rationale is
+built on the same footing deliberately — see *What this record deliberately does not claim* below.
 
 ## Decision drivers
 
@@ -138,14 +145,85 @@ Today that resolves to exactly one page in the first register.
 
 ### The registers, by surface
 
-| register | surfaces | form |
+**What this table classifies is where a rendering of the term is CARRIED, not which lines the rule
+governs.** Each row names lines that actually render the term and says which rendering they render. A
+line that governs the rule without rendering the term is not a site and is not listed as one — the
+ambiguity between those two readings is what made the first version of this table wrong, and stating the
+column's meaning is the fix, not just deleting a line number.
+
+**The argued register is where the term is set out *and claimed as the owner's own*.** That framing is
+wider than the gloss's *"one practice, not two"*, and deliberately so: `:402` reads *"is the claim I am
+making"*, so the page treats the term as an identity claim rather than as a description of a practice.
+The register split follows from that — a slot that is scanned cannot carry a claim being taught, and the
+page that teaches it is the one that earns the device. (Checkable on the page; this record imports
+nothing from the private positioning source, which is silent on typesetting.)
+
+| register | lines that RENDER the term | form |
 |---|---|---|
-| **argued** | `architecture.en.md` / `architecture.pt.md` — `:13` (the prose introducing it), `:24` (the figure's `centre:`), `:43` (the gloss) | `(Agent) Harness Engineering` |
+| **argued — the term is being set out** | `architecture.en.md` / `architecture.pt.md` — `:13` (the opening paragraph) and `:24` (the figure's `centre:`). **Exactly the two sites `:43` enumerates**, in both editions. | `(Agent) Harness Engineering` |
+| **argued — the claim sentence** | `architecture.{en,pt}.md:402` | `Agent Harness Engineering` — *the one exception*, below |
+| **argued — the spoken alternative to the figure** | `architecture.{en,pt}.md:23`, the `accDescr` | `Agent Harness Engineering`, with the brackets **described in words** — *`:23`*, below |
+| **a record naming its own subject** | this ADR's own H1, rendered on `/library` | `(Agent) Harness Engineering` — **contained, not precedent**; *`/library`*, below |
 | **keyword** | **the CV headline, `profile.ts:32` (en) / `:35` (pt)** · the summary, `profile.ts:40` / `:50` · the experience bullets, `profile.ts:71`/`:75`/`:80`/`:96` · the levelled skill label, `profile.ts:347` · `Marquee.tsx:62` (`STACK`) · `og-copy.mjs:38` (`META_LINE`, four cards) · the two published article excerpts · **LinkedIn** (hand-maintained, outside every guard) | `Agent Harness Engineering` |
 
-**The CV headline is named first and explicitly**, at #451's intake's request: after that slice ships it
-is the most-read strict-form instance on the site, and the earlier draft of this taxonomy named
-`profile.ts:347` while omitting it.
+**Governs but renders nothing, and so is deliberately absent above:** `architecture.{en,pt}.md:43`, the
+gloss. It explains the rule and carries only the code span `` `Agent` `` — the word under discussion, not
+a rendering of the term. An earlier draft of this table listed it as an argued-register site, which is
+the same error the gloss itself made about itself.
+
+**The CV headline is named first and explicitly** among the keyword surfaces, at #451's intake's request:
+after that slice ships it is the most-read strict-form instance on the site, and the earlier draft of
+this taxonomy named `profile.ts:347` while omitting it.
+
+### `:23`, the `accDescr` — the strict form inside the argued register
+
+The `accDescr` is reader-facing: it is what a screen-reader user gets **instead of** the figure. It sits
+squarely in the argued register — it describes the drawing that claims the term — and it renders the term
+**strict**, then describes the brackets in words: *"it reads Agent Harness Engineering, with the word
+Agent in parentheses"* (pt: *"está escrito Agent Harness Engineering, com a palavra Agent entre
+parênteses"*).
+
+**That is deliberate and it stands.** Parentheses are ambiguous when spoken — a screen reader either
+drops them silently or announces the punctuation — so typesetting the device transfers nothing to a
+listener and describing it transfers all of it.
+
+**The cost, named rather than hidden: a non-sighted reader meets the strict form exactly where a sighted
+reader meets the bracketed one.** Both reach the same statement by different routes, which is the point
+of an `accDescr`; but the two renderings are not byte-equal on one surface, and that is a real asymmetry
+rather than an oversight.
+
+**Rule for any future `accDescr` on this term: describe the brackets, do not typeset them.** Nothing
+enforces it — guard 1 admits both forms anywhere in those two files, so `:23` could be bracketed tomorrow
+and stay green. This row exists so that change is a decision rather than a tidy-up.
+
+### `/library` — a record naming its own subject, and the containment
+
+This ADR's H1 carries `(Agent) Harness Engineering`, and `/library` renders ADR titles through
+`apps/fed/src/content/generated/adrs.json` → `AdrTable`. So the form reaches a **second reader-facing
+page**, outside the owner's stated scope for #444 (*"somente na pagina de arquitetura"*).
+
+**It is unavoidable, and it is contained. Both halves have to be stated, because the second is what keeps
+this row from reading as a licence.**
+
+*Unavoidable:* a record whose subject **is** this rendering cannot name its subject in the other
+rendering without misnaming it. A title saying something other than what was decided is a worse defect
+than a title outside the scope.
+
+*Contained — precisely:*
+
+- the row licenses **a record naming its own subject**, and nothing wider;
+- this is the **only** route by which the form leaves `/architecture`. Every other string `/library`
+  renders — every other ADR title, the status and date columns, the index rows in `docs/adr/README.md` —
+  is outside it;
+- it is **not precedent for ADR titles generally**, nor for any other `/library` surface. An ADR whose
+  subject is not this rendering names the term strict, like every other keyword surface.
+
+It is also inert as positioning: an ADR title inside a decision index reads as the record of a decision,
+not as the term being asserted. That is why it is acceptable rather than merely tolerated — but
+acceptability comes from the containment above, not from the inertness alone.
+
+**Unguarded, like `:23`:** `SURFACES` does not cover ADR files or the generated index, so nothing would
+redden if a future ADR title carried the bracketed form outside its licence.
 
 ### The one exception, and it is inside the argued register
 
@@ -212,6 +290,10 @@ direction nobody notices:**
   `og-copy.test.mjs:60-77` (which already carries the same lookbehind); the article excerpts and
   **LinkedIn** have none. LinkedIn drifts silently by construction — it is hand-typed, and ADR-0024's
   amendment already records external surfaces as a maintained obligation rather than a mechanical one.
+- **Two argued-register rows have no guard at all.** `:23`'s `accDescr` is inside a file guard 1 admits
+  both forms on, so bracketing it stays green; and the `/library` row is outside `SURFACES` entirely —
+  no test reads ADR titles for this term, so an ADR title taking the bracketed form beyond its licence
+  reddens nothing. Both are recorded as rules, not as enforcements.
 - **The `-skills` repository is a different repo and out of reach.** `check-harness-drift.mjs` does not
   read the term.
 
@@ -287,6 +369,12 @@ It is a **new record, not a supersede.** No prior ADR in either library covers t
   the string itself did not move.
 - **LinkedIn and the article excerpts carry the rule with no guard at all**, and the `-skills` repo is
   out of reach entirely.
+- **The form leaves `/architecture` on exactly one route** — this record's own title, on `/library` —
+  which is one page more than the owner's instruction scoped. Contained above and inert as positioning,
+  but it is a real widening and not a technicality.
+- **The `accDescr` renders the term differently from the figure it describes**, so the sighted and the
+  non-sighted reader meet different typography of the same claim. Correct for speech, and still an
+  asymmetry the record now owns rather than one a future reader discovers.
 
 **Neutral**
 
