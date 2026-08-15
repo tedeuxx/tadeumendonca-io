@@ -150,7 +150,11 @@ describe('the practice is named consistently across every surface', () => {
     // Then the rendering immediately after it. `Agent Harness Engineering` and a deleted term both fail:
     // neither STARTS with the parenthesised form. Asterisks are stripped so the assertion survives the
     // term gaining or losing its bold, exactly as `CLAIM_CLAUSE` does on the other side of its anchor.
-    const start = src.search(clause) + hits[0].length;
+    // The `?? ''` is unreachable: the length assertion above aborts the test when the anchor is
+    // missing. It is written rather than a `!` because this app's tsconfig checks indexed access, and
+    // the first version of this line typechecked-failed while the suite passed — the exact asymmetry
+    // the header of this file was written about.
+    const start = src.search(clause) + (hits[0] ?? '').length;
     const following = src.slice(start, start + 80).replace(/\*/g, '').trimStart();
     expect(following.startsWith(PARENTHESISED)).toBe(true);
   });
