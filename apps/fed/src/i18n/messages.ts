@@ -249,16 +249,30 @@ const strings = {
     // ponto." A band leading with the owner contradicts a published sentence a reader can see WITHOUT
     // SCROLLING; "a máquina inteira" and "how to replicate it" are the reader's payoff, and the owner
     // appears in neither string.
-    bandKicker: { pt: 'Seção deste site · a planta aberta', en: 'A section of this site · the blueprint, open' },
+    // The kicker is the bare label and nothing else, and the second half was CUT rather than reworded.
+    // Its load-bearing job is the one the leads specified — the reader must know this is a section of
+    // the site and not a piece of writing — and `Seção deste site` does all of it. The dropped half
+    // (`· a planta aberta`) ran a blueprint metaphor one line above a machine metaphor in `bandHeading`,
+    // and the destination it points at already says *planta* in its own kicker, dek and H1: four
+    // blueprint statements inside two screens, of which this was the only one written here. In en it
+    // also stacked two separators in one line (`·` then a comma). The heading below carries the payoff;
+    // the kicker only has to place the reader.
+    bandKicker: { pt: 'Seção deste site', en: 'A section of this site' },
     // The reader must meet the DESTINATION'S OWN NAME here, not a headline written for the band — the
     // word the click lands on is "Arquitetura", the same rule ADR-0045 applies to document titles, and
     // a band heading that renames the section is the same defect one screen earlier. So this follows
     // `heading`'s shape above (name — noun phrase, state) and diverges only in the tail: `heading` says
     // what the page IS to someone already there, this says what it is FOR to someone deciding to click.
-    // "a máquina" is the page's own word for itself (architecture.pt.md: "a própria máquina, em aberto"),
-    // and "replicar" is its own closing H2 ("Replique para o seu contexto"), so neither is invented here.
+    // "a máquina" is the site's own word for this page — content/blog/engineer-the-loop.pt.md:30, "A
+    // `/architecture` deste site é a própria máquina, em aberto", and the page says it of itself too
+    // (architecture.pt.md:60 "A vitrine mostra a máquina", :211 "a máquina prova a fatia"). An earlier
+    // version of this comment attributed the first quote to architecture.pt.md, where it is not; the
+    // claim held and the citation did not, which on this repo is the defect worth one line.
+    // "replicar" is the page's own closing H2 ("Replique para o seu contexto"), so neither is invented
+    // here. The pt takes the object (`replicá-la`) that the en always had: the heading is a payoff
+    // claim rather than a label, and a claim reads finished where a label can trail off.
     bandHeading: {
-      pt: 'Arquitetura — a máquina inteira, e como replicar',
+      pt: 'Arquitetura — a máquina inteira, e como replicá-la',
       en: 'Architecture — the whole machine, and how to replicate it',
     },
   },
@@ -584,6 +598,18 @@ const strings = {
     // aria-label for the group. Not "Share" — the page already has a ShareButton with that name, and two
     // controls whose accessible names are indistinguishable is the defect, not the duplication itself.
     linksLabel: { pt: 'Compartilhar este artigo', en: 'Share this article' },
+    // #450. The same group's accessible name where the thing being shared is NOT an article — the share
+    // block now also renders under `endMatter` on MarkdownPage, and /architecture is a section of this
+    // site, so `linksLabel` would name it something it is not, to screen-reader users only.
+    //
+    // A SIBLING KEY RATHER THAN A REWORDED SHARED ONE, deliberately. Rewording `linksLabel` to "esta
+    // página" is one key cheaper and wrong twice: it changes published copy on four live article pages
+    // from inside a slice scoped to change one, and it loses precision where the current string is
+    // correct — on an article, "este artigo" IS the better accessible name, and the distinction between
+    // an article and a section is the thing this key exists to keep true. The cost is a key that can
+    // drift from its sibling; it is bounded by messages.test.ts's both-locales assertion and by the two
+    // sitting adjacent here, where a drift is visible in one screen.
+    linksLabelPage: { pt: 'Compartilhar esta página', en: 'Share this page' },
     // #314. The modal's accessible name, and it must differ from `linksLabel` for the same reason that
     // one differs from `share.share`: on an article page the dialog and the footer nav are both share
     // groups, and a screen-reader user moving between landmarks cannot tell two identically-named

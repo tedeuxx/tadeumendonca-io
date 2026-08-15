@@ -178,8 +178,8 @@ describe('ArchitecturePage', () => {
   // route is a component, because `contactChannels.ts` is the declared single source of truth for the
   // owner's channels and a hardcoded address in a content file would be a second one.
   it.each([
-    ['pt', /me chame para discutir o seu caso/],
-    ['en', /reach out and let's go through your case/],
+    ['pt', /me conte o contra-exemplo/],
+    ['en', /tell me the counter-example/],
   ] as const)('attaches the contact route under the body\'s closing ask (%s)', (locale, ask) => {
     const { container } = renderPage(locale);
     const body = container.querySelector('[data-testid="markdown-body"]')!;

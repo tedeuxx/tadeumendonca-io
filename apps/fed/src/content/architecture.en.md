@@ -228,4 +228,4 @@ The fork-to-live steps are in the READMEs, not on this page: [this repo's](https
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
-There are far too many configuration options — which harness, which hooks, which persona, which gate — and nobody has enough sessions to test them all alone. If you have run any of those choices differently, you are the one holding the half this page is missing: **share it with what you would change, or reach out and let's go through your case.** Trading experience is the reason this is in the open rather than in a notebook.
+Up at the top is the reason this is an open page and not a notebook. If you have run any of those choices differently, you are the one holding the half this page is missing: **tell me the counter-example, or share the page and say what you would change.**
