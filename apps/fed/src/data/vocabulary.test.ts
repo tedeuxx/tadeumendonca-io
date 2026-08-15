@@ -35,14 +35,30 @@ const CURRENT = 'Agent Harness Engineering';
 const BARE_UNPREFIXED = /(?<!Agent )Harness Engineering/;
 const RETIRED_STEM = /Loop Engineer/;
 
+// THE PARENTHESISED FORM IS A PROSE AFFORDANCE, AND IT IS SCOPED TO THE SURFACES THAT EARNED IT.
+// `/architecture` opens by naming the practice as `(Agent) Harness Engineering` — the parentheses are
+// doing work there: the essay is about what the word `Agent` adds, so the sentence has to be able to
+// show the term with and without it. That is an argument about the essay, not about the vocabulary.
+//
+// WHY THIS IS NOT A RELAXATION OF `BARE_UNPREFIXED`. Widening the shared pattern would silently permit
+// `(Agent) Harness Engineering` in the CV headline (`profile.ts`) and on the landing strip — the very
+// surfaces #328 paid to pin to exactly ONE rendering, because a recruiter reading the headline meets
+// the term once and a parenthetical there reads as hedging. An allowlist that covers every surface
+// stops guarding the string it was built to guard. So the exception is DATA on the surface that gets
+// it, and a surface not listed with it keeps the strict form by construction.
+const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
+
 // Surfaces are read as SOURCE rather than imported as values, because what is asserted is the
 // authored TEXT — including the comments around it, which is where a superseded term most often
 // survives a find-and-replace. `profile.ts` is read the same way for the same reason: its comments
 // carry the vocabulary history and are exactly where the bare form would linger.
-const SURFACES: ReadonlyArray<[string, string]> = [
-  ['profile.ts', profileSrc],
-  ['architecture.en.md', architectureEn],
-  ['architecture.pt.md', architecturePt],
+//
+// The third element is the surface's OWN bare-form pattern. It is a tuple rather than a flag so that
+// reading the list answers "which rendering is legal here" per row, with no default to look up.
+const SURFACES: ReadonlyArray<[string, string, RegExp]> = [
+  ['profile.ts', profileSrc, BARE_UNPREFIXED],
+  ['architecture.en.md', architectureEn, BARE_ALLOWING_PARENTHESISED],
+  ['architecture.pt.md', architecturePt, BARE_ALLOWING_PARENTHESISED],
 ];
 
 describe('the practice is named consistently across every surface', () => {
@@ -50,15 +66,30 @@ describe('the practice is named consistently across every surface', () => {
     expect(src).toContain(CURRENT);
   });
 
-  it.each(SURFACES)('%s carries no un-prefixed form of it', (_name, src) => {
+  it.each(SURFACES)('%s carries no un-prefixed form of it', (_name, src, bare) => {
     // Historical notes are allowed to NAME the supersession — what is forbidden is the bare form
     // standing as the practice's name. The lookbehind draws exactly that line: `Agent Harness
-    // Engineering` passes, a lone `Harness Engineering` does not, wherever it sits.
-    expect(src).not.toMatch(BARE_UNPREFIXED);
+    // Engineering` passes, a lone `Harness Engineering` does not, wherever it sits. The pattern comes
+    // from the surface's own row, so a prose surface's parenthesised affordance never reaches the CV.
+    expect(src).not.toMatch(bare);
   });
 
   it.each(SURFACES)('%s is clear of the retired term in every inflection', (_name, src) => {
     expect(src).not.toMatch(RETIRED_STEM);
+  });
+
+  // THE EXCEPTION HAS TO STILL DISCRIMINATE, and reading it never proves that. A pattern that accepted
+  // every rendering would make the assertion above a tautology and stay green on the day the term is
+  // reverted — the exact failure this file was written to stop, arriving through the allowlist instead
+  // of through the term. So both patterns are exercised against literals here, in both directions.
+  it('the parenthesised affordance is scoped, not a blanket allowance', () => {
+    // The prose pattern still catches a genuinely bare occurrence…
+    expect('a loop built on Harness Engineering').toMatch(BARE_ALLOWING_PARENTHESISED);
+    // …and accepts only the two renderings the essay is allowed to use.
+    expect('a loop built on Agent Harness Engineering').not.toMatch(BARE_ALLOWING_PARENTHESISED);
+    expect('a loop built on (Agent) Harness Engineering').not.toMatch(BARE_ALLOWING_PARENTHESISED);
+    // The strict pattern is unchanged: the parenthesised form is still a failure on a CV surface.
+    expect('AI-DLC & (Agent) Harness Engineering').toMatch(BARE_UNPREFIXED);
   });
 
   // The strip is asserted through the exported list rather than the file, because here the DATA is
