@@ -61,6 +61,23 @@ const SURFACES: ReadonlyArray<[string, string, RegExp]> = [
   ['architecture.pt.md', architecturePt, BARE_ALLOWING_PARENTHESISED],
 ];
 
+// THE ONE SENTENCE ON THOSE TWO SURFACES THAT STILL MAY NOT PARENTHESISE, AND WHY IT IS PINNED APART.
+// The affordance above is granted per FILE, so it necessarily covers the closing paragraph too — and
+// that paragraph is where the essay stops describing the term and CLAIMS it: "Agent Harness
+// Engineering is the claim I am making". A parenthesis there makes optional the very word the sentence
+// is claiming, so the unqualified rendering is not a stylistic leftover; it is the point of the
+// sentence. The `toContain(CURRENT)` assertion does not cover this — `accDescr` further up carries a
+// plain occurrence, so a drift confined to the claim sentence would ship green.
+//
+// ANCHORED ON THE CLAUSE, NOT ON A LINE NUMBER: this page is being restructured (#448), and a
+// positional anchor would silently start guarding a different sentence. The clause is distinctive per
+// edition, and its own presence is asserted first — an anchor that stops matching must redden as a
+// missing anchor rather than pass as a satisfied one.
+const CLAIM_CLAUSE: ReadonlyArray<[string, string, RegExp]> = [
+  ['architecture.en.md', architectureEn, /is the claim I am making/],
+  ['architecture.pt.md', architecturePt, /é a afirmação que eu faço/],
+];
+
 describe('the practice is named consistently across every surface', () => {
   it.each(SURFACES)('%s names the current term', (_name, src) => {
     expect(src).toContain(CURRENT);
@@ -90,6 +107,18 @@ describe('the practice is named consistently across every surface', () => {
     expect('a loop built on (Agent) Harness Engineering').not.toMatch(BARE_ALLOWING_PARENTHESISED);
     // The strict pattern is unchanged: the parenthesised form is still a failure on a CV surface.
     expect('AI-DLC & (Agent) Harness Engineering').toMatch(BARE_UNPREFIXED);
+  });
+
+  it.each(CLAIM_CLAUSE)('%s claims the term unqualified in the sentence that claims it', (_name, src, clause) => {
+    // The anchor first, and exactly once. If #448's restructuring reworded or duplicated the clause,
+    // this fails as "the anchor moved" instead of quietly guarding nothing or guarding the wrong one.
+    expect(src.match(new RegExp(clause.source, 'g')) ?? []).toHaveLength(1);
+
+    // Then the rendering immediately before it. Emphasis markers are stripped rather than matched, so
+    // the assertion survives the term losing its bold and still fails on the parenthesised form —
+    // `(Agent) Harness Engineering` does not end with `Agent Harness Engineering`.
+    const preceding = src.slice(0, src.search(clause)).replace(/\*/g, '').trimEnd();
+    expect(preceding.endsWith(CURRENT)).toBe(true);
   });
 
   // The strip is asserted through the exported list rather than the file, because here the DATA is
