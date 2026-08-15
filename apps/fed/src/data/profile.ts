@@ -29,12 +29,45 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Agent Harness Engineering with Claude Code & Kiro | ' +
-      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
+      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      '{{years}} years across SDLC & Distributed Systems',
     pt:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Agent Harness Engineering com Claude Code & Kiro | ' +
-      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
+      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      '{{years}} anos em SDLC & Sistemas Distribuídos',
   },
+  // THE `applied GenAI` PHRASE IN THIS PARAGRAPH IS THE ONLY STRUCTURED SITE HOME THAT EXACT PHRASE HAS,
+  // AND NOTHING PINS IT. Both editions of the block IMMEDIATELY BELOW carry it — en "My lane is applied
+  // GenAI and agentic development", pt "Minha faixa é GenAI aplicada e agentic development". No line
+  // number is cited on purpose: a citation into the very block this comment sits on top of is falsified
+  // by editing this comment, which is the defect that produced this note in the first place. Grep the
+  // phrase. The phrase moved here — rather than staying in the headline — when #451 (PR #457) shortened
+  // the headline to the owner's string; the compensation for that cut was that this paragraph would
+  // carry the term instead. That compensation was recorded in an Issue comment, and an
+  // Issue comment is not reachable by the person who would break it: the failure mode is an editor
+  // trimming this long paragraph, and that editor is standing HERE, not in the archive of PR #457.
+  //
+  // WHY NOTHING PINS IT, precisely. `vocabulary.test.ts` guards the PRACTICE NAME
+  // (`Agent Harness Engineering`) and does not know this phrase exists — `GenAI` appears in no test file
+  // under `apps/fed/src`, so deleting the clause from this paragraph ships GREEN. Verified rather than
+  // assumed: `grep -rln GenAI apps/fed/src apps/fed/e2e` returns exactly three files, all of them
+  // content/data (this one and `content/rampup.{en,pt}.md`), and no test. A mechanical guard — an
+  // assertion pinning the TOKEN, not the sentence, so rewording stays free — is the only real fix and is
+  // deliberately NOT made here: it is a test change, and this was a headline slice. It is the owner's to
+  // open.
+  //
+  // WHY THIS IS A NOTE AND NOT AN ALARM — the "only home" claim is about the STRUCTURED surfaces, and the
+  // stronger reading of it is false. The exact phrase is unique to this block; the TOKEN is not.
+  // `content/rampup.{en,pt}.md` carries `GenAI` at `:1`, `:3`, `:16` and `:20` of each edition, and `:1`
+  // is a near-structured target-role line on a crawled page. So if this paragraph lost the term tomorrow,
+  // retrieval would degrade, not disappear — the risk is SMALLER than the framing the compensations were
+  // ratified against. Written accurately on purpose: an overstated warning is the kind that gets
+  // discounted the first time someone checks it.
+  //
+  // WHERE IT REACHES BESIDES THE SCREEN: `CVSection.tsx` renders this paragraph (`{profile.summary}`)
+  // inside its `data-print="cv"` block with no `data-print="hide"` hook, so it is in the ATS artifact —
+  // the PDF a recruiter's parser reads — not only on `/me`.
   summary: {
     en:
       'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — to design, ' +
