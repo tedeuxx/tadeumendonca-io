@@ -181,7 +181,7 @@ Mas o método não é despacho. Parte da minha ideia, eu **ouço deles como fari
 
 E escutar rende. Eles têm senioridade maior que a minha nos frameworks e nas linguagens escolhidas — eu agrego com arquitetura e visão. **Recorrentemente aprendo formas de usar os serviços AWS que eu não sabia que existiam.** Neste site foi a renderização de OG com Lambda@Edge: eu não fazia ideia de que dava para suprir um SSR e resolver indexação de crawler com aquilo. Em outro sistema foi a busca semântica com Amazon S3 Vectors: eu não sabia que dava para montar isso em peças serverless e pagar por demanda, em vez de por um cluster OpenSearch provisionado rodando o tempo todo. A troca é vazão e latência — a própria AWS posiciona os dois como camadas, não como alternativas.
 
-A ironia do primeiro exemplo está a duas seções daqui: aquele Lambda@Edge tem uma decisão registrada, e ela foi **cortada**. Funcionou, me ensinou, e depois se provou desnecessária — prerender no build entrega o mesmo HTML servido sem edge rendering nenhum a cada requisição; o que ainda roda numa requisição de página são as dez linhas da função de reescrita. As duas coisas são verdade ao mesmo tempo.
+A ironia do primeiro exemplo está a duas seções daqui: aquele Lambda@Edge tem uma decisão registrada, e ela foi **cortada**. Funcionou, me ensinou, e depois se provou desnecessária — prerender no build entrega o mesmo HTML servido sem edge rendering a cada requisição (as dez linhas da função de reescrita são o que roda numa requisição de página). As duas coisas são verdade ao mesmo tempo.
 
 *(→ [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md) OG com Lambda@Edge, substituída)*
 
