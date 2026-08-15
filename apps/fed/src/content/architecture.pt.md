@@ -10,7 +10,7 @@ Isto aqui são três coisas.
 
 Não são três produtos. **É uma coisa só**, e este site é o que ela produz em público.
 
-Num site de prova de engenharia o código é o pitch, e o que ele deve ao leitor não é o resultado — é a máquina que produziu o resultado. Então o honesto é mostrar a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & Agent Harness Engineering.
+Num site de prova de engenharia o código é o pitch, e o que ele deve ao leitor não é o resultado — é a máquina que produziu o resultado. Então o honesto é mostrar a construção inteira, em aberto: a arquitetura abaixo, as decisões que a moldaram (cada uma registrada como um ADR), e a camada reutilizável que te deixa replicar. Eu construo isto do jeito que quero ser contratado pra construir: desenvolvimento AI-native com o rigor de SDLC que a maior parte do trabalho com IA dispensa — Claude Code, Kiro, um loop construído sobre AI-DLC & (Agent) Harness Engineering.
 
 ![Vitrine de museu com um iPhone de 2007 desmontado atrás de acrílico, suas peças etiquetadas — câmera, sensor de luz, microfone, alto-falante, SIM, vibracall — sob a legenda "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "O lançamento mostrou o resultado. A vitrine mostra a máquina. No Computer History Museum.")
 
@@ -40,7 +40,7 @@ pillar: O runtime | Claude Code
 - Ferramentas e MCP
 ```
 
-O que fica na interseção é o trabalho de verdade: decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que o inventário disso continua verdadeiro. O `Agent` fica entre parênteses de propósito: hoje se fala em *harness engineering* referindo só a prática, e os parênteses ligam um termo ao outro sem fingir que são duas coisas diferentes.
+O que fica na interseção é o trabalho de verdade: decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que o inventário disso continua verdadeiro. O `Agent` fica entre parênteses de propósito. Um rótulo precisa ser curto e uma afirmação precisa ser exata, e o parêntese deixa uma forma só fazer as duas coisas: ele diz que a forma curta e a forma inteira nomeiam uma prática só, não duas. O lugar dele é onde o termo está sendo apresentado — o parágrafo de abertura e o desenho acima. Mais abaixo, onde ele deixa de ser rótulo e vira a afirmação, o termo aparece por extenso: parêntese torna uma palavra opcional, e *agent* é justamente a palavra que não pode ser opcional na frase que diz que a afirmação é minha.
 
 Os tópicos dentro de cada círculo são o **inventário** de cada pilar; o que cada um **entrega** tem uma seção própria mais abaixo, e vale dizer qual é qual: a do site é *O que o site faz, do lado do leitor*; a da customização é *Os quatro elementos do harness*; a do runtime é *O orquestrador é a parte do harness que você não consegue instalar*.
 
