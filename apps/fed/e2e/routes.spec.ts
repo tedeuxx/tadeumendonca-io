@@ -333,11 +333,13 @@ test.describe('routes', () => {
   test('/architecture renders EVERY diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
     await page.goto('/pt/architecture');
 
+    // THREE, DOWN FROM SIX (#448). The restructure cut the request-path figure, the AWS-stack figure and
+    // the loop-shape figure under the owner's Budget B, so their rows go with them rather than being
+    // left to fail as "a diagram stopped rendering" — which is what a stale enumeration reports, and it
+    // names the wrong defect. The venn is deliberately still absent from this list: it is not a mermaid
+    // figure, and `diagram-centred.spec.ts` is what covers it.
     for (const name of [
       /As camadas, e a trilha de build que substitui as que faltam/,
-      /Como uma requisição vira uma página/,
-      /A pilha AWS, camada a camada/,
-      /O formato do loop — as camadas e as unidades de trabalho/,
       /Onde o humano fica no loop/,
       /Do que o harness é feito/,
     ]) {

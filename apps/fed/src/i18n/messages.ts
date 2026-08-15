@@ -184,8 +184,14 @@ const strings = {
       // this describes qualifies it twice in both editions, and repoCards.ts carries the same correction on
       // the card that links the same library. A meta line is the one place the qualifier is cheapest to
       // drop and the claim hardest for a reader to check against the page it summarises.
-      pt: 'Como este site é construído: o dev-loop de agent-led verification, a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, e os ADRs que registram as decisões que sustentam peso — com links para replicar.',
-      en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record the load-bearing decisions — with links to replicate it.',
+      // REWRITTEN WITH THE BODY, in the same diff, and that is the point rather than a nicety (#448).
+      // Nothing couples this string to `architecture.{pt,en}.md`, so a restructure that changes what the
+      // page is ABOUT leaves the OG card describing the page that used to be here — and the card is the
+      // text a scraper pins on first fetch. The body's spine is now problem → requirement → the three
+      // pillars, so this follows it: term first (the rule above), then the three pillars by name, then
+      // the two checkable claims a reader can go and falsify.
+      pt: 'Como este site é construído: o dev-loop de agent-led verification e os três pilares que ele atravessa — a SPA estática em S3 + CloudFront, o plugin instalável e o runtime de agente —, quanto custa por mês, e as decisões que sustentam peso registradas em ADR.',
+      en: 'How this site is built: the agent-led verification dev-loop and the three pillars it spans — the static SPA on S3 + CloudFront, the installable plugin and the agent runtime — what it costs a month, and the load-bearing decisions on record as ADRs.',
     },
   },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
