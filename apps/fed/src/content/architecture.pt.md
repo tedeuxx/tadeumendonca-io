@@ -227,3 +227,5 @@ Os passos de "do fork até no ar" estão nos READMEs, não nesta página: [o des
 *(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) raiz de confiança fora do Terraform · [ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md) subject imutável)*
 
 O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
+
+Há opções de configuração demais — qual harness, quais hooks, que persona, que gate — e ninguém tem sessões suficientes para testar todas sozinho. Se você rodou alguma dessas escolhas de outro jeito, é você que tem a metade que falta nesta página: **compartilhe dizendo o que faria diferente, ou me chame para discutir o seu caso.** Trocar experiência é a razão de isto estar em aberto, e não num caderno.

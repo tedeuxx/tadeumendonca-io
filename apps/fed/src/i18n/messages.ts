@@ -227,6 +227,40 @@ const strings = {
       pt: 'Um dev-loop de agent-led verification: ferramentas de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
       en: 'An agent-led verification dev-loop: the agentic development tools in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
     },
+    // THE LANDING BAND (#450). These two leaves live in the `architecture` group, not in a group of
+    // their own, on a mechanical constraint and a semantic one. Mechanical: `messages.test.ts` derives
+    // ADR-0045 coverage from every TOP-LEVEL group carrying a `title` leaf and pins the set to
+    // ['architecture','library','portfolio','rampup'] — a new `home`/`teaser` group would either red
+    // that test or need a title it has no business having, dragging an ADR-0045 conversation into a copy
+    // slice. Semantic: the band is copy ABOUT this destination, and keeping it beside the destination's
+    // own `heading`/`kicker` is what makes a drift between them visible in one screen of this file.
+    //
+    // NO WORD HERE MAY DEPEND ON THE DATE — no "novo", no "lançamento", no "just shipped", in either
+    // edition. Recorded as a decision on #450 rather than left to taste: a "new" label above the fold on
+    // the front door is true for a week and false afterwards, and nothing in this repo would ever raise
+    // it. Removing the defect by construction is what buys the band a life with no retirement step; a
+    // dated acceptance criterion would have been a promise to do work that an Issue closing on merge has
+    // no mechanism to collect. The cost is real and was accepted: the hook has to work on what the
+    // section IS, never on it being recent.
+    //
+    // The band is also about WHAT THE READER GETS, never about who built it, and that is checkable
+    // rather than a matter of taste. Two blocks above it the Hero's body ends, published in both
+    // editions, with "O objetivo é te fazer construir melhor — quem escreve isso é consequência, não o
+    // ponto." A band leading with the owner contradicts a published sentence a reader can see WITHOUT
+    // SCROLLING; "a máquina inteira" and "how to replicate it" are the reader's payoff, and the owner
+    // appears in neither string.
+    bandKicker: { pt: 'Seção deste site · a planta aberta', en: 'A section of this site · the blueprint, open' },
+    // The reader must meet the DESTINATION'S OWN NAME here, not a headline written for the band — the
+    // word the click lands on is "Arquitetura", the same rule ADR-0045 applies to document titles, and
+    // a band heading that renames the section is the same defect one screen earlier. So this follows
+    // `heading`'s shape above (name — noun phrase, state) and diverges only in the tail: `heading` says
+    // what the page IS to someone already there, this says what it is FOR to someone deciding to click.
+    // "a máquina" is the page's own word for itself (architecture.pt.md: "a própria máquina, em aberto"),
+    // and "replicar" is its own closing H2 ("Replique para o seu contexto"), so neither is invented here.
+    bandHeading: {
+      pt: 'Arquitetura — a máquina inteira, e como replicar',
+      en: 'Architecture — the whole machine, and how to replicate it',
+    },
   },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
   // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
