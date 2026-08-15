@@ -48,12 +48,22 @@ export function LandingPage() {
       <Hero />
 
       {/* THE /architecture BAND (#450) SITS ABOVE THE GRID, AND IT PUSHES THE ARTICLES DOWN. That is the
-          accepted trade, not an oversight of the spine declared at the top of this file: the launch points
-          three surfaces at /architecture, and the front door had no block naming that destination — only a
-          nav-weight control at the end of the hero row. Placed here rather than below the grid because a
-          teaser a reader reaches after the whole article list is a teaser for people who already stayed.
-          The band is deliberately NOT shrunk to protect the spine: a band small enough not to move the
-          articles is a band nobody reads, which spends the cost and buys nothing. */}
+          accepted trade, not an oversight of the spine declared at the top of this file.
+
+          IT IS PERMANENT FRONT-DOOR FURNITURE, NOT A LAUNCH BANNER — decided, and stated here because the
+          earlier version of this comment justified the position by the launch pointing three surfaces at
+          /architecture. That was true and it was the wrong ground: a launch is a condition that expires
+          and the band is not, so the justification would have outlived its own reason and left a standing
+          block on the front door defended by something that had already finished. It earns the position on
+          what it permanently is — /architecture is the destination carrying the strongest checkable claim
+          on this site, the whole machine in the open, and no individual article row it displaces makes a
+          claim a reader can go and verify in the same way. Nothing about the band's copy or position is
+          scoped to a date, and there is no retirement to schedule.
+
+          Placed above the grid rather than below it because a teaser a reader reaches after the whole
+          article list is a teaser for people who already stayed. And deliberately NOT shrunk to protect
+          the spine: a band small enough not to move the articles is a band nobody reads, which spends the
+          cost and buys nothing. */}
       <ArchitectureBand />
 
       {/* Two-column region: articles are the main pane, the aside stays slim and secondary. */}

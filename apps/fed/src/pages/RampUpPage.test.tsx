@@ -45,14 +45,21 @@ describe('RampUpPage', () => {
   // assertions red. Queried by ACCESSIBLE NAME through the same strings the positive arm uses in
   // MarkdownPage.test.tsx — a negative assertion with a wrong query passes on a healthy page and on a
   // broken one alike, and this repo has shipped that defect before.
+  //
+  // `expect.soft` ON THE TWO NEGATIVES, and it is a correction rather than a style choice. The gate found
+  // that a hard `expect` here aborts the test on the FIRST negative, so the contact-block query was never
+  // executed under the mutation and its liveness was an inference from a helper it shares with another
+  // file, not an observation. Soft assertions evaluate both and report both, so the mutation now proves
+  // each of them independently. The final assertion stays HARD: it is the positive control, and a render
+  // that produced nothing at all must fail loudly rather than accumulate.
   it.each(['pt', 'en'] as const)('renders no share block and no contact route (%s edition)', (locale) => {
     renderPage(locale);
-    expect(
+    expect.soft(
       screen.queryByRole('navigation', {
-        name: locale === 'pt' ? 'Compartilhar este artigo' : 'Share this article',
+        name: locale === 'pt' ? 'Compartilhar esta página' : 'Share this page',
       }),
     ).toBeNull();
-    expect(
+    expect.soft(
       screen.queryByRole('heading', { name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me' }),
     ).toBeNull();
     // The header's compact ShareButton is UNCHANGED and must stay — this page's share affordance was never

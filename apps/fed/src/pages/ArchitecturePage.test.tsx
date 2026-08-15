@@ -161,11 +161,19 @@ describe('ArchitecturePage', () => {
   // and no contact route at all, so an arrival who finished it had nothing to do next. Both blocks are
   // asserted per locale — this suite renders at `pt` by default, and a pt-only check is green on a page
   // whose English edition renders neither.
+  //
+  // THE SHARE GROUP'S ACCESSIBLE NAME IS THE PAGE ONE, NOT THE ARTICLE ONE. This is the whole of the copy
+  // lens's BLOCKING finding, asserted where it renders: /architecture is a section of this site, and
+  // `share.linksLabel` ("Compartilhar este artigo") would announce it as a piece of writing to
+  // screen-reader users only. Queried POSITIVELY by the name it must have — `getByRole` throws when it is
+  // absent, so this reds both if the prop stops being passed and if the catalog string changes under it.
+  // The article side of the same decision is pinned in ArticlePage.test.tsx, positively, for the same
+  // reason: a pair of positives cannot both pass on a render that produces no group at all.
   it.each(['pt', 'en'] as const)('closes with the contact route and the share deeplinks (%s)', (locale) => {
     renderPage(locale);
     expect(
       screen.getByRole('navigation', {
-        name: locale === 'pt' ? 'Compartilhar este artigo' : 'Share this article',
+        name: locale === 'pt' ? 'Compartilhar esta página' : 'Share this page',
       }),
     ).toBeInTheDocument();
     expect(

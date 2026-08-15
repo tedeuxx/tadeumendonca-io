@@ -29,8 +29,15 @@ const renderShell = (props: { endMatter?: boolean; locale?: 'pt' | 'en' } = {}) 
 
 // The two blocks the flag gates, queried by their accessible names rather than by class — a restyle must
 // not silently re-point these at nothing.
+//
+// THE PAGE NAME, NOT THE ARTICLE ONE (#450). This shell serves /ramp-up and /architecture, both sections
+// of the site, so it passes `labelKey="share.linksLabelPage"`; `ShareLinks`' default stays the article
+// string and is pinned on the article side in ArticlePage.test.tsx. Querying by this name here is also
+// what makes the helper a detector of the wiring and not just of `endMatter`: drop `labelKey` at the call
+// site and the POSITIVE arm below goes red. Stated precisely because the negative arm would not — it
+// would pass for the wrong reason — which is exactly why the two arms share one helper.
 const shareBlock = (locale: 'pt' | 'en') =>
-  screen.queryByRole('navigation', { name: locale === 'pt' ? 'Compartilhar este artigo' : 'Share this article' });
+  screen.queryByRole('navigation', { name: locale === 'pt' ? 'Compartilhar esta página' : 'Share this page' });
 const contactBlock = (locale: 'pt' | 'en') =>
   screen.queryByRole('heading', { name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me' });
 
@@ -49,10 +56,14 @@ describe('MarkdownPage', () => {
   // in MarkdownPage.tsx turns these four assertions red (and the two in RampUpPage.test.tsx with them).
   // A negative assertion whose query is simply wrong passes on a healthy page and on a broken one alike,
   // which is why the positive arm below queries through the SAME two helpers.
+  //
+  // `expect.soft` for the same reason it is used in RampUpPage.test.tsx: a hard `expect` aborts on the
+  // first negative, so under the mutation the contact-block query never ran and its liveness was an
+  // inference rather than an observation. Both are evaluated and both are reported now.
   it.each(['pt', 'en'] as const)('renders NO closing block by default (%s)', (locale) => {
     renderShell({ locale });
-    expect(shareBlock(locale)).toBeNull();
-    expect(contactBlock(locale)).toBeNull();
+    expect.soft(shareBlock(locale)).toBeNull();
+    expect.soft(contactBlock(locale)).toBeNull();
   });
 
   it.each(['pt', 'en'] as const)('renders the contact route and the deeplinks when opted in (%s)', (locale) => {
@@ -92,7 +103,7 @@ describe('MarkdownPage', () => {
     const { container } = renderShell({ endMatter: true });
     const body = container.querySelector('[data-testid="markdown-body"]');
     const contact = screen.getByRole('heading', { name: 'Onde me encontrar' });
-    const share = screen.getByRole('navigation', { name: 'Compartilhar este artigo' });
+    const share = screen.getByRole('navigation', { name: 'Compartilhar esta página' });
     expect(body!.compareDocumentPosition(contact) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(contact.compareDocumentPosition(share) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

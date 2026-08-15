@@ -151,9 +151,16 @@ export function MarkdownPage({
             {/* AND THE DEEPLINKS CLOSE THE PAGE — the placement ArticlePage records verbatim and this
                 honours rather than re-derives: "A reader who has just finished is the one with something
                 to say about it" (#183). Offering the share above the ask would invert both. The header's
-                compact ShareButton stays; it is the phone affordance. */}
+                compact ShareButton stays; it is the phone affordance.
+
+                `labelKey` IS PASSED AND ITS DEFAULT IS NOT USED HERE. The group's accessible name defaults
+                to `share.linksLabel` — "Compartilhar este artigo" — which is true where ArticlePage renders
+                it and false on every page this shell serves: /ramp-up and /architecture are sections of the
+                site, not pieces of writing. The pages this shell renders are the whole reason the sibling
+                key exists, so this call site is where the override belongs; ArticlePage keeps the default
+                and does not change. */}
             <div className="mt-[clamp(2rem,4vw,3rem)] border-t border-border pt-5">
-              <ShareLinks title={title} path={localizedPath} />
+              <ShareLinks title={title} path={localizedPath} labelKey="share.linksLabelPage" />
             </div>
           </>
         )}

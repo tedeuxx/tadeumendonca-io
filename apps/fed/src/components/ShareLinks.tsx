@@ -18,14 +18,36 @@
 // until the reader clicks — the same rule the video facades and the consent bar hold (ADR-0002).
 import { useState } from 'react';
 import { useLocale, useT } from '../i18n';
+import type { MessageKey } from '../i18n/messages';
 import { SHARE_TARGETS, shareHref, copyLinkUrl } from './shareTargets';
 
 /**
  * `path` is the LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`). The slug is per-locale
  * (ADR-0037), so a share link built from the wrong edition's slug sends a pt reader an English article —
  * the caller resolves it, this component never guesses.
+ *
+ * `labelKey` is the CATALOG KEY for this group's accessible name, and it defaults to the article one
+ * (#450). The block used to render only under `ArticlePage`, so `share.linksLabel` — "Compartilhar este
+ * artigo" — was unconditionally true; `MarkdownPage`'s `endMatter` renders it on /architecture, which is
+ * a section of this site and not a piece of writing, and a landmark that announces the wrong object type
+ * to screen-reader users only is the two-tier truth standard this slice already refused one component up.
+ * So the caller that is not an article passes `share.linksLabelPage`.
+ *
+ * A KEY, NOT A RESOLVED STRING: `MessageKey` is the catalog's leaf-path union, so a typo is a typecheck
+ * failure here rather than a missing accessible name in production, and the both-locales assertion in
+ * `messages.test.ts` keeps covering whatever a caller passes. Optional-with-a-default rather than
+ * required, because the four live article pages must stay byte-identical and a required prop would have
+ * meant editing their call site to say what it already said.
  */
-export function ShareLinks({ title, path }: { title: string; path: string }) {
+export function ShareLinks({
+  title,
+  path,
+  labelKey = 'share.linksLabel',
+}: {
+  title: string;
+  path: string;
+  labelKey?: MessageKey;
+}) {
   const t = useT();
   const { locale } = useLocale();
   const [copied, setCopied] = useState(false);
@@ -41,7 +63,7 @@ export function ShareLinks({ title, path }: { title: string; path: string }) {
   };
 
   return (
-    <nav aria-label={t('share.linksLabel')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+    <nav aria-label={t(labelKey)} className="flex flex-wrap items-center gap-x-4 gap-y-1">
       <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-muted-foreground">
         {t('share.linksHeading')}
       </span>

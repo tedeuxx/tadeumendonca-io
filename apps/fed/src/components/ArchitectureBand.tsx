@@ -11,10 +11,18 @@
 // one screen, and `e2e/hero-row.spec.ts` pins `controls.length === 4` across eight viewport cases. Both
 // leads declined it from opposite directions; this band is what they agreed on instead.
 //
+// AND IT IS PERMANENT, NOT LAUNCH-SCOPED. Decided, because the question was left open rather than
+// answered: the copy carries no time-bound word (asserted per locale in the sibling test) but the
+// POSITION was argued from the launch, which is a condition that expires. The band's standing reason is
+// what /architecture permanently is — the destination carrying the strongest checkable claim on this
+// site — and that does not stop being true on the day the launch is over. So there is no retirement
+// criterion here and none is owed; a block whose justification expires is the thing that ages on a front
+// door, and this one's does not.
+//
 // THE COST IT WAS ACCEPTED WITH, stated so nobody "fixes" it later: LandingPage's own header comment
 // declares the spine — articles are the main pane — and a band above the grid pushes the articles down.
-// That is the trade, taken deliberately. Shrinking the band into invisibility would keep the spine and
-// lose the reason the band exists.
+// That is the trade, taken deliberately, and it is taken permanently rather than for a window. Shrinking
+// the band into invisibility would keep the spine and lose the reason the band exists.
 //
 // THE COPY IS THE CATALOG'S, ALL OF IT. `architecture.bandKicker` and `architecture.bandHeading` are the
 // two leaves authored for this band; the control renders `nav.architecture` — the SAME key the nav entry
