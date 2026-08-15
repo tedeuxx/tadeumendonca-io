@@ -76,12 +76,19 @@ This record carries the unscoped form twice, and the two are not equally defensi
   quotable-out-of-context.
 
 **What actually runs, checked rather than asserted:** `iac/cloudfront-functions/spa-rewrite.js` is a
-ten-line viewer-request CloudFront Function (`iac/frontend.tf:21-28`) attached to the default cache
-behavior (`:73-77`), rewriting a directory-style route to its prerendered `index.html`.
+ten-line viewer-request CloudFront Function — `iac/frontend.tf`'s
+`resource "aws_cloudfront_function" "spa_rewrite"`, whose `code` is
+`file("${path.module}/cloudfront-functions/spa-rewrite.js")` — attached to the default cache behavior
+by the same file's `default_cache_behavior`, whose `function_association` block carries a
+`viewer-request` key set to `function_arn = aws_cloudfront_function.spa_rewrite.arn`. It rewrites a
+directory-style route to its prerendered `index.html`.
 Every request for a page passes through it. It is not new and was not introduced after this decision —
 it is ADR-0013's, and ADR-0026`:25` already named it as *"the URL-rewrite that remains."* The
 `/assets/*` behaviors carry no function association, which is why the accurate claim is "every request
 for a page" rather than "every request."
+*(Pointer form only, converted under #446: this paragraph cited `iac/frontend.tf:21-28` and `:73-77`
+until that change moved the first of them. Both now quote the clause instead, per the documentation
+standard's "Cite the clause, not the line". The claim above is unchanged.)*
 
 **The decision is unchanged, and neither `:25` nor `:47` is edited in place.** Supersede-never-rewrite:
 the sentences stand as they were reasoned, and this amendment scopes them. Nothing about the chosen
