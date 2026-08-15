@@ -41,30 +41,11 @@ function graphOf(source) {
   return { nodes, edges: edges.map((e) => e.join('->')).sort() };
 }
 
-/** Is any node reachable from itself? A left-to-right flow that loops back reads as a cycle, and the
- *  request diagram is now asserted to have none — see the convergence block below. */
-function hasCycle(graph) {
-  const adj = new Map();
-  for (const e of graph.edges) {
-    const [a, b] = e.split('->');
-    adj.set(a, [...(adj.get(a) ?? []), b]);
-  }
-  return graph.nodes.some((start) => {
-    const queue = [...(adj.get(start) ?? [])];
-    const seen = new Set(queue);
-    while (queue.length) {
-      const cur = queue.shift();
-      if (cur === start) return true;
-      for (const next of adj.get(cur) ?? []) {
-        if (!seen.has(next)) {
-          seen.add(next);
-          queue.push(next);
-        }
-      }
-    }
-    return false;
-  });
-}
+// `hasCycle` LIVED HERE and went with the request-path diagram it was written for (#448). It asserted
+// that a left-to-right flow never pointed backwards, and the only fence it was ever applied to was
+// `How a request becomes a page`, which the restructure cut. Recorded rather than silently dropped: a
+// future left-to-right fence that needs the same property has to bring the helper back with it, and
+// this note is where whoever writes it will find out that it once existed and why it left.
 
 /** Is `to` reachable from `from` by following directed edges? */
 function reaches(graph, from, to) {
@@ -182,6 +163,11 @@ describe('the published figure count matches the figures', () => {
   // mode a looser pattern hides best. It is STILL load-bearing after the #415 noun change and for the
   // same reason, one collision further up: "Os dois desenhos acima mostram tempo" / "The two drawings
   // above show time" sits three hundred lines earlier and would read the total as two.
+  // THE PT `rest` PATTERN FOLLOWS THE NOUN'S GENDER, and #448 is why it is written out rather than
+  // left as `As outras`. The count sentence used to trail a feminine noun; the restructure left four
+  // drawings and the sentence now reads `Os outros dois`, which the old pattern could not match — it
+  // would have thrown "the uncheckable count sentence is gone" on prose that was right there. The
+  // alternation keeps both spellings matchable so a later re-wording in either gender still lands.
   const WORDS = {
     en: {
       total: /(\S+) drawings above; \*\*/,
@@ -191,12 +177,16 @@ describe('the published figure count matches the figures', () => {
     pt: {
       total: /(\S+) desenhos acima; \*\*/,
       split: /\*\*(\S+)\*\* você consegue conferir/,
-      rest: /As outras (\S+) você não consegue conferir/,
+      rest: /(?:As outras|Os outros) (\S+) você não consegue conferir/,
     },
   };
+  // TWO IS IN THE MAP NOW, and the reason it was missing is worth keeping: the map only ever covered
+  // three…nine, so it encoded a floor on the figure cut that nothing on the page stated. #448 cut the
+  // page to four drawings split two/two, which is the first edition to need it. `dois`/`duas` are both
+  // here because the pt noun that follows the numeral is not fixed by this test.
   const NUMERALS = {
-    en: { three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, Seven: 7, Six: 6, Eight: 8 },
-    pt: { três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, Sete: 7, Seis: 6, Oito: 8 },
+    en: { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, Four: 4, Seven: 7, Six: 6, Eight: 8 },
+    pt: { dois: 2, duas: 2, três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, Quatro: 4, Sete: 7, Seis: 6, Oito: 8 },
   };
 
   it.each([
@@ -226,57 +216,20 @@ describe('the published figure count matches the figures', () => {
   });
 });
 
-describe('the infrastructure diagram earns its place', () => {
-  const graph = graphOf(byTitle(en, 'How a request becomes a page').source);
-
-  // THE OWNER'S CONSTRAINT, made falsifiable. A labelled box list has nodes and no path; this fails on
-  // it. Node ids are asserted by ROLE rather than by label so a rewording does not break the test — R is
-  // the reader, F the rewrite function, S the origin.
-  it('shows a request path from the reader through the rewrite to the origin', () => {
-    expect(graph.nodes).toEqual(expect.arrayContaining(['R', 'F', 'S']));
-    expect(reaches(graph, 'R', 'F'), 'the reader must reach the rewrite function').toBe(true);
-    expect(reaches(graph, 'F', 'S'), 'the rewrite must sit BEFORE the origin, not beside it').toBe(true);
-  });
-
-  // THE DIAGRAM WAS REDRAWN, not rewired again. The owner's verdict on it was blunt — it is hard to read
-  // — and the previous round answered that by removing the backward edges while keeping six nodes and a
-  // decision diamond. This version is four nodes and four edges: ask, rewrite, and one fork whose two
-  // branches end in the same place. The separate `viewer-request` node and the `Cached at the edge?`
-  // diamond are gone, both folded into labels, because neither was a STEP — one was where the function
-  // runs and the other was a question about the node before it.
-  //
-  // So the fork now hangs off F rather than off a diamond, and the assertions move with it. Pinned as
-  // EDGES rather than as reachability, for the reason the previous version recorded: `reaches(F, P)` is
-  // satisfied through the miss branch, so it would stay green with the hit arrow pointing anywhere.
-  it('converges on the served page, from the cached branch and through the origin', () => {
-    expect(graph.edges, 'a cache hit must end at the served page').toContain('F->P');
-    expect(graph.edges, 'a miss must go to the origin').toContain('F->S');
-    expect(reaches(graph, 'S', 'P'), 'the origin must reach the same served page').toBe(true);
-    // And it really is four steps. A count is a weak assertion on its own; it earns its place here
-    // because "hard to read" was the defect, and the fix WAS the reduction — a later edit that grows the
-    // graph back has to argue with this line rather than slip past it.
-    expect(graph.nodes.sort()).toEqual(['F', 'P', 'R', 'S']);
-  });
-
-  // The other half, and the one that fails on a restored backward edge: nothing points at an earlier
-  // step. Mutation-checked by putting `S --> C` back — `hasCycle` goes true and this fails.
-  //
-  // The second expectation is NOT redundant, though it is subsumed today: every node here is reachable
-  // from R, so any edge into R is already a cycle. It earns its place only for an edge into R from a node
-  // the reader cannot reach — which no mutation of the current five edges can produce, and which is the
-  // shape a later addition could. Said out loud rather than left to look stronger than it is.
-  it('flows one way — nothing returns to the reader or to an earlier step', () => {
-    expect(hasCycle(graph), 'an edge points backwards in a left-to-right flow').toBe(false);
-    expect(graph.edges.filter((e) => e.endsWith('->R'))).toEqual([]);
-  });
-
-  // The rewrite is the only logic in the path and the thing a sentence cannot place. If the diagram
-  // stops naming it, it has become the box list the owner asked us to cut.
-  it('names the rewrite as the step that changes the uri', () => {
-    expect(byTitle(en, 'How a request becomes a page').source).toMatch(/index\.html/);
-    expect(byTitle(pt, 'Como uma requisição vira uma página').source).toMatch(/index\.html/);
-  });
-});
+// THE REQUEST-PATH BLOCK WAS HERE, and #448 removed it with the fence it was written about.
+//
+// It asserted the owner's editorial constraint on `How a request becomes a page` — that the figure earns
+// its place by showing a directed path from the reader, through the rewrite, to the origin, and that it
+// would be decoration if it degenerated into a labelled box list. The restructure cut the figure under
+// Budget B, so the block is deleted rather than left pointing at nothing: `byTitle` THROWS on a missing
+// accTitle, so keeping it would have failed the whole file at collection, naming a diagram nobody had
+// decided to keep.
+//
+// What was lost, said plainly rather than left for someone to discover: nothing now asserts that the
+// rewrite is drawn before the origin, because nothing draws it. The CLAIMS that figure carried survive
+// as prose the page still makes checkable by link — the ten executable lines, their unit tests, and the
+// post-deploy comparison — and `architecture-links.test.ts` proves those three targets still resolve.
+// If the figure ever returns, this block returns with it, along with `hasCycle` above.
 
 // The owner's constraint on the SECOND diagram, and it is a harder one to make mechanical: "it has to
 // show the human's position, not just the steps — where the agent proves 'done' and where the owner's
