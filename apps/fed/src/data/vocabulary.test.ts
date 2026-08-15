@@ -48,6 +48,43 @@ const RETIRED_STEM = /Loop Engineer/;
 // it, and a surface not listed with it keeps the strict form by construction.
 const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 
+// THE TWO GLOBAL OPTIONS THAT WERE WEIGHED AND REJECTED — recorded here, beside the table, because a
+// rejected option nobody can find comes back as a tidy-up. The rule the table encodes: the
+// parenthesised form where the term is ARGUED (today exactly `/architecture`'s prose), the strict form
+// where it is a KEYWORD — scanned, matched, or rendered in a slot measured in characters.
+//
+// 1. BRACKETS EVERYWHERE. Rejected on what it costs the keyword surfaces, where the term can least
+//    defend itself: `og-copy.mjs`'s META_LINE renders ~320px wide and is where a pt reader meets the
+//    term first (og-copy.mjs:20-22); the CV headline (`profile.ts` :32/:35) is scanned inside
+//    LinkedIn's 220-character headline limit; and a bracket on `profile.ts:347` reads as an optional
+//    qualifier on a levelled competence claim. It would also have forced a republication of all four
+//    OG cards (og-copy.mjs:29 — every edit to that line republishes them), which scrapers have pinned,
+//    for no gain to any reader.
+//
+// 2. STRICT EVERYWHERE — drop the brackets from the figure too. This was `product-lead`'s position and
+//    it is OVERRULED, not absent. Its case was strong: it converges every surface at zero test cost,
+//    and in its sharpest form — a term that changes shape a fourth time inside two weeks reads as a
+//    term that has not settled. The owner chose to propagate instead; the figure's brackets predate the
+//    decision and are already glossed on the page.
+//
+// `:402` STAYS UNQUALIFIED, and `CLAIM_CLAUSE` below is why that is a rule rather than a wish: it is
+// the sentence declaring the term to be his, and a parenthesis makes optional the very word the claim
+// asserts.
+//
+// ONE ROUTE USED TO CARRY THE PARENTHESISED FORM OUT OF `/architecture` — an ADR title naming its own
+// subject, rendered on `/library`. That record was removed on the owner's decision (a typesetting rule
+// a test refuses is not re-decided, so it was never an ADR — tadeumendonca-io#456), so THE ROUTE NO
+// LONGER EXISTS. Stated so nobody re-derives the exception from a record that is gone.
+//
+// TWO THINGS ABOUT THE FIGURE THAT LIVE NOWHERE ELSE:
+//   · `architecture.*.md:23`, the `accDescr`, carries the STRICT form and describes the brackets in
+//     words, because parentheses are ambiguous when spoken. So a non-sighted reader meets the strict
+//     form exactly where a sighted reader meets the bracketed one. Deliberate, and a real asymmetry.
+//   · `architecture.*.md:24`, the figure's `centre:`, is pinned by NOTHING. It reads
+//     `centre: (Agent) Harness | Engineering`, and the pipe means no bare-form pattern here can ever
+//     match that line in either rendering — so stripping its brackets tomorrow stays green. An honest
+//     gap, stated rather than implied.
+
 // Surfaces are read as SOURCE rather than imported as values, because what is asserted is the
 // authored TEXT — including the comments around it, which is where a superseded term most often
 // survives a find-and-replace. `profile.ts` is read the same way for the same reason: its comments
