@@ -6,8 +6,9 @@
 // Requests for a file (the last path segment contains a dot, e.g. /sw.js, /og-default.png) pass
 // through unchanged.
 //
-// WHAT THIS FUNCTION SEES: it is attached to the DEFAULT behavior only, so the /assets/* and
-// /assets/avatars/* paths — which have their own cache behaviors — never reach it. /og/* DOES reach
+// WHAT THIS FUNCTION SEES: it is attached to the DEFAULT behavior only, so /assets/* — which has its
+// own cache behavior — never reaches it. (A narrower /assets/<prefix>/* behavior sat in front of that
+// one until #446; it went with the second bucket it targeted.) /og/* DOES reach
 // it: its behavior was removed (iac/frontend.tf) because it pointed at the retired og-images bucket
 // and made every per-article og:image serve the SPA's HTML. The cards are ordinary static objects in
 // the fed bucket now, and they pass through here untouched via the extension check above.
