@@ -228,4 +228,4 @@ The fork-to-live steps are in the READMEs, not on this page: [this repo's](https
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
-Up at the top is the reason this is an open page and not a notebook. If you have run any of those choices differently, you are the one holding the half this page is missing: **tell me the counter-example, or share the page and say what you would change.**
+This is in the open because there are more configuration choices here than one person has sessions to run. If you have run any of those choices differently, you are the one holding the half this page is missing: **tell me your counter-example, or share the page and say what you would change.**

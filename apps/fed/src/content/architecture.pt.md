@@ -228,4 +228,4 @@ Os passos de "do fork até no ar" estão nos READMEs, não nesta página: [o des
 
 O que eu ficaria nervoso de ver alguém copiar sem o resto é **o merge direto pra produção**. Trunk-based com ambiente único é rápido e implacável na mesma medida; sem os gates na frente, sobra só a segunda metade.
 
-Lá em cima está a razão de isto ser uma página aberta e não um caderno. Se você rodou alguma dessas escolhas de outro jeito, é você que tem a metade que falta nesta página: **me conte o contra-exemplo, ou compartilhe dizendo o que faria diferente.**
+Isto está em aberto porque há mais escolhas de configuração do que sessões que uma pessoa sozinha consegue rodar. Se você rodou alguma dessas escolhas de outro jeito, é você que tem a metade que falta nesta página: **me conte o contra-exemplo, ou compartilhe dizendo o que faria diferente.**

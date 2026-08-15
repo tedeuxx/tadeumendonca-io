@@ -187,7 +187,7 @@ describe('ArchitecturePage', () => {
   // owner's channels and a hardcoded address in a content file would be a second one.
   it.each([
     ['pt', /me conte o contra-exemplo/],
-    ['en', /tell me the counter-example/],
+    ['en', /tell me your counter-example/],
   ] as const)('attaches the contact route under the body\'s closing ask (%s)', (locale, ask) => {
     const { container } = renderPage(locale);
     const body = container.querySelector('[data-testid="markdown-body"]')!;
