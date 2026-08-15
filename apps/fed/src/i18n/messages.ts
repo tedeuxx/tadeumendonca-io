@@ -187,11 +187,24 @@ const strings = {
       // REWRITTEN WITH THE BODY, in the same diff, and that is the point rather than a nicety (#448).
       // Nothing couples this string to `architecture.{pt,en}.md`, so a restructure that changes what the
       // page is ABOUT leaves the OG card describing the page that used to be here — and the card is the
-      // text a scraper pins on first fetch. The body's spine is now problem → requirement → the three
-      // pillars, so this follows it: term first (the rule above), then the three pillars by name, then
-      // the two checkable claims a reader can go and falsify.
-      pt: 'Como este site é construído: o dev-loop de agent-led verification e os três pilares que ele atravessa — a SPA estática em S3 + CloudFront, o plugin instalável e o runtime de agente —, quanto custa por mês, e as decisões que sustentam peso registradas em ADR.',
-      en: 'How this site is built: the agent-led verification dev-loop and the three pillars it spans — the static SPA on S3 + CloudFront, the installable plugin and the agent runtime — what it costs a month, and the load-bearing decisions on record as ADRs.',
+      // text a scraper pins on first fetch.
+      // THE ~160-CHARACTER WINDOW IS THE RULER, NOT THE TOTAL LENGTH (#448). The first rewrite of this
+      // string followed the body's spine literally — term, then the three pillars by name, then the two
+      // checkable claims — and got LONGER (pt 239 → 258, en 224 → 247) on the slice whose subject is
+      // compression. Worse, it broke inside the pillar list at the truncation LinkedIn, X and SERP
+      // previews cut, so the monthly cost and the ADRs — the two claims this string exists to carry,
+      // per the note above — fell outside the window in both editions. A reader arriving from a post
+      // saw neither.
+      // So: OPEN ON THE PROBLEM, matching the body's own first heading rather than the old completeness
+      // framing ("Como este site é construído" / "How this site is built" survives as the document
+      // TITLE, which is a different object — see the title note above). The pillar list is dropped, not
+      // shortened: it is what pushed the checkable claim past the cut. ONE of the two claims — the
+      // monthly bill — is inside the first 160 characters in both editions, verified by measurement;
+      // the ADR clause deliberately sits after it, because fitting both needed ~40 characters that only
+      // came out of the opening, and the opening is the hook. `agent-led verification` still leads the
+      // stack and still stays English in pt, per the two rules above.
+      pt: 'Eu tinha as ferramentas de desenvolvimento agêntico na mão e me sentia de fora do hype. O que saiu daí: um dev-loop de agent-led verification, USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
+      en: 'I had the agentic development tools in hand and still felt outside the hype. What came out of it: an agent-led verification dev-loop, a USD 6.57/month bill, and the load-bearing decisions on record as ADRs.',
     },
   },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
