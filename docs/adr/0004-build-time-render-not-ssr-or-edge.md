@@ -71,7 +71,7 @@ This record carries the unscoped form twice, and the two are not equally defensi
 - `:47` — *"SEO/OG in the served HTML with **nothing running**"* — is scoped on the next line by `:48`
   (*"and no Lambda@Edge is needed"*). Read in place it is true, and the reader who reads the bullet to
   its end is not misled.
-- `:26` — *"Nothing runs at request time."* — inside the chosen option's description, is scoped by
+- `:25` — *"Nothing runs at request time."* — inside the chosen option's description, is scoped by
   **nothing**. Read whole, it is the one clause in this document that is inaccurate rather than merely
   quotable-out-of-context.
 
@@ -83,7 +83,7 @@ it is ADR-0013's, and ADR-0026`:25` already named it as *"the URL-rewrite that r
 `/assets/*` behaviors carry no function association, which is why the accurate claim is "every request
 for a page" rather than "every request."
 
-**The decision is unchanged, and neither `:26` nor `:47` is edited in place.** Supersede-never-rewrite:
+**The decision is unchanged, and neither `:25` nor `:47` is edited in place.** Supersede-never-rewrite:
 the sentences stand as they were reasoned, and this amendment scopes them. Nothing about the chosen
 option moves — the near-zero-cost and no-ops-burden consequences hold, because a CloudFront Function is
 priced per invocation and has nothing to operate. The **ops-burden** claims elsewhere in this platform
@@ -93,7 +93,7 @@ priced per invocation and has nothing to operate. The **ops-burden** claims else
 amendment was owed: read whole, `:47`/`:48` and ADR-0026`:21`/`:25` each scope themselves, so an
 amendment would record a correction to something that is not wrong. That argument holds for the two
 clauses it examined and is the reason this amendment does not call them false — but it does not reach
-`:26`, which no adjacent line scopes. The second half of the case is evidence, not prediction: the
+`:25`, which no adjacent line scopes. The second half of the case is evidence, not prediction: the
 clause was in fact lifted onto `/architecture:184` without its qualifiers, where it read as a claim
 about request-time compute in general. Corrected on that page in
 [#452](https://github.com/tedeuxx/tadeumendonca-io/pull/452); recorded here because `/architecture:186`
