@@ -10,7 +10,7 @@ This is three things.
 
 These are not three products. **It is one thing**, and this site is what it produces in public.
 
-On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
+On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & (Agent) Harness Engineering.
 
 ![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine. At the Computer History Museum.")
 
@@ -40,7 +40,7 @@ pillar: The runtime | Claude Code
 - Tools and MCP
 ```
 
-What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in parentheses on purpose: *harness engineering* is commonly said today for the practice alone, and the brackets tie one term to the other without pretending they are two different things.
+What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in brackets on purpose, and the brackets are not a hedge: they say the short form and the full one name one practice, not two. They belong where the term is being set out — the drawing above, and this paragraph. Further down, where it stops being a label and becomes the claim, it is written out in full: a parenthesis makes a word optional, and *agent* is the one word that cannot be optional in the sentence that says the claim is mine.
 
 The topics inside each circle are that pillar's **inventory**; what each one **delivers** has a section of its own further down, and it is worth naming which is which: the site's is *What the site does, from the reader's side*; the customization's is *The four harness elements*; the runtime's is *The orchestrator is the part of the harness you cannot install*.
 
