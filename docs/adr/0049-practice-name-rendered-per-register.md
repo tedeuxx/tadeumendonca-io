@@ -241,7 +241,7 @@ merely asked for — see the second guard below.
 
 ### Enforcement — what it catches, and precisely what it does not
 
-**Two guards, both in `vocabulary.test.ts`, and they answer different questions.**
+**Three guards, all in `vocabulary.test.ts`, and they answer different questions.**
 
 **1 · The per-surface bare-form pattern.** `SURFACES` was a `[name, src]` tuple list; it gains a **third
 element, the surface's own bare-form pattern**, so the affordance is *data attached to the surface that
@@ -263,9 +263,24 @@ satisfied one; the text immediately before it must end with the strict form, wit
 stripped rather than matched — so the check survives the term losing its bold and still fails on the
 bracketed rendering, since `(Agent) Harness Engineering` does not end with `Agent Harness Engineering`.
 
-**What the two catch:** a bare `Harness Engineering` on any of the four surfaces · a bracketed form
-landing on `profile.ts` or the strip · **a bracketed form landing on the claim sentence** · the retired
-`Loop Engineer` stem, in every inflection, everywhere.
+**3 · The opening-sentence pin (`OPENING_CLAUSE`).** The same defect class as guard 2, from the other
+side: guard 1 only forbids a **bare** form on those two files, and `toContain(CURRENT)` is satisfied by
+the `accDescr` at `:23` on its own — so the occurrence this slice **introduces**, `:13`, was guarded by
+nothing. Reverting it to the strict form, deleting the term from it, or changing it in one edition only
+all shipped green; the third is the sharpest, since a suite whose purpose is cross-surface consistency
+was reporting consistency while the editions diverged. So the opening sentence is pinned apart, on the
+same anchor discipline as guard 2 and for the same #448 reason: an anchor **per edition** (`a loop built
+on AI-DLC & ` / `um loop construído sobre AI-DLC & ` — the editions are written, not translated, and
+share no clause), whose presence and **uniqueness** are asserted first, so a reworded or duplicated
+opening reddens as *a moved anchor* rather than passing as a satisfied one. Only then is the text
+immediately **after** the anchor required to start with `(Agent) Harness Engineering`, with emphasis
+markers stripped rather than matched — so both the strict form and a deleted term fail, and the check
+survives the term gaining or losing its bold.
+
+**What the three catch:** a bare `Harness Engineering` on any of the four surfaces · a bracketed form
+landing on `profile.ts` or the strip · **a bracketed form landing on the claim sentence** · **a strict
+or absent rendering on the opening sentence, including one edition diverging from the other** · the
+retired `Loop Engineer` stem, in every inflection, on all four of those surfaces.
 
 **And the affordance is proved to still discriminate**, which reading it never shows: both patterns are
 exercised against literals in both directions, including `expect('AI-DLC & (Agent) Harness
@@ -277,10 +292,11 @@ through the allowlist instead of through the term.
 **What it does not catch, stated because a guard believed to be stronger than it is fails in the
 direction nobody notices:**
 
-- **`CLAIM_CLAUSE` pins one sentence, not the register.** It proves the strict form immediately precedes
-  that clause in both editions. Every *other* occurrence on those two surfaces is governed only by guard
-  1, which admits both renderings — so which of the two forms an author picks for a **new** occurrence in
-  the argued register is a judgement, and this record is what makes it one with an answer.
+- **Guards 2 and 3 pin one sentence each, not the register.** Between them they pin exactly two
+  occurrences: `:402` strict and `:13` bracketed, in both editions. Every occurrence other than `:13` and
+  `:402` on those two surfaces is governed only by guard 1, which admits both renderings — so which of
+  the two forms an author picks for a **new** occurrence in the argued register is a judgement, and this
+  record is what makes it one with an answer.
 - **`vocabulary.test.ts`'s `toContain(CURRENT)` is green for the wrong reason on every surface.** On
   the architecture editions it is satisfied by the `accDescr` on `:23` — a description of the *drawing* —
   and on `profile.ts` it reads `?raw`, so the whole file's source including comments; `:347` alone
@@ -293,7 +309,9 @@ direction nobody notices:**
 - **Two argued-register rows have no guard at all.** `:23`'s `accDescr` is inside a file guard 1 admits
   both forms on, so bracketing it stays green; and the `/library` row is outside `SURFACES` entirely —
   no test reads ADR titles for this term, so an ADR title taking the bracketed form beyond its licence
-  reddens nothing. Both are recorded as rules, not as enforcements.
+  reddens nothing. Both are recorded as rules, not as enforcements. **And the argued row is only half
+  pinned:** guard 3 covers `:13`, nothing covers `:24`, the figure's `centre:` — stripping its brackets
+  stays green, since guard 1 admits the strict form there too.
 - **The `-skills` repository is a different repo and out of reach.** `check-harness-drift.mjs` does not
   read the term.
 
@@ -348,7 +366,8 @@ It is a **new record, not a supersede.** No prior ADR in either library covers t
   and the strip keep a single-value pin they would have lost under the obvious global relaxation.
 - The exception at `:402` has a reason **on the page**, in the reader's path — not only in this record —
   **and a guard behind it.** An exception carried by prose alone is an intention; `CLAIM_CLAUSE` makes it
-  a rule something would stop.
+  a rule something would stop — and `OPENING_CLAUSE` does the same for the occurrence this record
+  introduces, so the two sentences the register turns on are both pinned rather than asked for.
 
 **Bad / accepted costs**
 
@@ -358,9 +377,11 @@ It is a **new record, not a supersede.** No prior ADR in either library covers t
 - **The register rule is a rule, not an enforcement.** Nothing decides which register a *new* surface
   belongs to; a future surface gets a judgement call, and the guard will accept whatever the author
   chose as long as it is one of the two forms on an admitting surface.
-- **`CLAIM_CLAUSE`'s anchor is authored English and Portuguese prose**, so a deliberate rewording of that
-  sentence reddens a test. That is the intended direction — it forces the exception to be re-decided
-  rather than lost — but it is a real cost: the guard is coupled to a sentence #448 is expected to move.
+- **`CLAIM_CLAUSE`'s and `OPENING_CLAUSE`'s anchors are authored English and Portuguese prose** — four
+  anchors across two sentences and two editions — so a deliberate rewording of either sentence reddens a
+  test. That is the intended direction — it forces the rendering to be re-decided rather than lost — but
+  it is a real cost, and it doubled here: both guards are coupled to sentences #448 is expected to move,
+  and the opening paragraph is the likelier of the two to be rewritten.
 - **`toContain(CURRENT)` remains green for the wrong reason** on all four surfaces. Naming it here does
   not fix it, and this record does not fix it — it is a separate change with its own argument.
 - **This is the term's fourth shape in sixteen days.** `product-lead`'s objection is not disposed of by
