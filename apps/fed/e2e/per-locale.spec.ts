@@ -529,9 +529,13 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
   const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
-  // The one article carries a PER-LOCALE slug (ADR-0037), so its two <loc>s do NOT share a path.
-  const ARTICLE = { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` };
-  const LOGICAL_COUNT = SHARED.length + 1; // + the article
+  // Every article carries a PER-LOCALE slug (ADR-0037), so each one's two <loc>s do NOT share a path.
+  // This list grows by one entry per article — the same "arithmetic going red" guard as SHARED above.
+  const ARTICLES = [
+    { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
+    { pt: `${SITE}/pt/blog/por-que-eu-projeto-o-loop`, en: `${SITE}/en/blog/why-i-engineer-the-loop` },
+  ];
+  const LOGICAL_COUNT = SHARED.length + ARTICLES.length;
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
     const body = await (await request.get('/sitemap.xml')).text();
@@ -543,9 +547,11 @@ test.describe('sitemap advertises every per-locale URL', () => {
       expect(body).toContain(`<loc>${pt}</loc>`);
       expect(body).toContain(`<loc>${en}</loc>`);
     }
-    // The article's per-locale <loc>s.
-    expect(body).toContain(`<loc>${ARTICLE.pt}</loc>`);
-    expect(body).toContain(`<loc>${ARTICLE.en}</loc>`);
+    // Every article's per-locale <loc>s.
+    for (const article of ARTICLES) {
+      expect(body).toContain(`<loc>${article.pt}</loc>`);
+      expect(body).toContain(`<loc>${article.en}</loc>`);
+    }
     // The old shared-slug EN URL is NEVER advertised (it is a not-found now).
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // The x-default homepage entry.
