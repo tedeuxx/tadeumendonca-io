@@ -547,7 +547,7 @@ export function declaredSkillPaths(pluginDir) {
   const manifest = pluginManifestOf(pluginDir);
   if (manifest === null || manifest.skills === undefined) return null;
   if (!Array.isArray(manifest.skills)) {
-    throw new Error(
+    throw new TypeError(
       `.claude-plugin/plugin.json has a \`skills\` field that is not an array (got ${typeof manifest.skills}). ` +
         'Claude Code reads it as a list of skill directories; anything else is a malformed manifest.',
     );
@@ -557,36 +557,11 @@ export function declaredSkillPaths(pluginDir) {
   const bad = [];
   const paths = [];
   for (const raw of manifest.skills) {
-    if (typeof raw !== 'string' || raw.trim() === '') {
-      bad.push(`${JSON.stringify(raw)} is not a non-empty string`);
-      continue;
-    }
-    // `./skills/x/y` and `skills/x/y` are the same declaration and must not count twice — and so are
-    // `skills//x/y` and `skills/x/./y`, which is why the empty and `.` segments are DROPPED rather than
-    // merely tolerated. The normalised form is what both directions compare, including the
-    // `declared.includes(...)` test in `verifyDeclaredSkills`: leaving `skills//x` in the list there
-    // meant the tree's `skills/x` matched a different entry and the undeclared check stayed quiet.
-    const cleaned = raw.trim().replace(/^\.\//, '').replace(/\/+$/, '');
-    const segments = cleaned.split('/').filter((s) => s !== '' && s !== '.');
-    const norm = segments.join('/');
-    if (cleaned.startsWith('/') || segments.includes('..')) {
-      bad.push(`${raw} escapes the plugin tree`);
-    } else if (segments[0] !== 'skills' || segments.length < 2) {
-      // Refused rather than widened. The component this emits claims `file: "skills"`, and a declared
-      // skill living somewhere else would make that claim false while the count still looked right.
-      // Widening the inventory to cover it is a shape decision for the ADR library, not something to
-      // settle by loosening a condition in a derivation script.
-      bad.push(`${raw} is not under skills/ — the inventory publishes this library as \`skills\``);
+    const outcome = classifyDeclaredSkillPath(pluginDir, raw, seen);
+    if (outcome.bad !== undefined) {
+      bad.push(outcome.bad);
     } else {
-      const { key, real } = declaredIdentity(pluginDir, segments);
-      if (real !== null && !withinSkillsTree(pluginDir, real)) {
-        bad.push(`${raw} resolves to ${real}, outside the plugin's skills/ tree`);
-      } else if (seen.has(key)) {
-        bad.push(`${raw} is declared more than once — it resolves to the same directory as another entry`);
-      } else {
-        seen.add(key);
-        paths.push(norm);
-      }
+      paths.push(outcome.path);
     }
   }
 
@@ -596,6 +571,57 @@ export function declaredSkillPaths(pluginDir) {
     );
   }
   return paths.sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Strip a leading `./` and any trailing `/`s without a regex — `/\/+$/` reads as trivial but a
+ * quantifier anchored only at the end is exactly the shape static analysis flags for super-linear
+ * backtracking risk, and there was no reason to keep it once a manual scan reads just as plainly.
+ */
+function stripPathAdornments(raw) {
+  let cleaned = raw.trim();
+  if (cleaned.startsWith('./')) cleaned = cleaned.slice(2);
+  let end = cleaned.length;
+  while (end > 0 && cleaned[end - 1] === '/') end -= 1;
+  return cleaned.slice(0, end);
+}
+
+/**
+ * Classify ONE entry of `plugin.json`'s `skills` array — pulled out of `declaredSkillPaths` so this
+ * branch-heavy per-entry logic counts against its own Cognitive Complexity budget instead of stacking
+ * onto the loop that calls it once per manifest entry.
+ */
+function classifyDeclaredSkillPath(pluginDir, raw, seen) {
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    return { bad: `${JSON.stringify(raw)} is not a non-empty string` };
+  }
+  // `./skills/x/y` and `skills/x/y` are the same declaration and must not count twice — and so are
+  // `skills//x/y` and `skills/x/./y`, which is why the empty and `.` segments are DROPPED rather than
+  // merely tolerated. The normalised form is what both directions compare, including the
+  // `declared.includes(...)` test in `verifyDeclaredSkills`: leaving `skills//x` in the list there
+  // meant the tree's `skills/x` matched a different entry and the undeclared check stayed quiet.
+  const cleaned = stripPathAdornments(raw);
+  const segments = cleaned.split('/').filter((s) => s !== '' && s !== '.');
+  const norm = segments.join('/');
+  if (cleaned.startsWith('/') || segments.includes('..')) {
+    return { bad: `${raw} escapes the plugin tree` };
+  }
+  if (segments[0] !== 'skills' || segments.length < 2) {
+    // Refused rather than widened. The component this emits claims `file: "skills"`, and a declared
+    // skill living somewhere else would make that claim false while the count still looked right.
+    // Widening the inventory to cover it is a shape decision for the ADR library, not something to
+    // settle by loosening a condition in a derivation script.
+    return { bad: `${raw} is not under skills/ — the inventory publishes this library as \`skills\`` };
+  }
+  const { key, real } = declaredIdentity(pluginDir, segments);
+  if (real !== null && !withinSkillsTree(pluginDir, real)) {
+    return { bad: `${raw} resolves to ${real}, outside the plugin's skills/ tree` };
+  }
+  if (seen.has(key)) {
+    return { bad: `${raw} is declared more than once — it resolves to the same directory as another entry` };
+  }
+  seen.add(key);
+  return { path: norm };
 }
 
 /**
