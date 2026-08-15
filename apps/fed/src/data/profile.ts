@@ -29,11 +29,13 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Agent Harness Engineering with Claude Code & Kiro | ' +
-      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} years across SDLC & Distributed Systems',
+      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      '{{years}} years across SDLC & Distributed Systems',
     pt:
-      'AI Engineer — Agentic Development & GenAI Apps | AI-DLC & Agent Harness Engineering com Claude Code & Kiro | ' +
-      'Python · Node.js / TypeScript · AWS · Terraform | {{years}} anos em SDLC & Sistemas Distribuídos',
+      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      '{{years}} anos em SDLC & Sistemas Distribuídos',
   },
   summary: {
     en:
