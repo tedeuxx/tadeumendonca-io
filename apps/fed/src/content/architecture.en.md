@@ -227,3 +227,5 @@ The fork-to-live steps are in the READMEs, not on this page: [this repo's](https
 *(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) trust root outside Terraform · [ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md) immutable subject)*
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
+
+This is in the open because there are more configuration choices here than one person has sessions to run. If you have run any of those choices differently, you are the one holding the half this page is missing: **tell me your counter-example, or share the page and say what you would change.**

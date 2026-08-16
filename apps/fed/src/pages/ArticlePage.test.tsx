@@ -58,6 +58,25 @@ describe('ArticlePage', () => {
     expect(screen.getByRole('link', { name: 'Ver no LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/pulse/x');
   });
 
+  // #450 — THE ARTICLE HALF OF THE SHARE-GROUP NAME, and it exists to stay boring. `ShareLinks` grew an
+  // optional `labelKey` so /architecture can name its group "Compartilhar esta página"; the default is
+  // still the article string, and this page must keep announcing "Compartilhar este artigo" byte for byte
+  // — it renders on four live article pages and this slice is scoped to change one non-article page.
+  //
+  // ASSERTED POSITIVELY, BY THE NAME IT MUST HAVE, not as the absence of the page name. An absence
+  // assertion passes on a page that renders no share group at all, and it passes on a page that renders
+  // one under a third name nobody wrote — the two failures this default would actually produce.
+  // Mutation-checked by flipping ShareLinks' default to `share.linksLabelPage`: this goes red, and the
+  // /architecture assertion stays green, which is what proves the two sides are independently pinned.
+  it.each([
+    ['pt', 'Compartilhar este artigo'],
+    ['en', 'Share this article'],
+  ] as const)('names the share group as an ARTICLE, the component default (%s)', (locale, name) => {
+    getPostBySlug.mockReturnValue(post());
+    renderAt('building', locale);
+    expect(screen.getByRole('navigation', { name })).toBeInTheDocument();
+  });
+
   it('omits the LinkedIn link when the post has no edition there', () => {
     getPostBySlug.mockReturnValue(post());
     renderAt('building');

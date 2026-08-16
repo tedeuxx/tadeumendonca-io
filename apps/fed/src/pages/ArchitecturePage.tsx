@@ -30,6 +30,12 @@ export function ArchitecturePage() {
       canonicalPath="/architecture"
       jsonLdType="Article"
       body={BODIES[locale]}
+      // THE CLOSING BLOCK IS OPT-IN AND THIS IS THE ONLY OPT-IN (#450) — the contact route and the share
+      // deeplinks, after the body's closing ask. /ramp-up shares this shell and deliberately does not pass
+      // it: a personal plan in progress is not something anyone decided to distribute, and handing it a
+      // share block as a side effect of a slice about this page is the change that would never be reviewed
+      // as itself. `MarkdownPage.test.tsx` and `RampUpPage.test.tsx` both assert that absence.
+      endMatter
     />
   );
 }
