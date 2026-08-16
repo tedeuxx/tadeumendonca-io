@@ -21,6 +21,13 @@ const generated = (f) => JSON.parse(readFileSync(join(contentDir, 'generated', f
 function graphOf(source) {
   const edges = [];
   for (const line of source.split('\n')) {
+    // A mermaid comment line is not part of the graph. Skipped before anything else because BOTH
+    // matchers below would otherwise read it: a comment containing `-->` or `~~~` (explaining an edge,
+    // say) would enter the graph as a real edge, and the parity test compares graphs — so a comment
+    // present in one edition and not the other would red describing a structural difference that does
+    // not exist. Harmless on today's fences, which carry comments but none containing either token;
+    // this branch is the first to put comments inside a fence at all, so it is the right moment.
+    if (line.trimStart().startsWith('%%')) continue;
     // Strip node shapes and edge labels FIRST, then match the arrow. Matching them in one pattern means
     // the label — which is the part that differs per locale and contains slashes, dots and accents — has
     // to be described by a regex, and getting that subtly wrong yields an empty graph that compares
@@ -36,10 +43,16 @@ function graphOf(source) {
     for (const m of clean.matchAll(/([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/g)) {
       edges.push([m[1], '->', m[2]]);
     }
-    // MERMAID'S INVISIBLE LINK, and it is not cosmetic to parse it: two of the three drawings on this
-    // page are GRIDS built entirely out of `~~~` and carry no `-->` at all. Matching only the arrow
-    // returned an empty graph for both editions of each, and the parity test below would then have
-    // passed having compared nothing — the exact false green the comment above exists to prevent.
+    // MERMAID'S INVISIBLE LINK, and it is not cosmetic to parse it. Measured over the three fences on
+    // this page, in both editions: fence 1 carries 6 directed edges, fence 2 carries 24, and fence 3 —
+    // the COMPONENTS GRID — carries none at all. So exactly ONE fence parses to an empty graph when the
+    // `~~~` handling below is removed (`nodes=0 edges=0`), and the parity test further down would then
+    // have passed having compared two empty graphs — the exact false green the comment above exists to
+    // prevent.
+    //
+    // Which is why `parses a non-trivial graph at all` iterates EVERY fence in BOTH editions rather than
+    // sampling one: the fence that can parse empty is not the first one, and a guard that reads `en[0]`
+    // only is blind in precisely the place the defect lives. (It was, until #463.)
     //
     // Kept as its own edge kind (`~`, never `->`) on purpose: an invisible link is a LAYOUT constraint,
     // not a path, so folding it into the directed set would let a grid satisfy a reachability assertion
@@ -131,11 +144,19 @@ describe('the two editions describe the same system', () => {
   });
 
   // Guards the false green above: two editions whose graphs BOTH failed to parse compare equal, and the
-  // parity test would pass having compared nothing. Asserted once, on the real content.
+  // parity test would pass having compared nothing.
+  //
+  // EVERY FENCE, BOTH EDITIONS — and the iteration is the whole assertion, not tidiness. This read
+  // `en[0]` alone until #463: the lanes flow, which parses to 8 nodes / 6 edges even with `graphOf`'s
+  // `~~~` handling deleted, so it cleared this bar comfortably while the components grid — the only
+  // fence that ever parsed to nothing — was never looked at. The guard written to catch that exact
+  // false green was blind to it. Deleting the `~~~` block in `graphOf` now reds here, by fence index.
   it('parses a non-trivial graph at all', () => {
-    const g = graphOf(en[0].source);
-    expect(g.nodes.length).toBeGreaterThan(3);
-    expect(g.edges.length).toBeGreaterThan(3);
+    [...en, ...pt].forEach((fence, i) => {
+      const g = graphOf(fence.source);
+      expect(g.nodes.length, `fence ${i} parsed to an empty graph`).toBeGreaterThan(3);
+      expect(g.edges.length, `fence ${i} parsed to an empty graph`).toBeGreaterThan(3);
+    });
   });
 
   it('draws the same graph in both editions — labels translated, structure identical', () => {

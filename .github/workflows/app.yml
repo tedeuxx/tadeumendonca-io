@@ -141,8 +141,19 @@ jobs:
             #
             # NOT in the deploy gate's filter: `CLAUDE.md` ships no served byte at all, so a deploy
             # triggered by it would republish nothing.
+            #
+            # THE MANIFEST IS THE SECOND ENTRY, and it was missing until #463. `harness.json` is the OTHER
+            # file `check-harness-drift.mjs` compares against the plugin tree — and since #463 it is the
+            # source four published claims on /architecture are derived from. Filtered on CLAUDE.md alone,
+            # a hand-edit to the manifest plus a matching edit to the drawing agreed with each other,
+            # satisfied every assertion in architecture-diagrams.test.mjs, and published a false statement
+            # about the plugin with the one job that would have caught it never running. So the filter now
+            # matches EITHER authored input to that job: the roster fence in CLAUDE.md, and the committed
+            # manifest itself. (It ships a served byte, so it is in `code`/`test` too — but those gates
+            # never compare it to the plugin, which is the check that was absent.)
             harness:
               - 'CLAUDE.md'
+              - 'apps/fed/src/content/generated/harness.json'
 
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
