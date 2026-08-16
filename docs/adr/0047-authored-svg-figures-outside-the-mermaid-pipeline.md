@@ -339,3 +339,116 @@ the rejected alternatives.
   governs drawn figures; a captured one is decided there.
 - **The copy-payload clause is narrowed**, and its underlying behaviour changed by that record —
   [ADR-0035](./0035-static-repo-cards-in-longform.md)/#387 now absolutize image targets to the origin.
+
+## Amendment (2026-08-16) — the question is *how a figure that cannot shrink meets a READER*, and it is now answered by widening the BOX for every figure rather than flooring one figure; the premise that made the floor cheap is false
+Everything above stands except the option group **"How a figure that cannot shrink meets a phone"**, whose
+chosen option is superseded in scope by the rule below. This is one decision answered differently, not a
+second decision — which is why it is an amendment here and not a new record.
+
+### What falsified the premise
+That option's reasoning rests on one clause: *"The box's overflow contract already existed in
+`Diagram.tsx`; mermaid's figures have simply never exercised it."* The clause was true when written and it
+was **load-bearing in a way the record did not notice** — it let a floor be chosen against a single figure
+while every other figure on the page was exempt by construction, so the trade-off recorded (*"the reader
+must pan, which no other figure on this page asks of them"*) never had to be priced for the page.
+
+Priced for the page, it does not hold. The article column gives ~890px of canvas. The chosen floor is
+`MIN_WIDTH = 680` against a 1000px viewBox — **680 < 890, so the Venn has never panned on a desktop; it
+fits and is merely clamped below its authored size.** The precedent this record actually set is therefore
+**phone-only panning**, not panning. Extending it to the mermaid figures is an extension into a case the
+original option never covered: buying the Venn's legibility on the widest figure (1866px natural, en
+edition) needs **1666px inside an 890px column — 776px of lateral panning on a pointer device**, where the
+overlay scrollbar is hidden until hover. A reader who never discovers it does not see a small complete
+figure; they see a **silently cropped** one, and on these drawings the cropped part is the right-hand
+column where the claim sits.
+
+### The rule that replaces the figure-specific answer
+> **A `min-width` floor at or below the desktop column measure is acceptable — it produces phone-only
+> panning, which is what this record's own precedent established. A floor ABOVE the column measure is a
+> legibility regression, not a config value.**
+
+Checkable, and it names a threshold rather than a ratio. It is the generalisation of option 1 above, not a
+repeal of it: the Venn's 680 floor is unchanged and still legal under it.
+
+### What shipped instead — a bleed on the shared shell
+Above 1024px a `.diagram` figure leaves the article column with negative inline margins, up to
+`--diagram-max-width` (1340px). The rule sits on `DiagramFigure`'s `<figure>` — **the shared shell this
+record's "The shell is shared rather than copied" clause introduced** — so **all four figures inherit it,
+the Venn included**. The prose does not move. Below the breakpoint nothing changes at all, by media query
+rather than by arithmetic.
+
+**Effective type (15px × render scale), at a 1440px viewport, before → after:** the lanes grid **7.3 →
+10.8px** (7.2 → 10.5 en), the other two mermaid figures to **13.5–14.7px**, and the Venn **13.4 → 15px** —
+it renders at its authored 1000px for the first time, having been clamped to 680 on every desktop width
+since this record shipped. **No figure pans at 1280, 1440 or 1600.**
+
+### Three measurements the record carries because they are what make it checkable
+**1 · Redrawing the figures measured ZERO on four of six.** `gen-diagrams.mjs` compiles with
+`htmlLabels: false`, and in that mode **mermaid wraps node labels itself** — every node rect in the widest
+figure was already ≤246px *before* the edit. **Node text is not a width lever on this page.** Only strings
+mermaid does not auto-wrap are: subgraph titles and edge labels. Only the third figure moved (−20% pt,
+−18% en), because its three subgraph glosses were exactly that.
+
+**2 · The remaining structural fact, named as a lever and NOT as a decision.** The widest figure is 1166px
+of columns plus **639px of inter-rank gap — 35% of its width.** That gap is mermaid's `rankSpacing`, which
+**is not set in `gen-diagrams.mjs`'s `THEME` today** (`grep -c rankSpacing` → 0, so it sits at mermaid's
+default) and would land beside the `fontSize: '15px'` it trades against. It is the cheapest untried lever
+and **it has not been taken**; nothing here decides it.
+
+**3 · The ceiling, which corrects the target this slice was aimed at.** The app shell is `max-w-screen`
+(`tailwind.config.js` → `maxWidth.screen`, 1440px) with a `border-x-2`, so **~1436px is the hard maximum at
+any viewport** and the ~1400px of canvas originally aimed at is only reachable edge-to-edge with zero
+clearance. The bleed lands at **1306px of canvas**.
+
+### Why the 2rem inset is not taste
+`100vw` includes the classic scrollbar on Linux/Windows while the layout viewport does not, so the shell
+term can overstate the free space by up to ~15px. Without the inset the figure lands flush against the
+shell border on a Mac and *past* it on CI — which is precisely what would redden `responsive-overflow`'s
+"the page body never scrolls sideways" sweep on a machine with visible scrollbars. It costs 64px of canvas
+and buys the guard.
+
+### The revert path is one value, verified as a mutation
+`--diagram-max-width: 0` returns the page **byte-for-byte** — the `max(0px, …)` floors the bleed, the
+negative margins resolve to zero, and nothing else in the rule has an effect. Run as a mutation rather than
+asserted: at `0` the three wide-viewport arms of `e2e/diagram-bleed.spec.ts` went red at gain `0` while
+`diagram-centred.spec.ts` and `responsive-overflow.spec.ts` stayed **green**. There is no second knob.
+
+### Accepted costs, and the honest half
+- **Two nominal couplings that nothing enforces:** `--container` mirrors Tailwind's `maxWidth.screen`, and
+  `--rule-strong` mirrors `border-x-2`. Both are named in the CSS comment and neither is derived. The new
+  clearance assertions at 1280/1440/1600 are what would redden on a drift — a 2px error is swallowed whole
+  by the inset.
+- **The Venn now sits at 1000px inside a 1306px box**, leaving ~153px of empty frame each side. Centred and
+  correct, and more generous than at 890px.
+- **THE SUITES ASSERT GEOMETRY AND NEVER LEGIBILITY**, which is the same bound the 2026-07-30 amendment to
+  [ADR-0040](./0040-build-time-mermaid-diagrams.md) recorded for the palette assertions and this record
+  restates rather than closes. Every figure on this page passed every assertion at 7.2px. **Do not add an
+  assertion of the form "the figure is legible"** — there is no such measurement, and one dressed as a
+  threshold passes vacuously the day someone lowers it to go green.
+- **`e2e/diagram-centred.spec.ts` branches on `overflows`.** Today every mermaid box takes the non-
+  overflowing branch and its **centring** is asserted at four widths in both editions; a figure that starts
+  overflowing silently swaps that for a **reachability** assertion satisfied trivially at `scrollLeft: 0`.
+  Coverage would be removed with the suite green and nothing saying so. **Stated, not fixed** — the fix is a
+  change to that spec, not a clause in a record.
+- **Chromium only.** `min()` over a percentage inside a margin is verified in the one browser the suite
+  runs, and nowhere else.
+
+### A note on how this amendment cites, because this record supplies the counter-example
+Citations here **quote the clause** rather than name a line. This record's own `file:line` citations have
+rotted, measured 2026-08-16: `shareMarkdown.test.ts:105` was cited as *"leaves mermaid fences alone —
+GitHub and most readers render them"* and line 105 of that file is now a different test entirely (*"replaces
+the empty adr-index fence with a link to the library it would have expanded into"*), the file having also
+moved out of `src/lib/`; and `VennDiagram.test.tsx:244`, cited for the estimated glyph width, now lands on a
+comment, the `0.62` estimate having drifted six lines down. A quoted clause is greppable and fails loudly
+when it is deleted; a line number resolves to the wrong thing and says nothing.
+
+**Links added by this amendment**
+- **Driven by** PR [#466](https://github.com/tedeuxx/tadeumendonca-io/pull/466), Issue
+  [#464](https://github.com/tedeuxx/tadeumendonca-io/issues/464).
+- **Cross-linked from [ADR-0040](./0040-build-time-mermaid-diagrams.md)**, which is **not** amended: its
+  pipeline, guards and defaults are untouched by a CSS rule on the shell. What it gains is a pointer to two
+  facts about its own compile measured here — `htmlLabels: false` makes mermaid wrap node labels itself, and
+  `rankSpacing` is the untaken width lever.
+- Implementation: `apps/fed/src/styles/index.css` (the `.diagram` bleed and its comment),
+  `apps/fed/src/components/DiagramFigure.tsx`, `apps/fed/e2e/diagram-bleed.spec.ts`,
+  `apps/fed/src/content/architecture.{en,pt}.md`, `apps/fed/src/content/generated/diagrams.json`.
