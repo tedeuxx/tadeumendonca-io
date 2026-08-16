@@ -1,10 +1,10 @@
 # Storage layer — owned by /infrastructure/s3.
-# TWO buckets via terraform-aws-modules/s3-bucket/aws ~> 4.0, both sharing one hardened baseline
-# (ACLs off, public access fully blocked, SSE-S3 at rest, TLS-only in transit); only versioning,
-# lifecycle, and purpose differ. Names are account-id-prefixed for global uniqueness.
+# ONE bucket via terraform-aws-modules/s3-bucket/aws ~> 4.0, on a hardened baseline (ACLs off, public
+# access fully blocked, SSE-S3 at rest, TLS-only in transit). The name is account-id-prefixed for
+# global uniqueness. It was two until #446 — see the note where the second one used to be.
 #
-# Bucket NAMES are created here; the OAC read policies for the private fed + assets buckets are
-# wired in frontend.tf (#7) once the CloudFront distribution exists — its SourceArn is the principal.
+# The bucket NAME is created here; the OAC read policy for the private fed bucket is wired in
+# frontend.tf (#7) once the CloudFront distribution exists — its SourceArn is the principal.
 
 # force_destroy is FALSE on every bucket, hard-coded, not derived. It used to be
 # `local.s3_force_destroy = var.environment != "production"` ("stg can be torn down; prod protected"),
@@ -31,7 +31,7 @@
 locals {
   bucket_prefix = "${data.aws_caller_identity.current.account_id}-${var.project}"
 
-  # CloudFront-served public buckets (fed, assets) use SSE-S3 (AES256): CloudFront OAC can't
+  # The CloudFront-served bucket (fed) uses SSE-S3 (AES256): CloudFront OAC can't
   # decrypt objects under the AWS-managed aws/s3 KMS key (its key policy can't grant the CloudFront
   # service principal kms:Decrypt), which 403s the SPA. The content is public, so AES256 at rest is
   # the right stance here (/infrastructure/s3, /infrastructure/kms). A CMK would be the KMS alternative.
@@ -79,48 +79,27 @@ module "frontend_bucket" {
 # objects and zero readers, and its 90-day lifecycle rule had been expiring nothing for just as long.
 # The per-article cards of ADR-0041 are committed static objects served from the fed bucket.
 # Deleting it is irreversible, so it was taken as its own decision rather than folded into #302.
-# The numbering gap (1, 3-as-comment, 4) is left ALONE on purpose: renumbering would silently rewrite
-# what every older commit message and review comment points at.
+# The numbering is left ALONE as buckets are retired — only 1 is still a resource, 2 and 4 are these
+# comments, and 3 never existed here. Renumbering would silently rewrite what every older commit
+# message and review comment points at, so the gaps stay.
 
-# 4. Assets — ONE generic object store for any feature that needs one (Phase 3: user avatars under
-# avatars/), with per-feature isolation via root subfolders. Private, read publicly via the main
-# CloudFront /assets/avatars/* behavior (OAC in frontend.tf). AES256 like the fed bucket (CloudFront
-# OAC can't decrypt the aws/s3 KMS key). No lifecycle expiry — avatars persist; versioning off (each key is
-# overwritten in place by the uploader).
-module "assets_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 4.0"
-
-  bucket = "${local.bucket_prefix}-assets-${var.environment}"
-  # false here too, and it costs nothing: force_destroy only has an effect on a bucket that HAS
-  # contents — an empty bucket destroys cleanly without it. So this does not obstruct retiring this
-  # bucket the way og-images was retired (#304); it only refuses to silently delete objects that
-  # someone has since put here.
-  force_destroy = false
-
-  control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration  = local.s3_encryption_public # AES256 — CloudFront OAC can't decrypt aws/s3 KMS
-  attach_deny_insecure_transport_policy = false                      # folded into the combined OAC policy in frontend.tf
-
-  versioning = { enabled = false }
-}
+# 4. (was the generic assets store — DELETED, #446.)
+# It was ONE generic object store for any feature that needs one, with per-feature isolation via root
+# subfolders: user profile images under their own prefix and, later, editor uploads. Both were
+# requirements of the BFF era this platform retired (ADR-0025), so the store outlived the only
+# features that would ever have written to it. It was reached under a narrow /assets/<prefix>/* path
+# through its own CloudFront behavior and its own SSM parameter (/<env>/storage/assets-bucket-name),
+# and by the time it was removed NOTHING read either: no app code named that prefix, no workflow
+# resolved that parameter, and deploy.yml syncs the build to the FED bucket. The strongest of those is
+# not a habit but a permission — iam.tf's deploy policy scopes S3 to local.fed_bucket_arn alone, so
+# the deploy role had never been able to write here at all.
+# Verified empty before the destroy (read-only, on the PR): KeyCount 0 from list-objects-v2, and
+# list-object-versions returned neither Versions nor DeleteMarkers — the check that matters, because
+# `versioning = { enabled = false }` says "not enabled NOW", not "never was".
 
 # SSM config bus (/infrastructure/ssm) — IaC writes, app repos read at deploy. Non-sensitive names.
 resource "aws_ssm_parameter" "frontend_bucket_name" {
   name  = "/${var.environment}/frontend/s3-bucket-name"
   type  = "String"
   value = module.frontend_bucket.s3_bucket_id
-}
-
-resource "aws_ssm_parameter" "assets_bucket_name" {
-  name  = "/${var.environment}/storage/assets-bucket-name"
-  type  = "String"
-  value = module.assets_bucket.s3_bucket_id
 }
