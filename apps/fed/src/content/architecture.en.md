@@ -133,33 +133,25 @@ flowchart TB
   accTitle: How work crosses the agent tiers — and where I come in
   accDescr: A top-to-bottom flow in three tiers, with the owner at both ends and one large box in the middle that runs without him. At the top is me: I am the only origin of demand, and I open the Issue. Tier 1 is intake, and it is not one box: it is three lanes, and the issue's type decides which one it enters. A product issue closes through the two leads that disagree by design, product-lead and tech-lead. A content issue closes through the lens that holds my voice, product-lead alone. A loop issue, which is the machinery itself, closes through harness-lead and tech-lead together, because it is the kind of change most likely to need an ADR. The three lanes all reach the same ready label, which is the artifact saying the description was closed — and on a loop issue that label is mine alone to apply. From ready downwards the AFK stretch begins, the part that runs without asking once I tell it to drain the queue: everything inside passes through the orchestrator, which is the main session and the hub every lane goes through, which commits and pushes, and which never merges and never decides the irreversible. It dispatches tier 2, the build, split by type as well: developer on product, writer on content, harness-lead on loop, building what it has just stress-tested. Out of that comes one merge request per story, reaching tier 3 — fresh context, no authorship bias — where quality-assurance checks the Definition of Done and, separately, whether this can break production; it is the only one that may merge. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing in my voice — leaves the AFK stretch and comes back to me, and only after my go does it ship. Refusal is a single channel: the gate asking for changes and my no-go land in the same sent-back box, and that box returns through the orchestrator, never straight to whoever built it. Nine persona boxes, six names: product-lead, tech-lead and harness-lead appear in more than one lane because the same profile is dispatched at different moments. And there is a dashed channel between me and the orchestrator for when something is stuck — it exists throughout and it is not on the path. That is the claim this drawing makes: between the ready label and the merge there is no human on the path, and I appear only at the two ends — what crosses that stretch alone is the safe class only.
   H(["HITL · ME<br/>the only origin of demand<br/>I open the Issue"])
-  subgraph T1["TIER 1 · INTAKE — the issue's type picks the lane"]
-    direction LR
-    subgraph L1["product — disagree by design"]
-      PL["product-lead"]
-      TL["tech-lead"]
-    end
-    subgraph L2["content — my own voice"]
-      PC["product-lead"]
-    end
-    subgraph L3["loop — the machinery"]
-      LM["harness-lead"]
-      LT["tech-lead"]
-    end
+  subgraph L3["TIER 1 · loop"]
+    LM["harness-lead"]
+    LT["tech-lead<br/>the machinery itself"]
   end
-  RQ{{"ready label — the description closed<br/>on a loop issue, mine alone to apply"}}
-  subgraph AFK["AFK · from ready to merge it runs without asking"]
+  subgraph L1["TIER 1 · product"]
+    PL["product-lead"]
+    TL["tech-lead<br/>they disagree by design"]
+  end
+  subgraph L2["TIER 1 · content"]
+    PC["product-lead<br/>the lens that holds my voice"]
+  end
+  RQ{{"TIER 1 CLOSES HERE · the ready label<br/>the description closed — and on a loop issue,<br/>mine alone to apply"}}
+  subgraph AFK["AFK · from ready to merge, nothing on the path is human"]
     ORCH["ORCHESTRATOR · the main session<br/>dispatches every persona, commits, pushes<br/>never merges, never decides the irreversible"]
-    subgraph T2["TIER 2 · BUILD"]
-      direction LR
-      DEV["developer<br/>product"]
-      WRT["writer<br/>content"]
-      LB["harness-lead<br/>loop — builds what it stress-tested"]
-    end
+    DEV["TIER 2 · BUILD<br/>developer — product"]
+    WRT["TIER 2 · BUILD<br/>writer — content"]
+    LB["TIER 2 · BUILD<br/>harness-lead — loop<br/>builds what it stress-tested"]
     MR{{"MERGE REQUEST · one per story"}}
-    subgraph T3["TIER 3 · GATE — fresh context, no authorship bias"]
-      QA["quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
-    end
+    QA["TIER 3 · GATE — fresh context, no authorship bias<br/>quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
     V["sent back — one return channel"]
     M{{"merge to main = the deploy"}}
   end

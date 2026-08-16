@@ -133,33 +133,25 @@ flowchart TB
   accTitle: Como o trabalho atravessa os tiers de agente — e onde eu entro
   accDescr: Um fluxo de cima para baixo em três tiers, com o dono nas duas pontas e uma caixa grande no meio que roda sem ele. No topo estou eu: sou o único que gera demanda, e abro a Issue. O tier 1 é a admissão, e não é uma caixa só: são três raias, e o tipo da issue decide em qual ela entra. Uma issue de produto fecha pelas duas lideranças que discordam por construção, product-lead e tech-lead. Uma de conteúdo fecha pela lente que segura a minha voz, product-lead sozinha. Uma de loop, que é a maquinaria em si, fecha por harness-lead e tech-lead juntos, porque é o tipo de mudança que mais costuma exigir um ADR. As três raias desembocam no mesmo rótulo ready, que é o artefato que diz que a descrição foi fechada — e numa issue de loop esse rótulo é meu, só eu ponho. Do ready para baixo começa o trecho AFK, o que roda sem perguntar quando eu mando drenar a fila: tudo ali dentro passa pelo orquestrador, que é a sessão principal e o eixo por onde toda persona é acionada, que commita e empurra, e que nunca faz merge nem decide o irreversível. Ele aciona o tier 2, o build, também dividido por tipo: developer no produto, writer no conteúdo, harness-lead no loop, construindo o que ele mesmo acabou de estressar. Sai dali uma merge request por story, que chega ao tier 3 — contexto fresco, sem viés de autoria — onde quality-assurance verifica a Definition of Done e, à parte, se aquilo pode quebrar a produção; é o único que pode fazer merge. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar na minha voz — sai do trecho AFK e volta para mim, e só depois do meu go é que sobe. Recusa é um canal só: o gate pedindo mudanças e o meu no-go caem na mesma caixa de devolvido, e ela volta pelo orquestrador, nunca direto para quem construiu. Nove caixas de persona, seis nomes: product-lead, tech-lead e harness-lead aparecem em mais de uma raia porque o mesmo perfil é acionado em momentos diferentes. E há um canal tracejado meu com o orquestrador, para quando algo trava — existe o tempo todo e não fica no caminho. A afirmação do desenho é essa: entre o rótulo ready e o merge não há nenhum humano no caminho, e eu apareço só nas duas pontas — o que atravessa aquele trecho sozinho é apenas a classe segura.
   H(["HITL · EU<br/>o único que gera demanda<br/>abro a Issue"])
-  subgraph T1["TIER 1 · ADMISSÃO — o tipo da issue decide a raia"]
-    direction LR
-    subgraph L1["produto — discordam por construção"]
-      PL["product-lead"]
-      TL["tech-lead"]
-    end
-    subgraph L2["conteúdo — a minha voz"]
-      PC["product-lead"]
-    end
-    subgraph L3["loop — a maquinaria"]
-      LM["harness-lead"]
-      LT["tech-lead"]
-    end
+  subgraph L3["TIER 1 · loop"]
+    LM["harness-lead"]
+    LT["tech-lead<br/>a maquinaria em si"]
   end
-  RQ{{"rótulo ready — a descrição fechada<br/>numa issue de loop, só eu ponho"}}
-  subgraph AFK["AFK · do ready ao merge roda sem perguntar"]
+  subgraph L1["TIER 1 · produto"]
+    PL["product-lead"]
+    TL["tech-lead<br/>discordam por construção"]
+  end
+  subgraph L2["TIER 1 · conteúdo"]
+    PC["product-lead<br/>a lente que segura a minha voz"]
+  end
+  RQ{{"O TIER 1 FECHA AQUI · o rótulo ready<br/>a descrição fechada — e numa issue de loop,<br/>só eu ponho"}}
+  subgraph AFK["AFK · do ready ao merge, nada no caminho é humano"]
     ORCH["ORQUESTRADOR · a sessão principal<br/>aciona toda persona, commita, empurra<br/>nunca faz merge, nunca decide o irreversível"]
-    subgraph T2["TIER 2 · BUILD"]
-      direction LR
-      DEV["developer<br/>produto"]
-      WRT["writer<br/>conteúdo"]
-      LB["harness-lead<br/>loop — constrói o que estressou"]
-    end
+    DEV["TIER 2 · BUILD<br/>developer — produto"]
+    WRT["TIER 2 · BUILD<br/>writer — conteúdo"]
+    LB["TIER 2 · BUILD<br/>harness-lead — loop<br/>constrói o que estressou"]
     MR{{"MERGE REQUEST · uma por story"}}
-    subgraph T3["TIER 3 · GATE — contexto fresco, sem viés de autoria"]
-      QA["quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
-    end
+    QA["TIER 3 · GATE — contexto fresco, sem viés de autoria<br/>quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
     V["devolvido — um canal de volta só"]
     M{{"merge em main = o deploy"}}
   end
