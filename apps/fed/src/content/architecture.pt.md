@@ -92,18 +92,18 @@ A única lógica que roda entre um leitor e um arquivo é essa função: [dez li
 
 *(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) render no build, sem SSR · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) toda URL OG-completa · [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) analytics dependente de consentimento · [`iac/frontend.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/frontend.tf) a distribuição e as policies)*
 
-### USD 6,57 por mês
+### R$ 34,31 por mês
 
-Esse número mede o que este site **acrescentou**, não aquilo de que ele **depende**, e mede aquilo **em que** ele roda, não aquilo com que eu o **construo**. Dizer "custo quase zero" é a coisa mais fácil desta página, e a mais fácil de ninguém conferir — então segue a conta, com as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026** e o registro lido da tabela do registrador. Nenhuma estimada:
+Esse número mede o que este site **acrescentou**, não aquilo de que ele **depende**, e mede aquilo **em que** ele roda, não aquilo com que eu o **construo**. Dizer "custo quase zero" é a coisa mais fácil desta página, e a mais fácil de ninguém conferir — então segue a conta, com as linhas de hospedagem lidas do custo diário da conta no **fim de julho de 2026** e o registro lido da tabela do registrador. Nenhuma estimada. A fatura da AWS é em dólar, e o câmbio usado aqui é **R$ 5,222/USD**, o fechamento de **14 de agosto de 2026** — fixo no texto, não buscado a cada build, para que o número publicado só mude quando alguém decidir mudá-lo. É com ele que você desfaz qualquer linha abaixo de volta ao valor da fatura:
 
-- **O domínio** — USD 71,00/ano pelo `.io`, uma cobrança anual que cai num mês só. **USD 5,92/mês** amortizado. Escolhi o `.io` por branding, não por custo: é a razão honesta, e a única linha daqui que você pode recusar.
-- **Route 53** — USD 0,50/mês, fixo. A hosted zone, com ou sem visitante.
-- **S3** — cerca de USD 0,15/mês, e são *escritas* de deploy, não leituras.
-- **CloudFront** — na prática USD 0,00 com esse volume.
+- **O domínio** — R$ 370,76/ano pelo `.io`, uma cobrança anual que cai num mês só. **R$ 30,91/mês** amortizado. Escolhi o `.io` por branding, não por custo: é a razão honesta, e a única linha daqui que você pode recusar.
+- **Route 53** — R$ 2,61/mês, fixo. A hosted zone, com ou sem visitante.
+- **S3** — cerca de R$ 0,78/mês, e são *escritas* de deploy, não leituras.
+- **CloudFront** — não custa nada com esse volume: o tráfego deste site não chega a arranhar o piso do serviço.
 
 Fora da AWS o critério é o mesmo. GitHub Team e Claude Max são pagos e ficam **fora** do total — a assinatura do GitHub Team é anterior ao site, embora a carga de CI em cima dela seja inteiramente dele; GitHub Actions e SonarCloud são zero **porque os repositórios são públicos** — propriedade dos repositórios, não do plano — e Terraform Cloud é zero **porque a infraestrutura é pequena**. E o **iCloud+** é a linha que mostra o critério sendo aplicado em vez de anunciado: ele é anterior ao site, mas carrega o e-mail com domínio próprio no apex e o [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisiona os registros MX, DKIM e SPF dele — então não é adjacente a esta infraestrutura, está dentro dela. *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md))*
 
-Fora do total ficam também todas as minhas horas: **USD 6,57 por mês é o que custa manter isto no ar, não o que custou construir.** Em pessoas, custou uma — fins de semana, em paralelo com consultoria. E a mesma leitura mostrou cerca de **USD 12,80 por mês** que o site não estava usando: web ACLs de WAF e IPv4 públicos ociosos, esquecidos quando o backend foi aposentado. Descobri lendo a fatura, o que é tarde — **infraestrutura que você para de usar não para de cobrar** —, e quem vigia agora é um orçamento em [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) deliberadamente **não** escopado às tags deste projeto: se fosse, só enxergaria gasto que este repo criou, e este era justamente do tipo que ele não criou.
+Fora do total ficam também todas as minhas horas: **R$ 34,31 por mês é o que custa manter isto no ar, não o que custou construir.** Em pessoas, custou uma — fins de semana, em paralelo com consultoria. E a mesma leitura mostrou cerca de **R$ 66,84 por mês** que o site não estava usando: web ACLs de WAF e IPv4 públicos ociosos, esquecidos quando o backend foi aposentado. Descobri lendo a fatura, o que é tarde — **infraestrutura que você para de usar não para de cobrar** —, e quem vigia agora é um orçamento em [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) deliberadamente **não** escopado às tags deste projeto: se fosse, só enxergaria gasto que este repo criou, e este era justamente do tipo que ele não criou.
 
 ## Pilar 2 · a customização
 
