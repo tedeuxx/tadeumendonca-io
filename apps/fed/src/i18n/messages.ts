@@ -227,57 +227,9 @@ const strings = {
       pt: 'Um dev-loop de agent-led verification: ferramentas de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
       en: 'An agent-led verification dev-loop: the agentic development tools in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
     },
-    // THE LANDING BAND (#450). These two leaves live in the `architecture` group, not in a group of
-    // their own, on a mechanical constraint and a semantic one. Mechanical: `messages.test.ts` derives
-    // ADR-0045 coverage from every TOP-LEVEL group carrying a `title` leaf and pins the set to
-    // ['architecture','library','portfolio','rampup'] — a new `home`/`teaser` group would either red
-    // that test or need a title it has no business having, dragging an ADR-0045 conversation into a copy
-    // slice. Semantic: the band is copy ABOUT this destination, and keeping it beside the destination's
-    // own `heading`/`kicker` is what makes a drift between them visible in one screen of this file.
     //
-    // NO WORD HERE MAY DEPEND ON THE DATE — no "novo", no "lançamento", no "just shipped", in either
-    // edition. Recorded as a decision on #450 rather than left to taste: a "new" label above the fold on
-    // the front door is true for a week and false afterwards, and nothing in this repo would ever raise
-    // it. Removing the defect by construction is what buys the band a life with no retirement step; a
-    // dated acceptance criterion would have been a promise to do work that an Issue closing on merge has
-    // no mechanism to collect. The cost is real and was accepted: the hook has to work on what the
-    // section IS, never on it being recent.
-    //
-    // The band is also about WHAT THE READER GETS, never about who built it, and that is checkable
-    // rather than a matter of taste. Two blocks above it the Hero's body ends, published in both
-    // editions, with "O objetivo é te fazer construir melhor — quem escreve isso é consequência, não o
-    // ponto." A band leading with the owner contradicts a published sentence a reader can see WITHOUT
-    // SCROLLING; "a máquina inteira" and "how to replicate it" are the reader's payoff, and the owner
-    // appears in neither string.
-    // The kicker is the bare label and nothing else, and the second half was CUT rather than reworded.
-    // Its load-bearing job is the one the leads specified — the reader must know this is a section of
-    // the site and not a piece of writing — and `Seção deste site` does all of it. The dropped half
-    // (`· a planta aberta`) ran a blueprint metaphor one line above a machine metaphor in `bandHeading`,
-    // and the destination it points at already says *planta* in its own kicker, dek and H1: four
-    // blueprint statements inside two screens, of which this was the only one written here. In en it
-    // also stacked two separators in one line (`·` then a comma). The heading below carries the payoff;
-    // the kicker only has to place the reader.
-    bandKicker: { pt: 'Seção deste site', en: 'A section of this site' },
-    // The reader must meet the DESTINATION'S OWN NAME here, not a headline written for the band — the
-    // word the click lands on is "Arquitetura", the same rule ADR-0045 applies to document titles, and
-    // a band heading that renames the section is the same defect one screen earlier. So this follows
-    // `heading`'s shape above (name — noun phrase, state) and diverges only in the tail: `heading` says
-    // what the page IS to someone already there, this says what it is FOR to someone deciding to click.
-    // "a máquina" is the site's own word for this page — content/blog/engineer-the-loop.pt.md:30, "A
-    // `/architecture` deste site é a própria máquina, em aberto", and the page says it of itself too
-    // (architecture.pt.md:60 "A vitrine mostra a máquina", :211 "a máquina prova a fatia"). An earlier
-    // version of this comment attributed the first quote to architecture.pt.md, where it is not; the
-    // claim held and the citation did not, which on this repo is the defect worth one line.
-    // "replicar" is the page's own closing H2 ("Replique para o seu contexto"), so neither is invented
-    // here. The pt takes the object (`replicá-la`) that the en always had: the heading is a payoff
-    // claim rather than a label, and a claim reads finished where a label can trail off.
-    bandHeading: {
-      pt: 'Arquitetura — a máquina inteira, e como replicá-la',
-      en: 'Architecture — the whole machine, and how to replicate it',
-    },
-    //
-    // THE TEASER CARD (#450, slice 2) — what replaces the band above, after the owner's verdict on it:
-    // "você descaracterizou a home". The band was a new <section> between the Hero and the article grid,
+    // THE TEASER CARD (#450, slice 2) — what replaces the landing band shipped in #461, after the owner's
+    // verdict on it: "você descaracterizou a home". The band was a <section> between the Hero and the grid,
     // and the objection was to the OBJECT, not to its words: a band changes the landing's shape, and the
     // landing's shape is the articles. What he asked for instead is a card that looks exactly like an
     // article card, is pinned at the top of that list, is outside the track filter, and goes straight to
@@ -285,16 +237,16 @@ const strings = {
     // seção arquitetura".
     //
     // THE SAME TWO CONSTRAINTS THE BAND COPY WAS WRITTEN UNDER STILL HOLD, and they are restated here
-    // rather than inherited by proximity, because the band leaves they were written on are being deleted
-    // in this same slice:
+    // rather than inherited by proximity, because the band leaves they were written on (`bandKicker`,
+    // `bandHeading`) are deleted in this same slice and take their notes with them:
     //   1. NO WORD MAY DEPEND ON THE DATE — no "novo", no "lançamento", no "just shipped". The card is
     //      permanent furniture on the front door, not a launch announcement; it must read correctly in
     //      three months, and nothing in this repo would ever raise a stale one.
-    //   2. THE READER IS THE SUBJECT, NEVER THE OWNER. Two blocks above, the Hero's body ends — published,
-    //      both editions — with "quem escreve isso é consequência, não o ponto." A card leading with the
-    //      owner contradicts a sentence a reader can see without scrolling.
+    //   2. THE READER IS THE SUBJECT, NEVER THE OWNER. Higher on the same page the Hero's body ends —
+    //      published, in both editions — with "quem escreve isso é consequência, não o ponto." A card
+    //      leading with the owner contradicts a sentence on the screen it sits on.
     //
-    // These four leaves stay in the `architecture` group for the same reason the band's two did:
+    // These three leaves stay in the `architecture` group for the same reason the band's two did:
     // `messages.test.ts` derives ADR-0045 coverage from every TOP-LEVEL group carrying a `title` leaf and
     // pins the set to ['architecture','library','portfolio','rampup'], so a new `home`/`teaser` group
     // would either red that test or need a title it has no business having. And semantically, copy ABOUT
@@ -307,13 +259,13 @@ const strings = {
     // "it isn't writing", said before the click, in chip-sized space.
     //
     // NOT the bare noun ("Seção" / "Section"), which in a column of track names reads as a THIRD track.
-    // The possessive half is what disambiguates, and it is the half the band's `bandKicker` also carried
+    // The possessive half is what disambiguates, and it is the half the retired band's kicker also carried
     // ("Seção deste site"). Shortened from that by one word: a chip renders mono-uppercase at text-xs
     // beside "VIDA PESSOAL" (12 chars) and "ENGENHARIA" (10), and "SEÇÃO DESTE SITE" (16) is wider than
     // anything the row has ever held. "SEÇÃO DO SITE" (13) / "SITE SECTION" (12) sit inside that
     // established width and lose nothing the sentence was doing.
     cardTrack: { pt: 'Seção do site', en: 'Site section' },
-    // THE TITLE, carried over VERBATIM from `bandHeading` above — deliberately, not by inertia. That
+    // THE TITLE, carried over VERBATIM from the retired band's heading — deliberately, not by inertia. That
     // string's recorded job was "what this section is FOR to someone deciding to click", as opposed to
     // `heading`, which says what the page IS to someone already there. A card title in a list of article
     // titles is that first job exactly, so the string is being moved to the surface it was already
