@@ -2,11 +2,11 @@ _This site is the argument. This page is the blueprint — how it's built, and h
 
 ## I started the year lost
 
-A project that was not going well, a pile of catch-up obligations on AI tooling, and things degraded until the end of the year. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tools in hand — Claude Code, Kiro — and still felt outside the hype.**
+A project that was not going well, a pile of catch-up obligations on AI tooling, and things degraded until the end of the year. **Kiro** had been within reach for a while by then, and I started the year willing to learn how to use it. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tool in hand — and still felt outside the hype.**
 
-In the AI work I have been close to, the modelling is strong and the other half is thin: systems integration, legacy that cannot be replaced, the ordinary complications of corporate IT. That other half is where I have spent eighteen years, and it is the one with no ready-made use case to learn on.
+Because the problem was not the tool; it was where I was going to use it. At that point in the year, all the AI work I was close to split into two halves: the modelling, which is strong, and the rest — systems integration, legacy that cannot be replaced, the ordinary complications of corporate IT. That second half is where I have spent eighteen years, and it is the one with no ready-made use case to learn on — the case has to turn up on its own, in real work.
 
-The case that turned it around was not this site. **At the beginning of the year, in January**, I started building an authentication and authorization mechanism on the side — dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. **I would never have delivered that without an agentic development tool** — and it was not only the deadline: I was carrying tech-lead responsibilities on that project **at the same time**. That is what the tool bought. Not typing speed: both of those fitting into the same week. And nothing is more fun to me than seeing an application up and running, looking just right — at a scale I could not reach on my own.
+The case that turned it around was not this site. **At the beginning of the year, in January**, I started building an authentication and authorization mechanism on the side — dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. **I would never have delivered that without an agentic development tool** — and it was not only the deadline: I was carrying tech-lead responsibilities on that project **at the same time**. That is what the tool bought. Not typing speed: both of those fitting into the same week. And nothing is more fun to me than seeing an application up and running, looking just right — at a scale I could not reach on my own. That was where I saw something I had not seen in a long time: if the requirement is where I stay and the code is worked by AI-DLC, a software engineering project becomes enjoyable again. Not as a forecast — as what I saw at that moment, with the thing running in front of me.
 
 > "Computer programming is an art, because it applies accumulated knowledge to the world,
 > because it requires skill and ingenuity, and especially because it produces objects of beauty."
@@ -19,11 +19,11 @@ The case that turned it around was not this site. **At the beginning of the year
 
 ![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the week, not the evidence. At Google's visitor centre in Mountain View.")
 
+One morning I took the Caltrain south — 8:57, next stop Palo Alto. The carriage was open laptops end to end, and what was on the screens around me was not email: it was agents running, loop after loop, on a train. And people were talking about it out loud, to whoever was sitting next to them, on the way to work.
+
 And there is a reason the public front exists rather than a notebook. There are far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and that is why what is here is the whole setup, not only the conclusion it reached.
 
 ![The onboard display inside a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Strangers comparing how they had configured the same tool. One train, one morning, no measurement. This is not data; it is what I saw.")
-
-*The photographs on this page are mine. One week, the Valley — this is not a survey; it is what was in front of me.*
 
 ## What the requirement demanded, and the architecture it justified
 

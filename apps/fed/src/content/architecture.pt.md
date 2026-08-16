@@ -2,11 +2,11 @@ _Este site é o argumento. Esta página é a planta — como ele é construído,
 
 ## Comecei o ano perdido
 
-Um projeto que não estava indo bem, um monte de obrigações de catch-up nas ferramentas de IA, e a coisa foi degradando até o fim do ano. E tem um detalhe que eu suspeito que muita gente sênior está vivendo e não diz em voz alta: **eu tinha as ferramentas de desenvolvimento agêntico na mão — Claude Code, Kiro — e mesmo assim me sentia de fora do hype.**
+Um projeto que não estava indo bem, um monte de obrigações de catch-up nas ferramentas de IA, e a coisa foi degradando até o fim do ano. O **Kiro** já estava à mão fazia um tempo, e eu comecei o ano disposto a aprender a usar a ferramenta. E tem um detalhe que eu suspeito que muita gente sênior está vivendo e não diz em voz alta: **eu tinha a ferramenta de desenvolvimento agêntico na mão — e mesmo assim me sentia de fora do hype.**
 
-No trabalho com IA de que estive perto, a modelagem é forte e a outra metade é rala: systems integration, legado que não dá pra trocar, as complicações comuns de TI corporativa. É nessa metade que eu passei dezoito anos, e é ela que não tem use case pronto pra você aprender.
+Porque o problema não era a ferramenta; era onde eu ia usá-la. Naquele começo de ano, todo trabalho com IA de que eu estava perto se dividia em duas metades: a modelagem, que é forte, e o resto — systems integration, legado que não dá pra trocar, as complicações comuns de TI corporativa. É nessa segunda metade que eu passei dezoito anos, e é ela que não tem use case pronto pra você aprender — o caso tem que aparecer sozinho, no trabalho de verdade.
 
-O caso que virou o jogo não foi este site. **No início do ano, em janeiro**, comecei a construir por fora um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. **Eu jamais teria conseguido desenvolver aquilo sem uma agentic development tool** — e não era só o prazo: eu dividia as responsabilidades de tech lead naquele projeto **ao mesmo tempo**. É essa a parte que a ferramenta comprou. Não velocidade de digitação: as duas coisas caberem na mesma semana. E nada me diverte mais que ver uma aplicação funcionando bonitinha — numa escala que sozinho eu não alcançava.
+O caso que virou o jogo não foi este site. **No início do ano, em janeiro**, comecei a construir por fora um mecanismo de autenticação e autorização com regras de negócio densas, custom em Spring Boot e Spring Security, integrando sistemas legados. **Eu jamais teria conseguido desenvolver aquilo sem uma agentic development tool** — e não era só o prazo: eu dividia as responsabilidades de tech lead naquele projeto **ao mesmo tempo**. É essa a parte que a ferramenta comprou. Não velocidade de digitação: as duas coisas caberem na mesma semana. E nada me diverte mais que ver uma aplicação funcionando bonitinha — numa escala que sozinho eu não alcançava. Foi ali que eu vi uma coisa que não via fazia tempo: se o requisito é onde eu fico e o código é trabalhado por AI-DLC, projeto de software engineering volta a ser prazeroso. Não como previsão — como o que eu enxerguei naquele momento, com aquilo rodando na minha frente.
 
 > "Computer programming is an art, because it applies accumulated knowledge to the world,
 > because it requires skill and ingenuity, and especially because it produces objects of beauty."
@@ -19,11 +19,11 @@ O caso que virou o jogo não foi este site. **No início do ano, em janeiro**, c
 
 ![Eu e minha companheira do lado de fora de um prédio baixo, ao lado de uma fileira de bicicletas coloridas estacionadas na calçada.](/photos/google-visitor-centre.jpg "A única em que eu apareço — a semana, não a evidência. No visitor center do Google, em Mountain View.")
 
+Numa manhã eu peguei o Caltrain para sul — 8h57, próxima parada Palo Alto. O vagão era laptop aberto de ponta a ponta, e nas telas em volta não era e-mail: era agente rodando, loop atrás de loop, dentro de um trem. E as pessoas conversavam sobre aquilo em voz alta, com quem estava sentado ao lado, no caminho para o trabalho.
+
 E tem uma razão para a frente pública existir em vez de um caderno. Há opções de configuração demais — qual harness, quais hooks, que persona, que gate, qual modelo — e ninguém tem sessões suficientes para testar todas sozinho. **Trocar a experiência de cada um usando IA é o que vai acelerar esse aprendizado**, e por isso o que está aqui é o setup inteiro, não só a conclusão a que ele chegou.
 
 ![O painel de bordo de um vagão do Caltrain, dentro do trem: "Southbound · 510 EXPRESS · 8:57a", e abaixo "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Estranhos comparando como tinham configurado a mesma ferramenta. Um trem, uma manhã, nenhuma medição. Não é dado; é o que eu vi.")
-
-*As fotos desta página são minhas. Uma semana, o Vale — não é levantamento; é o que estava na minha frente.*
 
 ## O que o requisito exigia, e a arquitetura que ele justificou
 
