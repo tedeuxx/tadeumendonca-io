@@ -68,11 +68,11 @@ End to end, backstage included — and **the interesting thing about this pictur
 ```mermaid
 flowchart LR
   accTitle: The lanes and the tiers — what the reader meets, and what keeps it standing
-  accDescr: A grid read from left to right, four columns wide — public, devices, frontend and cloud infra — with three lanes stacked inside them. The top lane is the audience, what the reader meets on the site: the public arrives from a link, the device asks for a URL, and what comes back is prerendered HTML in both locales, with the React SPA taking over afterwards and no third party loaded before the reader allows it — GA4 only on consent, YouTube only on a click. That page comes whole from the cloud infra column: Route 53, ACM, CloudFront with its rewrite function, a private S3 bucket that answers only that distribution, and the apex email records. Between frontend and infra there is no backend column, and that absence is the claim this drawing makes: there is no application tier, because the requirement never asked for one, and nothing of mine runs per request. The two lower lanes are the backstage, what nobody sees and what keeps the operation running. The production lane: I open the Issue and ratify the irreversible; GitHub is the console, from any device, and a claude mention runs the agent inside CI with no machine of mine switched on; the repository and the build carry the personas, the hooks that deny the call and the gates, and produce both locales and the CV PDF; Terraform applies the infrastructure pipeline-only, with state in Terraform Cloud. The operation lane is the thinnest, and it is thin as a finding rather than by design: what I measure is GA4 after consent, so whoever declines is never counted; nothing watches the reader's device, no RUM, no access log and no uptime monitor; after every deploy a smoke run hits the live apex and checks that the published function is this repository's; and over the whole account there is a budget that emails, which is the only continuous watcher there is.
+  accDescr: A grid read from left to right, four columns wide — public, devices, frontend and cloud infra — with three lanes stacked inside them. The top lane is the audience, what the reader meets on the site: the public arrives from a link, the device asks for a URL, and what comes back is prerendered HTML in both locales, with the React SPA taking over afterwards and no third party loaded before the reader allows it — GA4 only on consent, YouTube only on a click. That page comes whole from the cloud infra column: Route 53, ACM, CloudFront with its rewrite function, and a private S3 bucket that answers only that distribution. Between frontend and infra there is no backend column, and that absence is the claim this drawing makes: there is no application tier, because the requirement never asked for one, and nothing of mine runs per request. The two lower lanes are the backstage, what nobody sees and what keeps the operation running. The production lane: I open the Issue and ratify the irreversible; GitHub is the console, from any device, and a claude mention runs the agent inside CI with no machine of mine switched on; the repository and the build carry the personas and the hooks that deny the call, and produce both locales and the CV PDF; Terraform applies the infrastructure pipeline-only, with state in Terraform Cloud. The operation lane is the thinnest, and it is thin as a finding rather than by design: what I measure is GA4 after consent, so whoever declines is never counted; nothing watches the reader's device, no RUM, no access log and no uptime monitor; after every deploy a smoke run hits the live apex and checks that the published function is this repository's; and over the whole account there is a budget that emails, which is the only continuous watcher there is.
   subgraph T1["PUBLIC"]
     A1["AUDIENCE<br/>readers, recruiters<br/>whoever arrived from a link"]
     B1["BACKSTAGE · production<br/>me — I open the Issue<br/>and ratify the irreversible"]
-    C1["BACKSTAGE · operation<br/>what I measure: GA4 only after consent<br/>whoever declines is never counted"]
+    C1["BACKSTAGE · operation<br/>what I measure:<br/>GA4 only after consent<br/>whoever declines is never counted"]
   end
   subgraph T2["DEVICES"]
     A2["browser, phone<br/>and the LinkedIn and X scrapers<br/>asking for the same URL"]
@@ -80,18 +80,18 @@ flowchart LR
     C2["nothing watches the device<br/>no RUM, no access log<br/>no uptime monitor"]
   end
   subgraph T3["FRONTEND"]
-    A3["prerendered HTML in both locales<br/>the React SPA takes over after<br/>no third party before the reader allows it"]
-    B3["the repository and the build<br/>personas in agents and hooks that deny the call<br/>lint, types, coverage, E2E, Sonar<br/>both locales and the CV PDF"]
+    A3["prerendered HTML in both locales<br/>the React SPA takes over after<br/>no third party<br/>before the reader allows it"]
+    B3["the repository and the build<br/>personas in agents<br/>and hooks that deny the call<br/>both locales and the CV PDF"]
     C3["after every deploy<br/>a smoke run against the live apex<br/>and the live function checked against this repo"]
   end
   subgraph T4["CLOUD INFRA"]
-    A4["Route 53 · ACM · CloudFront with the rewrite function<br/>private S3, reachable only by OAC<br/>apex email: MX, DKIM and SPF to iCloud+"]
+    A4["Route 53 · ACM<br/>CloudFront with the rewrite function<br/>private S3, reachable only by OAC"]
     B4["Terraform, pipeline-only<br/>plan on the PR, apply on merge, over OIDC<br/>state in Terraform Cloud"]
     C4["over the whole account<br/>a budget that emails<br/>the only continuous watcher"]
   end
   A1 -- "opens a link" --> A2
   A2 -- "asks for a URL" --> A3
-  A3 -- "comes whole from here — and there is no backend between the two" --> A4
+  A3 -- "comes whole from here —<br/>and there is no backend<br/>between the two" --> A4
   B1 -- "opens the work" --> B2
   B2 -- "starts the agent loop" --> B3
   B3 -- "publishes to the origin" --> B4
@@ -144,12 +144,12 @@ flowchart TB
   end
   RQ{{"TIER 1 CLOSES HERE · the ready label<br/>the description closed — and on a loop issue,<br/>mine alone to apply"}}
   subgraph AFK["AFK · from ready to merge, nothing on the path is human"]
-    ORCH["ORCHESTRATOR · the main session<br/>dispatches every persona, commits, pushes<br/>never merges, never decides the irreversible"]
+    ORCH["ORCHESTRATOR ·<br/>the main session<br/>dispatches every persona, commits, pushes<br/>never merges, never decides the irreversible"]
     DEV["TIER 2 · BUILD<br/>developer — product"]
     WRT["TIER 2 · BUILD<br/>writer — content"]
     LB["TIER 2 · BUILD<br/>harness-lead — loop<br/>builds what it stress-tested"]
     MR{{"MERGE REQUEST · one per story"}}
-    QA["TIER 3 · GATE — fresh context, no authorship bias<br/>quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
+    QA["TIER 3 · GATE<br/>— fresh context, no authorship bias<br/>quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
     V["sent back — one return channel"]
     M{{"merge to main = the deploy"}}
   end
@@ -199,7 +199,7 @@ flowchart LR
     LC["commands · 3<br/>commands/"]
     LH ~~~ LP ~~~ LS ~~~ LC
   end
-  subgraph COLD["DENIES · refuses the call before it runs"]
+  subgraph COLD["DENIES"]
     direction TB
     HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
     PSD["— no persona"]
@@ -207,7 +207,7 @@ flowchart LR
     CMD["— no command"]
     HKD ~~~ PSD ~~~ SKD ~~~ CMD
   end
-  subgraph COLA["ADVISES · if dispatched, and nothing checks the judgement"]
+  subgraph COLA["ADVISES"]
     direction TB
     HKA["— no hook"]
     PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
@@ -215,7 +215,7 @@ flowchart LR
     CMA["— no command"]
     HKA ~~~ PS ~~~ SKA ~~~ CMA
   end
-  subgraph COLO["DOCUMENTS · removes a re-decision"]
+  subgraph COLO["DOCUMENTS"]
     direction TB
     HKR["4 hooks · no call to refuse<br/>2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>2 hooks · SubagentStart and SubagentStop<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
     PSO["— no persona"]

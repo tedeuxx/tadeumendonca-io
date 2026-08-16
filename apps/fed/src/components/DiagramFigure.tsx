@@ -7,6 +7,13 @@
 // `e2e/diagram-centred.spec.ts`, and the background-equality check in `e2e/routes.spec.ts`. Two boxes
 // carrying that class independently is two things to keep in step, and the one that drifts is the one
 // nobody looks at.
+//
+// `.diagram` on the <figure> is load-bearing too now (#464): it carries the DESKTOP BREAKOUT — above
+// 1024px the figure pulls out of the article column with negative inline margins so a drawing renders
+// at a legible scale while the prose stays exactly where it is. That rule lives in `styles/index.css`
+// beside the centring one, its clearance is asserted by `e2e/diagram-bleed.spec.ts`, and `PhotoFigure`
+// deliberately does NOT reuse this class — a photograph has a natural size and nothing to gain from
+// breaking the measure.
 import type { MutableRefObject, ReactNode } from 'react';
 
 const CANVAS = 'diagram-canvas overflow-x-auto border border-border bg-background p-4';
