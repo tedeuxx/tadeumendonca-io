@@ -35,26 +35,29 @@ describe('LandingPage', () => {
     expect(screen.queryByText(profile.name)).toBeNull();
   });
 
-  // THE /architecture BAND (#450), and the assertion is about its POSITION as much as its presence. The
-  // decision was a new section BETWEEN the hero and the two-column grid — placing it after the grid would
-  // satisfy "the band exists" while making it a teaser only readers who already stayed ever reach.
-  it('carries the architecture band between the hero and the articles grid', async () => {
+  // THE /architecture TEASER CARD (#450, slice 2), and the assertion is about the LANDING'S SHAPE, which
+  // is what the owner rejected the band over: "você descaracterizou a home". The band was a section
+  // BETWEEN the hero and the grid; the card is INSIDE the article list, so the landing is hero → grid
+  // again with nothing pushed down. Asserted by containment rather than by order, because containment is
+  // the property that failed: a card that rendered as a sibling of `#artigos` would satisfy every
+  // "the card follows the hero" ordering check and be the band again under a new name.
+  it('carries the architecture card inside the articles section, not as a band above it', async () => {
     const { container } = renderLanding();
     await screen.findByRole('heading', { name: /Artigos/ });
 
-    const band = container.querySelector('[data-testid="architecture-band"]');
+    const card = container.querySelector('[data-testid="architecture-card"]');
     const hero = container.querySelector('header#top');
     const articles = container.querySelector('#artigos');
-    expect(band).not.toBeNull();
-    // DOCUMENT_POSITION_FOLLOWING (4) — the band follows the hero, and the articles follow the band.
-    expect(hero!.compareDocumentPosition(band!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(band!.compareDocumentPosition(articles!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(card).not.toBeNull();
+    expect(articles!.contains(card!)).toBe(true);
+    // And the hero's next block is the grid itself — nothing sits between them.
+    expect(hero!.nextElementSibling!.contains(articles!)).toBe(true);
   });
 
-  // The band adds a SECOND control to /architecture on this page — the hero row already closes on it
-  // (#420). That is the shape both leads agreed; what was rejected is a FIFTH hero control, so the count
-  // that matters is the hero row's, and `e2e/hero-row.spec.ts` pins it at four in a real viewport.
-  it('does not add the band as a fifth hero control', async () => {
+  // The card adds a SECOND control to /architecture on this page — the hero row already closes on it
+  // (#420). That is the accepted shape; what was rejected is a FIFTH hero control, so the count that
+  // matters is the hero row's, and `e2e/hero-row.spec.ts` pins it at four in a real viewport.
+  it('does not add the card as a fifth hero control', async () => {
     const { container } = renderLanding();
     await screen.findByRole('heading', { name: /Artigos/ });
     expect(container.querySelectorAll('header#top a[class*="border-border-strong"]')).toHaveLength(4);
