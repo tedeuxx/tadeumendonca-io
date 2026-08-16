@@ -44,8 +44,8 @@ function graphOf(source) {
       edges.push([m[1], '->', m[2]]);
     }
     // MERMAID'S INVISIBLE LINK, and it is not cosmetic to parse it. Measured over the three fences on
-    // this page, in both editions: fence 1 carries 6 directed edges, fence 2 carries 24, and fence 3 —
-    // the COMPONENTS GRID — carries none at all. So exactly ONE fence parses to an empty graph when the
+    // this page, in both editions: `[0]` (lanes) carries 6 directed edges, `[1]` (tiers) carries 24, and
+    // `[2]` — the COMPONENTS GRID — carries none at all. So exactly ONE fence parses empty when the
     // `~~~` handling below is removed (`nodes=0 edges=0`), and the parity test further down would then
     // have passed having compared two empty graphs — the exact false green the comment above exists to
     // prevent.
@@ -152,10 +152,13 @@ describe('the two editions describe the same system', () => {
   // fence that ever parsed to nothing — was never looked at. The guard written to catch that exact
   // false green was blind to it. Deleting the `~~~` block in `graphOf` now reds here, by fence index.
   it('parses a non-trivial graph at all', () => {
-    [...en, ...pt].forEach((fence, i) => {
+    // Named `en[2]` / `pt[2]`, not by position in the concatenation: a bare index over `[...en, ...pt]`
+    // reports the pt grid as "fence 5", which is a number appearing nowhere else and sends whoever reads
+    // the failure counting. This is the same notation the comment in `graphOf` uses.
+    [...en.map((f, i) => [`en[${i}]`, f]), ...pt.map((f, i) => [`pt[${i}]`, f])].forEach(([name, fence]) => {
       const g = graphOf(fence.source);
-      expect(g.nodes.length, `fence ${i} parsed to an empty graph`).toBeGreaterThan(3);
-      expect(g.edges.length, `fence ${i} parsed to an empty graph`).toBeGreaterThan(3);
+      expect(g.nodes.length, `${name} parsed to an empty graph`).toBeGreaterThan(3);
+      expect(g.edges.length, `${name} parsed to an empty graph`).toBeGreaterThan(3);
     });
   });
 
