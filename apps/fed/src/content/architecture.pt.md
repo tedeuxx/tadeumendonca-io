@@ -249,7 +249,7 @@ flowchart LR
 
 **Seis personas, contra quem cada uma argumenta — e o que cada uma carrega ao ser acionada.** A última coluna é o preload de cada brief: as skills que entram na sessão da persona antes de ela ler a primeira linha da tarefa.
 
-| quem | o que é dele | contra quem argumenta | o que carrega ao ser acionada |
+| quem | o que é dele | contra quem argumenta | que skills carrega ao ser acionada |
 |---|---|---|---|
 | `product-lead` | o leitor, valor, ordem, tamanho da fatia — e posicionamento, voz, e a verdade de qualquer coisa publicada | o `tech-lead`; e é a única lente que **barra** em vez de aconselhar, diante de uma afirmação publicada que não é verdade | `harness-engineering` · `definition-of-ready` · `command-hygiene` |
 | `tech-lead` | arquitetura, medição, sequenciamento — e é ele que escreve os ADRs | o `product-lead`, de propósito: produto-e-mercado e sistema são otimizações genuinamente diferentes | `harness-engineering` · `definition-of-ready` · `documentation-standard` · `devops` · `command-hygiene` |
