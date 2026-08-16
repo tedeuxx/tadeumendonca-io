@@ -312,9 +312,12 @@ test.describe('routes', () => {
     // left to fail as "a diagram stopped rendering" — which is what a stale enumeration reports, and it
     // names the wrong defect. The venn is deliberately still absent from this list: it is not a mermaid
     // figure, and `diagram-centred.spec.ts` is what covers it.
+    // TWO OF THE THREE WERE REDRAWN: the layers figure became a lanes-and-tiers grid, and the dev-loop
+    // flow became the agent-tier flow. Their captions move with them rather than the rows being deleted —
+    // the count is still three, and it is still the assertion that the page has all of them.
     for (const name of [
-      /As camadas, e a trilha de build que substitui as que faltam/,
-      /Onde o humano fica no loop/,
+      /As raias e os tiers/,
+      /Como o trabalho atravessa os tiers de agente/,
       /Do que o harness é feito/,
     ]) {
       const figure = page.getByRole('figure', { name });
@@ -337,10 +340,18 @@ test.describe('routes', () => {
       // this catches exactly it. It does NOT catch #0B0B0B on #0A0A0A. A legibility check this is not,
       // and saying so here matters because the previous round's finding was a comment claiming more
       // than its assertion did.
-      const strokes = await figure.locator('svg path.flowchart-link').evaluateAll((els) =>
-        els.map((el) => getComputedStyle(el).stroke),
-      );
-      expect(strokes.length, `${name} must draw edges at all`).toBeGreaterThan(2);
+      //
+      // WIDENED FROM `path.flowchart-link` TO EVERY STROKED SHAPE, and this is a generalisation rather
+      // than an exemption. One of the three figures is a GRID whose claim is that it has no directed
+      // edges at all — it is built entirely from mermaid's invisible `~~~` links — so a links-only
+      // assertion has nothing to count there and would have to be special-cased away, which is how a
+      // figure ends up covered by nothing. The property being defended was never "edges exist"; it is
+      // "this figure is drawn in something the reader can see against the canvas", and node outlines
+      // carry that for a grid exactly as links carry it for a flow.
+      const strokes = await figure
+        .locator('svg path.flowchart-link, svg .label-container')
+        .evaluateAll((els) => els.map((el) => getComputedStyle(el).stroke));
+      expect(strokes.length, `${name} must draw something at all`).toBeGreaterThan(2);
       // Read the canvas colour from `.diagram-canvas`, NOT from the <figure>. The figure has no
       // background of its own — it computes to rgba(0,0,0,0) — so comparing against it made this
       // assertion pass on the very defect it was written for. Caught by running the mutation instead of
@@ -349,7 +360,7 @@ test.describe('routes', () => {
         .locator('.diagram-canvas')
         .evaluate((el) => getComputedStyle(el).backgroundColor);
       expect(canvas, 'the canvas must have a real background to compare against').not.toBe('rgba(0, 0, 0, 0)');
-      expect(strokes.filter((s) => s === canvas), `${name} draws edges in the background colour`).toEqual([]);
+      expect(strokes.filter((s) => s === canvas), `${name} draws in the background colour`).toEqual([]);
     }
   });
 

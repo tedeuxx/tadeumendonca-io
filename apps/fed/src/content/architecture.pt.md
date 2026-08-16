@@ -65,26 +65,45 @@ Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir 
 
 *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) totalmente estático / sem backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
-Em camadas — e **o que interessa nesse desenho é o que não está nele**:
+De ponta a ponta, com os bastidores junto — e **o que interessa nesse desenho é o que não está nele**:
 
 ```mermaid
-flowchart TB
-  accTitle: As camadas, e a trilha de build que substitui as que faltam
-  accDescr: Duas trilhas — dois tempos, não dois lados do desenho. A trilha de build: o conteúdo escrito no repositório passa pelo pipeline, que pré-renderiza cada rota nos dois idiomas e imprime o PDF do CV, e publica o resultado na origem em S3. A trilha de servir: o dispositivo do leitor chega ao DNS, depois à borda do CloudFront, que roda a função de reescrita de URL e mantém o cache, e daí à mesma origem em S3 com os arquivos pré-renderizados. Não há servidor de aplicação nem banco de dados. Tudo que um backend normalmente faria a cada requisição acontece na trilha de build.
-  subgraph build["BUILD — roda no merge, não na requisição"]
-    direction TB
-    C["Conteúdo no repo<br/>markdown · TypeScript tipado"] --> P["Pipeline<br/>gates · pré-renderiza os dois idiomas · imprime /cv.pdf"]
+flowchart LR
+  accTitle: As raias e os tiers — o que o leitor encontra, e o que mantém isso de pé
+  accDescr: Uma grade que se lê da esquerda para a direita, com quatro colunas — público, dispositivos, frontend e infra cloud — e três raias empilhadas dentro delas. A raia de cima é a audiência, o que o leitor encontra no site: o público chega por um link, o dispositivo pede uma URL, e o que volta é HTML pré-renderizado nos dois idiomas, com a SPA React assumindo depois e nenhum terceiro carregado antes de o leitor autorizar — GA4 só com consentimento, YouTube só no clique. Essa página vem inteira da coluna de infra cloud: Route 53, ACM, CloudFront com a função de reescrita, um bucket S3 privado que só responde àquela distribuição, e os registros de e-mail do apex. Entre o frontend e a infra não existe coluna de backend, e essa ausência é a afirmação do desenho: não há tier de aplicação, porque o requisito nunca pediu um, e nada meu roda a cada requisição. As duas raias de baixo são os bastidores, o que ninguém vê e que mantém a operação de pé. A raia de produção: eu abro a Issue e ratifico o irreversível; o GitHub é o console, de qualquer dispositivo, e uma menção a claude dispara o agente dentro do CI sem nenhuma máquina minha ligada; o repositório e o build carregam as personas, os hooks que negam a chamada e os gates, e produzem os dois idiomas e o PDF do CV; o Terraform aplica a infraestrutura só pelo pipeline, com estado no Terraform Cloud. A raia de operação é a mais fina, e é fina por constatação e não por desenho: o que eu meço é GA4 depois do consentimento, então quem recusa não entra na conta; nada observa o dispositivo do leitor, sem RUM, sem log de acesso e sem monitor de disponibilidade; depois de cada deploy um smoke roda contra o apex vivo e confere que a função publicada é a deste repositório; e sobre a conta inteira há um orçamento que avisa por e-mail, que é o único vigia contínuo que existe.
+  subgraph T1["PÚBLICO"]
+    A1["AUDIÊNCIA<br/>leitores, recrutadores<br/>quem chegou por um link"]
+    B1["BASTIDORES · produção<br/>eu — abro a Issue<br/>e ratifico o irreversível"]
+    C1["BASTIDORES · operação<br/>o que eu meço: GA4 só depois do consentimento<br/>quem recusa não é medido"]
   end
-  subgraph serve["SERVIR — toda requisição"]
-    direction TB
-    D["Dispositivo do leitor"] --> N["DNS"]
-    N --> E["Borda CloudFront<br/>função de reescrita · cache"]
-    E --> O["Origem S3<br/>arquivos pré-renderizados"]
+  subgraph T2["DISPOSITIVOS"]
+    A2["navegador, celular<br/>e os scrapers de LinkedIn e X<br/>pedindo a mesma URL"]
+    B2["GitHub, de qualquer dispositivo<br/>Issue, comentário, PR<br/>uma menção a claude roda o agente no CI"]
+    C2["nada observa o dispositivo<br/>sem RUM, sem log de acesso<br/>sem monitor de disponibilidade"]
   end
-  P -- "publica" --> O
+  subgraph T3["FRONTEND"]
+    A3["HTML pré-renderizado nos dois idiomas<br/>a SPA React assume depois<br/>terceiro nenhum antes de o leitor autorizar"]
+    B3["o repositório e o build<br/>personas em agents e hooks que negam a chamada<br/>lint, tipos, cobertura, E2E, Sonar<br/>os dois idiomas e o PDF do CV"]
+    C3["depois de cada deploy<br/>smoke contra o apex vivo<br/>e a função no ar conferida contra este repo"]
+  end
+  subgraph T4["INFRA CLOUD"]
+    A4["Route 53 · ACM · CloudFront com a função de reescrita<br/>S3 privado, só por OAC<br/>e-mail do apex: MX, DKIM e SPF para o iCloud+"]
+    B4["Terraform só pelo pipeline<br/>plan no PR, apply no merge, via OIDC<br/>estado no Terraform Cloud"]
+    C4["sobre a conta inteira<br/>um orçamento avisa por e-mail<br/>o único vigia contínuo"]
+  end
+  A1 -- "abre um link" --> A2
+  A2 -- "pede uma URL" --> A3
+  A3 -- "vem inteira daqui — e entre as duas não há backend nenhum" --> A4
+  B1 -- "abre o trabalho" --> B2
+  B2 -- "dispara o loop de agentes" --> B3
+  B3 -- "publica na origem" --> B4
+  C1 ~~~ C2
+  C2 ~~~ C3
+  C3 ~~~ C4
+  linkStyle 2 stroke-dasharray:6 4
 ```
 
-**A ausência é deliberada, não uma lacuna.** Um diagrama de camadas para um sistema assim costuma seguir para uma camada de aplicação, um banco e integrações internas; aqui ele para num bucket. O único terceiro em tempo de execução é a analytics, e ela depende de consentimento. E "sem backend" levanta uma pergunta antes das outras — como um crawler enxerga isto —, cuja resposta é que nada precisa ser **renderizado** para ele enxergar: o que ele pede vem como HTML completo, com as tags OG dentro, direto de um arquivo estático. Sem SSR, sem renderização na borda — a função de reescrita da borda roda a cada requisição de página e mexe na URL, nada mais.
+**A ausência é deliberada, não uma lacuna.** Um desenho desses, para um sistema assim, costuma ter uma coluna de aplicação, um banco e integrações internas entre o frontend e a infra; aqui não há coluna nenhuma ali, e o que o leitor pede vem inteiro de um bucket. O único terceiro em tempo de execução é a analytics, e ela depende de consentimento. E "sem backend" levanta uma pergunta antes das outras — como um crawler enxerga isto —, cuja resposta é que nada precisa ser **renderizado** para ele enxergar: o que ele pede vem como HTML completo, com as tags OG dentro, direto de um arquivo estático. Sem SSR, sem renderização na borda — a função de reescrita da borda roda a cada requisição de página e mexe na URL, nada mais.
 
 O limite viaja junto com a afirmação, porque é a parte que um leitor consegue derrubar: **uma URL que não existe responde 200, não 404 — e o que volta é a landing page**, com as tags OG da própria landing, sob um endereço que nunca existiu. O CloudFront mapeia `403` e `404` para `/index.html`, que é o que deixa uma SPA funcionar em rotas profundas e é uma troca real, não um detalhe. Já mordeu aqui uma vez: um desvio de caminho jogou as imagens de OG por artigo nesse mesmo fallback, e cada uma respondeu `200 text/html` a todo scraper que a pediu.
 
@@ -110,53 +129,122 @@ Fora do total ficam também todas as minhas horas: **R$ 34,31 por mês é o que 
 A parte interessante não é a stack — é como ela é construída: **agent-led verification, human-residual**. O agente prova o "pronto" com gates mecânicos e evidência real (lint, tipos, testes ≥85%, build verde, SonarCloud, E2E funcional, um revisor de contexto fresco); o humano fica com as decisões irreversíveis e arquiteturais. Esse loop vive num plugin à parte — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** —, então é uma metodologia que você pode adotar, não algo sob medida só pra este site.
 
 ```mermaid
-flowchart TD
-  accTitle: Onde o humano fica no loop
-  accDescr: Uma issue vira um plano que o humano alinha antes de existir código. O agente constrói a fatia e roda os gates mecânicos. Um revisor de contexto fresco então julga a mudança. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira - infraestrutura, as regras do próprio loop, publicar um artigo - passa por um go ou no-go humano, que é a última coisa antes da produção. Os três pontos que podem recusar - os gates no vermelho, o revisor pedindo mudanças, e o humano no no-go - desembocam todos numa mesma caixa, devolvido, e é ela que volta para a construção. Um canal de volta só, e não três.
-  I["Issue"] --> P["Plano, decidido pelo humano"]
-  P --> B["Agente constrói a fatia"]
-  B --> G["Gates mecânicos"]
-  G -- "verde" --> R["Revisor de contexto fresco"]
-  R -- "classe segura" --> M["Merge = deploy"]
-  R -- "classe de fronteira" --> H["Go / no-go humano"]
-  H -- "go" --> M
-  G -- "vermelho" --> V["Devolvido"]
-  R -- "mudanças" --> V
-  H -- "no-go" --> V
-  V --> B
+flowchart TB
+  accTitle: Como o trabalho atravessa os tiers de agente — e onde eu entro
+  accDescr: Um fluxo de cima para baixo em três tiers, com o dono nas duas pontas e uma caixa grande no meio que roda sem ele. No topo estou eu: sou o único que gera demanda, e abro a Issue. O tier 1 é a admissão, e não é uma caixa só: são três raias, e o tipo da issue decide em qual ela entra. Uma issue de produto fecha pelas duas lideranças que discordam por construção, product-lead e tech-lead. Uma de conteúdo fecha pela lente que segura a minha voz, product-lead sozinha. Uma de loop, que é a maquinaria em si, fecha por harness-lead e tech-lead juntos, porque é o tipo de mudança que mais costuma exigir um ADR. As três raias desembocam no mesmo rótulo ready, que é o artefato que diz que a descrição foi fechada — e numa issue de loop esse rótulo é meu, só eu ponho. Do ready para baixo começa o trecho AFK, o que roda sem perguntar quando eu mando drenar a fila: tudo ali dentro passa pelo orquestrador, que é a sessão principal e o eixo por onde toda persona é acionada, que commita e empurra, e que nunca faz merge nem decide o irreversível. Ele aciona o tier 2, o build, também dividido por tipo: developer no produto, writer no conteúdo, harness-lead no loop, construindo o que ele mesmo acabou de estressar. Sai dali uma merge request por story, que chega ao tier 3 — contexto fresco, sem viés de autoria — onde quality-assurance verifica a Definition of Done e, à parte, se aquilo pode quebrar a produção; é o único que pode fazer merge. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar na minha voz — sai do trecho AFK e volta para mim, e só depois do meu go é que sobe. Recusa é um canal só: o gate pedindo mudanças e o meu no-go caem na mesma caixa de devolvido, e ela volta pelo orquestrador, nunca direto para quem construiu. Nove caixas de persona, seis nomes: product-lead, tech-lead e harness-lead aparecem em mais de uma raia porque o mesmo perfil é acionado em momentos diferentes. E há um canal tracejado meu com o orquestrador, para quando algo trava — existe o tempo todo e não fica no caminho. A afirmação do desenho é essa: entre o rótulo ready e o merge não há nenhum humano no caminho, e eu apareço só nas duas pontas — o que atravessa aquele trecho sozinho é apenas a classe segura.
+  H(["HITL · EU<br/>o único que gera demanda<br/>abro a Issue"])
+  subgraph T1["TIER 1 · ADMISSÃO — o tipo da issue decide a raia"]
+    direction LR
+    subgraph L1["produto — discordam por construção"]
+      PL["product-lead"]
+      TL["tech-lead"]
+    end
+    subgraph L2["conteúdo — a minha voz"]
+      PC["product-lead"]
+    end
+    subgraph L3["loop — a maquinaria"]
+      LM["harness-lead"]
+      LT["tech-lead"]
+    end
+  end
+  RQ{{"rótulo ready — a descrição fechada<br/>numa issue de loop, só eu ponho"}}
+  subgraph AFK["AFK · do ready ao merge roda sem perguntar"]
+    ORCH["ORQUESTRADOR · a sessão principal<br/>aciona toda persona, commita, empurra<br/>nunca faz merge, nunca decide o irreversível"]
+    subgraph T2["TIER 2 · BUILD"]
+      direction LR
+      DEV["developer<br/>produto"]
+      WRT["writer<br/>conteúdo"]
+      LB["harness-lead<br/>loop — constrói o que estressou"]
+    end
+    MR{{"MERGE REQUEST · uma por story"}}
+    subgraph T3["TIER 3 · GATE — contexto fresco, sem viés de autoria"]
+      QA["quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
+    end
+    V["devolvido — um canal de volta só"]
+    M{{"merge em main = o deploy"}}
+  end
+  HO(["HITL · EU<br/>classe de fronteira: irreversível, arquitetural<br/>go / no-go"])
+  H -- "produto" --> PL
+  H -- "produto" --> TL
+  H -- "conteúdo" --> PC
+  H -- "loop" --> LM
+  H -- "loop" --> LT
+  PL --> RQ
+  TL --> RQ
+  PC --> RQ
+  LM --> RQ
+  LT --> RQ
+  RQ --> ORCH
+  ORCH -- "produto" --> DEV
+  ORCH -- "conteúdo" --> WRT
+  ORCH -- "loop" --> LB
+  DEV --> MR
+  WRT --> MR
+  LB --> MR
+  MR -- "acionada pelo orquestrador" --> QA
+  QA -- "classe segura" --> M
+  QA -- "classe de fronteira" --> HO
+  HO -- "go" --> M
+  QA -- "mudanças" --> V
+  HO -- "no-go" --> V
+  V --> ORCH
+  H <-.-> ORCH
 ```
 
-O humano aparece duas vezes, e são trabalhos diferentes: no plano, decidindo o que vale ser construído e como — arquitetura eu nunca decido sozinho — e no fim, só no que é classe de fronteira, decidindo se aquilo sobe. E o custo disso, já que o resto desta página assume os seus: quem decide que uma mudança é segura é o mesmo tipo de coisa que escreveu a mudança. Classifique uma errado e ela pega o caminho vazio. O que torna isso aceitável aqui é raio de impacto, não confiança — é um site estático, e reverter é um merge.
+Eu apareço nas duas pontas, e são trabalhos diferentes: no começo abrindo a Issue, e no fim, só no que é classe de fronteira, decidindo se aquilo sobe. Entre uma ponta e outra não há humano nenhum no caminho. E o desenho afirma uma coisa mais estrita do que "no plano": eu sou a **única origem de demanda** — nada entra na fila por conta própria —, e quem fecha a admissão é o rótulo `ready`, que é o artefato que diz que a descrição foi fechada; do `ready` para baixo, só a classe segura atravessa sozinha. E o custo disso, já que o resto desta página assume os seus: quem decide que uma mudança é segura é o mesmo tipo de coisa que escreveu a mudança. Classifique uma errado e ela pega o caminho vazio. O que torna isso aceitável aqui é raio de impacto, não confiança — é um site estático, e reverter é um merge.
 
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based, ambiente único · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) os gates de CI)*
 
 ### Do que o harness é feito
 
 ```mermaid
-flowchart TB
+flowchart LR
   accTitle: Do que o harness é feito
-  accDescr: Três tipos de componente, desenhados separados porque não têm a mesma força. Os hooks registrados no hooks.json — permission-guard e wip-guard rodam no evento PreToolUse com o matcher Bash e RECUSAM uma chamada de ferramenta antes dela acontecer; session-wip e session-plugin-version rodam no SessionStart, e dispatch-metrics-start e dispatch-metrics-stop rodam no SubagentStart e no SubagentStop, três eventos que não entregam chamada nenhuma de ferramenta pra recusar, e é por isso que nenhum dos quatro está do lado que nega — a classe diz o que um hook nesses eventos não consegue BARRAR, e não que ele apenas observa: um hook em qualquer um desses eventos roda e pode agir, só não tem chamada de ferramenta na frente pra recusar. As quatro só reportam. Isso é um fato sobre cada script, não uma propriedade do evento. As personas no diretório agents — developer, harness-lead, product-lead, quality-assurance, tech-lead e writer — apenas ACONSELHAM, e isso é uma afirmação sobre o JULGAMENTO delas, não sobre a cadeira. quality-assurance é o caso mais agudo nas duas direções: a regra 7b do permission-guard recusa o comando de merge vindo de qualquer agent type que não seja esse, então QUEM faz o merge é forçado por mecanismo — e nada em lugar nenhum verifica se a revisão foi feita, ou feita bem. harness-lead é mais fraca ainda, e não pode ser lida como a mesma coisa: ela roda antes de qualquer coisa ser construída, e não depois, não barra nada, e nada obriga que ela seja acionada — uma lente que não é acionada falha em silêncio. product-lead é o caso espelhado: ela BARRA um merge quando encontra uma afirmação publicada que não é verdade, mas por convenção e não por hook, então nada recusa o comando de merge em nome dela — e writer, a persona que redige texto publicado, é contida pelo mesmo mecanismo que contém product-lead: uma regra do permission-guard nega a ela postar diretamente, já que ela lê material privado pra redigir. A biblioteca de skills no diretório skills — 13 skills, que é o que o modelo aciona sozinho — mais autonomy-off, autonomy-on e new-issue, os 3 comandos no diretório commands, que são o que uma pessoa digita, apenas DOCUMENTAM: tiram uma re-decisão do caminho. No desenho a aresta que nega é grossa e na cor de destaque, a que aconselha é tracejada, e as que documentam são comuns. Essa diferença é o que está sendo afirmado, não enfeite.
-  HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
-  PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
-  SK["13 skills · skills/<br/>o que o modelo aciona"]
-  CM["autonomy-off<br/>autonomy-on<br/>new-issue<br/>3 comandos · commands/<br/>o que você digita"]
-  HKR["4 hooks, só reportam<br/>2 hooks · SessionStart<br/>2 hooks · SubagentStart/SubagentStop<br/>session-wip<br/>session-plugin-version<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
-  DE["O que o agente decide"]
-  RU["O que o agente executa"]
-  GM["Aí os gates, aí o merge<br/>— a figura acima"]
-  HKD -- "nega a chamada" --> RU
-  PS -- "aconselha, se acionada" --> DE
-  SK -- "documenta" --> DE
-  CM -- "documenta" --> DE
-  HKR -- "documenta" --> DE
-  DE --> RU
-  RU --> GM
+  accDescr: Uma grade: quatro raias, uma por tipo de componente que o plugin exporta, cruzadas com três colunas, uma por classe de força. As raias são os 6 hooks registrados no hooks.json, as 6 personas do diretório agents, as 13 skills do diretório skills e os 3 comandos do diretório commands. Das doze células, cinco têm conteúdo e sete estão vazias — e as vazias são a afirmação do desenho. Na coluna que nega há uma célula só: permission-guard e wip-guard, os 2 hooks do evento PreToolUse com o matcher Bash, que RECUSAM uma chamada de ferramenta antes dela rodar; persona, skill e comando não têm célula nenhuma ali. Na coluna do meio também há uma só: as personas developer, harness-lead, product-lead, quality-assurance, tech-lead e writer apenas ACONSELHAM, e isso é uma afirmação sobre o JULGAMENTO delas, não sobre a cadeira. quality-assurance é o caso mais agudo nas duas direções: a regra 7b do permission-guard recusa o comando de merge vindo de qualquer agent type que não seja esse, então QUEM faz o merge é forçado por mecanismo — e nada em lugar nenhum verifica se a revisão foi feita, ou feita bem. harness-lead é mais fraca ainda, e não pode ser lida como a mesma coisa: roda antes de qualquer coisa ser construída, não barra nada, e nada obriga que ela seja acionada — uma lente que não é acionada falha em silêncio. product-lead é o caso espelhado: BARRA um merge diante de uma afirmação publicada que não é verdade, mas por convenção e não por hook, então nada recusa o comando de merge em nome dela; e writer, que redige texto publicado, é contida pelo mesmo mecanismo que contém product-lead — uma regra do permission-guard nega a ela postar diretamente, já que ela lê material privado pra redigir. Na coluna dos que DOCUMENTAM ficam três células: as 13 skills, que é o que o modelo aciona sozinho, os 3 comandos, que é o que uma pessoa digita, e os outros 4 hooks — session-wip e session-plugin-version no SessionStart, dispatch-metrics-start e dispatch-metrics-stop no SubagentStart e no SubagentStop. Esses quatro estão nessa coluna porque os três eventos não entregam chamada nenhuma de ferramenta pra recusar: a coluna diz o que um hook nesses eventos não consegue BARRAR, e não que ele apenas observa — um hook em qualquer um deles roda e pode agir, só não tem chamada de ferramenta na frente pra recusar. As quatro só reportam, e isso é um fato sobre cada script, não uma propriedade do evento. Lida de ponta a ponta, a grade é quase toda vazia, e é isso que ela afirma: de tudo que o plugin exporta, exatamente um tipo — um hook no PreToolUse — consegue recusar; todo o resto aconselha ou documenta.
+  subgraph LANE["tipo · o que o -skills exporta"]
+    direction TB
+    LH["hooks · 6<br/>hooks.json"]
+    LP["personas · 6<br/>agents/"]
+    LS["skills · 13<br/>skills/"]
+    LC["comandos · 3<br/>commands/"]
+    LH ~~~ LP ~~~ LS ~~~ LC
+  end
+  subgraph COLD["NEGA · recusa a chamada antes de ela rodar"]
+    direction TB
+    HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
+    PSD["— nenhuma persona"]
+    SKD["— nenhuma skill"]
+    CMD["— nenhum comando"]
+    HKD ~~~ PSD ~~~ SKD ~~~ CMD
+  end
+  subgraph COLA["ACONSELHA · se acionada, e nada verifica o julgamento"]
+    direction TB
+    HKA["— nenhum hook"]
+    PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
+    SKA["— nenhuma skill"]
+    CMA["— nenhum comando"]
+    HKA ~~~ PS ~~~ SKA ~~~ CMA
+  end
+  subgraph COLO["DOCUMENTA · tira uma re-decisão do caminho"]
+    direction TB
+    HKR["4 hooks · sem chamada pra recusar<br/>2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>2 hooks · SubagentStart e SubagentStop<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
+    PSO["— nenhuma persona"]
+    SK["13 skills · skills/<br/>o que o modelo aciona"]
+    CM["3 comandos · commands/<br/>o que você digita<br/>autonomy-off<br/>autonomy-on<br/>new-issue"]
+    HKR ~~~ PSO ~~~ SK ~~~ CM
+  end
+  LANE ~~~ COLD ~~~ COLA ~~~ COLO
   classDef mechanism stroke:#FF5A00,stroke-width:3px
   classDef convention stroke-dasharray:6 4
+  %% `vazia` nunca pode usar #FF5A00 nem stroke-dasharray: o teste conta exatamente uma caixa na cor de
+  %% destaque (o mecanismo) e exatamente uma tracejada (a convenção) no SVG compilado, e qualquer um dos
+  %% dois aqui faria sete células vazias afirmarem uma força que elas não têm. E tem de ficar dentro das
+  %% três cores do ADR-0008 — o primeiro rascunho apagava essas células com #555555/#888888 e o gate de
+  %% paleta pegou isso nas duas edições. Aqui uma célula recua por opacidade; um quarto cinza não existe.
+  classDef vazia fill:none,stroke:#F5F4EF,color:#F5F4EF,opacity:0.45
   class HKD mechanism
   class PS convention
-  linkStyle 0 stroke:#FF5A00,stroke-width:3px
-  linkStyle 1 stroke-dasharray:6 4
+  class PSD,SKD,CMD,HKA,SKA,CMA,PSO vazia
 ```
 
 **Dos componentes do próprio plugin, exatamente um tipo consegue te barrar**, e essa é a versão honesta do convite a adotar: os dois hooks de `PreToolUse` devolvem uma negativa *antes* da ferramenta rodar, e o comando não acontece. Os outros quatro rodam em eventos que não entregam chamada nenhuma pra recusar, então só reportam. E as personas **aconselham** — o julgamento delas não é verificado por nada, e o guia deste repositório diz com todas as letras que uma lente que ninguém aciona *falha em silêncio*. Essa é a garantia que o loop dá — e ela vale exatamente o que valer o inventário do desenho acima.
@@ -184,7 +272,7 @@ Duas coisas dessa última coluna valem ser ditas. **`harness-engineering` e `com
 
 ## Pilar 3 · o runtime
 
-O orquestrador é a parte do harness que você **não consegue instalar**. Ele não está em nada do inventário acima — nem no desenho, nem no manifesto — e é a sessão principal: o contexto que lê uma Issue, decide qual persona acionar e pesa o que volta. O **ator** não é componente do plugin, a **política** dele em parte é, e o que você põe é o contexto que roda aquilo. É também a parte *contra* a qual as fronteiras acima foram desenhadas: a glosa *aconselha, se acionada* nomeia o acionamento como o modo de falha sem nomear quem aciona. Quem aciona é ele, e uma lente que ele esquece é uma lente que ninguém rodou.
+O orquestrador é a parte do harness que você **não consegue instalar**. Ele não está em nada do inventário acima — nem na grade de componentes, nem no manifesto, embora o fluxo dos tiers o desenhe bem no meio do trecho AFK — e é a sessão principal: o contexto que lê uma Issue, decide qual persona acionar e pesa o que volta. O **ator** não é componente do plugin, a **política** dele em parte é, e o que você põe é o contexto que roda aquilo. É também a parte *contra* a qual as fronteiras acima foram desenhadas: o título da coluna *aconselha · se acionada* nomeia o acionamento como o modo de falha sem nomear quem aciona. Quem aciona é ele, e uma lente que ele esquece é uma lente que ninguém rodou.
 
 **E o contexto dele acaba.** É isso que um subagente compra: ele lê, roda, erra e refaz **dentro da sessão dele**, e o que chega ao orquestrador é a conclusão. Uma tarefa custa ao orquestrador **o veredito, não a execução**, e por isso a única alavanca real deste harness é o tamanho do veredito, girada escrevendo as instruções de cada persona. Medi uma vez, na sessão deste repositório, em 7–8 de agosto de 2026, lendo as transcrições: o que ficou dentro dos subagentes foi mais de uma ordem de grandeza maior do que o que voltou. E a economia tem teto — mesmo assim, os vereditos que voltaram foram uma fatia grande de tudo que o orquestrador consumiu vindo de uma ferramenta. Não é fuga: aquela sessão compactou duas vezes de qualquer jeito. **O número não é publicado porque a fonte é uma transcrição de sessão privada, que gate nenhum alcança.**
 

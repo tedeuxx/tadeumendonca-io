@@ -34,11 +34,27 @@ function graphOf(source) {
     // contribute only A→B and the rest of the line would vanish silently. Neither fence chains today,
     // which is exactly why this is worth fixing now rather than when one does.
     for (const m of clean.matchAll(/([A-Za-z0-9_]+)\s*(?:--[^>]*?)?-->\s*([A-Za-z0-9_]+)/g)) {
-      edges.push([m[1], m[2]]);
+      edges.push([m[1], '->', m[2]]);
+    }
+    // MERMAID'S INVISIBLE LINK, and it is not cosmetic to parse it: two of the three drawings on this
+    // page are GRIDS built entirely out of `~~~` and carry no `-->` at all. Matching only the arrow
+    // returned an empty graph for both editions of each, and the parity test below would then have
+    // passed having compared nothing — the exact false green the comment above exists to prevent.
+    //
+    // Kept as its own edge kind (`~`, never `->`) on purpose: an invisible link is a LAYOUT constraint,
+    // not a path, so folding it into the directed set would let a grid satisfy a reachability assertion
+    // written about a flow.
+    if (clean.includes('~~~')) {
+      const parts = clean.split('~~~').map((p) => p.match(/[A-Za-z0-9_]+/g) ?? []);
+      for (let i = 0; i < parts.length - 1; i++) {
+        const a = parts[i].at(-1);
+        const b = parts[i + 1][0];
+        if (a && b) edges.push([a, '~', b]);
+      }
     }
   }
-  const nodes = [...new Set(edges.flat())].sort();
-  return { nodes, edges: edges.map((e) => e.join('->')).sort() };
+  const nodes = [...new Set(edges.map((e) => [e[0], e[2]]).flat())].sort();
+  return { nodes, edges: edges.map((e) => e.join('')).sort() };
 }
 
 // `hasCycle` LIVED HERE and went with the request-path diagram it was written for (#448). It asserted
@@ -51,6 +67,9 @@ function graphOf(source) {
 function reaches(graph, from, to) {
   const adj = new Map();
   for (const e of graph.edges) {
+    // `~` edges are invisible links — layout, not reachability. Skipped explicitly rather than left to
+    // `split('->')`, which would hand back the whole string as a node id and quietly widen the graph.
+    if (!e.includes('->')) continue;
     const [a, b] = e.split('->');
     adj.set(a, [...(adj.get(a) ?? []), b]);
   }
@@ -177,10 +196,13 @@ describe('the two editions describe the same system', () => {
 // go/no-go actually sits. A flow that shows only boxes is the corporate flowchart the page's voice is
 // arguing against."
 //
-// The falsifiable form of that is not "a human node exists" — a flowchart with a human box at every
-// stage satisfies that and means the opposite. It is that there is EXACTLY ONE, and that it sits on the
-// edge into production. That is the claim "human-residual" makes, and it is the one a diagram can lie
-// about most easily.
+// The falsifiable form of that used to be "there is EXACTLY ONE human node, and it sits on the edge into
+// production". The redraw makes a STRONGER claim and this block follows it: the owner appears at BOTH
+// ends — as the only origin of demand, and as the go/no-go on the boundary class — and the whole stretch
+// between them is AFK. So "exactly one" becomes "exactly two, and they are the two ends", plus the claim
+// the old fence could not express at all: a route from the `ready` label to the merge with no human on
+// it. Two human boxes is the opposite of a human at every stage only if the middle is provably empty,
+// which is why the AFK assertion is the load-bearing one here rather than the count.
 // WHAT THIS FILE CAN AND CANNOT GUARANTEE, said plainly because the first version of it overstated
 // both. Node ids are an authoring convention: the test knows a node is CALLED `H`, never that it is a
 // human. So this pins the shape the author declared — a real drift guard across edits and between the
@@ -189,56 +211,67 @@ describe('the two editions describe the same system', () => {
 const humanNodes = (graph) => graph.nodes.filter((n) => /^H/.test(n));
 
 describe('the dev-loop diagram shows where the human stands', () => {
-  const graph = graphOf(byTitle(en, 'Where the human sits in the loop').source);
+  const graph = graphOf(byTitle(en, 'How work crosses the agent tiers').source);
 
-  // Counted over the PREFIX, not over `nodes` filtered to a single id. The first version asserted
+  // Counted over the PREFIX, not over `nodes` filtered to a single id. An earlier version asserted
   // `nodes.filter(n => n === 'H').length === 1` against a list built from a Set — which cannot contain
   // 'H' twice, so it could never fail, while its comment claimed it caught an approval ladder. It did
   // not: adding `P --> H2` left every assertion green. This version fails on that mutation.
-  it('has exactly one human decision point in the merge path', () => {
-    expect(humanNodes(graph)).toEqual(['H']);
+  //
+  // THE `H`-PREFIX CONVENTION IS LOAD-BEARING AND IT CONSTRAINS THE AUTHOR, not just the test: no node id
+  // in this fence may start with `H` except the two human ends. That is why harness-lead is drawn as
+  // `LM`/`LB` and not `HL` — an `HL` node would be silently counted as a third human here, and the
+  // assertion below would fail describing something that is not wrong.
+  it('has exactly two human decision points, and they are the two ends', () => {
+    expect(humanNodes(graph)).toEqual(['H', 'HO']);
   });
 
-  it('puts the human on the edge into production', () => {
-    expect(graph.edges).toContain('H->M');
-    // Not on the gates: verification is mechanical, and a human standing on it would make the gates
-    // an opinion rather than a proof.
-    expect(graph.edges).not.toContain('G->H');
+  it('puts the owner on the edge into production', () => {
+    expect(graph.edges).toContain('HO->M');
+    // And the ONLY thing that reaches a human is the gate handing up the boundary class. Asserted as
+    // "the only inbound edge to any `H*` node" rather than as the absence of one specific edge: the
+    // previous form (`not.toContain('G->H')`) named one wrong edge, so any other route into the human —
+    // a build step asking, a mechanical gate escalating — would have passed it.
+    expect(graph.edges.filter((e) => /->H/.test(e)), 'only the gate may hand work up').toEqual([
+      'QA->HO',
+    ]);
   });
 
-  // The other half of "human-residual", and the half the previous version only claimed to test: most
-  // work does NOT pass the human. `reaches(I, M)` on the full graph is vacuous — it is satisfied by a
-  // path THROUGH H. Removing H first is what turns it into the property the name promises.
-  it('shows a path to production that does not pass the human', () => {
+  // The other half of "human-residual", and the claim the previous fence could not express: the stretch
+  // between the `ready` label and the merge is AFK. `reaches(RQ, M)` on the full graph is vacuous — it
+  // is satisfied by a path THROUGH the owner. Removing both human nodes first is what turns it into the
+  // property the name promises.
+  it('shows a path from ready to production with no human on it', () => {
     const withoutHuman = {
       nodes: graph.nodes.filter((n) => !/^H/.test(n)),
       edges: graph.edges.filter((e) => !/(^|>)H/.test(e)),
     };
-    expect(reaches(withoutHuman, 'I', 'M'), 'every route to production passes a human').toBe(true);
+    expect(withoutHuman.nodes, 'the AFK stretch must still have nodes to walk').toContain('ORCH');
+    expect(
+      reaches(withoutHuman, 'RQ', 'M'),
+      'every route from ready to production passes a human — the AFK claim is false',
+    ).toBe(true);
   });
 
-  // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a reviewer
+  // A go/NO-go that only has an outgoing edge to merge is a gate that always opens. Same for a gatekeeper
   // drawn as a pure fork: this very review is the counterexample, and a diagram that cannot show work
   // coming back describes a loop that never rejects anything.
   //
-  // THE THREE RETURN EDGES NOW MEET IN ONE NODE, and that is the redraw rather than a re-styling. The
-  // owner's verdict was that the picture is hard to read; three separate arrows climbing back to the
-  // build node across the whole height of the graph is what made it so, and turning `LR` into `TD` moved
-  // them without removing them. `V` is a join, not an invented step — it is labelled with the STATE the
-  // work is in, and it is the only edge that re-enters the build.
+  // THE RETURN EDGES MEET IN ONE NODE, and that is the claim rather than a re-styling: `V` is a join, not
+  // an invented step — it is labelled with the STATE the work is in. What changed with the redraw is
+  // where it re-enters: never straight to whoever built it, always through the orchestrator, because the
+  // orchestrator is the only thing that dispatches a persona.
   //
-  // So the property is asserted as REACHABILITY, which is what "work comes back" always meant, plus the
-  // single re-entry as an edge. Written this way on purpose: `reaches` alone would stay green if the
-  // three were split apart again, and the single channel is the claim being made.
-  it('lets work come back — from the gates, from the reviewer, and from the human', () => {
-    expect(reaches(graph, 'G', 'B'), 'a red gate must return the work').toBe(true);
-    expect(reaches(graph, 'R', 'B'), 'a reviewer must be able to send it back').toBe(true);
-    expect(reaches(graph, 'H', 'B'), 'a no-go must return the work').toBe(true);
-    expect(graph.edges, 'one return channel, not three').toContain('V->B');
-    expect(graph.edges.filter((e) => e.endsWith('->B')), 'nothing else re-enters the build').toEqual([
-      'P->B',
-      'V->B',
-    ]);
+  // Asserted as REACHABILITY, which is what "work comes back" always meant, plus the single re-entry as
+  // an edge: `reaches` alone would stay green if the two were split apart again.
+  it('lets work come back — from the gate and from the human — through one channel', () => {
+    expect(reaches(graph, 'QA', 'DEV'), 'a gate asking for changes must return the work').toBe(true);
+    expect(reaches(graph, 'HO', 'DEV'), 'a no-go must return the work').toBe(true);
+    expect(graph.edges, 'one return channel, not two').toContain('V->ORCH');
+    expect(
+      graph.edges.filter((e) => e.endsWith('->ORCH')),
+      'nothing else re-enters the orchestrator',
+    ).toEqual(['RQ->ORCH', 'V->ORCH']);
   });
 });
 
@@ -251,11 +284,12 @@ describe('the dev-loop diagram shows where the human stands', () => {
 // failure this whole mechanism was built to remove, one file further along.
 //
 // What this can and cannot guarantee, stated because ADR-0043 requires the page to be honest about it:
-// it pins IDENTITY — names, events, matchers, counts, the orphan — into both editions. It says nothing
-// about whether the short glosses on the edges describe those components correctly. Those are authored
-// here and checked by nothing. The page carries that limit in its honest-limitations section — the check
-// covers only the parts that are NAMES, never what those parts do — rather than beside the diagram,
-// where the sentence naming the glosses themselves was cut as redundant with it.
+// it pins IDENTITY — names, events, matchers, counts, the orphan — and, since the redraw, the manifest's
+// `enforcement` field as COLUMN MEMBERSHIP, into both editions. It says nothing about whether the column
+// titles describe those components correctly. Those are authored here and checked by nothing. The page
+// carries that limit in its honest-limitations section — the check covers only the parts that are NAMES,
+// never what those parts do — rather than beside the diagram, where the sentence naming the glosses
+// themselves was cut as redundant with it.
 describe('the components diagram carries the inventory it was generated from', () => {
   const harness = generated('harness.json');
   const of = (kind) => harness.filter((c) => c.kind === kind);
@@ -452,6 +486,110 @@ describe('the components diagram carries the inventory it was generated from', (
       expect(accDescrOf(fence.source)).toContain(`${commands} ${noun}`);
     }
   });
+
+  // THE `enforcement` FIELD, read here for the first time. It has been in the manifest since ADR-0043
+  // and NOTHING in this suite looked at it: the old drawing carried the same claim as EDGE STYLING, and
+  // styling is not comparable to a JSON field, so the picture's central assertion — hooks deny, personas
+  // advise, everything else documents — was authored by hand and checked by nobody. Flip
+  // `permission-guard.sh` to `"advises"` in the manifest and every assertion in this file stayed green.
+  //
+  // The redraw moves that claim onto COLUMN MEMBERSHIP, which is comparable, and this is the pass that
+  // compares it. The grid is a cartesian product — 4 kinds × 3 enforcement classes — so each of the
+  // twelve cells is a falsifiable statement, and the SEVEN EMPTY ONES are the drawing's real argument.
+  const CELLS = {
+    denies: { hook: 'HKD', persona: 'PSD', 'skill-library': 'SKD', command: 'CMD' },
+    advises: { hook: 'HKA', persona: 'PS', 'skill-library': 'SKA', command: 'CMA' },
+    documents: { hook: 'HKR', persona: 'PSO', 'skill-library': 'SK', command: 'CM' },
+  };
+  // The em dash a cell opens with when it is empty. Read off the label rather than off a class list: a
+  // reader sees the words, and `class … empty` could be applied to a populated cell without changing them.
+  const drawnEmpty = (label) => label.startsWith('—');
+
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('draws a cell empty if and only if the manifest says so, in the %s edition', (_locale, fence) => {
+    const source = fence().source;
+    const wrong = [];
+    for (const [enforcement, byKind] of Object.entries(CELLS)) {
+      for (const [kind, id] of Object.entries(byKind)) {
+        const populated = harness.some((c) => c.kind === kind && c.enforcement === enforcement);
+        if (populated === drawnEmpty(nodeLabel(source, id))) wrong.push(`${kind} × ${enforcement} (${id})`);
+      }
+    }
+    expect(wrong, 'a cell contradicts the manifest it was generated from').toEqual([]);
+  });
+
+  // The claim the whole grid exists to make, derived rather than typed: exactly ONE kind can refuse, and
+  // it is the hook. Give a persona `"enforcement": "denies"` in the plugin and this reddens — which is
+  // the point, because at that moment the page's central sentence stops being true.
+  it('derives the claim the grid makes: one kind refuses, and it is the hook', () => {
+    const kinds = [...new Set(harness.map((c) => c.kind))];
+    const refusing = kinds.filter((k) => harness.some((c) => c.kind === k && c.enforcement === 'denies'));
+    expect(refusing, 'the grid claims exactly one kind can refuse').toEqual(['hook']);
+  });
+
+  // …and the count of empty cells, which is what both editions publish IN WORDS. Spelled numerals are
+  // why this needs a table; the table THROWS on a number it does not carry rather than skipping the
+  // assertion, so a plugin change that moves the count fails here by name instead of passing quietly.
+  const NUMERALS = {
+    5: { en: 'five', pt: 'cinco' },
+    7: { en: 'seven', pt: 'sete' },
+    12: { en: 'twelve', pt: 'doze' },
+  };
+  const word = (n, locale) => {
+    const entry = NUMERALS[n];
+    if (!entry) throw new Error(`no ${locale} word for ${n} — the grid's shape changed; extend NUMERALS`);
+    return entry[locale];
+  };
+
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('publishes how much of the grid is empty, in the %s edition', (_locale, fence) => {
+    const cells = Object.entries(CELLS).flatMap(([enforcement, byKind]) =>
+      Object.keys(byKind).map((kind) => harness.some((c) => c.kind === kind && c.enforcement === enforcement)),
+    );
+    const empty = cells.filter((populated) => !populated).length;
+    const descr = accDescrOf(fence().source);
+    expect(descr).toContain(word(cells.length, _locale));
+    expect(descr).toContain(word(cells.length - empty, _locale));
+    expect(descr).toContain(word(empty, _locale));
+  });
+
+  // The lane column — the per-kind totals, in each edition's own noun. Derived from the manifest, never
+  // typed: the whole reason this block exists is that it must redden when the plugin grows a persona or
+  // loses a command. `skill-library` is the one row that carries its size in a FIELD rather than in a row
+  // count, which is why it is read from `skills` and not from `.length`.
+  it.each([
+    ['en', () => enFence, 'commands'],
+    ['pt', () => ptFence, 'comandos'],
+  ])('carries the manifest’s per-kind totals in the %s lane column', (_locale, fence, commandNoun) => {
+    const source = fence().source;
+    const library = of('skill-library');
+    expect(library.length, 'exactly one skill-library row, or the count below is an arbitrary pick').toBe(1);
+    expect(nodeLabel(source, 'LH')).toContain(`hooks · ${of('hook').length}`);
+    expect(nodeLabel(source, 'LP')).toContain(`personas · ${of('persona').length}`);
+    expect(nodeLabel(source, 'LS')).toContain(`skills · ${library[0].skills}`);
+    expect(nodeLabel(source, 'LC')).toContain(`${commandNoun} · ${of('command').length}`);
+  });
+
+  // The documents cell splits the hooks by EVENT, and both halves are derived. The leading total is the
+  // count of hooks with no tool call in front of them — which is "every hook that is not PreToolUse",
+  // stated that way so registering a hook on a fourth event moves the number here rather than leaving
+  // the cell quietly under-counting.
+  it.each([
+    ['en', () => enFence],
+    ['pt', () => ptFence],
+  ])('states the per-event hook counts in the %s edition', (_locale, fence) => {
+    const subagent = of('hook').filter((c) => c.event.startsWith('Subagent')).length;
+    const noCallToRefuse = of('hook').filter((c) => c.event !== 'PreToolUse').length;
+    const label = nodeLabel(fence().source, 'HKR');
+    expect(label.startsWith(`${noCallToRefuse} hooks · `), 'the cell must open with its own total').toBe(
+      true,
+    );
+    expect(label).toContain(`${subagent} hooks · Subagent`);
+  });
 });
 
 describe('the components diagram distinguishes a mechanism from a convention', () => {
@@ -479,17 +617,16 @@ describe('the components diagram distinguishes a mechanism from a convention', (
     expect(accented[0]).not.toBe(dashed[0]);
   });
 
-  it.each([
-    ['en', () => enFence],
-    ['pt', () => ptFence],
-  ])('draws the deny edge and the advise edge differently in the %s edition', (_locale, fence) => {
-    const svg = svgs[normalise(fence().source)];
-    const edges = [...svg.matchAll(/class="[^"]*flowchart-link"[^>]*style="([^"]*)"/g)].map((m) => m[1]);
-    expect(edges.filter((s) => /#FF5A00/i.test(s)).length, 'no edge denies').toBe(1);
-    expect(edges.filter((s) => /stroke-dasharray/.test(s)).length, 'no edge advises').toBe(1);
-    // The plain ones must still exist, or "different" was achieved by styling everything.
-    expect(edges.filter((s) => !/#FF5A00|stroke-dasharray/i.test(s)).length).toBeGreaterThan(1);
-  });
+  // THE EDGE-STYLING TEST WAS HERE, and it went with the edges it was written about. It asserted exactly
+  // one accent-coloured link and exactly one dashed link in the compiled SVG — the old drawing carried
+  // ADR-0043's non-negotiable (hooks deny, personas advise, never drawn alike) as ARROW styling, and the
+  // grid that replaced it has no directed edges at all, so the block would have failed against a picture
+  // nobody had decided to keep.
+  //
+  // The requirement did not go anywhere; its CARRIER moved. It is now column membership, checked against
+  // the manifest's `enforcement` field in the block above — which is strictly stronger, because a styled
+  // arrow was authored by hand and a column is compared to JSON. The node-styling test above still holds
+  // the visual half. ADR-0043 owes an amendment recording that move; that is `tech-lead`'s to write.
 
   // The other half of the same requirement, and the half a drawing cannot carry: a reader using a screen
   // reader gets the accDescr and nothing else. An accDescr that flattens deny into advise re-publishes

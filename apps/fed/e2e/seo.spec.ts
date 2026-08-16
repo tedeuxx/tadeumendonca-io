@@ -104,16 +104,17 @@ test.describe('SEO discovery', () => {
   // page.goto would run the app and pass whether or not the SVG was ever prerendered. Each edition is
   // checked for a label only IT has, which is what catches the en diagram being served on /pt.
   test('a JS-less crawler receives the architecture diagram, in the right language', async ({ request }) => {
-    // THE PT PROBE MOVED IN #448, and the reason is worth keeping: it used to be `Leitor`, which lived
-    // in the request-path figure the restructure cut. `Reader` survived on the en side by accident — it
-    // is in the layers figure too — so a naive fix would have left the pt half probing a word that is
-    // now nowhere and reported it as "the wrong edition is being served". The pair is now `Dispositivo`
-    // / `Reader`, both from the layers figure, and both were checked against the BUILT bytes to be
-    // present in their own edition's SVG regions and absent from the other's — which is the property
-    // this assertion needs and the one a source-level guess cannot establish.
+    // THE PROBES MOVE WHENEVER THE FIGURE THEY LIVE IN IS REDRAWN, and each move has to be re-established
+    // against the BUILT bytes rather than guessed from source. #448 moved the pt probe off `Leitor` when
+    // the request-path figure was cut; the lanes redraw retires `Dispositivo`/`Reader` for the same
+    // reason — the capitalised forms lived in node labels that no longer exist, and `Reader` had survived
+    // on the en side by accident. The pair is now the lowercase `dispositivo` / `device`, both from the
+    // lanes-and-tiers figure, and both were verified present in their own edition's SVG regions and
+    // absent from the other's in `dist/` — which is the property this assertion needs and the one a
+    // source-level guess cannot establish.
     for (const [path, mine, theirs] of [
-      ['/pt/architecture/', 'Dispositivo', 'Reader'],
-      ['/en/architecture/', 'Reader', 'Dispositivo'],
+      ['/pt/architecture/', 'dispositivo', 'device'],
+      ['/en/architecture/', 'device', 'dispositivo'],
     ]) {
       const html = await (await request.get(path)).text();
       expect(html, `${path} must carry inline SVG`).toContain('<svg');

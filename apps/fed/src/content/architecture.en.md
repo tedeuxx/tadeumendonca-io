@@ -65,26 +65,45 @@ A fully static SPA — React + Vite + TypeScript — served from **S3 behind Clo
 
 *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
-In layers — and **the interesting thing about this picture is what is not in it**:
+End to end, backstage included — and **the interesting thing about this picture is what is not in it**:
 
 ```mermaid
-flowchart TB
-  accTitle: The layers, and the build lane that replaces the missing ones
-  accDescr: Two lanes — two times, not two sides of the picture. The build lane: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result to the S3 origin. The serving lane: the reader's device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then that same S3 origin holding the prerendered files. There is no application server and no database. Everything a backend would normally do at request time happens in the build lane instead.
-  subgraph build["BUILD — runs on merge, not on request"]
-    direction TB
-    C["Content in the repo<br/>markdown · typed TypeScript"] --> P["Pipeline<br/>gates · prerender both locales · print /cv.pdf"]
+flowchart LR
+  accTitle: The lanes and the tiers — what the reader meets, and what keeps it standing
+  accDescr: A grid read from left to right, four columns wide — public, devices, frontend and cloud infra — with three lanes stacked inside them. The top lane is the audience, what the reader meets on the site: the public arrives from a link, the device asks for a URL, and what comes back is prerendered HTML in both locales, with the React SPA taking over afterwards and no third party loaded before the reader allows it — GA4 only on consent, YouTube only on a click. That page comes whole from the cloud infra column: Route 53, ACM, CloudFront with its rewrite function, a private S3 bucket that answers only that distribution, and the apex email records. Between frontend and infra there is no backend column, and that absence is the claim this drawing makes: there is no application tier, because the requirement never asked for one, and nothing of mine runs per request. The two lower lanes are the backstage, what nobody sees and what keeps the operation running. The production lane: I open the Issue and ratify the irreversible; GitHub is the console, from any device, and a claude mention runs the agent inside CI with no machine of mine switched on; the repository and the build carry the personas, the hooks that deny the call and the gates, and produce both locales and the CV PDF; Terraform applies the infrastructure pipeline-only, with state in Terraform Cloud. The operation lane is the thinnest, and it is thin as a finding rather than by design: what I measure is GA4 after consent, so whoever declines is never counted; nothing watches the reader's device, no RUM, no access log and no uptime monitor; after every deploy a smoke run hits the live apex and checks that the published function is this repository's; and over the whole account there is a budget that emails, which is the only continuous watcher there is.
+  subgraph T1["PUBLIC"]
+    A1["AUDIENCE<br/>readers, recruiters<br/>whoever arrived from a link"]
+    B1["BACKSTAGE · production<br/>me — I open the Issue<br/>and ratify the irreversible"]
+    C1["BACKSTAGE · operation<br/>what I measure: GA4 only after consent<br/>whoever declines is never counted"]
   end
-  subgraph serve["SERVE — every request"]
-    direction TB
-    D["Reader's device"] --> N["DNS"]
-    N --> E["CloudFront edge<br/>URL-rewrite function · cache"]
-    E --> O["S3 origin<br/>prerendered files"]
+  subgraph T2["DEVICES"]
+    A2["browser, phone<br/>and the LinkedIn and X scrapers<br/>asking for the same URL"]
+    B2["GitHub, from any device<br/>Issue, comment, PR<br/>a claude mention runs the agent in CI"]
+    C2["nothing watches the device<br/>no RUM, no access log<br/>no uptime monitor"]
   end
-  P -- "publishes" --> O
+  subgraph T3["FRONTEND"]
+    A3["prerendered HTML in both locales<br/>the React SPA takes over after<br/>no third party before the reader allows it"]
+    B3["the repository and the build<br/>personas in agents and hooks that deny the call<br/>lint, types, coverage, E2E, Sonar<br/>both locales and the CV PDF"]
+    C3["after every deploy<br/>a smoke run against the live apex<br/>and the live function checked against this repo"]
+  end
+  subgraph T4["CLOUD INFRA"]
+    A4["Route 53 · ACM · CloudFront with the rewrite function<br/>private S3, reachable only by OAC<br/>apex email: MX, DKIM and SPF to iCloud+"]
+    B4["Terraform, pipeline-only<br/>plan on the PR, apply on merge, over OIDC<br/>state in Terraform Cloud"]
+    C4["over the whole account<br/>a budget that emails<br/>the only continuous watcher"]
+  end
+  A1 -- "opens a link" --> A2
+  A2 -- "asks for a URL" --> A3
+  A3 -- "comes whole from here — and there is no backend between the two" --> A4
+  B1 -- "opens the work" --> B2
+  B2 -- "starts the agent loop" --> B3
+  B3 -- "publishes to the origin" --> B4
+  C1 ~~~ C2
+  C2 ~~~ C3
+  C3 ~~~ C4
+  linkStyle 2 stroke-dasharray:6 4
 ```
 
-**The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated. And "no backend" raises one question before all others — how does a crawler see this — whose answer is that nothing has to be **rendered** for it to: what it asks for comes back as complete HTML, with the OG tags already in it, straight from a static file. No SSR, no edge rendering — the edge's rewrite function runs on every request for a page and touches the URL, nothing else.
+**The absence is the design, not a gap.** A picture like this, for a system like this, usually carries an application column, a database and internal integrations between the frontend and the infrastructure; here there is no column there at all, and what the reader asks for comes whole out of a bucket. The only third party at runtime is analytics, and it is consent-gated. And "no backend" raises one question before all others — how does a crawler see this — whose answer is that nothing has to be **rendered** for it to: what it asks for comes back as complete HTML, with the OG tags already in it, straight from a static file. No SSR, no edge rendering — the edge's rewrite function runs on every request for a page and touches the URL, nothing else.
 
 The limit travels with the claim, because it is the part a reader can falsify: **a URL that does not exist answers 200, not 404 — and what comes back is the landing page**, complete with the landing page's own OG tags, under an address that was never real. CloudFront maps `403` and `404` onto `/index.html`, which is what lets a SPA work on deep routes and is a real trade rather than a detail. It has bitten here once: a path misroute sent the per-article OG images into that same fallback, and each one answered `200 text/html` to every scraper that asked.
 
@@ -110,53 +129,122 @@ Outside the total sits every hour of mine as well: **USD 6.57 a month is what it
 The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site.
 
 ```mermaid
-flowchart TD
-  accTitle: Where the human sits in the loop
-  accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates. A fresh-context reviewer then judges the change. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work - infrastructure, the loop's own rules, publishing an article - routes to a human go or no-go, which is the last thing before production. The three points that can refuse - the gates on red, the reviewer asking for changes, and the human on a no-go - all feed one box, sent back, and it is that box which returns to the build. One return channel, not three.
-  I["Issue"] --> P["Plan, decided by the human"]
-  P --> B["Agent builds the slice"]
-  B --> G["Mechanical gates"]
-  G -- "green" --> R["Fresh-context reviewer"]
-  R -- "safe class" --> M["Merge = deploy"]
-  R -- "boundary class" --> H["Human go / no-go"]
-  H -- "go" --> M
-  G -- "red" --> V["Sent back"]
-  R -- "changes" --> V
-  H -- "no-go" --> V
-  V --> B
+flowchart TB
+  accTitle: How work crosses the agent tiers — and where I come in
+  accDescr: A top-to-bottom flow in three tiers, with the owner at both ends and one large box in the middle that runs without him. At the top is me: I am the only origin of demand, and I open the Issue. Tier 1 is intake, and it is not one box: it is three lanes, and the issue's type decides which one it enters. A product issue closes through the two leads that disagree by design, product-lead and tech-lead. A content issue closes through the lens that holds my voice, product-lead alone. A loop issue, which is the machinery itself, closes through harness-lead and tech-lead together, because it is the kind of change most likely to need an ADR. The three lanes all reach the same ready label, which is the artifact saying the description was closed — and on a loop issue that label is mine alone to apply. From ready downwards the AFK stretch begins, the part that runs without asking once I tell it to drain the queue: everything inside passes through the orchestrator, which is the main session and the hub every lane goes through, which commits and pushes, and which never merges and never decides the irreversible. It dispatches tier 2, the build, split by type as well: developer on product, writer on content, harness-lead on loop, building what it has just stress-tested. Out of that comes one merge request per story, reaching tier 3 — fresh context, no authorship bias — where quality-assurance checks the Definition of Done and, separately, whether this can break production; it is the only one that may merge. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing in my voice — leaves the AFK stretch and comes back to me, and only after my go does it ship. Refusal is a single channel: the gate asking for changes and my no-go land in the same sent-back box, and that box returns through the orchestrator, never straight to whoever built it. Nine persona boxes, six names: product-lead, tech-lead and harness-lead appear in more than one lane because the same profile is dispatched at different moments. And there is a dashed channel between me and the orchestrator for when something is stuck — it exists throughout and it is not on the path. That is the claim this drawing makes: between the ready label and the merge there is no human on the path, and I appear only at the two ends — what crosses that stretch alone is the safe class only.
+  H(["HITL · ME<br/>the only origin of demand<br/>I open the Issue"])
+  subgraph T1["TIER 1 · INTAKE — the issue's type picks the lane"]
+    direction LR
+    subgraph L1["product — disagree by design"]
+      PL["product-lead"]
+      TL["tech-lead"]
+    end
+    subgraph L2["content — my own voice"]
+      PC["product-lead"]
+    end
+    subgraph L3["loop — the machinery"]
+      LM["harness-lead"]
+      LT["tech-lead"]
+    end
+  end
+  RQ{{"ready label — the description closed<br/>on a loop issue, mine alone to apply"}}
+  subgraph AFK["AFK · from ready to merge it runs without asking"]
+    ORCH["ORCHESTRATOR · the main session<br/>dispatches every persona, commits, pushes<br/>never merges, never decides the irreversible"]
+    subgraph T2["TIER 2 · BUILD"]
+      direction LR
+      DEV["developer<br/>product"]
+      WRT["writer<br/>content"]
+      LB["harness-lead<br/>loop — builds what it stress-tested"]
+    end
+    MR{{"MERGE REQUEST · one per story"}}
+    subgraph T3["TIER 3 · GATE — fresh context, no authorship bias"]
+      QA["quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
+    end
+    V["sent back — one return channel"]
+    M{{"merge to main = the deploy"}}
+  end
+  HO(["HITL · ME<br/>boundary class: irreversible, architectural<br/>go / no-go"])
+  H -- "product" --> PL
+  H -- "product" --> TL
+  H -- "content" --> PC
+  H -- "loop" --> LM
+  H -- "loop" --> LT
+  PL --> RQ
+  TL --> RQ
+  PC --> RQ
+  LM --> RQ
+  LT --> RQ
+  RQ --> ORCH
+  ORCH -- "product" --> DEV
+  ORCH -- "content" --> WRT
+  ORCH -- "loop" --> LB
+  DEV --> MR
+  WRT --> MR
+  LB --> MR
+  MR -- "dispatched by the orchestrator" --> QA
+  QA -- "safe class" --> M
+  QA -- "boundary class" --> HO
+  HO -- "go" --> M
+  QA -- "changes" --> V
+  HO -- "no-go" --> V
+  V --> ORCH
+  H <-.-> ORCH
 ```
 
-The human appears twice, and they are different jobs: at the plan, deciding what is worth building and how — the architectural calls are never made solo — and at the end, on boundary-class work only, deciding whether it ships. And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — it is a static site, and a revert is a merge.
+I appear at both ends, and they are different jobs: at the start, opening the Issue, and at the end, on boundary-class work only, deciding whether it ships. Between one end and the other there is no human on the path. And the drawing claims something stricter than "at the plan": I am the **only origin of demand** — nothing enters the queue on its own — and what closes intake is the `ready` label, the artifact saying the description was closed; from `ready` downwards, only the safe class crosses alone. And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — it is a static site, and a revert is a merge.
 
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based, one environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
 ### What the harness is made of
 
 ```mermaid
-flowchart TB
+flowchart LR
   accTitle: What the harness is made of
-  accDescr: Three kinds of component, drawn apart because they do not have the same force. The hooks registered in hooks.json — permission-guard and wip-guard run on the PreToolUse event with the matcher Bash and REFUSE a tool call before it runs; session-wip and session-plugin-version run on SessionStart, and dispatch-metrics-start and dispatch-metrics-stop run on SubagentStart and SubagentStop, three events that each hand a hook no tool call to refuse, which is why none of the four are on the deny side — the class states what a hook on one of those events cannot STOP rather than promising that it merely watches: a hook on any of those events runs and can act, it simply has no tool call in front of it to deny. All four only report. That is a fact about each script, not a property of the event. The personas in the agents directory — developer, harness-lead, product-lead, quality-assurance, tech-lead and writer — only ADVISE, which is a claim about their JUDGEMENT and not about their seat. quality-assurance is the sharpest case in both directions: permission-guard rule 7b refuses the merge command from every agent type except that one, so WHO merges is mechanically forced — and nothing anywhere checks whether the review was performed, or performed well. harness-lead is weaker still, and must not be read as the same thing: it runs before anything is built rather than after, it gates nothing, and nothing forces it to be dispatched at all — a lens that is not dispatched fails silently. product-lead is the mirror case: it BLOCKS a merge when it finds a published claim that is untrue, but by convention rather than by hook, so nothing refuses the merge command on its behalf — and writer, the persona that drafts published prose, is contained by the same mechanism product-lead is: a permission-guard rule denies it posting directly, since it reads private material to draft. The skill library in the skills directory — 13 skills, which is what the model reaches for on its own — plus autonomy-off, autonomy-on and new-issue, the 3 commands in the commands directory, which are what a person types, only DOCUMENT: they remove a re-decision. In the drawing the deny edge is thick and in the accent colour, the advise edge is dashed, and the document edges are plain. That difference is the claim, not decoration.
-  HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
-  PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
-  SK["13 skills · skills/<br/>what the model reaches for"]
-  CM["autonomy-off<br/>autonomy-on<br/>new-issue<br/>3 commands · commands/<br/>what you type"]
-  HKR["4 hooks, reporting only<br/>2 hooks · SessionStart<br/>2 hooks · SubagentStart/SubagentStop<br/>session-wip<br/>session-plugin-version<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
-  DE["What the agent decides"]
-  RU["What the agent runs"]
-  GM["Then the gates, then the merge<br/>— the flow above"]
-  HKD -- "denies the call" --> RU
-  PS -- "advises, if dispatched" --> DE
-  SK -- "documents" --> DE
-  CM -- "documents" --> DE
-  HKR -- "documents" --> DE
-  DE --> RU
-  RU --> GM
+  accDescr: A grid: four lanes, one per kind of component the plugin exports, crossed with three columns, one per class of force. The lanes are the 6 hooks registered in hooks.json, the 6 personas in the agents directory, the 13 skills in the skills directory, and the 3 commands in the commands directory. Of the twelve cells, five hold something and seven are empty — and the empty ones are the drawing's claim. The deny column holds exactly one cell: permission-guard and wip-guard, the 2 hooks on the PreToolUse event with the matcher Bash, which REFUSE a tool call before it runs; persona, skill and command have no cell there at all. The middle column holds one too: the personas developer, harness-lead, product-lead, quality-assurance, tech-lead and writer only ADVISE, which is a claim about their JUDGEMENT and not about their seat. quality-assurance is the sharpest case in both directions: permission-guard rule 7b refuses the merge command from every agent type except that one, so WHO merges is mechanically forced — and nothing anywhere checks whether the review was performed, or performed well. harness-lead is weaker still, and must not be read as the same thing: it runs before anything is built rather than after, it gates nothing, and nothing forces it to be dispatched at all — a lens that is not dispatched fails silently. product-lead is the mirror case: it BLOCKS a merge when it finds a published claim that is untrue, but by convention rather than by hook, so nothing refuses the merge command on its behalf; and writer, the persona that drafts published prose, is contained by the same mechanism product-lead is — a permission-guard rule denies it posting directly, since it reads private material to draft. The third column, the one whose components only DOCUMENT, holds three cells: the 13 skills, which is what the model reaches for on its own, the 3 commands, which is what a person types, and the other 4 hooks — session-wip and session-plugin-version on SessionStart, dispatch-metrics-start and dispatch-metrics-stop on SubagentStart and SubagentStop. Those four sit in that column because the three events each hand a hook no tool call to refuse: the column states what a hook on one of those events cannot STOP rather than promising that it merely watches — a hook on any of them runs and can act, it simply has no tool call in front of it to deny. All four only report, and that is a fact about each script, not a property of the event. Read end to end, the grid is mostly empty, and that emptiness is what it asserts: of everything the plugin exports, exactly one kind — a hook on PreToolUse — can refuse; everything else advises or documents.
+  subgraph LANE["kind · what -skills exports"]
+    direction TB
+    LH["hooks · 6<br/>hooks.json"]
+    LP["personas · 6<br/>agents/"]
+    LS["skills · 13<br/>skills/"]
+    LC["commands · 3<br/>commands/"]
+    LH ~~~ LP ~~~ LS ~~~ LC
+  end
+  subgraph COLD["DENIES · refuses the call before it runs"]
+    direction TB
+    HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
+    PSD["— no persona"]
+    SKD["— no skill"]
+    CMD["— no command"]
+    HKD ~~~ PSD ~~~ SKD ~~~ CMD
+  end
+  subgraph COLA["ADVISES · if dispatched, and nothing checks the judgement"]
+    direction TB
+    HKA["— no hook"]
+    PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
+    SKA["— no skill"]
+    CMA["— no command"]
+    HKA ~~~ PS ~~~ SKA ~~~ CMA
+  end
+  subgraph COLO["DOCUMENTS · removes a re-decision"]
+    direction TB
+    HKR["4 hooks · no call to refuse<br/>2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>2 hooks · SubagentStart and SubagentStop<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
+    PSO["— no persona"]
+    SK["13 skills · skills/<br/>what the model reaches for"]
+    CM["3 commands · commands/<br/>what you type<br/>autonomy-off<br/>autonomy-on<br/>new-issue"]
+    HKR ~~~ PSO ~~~ SK ~~~ CM
+  end
+  LANE ~~~ COLD ~~~ COLA ~~~ COLO
   classDef mechanism stroke:#FF5A00,stroke-width:3px
   classDef convention stroke-dasharray:6 4
+  %% `empty` must never use #FF5A00 or a stroke-dasharray: the suite counts exactly one accented box
+  %% (the mechanism) and exactly one dashed box (the convention) in the compiled SVG, and either token
+  %% here would make seven empty cells claim a force they do not have. It must also stay inside ADR-0008's
+  %% three colours — the first draft receded these cells with #555555/#888888 and the palette gate caught
+  %% it in both editions. Opacity is how a cell recedes here; a fourth grey is not available.
+  classDef empty fill:none,stroke:#F5F4EF,color:#F5F4EF,opacity:0.45
   class HKD mechanism
   class PS convention
-  linkStyle 0 stroke:#FF5A00,stroke-width:3px
-  linkStyle 1 stroke-dasharray:6 4
+  class PSD,SKD,CMD,HKA,SKA,CMA,PSO empty
 ```
 
 **Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch: the two `PreToolUse` hooks return a denial *before* the tool runs, and the command does not happen. The other four run on events that hand them no tool call to refuse, so they only report. And the personas **advise** — their judgement is checked by nothing, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. That is the guarantee the loop gives — and it is worth exactly what the inventory in the drawing above is worth.
@@ -184,7 +272,7 @@ Two things in that last column are worth saying. **`harness-engineering` and `co
 
 ## Pillar 3 · the runtime
 
-The orchestrator is the part of the harness you **cannot install**. It is in none of the inventory above — not in the drawing, not in the manifest — and it is the main session: the context that reads an Issue, decides which persona to dispatch, and weighs what comes back. The **actor** is not a plugin component, its **policy** partly is, and what you supply is the context that runs it. It is also the party the boundaries above are drawn *against*: the gloss *advises, if dispatched* names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
+The orchestrator is the part of the harness you **cannot install**. It is in none of the inventory above — not in the components grid, not in the manifest, even though the tier flow draws it right in the middle of the AFK stretch — and it is the main session: the context that reads an Issue, decides which persona to dispatch, and weighs what comes back. The **actor** is not a plugin component, its **policy** partly is, and what you supply is the context that runs it. It is also the party the boundaries above are drawn *against*: the column title *advises · if dispatched* names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
 
 **And its context runs out.** That is what a subagent buys: it reads, runs, gets it wrong and redoes it **inside its own session**, and what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution**, which is why the one real lever this harness has is verdict length, turned by writing the persona briefs. I measured it once, on this repo's own session, on 7–8 August 2026, by parsing the transcripts: what stayed inside the subagents was over an order of magnitude more than what came back. And the saving has a ceiling — even so, the returned verdicts were a large slice of everything the orchestrator took in from a tool. It is not an escape: that session compacted twice anyway. **The number is not published, because the input is a private session transcript that no gate can reach.**
 
