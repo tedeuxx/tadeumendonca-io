@@ -57,15 +57,16 @@ test.describe('copying the page as markdown', () => {
     // CLEAN. Every other share URL on this site is UTM-tagged; this one is a citation and is not.
     expect(text).not.toContain('utm_');
 
-    // The three payload defects, checked against the served build rather than against a fixture.
+    // The payload defects, checked against the served build rather than against a fixture.
+    //
+    // THE `adr-index` FENCE IS GONE FROM THIS PAGE. The owner cut the rendered 48-row table; the section
+    // now argues why the record exists, states the count, and links the library. So the assertion that
+    // used to pin the generated `[Índice de decisões (ADRs), no repositório](…)` substitution was pinning
+    // a substitution with no input left, and would have reddened on correct output. The generated link is
+    // still exercised on synthetic input in `shareMarkdown.test.ts`.
     expect(text).not.toContain('adr-index');
-    // THE WHOLE GENERATED LINK, label included. The body's own prose already links `…/docs/adr/README.md`,
-    // so asserting the URL alone is satisfied by the body and cannot see the fence resolving wrongly —
-    // that exact false-green was found by mutation. The URL is the CURATED index rather than the bare
-    // directory, so one copied document does not carry two destinations for one object.
-    expect(text).toContain(
-      '[Índice de decisões (ADRs), no repositório](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)',
-    );
+    // What the reader must still be able to follow: the library itself, from the section's own prose.
+    expect(text).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md');
     // No root-relative LINK target survives. Scoped to links rather than to every `](/…)`, because an
     // image is deliberately left as authored (the renderer does not localize one either) — a blanket
     // assertion here would go red the day someone writes `![x](/og-default.png)`, for behaviour this

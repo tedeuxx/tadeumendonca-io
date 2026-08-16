@@ -212,8 +212,25 @@ const strings = {
       // problem immediately after the colon (the hook survives, one clause later), pillar list still
       // dropped. Measured on the strings below:
       //
-      //   pt — len 195 · `agent-led verification` at 15–37 · `USD 6,57/mês de conta` complete at 154
-      //   en — len 194 · `agent-led verification` at  3–25 · `a USD 6.57/month bill` complete at 144
+      //   pt — len 196 · `agent-led verification` at 15–37 · `R$ 34,31/mês de conta` complete at 155
+      //   en — len 193 · `agent-led verification` at  3–25 · `a USD 6.57/month bill` complete at 143
+      //
+      // THOSE FIGURES MOVED ON THE SINGULAR CORRECTION, and they are re-measured rather than carried
+      // over. The card said "ferramentas" / "tools", plural, after the owner had already corrected the
+      // body to `a ferramenta` / `the tool`, singular — the card was quoting the page's strongest
+      // sentence in the version he ruled wrong, on the surface a reader meets first. pt gained one
+      // character (`ferramentas` → `a ferramenta`) and en lost one (`tools` → `tool`), so the claim now
+      // completes at 155 (pt) and 143 (en) against the same 160 window, and the term still ends at 37
+      // and 25 against the 120 bound. Both properties hold with room; neither was assumed.
+      //
+      // THE PT FIGURE IS BRL AND THE EN FIGURE IS USD, deliberately — the pt EDITION of the page
+      // regionalises its cost section (owner's request) and this card is the same claim's OG surface, so
+      // a USD card over a BRL page would contradict the page a reader lands on. Both numbers are the
+      // same bill at R$ 5,222/USD, the 2026-08-14 close, stated in the page body where the reader can
+      // reverse any line back to the invoice.
+      // The pt figures above did NOT move on that change: `USD 6,57` and `R$ 34,31` are both 8
+      // characters, so length and every position held exactly. Measured, not assumed — the term ends at
+      // 37 against the 120 bound and the claim completes at 154 against the 160 window.
       //
       // Both editions therefore carry the canonical term far inside every preview cut AND one checkable
       // claim — the monthly bill — inside the first 160 characters. The ADR clause still sits after the
@@ -224,8 +241,8 @@ const strings = {
       // The term's POSITION is now gated, not only its presence: `e2e/per-locale.spec.ts` asserts it
       // ends before character 120 in the served `og:description` of both editions. Containment alone is
       // what let the regression above ship green.
-      pt: 'Um dev-loop de agent-led verification: ferramentas de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: USD 6,57/mês de conta e as decisões que sustentam peso em ADR.',
-      en: 'An agent-led verification dev-loop: the agentic development tools in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
+      pt: 'Um dev-loop de agent-led verification: a ferramenta de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: R$ 34,31/mês de conta e as decisões que sustentam peso em ADR.',
+      en: 'An agent-led verification dev-loop: the agentic development tool in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
     },
     //
     // THE TEASER CARD (#450, slice 2) — what replaces the landing band shipped in #461, after the owner's

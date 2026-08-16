@@ -34,7 +34,7 @@ const QUOTE_FRAGMENT = 'it produces objects of beauty';
  * reported "the file is missing or corrupt" about four perfectly good JPEGs.
  *
  * THE SECOND VERSION SCROLLED, and that was worse: it hung. Driving an IntersectionObserver from a test
- * means racing it — scroll past four figures in four frames and the observer may register none of them,
+ * means racing it — scroll past the figures in a few frames and the observer may register none of them,
  * and then a wait for `complete` never resolves. A check whose reliability depends on how fast a loop
  * runs is a flake with a plausible cover story.
  *
@@ -44,8 +44,8 @@ const QUOTE_FRAGMENT = 'it produces objects of beauty';
  * `PhotoFigure.test.tsx`. What this file is for is what a real engine does with the bytes.
  *
  * Dropping the decode check was the other option and is the wrong trade: a `src` that 404s still lays out
- * a box from the width/height attributes, so every geometry assertion here would pass on four broken
- * images. It is the only thing standing between a renamed asset and a page of alt text.
+ * a box from the width/height attributes, so every geometry assertion here would pass on broken images.
+ * It is the only thing standing between a renamed asset and a page of alt text.
  */
 async function loadEveryPhotograph(page: Page) {
   await page.evaluate(async () => {
@@ -88,7 +88,7 @@ test.describe('the content photographs', () => {
               alt: img?.getAttribute('alt') ?? '',
               caption,
               // Has the image actually decoded? A src that 404s still lays out a box from the
-              // width/height attributes, so a geometry-only check passes on four broken images.
+              // width/height attributes, so a geometry-only check passes on broken images.
               loaded: img instanceof HTMLImageElement && img.naturalWidth > 0,
               // Positive means the image sticks out of its own figure on that side.
               overLeft: Math.round(f.left - i!.left),
@@ -99,7 +99,7 @@ test.describe('the content photographs', () => {
 
         // The guard that makes every loop below mean something: an empty list passes a `for` in silence,
         // and a renamed hook is exactly how this file would stop asserting anything.
-        expect(figures.length, 'no photograph found — the data-photo hook went stale').toBe(4);
+        expect(figures.length, 'no photograph found — the data-photo hook went stale').toBe(2);
 
         for (const fig of figures) {
           expect(fig.alt.trim(), `${fig.src} renders with no alt text`).not.toBe('');

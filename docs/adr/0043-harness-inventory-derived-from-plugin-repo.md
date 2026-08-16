@@ -953,6 +953,135 @@ the tokenless second checkout, the exclusion from `deploy`'s gate filter and the
 description is not* limit all stand exactly as decided. Nothing here decides anything about the plugin's
 own layout move — that is `-skills`#164's decision, recorded in the methodology library, not this one.
 
+## Amendment, 2026-08-16 — the non-negotiable's CARRIER moves from edge styling to column membership, and the move is strictly stronger
+
+**Decides one thing:** the claim this record forbids the page from blurring — hooks deny, personas
+advise, and drawing them alike asserts a mechanism that does not exist — is now carried by **which
+column of a cartesian grid a component's kind appears in, compared cell by cell against the manifest's
+`enforcement` field**, rather than by the styling of a directed edge. The decision itself is untouched.
+Nothing about the manifest, the closed `enforcement` set, the generator, the three-way drift check or
+the tokenless second checkout changes.
+
+**Why this is an amendment and not a new record.** One decision, already taken here, is now enforced by
+a different mechanism. Applied against the significance gate rather than defaulted to: it *alters a
+previously-recorded decision* only in its enforcement, and this record's *What this decides for the
+page* section states the constraint in terms the redraw makes literally false — so leaving it standing
+unamended would publish a requirement about a drawing that no longer exists. It introduces no
+dependency, no schema change and no cross-cutting pattern. **If it had required restating the decision
+rather than recording how it is now held, it would be the owner's record to open, not an amendment.**
+
+**Class: safe.** It records how an existing decision is enforced; it changes no permission, no gate
+filter and nothing about how work is decided. By [ADR-0003](./0003-trunk-based-single-environment.md)'s
+2026-07-31 amendment an amendment that decides is `quality-assurance`'s to merge.
+
+### The clause this re-points
+
+In *What this decides for the page, beyond the mechanism*, item 1:
+
+> **Hooks and CI gates `deny`; personas `advise`; command families `document`.** They must be visually
+> distinguishable, and the accessible description must carry the distinction too — an `accDescr` that
+> flattens it re-publishes the false claim to exactly the reader who cannot see the arrow style.
+
+**Both halves survive; only the second sentence's final noun is now wrong of the drawing.** There is no
+arrow style, because the components fence has **no directed edges at all** — it is a four-lane × three-
+column grid whose only links are mermaid's invisible `~~~`, used to order boxes inside a subgraph. What
+a reader who cannot see the picture is deprived of is therefore **column membership**, and the `accDescr`
+requirement is unchanged in force and in wording: each edition still has to say `REFUSE` / `RECUSAM`,
+`ADVISE` / `ACONSELHAM`, `DOCUMENT` / `DOCUMENTAM` and the *fails silently* clause in words, and
+`architecture-diagrams.test.mjs` still asserts exactly that.
+
+The *Decision drivers* sentence — *"A diagram drawing both with the same arrow would assert a mechanism
+that does not exist"* — is likewise true of the reasoning and stale in its instrument. **Read "arrow" as
+"visual treatment" in both places.** Neither sentence is edited: they are the form the decision was
+argued in, and the argument is what this record keeps.
+
+### Why the new carrier is strictly stronger, stated as what each one could and could not catch
+
+**The styled arrow was hand-authored and compared to nothing.** It was one accent-coloured link and one
+dashed link in the compiled SVG, counted by a test that asserted their cardinality and their difference
+from each other — a true statement about the *drawing's grammar*, and no statement at all about whether
+the drawing agreed with the inventory it was drawn from.
+
+**Measured against the tree at `9439c97`** — the head this branch left `main` at — `enforcement` appears
+in `harness-source.mjs`, `harness-source.test.mjs`, `gen-harness.mjs` and `check-harness-drift.mjs`, and
+in **no assertion that reads the page**. `git grep enforcement 9439c97 -- apps/fed/scripts/architecture-diagrams.test.mjs`
+returns nothing. What did exist was `assertEnforcement`, run by `check-harness-drift.mjs` over every
+component — and it validates only that the *value* is a member of the closed set, never what the picture
+says about it. **So the field was generated, validated and published, and nothing anywhere connected it
+to the claim the picture made.**
+
+The consequence, stated at its worst rather than at its most likely: **the only thing standing between
+this page and a persona drawn as a mechanism was a hardcoded two-name blocklist inside one node's label**
+— `expect(denyNode).not.toContain('quality-assurance')` and `.not.toContain('security')`, read out of the
+`HKD` node — plus `expect(fence.source).toContain('class PS convention')`. A **third** persona placed in
+the deny position would have passed. So would flipping `permission-guard.sh` to `"advises"` in the plugin
+and regenerating: the manifest would have moved and every assertion in that file stayed green.
+
+**The grid derives every cell from the manifest.** Twelve cells — four kinds × three enforcement classes
+— each a falsifiable statement, and the assertion is an equivalence rather than a subset: *a cell is
+drawn empty **if and only if** the manifest holds no component of that kind in that class*, in **both
+editions**. On top of it sit three derived claims the page makes in prose and no longer types: that
+**exactly one kind can refuse and it is the hook** (`expect(refusing).toEqual(['hook'])`, computed from
+the manifest's own kinds, not from a list); the per-kind lane totals; and the per-event hook split, whose
+leading figure is stated as *"every hook that is not `PreToolUse`"* so that a hook registered on a fourth
+event moves the number rather than leaving the cell quietly under-counting.
+
+**That is the difference in one sentence: the old carrier asserted that the drawing was internally
+consistent; the new one asserts that the drawing is true of the plugin.** It is the same upgrade this
+record made for the *counts* in 2026-08-03, arriving three amendments later for the *classes*.
+
+**The blocklist is kept, and keeping it is deliberate.** It is now redundant against the cell equivalence
+in every case that equivalence covers, and it costs two lines to keep a named, human-legible statement of
+the one thing this record forbids outright. A redundant assertion that names the forbidden act is worth
+its cost where a derived one would only say *"a cell contradicts the manifest"*.
+
+### The new constraint on styling, which is a real cost and is booked here
+
+The grid's seven empty cells need a treatment that recedes, and **the `empty` `classDef` may not use the
+accent colour `#FF5A00` and may not carry a `stroke-dasharray`**. Either token would make seven cells
+claim a force they do not have, and would break the two node-styling assertions this record's visual half
+still rests on — *exactly one* accented box (the mechanism) and *exactly one* dashed box (the convention)
+in the compiled SVG, each different from the other.
+
+**It must also stay inside ADR-0008's three colours**, and that half was found by a gate rather than by
+reading: the first draft receded the empty cells with `#555555` and `#888888`, and
+`diagram-source.test.mjs`'s *"diagram %i uses only the palette"* rejected both, **in both editions**. A
+fourth grey is not available, so opacity is how a cell recedes here.
+
+**This is a constraint enforced in two places and stated in a third.** The two assertions redden if it is
+broken; a comment in the fence itself, in both editions, says why — because the person who next wants a
+darker empty cell will be editing the fence, not this record.
+
+### What was lost
+
+**The edge-styling assertion is deleted, with the edges it was written about.** It counted exactly one
+accent-coloured `path.flowchart-link` and exactly one dashed one in the compiled SVG. Nothing replaces it
+in kind, and nothing should: it asserted a property of a drawing that no longer has directed edges.
+
+What went with it is small and worth naming rather than discovering later. It was the only assertion that
+looked at **link** styling on this fence, so a future fence that reintroduces directed edges reintroduces
+an unguarded surface. And it was a second, independent witness to *"one mechanism, one convention"* —
+weaker than the cell equivalence, but reading a different part of the SVG. The node-styling test survives
+and holds the visual half alone.
+
+**One knock-on outside this record's subject, recorded because it was caused by the same redraw:** the
+E2E stroke assertion counted `path.flowchart-link` only, which a grid with no directed edges cannot
+satisfy. It was widened to every stroked shape rather than special-cased, on the ground that the property
+it was always testing is *visible against the canvas*.
+
+### What this does not change
+
+The five fields `adr-source.mjs` publishes per record are untouched: the title is unchanged, the status
+stays `accepted`, and `amended` was already `true`. The `enforcement` set stays **closed at three** — the
+fourth-class question this record has now refused three times is not reopened here, and nothing in the
+grid needs it. The manifest's schema, `KIND_ORDER`, the three-way drift comparison, the tokenless second
+checkout, the exclusion from `deploy`'s gate filter and the *identity is checked, description is not*
+limit all stand exactly as decided.
+
+**The `accDescr` remains authored here and checked for vocabulary, not for truth**, which is the same
+honest limit this record already books twice. The cell equivalence reads the **fence**; a description
+that describes the grid wrongly while containing all four required words still passes.
+
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
   dev-loop **components** diagram, complementing the **flow** diagram shipped by
