@@ -247,7 +247,7 @@ flowchart LR
 
 **Six personas, what each one argues against — and what each one carries when it is dispatched.** The last column is each brief's preload: the skills that enter the persona's session before it reads the first line of the task.
 
-| who | what it owns | what it argues against | what it carries when dispatched |
+| who | what it owns | what it argues against | which skills it carries when dispatched |
 |---|---|---|---|
 | `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue | `harness-engineering` · `definition-of-ready` · `command-hygiene` |
 | `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations | `harness-engineering` · `definition-of-ready` · `documentation-standard` · `devops` · `command-hygiene` |
