@@ -19,7 +19,7 @@ The case that turned it around was not this site. **At the beginning of the year
 
 ![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the week, not the evidence. At Google's visitor centre in Mountain View.")
 
-One morning I took the Caltrain south — 8:57, next stop Palo Alto. The carriage was open laptops end to end, and what was on the screens around me was not email: it was agents running, loop after loop, on a train. And people were talking about it out loud, to whoever was sitting next to them, on the way to work.
+One morning I took the Caltrain south — 8:57, next stop Palo Alto. The carriage was open laptops end to end, loops running, people trading ideas out loud on the way to work. It was not an event, not a community, nothing arranged: it was a lot of people doing the same kind of work, in the same place, at the same time — close enough to overhear without asking and to answer without scheduling. I was inside that for one week, in May. The rest of the year, I am not.
 
 And there is a reason the public front exists rather than a notebook. There are far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and that is why what is here is the whole setup, not only the conclusion it reached.
 
@@ -130,17 +130,6 @@ The human appears twice, and they are different jobs: at the plan, deciding what
 
 *(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based, one environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
-### Six decisions you can check
-
-The picture shows how work moves; what it does not show is that the route was **decided**. A configuration decision is only showable when it carries three things: **the artifact it lives in**, **the alternative that lost**, and **a consequence someone else can check**. Six, from the [methodology decision library](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/docs/adr):
-
-- **A guarantee is a hook or it is an instruction** *(refuses)* — `permission-guard` rule 7b refuses the merge command from every `agent_type` but the gate's, and `agent_type` is stamped by the runtime, unforgeable by the model. The alternative that lost was trusting the instruction. *(→ [ADR-0008](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0008-which-layer-carries-a-control.md))*
-- **A review never opens work** *(refuses)* — every persona except `developer` is denied `gh issue create` by hook. Here too the alternative was trusting the instruction, and the measurement that killed it is published: in one session the queue grew by 19 issues net, roughly 13 of them born inside a review of something else. *(→ [ADR-0013](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0013-the-orchestrator-is-a-named-role-not-a-persona.md))*
-- **Six personas, not nineteen** *(advises)* — a persona exists where a disagreement is wanted, not where an org chart has a box; reconciliation cost is paid *within* a tier, not across tiers. The checkable consequence is the drawing below: rename a persona and this repository's build goes red. *(→ [ADR-0002's amendments](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md))*
-- **A verdict owed to another persona is an artifact** *(documents)* — the gate posts its verdict as a comment on the PR, carrying the head SHA it read. The alternative that lost was the verdict coming back through conversation; this way, a verdict on a head that has moved fails loudly instead of reading as approval. *(→ [ADR-0006](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0006-a-verdict-owed-to-another-persona-is-an-artifact.md))*
-- **The Issue type is the routing axis, and it is exclusive** *(documents)* — `product`, `content` and `loop` are mutually exclusive, and each has a different intake: both leads close the description of one, `product-lead` alone closes another, and only the owner releases the third. One axis, rather than overlapping labels that force somebody to decide which one wins. *(→ [ADR-0012](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0012-issue-type-is-the-routing-axis-and-is-exclusive.md) · [ADR-0015](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0015-harness-lead-implements-the-harness-it-reviews.md))*
-- **A skill description is a trigger, not a title** *(documents)* — and this is the one that charges the price to me. The descriptions were written dense on purpose, so the model would find a skill on its own; after a change in how they load, all of them started entering every session. **Measured on 10 August 2026, against the 69 descriptions the library held then: about +9,919 tokens per session.** It was free while nothing loaded them, and it is not free now. The library has been consolidated since — down to the 13 in the drawing just below — so that is the price at the measurement, not the price today. It is recorded as **an open decision, not a settled one**. *(→ [ADR-0009](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0009-a-skill-description-is-a-trigger-not-a-title.md) · [ADR-0011](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0011-a-skill-exists-to-be-assigned-to-a-profile.md))*
-
 ### What the harness is made of
 
 ```mermaid
@@ -170,22 +159,28 @@ flowchart TB
   linkStyle 1 stroke-dasharray:6 4
 ```
 
-**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch: the two `PreToolUse` hooks return a denial *before* the tool runs, and the command does not happen. The other four run on events that hand them no tool call to refuse, so they only report. And the personas **advise** — their judgement is checked by nothing, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*.
+**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch: the two `PreToolUse` hooks return a denial *before* the tool runs, and the command does not happen. The other four run on events that hand them no tool call to refuse, so they only report. And the personas **advise** — their judgement is checked by nothing, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. That is the guarantee the loop gives — and it is worth exactly what the inventory in the drawing above is worth.
 
-**Rename a persona in the plugin and this repository's build goes red.** The drawing above is authored by hand: a test compares it, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), in both editions; and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree. **AI-DLC** is not mine — it is AWS's name for a delivery lifecycle whose stages are run and verified by agents. **Agent Harness Engineering** is the claim I am making, and adopting a methodology costs nothing to say: that one has to be paid for, and the payment is a build that breaks when the inventory stops being true.
+**And that drawing's inventory is checkable — that is the second guarantee, and it is a different kind of thing.** Rename a persona in the plugin and this repository's build goes red. The drawing above is authored by hand: a test compares it, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), in both editions; and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree. That is exactly the difference between drawing a harness and proving the drawing is still it, and it is mechanical.
+
+**And that is why I call this one thing and not another.** **AI-DLC** is not mine — it is AWS's name for a delivery lifecycle whose stages are run and verified by agents; I adopt it, I did not coin it. **Agent Harness Engineering** is the claim I am making: building, versioning and proving the harness around that lifecycle. Adopting a methodology costs nothing to say — which is precisely why saying it is worth nothing. This one is paid for, and the payment is in the paragraph above: a build that breaks when the inventory stops being true. It is the same **agent-led verification** ruler the rest of this page applies to code, turned on the methodology: whoever makes the claim is who produces the evidence.
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
-| who | what it owns | what it argues against |
-|---|---|---|
-| `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue |
-| `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations |
-| `developer` | the slice end to end — app, infrastructure, pipeline, and the tests written as it goes | nothing. It builds, and it is what the gate is pointed at |
-| `quality-assurance` | delivery against the Definition of Done, and separately whether a change can break production | `developer`, on both axes in one pass — and it is the only one the permission hook lets merge |
-| `writer` | drafts articles, site copy and social-post language in the owner's voice — shapes, cuts, structures and translates an experience he already has, never originates one | `product-lead`, which holds the blocking veto on anything it drafts that reaches a public surface |
-| `harness-lead` | the machinery itself: hooks, permissions, briefs, skills and commands, the plugin | **me** — and that is the interesting case: its counterpart is not another persona, it is the one seat in this loop that had nobody to argue with |
+**Six personas, what each one argues against — and what each one carries when it is dispatched.** The last column is each brief's preload: the skills that enter the persona's session before it reads the first line of the task.
 
-**And this table is authored, unlike the persona names in the drawing above.** Those are compared against the manifest and against the plugin's live tree, so retiring a persona reddens a build here. Nothing compares *this* table to anything. If a role changes hands, the drawing goes red and these rows quietly do not.
+| who | what it owns | what it argues against | what it carries when dispatched |
+|---|---|---|---|
+| `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue | `harness-engineering` · `definition-of-ready` · `command-hygiene` |
+| `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations | `harness-engineering` · `definition-of-ready` · `documentation-standard` · `command-hygiene` |
+| `developer` | the slice end to end — app, infrastructure, pipeline, and the tests written as it goes | nothing. It builds, and it is what the gate is pointed at | `harness-engineering` · `code-review` · `quality-gates` · `command-hygiene` |
+| `quality-assurance` | delivery against the Definition of Done, and separately whether a change can break production | `developer`, on both axes in one pass — and it is the only one the permission hook lets merge | `harness-engineering` · `quality-gates` · `devops` · `command-hygiene` |
+| `writer` | drafts articles, site copy and social-post language in the owner's voice — shapes, cuts, structures and translates an experience he already has, never originates one | `product-lead`, which holds the blocking veto on anything it drafts that reaches a public surface | `harness-engineering` · `command-hygiene` |
+| `harness-lead` | the machinery itself: hooks, permissions, briefs, skills and commands, the plugin | **me** — and that is the interesting case: its counterpart is not another persona, it is the one seat in this loop that had nobody to argue with | `harness-engineering` · `documentation-standard` · `devops` · `command-hygiene` |
+
+Two things in that last column are worth saying. **`harness-engineering` and `command-hygiene` are in all six** — the universal preload: understanding the loop itself, and the file-and-command discipline, belong to no specialty. And **only 7 of the library's 13 skills are preloaded by anyone**, which means more than half the library only reaches a session if the model finds it on its own, through its description.
+
+**And this table is authored by hand — the new column included.** The persona names in the drawing above are compared against the manifest and against the plugin's live tree, so retiring a persona reddens a build here. Down here nothing compares anything: `check-harness-drift` checks persona names and counts, and does **not** check which skills each one loads. Someone changes a brief's `skills:` block and this column starts lying the next day, with no signal at all. If a role changes hands, the drawing goes red and these rows quietly do not.
 
 ## Pillar 3 · the runtime
 
@@ -193,24 +188,29 @@ The orchestrator is the part of the harness you **cannot install**. It is in non
 
 **And its context runs out.** That is what a subagent buys: it reads, runs, gets it wrong and redoes it **inside its own session**, and what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution**, which is why the one real lever this harness has is verdict length, turned by writing the persona briefs. I measured it once, on this repo's own session, on 7–8 August 2026, by parsing the transcripts: what stayed inside the subagents was over an order of magnitude more than what came back. And the saving has a ceiling — even so, the returned verdicts were a large slice of everything the orchestrator took in from a tool. It is not an escape: that session compacted twice anyway. **The number is not published, because the input is a private session transcript that no gate can reach.**
 
+**And the ground under it moves.** This is the part the rest of this page does not have: I control the site, I control the plugin, I do not control the runtime. Whoever produces it ships change constantly, and every new model changes which configuration still makes sense — not because the configuration became wrong, but because it was compensating for a weakness that is gone.
+
+That is not my inference. When Opus 5 shipped, the Claude Code team **deleted more than 80% of their own system prompt** — their product's, not somebody's personal config — and the model got **better** without the scaffolding. And not as a one-off: every major model upgrade needs less scaffolding, so you delete rules and re-add them only where the model still fails. That is a cycle, not a spring clean.
+
+The thesis that comes with it is the part I care about, and it is a hard one: frontier models are being **hobbled** by products built for yesterday's weaker models, and the advantage goes to whoever puts engineering effort into **verification rather than instruction**. That is the person who built the tool saying the winning move is this page's central term — **agent-led verification**. I am not quoting it for decoration: it is independent corroboration of a choice I had already made, from someone holding data I do not have.
+
+And it is why this loop is made of hooks and gates rather than of a giant prompt explaining to the agent how to behave. Instruction ages with every new model, and it ages silently. A gate does not: it checks the result, and the result is the same thing before and after the upgrade. If the argument above is right, the part of my harness that survives is the part that verifies — and the part that instructs is the part I will be deleting.
+
+Boris Cherny, who built Claude Code, on the Y Combinator channel:
+
+https://www.youtube.com/watch?v=qyPCVqFUyDo
+
 ## The decision record IS the documentation
 
-The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating the index turns the pipeline red, so the page either matches the library or nothing ships. A reversed decision stays in the repository and **says** it was reversed — without that, the record of a retired architecture reads as instruction, which is the cheapest way to get an agent to rebuild something that was cut on purpose.
+The classic argument for ADRs is the human of the future: record why the decision was taken, so that two years from now somebody does not undo it without knowing what was at stake. Here the argument is a different one, and it is what decides the format.
 
-```adr-index
-```
+**In a repository where the developing is done by agents, the record is inference context.** An agent has no memory of what was discussed — it has the repository, and that is what it infers from. If the architecture that formed over time is not anchored somewhere in the code itself, every new change is decided without it, and the result is not one isolated wrong call: it is a new decision that contradicts a decision nobody remembers making. That is why a reversed decision stays here and **says** it was reversed. Without that mark, the record of a retired architecture reads as instruction — which is the cheapest way there is to get an agent to rebuild the very thing that was cut on purpose.
+
+That purpose is what picks the format, not the other way round. **MADR**: context, the options that were on the table, the one decided, and the consequence. One short document per decision, one file per decision, all in the same repository the agent already reads — no wiki, no separate tool. What a format like that gives a human reader is traceability; what it gives an agent is what it needs in order not to contradict.
+
+**There are 48 decisions, and the proof that this paragraph is not inventing the number is mechanical.** The index is **generated** from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating it turns the pipeline red. The rows are deliberately not printed here — this page **points at** canonical detail instead of restating it, and a 48-row copy would be that rule broken in the one section that exists to defend it.
 
 *(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
-
-## Where this approach still does not prove what it promises
-
-The promise of AI-DLC is that "done" is **proved by mechanism** rather than asserted by whoever built it. A page that only showed where that works would be marketing.
-
-**One author, and nobody else's hands.** Nothing here has been tested against a second person disagreeing with the setup, which is precisely the case an agent loop finds hardest. Take the pattern, not the specifics.
-
-**The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Four drawings above; **two** of them you can check, at different strengths. That the layers are what this repo actually builds: `iac/` and the build script settle it between them. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names*; of the skill library it pins the size, never what those parts do. **The other two you cannot check, for different reasons.** The loop drawing shows a route this page does not prove was taken. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
-
-**And the record itself has a hole.** There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL was built, was cut, and **is not in the decision library**. It is the one place this page's own rule was not followed, and its record is this sentence rather than a file. That is the weakness, stated in full: **an announced exception costs less than a recorded decision** — no date, no context, none of the options that lost, and no gate counts it.
 
 ## Replicate it for your own context
 

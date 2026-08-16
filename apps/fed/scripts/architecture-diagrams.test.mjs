@@ -72,9 +72,11 @@ function reaches(graph, from, to) {
 const en = mermaidFences(read('architecture.en.md'));
 const pt = mermaidFences(read('architecture.pt.md'));
 
-/** ```venn fences — the one figure kind mermaid cannot draw, so it never reaches `mermaidFences`. Counted
- *  here because the page publishes a TOTAL that includes it. */
-const vennFences = (markdown) => [...markdown.matchAll(/^```venn[ \t]*$/gm)].length;
+// A `vennFences` helper lived here — ```venn is the one figure kind mermaid cannot draw, so it never
+// reaches `mermaidFences`, and it was counted only so the published TOTAL could include it. It is deleted
+// with the self-audit sentence that published that total (see the block comment further down). Nothing
+// else in this file reads the venn fence — every other block here scans mermaid fences. Said plainly
+// rather than left implied: this file no longer looks at the venn figure at all.
 
 /**
  * Pick a fence by its `accTitle` rather than by its position in the page.
@@ -138,84 +140,23 @@ describe('the two editions describe the same system', () => {
   });
 });
 
-// THE PUBLISHED COUNT OF THE FIGURES, against the file's own contents.
+// THE PUBLISHED FIGURE-COUNT BLOCK WAS HERE, and it is deleted with the sentence it was written about.
 //
-// The limitations section says "Sete desenhos acima" / "Seven drawings above" and then splits it — four
-// you can check, three you cannot. Those are hand-typed numbers ABOUT THIS FILE, and they went stale once
-// already: the page said "four" while carrying six, and a person caught it rather than a gate. The page's
-// own rule is the argument for closing it — it excuses the reader-facing feature list from carrying a
-// total on the grounds that nothing can check one, and here something can, because this suite is already
-// parsing every fence in both editions.
+// It parsed the limitations section's self-audit — "Quatro desenhos acima; **dois** você consegue
+// conferir" / "Four drawings above; **two** of them you can check" — and asserted the published total
+// against `mermaidFences + vennFences`, plus that the two halves of the split added up to it. Those were
+// hand-typed numbers about this file and they had gone stale once before a gate existed for them.
 //
-// THE NOUN MOVED IN #415, from `figuras`/`figures` to `desenhos`/`drawings`, and the reason is what this
-// block counts: `mermaidFences + vennFences` is the number of DRAWN figures, and four photographs landed
-// on the page above this sentence. "Seven figures" was true against the fence scan and false to any
-// reader counting what they see — a total that is only correct if you already know which things it was
-// silently excluding. Each edition now reuses the noun its own sentence already opens with ("Os desenhos
-// mostram o formato" / "The drawings show the shape of a thing"), so no new term was coined and this
-// suite still asserts the number rather than the word.
-describe('the published figure count matches the figures', () => {
-  // Written out because the prose spells them, and the mapping is what makes the assertion a real one:
-  // a number that only ever appears as a word cannot be compared to an integer without it.
-  // The trailing `; **` is load-bearing, not decoration. `/(\S+) figuras acima/` alone matched the
-  // dev-loop section's "As **duas** figuras acima" three hundred lines earlier and read the total as
-  // two — a regex finding a real sentence that is not the one being asserted about, which is the failure
-  // mode a looser pattern hides best. It is STILL load-bearing after the #415 noun change and for the
-  // same reason, one collision further up: "Os dois desenhos acima mostram tempo" / "The two drawings
-  // above show time" sits three hundred lines earlier and would read the total as two.
-  // THE PT `rest` PATTERN FOLLOWS THE NOUN'S GENDER, and #448 is why it is written out rather than
-  // left as `As outras`. The count sentence used to trail a feminine noun; the restructure left four
-  // drawings and the sentence now reads `Os outros dois`, which the old pattern could not match — it
-  // would have thrown "the uncheckable count sentence is gone" on prose that was right there. The
-  // alternation keeps both spellings matchable so a later re-wording in either gender still lands.
-  const WORDS = {
-    en: {
-      total: /(\S+) drawings above; \*\*/,
-      split: /\*\*(\S+)\*\* of them you can check/,
-      rest: /The other (\S+) you cannot check/,
-    },
-    pt: {
-      total: /(\S+) desenhos acima; \*\*/,
-      split: /\*\*(\S+)\*\* você consegue conferir/,
-      rest: /(?:As outras|Os outros) (\S+) você não consegue conferir/,
-    },
-  };
-  // TWO IS IN THE MAP NOW, and the reason it was missing is worth keeping: the map only ever covered
-  // three…nine, so it encoded a floor on the figure cut that nothing on the page stated. #448 cut the
-  // page to four drawings split two/two, which is the first edition to need it. `dois`/`duas` are both
-  // here because the pt noun that follows the numeral is not fixed by this test.
-  const NUMERALS = {
-    en: { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, Four: 4, Seven: 7, Six: 6, Eight: 8 },
-    pt: { dois: 2, duas: 2, três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, Quatro: 4, Sete: 7, Seis: 6, Oito: 8 },
-  };
-
-  it.each([
-    ['en', 'architecture.en.md'],
-    ['pt', 'architecture.pt.md'],
-  ])('states the real number of figures in the %s edition, and splits it consistently', (locale, file) => {
-    const body = read(file);
-    const drawn = mermaidFences(body).length + vennFences(body);
-    expect(drawn, 'the fence scan found nothing — the assertions below would be vacuous').toBeGreaterThan(0);
-
-    const words = WORDS[locale];
-    const numerals = NUMERALS[locale];
-    const read1 = (re, what) => {
-      const m = re.exec(body);
-      if (!m) throw new Error(`the ${what} count sentence is gone from the ${locale} edition`);
-      const n = numerals[m[1]];
-      if (n === undefined) throw new Error(`unknown number word "${m[1]}" in the ${locale} edition`);
-      return n;
-    };
-
-    expect(read1(words.total, 'total'), 'the published total does not match the figures on the page').toBe(
-      drawn,
-    );
-    // And the split has to add up. A total that is right while its two halves are not is the shape a
-    // one-number check would let through, and this slice moved BOTH halves.
-    expect(read1(words.split, 'checkable') + read1(words.rest, 'uncheckable')).toBe(drawn);
-  });
-});
-
+// The owner cut the whole `## Onde esta abordagem ainda não prova o que promete` / `## Where this
+// approach still does not prove what it promises` section, which is where every one of those three
+// sentences lived. `read1` THROWS ("the total count sentence is gone") when its pattern finds nothing, so
+// leaving the block in place would have failed the file loudly against prose nobody decided to keep.
+//
+// What is lost, stated rather than left to be rediscovered: nothing now compares a figure count printed
+// in the prose against the fences actually in the file, because the prose no longer prints one. The rest
+// of this suite is unaffected — it asserts each fence's existence, palette, accessibility metadata and
+// content directly, none of which depended on a total. If a self-audit sentence ever returns, this block
+// returns with it.
 // THE REQUEST-PATH BLOCK WAS HERE, and #448 removed it with the fence it was written about.
 //
 // It asserted the owner's editorial constraint on `How a request becomes a page` — that the figure earns
