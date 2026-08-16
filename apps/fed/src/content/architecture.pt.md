@@ -68,11 +68,11 @@ De ponta a ponta, com os bastidores junto — e **o que interessa nesse desenho 
 ```mermaid
 flowchart LR
   accTitle: As raias e os tiers — o que o leitor encontra, e o que mantém isso de pé
-  accDescr: Uma grade que se lê da esquerda para a direita, com quatro colunas — público, dispositivos, frontend e infra cloud — e três raias empilhadas dentro delas. A raia de cima é a audiência, o que o leitor encontra no site: o público chega por um link, o dispositivo pede uma URL, e o que volta é HTML pré-renderizado nos dois idiomas, com a SPA React assumindo depois e nenhum terceiro carregado antes de o leitor autorizar — GA4 só com consentimento, YouTube só no clique. Essa página vem inteira da coluna de infra cloud: Route 53, ACM, CloudFront com a função de reescrita, um bucket S3 privado que só responde àquela distribuição, e os registros de e-mail do apex. Entre o frontend e a infra não existe coluna de backend, e essa ausência é a afirmação do desenho: não há tier de aplicação, porque o requisito nunca pediu um, e nada meu roda a cada requisição. As duas raias de baixo são os bastidores, o que ninguém vê e que mantém a operação de pé. A raia de produção: eu abro a Issue e ratifico o irreversível; o GitHub é o console, de qualquer dispositivo, e uma menção a claude dispara o agente dentro do CI sem nenhuma máquina minha ligada; o repositório e o build carregam as personas, os hooks que negam a chamada e os gates, e produzem os dois idiomas e o PDF do CV; o Terraform aplica a infraestrutura só pelo pipeline, com estado no Terraform Cloud. A raia de operação é a mais fina, e é fina por constatação e não por desenho: o que eu meço é GA4 depois do consentimento, então quem recusa não entra na conta; nada observa o dispositivo do leitor, sem RUM, sem log de acesso e sem monitor de disponibilidade; depois de cada deploy um smoke roda contra o apex vivo e confere que a função publicada é a deste repositório; e sobre a conta inteira há um orçamento que avisa por e-mail, que é o único vigia contínuo que existe.
+  accDescr: Uma grade que se lê da esquerda para a direita, com quatro colunas — público, dispositivos, frontend e infra cloud — e três raias empilhadas dentro delas. A raia de cima é a audiência, o que o leitor encontra no site: o público chega por um link, o dispositivo pede uma URL, e o que volta é HTML pré-renderizado nos dois idiomas, com a SPA React assumindo depois e nenhum terceiro carregado antes de o leitor autorizar — GA4 só com consentimento, YouTube só no clique. Essa página vem inteira da coluna de infra cloud: Route 53, ACM, CloudFront com a função de reescrita, e um bucket S3 privado que só responde àquela distribuição. Entre o frontend e a infra não existe coluna de backend, e essa ausência é a afirmação do desenho: não há tier de aplicação, porque o requisito nunca pediu um, e nada meu roda a cada requisição. As duas raias de baixo são os bastidores, o que ninguém vê e que mantém a operação de pé. A raia de produção: eu abro a Issue e ratifico o irreversível; o GitHub é o console, de qualquer dispositivo, e uma menção a claude dispara o agente dentro do CI sem nenhuma máquina minha ligada; o repositório e o build carregam as personas e os hooks que negam a chamada, e produzem os dois idiomas e o PDF do CV; o Terraform aplica a infraestrutura só pelo pipeline, com estado no Terraform Cloud. A raia de operação é a mais fina, e é fina por constatação e não por desenho: o que eu meço é GA4 depois do consentimento, então quem recusa não entra na conta; nada observa o dispositivo do leitor, sem RUM, sem log de acesso e sem monitor de disponibilidade; depois de cada deploy um smoke roda contra o apex vivo e confere que a função publicada é a deste repositório; e sobre a conta inteira há um orçamento que avisa por e-mail, que é o único vigia contínuo que existe.
   subgraph T1["PÚBLICO"]
     A1["AUDIÊNCIA<br/>leitores, recrutadores<br/>quem chegou por um link"]
     B1["BASTIDORES · produção<br/>eu — abro a Issue<br/>e ratifico o irreversível"]
-    C1["BASTIDORES · operação<br/>o que eu meço: GA4 só depois do consentimento<br/>quem recusa não é medido"]
+    C1["BASTIDORES · operação<br/>o que eu meço:<br/>GA4 só depois do consentimento<br/>quem recusa não é medido"]
   end
   subgraph T2["DISPOSITIVOS"]
     A2["navegador, celular<br/>e os scrapers de LinkedIn e X<br/>pedindo a mesma URL"]
@@ -80,18 +80,18 @@ flowchart LR
     C2["nada observa o dispositivo<br/>sem RUM, sem log de acesso<br/>sem monitor de disponibilidade"]
   end
   subgraph T3["FRONTEND"]
-    A3["HTML pré-renderizado nos dois idiomas<br/>a SPA React assume depois<br/>terceiro nenhum antes de o leitor autorizar"]
-    B3["o repositório e o build<br/>personas em agents e hooks que negam a chamada<br/>lint, tipos, cobertura, E2E, Sonar<br/>os dois idiomas e o PDF do CV"]
+    A3["HTML pré-renderizado nos dois idiomas<br/>a SPA React assume depois<br/>terceiro nenhum<br/>antes de o leitor autorizar"]
+    B3["o repositório e o build<br/>personas em agents<br/>e hooks que negam a chamada<br/>os dois idiomas e o PDF do CV"]
     C3["depois de cada deploy<br/>smoke contra o apex vivo<br/>e a função no ar conferida contra este repo"]
   end
   subgraph T4["INFRA CLOUD"]
-    A4["Route 53 · ACM · CloudFront com a função de reescrita<br/>S3 privado, só por OAC<br/>e-mail do apex: MX, DKIM e SPF para o iCloud+"]
+    A4["Route 53 · ACM<br/>CloudFront com a função de reescrita<br/>S3 privado, só por OAC"]
     B4["Terraform só pelo pipeline<br/>plan no PR, apply no merge, via OIDC<br/>estado no Terraform Cloud"]
     C4["sobre a conta inteira<br/>um orçamento avisa por e-mail<br/>o único vigia contínuo"]
   end
   A1 -- "abre um link" --> A2
   A2 -- "pede uma URL" --> A3
-  A3 -- "vem inteira daqui — e entre as duas não há backend nenhum" --> A4
+  A3 -- "vem inteira daqui —<br/>e entre as duas<br/>não há backend nenhum" --> A4
   B1 -- "abre o trabalho" --> B2
   B2 -- "dispara o loop de agentes" --> B3
   B3 -- "publica na origem" --> B4
@@ -146,12 +146,12 @@ flowchart TB
   end
   RQ{{"O TIER 1 FECHA AQUI · o rótulo ready<br/>a descrição fechada — e numa issue de loop,<br/>só eu ponho"}}
   subgraph AFK["AFK · do ready ao merge, nada no caminho é humano"]
-    ORCH["ORQUESTRADOR · a sessão principal<br/>aciona toda persona, commita, empurra<br/>nunca faz merge, nunca decide o irreversível"]
+    ORCH["ORQUESTRADOR ·<br/>a sessão principal<br/>aciona toda persona, commita, empurra<br/>nunca faz merge, nunca decide o irreversível"]
     DEV["TIER 2 · BUILD<br/>developer — produto"]
     WRT["TIER 2 · BUILD<br/>writer — conteúdo"]
     LB["TIER 2 · BUILD<br/>harness-lead — loop<br/>constrói o que estressou"]
     MR{{"MERGE REQUEST · uma por story"}}
-    QA["TIER 3 · GATE — contexto fresco, sem viés de autoria<br/>quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
+    QA["TIER 3 · GATE<br/>— contexto fresco, sem viés de autoria<br/>quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
     V["devolvido — um canal de volta só"]
     M{{"merge em main = o deploy"}}
   end
@@ -201,7 +201,7 @@ flowchart LR
     LC["comandos · 3<br/>commands/"]
     LH ~~~ LP ~~~ LS ~~~ LC
   end
-  subgraph COLD["NEGA · recusa a chamada antes de ela rodar"]
+  subgraph COLD["NEGA"]
     direction TB
     HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
     PSD["— nenhuma persona"]
@@ -209,7 +209,7 @@ flowchart LR
     CMD["— nenhum comando"]
     HKD ~~~ PSD ~~~ SKD ~~~ CMD
   end
-  subgraph COLA["ACONSELHA · se acionada, e nada verifica o julgamento"]
+  subgraph COLA["ACONSELHA"]
     direction TB
     HKA["— nenhum hook"]
     PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
@@ -217,7 +217,7 @@ flowchart LR
     CMA["— nenhum comando"]
     HKA ~~~ PS ~~~ SKA ~~~ CMA
   end
-  subgraph COLO["DOCUMENTA · tira uma re-decisão do caminho"]
+  subgraph COLO["DOCUMENTA"]
     direction TB
     HKR["4 hooks · sem chamada pra recusar<br/>2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>2 hooks · SubagentStart e SubagentStop<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
     PSO["— nenhuma persona"]
