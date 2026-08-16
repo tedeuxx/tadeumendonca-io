@@ -17,13 +17,11 @@ The case that turned it around was not this site. **At the beginning of the year
 
 **The holiday was in May, in San Francisco and the Valley, and the rest of this page comes out of it.** There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back with the idea of what to do, and since then I have run it on two fronts: an internal one, at work, with **Kiro**, and this one, in public, with **Claude Code**. Two harnesses running the same kind of work is what lets me separate what comes from the model from what comes from the setup around it.
 
-![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the week, not the evidence. At Google's visitor centre in Mountain View.")
-
 One morning I took the Caltrain south — 8:57, next stop Palo Alto. The carriage was open laptops end to end, loops running, people trading ideas out loud on the way to work. It was not an event, not a community, nothing arranged: it was a lot of people doing the same kind of work, in the same place, at the same time — close enough to overhear without asking and to answer without scheduling. I was inside that for one week, in May. The rest of the year, I am not.
 
-And there is a reason the public front exists rather than a notebook. There are far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and that is why what is here is the whole setup, not only the conclusion it reached.
+![A montage of three frames from the same week: on the left, me and my partner on a paved walkway beside a row of red, yellow and turquoise bicycles, with trees and a clear sky behind; top right, the onboard display in a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto"; bottom right, a museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/may-week-montage.jpg "One week, in May: Google's visitor centre in Mountain View, the 8:57 Caltrain south, a case at the Computer History Museum. One train, one morning, no measurement. This is not data; it is what I saw.")
 
-![The onboard display inside a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Strangers comparing how they had configured the same tool. One train, one morning, no measurement. This is not data; it is what I saw.")
+And there is a reason the public front exists rather than a notebook. There are far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and that is why what is here is the whole setup, not only the conclusion it reached.
 
 ## What the requirement demanded, and the architecture it justified
 
@@ -57,7 +55,7 @@ pillar: The runtime | Claude Code
 
 What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in brackets on purpose: a label has to be short and a claim has to be exact, and the brackets let one rendering do both.
 
-![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine. At the Computer History Museum.")
+**The launch showed the output. The case shows the machine.**
 
 ## Pillar 1 · the solution
 

@@ -17,13 +17,11 @@ O caso que virou o jogo não foi este site. **No início do ano, em janeiro**, c
 
 **As férias foram em maio, em São Francisco e no Vale, e é dali que sai o resto desta página.** Não teve lugar por onde eu passei sem alguma oferta de IA — no trem, na rua, na vitrine, no crachá de quem estava do lado. Voltei com a ideia do que fazer, e desde então toco isso em duas frentes: uma interna, no trabalho, com **Kiro**, e esta, pública, com **Claude Code**. Dois harness rodando o mesmo tipo de trabalho é o que me deixa separar o que é do modelo do que é do setup em volta dele.
 
-![Eu e minha companheira do lado de fora de um prédio baixo, ao lado de uma fileira de bicicletas coloridas estacionadas na calçada.](/photos/google-visitor-centre.jpg "A única em que eu apareço — a semana, não a evidência. No visitor center do Google, em Mountain View.")
-
 Numa manhã eu peguei o Caltrain para sul — 8h57, próxima parada Palo Alto. O vagão era laptop aberto de ponta a ponta, loop rodando, gente trocando ideia em voz alta a caminho do trabalho. Não era evento, não era comunidade, não era nada combinado: era um monte de gente fazendo o mesmo tipo de trabalho, no mesmo lugar, na mesma hora — perto o suficiente para ouvir sem pedir e para responder sem marcar. Eu estive dentro disso por uma semana, em maio. No resto do ano, não estou.
 
-E tem uma razão para a frente pública existir em vez de um caderno. Há opções de configuração demais — qual harness, quais hooks, que persona, que gate, qual modelo — e ninguém tem sessões suficientes para testar todas sozinho. **Trocar a experiência de cada um usando IA é o que vai acelerar esse aprendizado**, e por isso o que está aqui é o setup inteiro, não só a conclusão a que ele chegou.
+![Montagem de três fotos da mesma semana: à esquerda, eu e minha companheira numa calçada de pedra ao lado de uma fileira de bicicletas vermelhas, amarelas e verde-água, com árvores e céu limpo atrás; no alto à direita, o painel de bordo de um vagão do Caltrain, com "Southbound · 510 EXPRESS · 8:57a" e, abaixo, "NEXT STOP Palo Alto"; embaixo à direita, uma vitrine de museu com um iPhone de 2007 desmontado atrás de acrílico, suas peças etiquetadas — câmera, sensor de luz, microfone, alto-falante, SIM, vibracall — sob a legenda "iPhone · INTRODUCED IN JUN 2007".](/photos/may-week-montage.jpg "Uma semana, em maio: o visitor center do Google em Mountain View, o Caltrain para sul das 8h57, a vitrine do Computer History Museum. Um trem, uma manhã, nenhuma medição. Não é dado; é o que eu vi.")
 
-![O painel de bordo de um vagão do Caltrain, dentro do trem: "Southbound · 510 EXPRESS · 8:57a", e abaixo "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Estranhos comparando como tinham configurado a mesma ferramenta. Um trem, uma manhã, nenhuma medição. Não é dado; é o que eu vi.")
+E tem uma razão para a frente pública existir em vez de um caderno. Há opções de configuração demais — qual harness, quais hooks, que persona, que gate, qual modelo — e ninguém tem sessões suficientes para testar todas sozinho. **Trocar a experiência de cada um usando IA é o que vai acelerar esse aprendizado**, e por isso o que está aqui é o setup inteiro, não só a conclusão a que ele chegou.
 
 ## O que o requisito exigia, e a arquitetura que ele justificou
 
@@ -57,7 +55,7 @@ pillar: O runtime | Claude Code
 
 O que fica na interseção é o trabalho de verdade: decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que o inventário disso continua verdadeiro. O `Agent` fica entre parênteses de propósito: um rótulo precisa ser curto e uma afirmação precisa ser exata, e o parêntese deixa uma forma só fazer as duas coisas.
 
-![Vitrine de museu com um iPhone de 2007 desmontado atrás de acrílico, suas peças etiquetadas — câmera, sensor de luz, microfone, alto-falante, SIM, vibracall — sob a legenda "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "O lançamento mostrou o resultado. A vitrine mostra a máquina. No Computer History Museum.")
+**O lançamento mostrou o resultado. A vitrine mostra a máquina.**
 
 ## Pilar 1 · a solução
 

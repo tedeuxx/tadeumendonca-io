@@ -3,7 +3,7 @@
 // WHY A REGISTRY AT ALL, when the browser could just load the file and find out: because "find out" is
 // exactly the cost. Without `width`/`height` on the <img> the browser reserves no space, the paragraph
 // below it is painted where the image will not be, and the page jumps when the bytes land — cumulative
-// layout shift, on four figures, on the page whose thesis is that the machine is shown rather than
+// layout shift, on every figure, on the page whose thesis is that the machine is shown rather than
 // claimed. The attributes are what let the box be reserved before a single byte of JPEG arrives.
 //
 // WHY THE TABLE IS JSON AND NOT LITERALS IN THIS FILE. Numbers hand-typed about a binary are worth having
