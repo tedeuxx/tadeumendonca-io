@@ -953,6 +953,191 @@ the tokenless second checkout, the exclusion from `deploy`'s gate filter and the
 description is not* limit all stand exactly as decided. Nothing here decides anything about the plugin's
 own layout move — that is `-skills`#164's decision, recorded in the methodology library, not this one.
 
+## Amendment, 2026-08-14 — the deploy-time checkout is PINNED to `v1.0.0`, reversing the "always freshest" property Decision 2 (2026-08-04) argued for
+
+**Decides:** `deploy.yml`'s plugin-checkout step (`Check out the plugin (tokenless, read-only, deleted
+below)`) takes an explicit `ref: v1.0.0`, and the committed floor
+(`apps/fed/src/content/generated/plugin-release.json`, regenerated via `gen-harness` against a checkout of
+that same tag) is re-generated to match. ~~Both levels of the two-level resolution in
+`apps/fed/src/lib/version.ts` therefore agree on `1.0.0`, deliberately, until this amendment is itself
+superseded.~~
+
+**Corrected at implementation time, 2026-08-14, rather than left to be found on review:** the `v1.0.0`
+**tag** is an annotated tag the owner cut on this same date, pointing at `tadeumendonca-skills`'s then-tip
+(`6438a13`, the merge of #278) — measured with `git cat-file -p v1.0.0` and `git log -1 v1.0.0`. The
+tag's *name* is the milestone label the owner chose; it is not, and was never claimed by the tagging act
+itself to be, the bare content of that commit's own `VERSION` file, which reads **`1.0.28`** at that
+commit (the auto-bump to `1.0.29` landed one commit later, on top of it). `readPluginVersion` reads that
+file verbatim by design — Decision option 3 above already rejects hardcoding a literal for exactly this
+reason, *"a version string that can disagree with the git tag is worse than no version string at all."*
+~~So the honest, mechanism-produced result of this pin is that both levels agree on **`1.0.28`**, not the
+string `1.0.0` — checked by running `gen-harness` against a worktree at the `v1.0.0` tag, which reproduces
+the already-committed `plugin-release.json` byte for byte. The content this pin was cut to name — 13
+skills, the 6-persona roster below — is exactly right; only the specific numeral this paragraph asserted
+the card will show was wrong, and is struck rather than silently fixed so the mismatch between the tag's
+name and its `VERSION` content is visible to whoever reads this record next.~~
+
+**Corrected again, same day, once the mismatch above was itself fixed rather than left standing:**
+`tadeumendonca-skills`#279 set `VERSION`/`plugin.json`'s version field directly to `1.0.0` (a deliberate,
+owner-confirmed one-time departure from the normal auto-bump-only flow, not a routine bump), and #280
+recovered the auto-bump workflow after that landed it in a collision with the already-existing
+`v1.0.1`..`v1.0.29` tags. The `v1.0.0` tag was then deleted and recreated to point at #279's merge commit —
+the one where `VERSION` genuinely reads `1.0.0` — and its GitHub Release un-drafted. Re-running `gen-harness`
+against a worktree at the corrected tag now reproduces `plugin-release.json` reading `{"version": "1.0.0"}`
+byte for byte, verified independently by `quality-assurance` on this PR. **Both levels of the two-level
+resolution now genuinely agree on `1.0.0`** — the struck paragraph above is not wrong about what it
+measured at the time, only superseded by a correction to the artifact it was measuring, made in the same
+day and the same slice.
+
+**This is a reversal, named as one, not a drift.** The whole argument of the 2026-08-04 amendment above —
+*"why this shape rather than a committed value alone"* — is that resolving at deploy time collapses the gap
+between `tadeumendonca-skills`'s clock and this site's to *the moment of the deploy*, specifically so the
+card never goes stale against a fast-moving upstream (measured there at 14+5 releases across two days).
+Pinning the checkout to a tag reintroduces exactly the staleness that amendment eliminated: `-skills`
+auto-bumps its PATCH on every merge to `main` (methodology ADR-0005), so the moment a second PR merges
+there — and one already has, #278, advancing `main` to `1.0.29` — the pinned card and `-skills`'s actual
+`main` disagree, and stay disagreeing until this pin moves again by hand.
+
+**Why the owner wants it anyway, stated as the driver rather than assumed:** `v1.0.0` marks a reconciled
+state of `tadeumendonca-skills` the owner wants named as the reference release for now — README as single
+source of truth, 13 skills, the 6-persona roster settled (`product-lead`, `tech-lead`, `harness-lead`,
+`developer`, `writer`, `quality-assurance`). The auto-bump that follows a merge (`#278`, dispatch-metrics
+hooks) is real work landing on `main`, but it is not itself a second milestone the card is asked to
+represent every time it fires. The card's job, as this record's own Decision 3 states, is narrower than
+"the plugin's current version" — it names *the plugin release this build was deployed against*, and the
+owner's call is that the release worth naming right now is the tagged milestone, not whatever PATCH the
+auto-bumper last touched.
+
+**Class: this is the owner's decision, not a routine one this record settles on ADR-0003's "an amendment
+that decides is safe class" clause.** That clause covers amendments that decide *how the mechanism works*
+without touching what was previously ratified; this one reverses a property the owner explicitly weighed
+and chose in the 2026-08-04 amendment (deploy-time resolution *specifically to avoid staleness*), on a file
+matched by `deploy`'s `iac_hits` pathspec per that amendment's own recorded consequence. It is recorded here
+as **owner-confirmed** because the owner was told the trade-off — this pin reintroduces the staleness the
+prior design eliminated — and chose it anyway. It is not this record's place to reclassify the merge class
+of the implementing PR; that is `quality-assurance`'s call against the DoD, informed by this paragraph.
+
+### Considered options
+
+1. **Add `ref: v1.0.0` to the existing tokenless checkout step, and regenerate the committed floor from the
+   same tag** (chosen). One mechanism, one source of truth for "which tag" — the git ref — read by both the
+   deploy-time override and (via a checkout at that ref) the committed default, so the two levels in
+   `version.ts` can never disagree while this pin stands. *Trade-off:* exactly the staleness named above;
+   a future re-pin or unpin is a deliberate two-file edit (this step's `ref:` and a `gen-harness` re-run),
+   not something that happens on its own.
+2. **Leave the deploy-time checkout tokenless/ref-less (still resolves freshest) and only regenerate the
+   committed floor at `v1.0.0`.** Rejected: the deploy-time override is *job-wide* and reaches the build
+   whenever the checkout succeeds — which is the normal case — so production would keep publishing whatever
+   `main` resolves to (past `1.0.29` and climbing) and the committed floor's pinned value (`1.0.0`, per the
+   second correction above) would only ever be visible on a fork or a PR build where the checkout is skipped.
+   That does not achieve what the owner asked for; it pins the one level nobody sees.
+3. **Hardcode `"1.0.0"` as a literal somewhere outside the resolution mechanism** (a constant in
+   `catalog.ts`, or a second env var). Rejected: it duplicates the version the two-level mechanism already
+   owns, and reintroduces the exact failure `version.ts`'s own header names — *"a version string that can
+   disagree with the git tag is worse than no version string at all: it looks authoritative while being
+   wrong"* — the moment someone regenerates the floor without updating the literal, or vice versa. The `ref:`
+   is the one edit that both levels read from, by construction.
+
+### Consequences
+
+**Good**
+- The deploy-time override and the committed floor read the **same** tag by construction — regenerating one
+  without the other is now the only way they can disagree, which is a much narrower failure than "two
+  independent clocks" was before this amendment.
+- `/architecture` and `/portfolio` show and link a stable, deliberately-chosen milestone rather than a
+  number that moves on every unrelated merge to `-skills` — which is the property the owner asked for.
+- Nothing about the resolution *mechanism* in `version.ts` changes: `resolvePluginVersion`, its validation,
+  and the fallback shape all stand unmodified. This amendment changes an input (the `ref:`), not the
+  machine that resolves it.
+
+**Bad / accepted costs**
+- **The staleness Decision 2 eliminated is back, by design.** The card will read a fixed value —
+  `1.0.0`, the `v1.0.0` tag's own `VERSION` content after the second correction above — through
+  `-skills` cutting further PATCH releases (already past `1.0.31` as of this writing) until someone
+  deliberately moves the pin. Nothing in CI notices or flags
+  this — there is no drift check between the pinned `ref:` and `-skills`'s `main`, and adding one is out
+  of scope here (it would be, if ever wanted, the same class of mitigation this record's parent decision
+  already named and deferred: a scheduled or triggered re-check).
+- **A second manual step exists that did not before.** Un-pinning or re-pinning to a later tag is now two
+  coordinated edits — `deploy.yml`'s `ref:` and a `gen-harness` regeneration against a checkout of the new
+  tag — rather than something that resolves itself on the next deploy.
+- **The comments in `deploy.yml` and `version.ts` that assert "always resolves fresh" / "the DEPLOY-TIME
+  checkout … overrides the committed default" go stale the moment this lands if left unedited.** The
+  implementing change must correct them in the same commit — this is this repo's own standing rule (correct
+  a stale claim rather than let it stand beside code that contradicts it), not a new obligation invented
+  here.
+
+**Neutral**
+- `iac/` untouched — this is a GitHub Actions workflow file and a generated content artifact, not
+  Terraform, though `deploy.yml` is still matched by the gate's `iac_hits` pathspec per the 2026-08-04
+  amendment's own recorded consequence (any change to that file re-runs `terraform-apply`, whether or not
+  the change is infrastructural in substance).
+
+### What this does not decide
+
+**Whether or when the pin moves again** is not decided here — a future owner call, recorded the same way
+(an amendment to this record, or a fresh one if the shape of the decision changes). **Whether a drift check
+between the pin and `-skills`'s `main` is ever added** is likewise left open, in the same spirit Decision 2b
+above already left the committed floor's staleness unmonitored: adding detection is a cheap upgrade if the
+gap ever actually bites, not a default.
+
+## Amendment, 2026-08-16 — the pin moves `v1.0.0` → `v1.1.0`, before it had ever deployed
+
+**Decides:** `deploy.yml`'s plugin-checkout step takes `ref: v1.1.0`, and the committed floor
+(`apps/fed/src/content/generated/plugin-release.json`) is regenerated from a checkout of that same tag and
+now reads `{"version": "1.1.0"}`. Everything the 2026-08-14 amendment decided about the *shape* of the
+mechanism stands unchanged — this moves the input, which is precisely the deliberate two-file edit that
+amendment said a re-pin would be. It is that edit's first exercise, and it confirms the amendment's own
+claim that moving the pin is a hand edit and not something that resolves itself.
+
+**Why it moved, and why now.** The owner cut `v1.1.0` on `tadeumendonca-skills` on 2026-08-16 as the
+**launch milestone** — the release the `/portfolio` card is meant to name for the launch week. The
+`v1.0.0` pin was chosen on 2026-08-14 as *the* reconciled milestone; two further releases (`v1.0.33`,
+then `v1.1.0`) landed before this branch reached merge, so shipping `v1.0.0` would have had the card
+announce a version two releases behind, in the same week three surfaces point at the site. That is the
+staleness the 2026-08-14 amendment named as this design's accepted cost, arriving before the design had
+ever run once. **The cost is not re-argued here; it is paid, on schedule, exactly as predicted.**
+
+**Verified rather than assumed, because a pin to a tag that does not exist fails the deploy at checkout,
+after merge, on the launch path:**
+
+- `gh release list --repo tedeuxx/tadeumendonca-skills` — `v1.1.0` is present and `Latest`, published
+  2026-08-17T00:17:37Z (the release timestamp is UTC; the tag was cut on 2026-08-16 local).
+- `git show v1.1.0:VERSION` → `1.1.0`. Unlike the `v1.0.0` episode recorded two amendments above, the
+  tag's **name** and the commit's own `VERSION` content agree here without any correction: `v1.1.0` is
+  an ordinary `bump: 1.0.33 → 1.1.0` commit, so `readPluginVersion` reads `1.1.0` verbatim.
+
+**What this pin does NOT change downstream, checked rather than reasoned about.** The pinned checkout
+feeds exactly one value: `deploy.yml`'s *Resolve the plugin version* step reads
+`.plugin-version/VERSION`, exports `VITE_PLUGIN_VERSION`, and deletes the tree. Nothing else in this repo
+resolves a path inside that checkout.
+
+- **`harness.json` does not move.** `gen-harness` re-run against a worktree at `v1.1.0` produced a
+  byte-identical `harness.json` — 16 components: 6 hooks, 6 personas, 0 command families, 3
+  un-namespaced commands, 13 skills — so the published harness inventory and the `/architecture` counts
+  are unaffected. Only `plugin-release.json` changed.
+- **The flattened `skills/` tree is a non-event here.** `tadeumendonca-skills` flattened
+  `skills/<family>/<name>/` to `skills/<name>/` before `v1.1.0`; `harness-source.mjs` reports the layout
+  it read (`skill-library`) and counts what `plugin.json`'s `skills` array **declares**, at any depth, so
+  the count survives the reshaping. It is recorded here anyway because the shape genuinely changed under
+  the pin, and a future consumer that resolves a *path* inside that checkout — this repo does not — would
+  break where this one does not.
+- **`harness-drift` is untouched by the pin.** `app.yml`'s second checkout of `tadeumendonca-skills`
+  carries **no `ref:`** and tracks `main` deliberately; the pin lives only in `deploy.yml`. So this change
+  cannot make that job differently red, in either direction.
+
+**Verifiability, stated plainly rather than implied.** The `ref:` is `workflow_dispatch`/deploy-time
+behaviour: `actionlint` proves the workflow is well-formed and the unit suite proves `version.ts`'s
+resolution mechanism, but **neither executes the checkout**. That the pinned tag resolves and yields
+`1.1.0` is verified out-of-band above (the tag and its `VERSION` were read directly), not by a gate on
+this PR. The first in-band proof is the deploy's own `::notice::plugin version 1.1.0 — resolved from the
+DEPLOY-TIME checkout` line, which is post-merge. This is the same residual the 2026-08-14 amendment
+already carried; naming it again is cheaper than letting a green PR imply coverage it does not have.
+
+**Ordering constraint (not decided here, recorded because it is load-bearing this week):** this must
+merge **before** the next `-io` deploy dispatch, because that deploy is what rebuilds the card. Merging
+after it would publish the stale value for a full release cycle.
+
 ## Amendment, 2026-08-16 — the non-negotiable's CARRIER moves from edge styling to column membership, and the move is strictly stronger
 
 **Decides one thing:** the claim this record forbids the page from blurring — hooks deny, personas
