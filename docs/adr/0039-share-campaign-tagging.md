@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in)
+- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate)
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -228,3 +228,83 @@ So when the criterion is read:
 Implementation after this amendment: `apps/fed/src/lib/utm.ts`, `analytics.ts`,
 `components/shareTargets.ts` (the destination list), `components/ShareModal.tsx`,
 `components/ShareLinks.tsx`, `components/ShareButton.tsx`.
+
+## Amendment (2026-08-16) — `author-post` is exercised: the reservation becomes a used value
+
+**Nothing is decided here.** The values were settled on 2026-07-30 and this record made itself
+self-executing about the moment they stop being provisional: *"Settled while the value was still
+reserved and no link carried it; the day it is first used it joins the immutable set."* That day is
+today, so the record says what it was already obliged to say — the reservation was exercised, when,
+and on what.
+
+**What was exercised.** The owner approved tagging the ADR-0038 launch distribution for
+`https://tadeumendonca.io/en/architecture` and `https://tadeumendonca.io/pt/architecture`, on LinkedIn
+and X in one batch. Per channel:
+
+| | LinkedIn | X |
+|---|---|---|
+| `utm_source` | `linkedin` | `x` |
+| `utm_medium` | `social` | `social` |
+| `utm_campaign` | `author-post` | `author-post` |
+
+**Nothing is added to any parameter, and that is the point.** `utm_source` already closed over
+`whatsapp | x | linkedin | share-sheet | copy-link`, so `linkedin` and `x` are existing members —
+`ShareSource` in `apps/fed/src/lib/utm.ts` is unchanged. `utm_medium` is `social` for the reason this
+record already argues at length and which is load-bearing on X specifically (GA4's default channel
+grouping matches its social regex; `social-share` and `share` fall to *Unassigned*). `utm_campaign`
+takes the value this record reserved, spelled exactly as reserved. The third parameter is the only
+one whose *population* changes: `utm_campaign` now has two live values rather than one, which is what
+the reservation existed to make possible without a collision.
+
+**The destination is a static route, not an article, and it reopens nothing.** The option group that
+could have been reopened is *"four parameters — add `utm_content` for the article and/or locale"*, and
+its rejection rested on *"the share click lands on the **article URL**, so GA4's landing-page dimension
+already carries both the article and — better typed, since the locale is a path prefix (ADR-0036) — the
+locale."* Substitute a static route and the argument survives unchanged: `/en/architecture` and
+`/pt/architecture` are two distinct prerendered routes (`apps/fed/scripts/routes.mjs`'s `STATIC_ROUTES`
+carries `/architecture`; ADR-0036 makes the locale a path prefix for static routes exactly as for
+articles), so `page_path` still carries both the page and the locale and `utm_content` would still
+inform no decision it does not. The ADR-0037 half of that rejection — per-locale slugs making a
+per-locale `utm_content` a manual cross-edition mapping — simply does not arise for a route whose
+segment is identical in both locales. **`utm_content` stays not emitted.**
+
+**The tag is applied by hand, and there is no gate.** `apps/fed/scripts/gen-distribution.mjs` emits a
+bare canonical URL and holds no UTM logic at all; more than that, it **cannot produce a draft for a
+static route** — it reads `src/content/blog/` and resolves the share URL by lookup on the key
+`/blog/<en-slug>`, so a route that is not an article has no entry into it. `AUTHOR_CAMPAIGN` is
+exported from `apps/fed/src/lib/utm.ts` and asserted in `utm.test.ts`, and **no production caller
+passes it** — the constant names the value so it cannot be mistyped, it does not apply it. So an
+untagged author post is a real and undetectable state. This is not a new limit: it is the same one
+ADR-0038 already records for the fan-out itself — *"Still manual, therefore still skippable. This ADR
+makes the omission visible, not impossible; no gate enforces it"* — now true of the tag as well as of
+the post. Recorded, not proposed as work; only the owner opens work.
+
+**What this does not touch.**
+
+- **[ADR-0033](./0033-ga4-consent-gated-analytics.md)'s consent gate is untouched.** A tagged URL is
+  read from `page_location` on the first hit, and the first hit is still `gtag('config', …)` after
+  consent. An unconsented session stays invisible, by design; tagging a link does not make a reader
+  countable who was not countable before. Every number under `author-post` is a floor, read against the
+  gate exactly as `reader-share`'s is.
+- **`reader-share` is unchanged** — same medium, same sources, same emitters, same module.
+- **The success criterion is about `reader-share` and does not move.** *"In the 90 days after deploy, at
+  least 10 sessions carrying `utm_campaign=reader-share`, spread across at least 2 distinct
+  `utm_source` values"* — that is a threshold for judging **the reader share affordance**. Author posts
+  carry a different campaign value and are outside it by construction. **Nothing in this amendment may
+  be read as contributing to, relaxing, or restarting it**, and the separation it depends on is exactly
+  what tagging the author's own posts finally makes real rather than accidental.
+- **No `iac/`, no code, no cache behaviour.** `CachingOptimized` ignores query strings
+  ([ADR-0013](./0013-s3-cloudfront-hosting.md)), and canonical/`og:url`/hreflang are built from the
+  route constant, not the live URL.
+
+**No claim is made about whether this works.** The campaign has no data and today is its first day;
+what the numbers mean, and whether the author-vs-reader split is worth its cost, is a later reading
+against a later record.
+
+**On ADR-0038: a cross-link, not a second amendment.** The obvious alternative was to amend
+[ADR-0038](./0038-content-distribution-linkedin-and-x.md) too, since the posts being tagged are its
+posts. Rejected: nothing ADR-0038 decides changes. It decides *that* a publication reaches both
+surfaces with the canonical URL; the canonical URL is still what is shared, and a query string on it
+is neither a shortener nor a different destination. Recording one decision in two places is how a
+library starts disagreeing with itself, so ADR-0038 gets a dated pointer in its Links section and this
+record keeps the reasoning.

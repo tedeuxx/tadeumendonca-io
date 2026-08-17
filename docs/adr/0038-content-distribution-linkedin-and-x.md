@@ -267,3 +267,10 @@ that the first candidate is the cheap one if that is ever to change.
   per-locale canonical article URLs: [ADR-0037](./0037-localized-article-slugs.md) ·
   tracked in issue #186 · the draft-kit amendment delivered by issue #178 · the distribution **copy** and
   per-surface checklists remain private (kept outside this repo).
+- **Since 2026-08-16 the posts this record requires are campaign-tagged** —
+  [ADR-0039](./0039-share-campaign-tagging.md)'s reserved `utm_campaign=author-post` was exercised on the
+  `/architecture` launch pair. A pointer, not an amendment: nothing decided here changes — the canonical
+  URL is still what is shared, and a query string on it is neither a shortener nor a different
+  destination. That record carries the values, the reasoning and the honest limit (the tag is applied by
+  hand, and `gen-distribution.mjs` neither emits it nor can draft a static route at all — so *"still
+  manual, therefore still skippable"* above is now true of the tag as well as of the post).
