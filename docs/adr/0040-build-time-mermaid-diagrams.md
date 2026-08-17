@@ -369,3 +369,18 @@ being decided.
 - **Scope narrowed by [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — a photograph is a
   captured figure, not a drawn one; its load-bearing words are authored beside it, on this record's own
   argument.
+
+## Cross-link (2026-08-16) — two measured facts about THIS pipeline's width, recorded elsewhere
+**Not an amendment: nothing here is falsified.** The mechanism, its guards and its defaults are untouched
+by a CSS rule on the figure's shell. But
+[ADR-0047](./0047-authored-svg-figures-outside-the-mermaid-pipeline.md)'s 2026-08-16 amendment measured two
+things about *this* compile that a reader of this record would otherwise have to rediscover:
+
+- **`htmlLabels: false` means mermaid wraps node labels itself.** Every node rect in the widest figure on
+  `/architecture` was already ≤246px before a redraw that shortened those labels, and the redraw moved four
+  of six compiled figures by exactly 0px. **Node text is not a width lever here** — only strings mermaid
+  does not auto-wrap (subgraph titles, edge labels) and layout constants are.
+- **`rankSpacing` is the untaken width lever.** The widest figure is 1166px of columns plus **639px of
+  inter-rank gap, 35% of its width**. The key is not set in `THEME` today, so it sits at mermaid's default,
+  and it would land beside the `fontSize: '15px'` it trades against. Named as a lever; **no decision has
+  been taken on it.**
