@@ -272,8 +272,15 @@ record already governs. Neither adds an obligation; each fills in one the decisi
 
 ### 1 · Language is per surface
 
-- **X is always English.**
-- **LinkedIn ships in pt-BR.**
+- ~~**X is always English.**~~
+- ~~**LinkedIn ships in pt-BR.**~~
+
+**Struck 2026-08-16, hours after this amendment merged in [#469](https://github.com/tedeuxx/tadeumendonca-io/pull/469).**
+The first bullet was right. The second was **wrong** — LinkedIn is **bilingual**, not pt-BR — and the
+rule's third part, the one governing which URL is shared, was **missing entirely**. Struck rather than
+quietly rewritten because this text reached `main` before it was corrected, so a reader may already hold
+it. **The rule in full, and the account of how it came to be recorded wrong, are in the second amendment
+below.** The heading above stays as written: language *is* per surface. It was the values that were wrong.
 
 **What this supersedes, and why it cannot be cited by path.** The convention in force before tonight was
 **English on both surfaces, with no pt-BR edition of either** — it was stated in the most recent
@@ -320,8 +327,131 @@ What is decided here is only **where in the post it sits**.
   Whether a future surface inherits the split is not decided here.
 - **Still manual, therefore still skippable.** Nothing reads either convention. `gen-distribution.mjs`
   scaffolds both sections from the **English** frontmatter and holds no language or placement logic, so
-  the pt-BR LinkedIn edition and the body placement are both the author's act — the same honest limit
-  this record already admits for the fan-out and for the campaign tag.
+  ~~the pt-BR LinkedIn edition~~ **the bilingual LinkedIn edition** (struck with the bullets above, same
+  day, same cause) and the body placement are both the author's act — the same honest limit
+  this record already admits for the fan-out and for the campaign tag. **The generator holds no hashtag
+  and no `/en/`-link logic either**, so the second amendment's conventions inherit this limit unchanged.
+- **Automated posting stays rejected.** Option 4 stands in full.
+
+## Amendment (2026-08-16, second) — the language split was recorded **wrong**; the corrected rule in full, plus the hashtag convention the same pair established
+
+The amendment above is **hours old and one of its two conventions was already false when it merged.** This
+amendment does three things: it accounts for how a wrong rule reached `main`, it states the corrected rule
+in full, and it records one further per-medium convention the same publishing act produced.
+
+### A · The correction, and how the record came to be wrong
+
+The owner's instruction was *"no linkedin pode ser em pt e br"*. The context that drafted the amendment
+above read `pt e br` as the locale code **pt-BR** and recorded a language *switch* per surface. He meant
+**both languages**, and said so plainly when the record was read back to him: *"eu tbm pedi pro post do
+linkedin ser bilingue … ou seja, teaser em dois idiomas."*
+
+**It is recorded rather than tidied for the same reason this record already keeps its 2026-08-08 baseline
+correction** (*"the failure lands inside this amendment's own argument"*): the failure here lands inside
+this one's too. The section above argues that a convention living only in a private draft is inherited by
+the next draft and must be made public — and the public record it produced was itself wrong, in the exact
+clause it was written to fix. **A misread instruction published as a rule is worse than no rule**, because
+the next drafter now has a citation for it.
+
+**The generalisable lesson, and it is not "read more carefully":** the instruction was in Portuguese and
+its surface form (`pt e br`) collided with a locale code this repository uses constantly (ADR-0032,
+ADR-0036, and every per-locale route in ADR-0036's prerender set). When an owner instruction can be parsed
+as a token this codebase already carries, **read it back to him in the form the record will state it**
+before it merges. That is what caught this one, one merge too late.
+
+### B · The rule in full — three parts, all three shipped
+
+**All three describe what already happened.** The `/architecture` launch pair went out on both surfaces on
+2026-08-16 in exactly this shape; this is a record of a practice, not a plan.
+
+1. **X — always English.** Unchanged from the amendment above; this part was recorded correctly.
+2. **LinkedIn — bilingual: the same teaser in both languages, in one post.** Not two posts, and not a
+   Portuguese post with an English variant filed elsewhere. One post carries both.
+3. **The shared link is always the `/en/` URL, on both surfaces** — *"o link deveria ser em inglês ao
+   compartilhar nessas redes"* — **even under a Portuguese body.** This part appeared nowhere in the
+   amendment above and it is the one a future drafter is most likely to get wrong, because on LinkedIn the
+   teaser's Portuguese half now sits directly above an English link and looks like a mistake. It is not.
+
+**Why part 3 does not contradict anything this record already decides.** The decision outcome above
+requires *"the canonical URL must be the thing shared"*, and ADR-0037 made article URLs per-locale, so
+"canonical" alone no longer picks one URL — it picks one *per edition*. Part 3 resolves that ambiguity in
+the direction of the English edition for **shared** links only. It changes nothing about the site: ADR-0036
+still advertises both editions with hreflang, and a reader who wants the Portuguese edition is one locale
+switch away from it.
+
+**Its accepted cost, stated rather than assumed.** A Portuguese-language teaser sends its reader to an
+English page. That is a real friction for exactly the audience the Portuguese half was written for, and it
+is accepted on the owner's call. Nothing here measures it — see *no claim about results* below.
+
+### C · Hashtags on LinkedIn, none on X
+
+The owner asked for hashtags *"sempre que possível para melhor indexação"*. That is a general instruction;
+what it means per surface is the judgement recorded here, and it splits:
+
+- **LinkedIn — yes.** Its search and feed distribution genuinely index tags as tags.
+- **X — none.** X indexes plain words in the post body, so a tag buys no indexing there that the sentence
+  did not already buy, and it spends characters out of a 280-character budget the teaser needs. **This was
+  the drafting context's judgement, not the owner's instruction — he was told and did not overrule it**,
+  which is a weaker warrant than a decision and is labelled as one here so a later reader can reopen it
+  cheaply.
+
+**The selection rule, which is the durable half.** Five tags shipped on the LinkedIn post, drawn from the
+site's own vocabulary hierarchy, and the line they were drawn on is the part worth recording: **they name
+the practice and the runtime it runs on — never the page's contents.** Concretely, **a tool tag is only
+ever for the tool the practice runs on, never for the stack the page describes.** An article about this
+repository's Terraform does not earn a Terraform tag; the tag set describes what the author does, not what
+the page is about. Without that line the set drifts into keyword-stuffing the page's nouns, which indexes
+the author against topics he is not positioning for — the precise failure ADR-0024's cross-surface
+coherence obligation exists to prevent, appearing here as *indexing* rather than as *facts*.
+
+**The tags themselves are not reproduced here**, for the same reason the copy is not: the shipped set lives
+in the private working material this record's own decision outcome puts outside the repo (*"the
+distribution **copy** and per-surface checklists remain private"*). The rule that generates the set is
+public; the set is not.
+
+**Why this is in this amendment and not its own record.** It clears the significance gate on one criterion
+— it establishes a cross-cutting pattern a future drafter follows — and it is the *same clause* being made
+specific as the two above: what *"the copy is adapted to the medium, not re-argued"* means for these two
+surfaces. A separate record would be unreadable without this one open beside it. **The whole amendment is
+one decision** — what medium-adaptation means for LinkedIn and X — enumerated per surface, not three
+decisions bundled.
+
+### D · What this amendment deliberately does **not** decide — the hashtag's *wording*
+
+The shipped set includes **`#HarnessEngineering`, bare** rather than the strict `#AgentHarnessEngineering`.
+That was the owner's explicit call, it is recorded here as a **fact of what shipped**, and **this record
+does not license it.**
+
+The reason is that it is not a distribution question at all. `apps/fed/src/data/vocabulary.test.ts` pins
+the practice's name across every surface that carries it, on a stated rule — *the parenthesised form where
+the term is **argued**, the strict form where it is a **keyword** — scanned, matched, or rendered in a slot
+measured in characters.* **A hashtag is the purest keyword surface there is**, so that rule points at the
+strict form and the bare tag is an **exception the owner chose**, not an application of anything written
+down.
+
+**Two things measured rather than assumed.** The guard **cannot see hashtags at all** — its pattern
+requires a space between the two words (`/(?<!Agent )Harness Engineering/`), and `#HarnessEngineering` has
+none — so **nothing reddens either way**, and a reader must not take the green suite as agreement. And
+**this library has no vocabulary record**: no ADR in `docs/adr/` decides the practice's rendering; the rule
+lives only in that test file's own comments, which is why an exception to it has nowhere obvious to land.
+
+**That gap is named, not filled here.** Whether the term's rendering deserves its own record — and if so
+whether the bare hashtag form is an exception inside it or a widening of it — is a decision for the owner
+and it is his to open. Recording it inside a *distribution* record would put the vocabulary's exception in
+a file nobody looking for the vocabulary would open.
+
+### What this does not change
+
+- **The obligation is unchanged.** A publication is still not done until it exists on both surfaces.
+- **The body placement is unchanged and re-affirmed.** Section 2 above stands in full, including its
+  accepted cost: the owner was told LinkedIn has historically down-ranked posts with an outbound link in
+  the body and chose the body anyway. **A later reader must still not "fix" it.**
+- **No claim about results.** None of the three parts, and not the hashtag convention, is recorded with an
+  expected outcome. Nothing here has been measured, and part 3's cost above is named rather than priced.
+- **Still manual, therefore still skippable.** `gen-distribution.mjs` holds no language, placement, hashtag
+  or link-locale logic — it scaffolds from the English frontmatter and emits a bare canonical URL. Every
+  convention in both amendments is the author's act, unread by any gate. Same honest limit as the fan-out,
+  the cadence and the campaign tag.
 - **Automated posting stays rejected.** Option 4 stands in full.
 
 ## Links
