@@ -261,6 +261,69 @@ that the first candidate is the cheap one if that is ever to change.
   reach, the repositioning — that is a different decision and gets its own record; nothing here pre-empts
   it.
 
+## Amendment (2026-08-16) — the two per-medium conventions: **language by surface**, and the link **in the LinkedIn body**
+
+This record's own driver already says the two networks are **"different media, not mirrors"**, and its
+decision outcome already says **"the copy is adapted to the medium, not re-argued."** Until now that
+adaptation was named only as *shape* — long form against thread. The owner has set two further
+per-medium conventions, and they are appended here rather than recorded separately because both are the
+same clause made specific: they say **what "adapted to the medium" means**, for the two surfaces this
+record already governs. Neither adds an obligation; each fills in one the decision above already carries.
+
+### 1 · Language is per surface
+
+- **X is always English.**
+- **LinkedIn ships in pt-BR.**
+
+**What this supersedes, and why it cannot be cited by path.** The convention in force before tonight was
+**English on both surfaces, with no pt-BR edition of either** — it was stated in the most recent
+owner-approved post draft (2026-08-14) and it followed from the private positioning layer's rule that the
+owner's public surfaces are English. **Both of those live outside this repository, in the gitignored
+private working material this record's own decision outcome puts there** (*"the distribution **copy** and
+per-surface checklists remain private"*). So the superseded convention is described here rather than
+quoted: nothing private is reproduced into a public record, and a public reader still learns that a rule
+existed, what it said, and that it no longer holds.
+
+**That is precisely why this is urgent rather than tidy.** A convention that lives only in the previous
+draft is inherited by the next draft. With nothing public saying otherwise, the next post would have been
+written English-on-both and would have had one surface's language wrong before anyone looked.
+
+**Nothing in this repository's public record said either thing.** Checked on this branch: no ADR in
+`docs/adr/` states a language for a LinkedIn or X post. [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
+and [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) decide the **site's** locale layer and are
+untouched by this — the site serves both editions at per-locale URLs, and which language a *post* is
+written in is a different question that had no record at all.
+
+### 2 · The canonical link goes in the LinkedIn **post body**
+
+The link is placed in the body of the LinkedIn post, not in a first comment. This **reverses** the
+placement of the 2026-08-14 approved draft (link in the first comment) and **restores** the placement the
+launch pair used.
+
+**This was decided against a stated cost, and that is the part worth recording.** The owner was told
+before deciding: LinkedIn has historically down-ranked posts carrying an outbound link in the body, which
+is the entire reason the first-comment practice exists. He chose the body anyway. **So a later reader must
+not read the body placement as an oversight and "fix" it** — the cost was on the table and was accepted.
+
+The URL itself is unchanged: it is still the canonical article URL this record already requires (*"The
+canonical URL must be the thing shared"*), carrying the campaign tag the Links section below points at.
+What is decided here is only **where in the post it sits**.
+
+### What this does not change
+
+- **The obligation is unchanged.** A publication is still not done until it exists on both surfaces, and
+  a half-shipped pair is still *incomplete and tracked*.
+- **No claim about results.** Neither convention is recorded with an expected outcome, because none has
+  been measured. If either is ever revisited on evidence, that evidence does not exist yet and this
+  record does not pretend to anticipate it.
+- **No general per-medium rule is being set.** These are the conventions for **these two surfaces**.
+  Whether a future surface inherits the split is not decided here.
+- **Still manual, therefore still skippable.** Nothing reads either convention. `gen-distribution.mjs`
+  scaffolds both sections from the **English** frontmatter and holds no language or placement logic, so
+  the pt-BR LinkedIn edition and the body placement are both the author's act — the same honest limit
+  this record already admits for the fan-out and for the campaign tag.
+- **Automated posting stays rejected.** Option 4 stands in full.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
