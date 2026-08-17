@@ -66,15 +66,33 @@ describe('ArchitecturePage', () => {
 
   // The two editions are separate files, so they can drift. This pins the SOURCES — every outbound link,
   // in order — plus the section count. It does NOT check that the prose means the same thing; a
-  // structurally identical bad translation passes, and that limit is recorded in ADR-0032. The page has
-  // no video embeds (unlike the ramp-up page), so a link-only comparison is complete here.
+  // structurally identical bad translation passes, and that limit is recorded in ADR-0032.
+  //
+  // THE PAGE NOW HAS A VIDEO EMBED (pillar 3), which the sentence here used to say it did not. A
+  // `<VideoEmbed>` renders no anchor, so it is invisible to the `links` comparison — the parity of the
+  // embed itself is carried by `video-thumbs.test.mjs`, which scans the whole content tree for YouTube
+  // ids and reds on one that has no poster or no `videos.json` caption. Both editions cite the same id,
+  // so a drop on one side would leave the two files unequal in prose rather than in links: not caught
+  // here, and named rather than papered over.
   it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.
-    const sourcesOf = (container: HTMLElement) => ({
-      links: [...container.querySelectorAll('a')].map((a) => a.getAttribute('href')),
-      sections: container.querySelectorAll('h2').length,
-    });
+    //
+    // SCOPED TO THE BODY SINCE #450. The page now renders a closing block after the body, and its share
+    // deeplinks carry the LOCALE-PREFIXED canonical URL — `…%2Fpt%2Farchitecture` against
+    // `…%2Fen%2Farchitecture`. Those are correct and must differ, so a container-wide comparison would go
+    // red on healthy output. The parity claim was always about the two markdown FILES; the scope now says
+    // so. `[data-testid="markdown-body"]` is the seam MarkdownPage marks for exactly this.
+    const sourcesOf = (root: HTMLElement) => {
+      const body = root.querySelector('[data-testid="markdown-body"]');
+      // A stale seam would make both editions equal and empty — which is the shape this whole test is
+      // written to refuse.
+      expect(body, 'the markdown body did not resolve — the seam went stale').not.toBeNull();
+      return {
+        links: [...body!.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+        sections: body!.querySelectorAll('h2').length,
+      };
+    };
 
     const pt = renderPage('pt');
     const ptSources = sourcesOf(pt.container);
@@ -144,11 +162,72 @@ describe('ArchitecturePage', () => {
     ]);
   });
 
+  // #450 — THIS IS THE PAGE THAT OPTS IN, and the only one. The launch points three surfaces here, and
+  // before this slice the page had a header ShareButton and nothing else: no end-of-document share block
+  // and no contact route at all, so an arrival who finished it had nothing to do next. Both blocks are
+  // asserted per locale — this suite renders at `pt` by default, and a pt-only check is green on a page
+  // whose English edition renders neither.
+  //
+  // THE SHARE GROUP'S ACCESSIBLE NAME IS THE PAGE ONE, NOT THE ARTICLE ONE. This is the whole of the copy
+  // lens's BLOCKING finding, asserted where it renders: /architecture is a section of this site, and
+  // `share.linksLabel` ("Compartilhar este artigo") would announce it as a piece of writing to
+  // screen-reader users only. Queried POSITIVELY by the name it must have — `getByRole` throws when it is
+  // absent, so this reds both if the prop stops being passed and if the catalog string changes under it.
+  // The article side of the same decision is pinned in ArticlePage.test.tsx, positively, for the same
+  // reason: a pair of positives cannot both pass on a render that produces no group at all.
+  it.each(['pt', 'en'] as const)('closes with the contact route and the share deeplinks (%s)', (locale) => {
+    renderPage(locale);
+    expect(
+      screen.getByRole('navigation', {
+        name: locale === 'pt' ? 'Compartilhar esta página' : 'Share this page',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me' }),
+    ).toBeInTheDocument();
+  });
+
+  // The contact route attaches BELOW the body's closing ask — the paragraph that asks the reader to get in
+  // touch — rather than floating anywhere on the page. The ask is `writer`'s copy in the markdown; the
+  // route is a component, because `contactChannels.ts` is the declared single source of truth for the
+  // owner's channels and a hardcoded address in a content file would be a second one.
+  it.each([
+    ['pt', /me conte o contra-exemplo/],
+    ['en', /tell me your counter-example/],
+  ] as const)('attaches the contact route under the body\'s closing ask (%s)', (locale, ask) => {
+    const { container } = renderPage(locale);
+    const body = container.querySelector('[data-testid="markdown-body"]')!;
+    expect(body).toHaveTextContent(ask);
+
+    const contact = screen.getByRole('heading', {
+      name: locale === 'pt' ? 'Onde me encontrar' : 'Where to find me',
+    });
+    expect(body.compareDocumentPosition(contact) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // …and it is the shared channel list, not a mailto typed into the markdown. Both halves matter: the
+    // second assertion is what would catch the closing ask growing its own address later.
+    expect(container.querySelectorAll('a[href^="mailto:"]')).toHaveLength(1);
+    expect(body.querySelectorAll('a[href^="mailto:"]')).toHaveLength(0);
+  });
+
   // COPY-AS-MARKDOWN AGAINST THE SHIPPED BODY (#387). The payload builder has its own unit tests against
-  // synthetic input; this is the one that reads the file that actually ships, and it is where the
-  // `adr-index` defect lives — `architecture.{en,pt}.md` carries an EMPTY fence that only the renderer
-  // expands, so a verbatim copy hands the reader three backticks and nothing.
-  it.each(['pt', 'en'] as const)('copies the shipped body with no bare adr-index fence (%s edition)', async (locale) => {
+  // synthetic input; this is the one that reads the file that actually ships.
+  //
+  // THE `adr-index` FENCE IS GONE FROM THIS PAGE, and this test changed shape rather than being deleted.
+  // The owner cut the rendered 48-row table: the section now argues why the record exists and states the
+  // count, and LINKS the library instead of reproducing it. So the assertion that the payload contains
+  // the generated `[label](…/docs/adr/README.md)` substitution was asserting a substitution that no
+  // longer has an input — it would have gone red on correct output.
+  //
+  // What is kept, and it is the half that still bites: the payload must carry NO bare `adr-index` fence.
+  // That was always the defect (three backticks and nothing, handed to a reader), and it is now satisfied
+  // because the source has no fence rather than because the builder replaced one — so this assertion has
+  // become a guard against the fence being reintroduced without the renderer's expansion. The
+  // SUBSTITUTION itself is still covered, on synthetic input, in `shareMarkdown.test.ts`.
+  //
+  // The library link is asserted directly instead: the section's own prose links `docs/adr/README.md`, so
+  // a copied document still reaches the record. That is the claim the section now makes, checked where it
+  // now lives.
+  it.each(['pt', 'en'] as const)('copies the shipped body, fence-free, with the library still reachable (%s edition)', async (locale) => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal('navigator', { clipboard: { writeText } });
     renderPage(locale);
@@ -163,16 +242,8 @@ describe('ArchitecturePage', () => {
     const payload = writeText.mock.calls[0][0] as string;
 
     expect(payload).not.toContain('adr-index');
-    // THE WHOLE GENERATED LINK, label included — not the URL alone. The body's own prose at
-    // `architecture.{pt,en}.md:300` already links `…/docs/adr/README.md`, so a bare `toContain` on that
-    // URL is satisfied by the BODY and stays green even if the fence resolves to something else entirely.
-    // Found by mutation: reverting `ADR_INDEX_URL` to the bare directory left the URL-only assertion
-    // passing. Pinning the label is what makes this an assertion about the substitution.
-    const adrLink =
-      locale === 'pt' ? 'Índice de decisões (ADRs), no repositório' : 'Decision index (ADRs), in the repository';
-    expect(payload).toContain(
-      `[${adrLink}](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md)`,
-    );
+    // The record is still reachable from a copied document — the section's own prose carries the link.
+    expect(payload).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md');
     // …and the mermaid fences that SHOULD survive did. Dropping every fence would pass the assertion
     // above while silently gutting four diagrams a reader can render on GitHub.
     expect(payload).toContain('```mermaid');

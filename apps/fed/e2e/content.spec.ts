@@ -143,4 +143,29 @@ test.describe('content detail', () => {
       }
     });
   }
+
+  // THE SHARE GROUP NAMES ITS OBJECT CORRECTLY ON THE SERVED BUILD, and this is the copy lens's BLOCKING
+  // finding pinned where a screen reader would actually meet it (#450). `/architecture` is a section of
+  // this site, not a piece of writing, so its group announces "Compartilhar esta página"; the four live
+  // article pages keep "Compartilhar este artigo", which the two tests above already reach through.
+  //
+  // BOTH LOCALES AND BOTH OBJECT TYPES, as four POSITIVE lookups rather than four absences. `getByRole`
+  // with a name fails when nothing matches, so a page that lost the block entirely reds here — an
+  // absence assertion would have gone green on exactly that regression. And article-vs-page is checked in
+  // one file on purpose: the page name is set by a prop and the article name by the component default, so
+  // a change to either that forgets the other cannot leave this file green.
+  for (const [locale, pageName, articleName] of [
+    ['pt', 'Compartilhar esta página', 'Compartilhar este artigo'],
+    ['en', 'Share this page', 'Share this article'],
+  ] as const) {
+    test(`/${locale}: the share group names a section a page and an article an article`, async ({ page }) => {
+      await page.goto(`/${locale}/architecture`);
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('navigation', { name: pageName })).toBeVisible();
+
+      await page.goto(locale === 'pt' ? '/pt/blog/meu-compromisso' : '/en/blog/my-commitment');
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('navigation', { name: articleName })).toBeVisible();
+    });
+  }
 });

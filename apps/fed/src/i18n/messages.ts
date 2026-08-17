@@ -184,9 +184,168 @@ const strings = {
       // this describes qualifies it twice in both editions, and repoCards.ts carries the same correction on
       // the card that links the same library. A meta line is the one place the qualifier is cheapest to
       // drop and the claim hardest for a reader to check against the page it summarises.
-      pt: 'Como este site é construído: o dev-loop de agent-led verification, a SPA estática em S3 + CloudFront, o conteúdo em markdown no repo prerenderizado no build, e os ADRs que registram as decisões que sustentam peso — com links para replicar.',
-      en: 'How this site is built: the static SPA on S3 + CloudFront, markdown-in-repo content prerendered at build, the agent-led verification dev-loop, and the ADRs that record the load-bearing decisions — with links to replicate it.',
+      // REWRITTEN WITH THE BODY, in the same diff, and that is the point rather than a nicety (#448).
+      // Nothing couples this string to `architecture.{pt,en}.md`, so a restructure that changes what the
+      // page is ABOUT leaves the OG card describing the page that used to be here — and the card is the
+      // text a scraper pins on first fetch.
+      // THE ~160-CHARACTER WINDOW IS THE RULER, NOT THE TOTAL LENGTH (#448). The first rewrite of this
+      // string followed the body's spine literally — term, then the three pillars by name, then the two
+      // checkable claims — and got LONGER (pt 239 → 258, en 224 → 247) on the slice whose subject is
+      // compression. Worse, it broke inside the pillar list at the truncation LinkedIn, X and SERP
+      // previews cut, so the monthly cost and the ADRs — the two claims this string exists to carry,
+      // per the note above — fell outside the window in both editions. A reader arriving from a post
+      // saw neither.
+      // So: OPEN ON THE PROBLEM, matching the body's own first heading rather than the old completeness
+      // framing ("Como este site é construído" / "How this site is built" survives as the document
+      // TITLE, which is a different object — see the title note above). The pillar list is dropped, not
+      // shortened: it is what pushed the checkable claim past the cut.
+      //
+      // THE FIRST ATTEMPT AT THAT OPENING BROKE THE TERM-FIRST RULE FOUR LINES ABOVE, and its own
+      // comment then claimed the rule was satisfied. Measured on that string: `agent-led verification`
+      // started at **pt 119 / en 101**, against **pt 43 / en 28** in the string it replaced — so the pt
+      // edition landed on ~120, the exact position the rule names as the failure, in the exact edition
+      // the rule says the failure was in. A record asserting a rule holds when it does not is worse
+      // than the regression it describes, which is why this note carries the numbers rather than a
+      // verdict.
+      //
+      // THE TWO PROPERTIES BOTH FIT, so no trade was needed and none is claimed. Term first, the
+      // problem immediately after the colon (the hook survives, one clause later), pillar list still
+      // dropped. Measured on the strings below:
+      //
+      //   pt — len 196 · `agent-led verification` at 15–37 · `R$ 34,31/mês de conta` complete at 155
+      //   en — len 193 · `agent-led verification` at  3–25 · `a USD 6.57/month bill` complete at 143
+      //
+      // THOSE FIGURES MOVED ON THE SINGULAR CORRECTION, and they are re-measured rather than carried
+      // over. The card said "ferramentas" / "tools", plural, after the owner had already corrected the
+      // body to `a ferramenta` / `the tool`, singular — the card was quoting the page's strongest
+      // sentence in the version he ruled wrong, on the surface a reader meets first. pt gained one
+      // character (`ferramentas` → `a ferramenta`) and en lost one (`tools` → `tool`), so the claim now
+      // completes at 155 (pt) and 143 (en) against the same 160 window, and the term still ends at 37
+      // and 25 against the 120 bound. Both properties hold with room; neither was assumed.
+      //
+      // THE PT FIGURE IS BRL AND THE EN FIGURE IS USD, deliberately — the pt EDITION of the page
+      // regionalises its cost section (owner's request) and this card is the same claim's OG surface, so
+      // a USD card over a BRL page would contradict the page a reader lands on. Both numbers are the
+      // same bill at R$ 5,222/USD, the 2026-08-14 close, stated in the page body where the reader can
+      // reverse any line back to the invoice.
+      // The pt figures above did NOT move on that change: `USD 6,57` and `R$ 34,31` are both 8
+      // characters, so length and every position held exactly. Measured, not assumed — the term ends at
+      // 37 against the 120 bound and the claim completes at 154 against the 160 window.
+      //
+      // Both editions therefore carry the canonical term far inside every preview cut AND one checkable
+      // claim — the monthly bill — inside the first 160 characters. The ADR clause still sits after the
+      // cut deliberately: fitting it too costs the opening, and the opening is the hook.
+      // `agent-led verification` still leads the stack and still stays English in pt, per the two rules
+      // above.
+      //
+      // The term's POSITION is now gated, not only its presence: `e2e/per-locale.spec.ts` asserts it
+      // ends before character 120 in the served `og:description` of both editions. Containment alone is
+      // what let the regression above ship green.
+      pt: 'Um dev-loop de agent-led verification: a ferramenta de desenvolvimento agêntico na mão e mesmo assim de fora do hype. O que saiu daí: R$ 34,31/mês de conta e as decisões que sustentam peso em ADR.',
+      en: 'An agent-led verification dev-loop: the agentic development tool in hand and still outside the hype. What came out of it: a USD 6.57/month bill and the load-bearing decisions on record as ADRs.',
     },
+    //
+    // THE TEASER CARD (#450, slice 2) — what replaces the landing band shipped in #461, after the owner's
+    // verdict on it: "você descaracterizou a home". The band was a <section> between the Hero and the grid,
+    // and the objection was to the OBJECT, not to its words: a band changes the landing's shape, and the
+    // landing's shape is the articles. What he asked for instead is a card that looks exactly like an
+    // article card, is pinned at the top of that list, is outside the track filter, and goes straight to
+    // /architecture — "deveria ser como artigo, mas não é um artigo pois quero direcionar direto pra
+    // seção arquitetura".
+    //
+    // THE SAME TWO CONSTRAINTS THE BAND COPY WAS WRITTEN UNDER STILL HOLD, and they are restated here
+    // rather than inherited by proximity, because the band leaves they were written on (`bandKicker`,
+    // `bandHeading`) are deleted in this same slice and take their notes with them:
+    //   1. NO WORD MAY DEPEND ON THE DATE — no "novo", no "lançamento", no "just shipped". The card is
+    //      permanent furniture on the front door, not a launch announcement; it must read correctly in
+    //      three months, and nothing in this repo would ever raise a stale one.
+    //   2. THE READER IS THE SUBJECT, NEVER THE OWNER. Higher on the same page the Hero's body ends —
+    //      published, in both editions — with "quem escreve isso é consequência, não o ponto." A card
+    //      leading with the owner contradicts a sentence on the screen it sits on.
+    //
+    // These three leaves stay in the `architecture` group for the same reason the band's two did:
+    // `messages.test.ts` derives ADR-0045 coverage from every TOP-LEVEL group carrying a `title` leaf and
+    // pins the set to ['architecture','library','portfolio','rampup'], so a new `home`/`teaser` group
+    // would either red that test or need a title it has no business having. And semantically, copy ABOUT
+    // this destination belongs beside the destination's own `heading`/`kicker`, where a drift between
+    // them is visible in one screen of this file.
+
+    // THE TRACK-CHIP SLOT, and it is the single load-bearing string here: it is what stops the card being
+    // a lie. The chip beside it on every other row is a TRACK — "Vida pessoal" / "Engenharia" — so a
+    // reader scanning the column reads this slot as "what kind of writing is this". The answer has to be
+    // "it isn't writing", said before the click, in chip-sized space.
+    //
+    // NOT the bare noun ("Seção" / "Section"), which in a column of track names reads as a THIRD track.
+    // The possessive half is what disambiguates, and it is the half the retired band's kicker also carried
+    // ("Seção deste site"). Shortened from that by one word: a chip renders mono-uppercase at text-xs
+    // beside "VIDA PESSOAL" (12 chars) and "ENGENHARIA" (10), and "SEÇÃO DESTE SITE" (16) is wider than
+    // anything the row has ever held. "SEÇÃO DO SITE" (13) / "SITE SECTION" (12) sit inside that
+    // established width and lose nothing the sentence was doing.
+    cardTrack: { pt: 'Seção do site', en: 'Site section' },
+    // THE TITLE, carried over VERBATIM from the retired band's heading — deliberately, not by inertia. That
+    // string's recorded job was "what this section is FOR to someone deciding to click", as opposed to
+    // `heading`, which says what the page IS to someone already there. A card title in a list of article
+    // titles is that first job exactly, so the string is being moved to the surface it was already
+    // written for rather than rewritten for a surface it already fits.
+    //
+    // Its two sourcing notes travel with it and are not re-derived here: the reader must meet the
+    // DESTINATION'S OWN NAME first (the word the click lands on is "Arquitetura" — the same rule ADR-0045
+    // applies to document titles, and a card that renames the section is that defect one screen earlier),
+    // and neither noun is invented — "a máquina" is the site's own word for this page
+    // (content/blog/engineer-the-loop.pt.md:30; architecture.pt.md:60 and :211 say it of itself), and
+    // "replicar" is the page's own closing H2 ("Replique para o seu contexto" / "Replicate it for your
+    // own context").
+    cardTitle: {
+      pt: 'Arquitetura — a máquina inteira, e como replicá-la',
+      en: 'Architecture — the whole machine, and how to replicate it',
+    },
+    // THE EXCERPT — the hook, and the leaf the band never had. It sits where the article excerpts sit and
+    // is written to their length and register: one inventory sentence, one sentence that lands the
+    // posture (compare my-commitment's "O primeiro post. Por que este espaço existe…" and
+    // engineer-the-loop's two-beat "não é uma ideia nova… é uma ideia antiga").
+    //
+    // EVERY CLAIM IS THE PAGE'S OWN, in both editions. "o que foi cortado e por quê" ← "não foi
+    // construída enxuta. Foi construída inteira e depois cortada" plus the five superseded ADRs it links.
+    // "as decisões que sustentam peso registradas em ADR" is `metaDescription`'s phrasing above, kept
+    // WORD FOR WORD including the qualifier: the page qualifies this twice in both editions and the note
+    // on that string already records why "cada" / "every" is the wrong word here. The closing sentence is
+    // near-verbatim body text — pt "o que está aqui é o setup inteiro, não só a conclusão a que ele
+    // chegou", en "what is here is the whole setup, not only the conclusion it reached".
+    //
+    // THE BILL IS NAMED WITHOUT ITS NUMBER, and that is the one deliberate softening. "quanto custa por
+    // mês" / "what it costs a month" points at the strongest checkable claim on the destination; printing
+    // "USD 6,57" here would put a figure that moves with an AWS invoice onto a card with no retirement
+    // step, which is constraint 1 above arriving through the back door. The page prints the number, dated
+    // and in context, which is where a number that moves belongs.
+    //
+    // "levar o que servir pro seu contexto" was NOT used, though it is the page's closing ask: the title
+    // one line above already ends on "como replicá-la", and the same payoff twice in three lines reads as
+    // a card unsure it landed. The excerpt takes the inventory; the title keeps the replication claim.
+    cardExcerpt: {
+      pt: 'O que foi construído, o que foi cortado e por quê, quanto custa por mês, e as decisões que sustentam peso registradas em ADR. O setup inteiro, não só a conclusão a que ele chegou.',
+      en: 'What got built, what got cut and why, what it costs a month, and the load-bearing decisions on record as ADRs. The whole setup, not only the conclusion it reached.',
+    },
+    // THE CONTROL LABEL IS `nav.architecture`, AND THERE IS DELIBERATELY NO LEAF FOR IT HERE. Written as
+    // a note rather than a string because the absence is the decision, and an absence with no record
+    // reads as an oversight to whoever adds the missing key later.
+    //
+    // What it must not be: `articles.read` — "Ler artigo" / "Read article" — which is the objection that
+    // killed the earlier proposal to reuse the article row unchanged. A control stating something the
+    // click does not do is a published untruth, on the site's highest-traffic block.
+    //
+    // What a NEW leaf would buy, and why it is not worth it. Its only gain over `nav.architecture` is
+    // grammatical parallelism with the "Ler artigo" controls beside it — and that parallelism is the one
+    // property this card should not have. Every other signal on the row (the chip, the title, the
+    // excerpt) works to say "this is not writing"; a control that reads as a NOUN where its neighbours
+    // read as verbs is that same signal, for free, in the last place a reader looks before clicking.
+    // Against that: #315 recorded the rule that the reader meets ONE word for one destination, and
+    // `nav.architecture` is already what the nav entry and the Hero's fourth control both render. A
+    // fourth label for /architecture, duplicating a word the catalog already publishes, is a second
+    // source of truth that can only ever drift.
+    //
+    // The word repeating inside the card ("Arquitetura —" in the title, "ARQUITETURA" on the control) is
+    // accepted, not overlooked: the retired band carried exactly that repetition, shipped with it, and it
+    // is what the one-word rule costs.
   },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
   // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
@@ -510,6 +669,18 @@ const strings = {
     // aria-label for the group. Not "Share" — the page already has a ShareButton with that name, and two
     // controls whose accessible names are indistinguishable is the defect, not the duplication itself.
     linksLabel: { pt: 'Compartilhar este artigo', en: 'Share this article' },
+    // #450. The same group's accessible name where the thing being shared is NOT an article — the share
+    // block now also renders under `endMatter` on MarkdownPage, and /architecture is a section of this
+    // site, so `linksLabel` would name it something it is not, to screen-reader users only.
+    //
+    // A SIBLING KEY RATHER THAN A REWORDED SHARED ONE, deliberately. Rewording `linksLabel` to "esta
+    // página" is one key cheaper and wrong twice: it changes published copy on four live article pages
+    // from inside a slice scoped to change one, and it loses precision where the current string is
+    // correct — on an article, "este artigo" IS the better accessible name, and the distinction between
+    // an article and a section is the thing this key exists to keep true. The cost is a key that can
+    // drift from its sibling; it is bounded by messages.test.ts's both-locales assertion and by the two
+    // sitting adjacent here, where a drift is visible in one screen.
+    linksLabelPage: { pt: 'Compartilhar esta página', en: 'Share this page' },
     // #314. The modal's accessible name, and it must differ from `linksLabel` for the same reason that
     // one differs from `share.share`: on an article page the dialog and the footer nav are both share
     // groups, and a screen-reader user moving between landmarks cannot tell two identically-named

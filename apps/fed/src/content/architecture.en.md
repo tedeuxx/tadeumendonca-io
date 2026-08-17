@@ -1,22 +1,35 @@
 _This site is the argument. This page is the blueprint — how it's built, and how you'd build your own._
 
-## Three things
+## I started the year lost
 
-This is three things.
+A project that was not going well, a pile of catch-up obligations on AI tooling, and things degraded until the end of the year. **Kiro** had been within reach for a while by then, and I started the year willing to learn how to use it. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tool in hand — and still felt outside the hype.**
 
-- **A static site.** React, Vite and TypeScript in a bucket behind CloudFront — no server, no database, no auth. It is what you are reading right now.
-- **A dev-loop plugin.** The personas, the hooks, the skills and the commands that decide *how* the work gets done: versioned in a separate repository, installable in any project, and what it delivers is a verification that does not depend on whoever wrote the code.
-- **An agent runtime.** Claude Code, which runs that — the orchestrator, the subagents, the permission floor. It is the one of the three I did not write.
+Because the problem was not the tool; it was where I was going to use it. At that point in the year, all the AI work I was close to split into two halves: the modelling, which is strong, and the rest — systems integration, legacy that cannot be replaced, the ordinary complications of corporate IT. That second half is where I have spent eighteen years, and it is the one with no ready-made use case to learn on — the case has to turn up on its own, in real work.
 
-These are not three products. **It is one thing**, and this site is what it produces in public.
+The case that turned it around was not this site. **At the beginning of the year, in January**, I started building an authentication and authorization mechanism on the side — dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. **I would never have delivered that without an agentic development tool** — and it was not only the deadline: I was carrying tech-lead responsibilities on that project **at the same time**. That is what the tool bought. Not typing speed: both of those fitting into the same week. And nothing is more fun to me than seeing an application up and running, looking just right — at a scale I could not reach on my own. That was where I saw something I had not seen in a long time: if the requirement is where I stay and the code is worked by AI-DLC, a software engineering project becomes enjoyable again. Not as a forecast — as what I saw at that moment, with the thing running in front of me.
 
-On a proof-of-engineering site the code is the pitch, and what it owes a reader is not the output — it is the machine that produced the output. So the honest thing is to show the whole build, in the open: the architecture below, the decisions that shaped it (each one recorded as an ADR), and the reusable layer that lets you replicate it. I build this the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips — Claude Code, Kiro, a loop built on AI-DLC & Agent Harness Engineering.
+> "Computer programming is an art, because it applies accumulated knowledge to the world,
+> because it requires skill and ingenuity, and especially because it produces objects of beauty."
+>
+> — Donald Knuth, 1974
 
-![A museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/iphone-opened-chm.jpg "The launch showed the output. The case shows the machine. At the Computer History Museum.")
+![White serif lettering standing off a pale museum wall, angled away from the camera, with Donald Knuth's name and the year 1974 below it to the right.](/photos/knuth-cv-museum.jpg "Fifty years before me, someone had already named the part I like most — and the wall is in the museum that exists to record it.")
 
-### The three pillars, and what sits in the intersection
+**The holiday was in May, in San Francisco and the Valley, and the rest of this page comes out of it.** There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back with the idea of what to do, and since then I have run it on two fronts: an internal one, at work, with **Kiro**, and this one, in public, with **Claude Code**. Two harnesses running the same kind of work is what lets me separate what comes from the model from what comes from the setup around it.
 
-The three are not tiers of one system, and that is what the drawing below exists to make obvious: **each one exists without the other two**. The site runs without the plugin. The plugin installs in any repository. The runtime is not mine. What sits in the middle is the one thing none of the three delivers on its own.
+One morning I took the Caltrain south — 8:57, next stop Palo Alto. The carriage was open laptops end to end, loops running, people trading ideas out loud on the way to work. It was not an event, not a community, nothing arranged. What I concluded from that, rather than saw: a lot of people doing the same kind of work, in the same place, at the same time — close enough to overhear without asking and to answer without scheduling. I was inside that for one week, in May. The rest of the year, I am not.
+
+![A montage of three frames from the same week: on the left, me and my partner on a paved walkway beside a row of red, yellow and turquoise bicycles, with trees and a clear sky behind; top right, the onboard display in a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto"; bottom right, a museum case holding a 2007 iPhone taken apart behind acrylic, its components labelled — camera, light sensor, mic, speaker, SIM, vibrator — under the legend "iPhone · INTRODUCED IN JUN 2007".](/photos/may-week-montage.jpg "One week, in May: Google's visitor centre in Mountain View, the 8:57 Caltrain south, a case at the Computer History Museum. One train, one morning, no measurement. This is not data; it is what I saw.")
+
+Outside that week the carriage does not exist, and it is what the public front stands in for — there is a reason the front exists rather than a notebook. There are far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and that is why what is here is the whole setup, not only the conclusion it reached.
+
+## What the requirement demanded, and the architecture it justified
+
+The requirement for this public front is short: **publish content, in two languages, with the whole build in the open.** That is what decides the architecture, the bill, and the rest of this page.
+
+And it **was not built lean**. It was built full and then cut: there was a backend platform — BFF on Lambda, DynamoDB, Cognito, SES —, a Lambda@Edge rendering OG images per request, a link-unfurl service, GitFlow with staging and production, and an offline-first PWA. A database with nothing to store. Auth with nobody to authenticate. A staging environment for a site whose revert is a merge. Each one was defensible when it was decided, and none survived the question *"what is this for, here"* — and every reversal is on the record with the decision that replaced it: [0025](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0025-superseded-backend-platform.md), [0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md), [0027](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0027-superseded-backend-link-unfurl.md), [0028](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0028-superseded-gitflow-two-env.md), [0029](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0029-superseded-offline-first-pwa.md).
+
+**The cut is not this page's subject; it is the consequence.** What is left is three things — a static site, a dev-loop plugin and an agent runtime — and they are not tiers of one system: **each one exists without the other two.** The site runs without the plugin. The plugin installs in any repository. The runtime is not mine. What sits in the middle is the one thing none of the three delivers on its own — and it is where the way I build this lives, which is the way I want to be hired to build: AI-native development with the SDLC rigor most AI work skips, a loop built on AI-DLC & **(Agent) Harness Engineering**.
 
 ```venn
 accTitle: The three pillars, and what sits in the intersection
@@ -40,472 +53,257 @@ pillar: The runtime | Claude Code
 - Tools and MCP
 ```
 
-What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in parentheses on purpose: *harness engineering* is commonly said today for the practice alone, and the brackets tie one term to the other without pretending they are two different things.
+What sits in the intersection is the actual work: deciding what the harness **refuses**, what it **advises** and what it only **documents** — and then proving the inventory of that is still true. `Agent` is in brackets on purpose: a label has to be short and a claim has to be exact, and the brackets let one rendering do both.
 
-The topics inside each circle are that pillar's **inventory**; what each one **delivers** has a section of its own further down, and it is worth naming which is which: the site's is *What the site does, from the reader's side*; the customization's is *The four harness elements*; the runtime's is *The orchestrator is the part of the harness you cannot install*.
+**The launch showed the output. The case shows the machine.**
 
-## The shape
+## Pillar 1 · the solution
 
-A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No backend: no server, no database, no auth. Cost near-zero, attack surface minimal, nothing to keep running at 3am.
+A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No server, no database, no auth. The content is markdown in the repository itself, and every route is **prerendered** at build, in both languages.
 
 *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
-In layers, and **the interesting thing about this picture is what is not in it** — there is no application tier and no data tier, because everything that would normally live at runtime happens at build time instead:
-
-```mermaid
-flowchart TB
-  accTitle: The layers, and the build lane that replaces the missing ones
-  accDescr: Two lanes — two times, not two sides of the picture. The build lane: content authored in the repository goes through the pipeline, which prerenders every route in both locales and prints the CV PDF, and publishes the result to the S3 origin. The serving lane: the reader's device reaches DNS, then the CloudFront edge which runs the URL-rewrite function and holds the cache, then that same S3 origin holding the prerendered files. There is no application server and no database. Everything a backend would normally do at request time happens in the build lane instead.
-  subgraph build["BUILD — runs on merge, not on request"]
-    direction TB
-    C["Content in the repo<br/>markdown · typed TypeScript"] --> P["Pipeline<br/>gates · prerender both locales · print /cv.pdf"]
-  end
-  subgraph serve["SERVE — every request"]
-    direction TB
-    D["Reader's device"] --> N["DNS"]
-    N --> E["CloudFront edge<br/>URL-rewrite function · cache"]
-    E --> O["S3 origin<br/>prerendered files"]
-  end
-  P -- "publishes" --> O
-```
-
-**The absence is the design, not a gap.** A layer diagram for a system like this usually continues into an application tier, a database and internal integrations; here it stops at a bucket. The only third party at runtime is analytics, and it is consent-gated. What a backend would do per request — resolve content, render HTML, build the OG tags — happens once, in the build lane, and ships as files.
-
-*(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) consent-gated analytics)*
-
-That is also why the bill below is what it is: **the domain and the hosted zone bill whether anyone comes or not, and what a visit adds on top of them rounds to nothing.**
-
-What none of that places is where a clean URL becomes a file:
+End to end, backstage included — and **the interesting thing about this picture is what is not in it**:
 
 ```mermaid
 flowchart LR
-  accTitle: How a request becomes a page
-  accDescr: Three steps and one fork, left to right. A reader asks for /en/me, with no trailing slash. CloudFront runs the spa-rewrite function on viewer-request and the uri becomes /en/me/index.html. From there two paths end in the same place - if the object is cached at the edge the page is served straight away; if it is not, it is fetched as a prerendered file from the S3 origin, and that origin leads to the same served page. Nothing returns to an earlier step.
-  R["Reader asks for<br/>/en/me"] --> F["CloudFront · viewer-request<br/>spa-rewrite: the uri becomes /en/me/index.html"]
-  F -- "cached" --> P["Page served"]
-  F -- "not cached" --> S["S3 origin<br/>/en/me/index.html, already built"]
-  S --> P
+  accTitle: The lanes and the tiers — what the reader meets, and what keeps it standing
+  accDescr: A grid read from left to right, four columns wide — public, devices, frontend and cloud infra — with three lanes stacked inside them. The top lane is the audience, what the reader meets on the site: the public arrives from a link, the device asks for a URL, and what comes back is prerendered HTML in both locales, with the React SPA taking over afterwards and no third party loaded before the reader allows it — GA4 only on consent, YouTube only on a click. That page comes whole from the cloud infra column: Route 53, ACM, CloudFront with its rewrite function, and a private S3 bucket that answers only that distribution. Between frontend and infra there is no backend column, and that absence is the claim this drawing makes: there is no application tier, because the requirement never asked for one, and nothing of mine runs per request. The two lower lanes are the backstage, what nobody sees and what keeps the operation running. The production lane: I open the Issue and ratify the irreversible; GitHub is the console, from any device, and a claude mention runs the agent inside CI with no machine of mine switched on; the repository and the build carry the personas and the hooks that deny the call, and produce both locales and the CV PDF; Terraform applies the infrastructure pipeline-only, with state in Terraform Cloud. The operation lane is the thinnest, and it is thin as a finding rather than by design: what I measure is GA4 after consent, so whoever declines is never counted; nothing watches the reader's device, no RUM, no access log and no uptime monitor; after every deploy a smoke run hits the live apex and checks that the published function is this repository's; and over the whole account there is a budget that emails, which is the only continuous watcher there is.
+  subgraph T1["PUBLIC"]
+    A1["AUDIENCE<br/>readers, recruiters<br/>whoever arrived from a link"]
+    B1["BACKSTAGE · production<br/>me — I open the Issue<br/>and ratify the irreversible"]
+    C1["BACKSTAGE · operation<br/>what I measure:<br/>GA4 only after consent<br/>whoever declines is never counted"]
+  end
+  subgraph T2["DEVICES"]
+    A2["browser, phone<br/>and the LinkedIn and X scrapers<br/>asking for the same URL"]
+    B2["GitHub, from any device<br/>Issue, comment, PR<br/>a claude mention runs the agent in CI"]
+    C2["nothing watches the device<br/>no RUM, no access log<br/>no uptime monitor"]
+  end
+  subgraph T3["FRONTEND"]
+    A3["prerendered HTML in both locales<br/>the React SPA takes over after<br/>no third party<br/>before the reader allows it"]
+    B3["the repository and the build<br/>personas in agents<br/>and hooks that deny the call<br/>both locales and the CV PDF"]
+    C3["after every deploy<br/>a smoke run against the live apex<br/>and the live function checked against this repo"]
+  end
+  subgraph T4["CLOUD INFRA"]
+    A4["Route 53 · ACM<br/>CloudFront with the rewrite function<br/>private S3, reachable only by OAC"]
+    B4["Terraform, pipeline-only<br/>plan on the PR, apply on merge, over OIDC<br/>state in Terraform Cloud"]
+    C4["over the whole account<br/>a budget that emails<br/>the only continuous watcher"]
+  end
+  A1 -- "opens a link" --> A2
+  A2 -- "asks for a URL" --> A3
+  A3 -- "comes whole from here —<br/>and there is no backend<br/>between the two" --> A4
+  B1 -- "opens the work" --> B2
+  B2 -- "starts the agent loop" --> B3
+  B3 -- "publishes to the origin" --> B4
+  C1 ~~~ C2
+  C2 ~~~ C3
+  C3 ~~~ C4
+  linkStyle 2 stroke-dasharray:6 4
 ```
 
-**"No backend" raises one question before all others — how does a crawler see this — and the answer is that nothing has to run for it to.** A search engine or an unfurl scraper asks for a URL and gets **complete HTML with the OG tags already in it**, straight from a static file, not an empty shell that only becomes a page once JavaScript runs. **Nothing is assembled when it asks**: every route is rendered once, at build, in both languages. No SSR, no edge rendering — the function above rewrites a URL and does nothing else.
+**The absence is the design, not a gap.** A picture like this, for a system like this, usually carries an application column, a database and internal integrations between the frontend and the infrastructure; here there is no column there at all, and what the reader asks for comes whole out of a bucket. The only third party at runtime is analytics, and it is consent-gated. And "no backend" raises one question before all others — how does a crawler see this — whose answer is that nothing has to be **rendered** for it to: what it asks for comes back as complete HTML, with the OG tags already in it, straight from a static file. No SSR, no edge rendering — the edge's rewrite function runs on every request for a page and touches the URL, nothing else.
 
-The limit travels with the claim, because it is the part a reader can falsify: **a URL that does not exist answers 200, not 404 — and what comes back is the landing page**, complete with the landing page's own OG tags, under an address that was never real. CloudFront maps `403` and `404` onto `/index.html`, which is what lets a SPA work on deep routes and is a real trade rather than a detail. So a scraper unfurling a bad link to this site gets a plausible card for the home page instead of an error. It has bitten here once: a path misroute sent the per-article OG images into that same fallback, and each one answered `200 text/html` to every scraper that asked.
+The limit travels with the claim, because it is the part a reader can falsify: **a URL that does not exist answers 200, not 404 — and what comes back is the landing page**, complete with the landing page's own OG tags, under an address that was never real. CloudFront maps `403` and `404` onto `/index.html`, which is what lets a SPA work on deep routes and is a real trade rather than a detail. It has bitten here once: a path misroute sent the per-article OG images into that same fallback, and each one answered `200 text/html` to every scraper that asked.
 
-*(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render, no SSR · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete)*
+The only logic that runs between a reader and a file is that function: [ten executable lines](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), with [their own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) and a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo. And the bucket **is not public in any sense**: it answers `s3:GetObject` only from this distribution.
 
-### The AWS stack, layer by layer
+*(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render, no SSR · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete · [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) consent-gated analytics · [`iac/frontend.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/frontend.tf) the distribution and the policies)*
 
-The two drawings above show **time** — when each thing happens. This one shows **inventory**: which AWS services are live, and which layer each one sits in. Every one of them is named somewhere in this page's prose, and the bill below charges for some of them; no drawing had them together.
+### USD 6.57 a month
 
-```mermaid
-flowchart TB
-  accTitle: The AWS stack, layer by layer
-  accDescr: Four stacked layers. Name and trust, and ALL THREE things in this layer are created outside this repository's Terraform - the Route 53 hosted zone with its A alias record, the ACM certificate in us-east-1, and the GitHub OIDC provider, which is the trust root and is made by hand with the AWS CLI. The first two reach the distribution; the third is what the deploy role presents in order to assume an identity. Delivery, at the edge - the CloudFront distribution, which terminates TLS and holds the cache, and the spa-rewrite CloudFront Function, which it runs on viewer-request. Origin, the storage - the Origin Access Control the distribution uses to sign its origin request, and behind it the two private S3 buckets, the site one and the assets one, which answer only s3:GetObject coming from that distribution. Deploy identity, and this layer IS created here - the IAM deploy role that trusts an immutable subject, and the SSM Parameter Store the pipeline reads the bucket name and the distribution id from; the role publishes the built dist to the site bucket and asks the distribution for an invalidation. There is no compute layer serving requests, no database, no VPC and no secret read at runtime.
-  subgraph nome["NAME AND TRUST — all three born outside this repo's Terraform"]
-    direction LR
-    Z["Route 53<br/>hosted zone · A alias record"]
-    T["ACM<br/>certificate in us-east-1"]
-    OP["GitHub OIDC provider<br/>the trust root, made with the CLI"]
-  end
-  subgraph borda["DELIVERY — the edge"]
-    direction LR
-    E["CloudFront<br/>distribution · TLS · cache"]
-    FN["CloudFront Function<br/>spa-rewrite · viewer-request"]
-  end
-  subgraph origem["ORIGIN — private storage"]
-    direction LR
-    OAC["Origin Access Control"]
-    B1["S3 · site<br/>private"]
-    B2["S3 · assets<br/>private"]
-  end
-  subgraph deploy["DEPLOY IDENTITY — this layer IS created here"]
-    direction LR
-    RO["IAM · deploy role<br/>immutable subject"]
-    SSM["SSM Parameter Store<br/>bucket name · distribution id"]
-  end
-  Z -- "alias" --> E
-  T -- "TLS" --> E
-  E -- "viewer-request" --> FN
-  E -- "signed origin request" --> OAC
-  OAC -- "s3:GetObject only" --> B1
-  OAC -- "s3:GetObject only" --> B2
-  OP -- "web identity" --> RO
-  RO -- "reads" --> SSM
-  RO -- "publishes dist/" --> B1
-  RO -- "invalidation" --> E
-```
+This figure measures what the site **added**, not what it **depends on**, and it measures what the site **runs on**, not what I **build** it with. "Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked — so here is the bill, with the serving lines read from the account's daily cost in **late July 2026** and the registration read from the registrar's price list. Neither estimated:
 
-Two things here are worth saying out loud. **The whole first layer is born outside this repository's Terraform.** The hosted zone and the certificate already exist in the account and arrive as `data source`s — a choice rather than an omission: they survive a full `destroy` of this stack, which is why the hosted zone's USD 0.50 line would keep billing with no site at all. And the OIDC provider, which is the trust root, is made by hand with the AWS CLI and **stays outside Terraform permanently** — the why is further down, along with the uncomfortable part of admitting it. What is created here is the *role*, not the provider. The second: the site bucket **is not public in any sense** — its policy allows `s3:GetObject` only for the CloudFront service, and only when the `AWS:SourceArn` is this distribution's.
-
-The only logic that runs between a reader and a file is the function in the second layer: [ten executable lines](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/cloudfront-functions/spa-rewrite.js), with [their own unit tests](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/spa-rewrite.test.mjs) and a [post-deploy check](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/deploy.yml) that the live function still matches this repo.
-
-*(→ [`iac/frontend.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/frontend.tf) the distribution, the function and the bucket policies · [`iac/iam.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/iam.tf) the deploy role and the OIDC subject)*
-
-## Why this site exists
-
-To learn AI you have to build the use cases. You do not learn without them. Everything needs a user, an application, a feature, a business case — and that is where I keep seeing the gap. In the AI work I have been close to, the modelling is strong and the other half is thin: systems integration, legacy that cannot be replaced, the ordinary complications of corporate IT. That other half is where I have spent eighteen years. This site is a use case, and the open repository lets anyone check it.
-
-I started the year lost. A project that was not going well, a pile of catch-up obligations on AI tooling, and things degraded until I took my holiday. And there is a detail I suspect a lot of senior engineers are living through and not saying out loud: **I had the agentic development tools in hand — Claude Code, Kiro — and still felt outside the hype.**
-
-And there is a reason this is public rather than a notebook. We live in a world with far too many configuration options — which harness, which hooks, which persona, which gate, which model — and nobody has enough sessions to test them all alone. **Trading each other's experience of using AI is what will speed that learning up**, and it is why what is here is the whole setup, in the open, rather than only the conclusion it reached.
-
-![The onboard display inside a Caltrain carriage, reading "Southbound · 510 EXPRESS · 8:57a" and, below it, "NEXT STOP Palo Alto".](/photos/caltrain-southbound.jpg "Strangers comparing how they had configured the same tool. One train, one morning, no measurement. This is not data; it is what I saw.")
-
-Building software is what I love. Nothing is more fun to me than seeing an application up and running, looking just right. What these tools gave back was exactly that, at a scale I could not reach on my own.
-
-> "Computer programming is an art, because it applies accumulated knowledge to the world,
-> because it requires skill and ingenuity, and especially because it produces objects of beauty."
->
-> — Donald Knuth, 1974
-
-![White serif lettering standing off a pale museum wall, angled away from the camera, with Donald Knuth's name and the year 1974 below it to the right.](/photos/knuth-cv-museum.jpg "Fifty years before me, someone had already named the part I like most — and the wall is in the museum that exists to record it.")
-
-The case that proved it to me was not this site. It was an authentication and authorization mechanism with dense business rules, custom-built on Spring Boot and Spring Security, integrating legacy systems. I started building it on the side, coming back from my holiday, and it grew and matured from there. **I would never have delivered that mechanism without an agentic development tool** — and it was not only the deadline. I was carrying tech-lead responsibilities on that project **at the same time** as doing the hands-on agent development, in parallel. That is what the tool bought: not typing speed, but both of those fitting into the same week.
-
-Since then I have worked on two fronts: an internal one, at my job, with **Kiro**, and this one, in public, with **Claude Code**. The split is deliberate — two different harnesses running the same kind of work is what lets me compare them, and it is how you separate what comes from the model from what comes from the setup around it. During working hours, I don't always get to work directly on building digital products, and that is where I want to spend more of my time. I like building apps.
-
-![Me and my partner standing outside a low building, beside a row of brightly coloured bicycles lined up on the pavement.](/photos/google-visitor-centre.jpg "The only one I am in — the week, not the evidence. At Google's visitor centre in Mountain View.")
-
-San Francisco and the Valley, May 2026. There was not a place I passed through without some AI offering in it — on the train, on the street, in a shop window, on the lanyard of the person next to me. I came back from that week with the idea of what to do. The decision came later, while I was building — and its public front is this site.
-
-*The photographs on this page are mine. One week, the Valley — this is not a survey; it is what was in front of me.*
-
-## Who did what
-
-Working with an autonomous team of agents is part of this site's purpose, so the split is worth stating precisely — with no hour count, because I did not track hours and an invented number would be worth nothing.
-
-**Mine:** the idea, the product, the content — mine even where they polished it — the site's voice, the agent architecture, the harness configuration and the experimentation with setups, the architecture patterns.
-**The agent team's:** drafting the development and the code.
-
-But the method is not dispatch. It starts from my idea. Then I **listen to how they would do it**, and shape that against my architectural judgement and my distributed-systems experience. The authorship stays mine; it is simply exercised after listening.
-
-And listening pays. They carry more seniority than I do in the frameworks and languages this is built in — I add architecture and direction. **I recurrently learn ways to use AWS services I did not know were possible.** On this site it was Lambda@Edge OG rendering: I had no idea it could stand in for SSR and solve crawler indexing. On another system it was semantic search on Amazon S3 Vectors: I did not know you could assemble it from serverless pieces and pay on demand, instead of for a provisioned OpenSearch cluster running around the clock. The trade is throughput and latency — AWS itself positions the two as tiers, not as alternatives.
-
-The irony of that first example sits two sections down: that Lambda@Edge has a decision on record, and it was **cut**. It worked, it taught me something, and then it proved unnecessary — build-time prerendering delivers the same served HTML with nothing running. Both are true at once.
-
-*(→ [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md) Lambda@Edge OG, superseded)*
-
-In people, everything above cost one person. Weekends, alongside consulting work.
-
-## USD 6.57 a month
-
-This figure measures what the site **added**, not what it **depends on**: subscriptions that already existed and would bill the same if it were deleted tomorrow stay out. And it measures what the site **runs on**, not what I **build** it with. What follows returns to both. Without that scope, "USD 6.57" is a loose number, and a loose number is not checkable.
-
-"Near-zero" is the easiest claim on this page to make and the easiest to leave unchecked. So here is the AWS bill — the serving lines read from the account's daily cost in **late July 2026**, the registration read from the registrar's price list, neither estimated:
-
-- **The domain** — USD 71.00/yr for the `.io`, an annual charge that lands in one month. **USD 5.92/month** amortized.
+- **The domain** — USD 71.00/yr for the `.io`, an annual charge that lands in one month. **USD 5.92/month** amortized. I picked the `.io` for branding, not for cost: that is the honest reason, and the single line here you can decline.
 - **Route 53** — USD 0.50/month, fixed. The hosted zone, whether or not anyone visits.
 - **S3** — about USD 0.15/month, and it is deploy *writes*, not reads.
 - **CloudFront** — effectively USD 0.00 at this traffic.
 
-The choice is the `.io`: expensive as top-level domains go, and I picked it for branding, not for cost — that is the honest reason, and it is the single line here you can decline. Nothing else on this bill moves with the domain: the hosted zone, the bucket and the distribution do not care what it is.
+Outside AWS the criterion is the same. GitHub Team and Claude Max are paid and stay **outside** the total — the GitHub Team subscription predates the site, though the CI load on it is entirely the site's own; GitHub Actions and SonarCloud are zero **because the repositories are public** — a property of the repos, not of the plan — and Terraform Cloud is zero **because the infrastructure is small**. And **iCloud+** is the line that shows the criterion being applied rather than announced: it predates the site, but it carries the custom-domain email at the apex and [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records — so it is not adjacent to this infrastructure, it is inside it. *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md))*
 
-### The providers that could invoice this
+Outside the total sits every hour of mine as well: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.** In people, it cost one — weekends, alongside consulting work. And the same reading turned up roughly **USD 12.80 a month** the site was not using: WAF web ACLs and idle public IPv4 addresses, left behind when the backend was retired. I found them by reading the bill, which is late — **infrastructure you stop using does not stop billing** — and what watches now is a budget in [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) deliberately **not** scoped to this project's tags: otherwise it would only ever see spend this repo created, and this was exactly the kind it did not.
 
-**Anything that bills to keep the published site up, or would bill on a condition, belongs here** — the scope is the second rule stated above: what the site **runs on**, not what I **build** it with.
+## Pillar 2 · the customization
 
-- **AWS** — **USD 6.57/month**, and it is the only charge this site created; of that, the 5.92 amortized annual registration and the 0.50 fixed hosted zone bill whether anyone visits or not.
-- **GitHub Team** — paid, and the subscription predates the site, though the CI load on it is entirely the site's own.
-- **iCloud+** — paid, and it predates the site too; it carries the custom-domain email at the apex, and [`iac/email.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/email.tf) provisions its MX, DKIM and SPF records, so it is not adjacent to this infrastructure, it is inside it. *(→ [ADR-0016](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0016-custom-email-via-icloud.md) custom email via iCloud)*
-- **GitHub Actions** — **zero because the repositories are public**: a property of the repos, not of the plan, so it outlives a downgrade and it does not outlive going private.
-- **SonarCloud** — **zero on the same condition**, on a separate account: its free tier is for public projects, and its gate blocks a merge.
-- **Terraform Cloud** — **zero because the infrastructure is small**: the last plan resolved against roughly fifty resources, and that ceiling is counted in resources, not in traffic or in spend.
-- **Claude Max** — paid, and **outside the total on purpose**: it is what I build the site with, not what the site runs on.
-
-Two of those zeros depend on the repositories staying public and one depends on the infrastructure staying small; none of them depends on traffic.
-
-Outside the total sits every hour of mine as well: **USD 6.57 a month is what it costs to keep this running, not what it cost to build.**
-
-## What was cut — and it was built first, which is the part that matters
-
-The easy version of this section is *"we kept the scope tight."* That is a posture, and anyone can claim it. The true version is stronger and it is checkable: **this was not built lean. It was built full and then cut**, and every reversal is on the record with the decision that replaced it.
-
-| removed | what it was | replaced by |
-|---|---|---|
-| [ADR-0025](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0025-superseded-backend-platform.md) | Backend platform — BFF on Lambda, DynamoDB, Cognito, SES | [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) static SPA, no backend |
-| [ADR-0026](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0026-superseded-lambda-edge-og.md) | Lambda@Edge rendering OG images per request | [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time prerender |
-| [ADR-0027](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0027-superseded-backend-link-unfurl.md) | Backend link-unfurl service for preview cards | [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time prerender |
-| [ADR-0028](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0028-superseded-gitflow-two-env.md) | GitFlow with staging and production | [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk, one environment |
-| [ADR-0029](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0029-superseded-offline-first-pwa.md) | Offline-first installable PWA | [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) static SPA, no backend |
-
-**What the objective actually needed was content**, and none of that machinery served it. A database with nothing to store. Auth with nobody to authenticate. A staging environment for a site whose revert is a merge. Each one was defensible when it was decided and none survived the question *"what is this for, here."*
-
-### What the guardrail is actually for
-
-Reading the bill above turned up roughly **USD 12.80 a month** the site was not using: WAF web ACLs and idle public IPv4 addresses attached to nothing, left behind when the backend was retired. More than eighty times what publishing the site costs. **Those are gone** — removed in July 2026, and the daily cost series confirms the charges stop rather than an empty console implying it. Not all of it: a residue from the same era, **under a dollar a month**, is still accruing while I work out what it holds — an account-level line, not a site one, and the honest state of this at the time of writing.
-
-I found them by reading the bill, which is late. So what watches now is an account-wide budget in `iac/budget.tf`, and two things about it are deliberate. It is **not** scoped to this project's tags — otherwise it would only ever see spend this repo created, and this was exactly the kind it did not. And the sensitivity lives in the **thresholds**, not the ceiling: a ceiling has to be sized for your worst legitimate month, which here is the renewal month, so it is by construction deaf to anything smaller than itself. The alarm that matters fires at 15% — around USD 12, quiet at the normal run rate, and awake to any new recurring cost of roughly USD 8/month. A conventional 50/80 pair would first have spoken at USD 40, several times actual spend, and stayed silent for a year about a new USD 30/month service.
-
-That is the transferable part, and it is two-sided: infrastructure you stop using does not stop billing, and the thing meant to catch it has to look **wider** than what you are building and **lower** than what you are afraid of.
-
-*(→ [`iac/budget.tf`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/iac/budget.tf) the budget guard)*
-
-### If you need the backend back, the record tells you which decision to reverse
-
-A recorded reversal is what makes the growth path concrete rather than a promise that the architecture "could scale". A system that grew into needing a server does not need this site redesigned — it needs **one specific decision reopened**, and each of the five reversals above names the one that closed it:
-
-- **dynamic data or accounts** → reverse [0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md), and 0025 is the shape it had;
-- **per-request rendering** → reverse [0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md); 0026 and 0027 are two things that were tried at the edge;
-- **a change you cannot revert by merging** → reverse [0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), and 0028 is the two-environment flow it replaced.
-
-The build lane in the diagram above is the seam: adding a server means moving work **out** of it, not bolting a tier onto the side.
-
-## Every decision, and where it stands
-
-**Why MADR, and why the format weighs more when the reader is an agent.** [MADR](https://adr.github.io/madr/) is a fixed-section format — context, options considered, decision, consequences — and three of its properties are the reason the library is shaped this way:
-
-- **One decision per file.** Anyone who needs to know why there is no staging environment here reads one file, not a whole architecture document. The context spent is the decision's, not its neighbourhood's — and for an agent that is not comfort, it is the resource it has least of.
-- **Fixed sections.** The "why" and the options that lost sit in predictable places, so recovering the reason for a choice does not depend on interpreting prose. That is exactly where a reader, human or not, invents the half that was missing.
-- **`status` and `superseded-by`.** A reversed decision stays in the repository and **says** it was reversed. Without that, the record of a retired architecture reads as instruction — which is the cheapest way to get an agent to rebuild something that was cut on purpose. The table below carries that column, and it is where the reversed decisions appear marked rather than gone.
-
-The limit is the usual one on this page: **nothing here retrieves an ADR by itself.** There is no semantic index and no automatic context injection; an agent reads these files because this repository's guide points at them. The format makes the reading cheap when it happens — it does not make it happen.
-
-The table below is **not typed here**. It is generated from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating the index turns the pipeline red, so the page either matches the library or nothing ships. A hand-copied index of a library this size is stale within a week and nothing says so — this one is the same mechanism as the diagrams above, and for the same reason.
-
-```adr-index
-```
-
-That is this page's own principle applied to the one list it cannot avoid reproducing: **link the canonical detail rather than restating it.** Every row is a link, and the decision itself lives in the record — with its context, the options that lost, and what it cost.
-
-## Content is markdown in the repo, resolved at build
-
-Every page's content — the CV, this page, the articles — is markdown or typed data in the repo. Each route is **prerendered** at build (a headless snapshot) so the OG/SEO tags and crawlable HTML land in the served files — no SSR, no edge rendering. The downloadable CV PDF is printed from the live `/me` by the same step.
-
-*(→ [ADR-0004](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0004-build-time-render-not-ssr-or-edge.md) build-time render · [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md) every URL OG-complete · [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
-
-## What the site does, from the reader's side
-
-Everything above is machinery. This is what it produced — the part you can use without reading a line of any of it.
-
-**This list is authored, not derived.** The decision index above is generated from `docs/adr/` and the harness inventory below is pinned to another repository; **this one is typed by hand and no check compares it to the code**, so it can fall behind the site in a way neither of those can. It carries no total for the same reason: a count is the first thing to go stale, and every entry below names a route you can open or a decision you can read instead.
-
-- **Two complete editions, Portuguese and English.** Every route is first-class under `/pt` and `/en`, prerendered with its own head — so a forwarded link arrives in the language it was read in, rather than in the recipient's. *(→ [ADR-0036](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0036-per-locale-urls-prerender-hreflang.md) per-locale URLs)*
-- **An offer, never a redirect, when your browser disagrees with the URL you opened.** It is dismissible and remembered, so it does not nag — and the link someone sent you keeps working exactly as sent.
-- **Articles, each with its own slug per language**, filterable on the landing by track without the address bar changing underneath you. *(→ [ADR-0037](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0037-localized-article-slugs.md) localized article slugs)*
-- **A CV at `/me`, and the same CV as a PDF** — printed from the live page during the build, so the download cannot disagree with the page it came from. *(→ [ADR-0034](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0034-build-time-cv-pdf-static-artifact.md) the CV PDF)*
-- **A portfolio at `/portfolio`**, with the bar for getting listed written down and public — [docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md), the proof-of-engineering gate.
-- **A ramp-up plan at `/ramp-up`** — the reasoning, the roadmap and the exact sources for moving into AI Engineering, in the open while it is still in progress.
-- **A reading shelf at `/library`** — a curated shelf rather than a list, each entry carrying what I made of it.
-- **This page, at `/architecture`** — the whole build in the open: the shape it runs on, what it costs, the decisions behind it, and what was cut.
-- **Share affordances that tag what they produced**, so a link's life after it leaves here is readable rather than guessed at. *(→ [ADR-0039](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0039-share-campaign-tagging.md) share campaign tagging)*
-- **Videos that load nothing until you ask.** A video inside an article is a facade over a poster generated at build and served from this origin; no third-party frame, cookie or request happens before the click.
-- **Analytics that waits for consent** — inert until you say yes. *(→ [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md) consent-gated analytics)*
-
-## The dev-loop is the product
-
-The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate reusable plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site.
-
-*(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based single-environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
-
-Two figures, and they answer different questions. The first is the loop's **shape**: who closes each unit of work, and in which tier.
+The interesting part isn't the stack — it's how it's built: **agent-led verification, human-residual**. The agent proves "done" with mechanical gates and real evidence (lint, types, tests ≥85%, a green build, SonarCloud, functional E2E, a fresh-context reviewer); the human keeps the irreversible and architectural calls. That loop lives in a separate plugin — **[tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)** — so it's a methodology you can adopt, not something bespoke to this site.
 
 ```mermaid
 flowchart TB
-  accTitle: The shape of the loop — the tiers and the units of work
-  accDescr: The owner generates demand and it reaches the two lenses in tier one, product-lead and tech-lead, which disagree by design and together close a single description. What comes out is a user story carrying the label ready. The orchestrator, which is the main session, reads that story and dispatches tier two, where the developer builds the whole slice. What the developer delivers is a merge request, one per story. Tier three is the gate - quality-assurance, in a fresh context, with no authorship bias, and the only one that may merge. The merge to main is the deploy. Each tier hands the next a finished artifact rather than an opinion - which is why the cost of reconciling readings is paid within a tier and not across tiers.
-  O["Owner<br/>generates demand"]
-  subgraph T1["TIER 1 · INTAKE — the description closes here"]
-    direction LR
+  accTitle: How work crosses the agent tiers — and where I come in
+  accDescr: A top-to-bottom flow in three tiers, with the owner at both ends and one large box in the middle that runs without him. At the top is me: I am the only origin of demand, and I open the Issue. Tier 1 is intake, and it is not one box: it is three lanes, and the issue's type decides which one it enters. A product issue closes through the two leads that disagree by design, product-lead and tech-lead. A content issue closes through the lens that holds my voice, product-lead alone. A loop issue, which is the machinery itself, closes through harness-lead and tech-lead together, because it is the kind of change most likely to need an ADR. The three lanes all reach the same ready label, which is the artifact saying the description was closed — and on a loop issue that label is mine alone to apply. From ready downwards the AFK stretch begins, the part that runs without asking once I tell it to drain the queue: everything inside passes through the orchestrator, which is the main session and the hub every lane goes through, which commits and pushes, and which never merges and never decides the irreversible. It dispatches tier 2, the build, split by type as well: developer on product, writer on content, harness-lead on loop, building what it has just stress-tested. Out of that comes one merge request per story, reaching tier 3 — fresh context, no authorship bias — where quality-assurance checks the Definition of Done and, separately, whether this can break production; it is the only one that may merge. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing in my voice — leaves the AFK stretch and comes back to me, and only after my go does it ship. Refusal is a single channel: the gate asking for changes and my no-go land in the same sent-back box, and that box returns through the orchestrator, never straight to whoever built it. Nine persona boxes, six names: product-lead, tech-lead and harness-lead appear in more than one lane because the same profile is dispatched at different moments. And there is a dashed channel between me and the orchestrator for when something is stuck — it exists throughout and it is not on the path. That is the claim this drawing makes: between the ready label and the merge there is no human on the path, and I appear only at the two ends — what crosses that stretch alone is the safe class only.
+  H(["HITL · ME<br/>the only origin of demand<br/>I open the Issue"])
+  subgraph L3["TIER 1 · loop"]
+    LM["harness-lead"]
+    LT["tech-lead<br/>the machinery itself"]
+  end
+  subgraph L1["TIER 1 · product"]
     PL["product-lead"]
-    TL["tech-lead"]
+    TL["tech-lead<br/>they disagree by design"]
   end
-  US["USER STORY · label ready<br/>its task list is the decomposition"]
-  ORCH["ORCHESTRATOR · the main session<br/>dispatches every persona · never merges"]
-  subgraph T2["TIER 2 · BUILD"]
-    DEV["developer<br/>app · infrastructure · pipeline · tests"]
+  subgraph L2["TIER 1 · content"]
+    PC["product-lead<br/>the lens that holds my voice"]
   end
-  MR["MERGE REQUEST · one per story"]
-  subgraph T3["TIER 3 · GATE — fresh context"]
-    QA["quality-assurance<br/>two lenses in one pass"]
+  RQ{{"TIER 1 CLOSES HERE · the ready label<br/>the description closed — and on a loop issue,<br/>mine alone to apply"}}
+  subgraph AFK["AFK · from ready to merge, nothing on the path is human"]
+    ORCH["ORCHESTRATOR ·<br/>the main session<br/>dispatches every persona, commits, pushes<br/>never merges, never decides the irreversible"]
+    DEV["TIER 2 · BUILD<br/>developer — product"]
+    WRT["TIER 2 · BUILD<br/>writer — content"]
+    LB["TIER 2 · BUILD<br/>harness-lead — loop<br/>builds what it stress-tested"]
+    MR{{"MERGE REQUEST · one per story"}}
+    QA["TIER 3 · GATE<br/>— fresh context, no authorship bias<br/>quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
+    V["sent back — one return channel"]
+    M{{"merge to main = the deploy"}}
   end
-  M["merge to main = the deploy"]
-  O --> PL
-  O --> TL
-  PL --> US
-  TL --> US
-  US --> ORCH
-  ORCH --> DEV
+  HO(["HITL · ME<br/>boundary class: irreversible, architectural<br/>go / no-go"])
+  H -- "product" --> PL
+  H -- "product" --> TL
+  H -- "content" --> PC
+  H -- "loop" --> LM
+  H -- "loop" --> LT
+  PL --> RQ
+  TL --> RQ
+  PC --> RQ
+  LM --> RQ
+  LT --> RQ
+  RQ --> ORCH
+  ORCH -- "product" --> DEV
+  ORCH -- "content" --> WRT
+  ORCH -- "loop" --> LB
   DEV --> MR
-  MR --> QA
-  QA --> M
+  WRT --> MR
+  LB --> MR
+  MR -- "dispatched by the orchestrator" --> QA
+  QA -- "safe class" --> M
+  QA -- "boundary class" --> HO
+  HO -- "go" --> M
+  QA -- "changes" --> V
+  HO -- "no-go" --> V
+  V --> ORCH
+  H <-.-> ORCH
 ```
 
-**The tier is the unit of reconciliation, and that is what the drawing claims.** Each one hands the next a finished artifact — a closed description, a built slice, a verdict — rather than an opinion somebody has to weigh against another. That is why two personas in one tier need a reason, and why the roster is five.
+I appear at both ends, and they are different jobs: at the start, opening the Issue, and at the end, on boundary-class work only, deciding whether it ships. Between one end and the other there is no human on the path. And the drawing claims something stricter than "at the plan": I am the **only origin of demand** — nothing enters the queue on its own — and what closes intake is the `ready` label, the artifact saying the description was closed; from `ready` downwards, only the safe class crosses alone. And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — it is a static site, and a revert is a merge.
 
-The second figure is the other question: **where the human stands.**
+*(→ [ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md) trunk-based, one environment · [ADR-0018](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0018-ci-gates-e2e-on-pr-coverage.md) the CI gates)*
 
-```mermaid
-flowchart TD
-  accTitle: Where the human sits in the loop
-  accDescr: An issue becomes a plan the human aligns on before any code is written. The agent builds the slice and runs the mechanical gates. A fresh-context reviewer then judges the change. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work - infrastructure, the loop's own rules, publishing an article - routes to a human go or no-go, which is the last thing before production. The three points that can refuse - the gates on red, the reviewer asking for changes, and the human on a no-go - all feed one box, sent back, and it is that box which returns to the build. One return channel, not three.
-  I["Issue"] --> P["Plan, decided by the human"]
-  P --> B["Agent builds the slice"]
-  B --> G["Mechanical gates"]
-  G -- "green" --> R["Fresh-context reviewer"]
-  R -- "safe class" --> M["Merge = deploy"]
-  R -- "boundary class" --> H["Human go / no-go"]
-  H -- "go" --> M
-  G -- "red" --> V["Sent back"]
-  R -- "changes" --> V
-  H -- "no-go" --> V
-  V --> B
-```
-
-The human appears twice, and the two appearances are different jobs. At the plan, deciding what is worth building and how — the architectural calls are never made solo. At the end, on boundary-class work only, deciding whether it ships. In between, the agent builds and the machine proves, and most changes reach production without a person in that path at all.
-
-The picture shows the routing. What it cannot show is that the routing was **decided** — which edge the human sits on, what counts as a class boundary, where a gate is worth what it costs. That is the engineering this page is offering, more than any box in the figure.
-
-And the cost of it, since the rest of this page states its own: what decides a change is safe is the same kind of thing that wrote the change. Mis-classify one and it takes the empty path. What makes that acceptable here is blast radius, not confidence — this is a static site, and a revert is a merge.
-
-### What the loop is made of, and what each part can actually do
-
-The two pictures above answer *how work moves* and *who closes each step*. Neither says what the loop is **made of** — and that is the question a reader deciding whether to adopt it is actually asking. This is a third drawing on purpose: one that tried to be all three would have to give a hook that refuses a command and a lens somebody has to remember to invoke the same arrow, and that difference is the most useful thing on this page.
+### What the harness is made of
 
 ```mermaid
-flowchart TB
+flowchart LR
   accTitle: What the harness is made of
-  accDescr: Three kinds of component, drawn apart because they do not have the same force. The hooks registered in hooks.json — permission-guard and wip-guard run on the PreToolUse event with the matcher Bash and REFUSE a tool call before it runs; session-wip and session-plugin-version run on SessionStart, and dispatch-metrics-start and dispatch-metrics-stop run on SubagentStart and SubagentStop, three events that each hand a hook no tool call to refuse, which is why none of the four are on the deny side — the class states what a hook on one of those events cannot STOP rather than promising that it merely watches: a hook on any of those events runs and can act, it simply has no tool call in front of it to deny. All four only report. That is a fact about each script, not a property of the event. The personas in the agents directory — developer, harness-lead, product-lead, quality-assurance, tech-lead and writer — only ADVISE, which is a claim about their JUDGEMENT and not about their seat. quality-assurance is the sharpest case in both directions: permission-guard rule 7b refuses the merge command from every agent type except that one, so WHO merges is mechanically forced — and nothing anywhere checks whether the review was performed, or performed well. harness-lead is weaker still, and must not be read as the same thing: it runs before anything is built rather than after, it gates nothing, and nothing forces it to be dispatched at all — a lens that is not dispatched fails silently. product-lead is the mirror case: it BLOCKS a merge when it finds a published claim that is untrue, but by convention rather than by hook, so nothing refuses the merge command on its behalf — and writer, the persona that drafts published prose, is contained by the same mechanism product-lead is: a permission-guard rule denies it posting directly, since it reads private material to draft. The skill library in the skills directory — 13 skills, which is what the model reaches for on its own — plus autonomy-off, autonomy-on and new-issue, the 3 commands in the commands directory, which are what a person types, only DOCUMENT: they remove a re-decision. In the drawing the deny edge is thick and in the accent colour, the advise edge is dashed, and the document edges are plain. That difference is the claim, not decoration.
-  HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
-  PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
-  SK["13 skills · skills/<br/>what the model reaches for"]
-  CM["autonomy-off<br/>autonomy-on<br/>new-issue<br/>3 commands · commands/<br/>what you type"]
-  HKR["4 hooks, reporting only<br/>2 hooks · SessionStart<br/>2 hooks · SubagentStart/SubagentStop<br/>session-wip<br/>session-plugin-version<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
-  DE["What the agent decides"]
-  RU["What the agent runs"]
-  GM["Then the gates, then the merge<br/>— the flow above"]
-  HKD -- "denies the call" --> RU
-  PS -- "advises, if dispatched" --> DE
-  SK -- "documents" --> DE
-  CM -- "documents" --> DE
-  HKR -- "documents" --> DE
-  DE --> RU
-  RU --> GM
+  accDescr: A grid: four lanes, one per kind of component the plugin exports, crossed with three columns, one per class of force. The lanes are the 6 hooks registered in hooks.json, the 6 personas in the agents directory, the 13 skills in the skills directory, and the 3 commands in the commands directory. Of the twelve cells, five hold something and seven are empty — and the empty ones are the drawing's claim. The deny column holds exactly one cell: permission-guard and wip-guard, the 2 hooks on the PreToolUse event with the matcher Bash, which REFUSE a tool call before it runs; persona, skill and command have no cell there at all. The middle column holds one too: the personas developer, harness-lead, product-lead, quality-assurance, tech-lead and writer only ADVISE, which is a claim about their JUDGEMENT and not about their seat. quality-assurance is the sharpest case in both directions: permission-guard rule 7b refuses the merge command from every agent type except that one, so WHO merges is mechanically forced — and nothing anywhere checks whether the review was performed, or performed well. harness-lead is weaker still, and must not be read as the same thing: it runs before anything is built rather than after, it gates nothing, and nothing forces it to be dispatched at all — a lens that is not dispatched fails silently. product-lead is the mirror case: it BLOCKS a merge when it finds a published claim that is untrue, but by convention rather than by hook, so nothing refuses the merge command on its behalf; and writer, the persona that drafts published prose, is contained by the same mechanism product-lead is — a permission-guard rule denies it posting directly, since it reads private material to draft. The third column, the one whose components only DOCUMENT, holds three cells: the 13 skills, which is what the model reaches for on its own, the 3 commands, which is what a person types, and the other 4 hooks — session-wip and session-plugin-version on SessionStart, dispatch-metrics-start and dispatch-metrics-stop on SubagentStart and SubagentStop. Those four sit in that column because the three events each hand a hook no tool call to refuse: the column states what a hook on one of those events cannot STOP rather than promising that it merely watches — a hook on any of them runs and can act, it simply has no tool call in front of it to deny. All four only report, and that is a fact about each script, not a property of the event. Read end to end, the grid is mostly empty, and that emptiness is what it asserts: of everything the plugin exports, exactly one kind — a hook on PreToolUse — can refuse; everything else advises or documents.
+  subgraph LANE["kind · what -skills exports"]
+    direction TB
+    LH["hooks · 6<br/>hooks.json"]
+    LP["personas · 6<br/>agents/"]
+    LS["skills · 13<br/>skills/"]
+    LC["commands · 3<br/>commands/"]
+    LH ~~~ LP ~~~ LS ~~~ LC
+  end
+  subgraph COLD["DENIES"]
+    direction TB
+    HKD["2 hooks · PreToolUse<br/>matcher Bash<br/>permission-guard<br/>wip-guard"]
+    PSD["— no persona"]
+    SKD["— no skill"]
+    CMD["— no command"]
+    HKD ~~~ PSD ~~~ SKD ~~~ CMD
+  end
+  subgraph COLA["ADVISES"]
+    direction TB
+    HKA["— no hook"]
+    PS["6 personas · agents/<br/>developer<br/>harness-lead<br/>product-lead<br/>quality-assurance<br/>tech-lead<br/>writer"]
+    SKA["— no skill"]
+    CMA["— no command"]
+    HKA ~~~ PS ~~~ SKA ~~~ CMA
+  end
+  subgraph COLO["DOCUMENTS"]
+    direction TB
+    HKR["4 hooks · no call to refuse<br/>2 hooks · SessionStart<br/>session-wip<br/>session-plugin-version<br/>2 hooks · SubagentStart and SubagentStop<br/>dispatch-metrics-start<br/>dispatch-metrics-stop"]
+    PSO["— no persona"]
+    SK["13 skills · skills/<br/>what the model reaches for"]
+    CM["3 commands · commands/<br/>what you type<br/>autonomy-off<br/>autonomy-on<br/>new-issue"]
+    HKR ~~~ PSO ~~~ SK ~~~ CM
+  end
+  LANE ~~~ COLD ~~~ COLA ~~~ COLO
   classDef mechanism stroke:#FF5A00,stroke-width:3px
   classDef convention stroke-dasharray:6 4
+  %% `empty` must never use #FF5A00 or a stroke-dasharray: the suite counts exactly one accented box
+  %% (the mechanism) and exactly one dashed box (the convention) in the compiled SVG, and either token
+  %% here would make seven empty cells claim a force they do not have. It must also stay inside ADR-0008's
+  %% three colours — the first draft receded these cells with #555555/#888888 and the palette gate caught
+  %% it in both editions. Opacity is how a cell recedes here; a fourth grey is not available.
+  classDef empty fill:none,stroke:#F5F4EF,color:#F5F4EF,opacity:0.45
   class HKD mechanism
   class PS convention
-  linkStyle 0 stroke:#FF5A00,stroke-width:3px
-  linkStyle 1 stroke-dasharray:6 4
+  class PSD,SKD,CMD,HKA,SKA,CMA,PSO empty
 ```
 
-**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch. (The box that is *not* a plugin component — *Then the gates, then the merge* — is a pointer back to the first diagram, and those gates certainly do stop you: SonarCloud and the terminal `build-test` check block a merge outright. They live in this repo's workflows rather than in the plugin, which is why they are not rows in the inventory.) The parts, and what each one can actually do:
+**Of the plugin's own components, exactly one kind can stop you**, and that is the honest version of the adoption pitch: the two `PreToolUse` hooks return a denial *before* the tool runs, and the command does not happen. The other four run on events that hand them no tool call to refuse, so they only report. And the personas **advise** — their judgement is checked by nothing, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*. That is the guarantee the loop gives — and it is worth exactly what the inventory in the drawing above is worth.
 
-- **Two of the six hooks run on `PreToolUse`.** The agent runtime calls them *before* a tool runs, they return a denial, and the command does not happen. **They are the floor.**
-- **The other four run at `SessionStart`, `SubagentStart` and `SubagentStop`**, events that hand a hook no tool call to refuse, which is why they are not drawn as a floor. **The class says** what a hook on one of those events *cannot stop*, not that it merely watches — a hook on any of them runs and can act, it simply has no tool call in front of it to deny, and this drawing has no shape for that. **All four of them only report** — `session-wip`, `session-plugin-version`, `dispatch-metrics-start` and `dispatch-metrics-stop`. That is a fact about each script, not a property of the event, **and that is why** the drawing cannot be read as a promise about what they do.
-- **The personas advise**, and *advise* is a claim about the judgement they produce, not about where they sit: one of them, `quality-assurance`, has a mechanically enforced seat — the same permission hook lets only that agent type run the merge command — and being the only one who *may* merge is a different property from being checked on how it merged. `product-lead` is the mirror image of that: it **blocks** a merge when it finds a published claim that is untrue — but by convention rather than by hook, so nothing refuses the merge command on its behalf and the drawing cannot honestly show it as a floor. Nothing checks the judgement in either case, and this repo's own guide says in as many words that a lens nobody dispatches *fails silently*.
-- **The skills and the commands are neither** — they are the written form of a decision already taken, so nobody re-litigates it at 2am.
+**And that drawing's inventory is checkable — that is the second guarantee, and it is a different kind of thing.** Rename a persona in the plugin and this repository's build goes red. The drawing above is authored by hand: a test compares it, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), in both editions; and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree. That is exactly the difference between drawing a harness and proving the drawing is still it, and it is mechanical. And it has two legs, with different limits, stated here rather than later. From drawing to manifest, the comparison includes the **enforcement class** of all twelve cells, in both editions: give a persona `denies` in the manifest and this goes red, and that is the grid's central claim. From manifest to the plugin's live tree, the check arrives **late**, since nothing on this side can see a merge over there, and each component's class comes from a rule about its shape — which event a hook is registered on — rather than from reading what the script does: on re-reading the manifest, what is checked is that the class is a **legal** value, not that it is true of that component.
 
-**Rename a persona in the plugin and this repository's build goes red.** The drawing above is authored by hand: a test compares it, node by node and count by count, against a [committed manifest](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/content/generated/harness.json), in both editions; and a [CI job](https://github.com/tedeuxx/tadeumendonca-io/blob/main/.github/workflows/app.yml) compares that manifest against the plugin's live tree.
+**And that is why I call this one thing and not another.** **AI-DLC** is not mine — it is AWS's name for a delivery lifecycle whose stages are run and verified by agents; I adopt it, I did not coin it. **Agent Harness Engineering** is the claim I am making: building, versioning and proving the harness around that lifecycle. Adopting a methodology costs nothing to say — which is precisely why saying it is worth nothing. This one is paid for, and the payment is in the paragraph above: a build that breaks when the inventory stops being true. It is the same **agent-led verification** ruler the rest of this page applies to code, turned on the methodology: whoever makes the claim is who produces the evidence.
 
 *(→ [ADR-0043](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0043-harness-inventory-derived-from-plugin-repo.md) the inventory pinned to the plugin)*
 
-That mechanism is also where the two terms in the opening paragraph land — and they do not land the same way, which is worth being exact about. **AI-DLC** is not mine: it is AWS's name for a delivery lifecycle whose stages are run and verified by agents rather than around them, and the first diagram is what practising it looks like here. **Agent Harness Engineering** is the claim I am making, and it is this picture — that the harness is a thing you build, count and check, rather than a way of prompting. Adopting a methodology costs nothing to say; the second one has to be paid for, and the payment is that it can be inventoried at all, from the repository it lives in, with a build that breaks when the inventory stops being true.
+**Six personas, what each one argues against — and what each one carries when it is dispatched.** The last column is each brief's preload: the skills that enter the persona's session before it reads the first line of the task.
 
-### The four harness elements, and what each one delivers
+| who | what it owns | what it argues against | which skills it carries when dispatched |
+|---|---|---|---|
+| `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue | `harness-engineering` · `definition-of-ready` · `command-hygiene` |
+| `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations | `harness-engineering` · `definition-of-ready` · `documentation-standard` · `devops` · `command-hygiene` |
+| `developer` | the slice end to end — app, infrastructure, pipeline, and the tests written as it goes | nothing. It builds, and it is what the gate is pointed at | `harness-engineering` · `code-review` · `quality-gates` · `devops` · `command-hygiene` |
+| `quality-assurance` | delivery against the Definition of Done, and separately whether a change can break production | `developer`, on both axes in one pass — and it is the only one the permission hook lets merge | `harness-engineering` · `quality-gates` · `devops` · `command-hygiene` |
+| `writer` | drafts articles, site copy and social-post language in the owner's voice — shapes, cuts, structures and translates an experience he already has, never originates one | `product-lead`, which holds the blocking veto on anything it drafts that reaches a public surface | `harness-engineering` · `command-hygiene` |
+| `harness-lead` | the machinery itself: hooks, permissions, briefs, skills and commands, the plugin | **me** — and that is the interesting case: its counterpart is not another persona, it is the one seat in this loop that had nobody to argue with | `harness-engineering` · `documentation-standard` · `devops` · `command-hygiene` |
 
-The list above is about **force** — what each kind of component can and cannot stop. This is the other question, and it is the one somebody assessing the setup asks first: **what each element delivers to the value of the whole solution**. Every item points at the live file or directory in the plugin repository, because that is where the detail lives.
+Two things in that last column are worth saying. **`harness-engineering` and `command-hygiene` are in all six** — the universal preload: understanding the loop itself, and the file-and-command discipline, belong to no specialty. And **only 7 of the library's 13 skills are preloaded by anyone**, which means more than half the library only reaches a session if the model finds it on its own, through its description.
 
-- **[Agents](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/agents)** — a subagent is a runtime feature, and it is the only one that trades context for a verdict: the whole execution stays inside the subagent's session and what comes back is the conclusion. What that delivers to the architecture is a review in a **fresh context**, without the bias of whoever wrote the thing — the property no self-review instruction can produce, because the author and the judge would be the same context.
-- **[The persona pyramid](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — the six personas are not on one plane: two leads that disagree by construction on top, alongside `harness-lead` — the owner's own pair on the machinery, which gates nothing — two builders in the middle, one gate underneath. What it delivers is **disagreement where it is useful and a handoff where it is not** — and the rule that decides which is explicit, reconciliation cost is paid *within* a tier rather than across tiers, and it is what held the roster at six instead of nineteen.
-- **[Hooks](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/hooks/scripts)** — the only part of the plugin that runs code and **refuses**. Two answer on `PreToolUse`, before the tool happens; the other four only report — two on `SessionStart`, one on `SubagentStart`, one on `SubagentStop`. What they deliver is the irreversible floor without depending on anyone remembering it, and the record of which event calls which script is [`hooks/hooks.json`](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/hooks/hooks.json).
-- **[Skills and commands](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/skills)** — each file is a decision already taken, written down: which AWS service for which scenario, which gate blocks, how a version is cut. **Two directories, two purposes:** the 13 skills in `skills/` are what the model reaches for on its own; the three commands in [`commands/`](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/commands) are what a person types — and they are the only ones that declare an `argument-hint`, a difference the plugin's own suite enforces in both directions. **And that difference is semantic, not mechanical:** the runtime invokes and preloads both directories alike, drawing no distinction between them; they are kept apart for the person *reading* the repository, and what holds the separation is the test, not the loader. The families live in the tree rather than in the identifier: a skill in `skills/infrastructure/vpc/` is invoked as `vpc`, with no family segment. The ones that hold for any repository live in [`skills/principles`](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/skills/principles). What they deliver is **the absence of a re-decision** — and since the plugin is installed rather than read off disk, one of the session hooks reports which build is actually running, because a skill that was fixed and not reloaded is a skill that had no effect.
+**And this table is authored by hand — the new column included.** The persona names in the drawing above are compared against the manifest and against the plugin's live tree, so retiring a persona reddens a build here. Down here nothing compares anything: `check-harness-drift` checks persona names and counts, and does **not** check which skills each one loads. Someone changes a brief's `skills:` block and this column starts lying the next day, with no signal at all. If a role changes hands, the drawing goes red and these rows quietly do not.
 
-### The orchestrator is the part of the harness you cannot install
+## Pillar 3 · the runtime
 
-It is in none of the inventory above — not in the drawing, not in the manifest — and it is the main session: the context that reads an Issue, decides which persona to dispatch, and weighs what comes back. Be exact about what is missing, because this is the sentence an adopter acts on and the plugin is **not** silent about it. Its README draws the orchestrator as a node and warns that it is *a relay, and relays distort*; `autonomy-on` is a shipped command whose subject is the orchestrator's dispatch policy. So the **actor** is not a plugin component, its **policy** partly is, and what you supply is the context that runs it — which is the half worth knowing about before you adopt anything.
+The orchestrator is the part of the harness you **cannot install**. It is in none of the inventory above — not in the components grid, not in the manifest, even though the tier flow draws it right in the middle of the AFK stretch — and it is the main session: the context that reads an Issue, decides which persona to dispatch, and weighs what comes back. The **actor** is not a plugin component, its **policy** partly is, and what you supply is the context that runs it. It is also the party the boundaries above are drawn *against*: the column title *advises · if dispatched* names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
 
-It is also the party the capability boundaries above are drawn *against*. `permission-guard` refuses the merge command from every agent type except `quality-assurance`, and the gloss on the persona edge — *advises, if dispatched* — names dispatch as the failure mode without naming who dispatches. That is the orchestrator, and a lens it forgets is a lens nobody ran.
+**And its context runs out.** That is what a subagent buys: it reads, runs, gets it wrong and redoes it **inside its own session**, and what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution**, which is why the one real lever this harness has is verdict length, turned by writing the persona briefs. I measured it once, on this repo's own session, on 7–8 August 2026, by parsing the transcripts: what stayed inside the subagents was over an order of magnitude more than what came back. And the saving has a ceiling — even so, the returned verdicts were a large slice of everything the orchestrator took in from a tool. It is not an escape: that session compacted twice anyway. **The number is not published, because the input is a private session transcript that no gate can reach.**
 
-**And its context runs out.** That is the constraint the rest is drawn around: the main session has a finite window, and everything it reads stays in there until the window blows.
+**And the ground under it moves.** This is the part the rest of this page does not have: I control the site, I control the plugin, I do not control the runtime. Whoever produces it ships change constantly, and every new model changes which configuration still makes sense — not because the configuration became wrong, but because it was compensating for a weakness that is gone.
 
-That is what a subagent buys. It reads, runs, gets it wrong and redoes it **inside its own session**; what reaches the orchestrator is the conclusion. A task costs the orchestrator **its verdict, not its execution** — which is why the one real lever this harness has is verdict length, turned by writing the persona briefs.
+That is not my inference. When Opus 5 shipped, the Claude Code team **deleted more than 80% of their own system prompt** — their product's, not somebody's personal config — and the model got **better** without the scaffolding. And not as a one-off: every major model upgrade needs less scaffolding, so you delete rules and re-add them only where the model still fails. That is a cycle, not a spring clean.
 
-I measured it once, on this repo's own session, on 7–8 August 2026, **by parsing the session transcripts**: what stayed inside the subagents was **over an order of magnitude** more than what came back. And the saving has a ceiling — even so, the returned verdicts were a **large slice of everything the orchestrator took in from a tool**. It is not an escape: this session compacted twice anyway. The number is not published, because the input is a private session transcript that no gate can reach.
+The thesis that comes with it is the part I care about, and it is a hard one: frontier models are being **hobbled** by products built for yesterday's weaker models, and the advantage goes to whoever puts engineering effort into **verification rather than instruction**. That is the person who built the tool saying it — and the name I give that move, **agent-led verification**, is mine, not his. I am not quoting it for decoration: it is independent corroboration of a choice I had already made, from someone holding data I do not have.
 
-### What the Claude Code workspace adds, and where each part actually lives
+And it is why this loop is made of hooks and gates rather than of a giant prompt explaining to the agent how to behave. Instruction ages with every new model, and it ages silently. A gate does not: it checks the result, and the result is the same thing before and after the upgrade. If the argument above is right, the part of my harness that survives is the part that verifies — and the part that instructs is the part I will be deleting.
 
-The plugin is the half you can install. The workspace around it adds more, and the parts below are named at deliberately different strengths, because only one of them is in a repository at all. That ordering is the useful part: it is the same distinction the inventory above draws between something that can stop you and something somebody has to remember.
+Boris Cherny, who built Claude Code, on the Y Combinator channel:
 
-**Publication is scaffolded, and the load-bearing part is a refusal.** [`gen-distribution.mjs`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/scripts/gen-distribution.mjs) drafts the LinkedIn and the X post for an article from that article's own frontmatter, writes them to a gitignored directory, and never overwrites one I have already voiced. **It is not automated publishing and must not be read as any**: it posts nothing and holds no credential, because ADR-0038 considered automating the fan-out and rejected it — a class of unattended public writes is not worth the two drafts it saves, and every post is still approved by hand. What it does mechanically is decline: it resolves the share URL by **looking it up in the prerendered route list** and throws when nothing matches, rather than emitting a link to a page no scraper can read OG tags from. A generator that refuses is worth more here than one that produces.
-
-*(→ [ADR-0038](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0038-content-distribution-linkedin-and-x.md) both surfaces, drafted and never posted unattended)*
-
-**Remote control is a preference on my account, not configuration of this repository** — and the distinction is the whole reason it is written this way rather than the obvious way. It attaches to the session already running on my workstation, which is what lets me follow a run and unblock it from anywhere without the session stopping. **The artifact is in neither repository.** Fork this and you get none of it, because there is nothing to get: it is a user-scope setting, so it travels with me and not with the code, and presenting it as part of the harness would be dressing an operating habit as something you could adopt.
-
-**Artifacts is weaker still, and is offered here only as testimony.** It is a vendor surface with no row in the manifest — `grep -rn -i "claude artifact"` across the plugin returns nothing at all. So what I can honestly say is first-person and nothing more: I use it to hold a draft where I can keep looking at it while a session moves past. That is a sentence about how I work, not a property of this architecture.
-
-### Who works on this, and what each one argues against
-
-The agents are the part of this that reads most like a staffing plan and is least like one. **A persona exists where a disagreement is wanted** — not where an org chart has a box — and that single criterion is what took the roster from nineteen down to six and then to five. A later amendment widened the criterion to four reasons rather than one, because two moves had already been made that the one-line version could not explain. One of the four is that the orchestrator's context is a finite resource the design spends deliberately — and the plural matters: *"five because of the context window"* is a simplification ADR-0002's own amendments, linked below, refuse. **The roster came back to six** with `writer`'s arrival, and that sixth persona doesn't fit any of the four reasons — said plainly: it exists because a mechanical builder for content was missing, not because it disagrees with anyone.
-
-| who | what it owns | what it argues against |
-|---|---|---|
-| `product-lead` | the reader, value, order, slice size — and positioning, voice, and the truth of anything published | `tech-lead`; and it is the one lens that **blocks** rather than advises, on a published claim that is untrue |
-| `tech-lead` | architecture, measurement, sequencing — and it writes the ADRs | `product-lead`, by design: product-and-market and system are genuinely different optimisations |
-| `developer` | the slice end to end — app, infrastructure, pipeline, and the tests written as it goes | nothing. It builds, and it is what the gate is pointed at |
-| `quality-assurance` | delivery against the Definition of Done, and separately whether a change can break production | `developer`, on both axes in one pass — and it is the only one the permission hook lets merge |
-| `writer` | drafts articles, site copy and social-post language in the owner's voice — shapes, cuts, structures and translates an experience he already has, never originates one | `product-lead`, which holds the blocking veto on anything it drafts that reaches a public surface |
-| `harness-lead` | the machinery itself: hooks, permissions, briefs, skills and commands, the plugin — and, unlike the rest of this table, may implement the harness changes it reviews | **me** — and that is the interesting case |
-
-**`harness-lead` is the one that does not fit the rule as first written**, which is why the rule was widened instead of defended. Its counterpart is not another persona; it is me wearing the harness-engineer hat, which is the one seat in this loop that had nobody to argue with. Second-order effects of a configuration change are invisible from inside the change — that is the whole reason it exists. It gates nothing, and nothing forces it to be dispatched, so it fails the same silent way every lens here does.
-
-**`writer` is the newest member, and it does not fit the rule either — said plainly rather than stretched to fit.** It exists on its own reason: a `content`-typed request had no mechanical builder before it, not because it argues with anyone. `product-lead` gates what it drafts the same way it gates any other published claim.
-
-The moves, and what each cut cost, are recorded rather than summarised here: [ADR-0002's amendments](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/adr/0002-agentic-dev-loop-architecture.md) and [the harness-agnostic design](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md), both in the plugin repository. That is this page's rule applied again — link the canonical detail rather than restate it.
-
-**And this table is authored, unlike the persona names in the drawing above.** Those are compared against the manifest and against the plugin's live tree, so retiring a persona reddens a build here. Nothing compares *this* table to anything. If a role changes hands, the drawing goes red and these rows quietly do not.
-
-### Where the loop's own documentation lives
-
-**No generator covers it**, so what stands here points at the live tree — the freshest index available, and the one that costs nothing to keep true:
-
-- **[the methodology decision library](https://github.com/tedeuxx/tadeumendonca-skills/tree/main/docs/adr)** — the loop's own ADRs, the ones that decide how work is decided, kept separately from this site's product decisions above.
-- **[the harness-agnostic design](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/dev-loop-design.md)** — the loop written down without reference to any particular agent runtime, which is the document to read if you are adopting rather than inspecting.
-- **[the original proposal](https://github.com/tedeuxx/tadeumendonca-skills/blob/main/docs/proposals/agentic-dev-loop.md)** — where all of it was argued before any of it existed.
+https://www.youtube.com/watch?v=qyPCVqFUyDo
 
 ## The decision record IS the documentation
 
-No separate architecture doc that drifts. A load-bearing decision — and the reversed ones, kept as history — becomes an **Architecture Decision Record**, with one known exception recorded further down, read through the library's keystone: *lean by design, calibrated to strategy.* The real "why" behind anything above is there, dated, with its trade-off.
+The classic argument for ADRs is the human of the future: record why the decision was taken, so that two years from now somebody does not undo it without knowing what was at stake. Here the argument is a different one, and it is what decides the format.
+
+**In a repository where the developing is done by agents, the record is inference context.** An agent has no memory of what was discussed — it has the repository, and that is what it infers from. If the architecture that formed over time is not anchored somewhere in the code itself, every new change is decided without it, and the result is not one isolated wrong call: it is a new decision that contradicts a decision nobody remembers making. That is why a reversed decision stays here and **says** it was reversed. Without that mark, the record of a retired architecture reads as instruction — which is the cheapest way there is to get an agent to rebuild the very thing that was cut on purpose. With one exception, and it is the only one: there were **two** WAF web ACLs and only the regional one has an ADR — the CloudFront-edge one was built, was cut, and its record is this sentence rather than a file.
+
+That purpose is what picks the format, not the other way round. **MADR**: context, the options that were on the table, the one decided, and the consequence. One short document per decision, one file per decision, all in the same repository the agent already reads — no wiki, no separate tool. What a format like that gives a human reader is traceability; what it gives an agent is what it needs in order not to contradict.
+
+**There are 48 decisions — and what is mechanical here is the index, not this number.** The index is **generated** from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating it turns the pipeline red, so the artifact and the directory cannot drift apart. The `48` in this sentence is typed by hand: while the table was rendered here it came checked for free; cutting it removed that tie, and what holds the number up now is the link below, one click from counting them yourself. The rows are deliberately not printed here — this page **points at** canonical detail instead of restating it, and a 48-row copy would be that rule broken in the one section that exists to defend it.
 
 *(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
 
 ## Replicate it for your own context
 
-It's all public — two repos, no secrets:
+It's all public — two repos, no secrets.
 
 [https://github.com/tedeuxx/tadeumendonca-io](https://github.com/tedeuxx/tadeumendonca-io)
 
 [https://github.com/tedeuxx/tadeumendonca-skills](https://github.com/tedeuxx/tadeumendonca-skills)
 
-### Where the setup lives, and why not here
+The fork-to-live steps are in the READMEs, not on this page: [this repo's](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live) has the cloud path end to end, from the domain to the first merge, and [the plugin's](https://github.com/tedeuxx/tadeumendonca-skills#run-it) has the loop half, which installs with no cloud account at all. And the bar a project has to clear to be listed in the portfolio here is public too, in [docs/catalog-ready.md](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md) — the proof-of-engineering gate.
 
-The fork-to-live steps are in the READMEs, not on this page. That is the same rule the rest of this page runs on: it links canonical detail rather than restating it. A step-by-step guide living here would be a second copy of what a README owns — and the copy that used to be here had already gone stale, describing workflows that had been renamed underneath it.
+**One thing I would copy without thinking twice.** The deploy enters AWS over OIDC, so there is **no stored secret**: a leaked key is access until somebody revokes it, and a leaked token is access until it expires — and only if whoever took it can also satisfy the trust condition, which here is that repository's *immutable* subject, by numeric ID rather than by name, because a name can be transferred to someone else and the IDs cannot. The trade is that the root of that trust has to be created outside: **Terraform here does not create the OIDC provider, nor the role that runs Terraform itself.** It is a documented hole in a floor, and no `plan` will ever tell you it has drifted.
 
-- **[This repo's README](https://github.com/tedeuxx/tadeumendonca-io#fork-to-live)** — the cloud path end to end, from the domain to the first merge.
-- **[The plugin's README](https://github.com/tedeuxx/tadeumendonca-skills#run-it)** — the loop half, which installs with no cloud account and nothing to deploy.
-
-**Why OIDC, and not a key.** The obvious alternative is to mint an access key pair for an IAM user and store it as a GitHub secret. It works on day one, and it is a long-lived credential living in a system that is not mine: it is valid until somebody revokes it, it travels wherever that job's log leaks to, and rotation becomes a human process nobody performs on time. With OIDC there is **no stored secret**: the runner presents a token GitHub signs for that job, AWS exchanges that token for **temporary** credentials on the role, and they expire on their own with nobody revoking anything. What stays in the repository is the role ARN, which is not a secret.
-
-That changes what a leak means, and it is the whole reason for the decision. A leaked key is access until it is revoked. A leaked token is access until it expires — **and only if whoever took it can also satisfy the trust condition**, which here is that repository's exact subject and nothing else. Less standing privilege, nothing to rotate, and the blast radius bounded by the role's policy rather than by how fast somebody notices. The trade is that the root of that trust has to be created outside, and the next paragraph is about exactly that.
-
-**Terraform here does not create the GitHub OIDC provider, nor the role that runs Terraform itself.** Those are created out of band, with the AWS CLI, and they stay outside Terraform permanently. There are two independent reasons and only one of them would ever go away: the first run would need the credential it has not created yet, and — the one that does not expire — a role able to rewrite its own trust policy has no ceiling on it. The record holds both, along with the part that is uncomfortable to write down: this is a documented hole in a floor, the hand path reopens every time that role's policy is revised, and no `plan` will ever tell you it has drifted.
-
-*(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) trust root outside Terraform)*
-
-**The roles trust an *immutable* subject** — by numeric ID rather than by name, because a name can be transferred to someone else and the IDs cannot. It is the step most likely to cost you an afternoon, since getting it wrong fails as an unhelpful `sts:AssumeRoleWithWebIdentity` denial. The exact form, the trade-off, and the rename that taught it are on record.
-
-*(→ [ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md) immutable subject)*
+*(→ [ADR-0042](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0042-trust-root-bootstrapped-out-of-band.md) trust root outside Terraform · [ADR-0015](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0015-oidc-immutable-subject-least-privilege.md) immutable subject)*
 
 The part I would be nervous seeing someone copy without the rest is **merging straight to production**. Trunk-based with a single environment is fast and unforgiving in equal measure; without the gates in front of it, only the second half survives.
 
-## Where this approach still does not prove what it promises
-
-Everything above argues for one thing: **AI-DLC** — a delivery lifecycle whose stages are run and verified by agents, with the human in the residual. The promise of that approach is that "done" is **proved by mechanism** rather than asserted by whoever built it. A page that only showed where that works would be marketing. So this section is the inverse, and it is part of the argument rather than an appendix to it: **where agent-led verification does not yet reach, and what still rests on my word.**
-
-**One author, and nobody else's hands.** This is a single-author site, tuned to one person's positioning — not a general-purpose template, and no one else has ever worked on it. Nothing here has been tested against a second person disagreeing with the setup, which is precisely the case an agent loop finds hardest. Take the pattern, not the specifics.
-
-**The drawings show the shape of a thing, not a run of it** — and that is the exact boundary of what a gate can verify. Seven drawings above; **four** of them you can check, at different strengths. That the request path is what the edge actually does: the function, its tests and the post-deploy comparison are linked. That the layers and the AWS stack are what this repo actually builds: `iac/` and the build script settle it between them — with the caveat the drawing itself carries, that the hosted zone and the certificate arrive as `data source`s and are not created here. That the harness has the parts the inventory names: a build here fails when it stops matching the plugin repo — but **late**, since nothing here can see a merge over there, and only for the parts that are *names* — of the skill library it pins the size, which is not names at all — never for what those parts do. **The other three you cannot check, for different reasons.** The two loop drawings show a route this page does not prove was taken: no artifact here shows that any particular change passed through those tiers. And the three-pillar one is no mechanism at all — it is the cut I see the problem through, and a cut cannot be wrong the way an infrastructure drawing can. This is exactly where AI-DLC is still a claim: **the machine proves the slice, and it does not prove the method.**
-
-**And the record itself has a hole — it is the exception announced further up.** There were **two** web ACLs — one at the CloudFront edge and the regional one — and only the regional one has an ADR. The CloudFront-scope ACL was built, was cut, and **is not in the decision library**. It is the one place this page's own rule was not followed, and its record is this sentence rather than a file. That is the weakness, stated in full: **an announced exception costs less than a recorded decision** — no date, no context, none of the options that lost, and no gate counts it. Which is why it lives here, beside what rests on my word, rather than in the table above.
-
-**And there is the half of the workspace no repository holds.** Remote control is a setting on my account and artifacts is a vendor surface with no row in the manifest; a `grep` for it across the plugin returns nothing, which is the check and also the answer. Both are marked as testimony, and a fork of this repository gets neither — so, exactly like the reading above, they are things you can take my word for or not, and nothing here will settle it.
+This is in the open because there are more configuration choices here than one person has sessions to run. If you have run any of those choices differently, you are the one holding the half this page is missing: **tell me your counter-example, or share the page and say what you would change.**

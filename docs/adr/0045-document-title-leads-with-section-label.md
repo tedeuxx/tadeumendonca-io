@@ -50,8 +50,14 @@ Second, **the title is not one surface, and the count is per page rather than si
 
 - On the **two** markdown-shell pages — `/architecture` and `/ramp-up`, the only importers of
   `MarkdownPage` (`ArchitecturePage.tsx:14`, `RampUpPage.tsx:16`) — a single `title` prop feeds **four**
-  outputs. [`MarkdownPage.tsx:19`](../../apps/fed/src/components/MarkdownPage.tsx) says so on the prop
-  itself: `document.title`, `og:title`, the `ShareButton` title and the JSON-LD `headline`.
+  outputs. [`MarkdownPage.tsx`](../../apps/fed/src/components/MarkdownPage.tsx) says so on the prop
+  itself, in the docblock reading `Document <title> + OG title + ShareButton title + JSON-LD headline.`:
+  `document.title`, `og:title`, the `ShareButton` title and the JSON-LD `headline`.
+  *(Pointer corrected under #450, which added two imports to that file and pushed the `title` docblock
+  from line 19 to line 21 — the citation read `MarkdownPage.tsx:19` and landed on the `kicker` prop
+  instead. It now quotes the clause rather than the line, per the documentation standard's "cite the
+  clause, not the line", so the next diff above it cannot move it again. The claim is unchanged: the
+  quoted docblock is byte-identical to what line 19 carried when this record was written.)*
 - On every **other** route — `/portfolio`, `/library`, `/me`, `/` — the title feeds **two**:
   `document.title` and `og:title`. `useDocumentHead.ts:167` emits `og:title` **unconditionally**, beside
   `og:site_name` and `og:locale`, so there is no route whose title is the tab alone.

@@ -1,7 +1,7 @@
 # Frontend layer — owned by /infrastructure/cloudfront (+ /infrastructure/waf, /infrastructure/s3,
 # /infrastructure/route53). CloudFront fronts the private fed bucket (OAC) at the custom domain, with
-# an /assets/avatars/* behavior to the assets bucket and SPA error routing. Everything else — including
-# /og/* — falls through to the default behavior and is served from the fed bucket.
+# an /assets/* behavior and SPA error routing. Everything else — including /og/* — falls through to
+# the default behavior. Every behavior now targets the same single origin: the fed bucket.
 #
 # /og/* USED to have its own behavior pointing at the og-images bucket, a leftover of the retired
 # Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0004) that generated cards at request time into
@@ -12,7 +12,8 @@
 # behavior and its origin were removed (#302) so those ALREADY-ADVERTISED URLs resolve; no URL was
 # minted or moved, because a scraper pins the URL it fetched (ADR-0041). The og-images bucket itself is
 # now gone too (owner decision, follow-up to #302) — it held zero objects and, once the origin was
-# removed, zero readers. Only the fed and assets origins remain.
+# removed, zero readers. The `assets` origin and its bucket went the same way in #446 (see storage.tf).
+# Only the fed origin remains.
 
 # CloudFront Function (viewer-request) — rewrites directory routes to their prerendered index.html so
 # the per-route static HTML (built by `build:static`) is served. Replaces the og-edge Lambda@Edge:
@@ -53,11 +54,10 @@ module "cloudfront" {
     # that behavior gone it would be an origin no cache behavior references. CloudFront does accept
     # that shape (the upstream module's own examples/complete declares an unreferenced `s3_oac`
     # origin), so this is not a legality workaround — it is removed because it would be dead config
-    # that the next reader has to re-derive. The bucket itself still exists (storage.tf).
-    assets = {
-      domain_name           = module.assets_bucket.s3_bucket_bucket_regional_domain_name
-      origin_access_control = "s3_oac"
-    }
+    # that the next reader has to re-derive. The bucket itself is gone too (storage.tf).
+    # NOTE: no `assets` origin either. It was the target of the narrow /assets/<prefix>/* behavior
+    # removed below, and went with it in #446 for the same reason — no behavior would reference it.
+    # Its bucket is destroyed in the same change (storage.tf).
   }
 
   default_cache_behavior = {
@@ -79,26 +79,23 @@ module "cloudfront" {
 
   # NOTE: CloudFront evaluates these in order and uses the FIRST match. Vite emits the SPA build under
   # /assets/* into the FED bucket (the `s3` origin), so /assets/* MUST resolve there or the app can't
-  # load its own JS/CSS. The generic asset store (avatars today, editor uploads later) lives in the
-  # `assets` bucket under the avatars/ prefix → served at /assets/avatars/*, which is listed BEFORE the
-  # broad /assets/* so it wins. (A future non-avatars prefix in the assets bucket needs its own behavior
-  # here, or move the SPA build to /static/* to reserve all of /assets/* for the store.)
+  # load its own JS/CSS.
+  #
+  # ORDERING, and why this note outlives the thing it describes. A NARROWER `/assets/<prefix>/*`
+  # behavior USED to be listed FIRST here, routing to a separate `assets` bucket — the generic object
+  # store for the retired BFF era's user profile images and editor uploads (ADR-0025). It was removed
+  # with that bucket in #446. The single `/assets/*` below is unordered-safe ONLY BECAUSE nothing else
+  # claims a `/assets/` prefix any more: it is the broadest pattern in the namespace, so any narrower
+  # `/assets/<something>/*` added after it would never be reached. Whoever adds one MUST list it
+  # BEFORE this entry — or move the SPA build to /static/* and reserve all of /assets/* for the new
+  # store. That trap is why this paragraph survives the deletion: delete the warning and the next
+  # person re-creates the misroute silently.
   # /og/* is deliberately ABSENT from this list — see the header comment. It falls through to the
   # default behavior (fed origin), which is where the committed cards actually are. Falling through
   # also gains it the SecurityHeadersPolicy the removed behavior never applied. The spa-rewrite
   # function now sees these requests and passes them through unchanged (the last path segment has an
   # extension) — see cloudfront-functions/spa-rewrite.js.
   ordered_cache_behavior = [
-    {
-      path_pattern           = "/assets/avatars/*" # generic asset store (avatars) — MUST precede /assets/*
-      target_origin_id       = "assets"
-      viewer_protocol_policy = "redirect-to-https"
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      compress               = true
-      use_forwarded_values   = false
-      cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
-    },
     {
       path_pattern           = "/assets/*" # Vite SPA build assets → FED bucket (the app's own JS/CSS/fonts)
       target_origin_id       = "s3"
@@ -124,10 +121,13 @@ module "cloudfront" {
   ]
 }
 
-# Combined bucket policy (TLS-deny + CloudFront OAC read) for the private fed + assets buckets.
-# Standalone resource (not the s3 module's attach_policy) to break the storage↔frontend cycle.
-# There is no og-images document here any more: that bucket is destroyed (storage.tf), and a policy
-# is a property OF a bucket — with no bucket there is nothing to deny insecure transport TO.
+# Combined bucket policy (TLS-deny + CloudFront OAC read) for the private fed bucket.
+# "Combined" is about the two STATEMENTS in one document, not about two buckets: it is one policy for
+# the one bucket that remains. Standalone resource (not the s3 module's attach_policy) to break the
+# storage↔frontend cycle.
+# There is no og-images document here any more, and since #446 no assets document either: both
+# buckets are destroyed (storage.tf), and a policy is a property OF a bucket — with no bucket there is
+# nothing to deny insecure transport TO.
 data "aws_iam_policy_document" "frontend_bucket" {
   statement {
     sid     = "DenyInsecureTransport"
@@ -164,50 +164,9 @@ data "aws_iam_policy_document" "frontend_bucket" {
   }
 }
 
-data "aws_iam_policy_document" "assets_bucket" {
-  statement {
-    sid     = "DenyInsecureTransport"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      module.assets_bucket.s3_bucket_arn,
-      "${module.assets_bucket.s3_bucket_arn}/*",
-    ]
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-  }
-  statement {
-    sid       = "AllowCloudFrontOAC"
-    effect    = "Allow"
-    actions   = ["s3:GetObject"]
-    resources = ["${module.assets_bucket.s3_bucket_arn}/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [module.cloudfront.cloudfront_distribution_arn]
-    }
-  }
-}
-
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = module.frontend_bucket.s3_bucket_id
   policy = data.aws_iam_policy_document.frontend_bucket.json
-}
-
-resource "aws_s3_bucket_policy" "assets" {
-  bucket = module.assets_bucket.s3_bucket_id
-  policy = data.aws_iam_policy_document.assets_bucket.json
 }
 
 # Route53 A-alias for the custom frontend domain → the CloudFront distribution.

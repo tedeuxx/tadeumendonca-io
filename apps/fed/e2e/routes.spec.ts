@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-// #318. The shape of a link into the decision library. Asserted as a PATTERN over every row rather than
-// against the generated artifact: importing it would tie this spec to Node types the E2E tsconfig does
-// not carry, and a pattern over all 41 links is a stronger claim than an exact match on one of them.
-const ADR_LINK = /^https:\/\/github\.com\/tedeuxx\/tadeumendonca-io\/blob\/main\/docs\/adr\/\d{4}-[a-z0-9-]+\.md$/;
+// An `ADR_LINK` pattern lived here (#318) — the shape of a link into the decision library, asserted over
+// every row of the rendered index. It is deleted with that index and its test (see further down); no
+// other assertion in this file reads an ADR href.
 
 // Pinned to pt-BR chrome: these journeys assert localized strings ("Portfólio", "Ver no GitHub",
 // "Artigos", "Ver catálogo completo"). The i18n auto-detect layer (ADR-0032) makes en-US the default
@@ -277,46 +276,21 @@ test.describe('routes', () => {
     expect(pointerStyle.fontSize, 'the citation is quieter than the argument').toBeLessThan(bodySize);
   });
 
-  // #318. The decision index is compiled from `docs/adr/` at build time, so what is worth asserting on
-  // the real page is what distinguishes that from a table someone typed: that it holds the WHOLE library
-  // rather than a curated handful, that its rows leave the page for the canonical record, and that a
-  // reader with no JavaScript gets it — the whole reason it is prerendered.
-  test('/architecture serves the full decision index, generated and outbound', async ({ page, request }) => {
-    await page.goto('/pt/architecture');
-
-    const table = page.getByRole('table', { name: /Índice de decisões/ });
-    await expect(table).toBeVisible();
-
-    // Against the artifact's own size, never a literal: a hardcoded number goes red every time an ADR is
-    // written, and a check that fails on correct behaviour is a check somebody deletes.
-    // A floor, not an exact count: the library grows, and a check that goes red every time an ADR is
-    // written is a check somebody deletes. What it must catch is the table rendering a curated handful
-    // instead of the whole library, which a floor this high does.
-    const rowCount = await table.getByRole('row').count();
-    expect(rowCount, 'the index must hold the whole library, not a sample').toBeGreaterThan(30);
-
-    // EVERY row leaves for its record — the property the whole feature exists for, since the page links
-    // canonical detail rather than restating it, and the thing a hand-typed table quietly loses one row
-    // at a time. Asserted over all of them because the failure mode is one bad href among forty good
-    // ones, which spot-checking the first row cannot see.
-    const hrefs = await table
-      .getByRole('link')
-      .evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
-    expect(hrefs, 'one link per record row').toHaveLength(rowCount - 1);
-    expect(hrefs.filter((h) => !ADR_LINK.test(h)), 'every row links into docs/adr/').toEqual([]);
-
-    // The status column is localised chrome around canonical English titles. Asserted in the PT edition
-    // because that is the direction that can go wrong: the titles stay English by design, so a reader
-    // needs the column that tells them what the row MEANS to be in their language.
-    await expect(table.getByText('substituída').first()).toBeVisible();
-
-    // And a JS-less crawler gets it. `page.goto` runs the app and would pass whether or not the table
-    // was ever prerendered, which is the same trap #170 recorded for the diagrams.
-    const html = await (await request.get('/pt/architecture/')).text();
-    expect(html, 'the index must be in the prerendered bytes').toContain(
-      'docs/adr/0002-fully-static-spa-no-backend.md',
-    );
-  });
+  // THE DECISION-INDEX TABLE TEST (#318) WAS HERE, and it is deleted with the table it was written about.
+  //
+  // It asserted the rendered index held the whole library rather than a curated handful, that every row
+  // left the page for its canonical record, that the status column was localised, and that a JS-less
+  // crawler received the rows in the prerendered bytes. All four properties were about a table that the
+  // owner has now cut: `## O registro de decisões É a documentação` argues why the record exists and
+  // states the count, and LINKS the library instead of reproducing 48 rows.
+  //
+  // What is lost, said rather than left to be found: nothing now asserts on the served build that the
+  // page's ADR claim matches `docs/adr/`. The generation half of that guarantee is untouched and still
+  // gated in CI — `adr-source.test.mjs` reds when the committed artifact and the directory separate —
+  // but nothing reads the PAGE for it any more, because the page no longer prints it.
+  //
+  // NOT DELETED HERE: the `AdrTable` component and its own tests may now be orphaned. That is a
+  // `developer` call in the follow-up, not a content change, and is flagged rather than acted on.
 
   // #170. The diagram is compiled to inline SVG at BUILD time, so the properties worth asserting are the
   // ones that distinguish that from every cheaper thing it could have been.
@@ -333,12 +307,17 @@ test.describe('routes', () => {
   test('/architecture renders EVERY diagram as inline SVG, sized, in the reader’s language', async ({ page }) => {
     await page.goto('/pt/architecture');
 
+    // THREE, DOWN FROM SIX (#448). The restructure cut the request-path figure, the AWS-stack figure and
+    // the loop-shape figure under the owner's Budget B, so their rows go with them rather than being
+    // left to fail as "a diagram stopped rendering" — which is what a stale enumeration reports, and it
+    // names the wrong defect. The venn is deliberately still absent from this list: it is not a mermaid
+    // figure, and `diagram-centred.spec.ts` is what covers it.
+    // TWO OF THE THREE WERE REDRAWN: the layers figure became a lanes-and-tiers grid, and the dev-loop
+    // flow became the agent-tier flow. Their captions move with them rather than the rows being deleted —
+    // the count is still three, and it is still the assertion that the page has all of them.
     for (const name of [
-      /As camadas, e a trilha de build que substitui as que faltam/,
-      /Como uma requisição vira uma página/,
-      /A pilha AWS, camada a camada/,
-      /O formato do loop — as camadas e as unidades de trabalho/,
-      /Onde o humano fica no loop/,
+      /As raias e os tiers/,
+      /Como o trabalho atravessa os tiers de agente/,
       /Do que o harness é feito/,
     ]) {
       const figure = page.getByRole('figure', { name });
@@ -361,10 +340,18 @@ test.describe('routes', () => {
       // this catches exactly it. It does NOT catch #0B0B0B on #0A0A0A. A legibility check this is not,
       // and saying so here matters because the previous round's finding was a comment claiming more
       // than its assertion did.
-      const strokes = await figure.locator('svg path.flowchart-link').evaluateAll((els) =>
-        els.map((el) => getComputedStyle(el).stroke),
-      );
-      expect(strokes.length, `${name} must draw edges at all`).toBeGreaterThan(2);
+      //
+      // WIDENED FROM `path.flowchart-link` TO EVERY STROKED SHAPE, and this is a generalisation rather
+      // than an exemption. One of the three figures is a GRID whose claim is that it has no directed
+      // edges at all — it is built entirely from mermaid's invisible `~~~` links — so a links-only
+      // assertion has nothing to count there and would have to be special-cased away, which is how a
+      // figure ends up covered by nothing. The property being defended was never "edges exist"; it is
+      // "this figure is drawn in something the reader can see against the canvas", and node outlines
+      // carry that for a grid exactly as links carry it for a flow.
+      const strokes = await figure
+        .locator('svg path.flowchart-link, svg .label-container')
+        .evaluateAll((els) => els.map((el) => getComputedStyle(el).stroke));
+      expect(strokes.length, `${name} must draw something at all`).toBeGreaterThan(2);
       // Read the canvas colour from `.diagram-canvas`, NOT from the <figure>. The figure has no
       // background of its own — it computes to rgba(0,0,0,0) — so comparing against it made this
       // assertion pass on the very defect it was written for. Caught by running the mutation instead of
@@ -373,7 +360,7 @@ test.describe('routes', () => {
         .locator('.diagram-canvas')
         .evaluate((el) => getComputedStyle(el).backgroundColor);
       expect(canvas, 'the canvas must have a real background to compare against').not.toBe('rgba(0, 0, 0, 0)');
-      expect(strokes.filter((s) => s === canvas), `${name} draws edges in the background colour`).toEqual([]);
+      expect(strokes.filter((s) => s === canvas), `${name} draws in the background colour`).toEqual([]);
     }
   });
 

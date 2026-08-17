@@ -116,10 +116,14 @@ describe('the photograph registry describes the files that shipped', () => {
   });
 
   // The page is served to phones on mobile data and there is deliberately NO build-time optimiser — a new
-  // dependency and tool class against ADR-0001, to compress four files. That trade is only defensible
-  // while the files stay small, so the bound is asserted rather than remembered: an unoptimised export
-  // dropped into this directory is caught here instead of in someone's data allowance.
-  it('keeps the four photographs under 1 MB in total', () => {
+  // dependency and tool class against ADR-0001, to compress a handful of files. That trade is only
+  // defensible while the files stay small, so the bound is asserted rather than remembered: an
+  // unoptimised export dropped into this directory is caught here instead of in someone's data allowance.
+  //
+  // The bound is deliberately NOT retuned to whatever the current set happens to weigh. It is the budget
+  // the page is allowed, not a measurement of the page — a ceiling that tracks the payload it is meant to
+  // cap can never be exceeded, which is the shape of a gate that verifies nothing.
+  it('keeps the photographs under 1 MB in total', () => {
     const bytes = PHOTOS.map((p) => readFileSync(fileFor(p.src)).length).reduce((a, b) => a + b, 0);
     expect(bytes, `the photographs weigh ${Math.round(bytes / 1024)} KB`).toBeLessThan(1024 * 1024);
   });

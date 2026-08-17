@@ -571,6 +571,65 @@ body {
   border-bottom: 0;
 }
 
+/* THE DESKTOP BREAKOUT (#464). A figure may be WIDER THAN THE COLUMN ITS CAPTION SITS IN; the prose
+   never moves. `.diagram` — the class on DiagramFigure's <figure> — was, like `diagram-canvas` before
+   it, a hook nobody had written a rule for; this is that rule, and it is on the shared shell so all
+   four figures on /architecture inherit it, the hand-authored Venn included.
+
+   WHY THIS RATHER THAN A MIN-WIDTH FLOOR. Every mermaid SVG carries `width="100%"` plus an inline
+   `max-width` at its natural width, so its render scale — and therefore its type size, 15px × scale —
+   is decided entirely by how wide this box is. The article column gives it ~890px of canvas, at which
+   the widest figure renders at 0.48 and its type at ~7.2px. Buying legibility with a `min-width` floor
+   instead would need 1666px inside that 890px column: 776px of lateral panning on a pointer device,
+   where the scrollbar is hidden until hover, so the reader does not see a small complete figure — they
+   see a silently cropped one, and the cropped part is the right-hand column where these drawings put
+   their claim. Widening the BOX raises the same scale with no panning at all.
+
+   THE ONE VALUE TO MOVE IS `--diagram-max-width`. Lower it and every figure narrows; set it to 0 (or
+   to anything at or below the column measure) and the `max(0px, …)` floors the bleed at zero, which is
+   byte-for-byte today's layout. There is no second knob to keep in step.
+
+   THE TWO TERMS, and both of them bind — neither is dead code:
+     · `(--diagram-max-width - 100%) / 2` — how much room is left before the figure reaches its target
+       width. `100%` is the column the figure is laid out in. This term governs at 1440px and above.
+     · the shell term — how much free space actually exists. The app shell is `max-w-screen`
+       (`tailwind.config.js` → `maxWidth.screen`, 1440px, mirrored here as `--container`) with a
+       `border-x-2` each side — `--rule-strong` is that same 2px, and the coupling is nominal rather
+       than enforced, which is fine here because a 2px drift is swallowed whole by the inset below —
+       and the article column inside it is `max-w-5xl` = 64rem. So the free
+       space per side is half the difference, plus the `--gutter` the figure reclaims by pulling out of
+       the article's padding. This term governs between 1024 and 1440px.
+   Because the two cancel out, the uncapped result is simply "the figure spans the shell, less the
+   inset" — which is why the inset is subtracted here rather than defended by a separate rule.
+
+   THE 2rem INSET IS A SAFETY MARGIN, NOT A TASTE CALL. `100vw` includes the classic scrollbar on
+   Linux/Windows while the layout viewport does not, so the shell term can OVERSTATE the free space by
+   up to ~15px. 2rem covers that with ~17px of real clear space still left over, which is what keeps
+   `e2e/responsive-overflow.spec.ts` — the page body must never scroll sideways, at any width — green
+   on a machine with visible scrollbars. `e2e/diagram-bleed.spec.ts` asserts the clearance directly at
+   1280/1440/1600 so a drift between `--container` and the Tailwind value reddens rather than ships.
+
+   BELOW 1024px NOTHING CHANGES, by media query rather than by arithmetic. The terms would already
+   floor to zero on a phone, but "provably inert" and "happens to compute to zero" are not the same
+   claim, and the only LIVE overflow on this page is the narrow one. Print is untouched twice over: the
+   query does not match a sheet, and `vw` resolving against the sheet floors the bleed anyway. */
+.diagram {
+  --diagram-max-width: 1340px;
+}
+
+@media (min-width: 1024px) {
+  .diagram {
+    --diagram-bleed: max(
+      0px,
+      min(
+        (var(--diagram-max-width) - 100%) / 2,
+        (min(100vw, var(--container)) - 2 * var(--rule-strong) - 64rem) / 2 + var(--gutter) - 2rem
+      )
+    );
+    margin-inline: calc(-1 * var(--diagram-bleed));
+  }
+}
+
 /* THE DIAGRAM BOX. `diagram-canvas` was a class name on Diagram.tsx with no rule anywhere — a hook
    somebody named and never used — so nothing centred the picture and a diagram narrower than the box sat
    hard against its left edge. Mermaid emits each SVG with `width="100%"` and an INLINE `max-width` in px,

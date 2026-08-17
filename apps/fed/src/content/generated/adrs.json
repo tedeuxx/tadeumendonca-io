@@ -25,7 +25,7 @@
     "title": "Content and OG resolved at build time — not SSR or edge",
     "file": "0004-build-time-render-not-ssr-or-edge.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0005",
@@ -179,7 +179,7 @@
     "title": "Lambda@Edge OG renderer",
     "file": "0026-superseded-lambda-edge-og.md",
     "status": "superseded",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0027",
