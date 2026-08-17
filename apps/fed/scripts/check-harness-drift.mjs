@@ -34,6 +34,7 @@ import {
   assertPluginVersion,
   pluginLinkTargets,
   pluginLinkReport,
+  pluginLinkParityReport,
 } from './harness-source.mjs';
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -81,6 +82,30 @@ try {
     `::error::src/content/generated/plugin-release.json is unusable — ${err.message}. ` +
       'Run `npm --prefix apps/fed run gen-harness`.',
   );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------------------------
+// CROSS-EDITION PARITY of the plugin links on /architecture — and, like the version assertion above,
+// deliberately ABOVE THE SKIP. It compares the two markdown files in THIS repository against each other,
+// so it needs no plugin tree at all; putting it below the skip would make an offline, local-checkable
+// rule depend on a sibling repo being cloned, on a path that exits 0.
+//
+// The read is hoisted here rather than duplicated: the existence check further down consumes these same
+// two arrays, so each file is opened once.
+//
+// IT THEREFORE REPORTS BEFORE THE MANIFEST DIFF, which inverts this file's own ordering rule ("name the
+// mechanical fix first") — stated here rather than left for a reader to catch. Placement above the skip
+// is a constraint and the ordering rule is a preference, so the preference yields; and where both do
+// fire the inversion is arguably the right way round anyway, because every report below this one begins
+// "this is almost certainly NOT your change" and this one is the single failure in the job that IS.
+const [ptLinks, enLinks] = ['architecture.pt.md', 'architecture.en.md'].map((f) =>
+  pluginLinkTargets(readFileSync(join(FED, 'src', 'content', f), 'utf8')),
+);
+const parityProblem = pluginLinkParityReport(ptLinks, enLinks);
+if (parityProblem) {
+  console.error(`::error::${parityProblem.split('\n')[0]}`);
+  console.error(parityProblem);
   process.exit(1);
 }
 
@@ -180,12 +205,18 @@ if (rosterProblem) {
 // because its failure is a hand edit in two markdown files, while the two above name a generator or a
 // list, and a reader should act on the mechanical fix first.
 //
-// Both editions, and the paths are POOLED rather than compared: the link-parity unit test already asserts
-// the two editions cite the same targets in the same order, so re-deriving that here would be a second
-// implementation of a rule that already has one.
-const pageLinks = ['architecture.pt.md', 'architecture.en.md'].flatMap((f) =>
-  pluginLinkTargets(readFileSync(join(FED, 'src', 'content', f), 'utf8')),
-);
+// Both editions, POOLED — and the justification for pooling used to be a false one, corrected here
+// rather than deleted because it is the sentence that hid a real gap. It read: "the link-parity unit test
+// already asserts the two editions cite the same targets in the same order, so re-deriving that here
+// would be a second implementation of a rule that already has one." It does not. `architecture-links.test.ts`
+// matches `tadeumendonca-io` URLs only, so a PLUGIN link was invisible to it and its parity assertion
+// compared [] to []. Pooling on top of that meant one edition's citation satisfied the floor for both.
+//
+// Parity is now asked ABOVE the skip, by `pluginLinkParityReport`, before this line runs — so by the time
+// the pooled list is built the two editions are known to be identical, which is what makes pooling sound
+// here rather than merely convenient: existence is a property of the target, and asking it twice about
+// two identical lists would double the same question.
+const pageLinks = [...ptLinks, ...enLinks];
 const linkProblem = pluginLinkReport(pageLinks, (p) => existsSync(join(pluginDir, p)));
 if (linkProblem) {
   console.error(`::error::${linkProblem.split('\n')[0]}`);

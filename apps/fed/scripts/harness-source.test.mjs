@@ -34,6 +34,7 @@ import {
   pluginPresent,
   pluginLinkTargets,
   pluginLinkReport,
+  pluginLinkParityReport,
   rosterDispatchNames,
   rosterDispatchReport,
 } from './harness-source.mjs';
@@ -811,5 +812,63 @@ describe('the plugin links /architecture publishes', () => {
     const report = pluginLinkReport(['gone'], () => false);
     expect(report).toMatch(/NOT your change/);
     expect(report).toContain('BOTH editions');
+  });
+});
+
+// THE PARITY HALF, which did not exist until this slice. The caller pools the two editions before the
+// existence check, and the comment justifying that pooling cited a unit test that does not cover plugin
+// links — `architecture-links.test.ts` matches `tadeumendonca-io` URLs only, so both sides of its parity
+// assertion saw [] and a one-sided plugin link passed. Every case below is one the pooled report could
+// not distinguish.
+describe('pluginLinkParityReport — the two editions cite the same plugin files', () => {
+  it('says nothing when both editions cite the same targets in the same order', () => {
+    expect(pluginLinkParityReport(['agents', 'hooks/hooks.json'], ['agents', 'hooks/hooks.json'])).toBe('');
+  });
+
+  // THE MEASURED DEFECT, in the smallest form that reproduces it: present in en, absent in pt. Pooled,
+  // this is indistinguishable from a link cited in both.
+  it('names a target the en edition cites and the pt edition does not', () => {
+    const report = pluginLinkParityReport(['agents'], ['agents', 'hooks/hooks.json']);
+    expect(report).toContain('hooks/hooks.json is cited in en and NOT in pt');
+    expect(report).not.toContain('agents is cited');
+  });
+
+  it('names a target the pt edition cites and the en edition does not', () => {
+    const report = pluginLinkParityReport(['agents', 'commands'], ['agents']);
+    expect(report).toContain('commands is cited in pt and NOT in en');
+  });
+
+  // Order is part of the rule (same as the in-repo assertion in architecture-links.test.ts), so this
+  // case has to fail — and it is the one where a report that only listed set differences would print a
+  // failure naming no path at all.
+  it('fails on the same targets in a different order, and says so', () => {
+    const report = pluginLinkParityReport(['a', 'b'], ['b', 'a']);
+    expect(report).toContain('the same targets, in a different order');
+  });
+
+  // The second shape that reaches the same line, and the reason it is not worded as "order" alone:
+  // `pluginLinkReport` de-duplicates, so one edition citing a path twice and the other once is a real
+  // difference these files can carry, and it names no path either.
+  it('fails when one edition cites the same target more times than the other', () => {
+    const report = pluginLinkParityReport(['a', 'a'], ['a']);
+    expect(report).toContain('cited a different number of times');
+  });
+
+  // The deliberate NON-rule, pinned so a later slice does not "fix" it by accident: two editions that
+  // both cite nothing ARE in parity. `pluginLinkReport` owns the zero-targets floor and is the only
+  // place it lives — asserting it here too would be the duplicate implementation this whole slice was
+  // caused by.
+  it('does not fail on two empty editions — the non-vacuity floor belongs to pluginLinkReport', () => {
+    expect(pluginLinkParityReport([], [])).toBe('');
+    expect(pluginLinkReport([], () => true)).toContain('cites no files');
+  });
+
+  // Attribution, INVERTED against every other report in this module — and that inversion is the point.
+  // A missing target lives in the other repository; a parity break is authored here, in two files the
+  // fixer is holding.
+  it('says this one IS your change, unlike every other report here', () => {
+    const report = pluginLinkParityReport([], ['agents']);
+    expect(report).toContain('IS your change');
+    expect(report).toContain('architecture.{pt,en}.md');
   });
 });

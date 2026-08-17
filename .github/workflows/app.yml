@@ -154,6 +154,33 @@ jobs:
             harness:
               - 'CLAUDE.md'
               - 'apps/fed/src/content/generated/harness.json'
+              # THE PAGE ITSELF IS THE THIRD AUTHORED INPUT, and it was missing from the day the
+              # cross-repo link check landed. `check-harness-drift.mjs` reads BOTH editions of
+              # `architecture.{pt,en}.md`, pulls every tedeuxx/tadeumendonca-skills path they cite, and
+              # asserts each one still exists over there. Filtered on CLAUDE.md and the manifest alone,
+              # a CONTENT-ONLY merge to that page never started this job — so the check was correct and
+              # NEVER RAN ON ITS OWN TRIGGER, the same defect `docs/adr/**` and `deploy.yml` carry in the
+              # `test` filter above and the manifest carried here until #463. It is not hypothetical:
+              # this is how /architecture lost every cross-repo citation with the build green. The
+              # zero-targets rule that exists to catch exactly that state was never given the chance to
+              # fire, because the only job that evaluates it did not start.
+              #
+              # NAMED FILE BY FILE, not as `apps/fed/src/content/**`. That glob would run a second
+              # repository's checkout on every article edit, and the job's only inputs from that
+              # directory are these two files.
+              - 'apps/fed/src/content/architecture.pt.md'
+              - 'apps/fed/src/content/architecture.en.md'
+              # THE GUARD ITSELF, which is the tightest form of the same pattern and the last instance
+              # of it in this file. Every entry above is something the job READS; these two ARE the job.
+              # They live under `apps/**`, so they matched `code` and `test` and never `harness` — a PR
+              # editing only the guard ran its fixture unit tests (`harness-source.test.mjs`) and never
+              # once ran the live cross-repo comparison those fixtures stand in for. The change most
+              # likely to break the check was the one change that did not exercise it.
+              #
+              # NOT in the deploy gate's filter, on the same rule as every entry above: neither file
+              # ships a served byte, so a deploy triggered by them would republish nothing.
+              - 'apps/fed/scripts/check-harness-drift.mjs'
+              - 'apps/fed/scripts/harness-source.mjs'
 
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change

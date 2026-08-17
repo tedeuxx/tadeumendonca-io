@@ -1072,7 +1072,58 @@ export function pluginLinkReport(targets, exists) {
     ...missing.map((p) => `  - ${p}`),
     '',
     'This is almost certainly NOT your change — the target lives in a separate repository.',
-    'Fix the link in apps/fed/src/content/architecture.{pt,en}.md, in BOTH editions: the link-parity',
-    'test compares the two, so a one-sided fix trades this failure for that one.',
+    'Fix the link in apps/fed/src/content/architecture.{pt,en}.md, in BOTH editions:',
+    '`pluginLinkParityReport` compares them, so a one-sided fix trades this failure for that one.',
+  ].join('\n');
+}
+
+/**
+ * CROSS-EDITION PARITY for those same plugin links: same targets, in the same order, in both editions.
+ *
+ * WHY THIS FUNCTION EXISTS AT ALL, stated as the defect it closes rather than as a feature. The caller
+ * POOLS the two editions before calling `pluginLinkReport`, and the comment justifying that pooling used
+ * to cite a parity test that did not exist: `architecture-links.test.ts`'s `BLOB_URL` matches
+ * `tadeumendonca-io` only, so a plugin link was invisible to it and its parity assertion compared `[]`
+ * to `[]`. Measured before this was written — a plugin link present in `en` and absent in `pt` satisfied
+ * that assertion AND the pooled existence report, because pooling makes one edition's citation stand in
+ * for both. A pt reader silently lost evidence an en reader was offered, in a green build.
+ *
+ * Pooling is still right for EXISTENCE — a path either exists over there or it does not, and asking twice
+ * would double the same question. Parity is the question pooling erases, so it is asked here, first.
+ *
+ * IT TAKES TARGETS, NOT MARKDOWN, and needs no plugin checkout: the rule is a property of the two files
+ * in THIS repository. That is what lets the caller run it above the plugin-present skip, so a local run
+ * with no sibling repo still checks it.
+ *
+ * ORDER IS PART OF THE RULE, matching the in-repo parity assertion in `architecture-links.test.ts`
+ * (#153). The two editions are hand-translated section by section, so a link inserted into the wrong
+ * section of one of them is the realistic drift, and it has the same targets.
+ *
+ * WHAT IT DELIBERATELY DOES NOT DO: it does not fail on zero. Two editions that both cite nothing are in
+ * parity, truthfully. `pluginLinkReport` above owns the non-vacuity floor and is the single place that
+ * rule lives; duplicating it here would be a second implementation of a rule that already has one — the
+ * exact mistake the false comment above was trying to avoid, made for real.
+ */
+export function pluginLinkParityReport(ptTargets, enTargets) {
+  if (ptTargets.length === enTargets.length && ptTargets.every((p, i) => p === enTargets[i])) return '';
+  const onlyIn = (a, b) => [...new Set(a)].filter((p) => !b.includes(p)).sort((x, y) => x.localeCompare(y));
+  const missingFromPt = onlyIn(enTargets, ptTargets);
+  const missingFromEn = onlyIn(ptTargets, enTargets);
+  return [
+    '/architecture cites tedeuxx/tadeumendonca-skills differently in its two editions.',
+    ...missingFromPt.map((p) => `  - ${p} is cited in en and NOT in pt`),
+    ...missingFromEn.map((p) => `  + ${p} is cited in pt and NOT in en`),
+    // Reached when neither list names a path and the arrays still differ. TWO shapes land here, and the
+    // line covers both rather than naming the likelier one: the same targets in a different order, and
+    // the same targets cited a different NUMBER of times (`pluginLinkReport` de-duplicates, so a repeated
+    // citation is a real shape in these files). Said explicitly because a report that names no path at
+    // all reads like a bug in the report.
+    ...(missingFromPt.length === 0 && missingFromEn.length === 0
+      ? ['  (the same targets, in a different order or cited a different number of times)']
+      : []),
+    '',
+    'Both editions must cite the same targets in the same order: a link added to one and forgotten in',
+    'the other is a reader of that locale who cannot reach the evidence the other locale is offered.',
+    'Fix apps/fed/src/content/architecture.{pt,en}.md — this one IS your change; the page is in this repo.',
   ].join('\n');
 }
