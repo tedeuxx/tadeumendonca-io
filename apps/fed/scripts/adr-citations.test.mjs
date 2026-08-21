@@ -116,6 +116,24 @@ describe('scanText', () => {
   it('reports the line, so a failure is actionable without opening this module', () => {
     expect(scanText('one\ntwo\nADR-0003\n', 'a.md')[0].line).toBe(3);
   });
+
+  // The hole a MEASUREMENT found, kept as a regression. `~~` and backticks are ordinary characters
+  // outside markdown, and pairing them sequentially manufactures spans out of nothing: at the head
+  // this landed on, `src/content/generated/diagrams.json` produced one bogus "struck" range 211,935
+  // characters wide, covering essentially the whole file. A dangling citation inside it would have
+  // been silently excused — a false negative, the one direction a gate must never fail in.
+  it('does not apply markdown strike or code-span excuses outside markdown', () => {
+    const struckText = '~~ this pointer to ADR-9999 is struck ~~';
+    const quotedText = 'the string `ADR-9999` appears here';
+
+    // Same bytes, markdown extension: the conventions apply and the citation is excused.
+    expect(scanText(struckText, 'x.md')[0].struck).toBe(true);
+    expect(scanText(quotedText, 'x.md')[0].quoted).toBe(true);
+
+    // Same bytes, anywhere else: they are ordinary characters and excuse nothing.
+    expect(scanText(struckText, 'x.json')[0].struck).toBe(false);
+    expect(scanText(quotedText, 'x.ts')[0].quoted).toBe(false);
+  });
 });
 
 describe('resolves', () => {

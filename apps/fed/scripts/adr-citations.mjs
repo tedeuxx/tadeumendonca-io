@@ -200,11 +200,22 @@ const lineOf = (text, index) => text.slice(0, index).split('\n').length;
  */
 export function scanText(text, file) {
   const found = [];
+
+  // BOTH excuses are MARKDOWN RENDERING conventions, so they are only consulted for markdown, and
+  // this restriction closes a hole in the gate that a measurement found rather than a reading.
+  // `~~` and `` ` `` are ordinary characters in JSON, TypeScript and HCL — `struckRanges` pairs them
+  // sequentially, so an artifact that merely CONTAINS tildes manufactures a span out of nothing.
+  // Measured at this head: `src/content/generated/diagrams.json` produced a single bogus "struck"
+  // range **211,935 characters** wide, covering essentially the whole file. Any dangling citation
+  // inside it would have been silently excused — a false negative in the one direction a gate must
+  // never fail. A backtick in a `.ts` file is a template literal, not a code span, and a path inside
+  // one is still a real string worth resolving.
+  const isMarkdown = /\.md$/i.test(file);
   // Computed once and threaded into `struckRanges`, which otherwise recomputes it as a default
   // argument — this runs over every tracked file in the repo, so scanning each one's code spans twice
   // is the difference between one pass and two over the whole tree.
-  const quoted = quotedRanges(text);
-  const struck = struckRanges(text, quoted);
+  const quoted = isMarkdown ? quotedRanges(text) : [];
+  const struck = isMarkdown ? struckRanges(text, quoted) : [];
   const push = (kind, match, target) =>
     found.push({
       kind,
