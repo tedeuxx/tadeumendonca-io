@@ -51,7 +51,7 @@ so the history further down this file is not in its scope.
 - **`developer`** — builds a slice end to end against an approved spec.
 - **`writer`** — drafts articles, site copy and social-post language in the owner's voice; contained the same as the product lead (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
-- **`harness-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
+- **`agents-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
 <!-- /roster:dispatch -->
 
 ~~**`security`** for the permission floor and supply chain~~ — **struck 2026-08-05.** That persona was
@@ -59,7 +59,11 @@ retired in the plugin's roster merge and its two mandates were folded into **`qu
 now holds technical delivery and the production lens at once. The name was still routed here for a day,
 which made it the one instruction in this file that *failed when followed*.
 
-~~**`harness-reviewer`**~~ — **renamed `harness-lead`** in the plugin's own roster; updated here to match.
+~~**`harness-reviewer`**~~ → ~~**`harness-lead`**~~ — **renamed `agents-lead`** in the plugin's own roster
+(`-skills` #291, v1.1.13), the second rename of the same persona; updated here to match both times. The
+mandate did not move — only the name — so nothing was absorbed and there is nothing else to say about it.
+Worth one line anyway: this file is the dispatch list an agent reads, so a stale name here is an
+instruction that fails when followed, exactly as the `security` row above did for a day.
 `writer` (a sixth persona, added deliberately — it satisfies none of the roster's four persona-existence
 reasons, an owner override for a capability gap rather than a reasoned fit) is added above.
 (`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)

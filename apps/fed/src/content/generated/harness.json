@@ -48,15 +48,23 @@
     "enforcement": "denies"
   },
   {
+    "kind": "hook",
+    "id": "zombie-loop-detect.sh",
+    "file": "hooks/scripts/zombie-loop-detect.sh",
+    "event": "Stop",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
     "kind": "persona",
-    "id": "developer",
-    "file": "agents/developer.md",
+    "id": "agents-lead",
+    "file": "agents/agents-lead.md",
     "enforcement": "advises"
   },
   {
     "kind": "persona",
-    "id": "harness-lead",
-    "file": "agents/harness-lead.md",
+    "id": "developer",
+    "file": "agents/developer.md",
     "enforcement": "advises"
   },
   {
