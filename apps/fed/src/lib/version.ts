@@ -47,16 +47,31 @@ export const releaseUrl = (version = SITE_VERSION) =>
 // no good answer. Here the question does not arise — nothing is fetched, and the lower level always holds
 // a tag that really exists. Nothing degrades; a less fresh source wins.
 //
-// AS OF ADR-0043's 2026-08-14 amendment, level 1's checkout (deploy.yml's `plugin-checkout` step) is
+// ~~AS OF ADR-0043's 2026-08-14 amendment, level 1's checkout (deploy.yml's `plugin-checkout` step) is
 // PINNED to a specific tag (`ref: v1.1.0`) rather than resolving tadeumendonca-skills' `main` tip — a
 // deliberate reversal of the "collapses the gap to the moment of the deploy" property this comment block
 // otherwise describes. Both levels are regenerated to agree on that same tag while the pin stands; see
-// the amendment for why and for what un-pinning requires. This module's own resolution mechanism
-// (`resolvePluginVersion` below) is unchanged by the pin — it still just prefers level 1 over level 2.
+// the amendment for why and for what un-pinning requires.~~
 //
-// The pin moved `v1.0.0` → `v1.1.0` on 2026-08-16, before it had ever deployed: the owner cut `v1.1.0`
+// ~~The pin moved `v1.0.0` → `v1.1.0` on 2026-08-16, before it had ever deployed: the owner cut `v1.1.0`
 // as tadeumendonca-skills' launch milestone, which left the original pin two releases behind. The move
-// is exactly the deliberate two-file edit the pin was designed to require, not a mechanism change.
+// is exactly the deliberate two-file edit the pin was designed to require, not a mechanism change.~~
+//
+// STRUCK 2026-08-21 — THE PIN IS GONE. The owner reversed the 2026-08-14 amendment ("deveria ser
+// atualizado automaticamente a cada deploy"), and `deploy.yml`'s `plugin-checkout` step now carries no
+// `ref:`, so level 1 reads tadeumendonca-skills' default branch again — which is its freshest RELEASED
+// tag, since every merge there bumps VERSION and cuts the tag in one commit. The two paragraphs above
+// are struck rather than deleted because they were read and acted on. An ADR-0043 amendment recording
+// the reversal is OWED and is `tech-lead`'s to write.
+//
+// SO THE TWO LEVELS NO LONGER AGREE BY CONSTRUCTION, and that is the normal state, not a defect: level 1
+// is whatever the deploy resolved, level 2 is whatever the last `gen-harness` run committed, and level 2
+// is BEHIND whenever the plugin has released since. `check-harness-drift` only reddens on the impossible
+// direction — a committed floor AHEAD of the plugin, which names a release that does not exist and would
+// 404 the card. Behind is silent by design.
+//
+// This module's own resolution mechanism (`resolvePluginVersion` below) was unchanged by the pin and is
+// unchanged by its removal — it still just prefers level 1 over level 2.
 
 /**
  * Resolve the two levels, and it is a FUNCTION so it can be tested without an env var.

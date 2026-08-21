@@ -128,21 +128,84 @@ const ENFORCEMENT_BY_SHAPE = {
   // `SessionStart` above, not `PreToolUse` — read both scripts in full before assuming otherwise. Start
   // is a near-no-op (a dependency probe that posts nothing); Stop posts a structured metrics comment to
   // the dispatch's Issue, but it never inspects, blocks, or denies a tool call, and every exit path in
-  // both scripts is `exit 0`. Neither hook has a tool call in front of it to refuse — a subagent's start
-  // or stop is not a gated act the way a `Bash` invocation is — so `denies` would assert a mechanism
-  // neither script has. They report/log; that is `documents`.
+  // both scripts is `exit 0`. The two rows are `documents` for DIFFERENT reasons, corrected 2026-08-21:
+  // `SubagentStart` is listed "Can Block: No" upstream — it cannot prevent a dispatch, so `denies` would
+  // assert a mechanism the event does not have. `SubagentStop` CAN block ("prevents the subagent from
+  // stopping", `exit 2`), so its class is a claim about `dispatch-metrics-stop.sh` alone — which never
+  // emits a `decision` field and exits 0 on every path, including the early give-ups. Both report/log;
+  // that is `documents`. See the `Stop` row below for the same distinction, and do not merge the two
+  // reasons back into one sentence.
   'hook:SubagentStart': 'documents',
   'hook:SubagentStop': 'documents',
+  // `Stop` (#294, `-skills` zombie-loop-detect.sh) — classed on WHAT THE SCRIPT DOES, not on the
+  // event's name, and the two answers differ here, which is why this comment is longer than the row.
+  //
+  // CORRECTED 2026-08-21. This comment used to read "it is the one hook event in this manifest that
+  // COULD have been `denies`", and the site's `/architecture` page relayed that exclusivity in both
+  // locales. It is FALSE. Claude Code's "What Each Hook Can Block" table lists `Stop` (Yes — prevents
+  // Claude from stopping) AND `SubagentStop` (Yes — prevents the subagent from stopping), same
+  // mechanism, `exit 2`. `SubagentStart` is listed as "Can Block: No"; `SessionStart` is not listed at
+  // all. So TWO rows above sit in `documents` by the SCRIPT's choice — this one and `SubagentStop`
+  // (`dispatch-metrics-stop.sh`, every exit path `exit 0`, no `decision` field) — while the
+  // `SessionStart`/`SubagentStart` rows sit there by the EVENT's limit. Do not restore the exclusive
+  // framing; if a second `Stop` or `SubagentStop` hook ever ships, re-read its script rather than
+  // inheriting either row's class.
+  //
+  // What the script actually is: a DETECTOR. It reads loop state (the ADR-0006 `gatekeeper-verdict`
+  // marker comment against the PR's current head) and, when a verdict is outstanding, emits
+  // `additionalContext` so the NEXT turn opens with the fact. Its own header states the boundary —
+  // "this is detection, not enforcement … every exit path is `exit 0` … never emits a `decision` field
+  // and never exits 2" — and reading the script confirms it: no `decision`, no `exit 2`, and it exits 0
+  // on every error path deliberately, so a detector cannot wedge the loop it protects. It reports
+  // state; that is `documents`, by the same definition the `SessionStart` rows use.
+  'hook:Stop': 'documents',
   persona: 'advises',
   'skill-library': 'documents',
   'command-family': 'documents',
   command: 'documents',
 };
 
+/**
+ * THE THROW IS KEPT, AND THE MESSAGE IS WHAT CHANGES (#294 follow-up).
+ *
+ * The coupling is real and worth naming plainly: `-skills` cannot adopt a new hook event without
+ * turning this repo red, and the red lands on whichever PR here runs next — an author who did not
+ * cause it. The obvious relief is a default class with a warning. It is refused, for one reason that
+ * outranks the convenience:
+ *
+ * `enforcement` is the one field on this manifest that is a CLAIM rather than an observation, and it
+ * is published — `/architecture` draws it. A default would have to guess, and the guess is wrong in
+ * the direction that matters: `Stop` (this very row) is an event whose scripts CAN block, and a
+ * `PermissionDecision`-shaped event added later would be `denies`. Defaulting them to `documents`
+ * publishes a weaker mechanism than the harness has; defaulting to `denies` publishes a stronger one
+ * than it has. Both are the exact defect this map's own header says it exists to prevent — asserting a
+ * mechanism that does not exist, on the page whose credibility rests on declining to do that — and a
+ * warning in a CI log is not read by the person reading the page. A loud red is recoverable in one
+ * edit; a quiet mis-description ships and is believed.
+ *
+ * So the fix is to make the red CHEAP rather than to make it soft: the message now carries the file,
+ * the constant, the closed set of classes, and the rule for choosing between them — everything the
+ * next person needs, without having to find this module first.
+ */
 export function enforcementFor(kind, event) {
   const key = kind === 'hook' ? `hook:${event}` : kind;
   const cls = ENFORCEMENT_BY_SHAPE[key];
-  if (!cls) throw new Error(`unrecognised harness component shape: "${key}"`);
+  if (!cls) {
+    throw new Error(
+      `unrecognised harness component shape: "${key}"\n\n` +
+        'The plugin ships a component this repo has no enforcement class for. That is expected when\n' +
+        '`tedeuxx/tadeumendonca-skills` adopts a new hook event or component kind — the map is closed on\n' +
+        'purpose, so a new shape is announced rather than silently defaulted onto a published diagram.\n\n' +
+        `FIX: add a "${key}" row to ENFORCEMENT_BY_SHAPE in apps/fed/scripts/harness-source.mjs, then\n` +
+        `run \`npm --prefix apps/fed run gen-harness\` and commit the regenerated manifest.\n\n` +
+        `CHOOSING THE CLASS — classify by WHAT THE SCRIPT DOES, never by the event's name:\n` +
+        '  denies    — it refuses the act before it happens (blocks a tool call, or blocks the turn).\n' +
+        '  advises   — it produces a judgement that nothing enforces.\n' +
+        '  documents — it removes a re-decision or reports state; it refuses nothing.\n' +
+        'Read the script end to end first. An event that CAN block does not mean this script does: check\n' +
+        'for a `decision` field and for `exit 2` before writing `denies`.',
+    );
+  }
   return cls;
 }
 

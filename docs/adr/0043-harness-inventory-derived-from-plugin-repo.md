@@ -955,12 +955,14 @@ own layout move — that is `-skills`#164's decision, recorded in the methodolog
 
 ## Amendment, 2026-08-14 — the deploy-time checkout is PINNED to `v1.0.0`, reversing the "always freshest" property Decision 2 (2026-08-04) argued for
 
-**Decides:** `deploy.yml`'s plugin-checkout step (`Check out the plugin (tokenless, read-only, deleted
+**Decides:** ~~`deploy.yml`'s plugin-checkout step (`Check out the plugin (tokenless, read-only, deleted
 below)`) takes an explicit `ref: v1.0.0`, and the committed floor
 (`apps/fed/src/content/generated/plugin-release.json`, regenerated via `gen-harness` against a checkout of
-that same tag) is re-generated to match. ~~Both levels of the two-level resolution in
+that same tag) is re-generated to match.~~ ~~Both levels of the two-level resolution in
 `apps/fed/src/lib/version.ts` therefore agree on `1.0.0`, deliberately, until this amendment is itself
-superseded.~~
+superseded.~~ *(REVERSED 2026-08-21 — the pin is removed and the checkout carries no `ref:` again; see
+the 2026-08-21 amendment below. The strike falls on the DECISION only: every paragraph that follows it
+stands, because it is the record of why anyone pinned.)*
 
 **Corrected at implementation time, 2026-08-14, rather than left to be found on review:** the `v1.0.0`
 **tag** is an annotated tag the owner cut on this same date, pointing at `tadeumendonca-skills`'s then-tip
@@ -984,10 +986,11 @@ recovered the auto-bump workflow after that landed it in a collision with the al
 `v1.0.1`..`v1.0.29` tags. The `v1.0.0` tag was then deleted and recreated to point at #279's merge commit —
 the one where `VERSION` genuinely reads `1.0.0` — and its GitHub Release un-drafted. Re-running `gen-harness`
 against a worktree at the corrected tag now reproduces `plugin-release.json` reading `{"version": "1.0.0"}`
-byte for byte, verified independently by `quality-assurance` on this PR. **Both levels of the two-level
-resolution now genuinely agree on `1.0.0`** — the struck paragraph above is not wrong about what it
-measured at the time, only superseded by a correction to the artifact it was measuring, made in the same
-day and the same slice.
+byte for byte, verified independently by `quality-assurance` on this PR. ~~**Both levels of the two-level
+resolution now genuinely agree on `1.0.0`**~~ *(false since 2026-08-21 — level 1 reads no pinned tag at
+all. See the 2026-08-21 amendment. The measurement itself stands for the tag it was taken against.)* —
+the struck paragraph above is not wrong about what it measured at the time, only superseded by a
+correction to the artifact it was measuring, made in the same day and the same slice.
 
 **This is a reversal, named as one, not a drift.** The whole argument of the 2026-08-04 amendment above —
 *"why this shape rather than a committed value alone"* — is that resolving at deploy time collapses the gap
@@ -1040,6 +1043,10 @@ of the implementing PR; that is `quality-assurance`'s call against the DoD, info
 
 ### Consequences
 
+*(Read this whole section in the past tense since 2026-08-21 — it books the consequences of the pin, and
+the pin is removed. The bullets are left unstruck individually because they are the record of what was
+weighed and accepted. What replaces them is the 2026-08-21 amendment's own Consequences.)*
+
 **Good**
 - The deploy-time override and the committed floor read the **same** tag by construction — regenerating one
   without the other is now the only way they can disagree, which is a much narrower failure than "two
@@ -1083,10 +1090,12 @@ gap ever actually bites, not a default.
 
 ## Amendment, 2026-08-16 — the pin moves `v1.0.0` → `v1.1.0`, before it had ever deployed
 
-**Decides:** `deploy.yml`'s plugin-checkout step takes `ref: v1.1.0`, and the committed floor
+**Decides:** ~~`deploy.yml`'s plugin-checkout step takes `ref: v1.1.0`, and the committed floor
 (`apps/fed/src/content/generated/plugin-release.json`) is regenerated from a checkout of that same tag and
-now reads `{"version": "1.1.0"}`. Everything the 2026-08-14 amendment decided about the *shape* of the
-mechanism stands unchanged — this moves the input, which is precisely the deliberate two-file edit that
+now reads `{"version": "1.1.0"}`.~~ *(REVERSED 2026-08-21 — both halves are false at this head: there is
+no `ref:`, and the floor reads `1.1.14`. See the 2026-08-21 amendment below; what follows here stands as
+the record of the one time the deliberate two-file edit was exercised.)* Everything the 2026-08-14
+amendment decided about the *shape* of the mechanism stands unchanged — this moves the input, which is precisely the deliberate two-file edit that
 amendment said a re-pin would be. It is that edit's first exercise, and it confirms the amendment's own
 claim that moving the pin is a hand edit and not something that resolves itself.
 
@@ -1266,6 +1275,164 @@ limit all stand exactly as decided.
 **The `accDescr` remains authored here and checked for vocabulary, not for truth**, which is the same
 honest limit this record already books twice. The cell equivalence reads the **fence**; a description
 that describes the grid wrongly while containing all four required words still passes.
+
+## Amendment, 2026-08-21 — the pin is REMOVED and the card tracks the plugin's freshest released tag again; the 2026-08-14 amendment is reversed, and its premise is corrected on the way out
+
+**Decides:** `deploy.yml`'s plugin-checkout step (`Check out the plugin (tokenless, read-only, deleted
+below)`) carries **no `ref:`**, so it resolves `tedeuxx/tadeumendonca-skills`'s default branch on every
+deploy; and the committed floor (`apps/fed/src/content/generated/plugin-release.json`) is no longer
+regenerated to agree with a pinned tag — it holds whatever the last `gen-harness` run wrote, and sitting
+**behind** level 1 is now its normal state rather than a defect. This reverses the 2026-08-14 amendment
+outright. The two-level resolution mechanism in `apps/fed/src/lib/version.ts` (`resolvePluginVersion`) is
+untouched, exactly as it was untouched by the pin: this changes an input, not the machine.
+
+**Why: the owner reversed it on sight, having been shown the trade-off.** Asked directly, after the gate
+surfaced that the pin and the committed floor had silently stopped agreeing on the implementing branch:
+*"deveria ser atualizado automaticamente a cada deploy"* — it should update automatically on every
+deploy. He was told what the pin was for — the whole purpose of naming a milestone was that the card
+should not move on a number that churns without meaning to a reader — and chose automatic anyway. This is
+recorded as **owner-confirmed**, the same class of record the 2026-08-14 amendment carries for the
+opposite decision.
+
+**The factual correction that makes this a repair rather than a change of mind, and it is the part that
+matters most.** The 2026-08-14 amendment argued the pin against the *plugin's* release cadence — *"the
+moment a second PR merges there … the pinned card and `-skills`'s actual `main` disagree"* — and measured
+the exposure in plugin releases (14 and 5 across two days, inherited from the 2026-08-04 amendment).
+**That is not the exposure.** The plugin-checkout step runs **only when this site deploys**; nothing in
+`tedeuxx/tadeumendonca-skills` triggers anything in this repo, and no merge there changes what a reader
+sees here. So the churn the pin protected the `/portfolio` card from was always bounded by **this repo's
+own deploy cadence**, not by the plugin's auto-bumper: fourteen patch releases between two deploys move
+the card exactly once, not fourteen times. In the implementing slice's phrasing, which is the right one:
+**the concern was real; its size was not.** The 2026-08-14 amendment's accepted cost — *"The staleness
+Decision 2 eliminated is back, by design"* — was true; its magnitude was overstated in the same
+direction, and the decision was weighed against the overstated figure.
+
+**What the un-pin RESOLVES rather than removes — and this is why un-pinning beats moving the pin to a
+newer tag.** `gen-harness` writes **both** generated artifacts from **one** resolved `pluginDir`:
+`harness.json`, which feeds `/architecture`'s inventory diagrams, and `plugin-release.json`, which is
+`/portfolio`'s floor. Meanwhile `app.yml`'s `harness-drift` job checks the plugin out with **no `ref:`**
+and compares `harness.json` against that repo's default branch — so `harness.json` **must** track `main`
+or the check reddens the moment a new component lands there. Under the pin, one generator run served two
+incompatible targets: regenerate against the pinned tag and `harness-drift` goes red; regenerate against
+`main` and the committed floor silently moves past the pin. **One checkout cannot be both.** The conflict
+was **latent rather than absent** — it needed a regeneration to surface, and nothing had forced one since
+the pin was created; the plugin's new `Stop` hook forced the first one, and both halves then happened on
+the implementing branch exactly as described. Un-pinning aligns them: **there is now one source, not two
+masters.**
+
+**Class: the owner's, recorded as such rather than settled on ADR-0003's clause — symmetrically with the
+amendment it reverses.** That clause covers an amendment deciding how a mechanism works without touching
+what was previously ratified; this one reverses a property the owner explicitly weighed and chose, which
+is the same reason the 2026-08-14 amendment declined the clause. The merge class of the implementing PR
+is `quality-assurance`'s call against the DoD, informed by this paragraph. (`deploy.yml` is matched by
+`deploy`'s `iac_hits` pathspec per the 2026-08-04 amendment's own recorded consequence, so the merge
+re-runs `terraform-apply` against real AWS — unchanged by this record, named so it is not rediscovered as
+a surprise.)
+
+### What the card may claim, and the one-release window that is now part of that claim
+
+Decision 3 above survives this reversal **unchanged** — *the affordance may not be read as "the plugin's
+current version"*, and what it truthfully names is *the plugin release this build was deployed against* —
+and that is precisely why the following precision belongs in the record and not only in a code comment.
+
+With no `ref:`, `actions/checkout` takes the default branch, and that tip is a **released** tag rather
+than a mid-development tree: every merge to `tedeuxx/tadeumendonca-skills`'s `main` runs
+`bump-my-version bump patch` with `commit = true` and `tag = true`, so `VERSION` and `vX.Y.Z` land in the
+same commit (`version-main.yml`, whose `bump:` loop guard then skips that commit). **The exception is the
+window between a merge landing there and the bump commit being pushed** — roughly a minute — in which the
+tip still carries the previous release's `VERSION`.
+
+**The card is not wrong in that window.** It names a real, published release with real notes, one behind,
+and the next deploy catches up. What is wrong is the *sentence* "always the latest", and that is the
+reason this is recorded here rather than left in `deploy.yml`'s comment alone: **claim strength is what
+this record decides.** *"The plugin release this build was deployed against"* is exact through the
+window; *latest* is not, and *latest* is a word somebody could reasonably reach for on the card or in its
+accessible name at any point. Decision 3's existing prohibition — that the accessible name may not say
+*latest* or *this version of the project*, and that `portfolio.viewReleaseTag`'s copy must not be reused —
+therefore stands for a **second, independent reason**, and a reader of this record no longer has to open
+a workflow file to learn it. The mechanism's operating detail stays in that comment block, which is
+thorough; the constraint on what may be asserted lives here.
+
+### Considered options
+
+1. **Remove the `ref:`, and leave the committed floor wherever the last `gen-harness` run put it**
+   (chosen). One checkout tracking the default branch, one `pluginDir` serving both generated artifacts,
+   and the two levels of `version.ts` deliberately **not** in agreement. *Trade-off:* the property the
+   pin bought is genuinely gone — the card names whatever release was current at deploy time, including
+   one cut for a reason a reader can read nothing into. That is the cost the owner accepted, now at its
+   true size per the correction above.
+2. **Move the pin to `v1.1.14`** — the smaller edit, and one of the two routes the gate prescribed.
+   Rejected: it repairs the disagreement on the implementing branch and leaves the design conflict
+   standing, so the next component added to the plugin reddens `harness-drift` and forces the same choice
+   again with nothing learned. It also re-buys the milestone property the owner had just declined.
+3. **Keep the pin and split the generator** — a second resolved `pluginDir` (or a second checkout) so
+   `harness.json` tracks `main` while `plugin-release.json` reads the pinned tag. Rejected: it is two
+   pipelines to remember where there is one, against the 2026-08-04 amendment's Decision 1, which chose
+   *the same run, from the same resolved `pluginDir`* deliberately and said so in the generator's own
+   comment. Paying that complexity to preserve a property the owner had just reversed is the worst of the
+   three.
+
+### Consequences
+
+**Good**
+- **One source for both generated artifacts.** The class of failure that produced this slice — one
+  `gen-harness` run silently satisfying one target and breaking the other — cannot occur while both read
+  the same unpinned tree.
+- **The 2026-08-04 amendment's "collapses the gap to the moment of the deploy" property is restored**,
+  which is what that amendment argued for in the first place and what the pin traded away.
+- **A standing manual step is removed.** Re-pinning was a deliberate two-file edit by design; it was
+  exercised once (the 2026-08-16 amendment) and was found wanting two days later, which is evidence about
+  the design rather than about that particular move.
+- The floor's guard is unchanged and still correct in the only direction that can hurt a reader:
+  `check-harness-drift` errors when the committed floor is **ahead** of the plugin — a tag that does not
+  exist, a card that 404s — and is silent when it is behind.
+
+**Bad / accepted costs**
+- **The card can now move for a reason no reader can interpret**, which is exactly what the pin existed
+  to prevent. Bounded by this repo's deploy cadence, per the correction above, but not eliminated.
+- **The two levels no longer agree by construction, and nothing detects that the floor is old.** That
+  silence is Decision 2b's, unchanged and still deliberate: what a fork or a PR build renders is a real,
+  older tag.
+- **Nothing in a PR gate proves the deploy-time resolution.** `actionlint` proves the workflow parses and
+  the unit suite proves `resolvePluginVersion`; **neither executes the checkout**. The first in-band proof
+  is the deploy's own `::notice::` line naming which source won — post-merge. This is the same residual
+  the 2026-08-16 amendment named for the pinned form; removing the pin does not remove it.
+- **The one-release window** above is a real, if small, imprecision in what the card names, and it is
+  permanent rather than a transitional cost.
+
+**Neutral**
+- `iac/` untouched. The manifest, its schema, `KIND_ORDER`, the closed `enforcement` set, the three-way
+  drift comparison and the published inventory are all unaffected — this changes which tag **level 1**
+  reads and nothing else.
+- `version.ts`'s resolution mechanism is unmodified, as it was under the pin.
+
+### The sentences above that are struck rather than edited, and where they are re-pointed
+
+- **The 2026-08-14 amendment's `Decides` clause** — the `ref: v1.0.0` and the floor regenerated to match.
+  Struck in place with a pointer here. **Only the decision is struck; the reasoning that follows it is
+  not**, because that reasoning is the record of why anyone pinned, and a reader who took a design
+  decision from it needs to find it rather than find it gone.
+- **The 2026-08-16 amendment's `Decides` clause** — `ref: v1.1.0`, and the floor *"now reads
+  `{"version": "1.1.0"}"`*. Both halves are false at this head: there is no `ref:`, and the floor reads
+  `1.1.14`. Struck with a pointer here; the rest of that amendment — why the pin moved, and what it
+  verified about `v1.1.0` — stands as the record of the one time the two-file edit was exercised.
+
+Struck rather than rewritten for the same reason the implementing commit struck rather than deleted the
+corresponding comment blocks in `.github/workflows/deploy.yml` and `apps/fed/src/lib/version.ts`: someone
+read them and took a design decision from them.
+
+### What this does not decide
+
+- **Whether the pin ever comes back.** A future owner call, recorded the same way — an amendment here, or
+  a fresh record if the shape of the decision changes. Nothing about the mechanism prevents it; the
+  design conflict named above is the thing that would have to be answered first.
+- **Whether anything should ever detect that the committed floor is old.** Unchanged and still open, in
+  the same spirit as Decision 2b and this record's own option 4: a scheduled tokenless run is the cheap
+  upgrade if it ever bites, not a default.
+- **The `/portfolio` card's copy.** That call routes to `product-lead` per the 2026-08-04 amendment's
+  Decision 3, as re-pointed by the 2026-08-04 roster amendment. What changed as an input to it: the
+  window is now roughly a minute, rather than *"until somebody moves the pin by hand"*.
+
 
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
