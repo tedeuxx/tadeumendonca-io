@@ -665,6 +665,12 @@ jobs:
       # always a published release with notes behind it. This restores the "collapses the gap to the
       # moment of the deploy" property the 2026-08-04 amendment described.
       #
+      # PRECISELY: "freshest" is the freshest tag THAT EXISTS WHEN THIS STEP RUNS, which is off by one
+      # release for the ~minute between a merge landing on that repo's `main` and its `version-main.yml`
+      # pushing the bump commit. The card is never wrong in that window — it names the PREVIOUS real
+      # release, with real notes — it is simply one behind, and the next deploy catches up. Said out loud
+      # rather than rounded off to "always the latest", because this file's comments are read as claims.
+      #
       # IT ALSO RESOLVES A DESIGN CONFLICT THE PIN CREATED — the reason to un-pin rather than to move the
       # pin to a newer tag. `gen-harness` writes BOTH generated artifacts (harness.json and
       # plugin-release.json) from ONE resolved pluginDir; meanwhile app.yml's harness-drift job checks
