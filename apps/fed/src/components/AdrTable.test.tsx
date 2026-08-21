@@ -12,7 +12,13 @@ describe('AdrTable', () => {
     // Against the artifact's own length rather than a literal. A hardcoded 41 would go red every time an
     // ADR is written — a check that fails on correct behaviour gets deleted, and then nothing counts rows.
     expect(container.querySelectorAll('tbody tr')).toHaveLength(records.length);
-    expect(records.length).toBeGreaterThan(30);
+
+    // RE-KEYED from `> 30` (#456). The equality above is the real assertion; this line exists only so
+    // that `0 === 0` cannot pass for it. `> 30` said the same thing in the vocabulary of a 48-record
+    // library, and #456 folds that library toward roughly six — at which point the floor reddens on a
+    // correct library and the anti-vacuity guard is deleted along with the stale number. Non-empty is
+    // the property; 30 was never anything but today's population wearing it.
+    expect(records.length).toBeGreaterThan(0);
   });
 
   it('links the TITLE to the record on GitHub, opened safely', () => {
@@ -101,6 +107,18 @@ describe('AdrTable', () => {
 
     const inLibrary = records.filter((r) => r.status === 'superseded').length;
     expect(superseded).toHaveLength(inLibrary);
-    expect(inLibrary).toBeGreaterThan(5);
+
+    // RE-KEYED from `inLibrary > 5` (#456), and the re-key CHANGES WHAT IS GUARDED rather than just
+    // lowering a number. `> 5` was doing two jobs at once: stopping `0 === 0` from passing for the
+    // equality above, and asserting a population of superseded records. Only the first is a property
+    // of this component — the second is a fact about the library, and #456's deactivation rule drives
+    // it to zero, at which point even `> 0` reddens on a library that is entirely correct.
+    //
+    // So the vacuity guard is moved onto the thing that can actually be vacuous: whether the table
+    // rendered the library at all. If it did, and no row says "superseded", then zero is the right
+    // answer and this assertion is telling the truth. If it rendered nothing, this catches it — which
+    // is the failure `> 5` was really there for.
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(records.length);
+    expect(records.length).toBeGreaterThan(0);
   });
 });

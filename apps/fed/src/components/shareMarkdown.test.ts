@@ -86,14 +86,20 @@ describe('the copied markdown payload', () => {
   });
 
   it('leaves external, protocol-relative, mailto and anchor targets exactly as authored', () => {
+    // A REAL record, not the plausible-looking `0002-x.md` this fixture used to name. The assertion
+    // never opens the target, so the stand-in was harmless here and rotten everywhere else: the
+    // citation gate added in #456 scans every tracked file, and a filename shaped like a record but
+    // belonging to none is indistinguishable from a citation that broke. Found on its first run.
+    const adrUrl =
+      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md';
     const body = [
-      '[ADR](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-x.md)',
+      `[ADR](${adrUrl})`,
       '[CDN](//cdn.example.com/x.png)',
       '[Mail](mailto:someone@example.com)',
       '[Section](#uma-secao)',
     ].join('\n\n');
     const out = build(body);
-    expect(out).toContain('[ADR](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-x.md)');
+    expect(out).toContain(`[ADR](${adrUrl})`);
     expect(out).toContain('[CDN](//cdn.example.com/x.png)');
     expect(out).toContain('[Mail](mailto:someone@example.com)');
     expect(out).toContain('[Section](#uma-secao)');

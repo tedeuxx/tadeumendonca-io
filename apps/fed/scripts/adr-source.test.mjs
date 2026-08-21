@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import {
   collectRecords,
@@ -35,8 +35,27 @@ describe('adr index — the artifact tracks the library', () => {
   // ever stops matching — a moved directory, a renamed convention — every diff comes back clean and the
   // suite goes green while asserting nothing at all. This is the same vacuous-pass shape this repo has
   // now been bitten by more than once, so the non-empty case is asserted rather than assumed.
-  it('is asserting against a non-empty library', () => {
-    expect(records.length).toBeGreaterThan(30);
+  //
+  // RE-KEYED from `records.length > 30` (#456). The property was right and the ruler was a fact about
+  // a 48-record library: #456 folds that library toward roughly six capability documents, at which
+  // point a floor of 30 goes red on a CORRECT library, and a check that fails on correct behaviour is
+  // a check someone deletes — taking the anti-vacuity guard with it.
+  //
+  // So the floor is derived from the directory instead of restated as a number. `readdirSync` here,
+  // NOT `recordFiles`: re-using the parser's own enumerator would make this assert that the parser
+  // agrees with itself, which is what an empty parser also does. A different expression over the same
+  // directory is what makes it a check.
+  it('is asserting against a non-empty library, counted independently of the parser', () => {
+    // "a numbered markdown file", which is a weaker predicate than `recordFiles`'s
+    // `^(\d{4})-[a-z0-9-]+\.md$` on purpose, in both directions. Weaker so that a prose document
+    // added to this directory — `README.md` today, a capability table tomorrow — does not make this
+    // go red for a reason that has nothing to do with the parser. Still strict enough that a record
+    // renamed OUT of the convention (`0009-Self-Hosted.md`) is counted here and skipped there, which
+    // is a real inconsistency in the library and exactly what a second opinion is for.
+    const onDisk = readdirSync(adrDir).filter((f) => /^\d/.test(f) && f.endsWith('.md'));
+
+    expect(onDisk.length).toBeGreaterThan(0);
+    expect(records.length).toBe(onDisk.length);
     expect(artifact.length).toBe(records.length);
   });
 });
@@ -48,7 +67,13 @@ describe('parseStatus', () => {
       statusLineAmended: false,
     });
     expect(
-      parseStatus('- **Status:** superseded by [ADR-0004](./0004-build-time-render.md) (2026-07)'),
+      // The filename is a REAL record, not a plausible-looking stand-in. It used to read
+      // `./0004-build-time-render.md`, which no file has ever been called — harmless to this
+      // assertion (it parses the status class and never opens the target) and exactly the kind of
+      // rot the citation gate added in #456 exists to catch. It found this one on its first run.
+      parseStatus(
+        '- **Status:** superseded by [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (2026-07)',
+      ),
     ).toEqual({ status: 'superseded', statusLineAmended: false });
   });
 
@@ -146,7 +171,32 @@ describe('hasAmendment', () => {
     expect(hasAmendment('# 0001. X\n\nThis decision could be amended later.\n', false)).toBe(false);
   });
 
+  // RE-KEYED from `records.filter(r => r.amended).length > 10` (#456), and this one was the worst of
+  // the three: 19 records carry the flag today, and #456 folds the library toward roughly six
+  // documents — so the floor does not merely go stale, it becomes IMPOSSIBLE TO SATISFY. A gate that
+  // cannot be made green by any correct library is a gate that gets deleted or commented out, and the
+  // property it was protecting (that `hasAmendment` is exercised by real records, not only by the
+  // fixtures three describes above) goes with it.
+  //
+  // The property re-stated as a criterion: every record whose body carries an amendment HEADING must
+  // come back flagged. Counted by a line scan rather than by `hasAmendment`'s own regex, so this is a
+  // second opinion instead of the parser agreeing with itself.
+  //
+  // One-directional on purpose. `hasAmendment` may legitimately flag MORE than this finds — a record
+  // whose amendment is announced only on its Status line carries no heading — so "flagged ⊇ headed"
+  // is the true relation, and asserting equality would go red on correct behaviour.
   it('matches the real library rather than a fixture', () => {
-    expect(records.filter((r) => r.amended).length).toBeGreaterThan(10);
+    const carriesHeading = records.filter((r) =>
+      readFileSync(join(adrDir, r.file), 'utf8')
+        .split('\n')
+        .some((line) => line.startsWith('#') && line.includes('Amendment')),
+    );
+
+    for (const r of carriesHeading) expect(r.amended, `${r.file} carries an amendment heading`).toBe(true);
+
+    // Anti-vacuity, and it is the whole reason a floor was here at all: the loop above must have had
+    // something to check. An empty `records` makes it iterate zero times and pass in silence — which
+    // is exactly what `> 10` was stopping, keyed to a population this repo is about to change.
+    expect(carriesHeading.length).toBeGreaterThan(0);
   });
 });
