@@ -119,6 +119,10 @@ describe('enforcementFor — a closed set that refuses what it does not know', (
     // refuse. Collapsing the four into one class would publish the stronger claim about two scripts that
     // cannot make it.
     expect(enforcementFor('hook', 'SessionStart')).toBe('documents');
+    // `Stop` is the row where the event's capability and the script's behaviour diverge: Claude Code
+    // lets a Stop hook block the turn, and `zombie-loop-detect.sh` deliberately does not (no `decision`
+    // field, no `exit 2`, `additionalContext` only). The class follows the script, so `documents`.
+    expect(enforcementFor('hook', 'Stop')).toBe('documents');
     expect(enforcementFor('command-family')).toBe('documents');
     expect(enforcementFor('command')).toBe('documents');
     // The skill library documents in the strict sense this map means: it removes a re-decision. It
@@ -131,7 +135,29 @@ describe('enforcementFor — a closed set that refuses what it does not know', (
     // manifest carries the library, not each skill, so a row that classed one skill would mean somebody
     // changed the granularity without changing the argument for it.
     expect(() => enforcementFor('skill')).toThrow(/unrecognised harness component shape/);
-    expect(() => enforcementFor('hook', 'Stop')).toThrow(/unrecognised harness component shape: "hook:Stop"/);
+    // `Stop` stood here until the plugin shipped one (#294) and it moved to the known set above. The
+    // assertion is kept with an event the harness does not ship — a REAL Claude Code event, so it stays
+    // a meaningful probe of "a new event announces itself" rather than a nonsense-string check.
+    expect(() => enforcementFor('hook', 'PreCompact')).toThrow(
+      /unrecognised harness component shape: "hook:PreCompact"/,
+    );
+  });
+
+  // The throw is kept rather than softened to a default (see the module's own argument), so the message
+  // is the whole mitigation for a red an unrelated author will be the one to see. These assert it
+  // carries what that author needs: where to edit, and how to pick the class.
+  it('names the fix in the message rather than only the defect', () => {
+    let message = '';
+    try {
+      enforcementFor('hook', 'PreCompact');
+    } catch (err) {
+      message = err.message;
+    }
+    expect(message).toContain('ENFORCEMENT_BY_SHAPE');
+    expect(message).toContain('apps/fed/scripts/harness-source.mjs');
+    expect(message).toContain('gen-harness');
+    // The three classes, so the reader does not have to find the map to learn the closed set.
+    for (const cls of ['denies', 'advises', 'documents']) expect(message).toContain(cls);
   });
 
   // The generator's guard cannot protect a COMMITTED file. A hand-edit or a bad merge can put anything
@@ -244,7 +270,10 @@ describe('reading a plugin tree', () => {
   });
 
   it('throws rather than inventing a class for an event it does not know', () => {
-    expect(() => collectHooks(fixture('plugin-renamed'))).toThrow(/hook:Stop/);
+    // The fixture's unknown event was `Stop` until the plugin shipped one (#294) and the map learned it;
+    // it is `PreCompact` now, for the reason the fixture's script name (`unknown-event.sh`) states — the
+    // event has to be one this harness does NOT register, or the test asserts nothing.
+    expect(() => collectHooks(fixture('plugin-renamed'))).toThrow(/hook:PreCompact/);
   });
 
   it('counts each family and keeps the un-namespaced command as its own kind', () => {
