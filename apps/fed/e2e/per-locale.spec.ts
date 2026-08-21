@@ -370,6 +370,23 @@ test.describe('per-locale article slugs', () => {
     await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
   });
 
+  // The withdrawn article (#published 2026-08-14, taken down 2026-08-21) — both editions. The sitemap
+  // guard below proves the URLs are no longer ADVERTISED; this proves they no longer SERVE the piece,
+  // which is the half a reader with the link in their history actually experiences. Kept as a live
+  // assertion rather than deleted with the content: the article is held on
+  // `content/hold-engineer-the-loop` for a deliberate re-publication, and until that happens "this URL
+  // shows the not-found, not the article" is a behaviour worth pinning.
+  for (const [locale, path, otherTitle] of [
+    ['pt', '/pt/blog/por-que-eu-projeto-o-loop', /Por Que Eu Projeto o Loop/],
+    ['en', '/en/blog/why-i-engineer-the-loop', /Why I Engineer the Loop/],
+  ] as const) {
+    test(`the withdrawn article ${path} is an in-app not-found (${locale})`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1, name: otherTitle })).toHaveCount(0);
+      await expect(page.getByText(/não existe ou não está publicado|does not exist or is not published/i)).toBeVisible();
+    });
+  }
+
   // #204 — the UNPREFIXED article URL must reach the article in BOTH locales. It is the "clean" form a
   // human types or shares, and it is what was advertised as x-default until #200. Because the redirect
   // re-prefixed the path verbatim while slugs are per-locale, a pt-BR reader following the English slug
@@ -558,11 +575,16 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // added is the guard working; it is updated in the same commit as the route.
   const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
   // Every article carries a PER-LOCALE slug (ADR-0037), so each one's two <loc>s do NOT share a path.
-  // This list grows by one entry per article — the same "arithmetic going red" guard as SHARED above.
-  const ARTICLES = [
-    { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
-    { pt: `${SITE}/pt/blog/por-que-eu-projeto-o-loop`, en: `${SITE}/en/blog/why-i-engineer-the-loop` },
-  ];
+  // This list moves by one entry per article — the same "arithmetic going red" guard as SHARED above.
+  // It moves in BOTH directions: an article withdrawn from `src/content/blog/` leaves this list in the
+  // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
+  const ARTICLES = [{ pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` }];
+  // Articles that were live and were taken down. Asserted absent, not merely dropped from ARTICLES:
+  // deleting the entry alone would leave the count green if the prerender ever kept serving the route,
+  // and a URL that stays advertised after a takedown is what keeps a crawler coming back to it.
+  // `why-i-engineer-the-loop` / `por-que-eu-projeto-o-loop` — published 2026-08-14, withdrawn 2026-08-21;
+  // the content is held on `content/hold-engineer-the-loop` for a deliberate re-publication.
+  const WITHDRAWN = [`${SITE}/pt/blog/por-que-eu-projeto-o-loop`, `${SITE}/en/blog/why-i-engineer-the-loop`];
   const LOGICAL_COUNT = SHARED.length + ARTICLES.length;
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
@@ -582,6 +604,8 @@ test.describe('sitemap advertises every per-locale URL', () => {
     }
     // The old shared-slug EN URL is NEVER advertised (it is a not-found now).
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
+    // Neither is any withdrawn article, in either locale.
+    for (const url of WITHDRAWN) expect(body).not.toContain(`<loc>${url}</loc>`);
     // The x-default homepage entry.
     expect(body).toContain(`<loc>${SITE}/</loc>`);
 
