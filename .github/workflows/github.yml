@@ -47,7 +47,7 @@ jobs:
       # nothing validated it before. What this gate can honestly claim about it is narrow — see the
       # parse check below, and the notice, which does not overstate it.
       - name: Detect .github changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: changes
         with:
           filters: |
