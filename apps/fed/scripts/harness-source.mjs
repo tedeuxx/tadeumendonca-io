@@ -128,19 +128,28 @@ const ENFORCEMENT_BY_SHAPE = {
   // `SessionStart` above, not `PreToolUse` — read both scripts in full before assuming otherwise. Start
   // is a near-no-op (a dependency probe that posts nothing); Stop posts a structured metrics comment to
   // the dispatch's Issue, but it never inspects, blocks, or denies a tool call, and every exit path in
-  // both scripts is `exit 0`. Neither hook has a tool call in front of it to refuse — a subagent's start
-  // or stop is not a gated act the way a `Bash` invocation is — so `denies` would assert a mechanism
-  // neither script has. They report/log; that is `documents`.
+  // both scripts is `exit 0`. The two rows are `documents` for DIFFERENT reasons, corrected 2026-08-21:
+  // `SubagentStart` is listed "Can Block: No" upstream — it cannot prevent a dispatch, so `denies` would
+  // assert a mechanism the event does not have. `SubagentStop` CAN block ("prevents the subagent from
+  // stopping", `exit 2`), so its class is a claim about `dispatch-metrics-stop.sh` alone — which never
+  // emits a `decision` field and exits 0 on every path, including the early give-ups. Both report/log;
+  // that is `documents`. See the `Stop` row below for the same distinction, and do not merge the two
+  // reasons back into one sentence.
   'hook:SubagentStart': 'documents',
   'hook:SubagentStop': 'documents',
   // `Stop` (#294, `-skills` zombie-loop-detect.sh) — classed on WHAT THE SCRIPT DOES, not on the
   // event's name, and the two answers differ here, which is why this comment is longer than the row.
   //
-  // By name it reads like a sibling of `SubagentStop` above; by CAPABILITY it is the one hook event in
-  // this manifest that COULD have been `denies`. Claude Code lets a `Stop` hook refuse the turn's end
-  // (a `decision: "block"` field, or `exit 2`), which is a real refusal of a real act — so `documents`
-  // here is a claim about this script rather than about the event class, and it has to be re-read, not
-  // assumed, if the plugin ever ships a second `Stop` hook.
+  // CORRECTED 2026-08-21. This comment used to read "it is the one hook event in this manifest that
+  // COULD have been `denies`", and the site's `/architecture` page relayed that exclusivity in both
+  // locales. It is FALSE. Claude Code's "What Each Hook Can Block" table lists `Stop` (Yes — prevents
+  // Claude from stopping) AND `SubagentStop` (Yes — prevents the subagent from stopping), same
+  // mechanism, `exit 2`. `SubagentStart` is listed as "Can Block: No"; `SessionStart` is not listed at
+  // all. So TWO rows above sit in `documents` by the SCRIPT's choice — this one and `SubagentStop`
+  // (`dispatch-metrics-stop.sh`, every exit path `exit 0`, no `decision` field) — while the
+  // `SessionStart`/`SubagentStart` rows sit there by the EVENT's limit. Do not restore the exclusive
+  // framing; if a second `Stop` or `SubagentStop` hook ever ships, re-read its script rather than
+  // inheriting either row's class.
   //
   // What the script actually is: a DETECTOR. It reads loop state (the ADR-0006 `gatekeeper-verdict`
   // marker comment against the PR's current head) and, when a verdict is outstanding, emits
