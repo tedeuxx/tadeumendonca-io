@@ -632,26 +632,61 @@ jobs:
       #    through to the committed floor (src/content/generated/plugin-release.json), which holds a real,
       #    older tag. The resolve step then says out loud which source won.
       #
-      # `ref: v1.1.0` below is a DELIBERATE PIN, not the "always resolves freshest" checkout the
+      # ~~`ref: v1.1.0` below is a DELIBERATE PIN, not the "always resolves freshest" checkout the
       # 2026-08-04 amendment above originally described. See ADR-0043's 2026-08-14 amendment for the
       # reversal and why: the owner wants the card naming a specific reconciled milestone of
       # tadeumendonca-skills rather than whatever PATCH its auto-bumper last touched. Un-pinning or
       # moving the pin is a deliberate two-file edit (this `ref:` plus a `gen-harness` regeneration
-      # against a checkout of the new tag), not something that resolves itself on the next deploy.
+      # against a checkout of the new tag), not something that resolves itself on the next deploy.~~
       #
-      # THE PIN MOVED FROM `v1.0.0` TO `v1.1.0` BEFORE THIS EVER DEPLOYED (2026-08-16). The owner cut
+      # ~~THE PIN MOVED FROM `v1.0.0` TO `v1.1.0` BEFORE THIS EVER DEPLOYED (2026-08-16). The owner cut
       # `v1.1.0` as the launch milestone of tadeumendonca-skills; `v1.0.0` was two releases behind by
       # the time this branch was ready to merge, so shipping it would have announced a stale version on
       # /portfolio in the same week three surfaces point at the site. This is the two-file edit the
       # paragraph above describes, exercised once: `ref:` here, and the regenerated floor in
-      # src/content/generated/plugin-release.json.
+      # src/content/generated/plugin-release.json.~~
+      #
+      # STRUCK 2026-08-21 — THE PIN IS REMOVED, and the two paragraphs above are kept struck rather than
+      # deleted because someone read them and took a design decision from them. The owner reversed the
+      # 2026-08-14 amendment on sight: "deveria ser atualizado automaticamente a cada deploy" — the card
+      # should update automatically on every deploy. AN ADR-0043 AMENDMENT RECORDING THIS REVERSAL IS
+      # OWED; it is `tech-lead`'s to write, not this comment's, and this comment is not it.
+      #
+      # THE CORRECTION THAT MADE THE CHOICE SMALLER THAN IT SOUNDED, and it is what the 2026-08-14
+      # amendment overstated: this step runs ONLY WHEN THIS SITE DEPLOYS, never on a tadeumendonca-skills
+      # merge. So the churn the pin protected the card from was always bounded by THIS repo's deploy
+      # cadence, not by the plugin's auto-bumper — which is what made fourteen patches look like fourteen
+      # unwanted card changes when it could only ever have been as many as there were deploys. The
+      # concern was real; its size was not.
+      #
+      # WITH NO `ref:`, actions/checkout takes tadeumendonca-skills' DEFAULT BRANCH, and that resolves the
+      # freshest RELEASED tag rather than a mid-development tree: every merge to that repo's `main` bumps
+      # VERSION and cuts `vX.Y.Z` in the same commit (its `version-main.yml`), so the tip's VERSION is
+      # always a published release with notes behind it. This restores the "collapses the gap to the
+      # moment of the deploy" property the 2026-08-04 amendment described.
+      #
+      # IT ALSO RESOLVES A DESIGN CONFLICT THE PIN CREATED — the reason to un-pin rather than to move the
+      # pin to a newer tag. `gen-harness` writes BOTH generated artifacts (harness.json and
+      # plugin-release.json) from ONE resolved pluginDir; meanwhile app.yml's harness-drift job checks
+      # tadeumendonca-skills out with NO `ref:`, so `harness.json` MUST track `main` or that check
+      # reddens. Under the pin, one generator run could not serve both targets: regenerate against the
+      # pinned tag and harness-drift goes red, regenerate against `main` and the committed floor silently
+      # moves past the pin — which is exactly what happened on this branch. There is now ONE source for
+      # both artifacts, which is why the next reader finds one and not two.
+      #
+      # WHAT DID NOT CHANGE: the floor, and the availability path. `continue-on-error` above stands for
+      # the same reason it always did — another repository's availability must not stop this site from
+      # shipping — a failed checkout still falls through to the committed
+      # src/content/generated/plugin-release.json, which still holds a real, older tag, and the resolve
+      # step below still says out loud which source won. Un-pinning changes WHICH tag level 1 reads and
+      # nothing about level 2.
       - name: Check out the plugin (tokenless, read-only, deleted below)
         id: plugin-checkout
         continue-on-error: true
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: tedeuxx/tadeumendonca-skills
-          ref: v1.1.0
+          # No `ref:` — the default branch, i.e. the freshest released tag. See the block above.
           path: .plugin-version
           persist-credentials: false
 
