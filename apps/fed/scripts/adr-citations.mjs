@@ -23,7 +23,7 @@
 // `selfCitations()` below is the seam it hangs on — already computed, already reported, not yet
 // promoted to a failure.
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { accessSync, constants, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { recordFiles } from './adr-source.mjs';
 
@@ -170,6 +170,65 @@ export const SELF_EXCLUDED = [
 const BINARY_RE = /\.(?:png|jpe?g|gif|ico|webp|avif|woff2?|ttf|otf|eot|pdf|mp4|webm|zip)$/i;
 
 /**
+ * Where `git` may live, as absolute literals — the whole list, and nothing outside it.
+ *
+ * Ordered by how likely each is to be the RIGHT git rather than merely a git: `/usr/bin/git` is the
+ * ubuntu runner's and macOS's Command Line Tools shim, and it is the one CI actually uses.
+ */
+export const GIT_CANDIDATES = [
+  '/usr/bin/git', // ubuntu CI runners; macOS Command Line Tools shim
+  '/opt/homebrew/bin/git', // Homebrew on Apple Silicon — the developer machine
+  '/usr/local/bin/git', // Homebrew on Intel macOS, and hand-built installs
+  '/bin/git', // minimal container images that merge /bin and /usr/bin the other way
+  'C:\\Program Files\\Git\\cmd\\git.exe', // Git for Windows, default install
+];
+
+/**
+ * `git`, as an absolute path — never resolved through `PATH` (`javascript:S4036`).
+ *
+ * WHY NOT A SINGLE HARDCODED PATH. `/usr/bin/git` is right on the ubuntu runner and wrong on the
+ * machine this script is actually developed on, where Homebrew puts it in `/opt/homebrew/bin`. A
+ * one-path fix would have satisfied the rule by breaking the local run, which is the shape of fix
+ * this repo rejects: a control that reads stronger and works worse.
+ *
+ * WHY NOT `which git`. It is the same defect one level down — `which` is itself resolved through
+ * `PATH`, and it then ANSWERS with whatever `PATH` says. It would have moved the vulnerability, not
+ * closed it, and Sonar would have been right to keep flagging it.
+ *
+ * WHY NOT AN ENV-VAR OVERRIDE (`GIT_BIN`) WITH A SAFE DEFAULT. An environment variable is exactly
+ * the attacker-controlled channel `PATH` already was; accepting one would reintroduce the vector
+ * under a new name, and — concretely, in this repo — would hand Sonar's taint engine a
+ * process-environment source flowing into a subprocess, which is the `jssecurity:S8689` shape that
+ * `harness-source.mjs` and `check-harness-drift.mjs` already had to argue with twice.
+ *
+ * WHAT IT COSTS, stated rather than assumed away: a `git` installed somewhere not on this list — a
+ * pyenv-style shim dir, a nix profile, an unusual CI image — now FAILS instead of being found. That
+ * is deliberate. The failure is loud, names every path it tried, and is fixed by adding a line here
+ * (in review, in git) rather than by whatever happened to be first on `PATH`. There is no fallback
+ * to `PATH` on the miss path, because a fallback would mean the resolution never actually gated
+ * anything and only Sonar's opinion had changed.
+ *
+ * Not cached: this runs once per audit over at most five `access` calls, and a module-level cache
+ * would leak one test's candidate list into the next.
+ */
+export function gitBinary(candidates = GIT_CANDIDATES) {
+  for (const candidate of candidates) {
+    try {
+      accessSync(candidate, constants.X_OK);
+      return candidate;
+    } catch {
+      // not this one — keep looking
+    }
+  }
+  throw new Error(
+    `adr-citations: no executable git found at any known absolute path. Tried: ${candidates.join(
+      ', ',
+    )}. Add the correct absolute path to GIT_CANDIDATES in ${basename(import.meta.filename)} — this ` +
+      'gate deliberately does not fall back to PATH resolution.',
+  );
+}
+
+/**
  * The files to scan, from `git ls-files` rather than a directory walk.
  *
  * The walk was the first version and it was wrong: `node_modules/`, `dist/` and `coverage/` all exist
@@ -177,9 +236,11 @@ const BINARY_RE = /\.(?:png|jpe?g|gif|ico|webp|avif|woff2?|ttf|otf|eot|pdf|mp4|w
  * maintained against every future build output, and the day it misses one the gate starts reporting
  * citations nobody wrote. `git ls-files` IS the definition of "this repository's own files", it needs
  * no maintenance, and it is identical in CI and locally.
+ *
+ * The `git` it runs is resolved by `gitBinary()` above — an absolute path, never `PATH`.
  */
 export function trackedTextFiles(repoRoot) {
-  const out = execFileSync('git', ['-C', repoRoot, 'ls-files', '-z'], {
+  const out = execFileSync(gitBinary(), ['-C', repoRoot, 'ls-files', '-z'], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   });

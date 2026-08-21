@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import {
+  GIT_CANDIDATES,
   SELF_EXCLUDED,
   auditFiles,
   auditRepo,
   describeCitation,
+  gitBinary,
   libraryIndex,
   quotedRanges,
   resolves,
@@ -21,6 +23,39 @@ const adrDir = join(repoRoot, 'docs', 'adr');
 // One audit for the whole file — it reads every tracked text file in the repo, and doing that once
 // per assertion would make this suite the slowest thing in `npm test` for no extra proof.
 const audit = auditRepo(repoRoot, adrDir);
+
+// `javascript:S4036` — the gate must not find its own `git` through `PATH`. These assertions are
+// written against the property the rule protects (the command carries a path, and an unresolvable
+// git STOPS the run) rather than against the specific path any one machine happens to have, because
+// the path differs between the ubuntu runner (`/usr/bin/git`) and the developer's Homebrew macOS
+// (`/opt/homebrew/bin/git`) and a test pinned to either would be red on the other.
+describe('gitBinary', () => {
+  it('returns one of the declared absolute paths, never a bare command name', () => {
+    const git = gitBinary();
+    expect(GIT_CANDIDATES).toContain(git);
+    // The property `PATH` resolution lacks, and the one a silent fallback would lose: a separator.
+    expect(/[/\\]/.test(git)).toBe(true);
+    expect(git).not.toBe('git');
+  });
+
+  it('skips a candidate that is not executable and takes the next one that is', () => {
+    const real = gitBinary();
+    expect(gitBinary(['/nonexistent/definitely-not-here/git', real])).toBe(real);
+  });
+
+  // THE MUTATION THIS FIX HANGS ON. If resolution ever falls back to `PATH` on a miss, the fix has
+  // changed nothing except Sonar's opinion — so the miss path is asserted to THROW, and to name what
+  // it tried, rather than to return anything at all.
+  it('throws, naming every path it tried, when no candidate resolves', () => {
+    expect(() => gitBinary(['/nonexistent/a/git', '/nonexistent/b/git'])).toThrow(
+      /no executable git found.*\/nonexistent\/a\/git.*\/nonexistent\/b\/git/s,
+    );
+  });
+
+  it('throws on an empty candidate list rather than silently resolving through PATH', () => {
+    expect(() => gitBinary([])).toThrow(/no executable git found/);
+  });
+});
 
 describe('adr citations — the gate', () => {
   // THE ASSERTION THIS FILE EXISTS FOR (#456). Before it, nothing in this repo tokenized a citation
@@ -60,12 +95,19 @@ describe('adr citations — the gate', () => {
   // dangling citation could hide. Asserted as exact contents so a new entry has to be looked at by a
   // person, rather than absorbed by a count that keeps passing.
   it('names every citation it excused, rather than discarding it', () => {
-    expect(audit.crossRepo.map(describeCitation)).toEqual([]);
-    expect(audit.quoted.map(describeCitation)).toEqual([]);
-    expect(audit.struck.map(describeCitation)).toEqual([
+    // WITHOUT THE LINE NUMBER, deliberately, and this was earned rather than reasoned: the pin read
+    // `…:1287` and went red on a plain rebase onto `main`, because an unrelated slice edited that
+    // record above the cited line and moved it to 1454. The line is real output, but it is not what
+    // this assertion is about — the claim is WHICH citation is excused and from where, and pinning
+    // the line makes an edit anywhere earlier in a 1,400-line record fail a gate about something
+    // else. Still exact CONTENTS, so a genuinely new excuse still has to be looked at by a person.
+    const excused = (list) => list.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '));
+    expect(excused(audit.crossRepo)).toEqual([]);
+    expect(excused(audit.quoted)).toEqual([]);
+    expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own
       // struck text says the target "was never written". Not a defect; not silently ignored either.
-      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md:1287 cites 0044-committed-permission-floor-local-overlay-ephemeral.md',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites 0044-committed-permission-floor-local-overlay-ephemeral.md',
     ]);
   });
 
