@@ -28,7 +28,12 @@ export function AdrTable() {
 
   return (
     // Scrolls INSIDE its own box. The page body must never scroll sideways — the 320px sweep asserts
-    // that, and a 41-row table with a long title column is the first thing that would break it.
+    // that, and a table this wide — one row per record, with a long title column — is the first thing
+    // that would break it.
+    //
+    // The row count is deliberately NOT named here. It read "a 41-row table" while the library held
+    // 48, and #456 is about to move that number again; a count in a comment has nothing keeping it
+    // true, which is the same defect the page's own copy avoids by refusing to print one.
     <div className="my-8 overflow-x-auto border border-border">
       <table className="w-full border-collapse text-left text-sm">
         <caption className="border-b border-border p-3 text-left font-mono text-xs uppercase tracking-wider text-muted-foreground">
@@ -52,7 +57,8 @@ export function AdrTable() {
             <tr key={record.id} className="border-b border-border last:border-b-0">
               {/* `th scope="row"` rather than a fourth `td`: the number is what identifies the row, and
                   a screen reader reading the status cell should announce which decision it belongs to.
-                  A table of 41 rows is unusable otherwise. */}
+                  A table this long is unusable otherwise — and the length is left unnamed on purpose:
+                  this said "41 rows" against a library of 48. */}
               <th scope="row" className="p-3 font-mono font-normal align-top whitespace-nowrap">
                 {record.id}
               </th>

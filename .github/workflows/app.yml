@@ -55,6 +55,7 @@ jobs:
       test: ${{ steps.filter.outputs.test }}
       harness: ${{ steps.filter.outputs.harness }}
       version: ${{ steps.filter.outputs.version }}
+      citations: ${{ steps.filter.outputs.citations }}
       any: ${{ steps.filter.outputs.code == 'true' || steps.filter.outputs.version == 'true' }}
     steps:
       - name: Checkout
@@ -163,12 +164,47 @@ jobs:
             version:
               - 'VERSION'
 
+            # `citations` exists because the ADR citation gate (#456,
+            # apps/fed/scripts/adr-citations.test.mjs) is the first check here whose SUBJECT is the
+            # whole repository. It scans every tracked text file for `ADR-NNNN` and `docs/adr/NNNN-….md`
+            # and fails on any that names a record which does not exist — 1,754 citations at the head
+            # this landed on, of which 373 live outside `apps/**` in 116 files.
+            #
+            # `test` already covers the two paths that matter most: `apps/**` (where most citing files
+            # are) and `docs/adr/**` (which is where the dominant failure is BORN — a record renamed or
+            # deleted breaks every citation to it at once). This category adds the rest of the citing
+            # surface, so a citation typed into a Terraform file or a workflow is checked by the PR that
+            # typed it rather than by the next unrelated one.
+            #
+            # It gates `vitest` ONLY — deliberately not `sonarqube-scan`, which stays on `test`. Sonar
+            # reads `sonar.sources=src,scripts`; an `iac/`-only PR gives it nothing new to analyse, and
+            # fanning the scan out to it would repeat the cost the `code`/`test`/`harness` split was
+            # made to stop.
+            #
+            # RESIDUAL, named rather than papered over: a citation introduced in a tracked file matching
+            # NONE of these categories is caught on the next PR that does match, landing on an author
+            # who did not cause it. That is the same trade `harness-drift` documents above, and the
+            # alternative — matching `**` — would run `vitest` on every PR and make the whole filter
+            # decorative.
+            citations:
+              - 'docs/**'
+              - 'iac/**'
+              - '.github/**'
+              - '*.md'
+
   # Fails fast on a broken lockfile and warms ~/.npm for every job below. Condition is `test || version`,
   # not `any` (code || version): `test` is a superset of `code` (see the filter above), so this already
   # covers every job below except `harness-drift`, which needs no npm install at all.
+  #
+  # `citations` is ORed in for a mechanical reason, not a stylistic one (#456): `vitest` declares
+  # `needs: npm-ci`, and a SKIPPED dependency skips the dependent. Gating `vitest` on `citations`
+  # without gating this job too would leave the citation gate never running on its own trigger — the
+  # exact failure the `docs/adr/**` note in the filter above spends a paragraph on.
   npm-ci:
     needs: changes
-    if: needs.changes.outputs.test == 'true' || needs.changes.outputs.version == 'true'
+    if: >-
+      needs.changes.outputs.test == 'true' || needs.changes.outputs.version == 'true' ||
+      needs.changes.outputs.citations == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -266,9 +302,13 @@ jobs:
   # Coverage >= 85% is a gate, as a GLOBAL AVERAGE (ADR-0018's 2026-07-29 amendment) — not a per-file
   # floor. The lcov report is handed to sonarqube-scan as an artifact, which is the ONLY reason that job
   # needs this one: Sonar re-reads the source itself, but it cannot recompute coverage.
+  #
+  # `citations` is ORed in (#456): the ADR citation gate lives in this suite and its subject is the
+  # whole repository, so a citation typed into `iac/`, `.github/` or a root markdown file has to run
+  # it. See the `citations` filter above for why that category gates this job and not `sonarqube-scan`.
   vitest:
     needs: [changes, npm-ci]
-    if: needs.changes.outputs.test == 'true'
+    if: needs.changes.outputs.test == 'true' || needs.changes.outputs.citations == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -523,15 +563,26 @@ jobs:
           TEST: ${{ needs.changes.outputs.test }}
           HARNESS: ${{ needs.changes.outputs.harness }}
           VERSION_ONLY: ${{ needs.changes.outputs.version }}
+          CITATIONS: ${{ needs.changes.outputs.citations }}
           SONAR: ${{ needs.sonarqube-scan.result }}
         run: |
           set -euo pipefail
-          if [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::no gated changes (apps/**, packages/shared, iac/cloudfront-functions, docs/adr, CLAUDE.md, VERSION) — nothing was verified"
+          # CITATIONS is in this condition for the reason this whole step exists (#79): `vitest` now
+          # runs on it, so without it a `citations`-only PR would run the ADR citation gate and then
+          # report "nothing was verified". A check that ran must never read like one that did not,
+          # and the inverse is the same defect.
+          if [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ] && [ "$CITATIONS" != "true" ]; then
+            echo "::notice::no gated changes (apps/**, packages/shared, iac/cloudfront-functions, docs/adr, CLAUDE.md, VERSION, iac/**, .github/**, root *.md) — nothing was verified"
             exit 0
           fi
           if [ "${{ job.status }}" != "success" ]; then
             echo "::notice::the app gate did NOT complete — a job failed, so the ones downstream of it never ran. Read the failing job, not this line."
+            exit 0
+          fi
+          # Ordered AFTER the job.status check, like every other case below it: a branch that reports
+          # what ran must not fire on a run where something failed.
+          if [ "$CITATIONS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
+            echo "::notice::citation-surface-only change (iac/**, .github/**, docs outside adr, root *.md) — vitest ran, which is the ADR citation gate; lint, typecheck, build, Playwright and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$HARNESS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then

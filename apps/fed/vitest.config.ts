@@ -36,6 +36,12 @@ export default defineConfig({
         // gen-adrs.mjs is deliberately NOT here, on the same rule as gen-diagrams.mjs: it is a shell
         // around this file with no unit-testable surface left once the decisions were factored out.
         'scripts/adr-source.mjs',
+        // #456. The citation half of the same pipeline: which citations exist, in both spellings, and
+        // whether each one names a record that does. On this list for the reason the `adr-source.mjs`
+        // note directly above spells out — the include list is an ALLOWLIST, and a tested file left
+        // off it reads as 0% on new code to SonarCloud while the local average stays comfortably high.
+        // That has now turned Sonar red three times; this entry is the cost of not making it four.
+        'scripts/adr-citations.mjs',
         // #269. Same split as diagram-source: this is the half that decides WHICH cards must exist and
         // whether the committed set still matches the articles. gen-og-articles.mjs is excluded from the
         // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a

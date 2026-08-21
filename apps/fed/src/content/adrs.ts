@@ -31,8 +31,12 @@ export const adrHref = (record: AdrRecord): string => `${ADR_BASE}/${record.file
  *
  * The copy-as-markdown payload cannot carry the rendered table — the ` ```adr-index ` fence is EMPTY in
  * source, so a verbatim copy hands the reader three backticks and nothing — and it deliberately does not
- * reproduce 45 rows either. It links the index instead, which is the page's own stated principle applied
- * to itself.
+ * reproduce the whole index either. It links the index instead, which is the page's own stated principle
+ * applied to itself.
+ *
+ * The row count is not named here, and that is the fix rather than the wording: this read "45 rows"
+ * against a library of 48, and #456 moves the number again. A count in a comment has nothing keeping it
+ * true — the same reason `supersededCount` was deleted at the bottom of this file.
  *
  * `README.md`, NOT the bare directory, and the reason is coherence rather than correctness — both
  * resolve. The body of `architecture.{pt,en}.md:300` ALREADY links the library, as `…/docs/adr/README.md`,
