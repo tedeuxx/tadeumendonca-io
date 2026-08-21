@@ -292,7 +292,9 @@ const strings = {
     // DESTINATION'S OWN NAME first (the word the click lands on is "Arquitetura" — the same rule ADR-0045
     // applies to document titles, and a card that renames the section is that defect one screen earlier),
     // and neither noun is invented — "a máquina" is the site's own word for this page
-    // (content/blog/engineer-the-loop.pt.md:30; architecture.pt.md:60 and :211 say it of itself), and
+    // (architecture.pt.md:60 and :211 say it of itself — a third citation, to
+    // content/blog/engineer-the-loop.pt.md:30, was dropped when that article was withdrawn on
+    // 2026-08-21; the claim never rested on it alone), and
     // "replicar" is the page's own closing H2 ("Replique para o seu contexto" / "Replicate it for your
     // own context").
     cardTitle: {
@@ -301,8 +303,9 @@ const strings = {
     },
     // THE EXCERPT — the hook, and the leaf the band never had. It sits where the article excerpts sit and
     // is written to their length and register: one inventory sentence, one sentence that lands the
-    // posture (compare my-commitment's "O primeiro post. Por que este espaço existe…" and
-    // engineer-the-loop's two-beat "não é uma ideia nova… é uma ideia antiga").
+    // posture (compare my-commitment's "O primeiro post. Por que este espaço existe…"; the second
+    // comparand, engineer-the-loop's two-beat "não é uma ideia nova… é uma ideia antiga", was withdrawn
+    // from the site on 2026-08-21 and is quoted here from the record rather than from a live file).
     //
     // EVERY CLAIM IS THE PAGE'S OWN, in both editions. "o que foi cortado e por quê" ← "não foi
     // construída enxuta. Foi construída inteira e depois cortada" plus the five superseded ADRs it links.
