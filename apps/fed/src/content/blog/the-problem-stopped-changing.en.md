@@ -4,10 +4,10 @@ slug: the-problem-stopped-changing
 date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
-excerpt: "The yellow badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
+excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
 takeaway: 'how to tell a ceiling that is structural from one that is fatigue — and why that distinction decides what you do next.'
 ---
-The badge arrived. Five years at AWS, marked in yellow, six months after the date it commemorates — the mark itself was January; the object only reached Brazil now. A marker that shows up late is a better prompt than a round number: it makes you count when you were not expecting to.
+The badge arrived. Five years at AWS, six months after the date it commemorates — the mark itself was January; the object only reached Brazil now. A marker that shows up late is a better prompt than a round number: it makes you count when you were not expecting to.
 
 So I counted. And what I want to write about is not the five years. It is the turn underneath them.
 
