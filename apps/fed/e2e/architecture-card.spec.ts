@@ -130,6 +130,17 @@ test.describe('the architecture teaser card', () => {
     expect(order, 'the list is not newest-first — the card or a row is out of chronological place').toEqual(
       [...order].sort().reverse(),
     );
+
+    // AND THE CARD IS NOT THE FIRST ROW. The assertion above is necessary and NOT sufficient, which is
+    // what the gate measured: a wrong publication date that is newer than every article leaves the list
+    // perfectly newest-first WITH the card back on top — the pinned state this slice exists to remove,
+    // green everywhere. "Newest-first" cannot catch it, because a re-pinned card is a correctly sorted
+    // list; only the card's own place in it is wrong.
+    //
+    // Sound for any future corpus, not just today's: nothing can be published before the site was public,
+    // and the card is dated launch day, so it can never legitimately be the newest row. Guarded by the
+    // length check above — with the card as the only row it would be first, and that is not this defect.
+    expect(shape.dates[0].isCard, 'the architecture card is the first row again — it is pinned').toBe(false);
     // Nothing between the hero and the list: the gap is layout padding, not another block. Measured
     // rather than asserted structurally, because "descaracterizou a home" was a visual verdict.
     expect(shape.listTop - shape.heroBottom).toBeLessThan(HEIGHT / 2);

@@ -4,6 +4,7 @@ import { ArchitectureCard, ARCHITECTURE_PUBLISHED } from './ArticlesSection';
 import { renderWithLocale } from '../test-utils';
 import { translate } from '../i18n/messages';
 import { dateLocale, type Locale } from '../i18n';
+import { getAllPosts } from '../lib/content';
 
 // The date the card must show, derived from the exported constant rather than typed as a literal: a
 // literal here would keep passing after someone edited the constant, which is the one thing this suite
@@ -101,6 +102,40 @@ describe('ArchitectureCard', () => {
     const chip = card().querySelector('[data-testid="architecture-card-chip"]');
     expect(chip).not.toBeNull();
     expect(chip!.textContent).toBe(translate('pt', 'architecture.cardTrack'));
+  });
+
+  // THE CARD CANNOT BE THE NEWEST ROW — the assertion that closes a hole the rest of this suite could
+  // not see. Read it against what it was measured on rather than as a nicety.
+  //
+  // THE PROBE THAT MOTIVATED IT: set the constant to `2026-08-22T12:00:00.000Z` — a WRONG date that is
+  // still midday, so the hour pin below stays green — and the card is the FIRST row of the live home
+  // page again. Unit suite green, prerendered build re-pinned, Playwright green. The whole gate passed
+  // on the exact state this slice exists to prevent, because every other date assertion here DERIVES its
+  // expectation from the constant, and a derived expectation moves with the value it is meant to check.
+  //
+  // WHY IT LIVES IN THIS FILE, not in `ArticlesSection.test.tsx`: that suite mocks `getAllPosts`, so its
+  // dates are synthetic and "the card is not first" is FALSE there by construction — one of its tests
+  // correctly asserts the card IS first when every mocked article is older. It cannot see the real
+  // corpus. This file does not mock the module, so it reads what is actually published, and it fails in
+  // seconds where the E2E needs a build and a browser.
+  //
+  // WHY IT IS A RULE rather than a property of today's two articles: nothing can be published before the
+  // site was public, and this constant IS launch day. So every article that will ever exist is dated at
+  // or after it, and the card can never legitimately sort to the top. A future article cannot invalidate
+  // this the way a hardcoded position would.
+  it('is never the newest row — no published article predates the section', () => {
+    for (const locale of ['pt', 'en'] as const) {
+      const posts = getAllPosts(locale);
+      // The corpus is the ruler, so an empty one would leave the loop below asserting nothing at all.
+      expect(posts.length, 'no articles loaded — this assertion would be vacuous').toBeGreaterThan(0);
+      for (const post of posts) {
+        expect(
+          post.date >= ARCHITECTURE_PUBLISHED,
+          `"${post.title}" (${post.date}) predates the section (${ARCHITECTURE_PUBLISHED}), ` +
+            'which would put the architecture card above it on the home page',
+        ).toBe(true);
+      }
+    }
   });
 
   // THE TIME OF DAY IS PART OF THE DECISION, so it is pinned. `toLocaleDateString` renders in the
