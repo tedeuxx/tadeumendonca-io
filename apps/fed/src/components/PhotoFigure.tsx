@@ -42,6 +42,26 @@ export function PhotoFigure({
   alt: string;
   caption: string;
 }) {
+  // A PORTRAIT PHOTOGRAPH IS NOT GIVEN THE FULL COLUMN, and the reason is arithmetic rather than taste.
+  //
+  // `w-full` was written when every registered photograph was landscape, and for those it is right: the
+  // widest of them is 1600×704, so at the 920px the body gets inside `max-w-5xl` at 1280 it lays out
+  // 920×405 — a band. The first portrait photograph (900×1360, the badge on the-problem-stopped-changing)
+  // lays out under the same rule at 900×1360: taller than a 900px viewport, so the reader meets a picture
+  // with no text on screen beside it and has to scroll a full screen to reach the sentence it belongs to.
+  // On top of that, `w-full` would upscale it on any body wider than 900px — a blurrier wall.
+  //
+  // So the cap is on the WIDTH and the ratio is left alone. `max-w-md` is 448px, which at 900px intrinsic
+  // is still 2× for a high-DPR screen, and `mx-auto` centres what no longer fills the column — the same
+  // treatment the diagrams already get, so it reads as one page rule rather than an exception. The
+  // `width`/`height` attributes are untouched, which is the part that matters for the reason this
+  // component exists: they set the intrinsic ratio, so the box is still reserved before the bytes arrive
+  // and the page still does not jump.
+  //
+  // Keyed off the FILE's own shape rather than a flag in the registry: a recrop that turns a photograph
+  // portrait should change how it is laid out without anyone remembering to also flip a field, and
+  // `photo-assets.test.mjs` already proves these two numbers are the binary's real ones.
+  const portrait = photo.height > photo.width;
   return (
     <figure className="my-8" data-photo="">
       <img
@@ -57,7 +77,11 @@ export function PhotoFigure({
         // `h-auto` is load-bearing next to the `width`/`height` attributes: they set the intrinsic ratio,
         // and `w-full` alone would then let the ATTRIBUTE height win and squash the picture. The border
         // matches the diagram box so the two figure kinds sit on the page as one decision.
-        className="block h-auto w-full border border-border"
+        className={
+          portrait
+            ? 'mx-auto block h-auto w-full max-w-md border border-border'
+            : 'block h-auto w-full border border-border'
+        }
       />
       <figcaption className={FIGCAPTION_CLASS}>{caption}</figcaption>
     </figure>
