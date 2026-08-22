@@ -52,12 +52,35 @@ const KNUTH =
 /** Collapse the line wrapping a blockquote introduces, so a re-wrap is not a false failure. */
 const flat = (s: string) => s.replace(/\s+/g, ' ').trim();
 
+// How many photographs /architecture embeds, per edition. A literal, and deliberately so — read the
+// paragraph below before changing it to something derived.
+//
+// THIS USED TO BE `PHOTOS.length`, AND THAT WAS CORRECT BY COINCIDENCE. The registry in `data/photos.json`
+// is GLOBAL: it is every photograph any content body may embed, and nothing in it says which page an
+// entry belongs to. While /architecture was the only page with photographs, "how many does this page
+// embed" and "how many exist anywhere" were the same number, so the identity held — and it would have
+// gone red the first time a photograph was registered for a blog article, with a failure naming this page
+// and nothing on this page having changed. A test that fails on an unrelated file is worse than no test:
+// the fix that makes it green again is to loosen it, under time pressure, having learned nothing.
+//
+// So the identity is split into the two separate claims it was conflating. The COVERAGE claim — this page
+// still embeds the photographs it is supposed to — is this number, which is about this page and is
+// maintained by whoever changes this page. The MEMBERSHIP claim — nothing is embedded that the registry
+// has not measured — is `embeds only photographs the registry has measured` below, and that one is the
+// direction that actually protects the reader, since an unregistered target renders with no reserved box.
+//
+// What is deliberately NOT claimed here any more: that every registered photograph is embedded somewhere.
+// It never was — the old identity only compared counts, so an embed swapped for an unrelated registered
+// file satisfied it — and it cannot be claimed from a file that reads one page. The cost of a registry
+// entry embedded nowhere is a file served to nobody; `scripts/photo-assets.test.mjs` still catches the
+// expensive direction, a file on disk the registry does not know about.
+const ARCHITECTURE_PHOTOGRAPHS = 2;
+
 describe('the photographs are the same set, in the same order, in both editions', () => {
   // Guard against a vacuous suite: a regex that silently matched nothing makes every comparison below a
   // comparison of two empty arrays, which passes.
   it('found the photographs at all', () => {
-    expect(en.length).toBeGreaterThan(0);
-    expect(en.length).toBe(PHOTOS.length);
+    expect(en.length).toBe(ARCHITECTURE_PHOTOGRAPHS);
   });
 
   it('embeds the same files, in the same order', () => {

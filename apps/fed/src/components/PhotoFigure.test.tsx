@@ -5,6 +5,7 @@ import { photoFor } from '../data/photos';
 import type { PhotoAsset } from '../data/photos';
 
 const knuth = photoFor('/photos/knuth-cv-museum.jpg') as PhotoAsset;
+const badge = photoFor('/photos/five-year-badge.jpg') as PhotoAsset;
 
 describe('PhotoFigure', () => {
   it('reserves the box with the committed file’s own intrinsic size', () => {
@@ -48,6 +49,37 @@ describe('PhotoFigure', () => {
     const { container } = render(<PhotoFigure photo={knuth} alt="a" caption="b" />);
     expect(container.querySelector('.diagram-canvas')).toBeNull();
     expect(container.querySelector('svg')).toBeNull();
+  });
+
+  // THE PORTRAIT CAP, asserted from BOTH sides, because only one side of it can fail silently.
+  //
+  // Deleting the cap leaves a portrait photograph laying out at its full 900px inside a 920px body — 1360
+  // tall, a full screen of picture before the sentence it belongs to. Nothing goes red; the page just gets
+  // worse. Applying the cap to everything is the opposite mistake and is just as quiet: every landscape
+  // photograph on /architecture would shrink to 448px in a 920px column, and the e2e geometry spec would
+  // still pass, since a smaller image is still inside its figure.
+  //
+  // The fixtures are the REGISTRY's own entries rather than hand-made objects, so the two cases stay real:
+  // if the badge is ever recropped to landscape this test starts asserting the wrong branch of the
+  // component and says so, instead of testing a shape nothing ships.
+  it('caps a PORTRAIT photograph and centres it, rather than giving it the whole column', () => {
+    expect(badge.height, 'the portrait fixture is not portrait any more').toBeGreaterThan(badge.width);
+    const { container } = render(<PhotoFigure photo={badge} alt="a" caption="b" />);
+    const img = container.querySelector('img')!;
+    expect(img.className).toContain('max-w-md');
+    expect(img.className).toContain('mx-auto');
+    // The ratio is still the file's own — the cap is on width only, so the reservation stays honest.
+    expect(img).toHaveAttribute('width', String(badge.width));
+    expect(img).toHaveAttribute('height', String(badge.height));
+    expect(img.className).toContain('h-auto');
+  });
+
+  it('does NOT cap a landscape photograph — it still gets the full column', () => {
+    expect(knuth.width, 'the landscape fixture is not landscape any more').toBeGreaterThan(knuth.height);
+    const { container } = render(<PhotoFigure photo={knuth} alt="a" caption="b" />);
+    const img = container.querySelector('img')!;
+    expect(img.className).not.toContain('max-w-');
+    expect(img.className).toContain('w-full');
   });
 
   it('is a figure, tagged for the photograph spec to find', () => {
