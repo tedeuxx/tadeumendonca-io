@@ -4,10 +4,10 @@ slug: o-problema-parou-de-variar
 date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
-excerpt: "O crachá amarelo de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
+excerpt: "O crachá de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
 takeaway: 'como distinguir um teto estrutural de um teto que é só cansaço — e por que é essa distinção que decide o próximo passo.'
 ---
-O crachá chegou. Cinco anos de AWS, em amarelo, seis meses depois da data que ele comemora — a marca foi em janeiro; o objeto só chegou ao Brasil agora. Um marcador que aparece atrasado é um gatilho melhor que um número redondo: ele te faz contar quando você não estava esperando contar.
+O crachá chegou. Cinco anos de AWS, seis meses depois da data que ele comemora — a marca foi em janeiro; o objeto só chegou ao Brasil agora. Um marcador que aparece atrasado é um gatilho melhor que um número redondo: ele te faz contar quando você não estava esperando contar.
 
 Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a virada embaixo deles.
 
