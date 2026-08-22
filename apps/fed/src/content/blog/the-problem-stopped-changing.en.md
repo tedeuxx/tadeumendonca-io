@@ -7,7 +7,9 @@ track: engenharia
 excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
 takeaway: 'how to tell a ceiling that is structural from one that is fatigue — and why that distinction decides what you do next.'
 ---
-The badge arrived. Five years at AWS, six months after the date it commemorates — the mark itself was January; the object only reached Brazil now. A marker that shows up late is a better prompt than a round number: it makes you count when you were not expecting to.
+![An ID badge lying face-up on a pale wood desk, inside a clear plastic holder: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom. Above the badge sit a retractable badge reel, a key with a white tag numbered 38, and the edge of a black mug.](/photos/five-year-badge.jpg "The marker that showed up late — and started the counting the rest of this piece is about.")
+
+That is five years at AWS, and it reached me six months after the date it marks — the mark itself was January; the object only got to Brazil now. A marker that shows up late is a better prompt than a round number: it catches you with nothing prepared, and it makes you count when you were not expecting to.
 
 So I counted. And what I want to write about is not the five years. It is the turn underneath them.
 
