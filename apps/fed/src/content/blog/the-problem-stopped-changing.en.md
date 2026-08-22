@@ -1,5 +1,5 @@
 ---
-title: "The Problem Stopped Changing"
+title: "And it is someone's story, with you in it"
 slug: the-problem-stopped-changing
 date: '2026-08-21T12:00:00.000Z'
 tag: career
