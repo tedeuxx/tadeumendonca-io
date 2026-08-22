@@ -60,9 +60,10 @@ function TrackChip({ track }: { track: Track }) {
  *
  * THE TIME OF DAY IS 12:00Z AND THAT IS LOAD-BEARING, not padding to match the ISO shape. `fmtDate`
  * below renders through `toLocaleDateString` in the READER'S timezone, so `T00:00:00Z` prints as
- * 2026-07-24 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is the same
- * calendar day in every timezone the site is read in, which is also why `the-problem-stopped-changing`
- * is authored `T12:00:00.000Z`.
+ * 2026-07-24 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is not safe in
+ * EVERY zone (UTC+14 would need an hour below 10, UTC-12 an hour at or above 12 — contradictory), it is
+ * the maximal-margin choice: the same calendar day from UTC-12 through UTC+11, which covers both
+ * editions' readerships. `the-problem-stopped-changing` is authored `T12:00:00.000Z` for the same reason.
  */
 export const ARCHITECTURE_PUBLISHED = '2026-07-25T12:00:00.000Z';
 
