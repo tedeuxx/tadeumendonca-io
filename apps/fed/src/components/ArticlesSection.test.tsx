@@ -205,6 +205,19 @@ describe('ArticlesSection', () => {
       // inverse — a visible row sitting directly above a sentence saying there is nothing here, which
       // invites the reader to take the message as false or the card as an article the filter missed.
       expect(empty.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+      // AND IT IS SCOPED TO THE LIST, which is what makes that order safe. The message borrows the rule
+      // the section draws between entries, so it reads as a note in an entry's place rather than as a
+      // statement about the whole section — and the card below it is then another entry in the same list
+      // instead of a row contradicting the sentence above it (copy lens, #485).
+      //
+      // Asserted on `border-b` — the STRUCTURAL half of the separator — and deliberately not on
+      // `border-border`, which is a design-system COLOUR token: coupling a test to a token means a rename
+      // that changes nothing a reader sees turns the run red. Same rule the E2E chip locator was just
+      // moved off a token for.
+      const emptyRow = screen.getByTestId('articles-empty-row');
+      expect(emptyRow.className).toContain('border-b');
+      expect(emptyRow).toContainElement(empty);
     });
 
     // The article rows keep `articles.read`. The card dropping it must not become the section dropping it:

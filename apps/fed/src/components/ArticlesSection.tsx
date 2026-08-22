@@ -26,7 +26,13 @@ const TRACK_KEY: Record<Track, MessageKey> = { pessoal: 'tracks.pessoal', engenh
 // card "como esse de post do blog" — visually identical — and the only way that survives a future
 // restyle is if there is ONE source for the classes. Two copies drift silently and the drift is exactly
 // what would break the ask.
-const ROW = 'border-b border-border px-[--gutter] py-6';
+//
+// The rule between one entry and the next — the ONLY grammar this section has for "these things are the
+// list". Extracted from `ROW` rather than written twice because the empty state now borrows it (see the
+// zero-post branch below): a second literal would drift the day the separator is restyled, and the whole
+// point of the borrow is that the two cannot look like different kinds of thing.
+const ROW_SEPARATOR = 'border-b border-border';
+const ROW = `${ROW_SEPARATOR} px-[--gutter] py-6`;
 const ROW_META =
   'mb-2 flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground';
 const ROW_TITLE =
@@ -254,7 +260,30 @@ export function ArticlesSection() {
         ))}
       </div>
 
-      {posts.length === 0 && <Empty>{t('articles.empty')}</Empty>}
+      {/* THE EMPTY STATE IS SCOPED TO THE LIST, not to the section — and this is a live state, not a
+          hypothetical: both published articles are `track: engenharia`, so the "Vida pessoal" chip
+          renders exactly this today.
+          THE FINDING it answers (copy lens, #485): the message now sits ABOVE the architecture card, so a
+          reader who filters to an empty track reads "there are no articles in this track" and then meets a
+          row with an article's exact anatomy. The chip ("Seção do site") is what stops that reading, and
+          in this one state it was carrying it alone.
+          WHAT WAS CHOSEN, of the two directions offered. Not "put the card back on top": that permutes the
+          same two adjacent elements and the apparent contradiction is a property of their ADJACENCY, not
+          of their order — it survives the swap, and it would reinstate the pinned order in one branch of
+          the code this slice exists to un-pin. What is done instead is the second direction: the message
+          borrows `ROW_SEPARATOR`, the list's own rule between entries, so it reads as a note occupying an
+          entry's place IN THE LIST rather than as a statement about the section. Once the sentence is
+          scoped to the list, the row below it is another entry in that same list — which is what it is —
+          instead of a counter-example to it.
+          THE COPY IS UNCHANGED and deliberately so: "Ainda não há artigos nesta trilha." is already scoped
+          to the track rather than the site, and its "ainda" does not apologise. The position was the
+          finding; the words were judged right. `Empty` itself is untouched — it is a shared primitive
+          rendered by four other surfaces, and none of them has a list to belong to. */}
+      {posts.length === 0 && (
+        <div data-testid="articles-empty-row" className={ROW_SEPARATOR}>
+          <Empty>{t('articles.empty')}</Empty>
+        </div>
+      )}
 
       {/* IN ITS CHRONOLOGICAL PLACE, AND STILL OUTSIDE THE FILTER. The card is spliced into the rendered
           rows at `cardIndex` rather than pushed through `posts`, which is what keeps both properties at
