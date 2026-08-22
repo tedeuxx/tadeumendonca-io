@@ -18,7 +18,11 @@ const HEIGHT = 900;
 
 const CARD = '[data-testid="architecture-card"]';
 const CONTROL = `${CARD} .flex > a`;
-const CHIP = `${CARD} span`;
+// The chip is selected by its BORDER class, not by being the card's only `span`. It stopped being the
+// only one when the card gained its publication date: the meta row now holds a `<time>` and an unstyled
+// `<span>·</span>` separator beside it, and a bare `${CARD} span` matched two elements — which the
+// `boxes.length` guard below would have reported as a stale locator rather than as what it was.
+const CHIP = `${CARD} span[class*="border-border"]`;
 
 const LABEL: Record<string, { control: string; chip: string }> = {
   '/pt': { control: 'Arquitetura', chip: 'Seção do site' },
@@ -71,9 +75,16 @@ test.describe('the architecture teaser card', () => {
   }
 
   // THE SHAPE DECISION ITSELF, measured on the served build rather than only in jsdom: the card is INSIDE
-  // the article list and is its first row, the landing's spine is hero → grid with nothing between, and
-  // the hero row is still four controls.
-  test('/pt: is the first row of the article list, and adds no fifth hero control', async ({ page }) => {
+  // the article list, the landing's spine is hero → grid with nothing between, and the hero row is still
+  // four controls.
+  //
+  // WHAT THIS TEST NO LONGER ASSERTS, and why the replacement is stronger: it pinned the card as row ONE.
+  // The owner reversed that pin — the row now takes its chronological place among the articles — so
+  // asserting a fixed index would be asserting the behaviour he rejected. What replaced it is the
+  // property the un-pin actually created: every row in `#artigos`, the card included, carries a `<time>`,
+  // and those dates run newest-first down the column. That holds for any number of published articles,
+  // where an index assertion would have to be edited every time one ships.
+  test('/pt: the list runs newest-first including the card, and adds no fifth hero control', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: HEIGHT });
     await page.goto('/pt');
     await page.waitForLoadState('networkidle');
@@ -87,7 +98,12 @@ test.describe('the architecture teaser card', () => {
       return {
         found: card !== null,
         insideTheList: articles?.contains(card!) ?? false,
-        firstRow: rows[0] === card,
+        // Every row's machine-readable date, in DOM order, with the card's own position named so a
+        // failure says WHICH row broke the order rather than only that the sequence did.
+        dates: rows.map((row) => ({
+          isCard: row === card,
+          datetime: row.querySelector('time')?.getAttribute('datetime') ?? null,
+        })),
         heroBottom: document.querySelector('header#top')?.getBoundingClientRect().bottom ?? NaN,
         listTop: articles?.getBoundingClientRect().top ?? NaN,
       };
@@ -95,7 +111,18 @@ test.describe('the architecture teaser card', () => {
 
     expect(shape.found, 'the card is not on the page').toBe(true);
     expect(shape.insideTheList, 'the card rendered outside #artigos — that is the band again').toBe(true);
-    expect(shape.firstRow, 'the card is not the first row of the list').toBe(true);
+
+    // The card plus the published articles. A list that failed to render satisfies "the dates are in
+    // order" vacuously, and the card alone satisfies it too, so the floor is asserted first.
+    expect(shape.dates.length, 'the article list did not render').toBeGreaterThan(1);
+    expect(shape.dates.some((r) => r.isCard), 'the card is not one of the rows').toBe(true);
+    for (const row of shape.dates) {
+      expect(row.datetime, 'a row in the list carries no <time> — it cannot be placed in the order').not.toBeNull();
+    }
+    const order = shape.dates.map((r) => r.datetime!);
+    expect(order, 'the list is not newest-first — the card or a row is out of chronological place').toEqual(
+      [...order].sort().reverse(),
+    );
     // Nothing between the hero and the list: the gap is layout padding, not another block. Measured
     // rather than asserted structurally, because "descaracterizou a home" was a visual verdict.
     expect(shape.listTop - shape.heroBottom).toBeLessThan(HEIGHT / 2);
