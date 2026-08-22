@@ -482,7 +482,7 @@ test.describe('routes', () => {
   // notice instead. So "the heading exists" is what separates a working redirect from one that lands on
   // the not-found page with the right URL in the bar.
   const SUPERSEDED_ARTICLE_SLUGS = [
-    { locale: 'pt', from: 'o-problema-parou-de-variar', to: 'da-cloud-a-ia-sem-trocar-de-cracha' },
+    { locale: 'pt', from: 'o-problema-parou-de-variar', to: 'da-cloud-a-ia-com-o-mesmo-cracha' },
     { locale: 'en', from: 'the-problem-stopped-changing', to: 'from-cloud-to-ai-same-badge' },
   ];
 

@@ -228,7 +228,7 @@ test.describe('SEO discovery', () => {
     const ARTICLE_PATHS = [
       '/pt/blog/meu-compromisso/',
       '/en/blog/my-commitment/',
-      '/pt/blog/da-cloud-a-ia-sem-trocar-de-cracha/',
+      '/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha/',
       '/en/blog/from-cloud-to-ai-same-badge/',
     ];
 

@@ -584,7 +584,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
   const ARTICLES = [
     { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
-    { pt: `${SITE}/pt/blog/da-cloud-a-ia-sem-trocar-de-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
+    { pt: `${SITE}/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
   ];
   // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
   // below, the article is still live — at a different address — so these must stay reachable via redirect
