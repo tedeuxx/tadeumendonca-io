@@ -370,20 +370,24 @@ test.describe('per-locale article slugs', () => {
     await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
   });
 
-  // The withdrawn article (#published 2026-08-14, taken down 2026-08-21) — both editions. The sitemap
+  // The withdrawn article (published 2026-08-14, taken down 2026-08-21) — both editions. The sitemap
   // guard below proves the URLs are no longer ADVERTISED; this proves they no longer SERVE the piece,
   // which is the half a reader with the link in their history actually experiences. Kept as a live
   // assertion rather than deleted with the content: the article is held on
   // `content/hold-engineer-the-loop` for a deliberate re-publication, and until that happens "this URL
   // shows the not-found, not the article" is a behaviour worth pinning.
-  for (const [locale, path, otherTitle] of [
-    ['pt', '/pt/blog/por-que-eu-projeto-o-loop', /Por Que Eu Projeto o Loop/],
-    ['en', '/en/blog/why-i-engineer-the-loop', /Why I Engineer the Loop/],
+  //
+  // The not-found notice is asserted in the ROUTE'S OWN language, not with an either-locale regex: the
+  // withdrawn URLs are locale-prefixed, so a notice served in the wrong language is its own defect and
+  // an OR would pass straight through it — the same shape as the shared-slug test above.
+  for (const [url, title, notice] of [
+    ['/pt/blog/por-que-eu-projeto-o-loop', /Por Que Eu Projeto o Loop/, /não existe ou não está publicado/i],
+    ['/en/blog/why-i-engineer-the-loop', /Why I Engineer the Loop/, /does not exist or is not published/i],
   ] as const) {
-    test(`the withdrawn article ${path} is an in-app not-found (${locale})`, async ({ page }) => {
-      await page.goto(path);
-      await expect(page.getByRole('heading', { level: 1, name: otherTitle })).toHaveCount(0);
-      await expect(page.getByText(/não existe ou não está publicado|does not exist or is not published/i)).toBeVisible();
+    test(`the withdrawn article ${url} is an in-app not-found`, async ({ page }) => {
+      await page.goto(url);
+      await expect(page.getByRole('heading', { level: 1, name: title })).toHaveCount(0);
+      await expect(page.getByText(notice)).toBeVisible();
     });
   }
 
@@ -578,7 +582,10 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // This list moves by one entry per article — the same "arithmetic going red" guard as SHARED above.
   // It moves in BOTH directions: an article withdrawn from `src/content/blog/` leaves this list in the
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
-  const ARTICLES = [{ pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` }];
+  const ARTICLES = [
+    { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
+    { pt: `${SITE}/pt/blog/o-problema-parou-de-variar`, en: `${SITE}/en/blog/the-problem-stopped-changing` },
+  ];
   // Articles that were live and were taken down. Asserted absent, not merely dropped from ARTICLES:
   // deleting the entry alone would leave the count green if the prerender ever kept serving the route,
   // and a URL that stays advertised after a takedown is what keeps a crawler coming back to it.
