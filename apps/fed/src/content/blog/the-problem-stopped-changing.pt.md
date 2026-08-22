@@ -1,6 +1,8 @@
 ---
-title: "Consegui tudo o que eu fui buscar. Menos um problema novo."
-slug: o-problema-parou-de-variar
+title: "Da cloud à IA, com o mesmo crachá."
+slug: da-cloud-a-ia-com-o-mesmo-cracha
+previousSlugs:
+  - o-problema-parou-de-variar
 date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia

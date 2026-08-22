@@ -469,6 +469,37 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 
+  // A published article URL whose slug was later CORRECTED (ADR-0010's back-compat contract, applied to
+  // an article slug for the first time). The badge article was retitled twice after publication and both
+  // slugs kept spelling the withdrawn first title; correcting them moves an address that has been live and
+  // shared, so the old one has to keep resolving — to the article, not to the landing.
+  //
+  // Asserted in BOTH locales because the slugs are per-locale (ADR-0037): one entry per edition, and a
+  // sweep that fixes one and forgets the other is the exact failure this pair catches.
+  //
+  // The assertions are deliberately title-independent — final URL, plus a rendered `<article>` heading.
+  // `ArticlePage` renders the `<article>` element ONLY when the slug resolves; the not-found arm renders a
+  // notice instead. So "the heading exists" is what separates a working redirect from one that lands on
+  // the not-found page with the right URL in the bar.
+  const SUPERSEDED_ARTICLE_SLUGS = [
+    { locale: 'pt', from: 'o-problema-parou-de-variar', to: 'da-cloud-a-ia-com-o-mesmo-cracha' },
+    { locale: 'en', from: 'the-problem-stopped-changing', to: 'from-cloud-to-ai-same-badge' },
+  ];
+
+  for (const { locale, from, to } of SUPERSEDED_ARTICLE_SLUGS) {
+    test(`keeps the published ${locale} article URL "${from}" working after its slug was corrected`, async ({ page }) => {
+      await page.goto(`/${locale}/blog/${from}`);
+      await expect(page).toHaveURL(new RegExp(`/${locale}/blog/${to}$`));
+      await expect(page.locator('article h1')).toBeVisible();
+      // And the corrected URL is what the page advertises as canonical — otherwise the retired address
+      // stays in circulation through every scraper that follows the redirect.
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        new RegExp(`/${locale}/blog/${to}$`),
+      );
+    });
+  }
+
   // An in-locale unknown path falls to the locale landing (/pt), NOT bare / — avoiding a redirect loop.
   test('sends an in-locale unknown path to the locale landing instead of a dead end', async ({ page }) => {
     await page.goto('/pt/rota-que-nao-existe');

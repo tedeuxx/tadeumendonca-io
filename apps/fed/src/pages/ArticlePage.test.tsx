@@ -28,6 +28,9 @@ const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt') =>
 
 const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   slug: 'building',
+  // The page never reads this — a retired slug is intercepted by `ArticleRoute` in App.tsx before the
+  // page renders — so the default is the empty list, i.e. an article that has never moved.
+  previousSlugs: [],
   title: 'Building Serverless',
   date: '2026-06-01T00:00:00Z',
   tag: 'aws',

@@ -19,6 +19,8 @@ const OLDER = shift(-1);
 
 const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   slug: 'building',
+  // An article that has never been re-slugged: the default, and the shape this section only ever sees.
+  previousSlugs: [],
   title: 'Building',
   date: '2026-06-01T00:00:00Z',
   tag: 'aws',

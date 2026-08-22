@@ -584,7 +584,17 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
   const ARTICLES = [
     { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
-    { pt: `${SITE}/pt/blog/o-problema-parou-de-variar`, en: `${SITE}/en/blog/the-problem-stopped-changing` },
+    { pt: `${SITE}/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
+  ];
+  // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
+  // below, the article is still live — at a different address — so these must stay reachable via redirect
+  // and must NOT be advertised: a redirect in the sitemap tells a crawler two URLs are canonical for one
+  // page, which is the duplicate-content signal the per-locale canonical exists to avoid. The redirect
+  // itself is asserted in routes.spec.ts; this is the other half — that the retired address is gone from
+  // everything that ADVERTISES a URL.
+  const SUPERSEDED = [
+    `${SITE}/pt/blog/o-problema-parou-de-variar`,
+    `${SITE}/en/blog/the-problem-stopped-changing`,
   ];
   // Articles that were live and were taken down. Asserted absent, not merely dropped from ARTICLES:
   // deleting the entry alone would leave the count green if the prerender ever kept serving the route,
@@ -613,6 +623,8 @@ test.describe('sitemap advertises every per-locale URL', () => {
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // Neither is any withdrawn article, in either locale.
     for (const url of WITHDRAWN) expect(body).not.toContain(`<loc>${url}</loc>`);
+    // Nor any corrected-away address: it redirects, and a redirect is never a <loc>.
+    for (const url of SUPERSEDED) expect(body).not.toContain(`<loc>${url}</loc>`);
     // The x-default homepage entry.
     expect(body).toContain(`<loc>${SITE}/</loc>`);
 
