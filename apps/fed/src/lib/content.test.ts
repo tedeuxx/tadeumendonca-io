@@ -6,6 +6,7 @@ import {
   alternateSlug,
   localizeArticlePath,
   articlePathForLocale,
+  supersededSlugTarget,
   buildEditions,
   type BlogPost,
 } from './content';
@@ -344,6 +345,149 @@ describe('per-locale slug helpers', () => {
     it('resolves target-locale-first, so a valid target slug is authoritative', () => {
       expect(articlePathForLocale(`/blog/${PT_SLUG}`, 'pt')).toBe(`/blog/${PT_SLUG}`);
       expect(articlePathForLocale(`/blog/${EN_SLUG}`, 'en')).toBe(`/blog/${EN_SLUG}`);
+    });
+  });
+});
+
+// A slug that was PUBLISHED and has since been corrected. ADR-0037 made an article slug per-locale and
+// therefore editable; ADR-0010 says a URL already in the world keeps resolving. `previousSlugs` is where
+// those two meet, and these are the unit-level halves of that contract — the browser-level half (the actual
+// redirect) is `routes.spec.ts`, because a `<Navigate>` is only real in a router.
+describe('superseded slugs (the back-compat contract for a corrected URL)', () => {
+  // Frontmatter helper carrying a retired slug. Kept local rather than widening the shared `fm` above:
+  // every other test in this file asserts against articles that have never moved, and threading an extra
+  // optional field through them would make the common case read like the exception.
+  const withRetired = (slug: string, retired: string[]) =>
+    `---\nslug: ${slug}\npreviousSlugs:\n${retired.map((r) => `  - ${r}`).join('\n')}\n` +
+    `title: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n---\nbody`;
+
+  const plain = (slug: string) =>
+    `---\nslug: ${slug}\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n---\nbody`;
+
+  describe('parsing', () => {
+    it('defaults to an empty list, so an article that never moved carries no redirect', () => {
+      const editions = buildEditions({
+        '../content/blog/demo.pt.md': plain('demo-pt'),
+        '../content/blog/demo.en.md': plain('demo-en'),
+      });
+      expect(editions.demo.pt.previousSlugs).toEqual([]);
+      expect(editions.demo.en.previousSlugs).toEqual([]);
+    });
+
+    it('reads a list, and accepts more than one correction of the same edition', () => {
+      const editions = buildEditions({
+        '../content/blog/demo.pt.md': withRetired('demo-pt', ['first-pt', 'second-pt']),
+        '../content/blog/demo.en.md': plain('demo-en'),
+      });
+      expect(editions.demo.pt.previousSlugs).toEqual(['first-pt', 'second-pt']);
+    });
+
+    // A bare scalar is what an author writes for the single-correction case, which is nearly every case.
+    // Rejecting it would be defensible; SILENTLY dropping it would not, and that is what `Array.isArray`
+    // alone would have done — leaving a published URL dead with a green build.
+    it('accepts a bare scalar as a one-entry list', () => {
+      const editions = buildEditions({
+        '../content/blog/demo.pt.md': `---\nslug: demo-pt\npreviousSlugs: only-pt\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n---\nbody`,
+        '../content/blog/demo.en.md': plain('demo-en'),
+      });
+      expect(editions.demo.pt.previousSlugs).toEqual(['only-pt']);
+    });
+  });
+
+  describe('validation', () => {
+    // A retired slug is the URL a reader is ACTUALLY on when the redirect fires, so an unusable one is
+    // worse than an unusable current slug: the article is reachable and the only address anyone holds is
+    // the broken one. Same shape rules, same reasons (#213).
+    it('rejects an unusable retired slug, and says which field it came from', () => {
+      expect(() =>
+        buildEditions({
+          '../content/blog/demo.pt.md': withRetired('demo-pt', ['node.js-era']),
+          '../content/blog/demo.en.md': plain('demo-en'),
+        }),
+      ).toThrow(/unusable pt previousSlugs entry "node\.js-era".*CloudFront/s);
+    });
+
+    it('rejects an article that lists its own current slug as retired — the redirect would target itself', () => {
+      expect(() =>
+        buildEditions({
+          '../content/blog/demo.pt.md': withRetired('demo-pt', ['demo-pt']),
+          '../content/blog/demo.en.md': plain('demo-en'),
+        }),
+      ).toThrow(/lists "demo-pt" as a retired pt slug, but that slug is still published/);
+    });
+
+    // Caught by the COLLISION guard rather than the still-published one, and the message is asserted as
+    // it actually reads instead of as the nicer one you would expect: the two articles have different
+    // keys, so the ownership check reaches it first. Recorded rather than smoothed over, because the
+    // difference is exactly what the two guards divide between them — ownership catches every
+    // cross-article case, and the still-published guard exists for the one it structurally cannot see
+    // (an article retiring its OWN live slug, where owner === owner).
+    it('rejects retiring a slug another article still publishes — the redirect would shadow it', () => {
+      expect(() =>
+        buildEditions({
+          '../content/blog/one.pt.md': withRetired('one-pt', ['two-pt']),
+          '../content/blog/one.en.md': plain('one-en'),
+          '../content/blog/two.pt.md': plain('two-pt'),
+          '../content/blog/two.en.md': plain('two-en'),
+        }),
+      ).toThrow(/slug "two-pt" is claimed by two different articles/);
+    });
+
+    it('rejects two articles claiming the same retired slug — one reader, two destinations', () => {
+      expect(() =>
+        buildEditions({
+          '../content/blog/one.pt.md': withRetired('one-pt', ['shared-old']),
+          '../content/blog/one.en.md': plain('one-en'),
+          '../content/blog/two.pt.md': withRetired('two-pt', ['shared-old']),
+          '../content/blog/two.en.md': plain('two-en'),
+        }),
+      ).toThrow(/slug "shared-old" is claimed by two different articles/);
+    });
+  });
+
+  describe('resolution', () => {
+    // Asserted against the REAL content, and deliberately without naming the replacement slug: the words
+    // of a corrected slug are an editorial decision that can change again, and a test that hardcodes them
+    // would have to be edited by whoever changes the title — which is how a back-compat guard gets
+    // "updated" into agreeing with the break it exists to catch.
+    const RETIRED = { pt: 'o-problema-parou-de-variar', en: 'the-problem-stopped-changing' } as const;
+
+    it('resolves each published-then-corrected URL to a real, current article in its own locale', () => {
+      for (const locale of ['pt', 'en'] as const) {
+        const target = supersededSlugTarget(RETIRED[locale], locale);
+        expect(target, `no redirect target for the retired ${locale} slug`).toBeDefined();
+        expect(target).not.toBe(RETIRED[locale]);
+        expect(getPostBySlug(target!, locale)).toBeDefined();
+      }
+    });
+
+    it('answers undefined for a LIVE slug, so a current URL never redirects to itself', () => {
+      expect(supersededSlugTarget(PT_SLUG, 'pt')).toBeUndefined();
+      expect(supersededSlugTarget(EN_SLUG, 'en')).toBeUndefined();
+    });
+
+    it('answers undefined for an unknown slug, leaving the in-locale not-found intact', () => {
+      expect(supersededSlugTarget('never-published', 'pt')).toBeUndefined();
+    });
+
+    // A retired slug is per-locale like a live one, so the pt one must not resolve under `en`. Without
+    // this, an English reader on the retired PT address would be redirected into the Portuguese edition.
+    it('does not resolve one locale’s retired slug under the other locale', () => {
+      expect(supersededSlugTarget(RETIRED.pt, 'en')).toBeUndefined();
+      expect(supersededSlugTarget(RETIRED.en, 'pt')).toBeUndefined();
+    });
+
+    // The UNPREFIXED entry point (#204): `/blog/<retired>` carries no locale, so `RootRedirect` maps it
+    // through `articlePathForLocale`. If that mapper did not see retired slugs, a shared old link would be
+    // re-prefixed verbatim onto a route that no longer exists — the dead end #204 fixed, reintroduced by a
+    // slug correction instead of by a locale.
+    it('maps an unprefixed retired path to the reader’s own edition, from either direction', () => {
+      const ptPath = articlePathForLocale(`/blog/${RETIRED.en}`, 'pt');
+      const enPath = articlePathForLocale(`/blog/${RETIRED.pt}`, 'en');
+      expect(ptPath).not.toBe(`/blog/${RETIRED.en}`);
+      expect(enPath).not.toBe(`/blog/${RETIRED.pt}`);
+      expect(getPostBySlug(ptPath.replace('/blog/', ''), 'pt')).toBeDefined();
+      expect(getPostBySlug(enPath.replace('/blog/', ''), 'en')).toBeDefined();
     });
   });
 });

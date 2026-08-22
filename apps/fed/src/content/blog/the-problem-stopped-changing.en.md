@@ -1,6 +1,8 @@
 ---
-title: "I got everything I went looking for. Except a new problem."
-slug: the-problem-stopped-changing
+title: "From cloud to AI, on the same badge."
+slug: from-cloud-to-ai-same-badge
+previousSlugs:
+  - the-problem-stopped-changing
 date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia

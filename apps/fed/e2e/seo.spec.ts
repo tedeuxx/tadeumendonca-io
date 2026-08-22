@@ -220,7 +220,19 @@ test.describe('SEO discovery', () => {
   test('every article advertises its own OG card, per locale, and the card resolves', async ({ request }) => {
     const seen = new Set<string>();
 
-    for (const path of ['/pt/blog/meu-compromisso/', '/en/blog/my-commitment/']) {
+    // Every published article, both editions — not a sample. This list was the seeded article's two URLs
+    // only, which made the second article's card assertable by nothing: a wrong or missing card on it
+    // shipped green (flagged as an advisory on #484 and closed here, because #486 moves exactly these
+    // two URLs and regenerates exactly these two cards, so leaving them unasserted would mean the slice
+    // that changed them could not have caught itself breaking them).
+    const ARTICLE_PATHS = [
+      '/pt/blog/meu-compromisso/',
+      '/en/blog/my-commitment/',
+      '/pt/blog/da-cloud-a-ia-sem-trocar-de-cracha/',
+      '/en/blog/from-cloud-to-ai-same-badge/',
+    ];
+
+    for (const path of ARTICLE_PATHS) {
       const html = await (await request.get(path)).text();
       const card = /property="og:image" content="([^"]+)"/.exec(html)?.[1];
       expect(card, `${path} must advertise an og:image`).toBeTruthy();
@@ -232,9 +244,10 @@ test.describe('SEO discovery', () => {
       seen.add(card!);
     }
 
-    // Two editions, two cards. One shared card would satisfy every assertion above and defeat the
-    // feature, whose entire purpose is that two shared articles stop looking like the same link.
-    expect(seen.size, 'the two editions must not share one card').toBe(2);
+    // One card per (article, locale). A shared card would satisfy every assertion above and defeat the
+    // feature, whose entire purpose is that two shared articles stop looking like the same link — and
+    // the sharing that matters is now across ARTICLES as well as across editions.
+    expect(seen.size, 'no two article editions may share one card').toBe(ARTICLE_PATHS.length);
   });
 
   // #167. The card being DISTINCT is only half of what makes a reader tell two links apart — the other

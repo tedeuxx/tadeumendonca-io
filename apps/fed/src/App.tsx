@@ -18,8 +18,8 @@ import { ArchitecturePage } from './pages/ArchitecturePage';
 import { ArticlePage } from './pages/ArticlePage';
 import { LibraryPage } from './pages/LibraryPage';
 import { LocaleProvider } from './i18n';
-import { detectLocale, isLocale, localePath, pathWithoutLocale } from './i18n/config';
-import { articlePathForLocale } from './lib/content';
+import { detectLocale, isLocale, localePath, pathWithoutLocale, type Locale } from './i18n/config';
+import { articlePathForLocale, supersededSlugTarget } from './lib/content';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -49,6 +49,27 @@ function RootRedirect() {
   return <Navigate to={`${localePath(locale, target)}${search}${hash}`} replace />;
 }
 
+// A published article URL is a permanent contract (ADR-0010), and ADR-0037 makes an article slug
+// per-locale and therefore correctable — a title can be redrafted after publication, and then the address
+// still spells the withdrawn one. This is the join between those two facts: a slug listed in an edition's
+// `previousSlugs` redirects to that edition's CURRENT slug instead of falling through to `ArticlePage`'s
+// not-found.
+//
+// It sits in the router rather than inside `ArticlePage` because that is where every other back-compat
+// path on this site already lives (`/blog` → `/#artigos`, the in-locale `*`, `RootRedirect`) — ADR-0010's
+// mechanism is client-side `<Navigate … replace>`, and a second mechanism inside the page would be a
+// redirect nobody reading the route table could see. `replace` keeps the retired URL out of history, so
+// the back button does not bounce the reader straight back into it.
+//
+// Only the retired case is intercepted: a live slug and an unknown slug both render `ArticlePage`
+// unchanged, so the in-locale not-found behaviour is untouched.
+function ArticleRoute({ locale }: { locale: Locale }) {
+  const { slug } = useParams<{ slug: string }>();
+  const current = slug ? supersededSlugTarget(slug, locale) : undefined;
+  if (current) return <Navigate to={localePath(locale, `/blog/${current}`)} replace />;
+  return <ArticlePage />;
+}
+
 // The locale-scoped app: validates the `:locale` segment, then wraps the shell + routes in the
 // LocaleProvider (which reads the locale straight off the path). An invalid segment (`/xyz/…`) is not a
 // locale at all — treat the whole path as unprefixed and let RootRedirect send it to a real prefix.
@@ -67,7 +88,7 @@ function LocaleApp() {
           {/* The sixth public surface (#166). One English slug prefixed twice, bilingual label and page
               — the same shape as the four above it, so it needs no per-locale route resolution. */}
           <Route path="library" element={<LibraryPage />} />
-          <Route path="blog/:slug" element={<ArticlePage />} />
+          <Route path="blog/:slug" element={<ArticleRoute locale={locale} />} />
           {/* The retired /blog list still deep-links: send it to the landing's #artigos, in-locale. */}
           <Route path="blog" element={<Navigate to={localePath(locale, '/#artigos')} replace />} />
           {/* An in-locale unknown path falls to the locale landing (NOT bare `/`, which would loop back

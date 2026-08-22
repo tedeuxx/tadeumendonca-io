@@ -27,6 +27,20 @@ const TRACKS: ReadonlySet<Track> = new Set(['pessoal', 'engenharia']);
 
 export interface BlogPost {
   slug: string;
+  /**
+   * Slugs this edition used to be published under, and the reason this field exists at all:
+   * a published URL is a permanent contract (ADR-0010), and ADR-0037 makes a slug per-locale and therefore
+   * CORRECTABLE. Correcting one without recording what it replaced silently 404s every link already in the
+   * world — the one failure this repo cannot fix after the fact, because a scraper pins what it first read.
+   *
+   * Authored next to the slug it retires, in the same frontmatter, so the pair cannot drift; per-locale for
+   * the same reason `slug` is (it IS a slug), hence deliberately outside FACT_KEYS. `App.tsx` turns each
+   * entry into a client-side redirect to the current slug — the same `<Navigate … replace>` mechanism every
+   * other back-compat path on this site uses. Never prerendered and never in the sitemap: a redirect is not
+   * a route (ADR-0010's 2026-07-24 amendment states the rule; `routes.mjs` reads `slug` only, so it is the
+   * shape of that module rather than a filter that keeps these out).
+   */
+  previousSlugs: string[];
   title: string;
   /** ISO 8601 — keep it quoted in frontmatter so YAML doesn't coerce it to a Date. */
   date: string;
@@ -54,11 +68,18 @@ const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 
 // Facts are authored once and shared: they identify the piece, not its prose, so the two editions
 // cannot disagree about them. Prose (title, excerpt, takeaway, body) is deliberately NOT here — and
-// neither is `slug`, which is per-locale (ADR-0037): identity is the filename KEY, not the slug.
+// neither is `slug` — nor `previousSlugs`, which is a list OF slugs and per-locale for the same reason.
+// (It would also throw on every article regardless: FACT_KEYS compares with `!==`, and two arrays are
+// never `===`.) Identity is the filename KEY, not the slug (ADR-0037).
 const FACT_KEYS = ['date', 'tag', 'track', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
 
 const asTrack = (value: unknown): Track => (TRACKS.has(value as Track) ? (value as Track) : 'engenharia');
 const asString = (value: unknown): string | undefined => (value != null ? String(value) : undefined);
+// A YAML list, normalised to `string[]`. A single scalar is accepted as a one-element list because that is
+// the overwhelmingly common case (one correction), and an author writing `previousSlugs: old-slug` should
+// get a redirect rather than a silent no-op — the failure mode of dropping it is a dead published URL.
+const asStringList = (value: unknown): string[] =>
+  value == null ? [] : (Array.isArray(value) ? value : [value]).map((v) => String(v));
 
 function parse(fileSlug: string, raw: string): BlogPost {
   const m = FRONTMATTER.exec(raw);
@@ -66,6 +87,7 @@ function parse(fileSlug: string, raw: string): BlogPost {
   const body = (m ? m[2] : raw).trim();
   return {
     slug: String(fm.slug ?? fileSlug),
+    previousSlugs: asStringList(fm.previousSlugs),
     title: String(fm.title ?? fileSlug),
     date: String(fm.date ?? ''),
     tag: String(fm.tag ?? ''),
@@ -107,28 +129,39 @@ type Editions = Record<Locale, BlogPost>;
 // patterns can drift — and a drift means the sitemap rejects a slug the app accepts, or the reverse.
 export const SLUG_SHAPE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// Each branch names WHY, not just what — the rules are not guessable from the pattern, and the
+// non-ASCII one is the least obvious: "ó" IS a lowercase letter, so a pt author would otherwise
+// read the generic message and conclude the validator is wrong.
+function slugDefect(slug: string): string | undefined {
+  if (SLUG_SHAPE.test(slug)) return undefined;
+  if (slug.includes('.')) {
+    return 'a dot makes CloudFront treat the URL as a FILE, so it serves the home page with a 200 (#213)';
+  }
+  if (/[^\x20-\x7E]/.test(slug)) {
+    return (
+      'a non-ASCII character percent-encodes in the URL while the prerender writes the raw byte as ' +
+      'the S3 key, so the advertised URL and the artifact stop matching (de-accent it: "código" → "codigo")'
+    );
+  }
+  return 'expected lowercase letters, digits and single hyphens';
+}
+
+// Applies to `previousSlugs` too, and not as tidiness: a retired slug is a URL a reader is ACTUALLY on
+// when the redirect has to fire, so an unusable one is worse than an unusable current slug — the article
+// is reachable, and the only address anybody holds is the broken one.
 function assertSlugsAreUrlSafe(resolved: Record<string, Editions>): void {
   for (const [fileSlug, editions] of Object.entries(resolved)) {
     for (const locale of LOCALES) {
-      const { slug } = editions[locale];
-      if (SLUG_SHAPE.test(slug)) continue;
-      // Each branch names WHY, not just what — the rules are not guessable from the pattern, and the
-      // non-ASCII one is the least obvious: "ó" IS a lowercase letter, so a pt author would otherwise
-      // read the generic message and conclude the validator is wrong.
-      let why: string;
-      if (slug.includes('.')) {
-        why = 'a dot makes CloudFront treat the URL as a FILE, so it serves the home page with a 200 (#213)';
-      } else if (/[^\x20-\x7E]/.test(slug)) {
-        why =
-          'a non-ASCII character percent-encodes in the URL while the prerender writes the raw byte as ' +
-          'the S3 key, so the advertised URL and the artifact stop matching (de-accent it: "código" → "codigo")';
-      } else {
-        why = 'expected lowercase letters, digits and single hyphens';
+      const { slug, previousSlugs } = editions[locale];
+      for (const candidate of [slug, ...previousSlugs]) {
+        const why = slugDefect(candidate);
+        if (why === undefined) continue;
+        const which = candidate === slug ? 'slug' : 'previousSlugs entry';
+        throw new Error(
+          `content: article "${fileSlug}" has an unusable ${locale} ${which} "${candidate}" — ${why}. ` +
+            'A slug becomes a URL segment; keep it to ^[a-z0-9]+(-[a-z0-9]+)*$.',
+        );
       }
-      throw new Error(
-        `content: article "${fileSlug}" has an unusable ${locale} slug "${slug}" — ${why}. ` +
-          'A slug becomes a URL segment; keep it to ^[a-z0-9]+(-[a-z0-9]+)*$.',
-      );
     }
   }
 }
@@ -152,7 +185,10 @@ function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void
   const slugOwner = new Map<string, string>();
   for (const [fileSlug, editions] of Object.entries(resolved)) {
     for (const locale of LOCALES) {
-      const { slug } = editions[locale];
+      // `previousSlugs` are in scope for the SAME reason the current ones are: a retired slug is resolved
+      // by the same lookup, so two articles claiming one means the redirect picks a winner silently and
+      // sends a reader holding a real, published URL to somebody else's article.
+      for (const slug of [editions[locale].slug, ...editions[locale].previousSlugs]) {
       const owner = slugOwner.get(slug);
       if (owner !== undefined && owner !== fileSlug) {
         throw new Error(
@@ -162,6 +198,34 @@ function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void
         );
       }
       slugOwner.set(slug, fileSlug);
+      }
+    }
+  }
+}
+
+/**
+ * A retired slug must not also be a LIVE slug — anywhere, including on the article that retired it.
+ *
+ * Separate from the collision check above because the collision check is owner-scoped (`owner !== fileSlug`),
+ * so the two shapes it cannot see are exactly the two that matter here: an article listing its own current
+ * slug as retired, which makes the redirect target itself and loops the browser; and a slug retired by one
+ * article while another still publishes it, which the owner comparison lets through in one direction.
+ */
+function assertRetiredSlugsAreNotLive(resolved: Record<string, Editions>): void {
+  const live = new Set<string>();
+  for (const editions of Object.values(resolved)) {
+    for (const locale of LOCALES) live.add(editions[locale].slug);
+  }
+  for (const [fileSlug, editions] of Object.entries(resolved)) {
+    for (const locale of LOCALES) {
+      for (const retired of editions[locale].previousSlugs) {
+        if (!live.has(retired)) continue;
+        throw new Error(
+          `content: article "${fileSlug}" lists "${retired}" as a retired ${locale} slug, but that slug is ` +
+            'still published. A retired slug becomes a redirect, so this would either loop the browser onto ' +
+            'itself or shadow a live article. Remove it from previousSlugs, or stop publishing it.',
+        );
+      }
     }
   }
 }
@@ -230,6 +294,7 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
 
   assertSlugsAreUrlSafe(resolved);
   assertSlugsIdentifyOneArticle(resolved);
+  assertRetiredSlugsAreNotLive(resolved);
   return resolved;
 }
 
@@ -265,7 +330,27 @@ export function getPostBySlug(slug: string, locale: Locale): BlogPost | undefine
  * whole group so callers can read the sibling locale's slug (for hreflang, the toggle, the sitemap).
  */
 export function getEditions(slug: string, locale: Locale): Editions | undefined {
-  return Object.values(editionsBySlug).find((eds) => eds[locale].slug === slug);
+  return Object.values(editionsBySlug).find(
+    (eds) => eds[locale].slug === slug || eds[locale].previousSlugs.includes(slug),
+  );
+}
+
+/**
+ * The CURRENT slug of the article that used to be published at `slug` in `locale`, or undefined when
+ * `slug` is not retired (either it is live, or it is unknown).
+ *
+ * Deliberately NOT folded into `getPostBySlug`: the caller has to be able to tell "this is the article"
+ * from "this is where the article used to be", because the two need different answers — render, versus
+ * redirect so the address bar and every subsequent share carry the corrected URL. A lookup that quietly
+ * resolved a retired slug to the post would leave the old URL rendering forever, which reads as working
+ * and keeps the retired address in circulation.
+ */
+export function supersededSlugTarget(slug: string, locale: Locale): string | undefined {
+  const current = getEditions(slug, locale)?.[locale].slug;
+  // `current === slug` is the LIVE case, and it is compared rather than pre-checked so the "no redirect"
+  // answer comes from the same lookup as the "redirect here" one — two lookups could disagree, and the
+  // disagreement would be a redirect pointing at itself.
+  return current === undefined || current === slug ? undefined : current;
 }
 
 /** The `to`-locale slug of the article whose `from`-locale slug is `slug`, or undefined if unknown. */
