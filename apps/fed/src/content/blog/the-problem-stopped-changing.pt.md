@@ -1,5 +1,5 @@
 ---
-title: "Que é história de alguém, com você dentro"
+title: "Consegui tudo o que eu fui buscar. Menos problema novo."
 slug: o-problema-parou-de-variar
 date: '2026-08-21T12:00:00.000Z'
 tag: career
