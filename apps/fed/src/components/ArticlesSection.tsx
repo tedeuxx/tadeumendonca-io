@@ -51,21 +51,38 @@ function TrackChip({ track }: { track: Track }) {
  * WHEN `/architecture` WAS PUBLISHED — the one place this date exists, because two places is how the
  * card's rendered date and its position in the list start disagreeing.
  *
- * SOURCED, NOT INVENTED. `docs/adr/0010-routing-landing-cv-split-redirects.md` carries the amendment
- * that made this surface public: *"## Amendment (2026-07-25) — `/architecture`, a fifth public surface"*,
- * whose first line is "`/architecture` joins `/`, `/me`, `/portfolio` and `/ramp-up` as a real route with
- * a nav entry". Git cannot answer this question: the repo's history begins at b2b59bc (2026-07-31), a
- * single commit that adds the whole tree with `content/architecture.en.md` already in it, so every
- * `git log --diff-filter=A` on this page reports the history reset rather than the publication.
+ * IT IS LAUNCH DAY, AND IT IS A DECISION RATHER THAN A LOOKUP. `/architecture` shipped BEFORE the site
+ * was public, so it has no publication event of its own — it entered the world when the site did. The
+ * owner made that call; nothing in this repo could settle it, and the honest form of the record is to
+ * say so rather than to dress a decision as a citation.
+ *
+ * What the repo DOES establish, and what each clause is good for:
+ *   · launch day is 2026-07-26 — `docs/adr/0038-content-distribution-linkedin-and-x.md` dates
+ *     `my-commitment`'s frontmatter `2026-07-26T22:00:00.000Z` and glosses it "launch day";
+ *   · the site was NOT public before it — `docs/adr/0037-localized-article-slugs.md` records *"The
+ *     'pre-launch, not yet published' premise expired on 2026-07-26 — the site launched"*;
+ *   · `/architecture` predates that — `docs/adr/0010-routing-landing-cv-split-redirects.md`'s
+ *     `## Amendment (2026-07-25)` adds the route, and the later `/library` amendment says of the
+ *     post-launch rule *"This is the first surface this ADR has added under that rule"*, which places
+ *     every earlier surface, this one included, on the pre-launch side.
+ *
+ * WHAT WAS REJECTED, so it is not re-proposed: the 2026-07-25 ADR amendment date. That is when the
+ * decision was RECORDED, and the owner's sort key is when the section was PUBLISHED — the repo puts
+ * those two events on opposite sides of launch. Also rejected: the exact launch instant
+ * `T22:00:00.000Z`, which ties `my-commitment` and would move this row above it.
+ *
+ * Git cannot corroborate any of it: the history begins at b2b59bc (2026-07-31), a single commit that
+ * adds the whole tree with `content/architecture.en.md` already in it, so every `git log
+ * --diff-filter=A` on this page reports the history reset rather than a publication.
  *
  * THE TIME OF DAY IS 12:00Z AND THAT IS LOAD-BEARING, not padding to match the ISO shape. `fmtDate`
  * below renders through `toLocaleDateString` in the READER'S timezone, so `T00:00:00Z` prints as
- * 2026-07-24 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is not safe in
+ * 2026-07-25 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is not safe in
  * EVERY zone (UTC+14 would need an hour below 10, UTC-12 an hour at or above 12 — contradictory), it is
  * the maximal-margin choice: the same calendar day from UTC-12 through UTC+11, which covers both
  * editions' readerships. `the-problem-stopped-changing` is authored `T12:00:00.000Z` for the same reason.
  */
-export const ARCHITECTURE_PUBLISHED = '2026-07-25T12:00:00.000Z';
+export const ARCHITECTURE_PUBLISHED = '2026-07-26T12:00:00.000Z';
 
 // THE /architecture TEASER CARD (#450, slice 2) — a row in this list, sorted among the articles by
 // `ARCHITECTURE_PUBLISHED` above, outside the track filter, and visually an article card. It replaces the
@@ -135,7 +152,7 @@ export function ArchitectureCard() {
       <div className={ROW_META}>
         <time dateTime={ARCHITECTURE_PUBLISHED}>{fmtDate(ARCHITECTURE_PUBLISHED, locale)}</time>
         <span>·</span>
-        <span className={CHIP}>{t('architecture.cardTrack')}</span>
+        <span data-testid="architecture-card-chip" className={CHIP}>{t('architecture.cardTrack')}</span>
       </div>
 
       <RouterLink to={to} className="block">

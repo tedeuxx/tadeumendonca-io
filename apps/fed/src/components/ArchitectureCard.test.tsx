@@ -91,6 +91,18 @@ describe('ArchitectureCard', () => {
     expect(time!.textContent).toBe(shownDate(locale));
   });
 
+  // THE HANDLE THE E2E SELECTS THE CHIP ON. `e2e/architecture-card.spec.ts` measures that the chip is
+  // whole and inside the viewport at four widths, and it can only find it through this attribute — the
+  // chip stopped being the card's only `span` when the date arrived. Pinned HERE because that suite
+  // needs a build and a browser: without this assertion, deleting the attribute is a green unit run and
+  // a red E2E minutes later, reported as a stale locator rather than as the deletion it is.
+  it('gives the chip the handle the E2E selects it by', () => {
+    render();
+    const chip = card().querySelector('[data-testid="architecture-card-chip"]');
+    expect(chip).not.toBeNull();
+    expect(chip!.textContent).toBe(translate('pt', 'architecture.cardTrack'));
+  });
+
   // THE TIME OF DAY IS PART OF THE DECISION, so it is pinned. `toLocaleDateString` renders in the
   // READER'S zone, so a `T00:00:00Z` value prints as the day BEFORE to every reader west of Greenwich —
   // including the owner, at UTC-3, and including the rendered date this suite asserts above.

@@ -188,10 +188,23 @@ describe('ArticlesSection', () => {
       getAllPosts.mockReturnValue([]);
       renderSection(locale);
 
-      expect(screen.getByText(translate(locale, 'articles.empty'))).toBeInTheDocument();
-      expect(screen.getByTestId('architecture-card').textContent).toContain(cardTitle(locale));
+      const empty = screen.getByText(translate(locale, 'articles.empty'));
+      const card = screen.getByTestId('architecture-card');
+      expect(empty).toBeInTheDocument();
+      expect(card.textContent).toContain(cardTitle(locale));
       // And it is still the only <article> — the empty state is not one, so "first" is not vacuous here.
       expect(screen.getAllByRole('article')).toHaveLength(1);
+
+      // THE EMPTY STATE COMES FIRST, and this ordering is REACHABLE TODAY rather than theoretical: both
+      // published articles are `track: engenharia`, so pressing "Vida pessoal" renders exactly this.
+      //
+      // It is asserted because it is the better of the two orders and nothing else would hold it. The
+      // message is scoped to the chip the reader just pressed ("nesta trilha"), so it belongs directly
+      // under that control; the card follows, chip-labelled "Seção do site", and the column reads *no
+      // writing in this track* → *here is something that is not writing*. The PINNED order was the
+      // inverse — a visible row sitting directly above a sentence saying there is nothing here, which
+      // invites the reader to take the message as false or the card as an article the filter missed.
+      expect(empty.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
     // The article rows keep `articles.read`. The card dropping it must not become the section dropping it:

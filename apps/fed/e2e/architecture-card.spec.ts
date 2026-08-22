@@ -18,11 +18,18 @@ const HEIGHT = 900;
 
 const CARD = '[data-testid="architecture-card"]';
 const CONTROL = `${CARD} .flex > a`;
-// The chip is selected by its BORDER class, not by being the card's only `span`. It stopped being the
-// only one when the card gained its publication date: the meta row now holds a `<time>` and an unstyled
-// `<span>·</span>` separator beside it, and a bare `${CARD} span` matched two elements — which the
-// `boxes.length` guard below would have reported as a stale locator rather than as what it was.
-const CHIP = `${CARD} span[class*="border-border"]`;
+// The chip is selected by its OWN handle. It stopped being the card's only `span` when the card gained
+// its publication date — the meta row now holds a `<time>` and an unstyled `<span>·</span>` separator
+// beside it, and a bare `${CARD} span` matched two elements, which the `boxes.length` guard below would
+// have reported as a stale locator rather than as what it was.
+//
+// A class selector (`span[class*="border-border"]`) also disambiguates and was rejected: it couples this
+// suite to a Tailwind COLOUR TOKEN, so renaming a design-system token — a change that alters nothing a
+// reader can see and nothing this suite is about — turns the run red. A false red costs more than a
+// missing assertion, because it teaches the next reader that this file is noisy. `src/components/
+// ArchitectureCard.test.tsx` pins the handle in the fast suite, so removing it fails in seconds rather
+// than here.
+const CHIP = `${CARD} [data-testid="architecture-card-chip"]`;
 
 const LABEL: Record<string, { control: string; chip: string }> = {
   '/pt': { control: 'Arquitetura', chip: 'Seção do site' },
