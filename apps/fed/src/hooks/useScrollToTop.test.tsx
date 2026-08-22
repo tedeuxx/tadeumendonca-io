@@ -38,6 +38,12 @@ function Harness({ onRender }: { onRender?: () => void } = {}) {
       <button type="button" onClick={() => navigate('/pt/#nothing-here')}>
         push-missing-hash
       </button>
+      <button type="button" onClick={() => navigate('/pt/#se%C3%A7%C3%A3o')}>
+        push-encoded-hash
+      </button>
+      <button type="button" onClick={() => navigate('/pt/#%zz')}>
+        push-malformed-hash
+      </button>
       <button type="button" onClick={() => navigate(-1)}>
         back
       </button>
@@ -114,6 +120,28 @@ describe('useScrollToTop', () => {
     fireEvent.click(screen.getByRole('button', { name: 'push-missing-hash' }));
 
     expect(scrollIntoView).not.toHaveBeenCalled();
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+  });
+
+  it('decodes a percent-encoded hash before looking the element up', () => {
+    const section = document.createElement('section');
+    section.id = 'seção'; // the id is literal; the URL spells it %C3%A7 / %C3%A3
+    document.body.appendChild(section);
+
+    mount();
+    fireEvent.click(screen.getByRole('button', { name: 'push-encoded-hash' }));
+
+    expect(scrollIntoView.mock.instances[0]).toBe(section);
+  });
+
+  // `decodeURIComponent` throws a URIError on a malformed sequence, and an exception raised inside an
+  // effect unmounts the tree — the whole app, not just the scroll. Reachable because `RootRedirect`
+  // copies the address bar's hash verbatim onto its <Navigate>.
+  it('survives a malformed percent-sequence in the hash instead of taking the app down', () => {
+    mount();
+
+    expect(() => fireEvent.click(screen.getByRole('button', { name: 'push-malformed-hash' }))).not.toThrow();
+    // And it still does the sensible thing: no element by that name, so show the page from the top.
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
   });
 

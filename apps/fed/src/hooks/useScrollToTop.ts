@@ -42,6 +42,21 @@
 import { useEffect } from 'react';
 import { NavigationType, useLocation, useNavigationType } from 'react-router-dom';
 
+// A hash is percent-encoded in the URL but the `id` attribute it names is not, so it has to be
+// decoded before the lookup. `decodeURIComponent` THROWS a URIError on a malformed sequence (`#%`,
+// `#%zz`), and that is reachable rather than theoretical: `RootRedirect` copies the hash from the
+// address bar verbatim onto its `<Navigate>`, so a hand-typed or truncated URL would put a raw `%`
+// here — and an exception thrown from inside an effect takes the whole app down, not just the scroll.
+// An undecodable hash names no element anyway, so falling back to the raw string reaches the same
+// `getElementById(…) → null` the encoded case would, and the caller's top branch handles it.
+function decodeHash(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 export function useScrollToTop(): void {
   const { pathname, hash } = useLocation();
   const navigationType = useNavigationType();
@@ -53,8 +68,7 @@ export function useScrollToTop(): void {
     if (navigationType === NavigationType.Pop) return;
 
     if (hash) {
-      // Decoded because a hash is percent-encoded in the URL but the `id` attribute is not.
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      const target = document.getElementById(decodeHash(hash.slice(1)));
       if (target) {
         target.scrollIntoView();
         return;
