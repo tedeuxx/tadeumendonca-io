@@ -189,15 +189,15 @@ function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void
       // by the same lookup, so two articles claiming one means the redirect picks a winner silently and
       // sends a reader holding a real, published URL to somebody else's article.
       for (const slug of [editions[locale].slug, ...editions[locale].previousSlugs]) {
-      const owner = slugOwner.get(slug);
-      if (owner !== undefined && owner !== fileSlug) {
-        throw new Error(
-          `content: slug "${slug}" is claimed by two different articles — "${owner}" and "${fileSlug}". ` +
-            'Slugs are what every lookup resolves on, so a shared one makes an article unreachable and ' +
-            'can route a reader to the wrong piece. Give each article a distinct slug in every locale.',
-        );
-      }
-      slugOwner.set(slug, fileSlug);
+        const owner = slugOwner.get(slug);
+        if (owner !== undefined && owner !== fileSlug) {
+          throw new Error(
+            `content: slug "${slug}" is claimed by two different articles — "${owner}" and "${fileSlug}". ` +
+              'Slugs are what every lookup resolves on, so a shared one makes an article unreachable and ' +
+              'can route a reader to the wrong piece. Give each article a distinct slug in every locale.',
+          );
+        }
+        slugOwner.set(slug, fileSlug);
       }
     }
   }
@@ -206,10 +206,16 @@ function assertSlugsIdentifyOneArticle(resolved: Record<string, Editions>): void
 /**
  * A retired slug must not also be a LIVE slug — anywhere, including on the article that retired it.
  *
- * Separate from the collision check above because the collision check is owner-scoped (`owner !== fileSlug`),
- * so the two shapes it cannot see are exactly the two that matter here: an article listing its own current
- * slug as retired, which makes the redirect target itself and loops the browser; and a slug retired by one
- * article while another still publishes it, which the owner comparison lets through in one direction.
+ * Separate from the collision check above, and the division between them is narrower than it looks — stated
+ * exactly, because a guard described as catching more than it does is how the uncaught case survives a
+ * review. The collision check is owner-scoped (`owner !== fileSlug`), so it already catches EVERY
+ * cross-article shape, in both iteration orders. What it structurally cannot see is the SAME-article case:
+ * an edition listing its own current slug as retired, where `owner === fileSlug` and the comparison is
+ * silent. That is the one this guard is here for, and it is a real failure — the redirect targets the URL
+ * it fired from, so the browser loops.
+ *
+ * The cross-article case is asserted here anyway (`content.test.ts`, against the collision message it
+ * actually produces) because what matters is that it throws, not which line throws.
  */
 function assertRetiredSlugsAreNotLive(resolved: Record<string, Editions>): void {
   const live = new Set<string>();
