@@ -18,7 +18,18 @@ const HEIGHT = 900;
 
 const CARD = '[data-testid="architecture-card"]';
 const CONTROL = `${CARD} .flex > a`;
-const CHIP = `${CARD} span`;
+// The chip is selected by its OWN handle. It stopped being the card's only `span` when the card gained
+// its publication date — the meta row now holds a `<time>` and an unstyled `<span>·</span>` separator
+// beside it, and a bare `${CARD} span` matched two elements, which the `boxes.length` guard below would
+// have reported as a stale locator rather than as what it was.
+//
+// A class selector (`span[class*="border-border"]`) also disambiguates and was rejected: it couples this
+// suite to a Tailwind COLOUR TOKEN, so renaming a design-system token — a change that alters nothing a
+// reader can see and nothing this suite is about — turns the run red. A false red costs more than a
+// missing assertion, because it teaches the next reader that this file is noisy. `src/components/
+// ArchitectureCard.test.tsx` pins the handle in the fast suite, so removing it fails in seconds rather
+// than here.
+const CHIP = `${CARD} [data-testid="architecture-card-chip"]`;
 
 const LABEL: Record<string, { control: string; chip: string }> = {
   '/pt': { control: 'Arquitetura', chip: 'Seção do site' },
@@ -71,9 +82,16 @@ test.describe('the architecture teaser card', () => {
   }
 
   // THE SHAPE DECISION ITSELF, measured on the served build rather than only in jsdom: the card is INSIDE
-  // the article list and is its first row, the landing's spine is hero → grid with nothing between, and
-  // the hero row is still four controls.
-  test('/pt: is the first row of the article list, and adds no fifth hero control', async ({ page }) => {
+  // the article list, the landing's spine is hero → grid with nothing between, and the hero row is still
+  // four controls.
+  //
+  // WHAT THIS TEST NO LONGER ASSERTS, and why the replacement is stronger: it pinned the card as row ONE.
+  // The owner reversed that pin — the row now takes its chronological place among the articles — so
+  // asserting a fixed index would be asserting the behaviour he rejected. What replaced it is the
+  // property the un-pin actually created: every row in `#artigos`, the card included, carries a `<time>`,
+  // and those dates run newest-first down the column. That holds for any number of published articles,
+  // where an index assertion would have to be edited every time one ships.
+  test('/pt: the list runs newest-first including the card, and adds no fifth hero control', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: HEIGHT });
     await page.goto('/pt');
     await page.waitForLoadState('networkidle');
@@ -87,7 +105,12 @@ test.describe('the architecture teaser card', () => {
       return {
         found: card !== null,
         insideTheList: articles?.contains(card!) ?? false,
-        firstRow: rows[0] === card,
+        // Every row's machine-readable date, in DOM order, with the card's own position named so a
+        // failure says WHICH row broke the order rather than only that the sequence did.
+        dates: rows.map((row) => ({
+          isCard: row === card,
+          datetime: row.querySelector('time')?.getAttribute('datetime') ?? null,
+        })),
         heroBottom: document.querySelector('header#top')?.getBoundingClientRect().bottom ?? NaN,
         listTop: articles?.getBoundingClientRect().top ?? NaN,
       };
@@ -95,7 +118,29 @@ test.describe('the architecture teaser card', () => {
 
     expect(shape.found, 'the card is not on the page').toBe(true);
     expect(shape.insideTheList, 'the card rendered outside #artigos — that is the band again').toBe(true);
-    expect(shape.firstRow, 'the card is not the first row of the list').toBe(true);
+
+    // The card plus the published articles. A list that failed to render satisfies "the dates are in
+    // order" vacuously, and the card alone satisfies it too, so the floor is asserted first.
+    expect(shape.dates.length, 'the article list did not render').toBeGreaterThan(1);
+    expect(shape.dates.some((r) => r.isCard), 'the card is not one of the rows').toBe(true);
+    for (const row of shape.dates) {
+      expect(row.datetime, 'a row in the list carries no <time> — it cannot be placed in the order').not.toBeNull();
+    }
+    const order = shape.dates.map((r) => r.datetime!);
+    expect(order, 'the list is not newest-first — the card or a row is out of chronological place').toEqual(
+      [...order].sort().reverse(),
+    );
+
+    // AND THE CARD IS NOT THE FIRST ROW. The assertion above is necessary and NOT sufficient, which is
+    // what the gate measured: a wrong publication date that is newer than every article leaves the list
+    // perfectly newest-first WITH the card back on top — the pinned state this slice exists to remove,
+    // green everywhere. "Newest-first" cannot catch it, because a re-pinned card is a correctly sorted
+    // list; only the card's own place in it is wrong.
+    //
+    // Sound for any future corpus, not just today's: nothing can be published before the site was public,
+    // and the card is dated launch day, so it can never legitimately be the newest row. Guarded by the
+    // length check above — with the card as the only row it would be first, and that is not this defect.
+    expect(shape.dates[0].isCard, 'the architecture card is the first row again — it is pinned').toBe(false);
     // Nothing between the hero and the list: the gap is layout padding, not another block. Measured
     // rather than asserted structurally, because "descaracterizou a home" was a visual verdict.
     expect(shape.listTop - shape.heroBottom).toBeLessThan(HEIGHT / 2);

@@ -1,8 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { screen, within } from '@testing-library/react';
-import { ArchitectureCard } from './ArticlesSection';
+import { ArchitectureCard, ARCHITECTURE_PUBLISHED } from './ArticlesSection';
 import { renderWithLocale } from '../test-utils';
 import { translate } from '../i18n/messages';
+import { dateLocale, type Locale } from '../i18n';
+import { getAllPosts } from '../lib/content';
+
+// The date the card must show, derived from the exported constant rather than typed as a literal: a
+// literal here would keep passing after someone edited the constant, which is the one thing this suite
+// exists to notice now that the row's POSITION is computed from that same value.
+const shownDate = (locale: Locale) =>
+  new Date(ARCHITECTURE_PUBLISHED).toLocaleDateString(dateLocale(locale), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 
 // The /architecture teaser card (#450, slice 2) — the object that replaced the band shipped in #461.
 //
@@ -48,21 +60,94 @@ describe('ArchitectureCard', () => {
     expect(label).not.toBe(translate(locale, 'articles.read'));
   });
 
-  // THE EMPTY SLOTS, asserted as a WHOLE-TEXT equality rather than four absences. Same reason as above:
-  // an absence assertion is satisfied by a card that failed to render, and four of them in sequence stop
-  // at the first failure. This single assertion covers the date, the #tag, the takeaway label and the
-  // read control at once, and it names what the card IS instead of listing what it is not.
-  it.each(['pt', 'en'] as const)('carries the chip, the title, the excerpt and nothing else (%s)', (locale) => {
+  // THE SLOTS, asserted as a WHOLE-TEXT equality rather than as a list of presences and absences: an
+  // absence assertion is satisfied by a card that failed to render, and a run of them stops at the first
+  // failure. This single assertion covers what the card carries AND what it still does not — the #tag and
+  // the takeaway label — and it names what the card IS instead of listing what it is not.
+  //
+  // THE DATE IS IN THE STRING NOW, where it used to be asserted absent. That inversion is the whole of
+  // this slice on this file: the row sorts by its publication date, so hiding the key it sorts by would
+  // be worse than the pin it replaced.
+  it.each(['pt', 'en'] as const)('carries the date, the chip, the title and the excerpt (%s)', (locale) => {
     render(locale);
     expect(card().textContent).toBe(
-      translate(locale, 'architecture.cardTrack') +
+      shownDate(locale) +
+        '·' +
+        translate(locale, 'architecture.cardTrack') +
         translate(locale, 'architecture.cardTitle') +
         translate(locale, 'architecture.cardExcerpt') +
         translate(locale, 'nav.architecture'),
     );
-    // The date slot specifically, by element rather than by text: a `<time>` rendered with an empty
-    // value would survive the equality above and still emit a machine-readable publication date.
-    expect(card().querySelector('time')).toBeNull();
+  });
+
+  // THE MACHINE-READABLE DATE, by element and attribute rather than by the rendered text above. The text
+  // is what a reader sees; `datetime` is what a crawler reads and what the section's own sort compares,
+  // so a `<time>` whose attribute drifted from the constant would leave the visible date right and the
+  // row in the wrong place. Locale-independent by construction — the attribute is the ISO value.
+  it.each(['pt', 'en'] as const)('emits the publication date as a machine-readable <time> (%s)', (locale) => {
+    render(locale);
+    const time = card().querySelector('time');
+    expect(time).not.toBeNull();
+    expect(time).toHaveAttribute('datetime', ARCHITECTURE_PUBLISHED);
+    expect(time!.textContent).toBe(shownDate(locale));
+  });
+
+  // THE HANDLE THE E2E SELECTS THE CHIP ON. `e2e/architecture-card.spec.ts` measures that the chip is
+  // whole and inside the viewport at four widths, and it can only find it through this attribute — the
+  // chip stopped being the card's only `span` when the date arrived. Pinned HERE because that suite
+  // needs a build and a browser: without this assertion, deleting the attribute is a green unit run and
+  // a red E2E minutes later, reported as a stale locator rather than as the deletion it is.
+  it('gives the chip the handle the E2E selects it by', () => {
+    render();
+    const chip = card().querySelector('[data-testid="architecture-card-chip"]');
+    expect(chip).not.toBeNull();
+    expect(chip!.textContent).toBe(translate('pt', 'architecture.cardTrack'));
+  });
+
+  // THE CARD CANNOT BE THE NEWEST ROW — the assertion that closes a hole the rest of this suite could
+  // not see. Read it against what it was measured on rather than as a nicety.
+  //
+  // THE PROBE THAT MOTIVATED IT: set the constant to `2026-08-22T12:00:00.000Z` — a WRONG date that is
+  // still midday, so the hour pin below stays green — and the card is the FIRST row of the live home
+  // page again. Unit suite green, prerendered build re-pinned, Playwright green. The whole gate passed
+  // on the exact state this slice exists to prevent, because every other date assertion here DERIVES its
+  // expectation from the constant, and a derived expectation moves with the value it is meant to check.
+  //
+  // WHY IT LIVES IN THIS FILE, not in `ArticlesSection.test.tsx`: that suite mocks `getAllPosts`, so its
+  // dates are synthetic and "the card is not first" is FALSE there by construction — one of its tests
+  // correctly asserts the card IS first when every mocked article is older. It cannot see the real
+  // corpus. This file does not mock the module, so it reads what is actually published, and it fails in
+  // seconds where the E2E needs a build and a browser.
+  //
+  // WHY IT IS A RULE rather than a property of today's two articles: nothing can be published before the
+  // site was public, and this constant IS launch day. So every article that will ever exist is dated at
+  // or after it, and the card can never legitimately sort to the top. A future article cannot invalidate
+  // this the way a hardcoded position would.
+  it('is never the newest row — no published article predates the section', () => {
+    for (const locale of ['pt', 'en'] as const) {
+      const posts = getAllPosts(locale);
+      // The corpus is the ruler, so an empty one would leave the loop below asserting nothing at all.
+      expect(posts.length, 'no articles loaded — this assertion would be vacuous').toBeGreaterThan(0);
+      for (const post of posts) {
+        expect(
+          post.date >= ARCHITECTURE_PUBLISHED,
+          `"${post.title}" (${post.date}) predates the section (${ARCHITECTURE_PUBLISHED}), ` +
+            'which would put the architecture card above it on the home page',
+        ).toBe(true);
+      }
+    }
+  });
+
+  // THE TIME OF DAY IS PART OF THE DECISION, so it is pinned. `toLocaleDateString` renders in the
+  // READER'S zone, so a `T00:00:00Z` value prints as the day BEFORE to every reader west of Greenwich —
+  // including the owner, at UTC-3, and including the rendered date this suite asserts above.
+  //
+  // No instant is safe in EVERY zone (UTC+14 needs hour < 10, UTC-12 needs hour >= 12 — contradictory),
+  // so 12:00Z is the maximal-margin choice rather than a guarantee: it holds from UTC-12 through UTC+11,
+  // which covers both editions' readerships. Pinned exactly, because "near midday" is the kind of
+  // constraint that erodes one edit at a time.
+  it('is authored at midday UTC, so the rendered calendar day does not shift west of Greenwich', () => {
+    expect(new Date(ARCHITECTURE_PUBLISHED).getUTCHours()).toBe(12);
   });
 
   // The card is about WHAT THE READER GETS, never about who built it — the Hero's published body ends
