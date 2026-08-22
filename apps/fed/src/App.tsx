@@ -20,6 +20,7 @@ import { LibraryPage } from './pages/LibraryPage';
 import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale, type Locale } from './i18n/config';
 import { articlePathForLocale, supersededSlugTarget } from './lib/content';
+import { useScrollToTop } from './hooks/useScrollToTop';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -100,11 +101,22 @@ function LocaleApp() {
   );
 }
 
+// Scroll behaviour on route change (#scroll-to-top). Mounted HERE, above the route table rather than
+// inside `LocaleApp`, for two reasons: it must survive a locale switch (`/pt/x` → `/en/x` remounts
+// LocaleApp, and a hook inside it would re-mount and lose its navigation type), and `RootRedirect`
+// renders outside `LocaleApp` entirely. The rules it applies — and why the back button is exempt —
+// are on the hook itself. Renders nothing.
+function ScrollToTop() {
+  useScrollToTop();
+  return null;
+}
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ConsentProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path=":locale/*" element={<LocaleApp />} />
             <Route path="*" element={<RootRedirect />} />
