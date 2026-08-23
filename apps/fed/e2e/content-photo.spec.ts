@@ -213,3 +213,87 @@ test.describe('the content photographs', () => {
     ).toBeGreaterThan(0);
   });
 });
+
+// THE PORTRAIT CAP, MEASURED IN A REAL CASCADE.
+//
+// WHY THIS EXISTS AND WHY IT IS HERE RATHER THAN IN `PhotoFigure.test.tsx`. The cap shipped twice and
+// worked neither time. `PhotoFigure` emitted `max-w-md`, then `max-w-[224px]` when the owner asked for
+// half — and the badge went on laying out at the full 922px column both times, because
+// `styles/index.css` carried `.markdown img { max-width: 100% }`, specificity (0,1,1), which beats every
+// Tailwind utility (0,1,0) on an image inside a body. The class was in the markup the whole time.
+//
+// So the unit test could not have caught it: jsdom has no cascade, and asserting `className` contains
+// `max-w-[224px]` is exactly as true in the broken world as in the fixed one. And the spec above could
+// not either — it only visits /architecture, whose photographs are landscape and are SUPPOSED to fill the
+// column, so the one route where the cap is load-bearing was the one route never measured.
+//
+// What is asserted is therefore the COMPUTED BOX, on the article, at a width where the column is four
+// times the cap. A regression that puts specificity back in front of the utility turns this red on the
+// first run instead of shipping a third full-width badge.
+const ARTICLE_ROUTES = ['/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha', '/en/blog/from-cloud-to-ai-same-badge'];
+const PORTRAIT_CAP = 224;
+
+test.describe('the portrait photograph in an article body', () => {
+  for (const route of ARTICLE_ROUTES) {
+    test(`${route}: is capped at ${PORTRAIT_CAP}px and centred, in a column far wider than that`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: HEIGHT });
+      await page.goto(route);
+      await page.waitForLoadState('networkidle');
+      await loadEveryPhotograph(page);
+
+      const seen = await page.locator('figure[data-photo] img').evaluateAll((els) =>
+        els.map((el) => {
+          const img = el as HTMLImageElement;
+          const box = img.getBoundingClientRect();
+          const column = img.closest('figure')!.getBoundingClientRect();
+          return {
+            src: img.getAttribute('src') ?? '(no src)',
+            width: Math.round(box.width),
+            height: Math.round(box.height),
+            columnWidth: Math.round(column.width),
+            loaded: img.naturalWidth > 0,
+            // The CONTENT box. The cap is a border-box number and the figure wears a 1px border, so the
+            // ratio has to be checked on the box the border is not part of — otherwise the expectation is
+            // off by the border width and the test fails on a perfectly good picture.
+            contentWidth: img.clientWidth,
+            contentHeight: img.clientHeight,
+            // The two the reservation depends on, read back off the element rather than off the registry.
+            attrWidth: Number(img.getAttribute('width')),
+            attrHeight: Number(img.getAttribute('height')),
+            // Distance from each side of the figure to the image — equal means centred.
+            gapLeft: Math.round(box.left - column.left),
+            gapRight: Math.round(column.right - box.right),
+          };
+        }),
+      );
+
+      // The guard that makes the loop mean something: no figure passes a `for` in silence, and this
+      // article having exactly one photograph is itself the thing being relied on.
+      expect(seen.length, 'the article has no photograph — the data-photo hook went stale').toBe(1);
+      const fig = seen[0];
+
+      expect(fig.loaded, `${fig.src} did not decode — the file is missing or corrupt`).toBe(true);
+      // The premise: without a column much wider than the cap, a capped image and an uncapped one are the
+      // same measurement and this test proves nothing.
+      expect(fig.columnWidth, 'the body column is not wider than the cap — the check is vacuous').toBeGreaterThan(
+        PORTRAIT_CAP * 2,
+      );
+      expect(fig.width, `${fig.src} is not capped — it laid out at ${fig.width}px`).toBe(PORTRAIT_CAP);
+      // The height follows the file's own ratio rather than the declared height, which is what `h-auto`
+      // is for: drop it and the `height` attribute wins and the badge lays out squashed. One pixel of
+      // slack for subpixel rounding — a squash misses by a hundred, so the tolerance costs nothing.
+      const expectedHeight = (fig.contentWidth * fig.attrHeight) / fig.attrWidth;
+      expect(
+        Math.abs(fig.contentHeight - expectedHeight),
+        `${fig.src} laid out ${fig.contentWidth}×${fig.contentHeight}, not the file's own ${fig.attrWidth}×${fig.attrHeight} ratio`,
+      ).toBeLessThanOrEqual(1);
+      // Portrait, from the element the reader actually got — if the file is ever recropped to landscape
+      // this says so instead of quietly asserting the wrong branch.
+      expect(fig.attrHeight, 'the article photograph is not portrait any more').toBeGreaterThan(fig.attrWidth);
+      // Centred in the column, not left-aligned against it.
+      expect(Math.abs(fig.gapLeft - fig.gapRight), 'the capped photograph is not centred').toBeLessThanOrEqual(1);
+    });
+  }
+});

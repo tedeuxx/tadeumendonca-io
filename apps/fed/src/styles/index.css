@@ -516,7 +516,20 @@ body {
   background: none;
   padding: 0;
 }
-.markdown img {
+/* THE DEFAULT FOR A MARKDOWN IMAGE, AND IT MUST NOT BEAT THE FIGURE'S OWN CAP.
+   Written as `.markdown img` until now, which is specificity (0,1,1) and therefore beat EVERY Tailwind
+   utility (0,1,0) on an image inside a body. `PhotoFigure` has emitted a width cap on the portrait branch
+   since #482 — `max-w-md` (448px) there, `max-w-[224px]` when the owner asked for half in #488 — and
+   NEITHER EVER APPLIED: the class was in the markup, the computed `max-width` was `100%`, and the badge
+   laid out at the full 922px column both times. That is why "reduzida no tamanho" kept not happening, and
+   why no test caught it:
+   `PhotoFigure.test.tsx` asserts the CLASS STRING (jsdom has no cascade), and `e2e/content-photo.spec.ts`
+   only visits /architecture, whose photographs are landscape and are SUPPOSED to fill the column.
+   `:where()` contributes zero specificity, so this drops to (0,0,1) — still a default for any image that
+   declares no cap of its own, and no longer a silent veto over one that does. Preflight already sets the
+   same `max-width: 100%` on every `img` at the same specificity, so nothing is weakened that Tailwind was
+   not already providing. */
+:where(.markdown) img {
   max-width: 100%;
   border-radius: 0;
 }
