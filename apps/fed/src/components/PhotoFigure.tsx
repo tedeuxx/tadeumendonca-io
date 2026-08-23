@@ -33,15 +33,21 @@ import type { PhotoAsset } from '../data/photos';
  * rhythm is set here with the same `my-8` so the two figure classes read as one decision to a reader while
  * staying two different things to a selector.
  */
+// `Readonly<…>` on the props satisfies SonarCloud's `typescript:S6759`, and it is the FIRST use of that
+// wrapper in this codebase — every other component still declares props bare. That inconsistency is
+// deliberate and is not a cleanup someone forgot: the rule fires 29 more times on `main`, and sweeping
+// them would turn a content PR into a lint pass. It surfaced here only because `main`'s SonarCloud
+// baseline for this file is empty — `sonarqube-scan` is path-filtered and skips on content merges, so
+// `main`'s newest analysis predates this file's last change and every issue in it reads as NEW code.
 export function PhotoFigure({
   photo,
   alt,
   caption,
-}: {
+}: Readonly<{
   photo: PhotoAsset;
   alt: string;
   caption: string;
-}) {
+}>) {
   // A PORTRAIT PHOTOGRAPH IS NOT GIVEN THE FULL COLUMN, and the reason is arithmetic rather than taste.
   //
   // `w-full` was written when every registered photograph was landscape, and for those it is right: the
@@ -51,9 +57,22 @@ export function PhotoFigure({
   // with no text on screen beside it and has to scroll a full screen to reach the sentence it belongs to.
   // On top of that, `w-full` would upscale it on any body wider than 900px — a blurrier wall.
   //
-  // So the cap is on the WIDTH and the ratio is left alone. `max-w-md` is 448px, which at 900px intrinsic
-  // is still 2× for a high-DPR screen, and `mx-auto` centres what no longer fills the column — the same
-  // treatment the diagrams already get, so it reads as one page rule rather than an exception. The
+  // So the cap is on the WIDTH and the ratio is left alone. `mx-auto` centres what no longer fills the
+  // column — the same treatment the diagrams already get, so it reads as one page rule rather than an
+  // exception.
+  //
+  // THE CAP IS 224px, HALVED FROM `max-w-md` (448px) ON THE OWNER'S CALL — "a foto do crachá precisa ser
+  // menor, no máximo metade do tamanho atual". Written as an arbitrary value rather than a scale step
+  // because Tailwind's `max-w` scale has nothing between `max-w-xs` (320px, 71% of the old cap) and
+  // zero: only `max-w-[224px]` is actually half, and the instruction was a ratio. At 900px intrinsic
+  // that is still 4× the CSS box, so the badge's own type — "Luiz Tadeu" and "tadeumen@" — survives the
+  // reduction; checked by rendering the committed file down to 224px and reading it, not assumed.
+  //
+  // WHAT ELSE IT MOVES: nothing today. The branch is keyed off `photo.height > photo.width`, and
+  // `data/photos.json` registers exactly one portrait file — this article's badge. The other two
+  // (`knuth-cv-museum`, `may-week-montage`, both on /architecture) are landscape and take the other
+  // branch untouched. A FUTURE portrait photograph gets 224px too, which is the intended reading: the
+  // rule is about what a portrait does to a reading column, not about this one picture. The
   // `width`/`height` attributes are untouched, which is the part that matters for the reason this
   // component exists: they set the intrinsic ratio, so the box is still reserved before the bytes arrive
   // and the page still does not jump.
@@ -79,7 +98,7 @@ export function PhotoFigure({
         // matches the diagram box so the two figure kinds sit on the page as one decision.
         className={
           portrait
-            ? 'mx-auto block h-auto w-full max-w-md border border-border'
+            ? 'mx-auto block h-auto w-full max-w-[224px] border border-border'
             : 'block h-auto w-full border border-border'
         }
       />
