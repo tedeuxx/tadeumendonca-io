@@ -7,7 +7,7 @@ date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
 excerpt: "O crachá de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
-takeaway: 'o que se repetiu nas duas vezes em que o trabalho parou de me levar adiante: o que eu mudei foi o objeto do trabalho, não a empresa.'
+takeaway: 'o que se repetiu nas três vezes em que o trabalho parou de me levar adiante: o que eu mudei foi o objeto do trabalho, não a empresa.'
 ---
 ![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O crachá que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
 
@@ -41,13 +41,13 @@ Projetos de cloud enablement se parecem muito entre si, e o que determina isso �
 
 Trabalhar com cloud AWS e Terraform todo dia entregou exatamente o que eu pedi: profundidade. O que parou de entregar foi problema novo. Depois de um tempo nos tipos de engajamento em que eu geralmente estou envolvido, eu não via mais desenvolvimento técnico ali para mim como application architect, e percebi que precisava de um desafio novo.
 
-## A segunda vez, não a primeira
+## Sempre foi assim, e eu só vi agora
 
-Nas duas vezes o que eu mudei foi o **objeto** do trabalho, não a empresa — e eu só vi isso na segunda.
+Nas três vezes o que eu mudei foi o **objeto** do trabalho, não a empresa — e eu só vi isso na terceira.
 
-O caminho até ali foi diferente. Na Globo a percepção veio de dentro da alocação: não faltou o que aprender, e foi fazendo observabilidade que eu vi que o que eu queria era aplicação. Na AWS ela veio de fora — o papel não esgotou, acabou o problema novo, e o trabalho que me leva além está fora do que eu estou alocado para fazer.
+Na Accenture, na transição para digital, eu paguei um pedágio: fiquei alocado num projeto de Siebel CRM, e o que me levava adiante acontecia ao lado dele — Node e Docker, fora do horário. Na Globo o que me levou adiante estava dentro da alocação: não faltou o que aprender, e foi fazendo observabilidade que eu vi que o que eu queria era aplicação. Na AWS está de novo fora dela: o papel não esgotou, acabou o problema novo, e o trabalho que me leva além não é o que eu estou alocado para fazer.
 
-Um padrão que você consegue nomear dá para reconhecer antes de virar ressentimento. Nas duas eu reconheci a tempo. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
+Um padrão que você consegue nomear dá para reconhecer antes de virar ressentimento. Nas três eu reconheci a tempo. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
 
 ## O desafio de agora
 
@@ -61,7 +61,7 @@ E isso dá para mostrar, porque está no ar. Este site é publicado por um loop 
 
 Na prática, o que me toma tempo é decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta**, e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público — é o que me deixa separar o que é do modelo do que é do setup em volta dele, e melhorar o setup a cada volta.
 
-E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — o interesse indo para onde a alocação não vai, que foi exatamente o que aconteceu da primeira vez também.
+E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — o interesse indo para onde a alocação não vai, que foi exatamente o que aconteceu na Accenture também.
 
 ## O que eu não tenho
 
