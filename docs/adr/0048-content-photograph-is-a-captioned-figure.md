@@ -45,12 +45,31 @@ Its words are the reason the photograph is on the page — and they are inside a
 crawlable by nobody, selectable by nobody, translatable by nobody and measurable by no test.
 
 **This was never a green field, and that is the third thing that makes it a decision.**
-`apps/fed/src/styles/index.css:519` already carried `.markdown img { max-width: 100%; border-radius: 0 }`
-on `main` before this slice — verified with `git grep -n "markdown img" origin/main`. Four
-`![…](/photos/x.jpg)` lines would therefore have **rendered**: unlabelled, uncaptioned, with no reserved
-box and no alt requirement, with **every gate green**. Doing nothing was not "not deciding". It was
-shipping a silent default that no check in this repo could see, on the page whose stated thesis is that
-its claims are checkable.
+`apps/fed/src/styles/index.css` already carried a default for a markdown image on `main` before this
+slice, so four `![…](/photos/x.jpg)` lines would have **rendered**: unlabelled, uncaptioned, with no
+reserved box and no alt requirement, with **every gate green**. Doing nothing was not "not deciding". It
+was shipping a silent default that no check in this repo could see, on the page whose stated thesis is
+that its claims are checkable.
+
+**The rule this record quoted was `.markdown img { max-width: 100%; border-radius: 0 }`, and it is not
+what is at head.** It was rewritten to `:where(.markdown) img` in
+[#492](https://github.com/tedeuxx/tadeumendonca-io/pull/492), for a reason this record has to hold
+because it is the reason the rule matters: `.markdown img` has specificity **(0,1,1)**, which beats every
+Tailwind utility **(0,1,0)**, so the width cap `PhotoFigure` emitted on its portrait branch — `max-w-md`
+from #482, `max-w-[224px]` from #488 — **never applied**, and the badge laid out at the full column
+through two slices that each believed they had shrunk it. `:where()` contributes zero specificity, so the
+rule drops to (0,0,1): still the default for an image that declares no cap, no longer a silent veto over
+one that does.
+
+**Verify it at head** — the fixed-string match is against the selector, not against the paragraph of
+comment above it, which is what the previous command in this record accidentally selected once the rule
+changed. A command that returns a *comment* about the rule reads to whoever runs it as confirmation, and
+that is worse than a command that returns nothing:
+
+```console
+$ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
+532::where(.markdown) img {
+```
 
 ## Decision drivers
 - **Words the page depends on must be real text** — crawlable, selectable, translatable, screen-readable.

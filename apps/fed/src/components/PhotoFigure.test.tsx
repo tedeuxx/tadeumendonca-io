@@ -53,11 +53,12 @@ describe('PhotoFigure', () => {
 
   // THE PORTRAIT CAP, asserted from BOTH sides, because only one side of it can fail silently.
   //
-  // Deleting the cap leaves a portrait photograph laying out at its full 900px inside a 920px body — 1360
-  // tall, a full screen of picture before the sentence it belongs to. Nothing goes red; the page just gets
-  // worse. Applying the cap to everything is the opposite mistake and is just as quiet: every landscape
-  // photograph on /architecture would shrink to 448px in a 920px column, and the e2e geometry spec would
-  // still pass, since a smaller image is still inside its figure.
+  // Deleting the cap leaves a portrait photograph laying out at the full column and upscaled — the badge
+  // is 730px wide and the column is 922px at 1280, so it stretches to 922×1106, a full screen of picture
+  // before the sentence it belongs to. Nothing goes red; the page just gets worse. Applying the cap to
+  // everything is the opposite mistake and is just as quiet: every landscape photograph on /architecture
+  // would shrink to 730px in a 922px column, and the e2e geometry spec would still pass, since a smaller
+  // image is still inside its figure.
   //
   // The fixtures are the REGISTRY's own entries rather than hand-made objects, so the two cases stay real:
   // if the badge is ever recropped to landscape this test starts asserting the wrong branch of the
@@ -66,17 +67,16 @@ describe('PhotoFigure', () => {
     expect(badge.height, 'the portrait fixture is not portrait any more').toBeGreaterThan(badge.width);
     const { container } = render(<PhotoFigure photo={badge} alt="a" caption="b" />);
     const img = container.querySelector('img')!;
-    // 448px — the owner's "no máximo metade do tamanho atual", applied to the size he was ACTUALLY
-    // seeing. The 224 this used to assert halved the value declared in the CSS, and that value had never
-    // been in effect (`.markdown img` outranked it), so the badge shipped at a quarter of the column and
-    // read as lost. See `PhotoFigure.tsx` for the arithmetic and for why 448 rather than the 461 half of
-    // 922 gives: the file is 450px wide, so 448 is the largest cap that does not upscale it.
+    // 730px — the badge's own width after the re-encode at the crop's native size, and the ceiling that
+    // does not upscale. The 448 this used to assert was the ceiling of a 450px-wide file, and that file
+    // was 450px only because #492 scaled a 730×876 crop down for no reason the crop required. See
+    // `PhotoFigure.tsx` for why 730 rather than 640, and for what the extra height costs.
     //
     // Asserted as the literal class because that IS the contract: an arbitrary value has no scale-step
     // name to hide behind, so a change to the number turns this red rather than reading as a rename.
     // WHAT THIS ASSERTION CANNOT DO is the reason `e2e/content-photo.spec.ts` exists — jsdom has no
     // cascade, so this string was true throughout both slices in which the cap did not apply at all.
-    expect(img.className).toContain('max-w-[448px]');
+    expect(img.className).toContain('max-w-[730px]');
     expect(img.className).toContain('mx-auto');
     // The ratio is still the file's own — the cap is on width only, so the reservation stays honest.
     expect(img).toHaveAttribute('width', String(badge.width));
