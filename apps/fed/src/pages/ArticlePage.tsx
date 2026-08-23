@@ -118,8 +118,33 @@ export function ArticlePage() {
               just finished is the one with something to say about it; offering the share before the text
               asks them to recommend what they have not read. The header's ShareButton stays — it is the
               phone affordance, and a phone reader shares mid-scroll. */}
-          <div className="mt-[clamp(2rem,4vw,3rem)] border-t border-border pt-5">
+          <div className="mt-[clamp(2rem,4vw,3rem)] flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5">
             <ShareLinks title={article.title} path={lp(`/blog/${article.slug}`)} />
+            {/* #409, owner decision (A): the SAME ELEMENT as the header, not the same capability. The
+                footer carries the modal trigger beside the deeplink block, so the reader who has just
+                finished reaches copy-as-markdown (#387) without scrolling back up. The redundancy is real
+                and accepted — after #314 both blocks already reach the same three deeplinks and
+                copy-link — and (B), folding markdown into `ShareLinks`, is decided AGAINST, which is why
+                the footer's silent `catch {}` reasoning is untouched: no article-sized payload enters
+                that block.
+
+                IT DOES NOT ANSWER TO "COMPARTILHAR", and that is the owner's second decision on this
+                slice rather than an implementation detail. The same element in two places under one label
+                put two byte-identical buttons on the page — the collision `share.linksLabel`'s comment
+                had already named and ruled against for the nav beside it. This one names what it ADDS
+                over that nav: the nav is the direct destinations, this opens the dialog that also carries
+                copy-as-markdown (#387). The visible label moves with the accessible name because 2.5.3
+                requires containment; the full reasoning, including why `linksLabel` was not reused
+                despite already reading exactly right, is on the catalog keys. The HEADER trigger is
+                untouched. */}
+            <ShareButton
+              title={article.title}
+              url={lp(articleShareUrl(article))}
+              body={article.body}
+              size="sm"
+              labelKey="share.moreOptions"
+              labelNameKey="share.moreOptionsLabel"
+            />
           </div>
 
           <footer className="mt-5 flex flex-wrap border-t border-border pt-5">

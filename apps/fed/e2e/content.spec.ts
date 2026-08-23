@@ -116,6 +116,54 @@ test.describe('content detail', () => {
     ]);
   });
 
+  // THE FOOTER TRIGGER REACHES THE BUILT PAGE (#409). `ArticlePage.test.tsx` already asserts that the two
+  // triggers co-exist under distinct names — but that is jsdom, and it proves the React TREE, not the
+  // artifact a reader gets. This file's own standard is the one `share-markdown.spec.ts:12` states in the
+  // repo's words — "THE PAGE IS THE BUILT, PRERENDERED ONE" — and this control is prerendered onto four
+  // live article pages, so a prerender that dropped it would have left every gate in the suite green.
+  //
+  // THREE ASSERTIONS, EACH FOR A DIFFERENT REGRESSION, and each one PROVED individually reachable by a
+  // source mutation rather than argued from the reading order:
+  //   1. `toBeVisible()` on the trigger's OWN accessible name reds if the control never reaches the
+  //      served page. It is the only assertion in this suite that names this control at all. Red under
+  //      three separate probes — the footer block deleted, the footer pointed back at `share.share`, and
+  //      `labelNameKey` dropped so the accessible name collapsed to the visible label.
+  //   2. The dialog OPENS — the reader-value #409 actually buys, reaching copy-as-markdown (#387) from
+  //      the bottom of the article instead of scrolling back to the header. A trigger that renders and
+  //      opens nothing is markup, not an affordance, and assertion 1 cannot tell the two apart. Red on
+  //      its own, with assertion 1 passing, under `onClick` neutered in `ShareButton`.
+  //   3. The dialog's accessible NAME, which extends `modalLabel`'s existing pt-only served cover
+  //      (`:37`) to the en edition — no other served-build assertion reads that string. Red on its own,
+  //      with 1 and 2 passing, under `modalLabel.en` reworded; the pt case stayed green, which is the
+  //      locale isolation working.
+  //
+  // NOT SCOPED TO THE FOOTER NAV, and that is the whole reason this test had to be added rather than
+  // folded into the two above: the trigger is a SIBLING of `ShareLinks`, not a child — which is precisely
+  // why it needed a name of its own — so every nav-scoped locator in this file is structurally unable to
+  // see it, including the `toBe(4)` count below, which is correct about the nav and stays pinned to it.
+  //
+  // The name is unique on the page BY CONSTRUCTION rather than by luck: Playwright's default substring
+  // match is what forced these strings (see the catalog note on `share.moreOptions`), and `compartilhar`
+  // is not a substring of `compartilhamento` — so this locator cannot pick up the header trigger, and
+  // strict mode would fail loudly here if a future rewording ever made it.
+  for (const [locale, path, triggerName, dialogName] of [
+    ['pt', '/pt/blog/meu-compromisso', 'Mais opções de compartilhamento', 'Opções de compartilhamento'],
+    ['en', '/en/blog/my-commitment', 'More options for sharing', 'Share options'],
+  ] as const) {
+    test(`/${locale}: the footer share trigger is served, and opens the share dialog`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState('networkidle');
+
+      const trigger = page.getByRole('button', { name: triggerName });
+      await expect(trigger).toBeVisible();
+
+      await trigger.click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toHaveAccessibleName(dialogName);
+    });
+  }
+
   // COPY-LINK MOVING TO THE FRONT CHANGES WHAT WRAPS. This is an inline `flex-wrap` row and the article
   // page is NOT in `responsive-overflow.spec.ts`'s sweep — that spec drives six routes and no article —
   // so nothing measured this block at a phone width at all, before or after the move.
@@ -141,6 +189,27 @@ test.describe('content detail', () => {
         expect(box!.x).toBeGreaterThanOrEqual(0);
         expect(box!.x + box!.width, `control ${i} is clipped at ${width}px`).toBeLessThanOrEqual(width);
       }
+
+      // THE FOOTER TRIGGER, BOXED THE SAME WAY (#409) — and it is boxed SEPARATELY because the loop above
+      // cannot reach it: it is a sibling of the nav, so `toBe(4)` is by construction unable to count it.
+      // Until this was added, the only cover the new label had at these widths was the page-level
+      // `scrollWidth` assertion above, which catches a row that refuses to wrap and NOT a control clipped
+      // inside a row that wrapped fine. It carries the longest visible label in the row, so per-control
+      // clipping is exactly the risk the short/long key split was made to buy.
+      const trigger = page.getByRole('button', { name: 'Mais opções de compartilhamento' });
+      // Presence asserted BEFORE the box is read, and that ordering was measured rather than reasoned:
+      // under the "footer trigger deleted" probe, `boundingBox()` on its own burnt the full 30s test
+      // timeout on every width and reported `locator.boundingBox: Test timeout exceeded`. Red either
+      // way — but a red that costs 90s and names the wrong operation is a worse gate than one that
+      // costs 5s and names the missing control.
+      await expect(trigger).toBeVisible();
+      const triggerBox = await trigger.boundingBox();
+      expect(triggerBox, 'the footer share trigger has no box').not.toBeNull();
+      expect(triggerBox!.x).toBeGreaterThanOrEqual(0);
+      expect(
+        triggerBox!.x + triggerBox!.width,
+        `the footer share trigger is clipped at ${width}px`,
+      ).toBeLessThanOrEqual(width);
     });
   }
 
