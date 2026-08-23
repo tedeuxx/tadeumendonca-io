@@ -80,6 +80,55 @@ describe('ArticlePage', () => {
     expect(screen.getByRole('navigation', { name })).toBeInTheDocument();
   });
 
+  // #409 — THE TWO SHARE TRIGGERS, AND THE PROPERTY IS THAT THEY DIFFER. This page renders `ShareButton`
+  // twice (header + footer), so the accessible name stopped being a component constant and became a
+  // per-call-site decision; nothing below the page could see that, and this is the level where it is
+  // decidable.
+  //
+  // IT LIVES HERE AND NOT IN `ShareButton.test.tsx` BECAUSE OF WHAT HAPPENED THERE. That file's
+  // `describe('the two share entry points')` renders `ShareLinks` in ISOLATION, so it passed unchanged on
+  // the diff that put a second trigger on this page — an assertion that reads as covering the pair while
+  // being structurally unable to fail for it. Those assertions are LEFT ALONE and are still correct:
+  // their subject is the destination parity between the modal and `ShareLinks` (#314), which this slice
+  // does not touch. What they never covered is co-existence in one document, which needs a real DOM
+  // region containing both, i.e. this page.
+  //
+  // THE TRIGGERS ARE SELECTED BY `aria-haspopup="dialog"`, NOT BY NAME. Selecting them by the names under
+  // test would make the test assert its own premise: a page that renders one trigger, or three, would
+  // still find the two it looked for. The filter is what the DOM says a share trigger IS, so the count is
+  // a real claim.
+  //
+  // THREE ASSERTIONS, ORDERED SO THAT EACH ONE CAN ACTUALLY FAIL, and the order is the finding rather
+  // than a style choice. Written the obvious way first — `getByRole(name)` per trigger, then the pair —
+  // the pair assertions were unreachable: `getByRole` throws on BOTH a missing name and a duplicated one,
+  // so it consumed every mutation before the property was ever evaluated, and the distinctness check
+  // would have been an assertion that cannot fail while appearing to be the point of the test. That is
+  // this repo's recurring defect and it does not get to ship inside the test written to prevent it.
+  //   1. `toHaveLength(2)` — the footer trigger exists at all. Red on its removal.
+  //   2. the `Set` — the PROPERTY the owner decided: the two names differ. Red on either trigger adopting
+  //      the other's key, and it survives a rewording of either string.
+  //   3. `toEqual` — the published strings, in DOM order (header, then footer). Red on copy drift and on
+  //      a reorder, neither of which 1 or 2 can see.
+  //
+  // The name is read off `aria-label`, which IS the computed accessible name here: `aria-label` outranks
+  // the button's text content, so there is no second source for these to disagree with.
+  it.each([
+    ['pt', 'Compartilhar', 'Mais opções de compartilhamento'],
+    ['en', 'Share', 'More options for sharing'],
+  ] as const)('names its two share triggers distinctly, header then footer (%s)', (locale, headerName, footerName) => {
+    getPostBySlug.mockReturnValue(post());
+    renderAt('building', locale);
+
+    const names = screen
+      .getAllByRole('button')
+      .filter((el) => el.getAttribute('aria-haspopup') === 'dialog')
+      .map((el) => el.getAttribute('aria-label'));
+
+    expect(names).toHaveLength(2);
+    expect(new Set(names).size).toBe(2);
+    expect(names).toEqual([headerName, footerName]);
+  });
+
   it('omits the LinkedIn link when the post has no edition there', () => {
     getPostBySlug.mockReturnValue(post());
     renderAt('building');

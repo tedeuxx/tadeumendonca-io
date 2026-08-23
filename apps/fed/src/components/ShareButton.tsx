@@ -34,10 +34,16 @@
 // THE FOOTER'S SILENT `catch {}` ALSO STAYS, for the reason the intake gave: it copies a 60-character URL
 // the reader can select by hand, and the argument for a visible failure state is an argument about a
 // payload the reader believes is a whole article.
+//
+// #409 RENDERS THIS TWICE ON AN ARTICLE PAGE — once in the header, once beside the footer's `ShareLinks`
+// — so the label stopped being a constant and became `labelKey` / `labelNameKey`. It is the shape
+// `ShareLinks` already carries for the same class of problem (#450), not a new convention; the two props
+// and the 2.5.3 invariant binding them are documented on the props themselves.
 import { useRef, useState } from 'react';
 import { Share2 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useLocalePath, useT } from '../i18n';
+import type { MessageKey } from '../i18n/messages';
 import { ShareModal, type CopyStatus } from './ShareModal';
 import { copyLinkUrl } from './shareTargets';
 import { markdownPayload } from './shareMarkdown';
@@ -48,6 +54,8 @@ export function ShareButton({
   url,
   body,
   size = 'md',
+  labelKey = 'share.share',
+  labelNameKey = labelKey,
 }: {
   title: string;
   url: string;
@@ -62,6 +70,26 @@ export function ShareButton({
    */
   body?: string;
   size?: 'sm' | 'md';
+  /**
+   * The trigger's VISIBLE label, as a catalog key, defaulting to the one every caller used before #409.
+   * A key and not a resolved string, for the reason `ShareLinks.labelKey` gives: `MessageKey` is the
+   * catalog's leaf-path union, so a typo is a typecheck failure here rather than a missing label in
+   * production, and `messages.test.ts`'s both-locales assertion keeps covering whatever a caller passes.
+   *
+   * Optional-with-a-default rather than required, so the header trigger and `MarkdownPage`'s stay
+   * byte-identical: a required prop would have meant editing two call sites to say what they already said.
+   */
+  labelKey?: MessageKey;
+  /**
+   * The trigger's ACCESSIBLE NAME, when it must differ from the visible label — the article footer, whose
+   * trigger sits in the same row as `ShareLinks` and may not answer to the same name (#409).
+   *
+   * DEFAULTS TO `labelKey`, and that default is the invariant rather than a convenience: WCAG 2.5.3
+   * (Label in Name) requires the accessible name to contain the visible one, and a caller that overrides
+   * only the visible label therefore cannot break it. A caller that overrides BOTH owns the containment,
+   * which is why the catalog's two `share.moreOptions*` strings are written as short ⊂ long.
+   */
+  labelNameKey?: MessageKey;
 }) {
   const t = useT();
   const lp = useLocalePath();
@@ -120,7 +148,7 @@ export function ShareButton({
         ref={trigger}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={t('share.share')}
+        aria-label={t(labelNameKey)}
         aria-haspopup="dialog"
         aria-expanded={open}
         className={cn(
@@ -129,7 +157,7 @@ export function ShareButton({
         )}
       >
         <Share2 size={size === 'sm' ? 14 : 16} />
-        {t('share.share')}
+        {t(labelKey)}
       </button>
       {open && (
         <ShareModal

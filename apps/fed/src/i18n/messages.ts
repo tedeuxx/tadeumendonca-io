@@ -689,6 +689,41 @@ const strings = {
     // groups, and a screen-reader user moving between landmarks cannot tell two identically-named
     // regions apart. "Options" is what the dialog adds — it is the one that offers a choice.
     modalLabel: { pt: 'Opções de compartilhamento', en: 'Share options' },
+    // #409. THE FOOTER TRIGGER'S OWN NAME — the third control on an article page that had to stop being
+    // called "Compartilhar", after `linksLabel` (the nav) and `modalLabel` (the dialog). The footer now
+    // carries the modal trigger beside the deeplink block, and with `share.share` on both triggers the
+    // page shipped two byte-identical buttons: the exact defect `linksLabel`'s comment above already
+    // named and ruled against, one control lower.
+    //
+    // WHAT DISTINGUISHES IT FROM THE NAV BESIDE IT is not placement — it is the offer. `ShareLinks` is
+    // the DIRECT destinations (copy-link, LinkedIn, X, WhatsApp, all reachable in one action); this
+    // trigger opens `modalLabel`'s dialog, which is those four PLUS copy-as-markdown (#387). "Mais" is
+    // that difference, and it is why reusing `linksLabel` — "Compartilhar este artigo", already exactly
+    // the string this key wanted — was rejected: two controls sitting in the same row, one naming the
+    // other's superset, is the collision re-created as a near-collision.
+    //
+    // TWO KEYS, AND THE SHORT ONE IS THE VISIBLE LABEL — the `copyLink` / `copyLinkToClipboard` shape
+    // below, for the same reason and with a second one on top:
+    //   1. The row is `text-xs uppercase` beside COPIAR LINK / LINKEDIN / X / WHATSAPP. A 31-character
+    //      visible label there is the phone-row overflow that pair was split to avoid.
+    //   2. WCAG 2.5.3 (Label in Name) requires the accessible name to CONTAIN the visible label, so the
+    //      long form is built by extending the short one rather than replacing it — "Mais opções" ⊂
+    //      "Mais opções de compartilhamento", "More options" ⊂ "More options for sharing". en takes
+    //      `for sharing` and not `sharing options`, which would break the containment while reading
+    //      almost identically; the pt word order gives it for free.
+    //
+    // AND THE VISIBLE LABEL HAD TO MOVE TOO, which is more than "a new accessible name" and is stated
+    // rather than slipped in. Keeping "Compartilhar" visible while the accessible name differed would
+    // fail 2.5.3 (per 2 above) AND still not fix the page, because Playwright matches an accessible name
+    // by case-insensitive SUBSTRING — any name containing "Compartilhar" keeps two buttons under the
+    // header's own locator. Neither of the two strings may contain "Compartilhar" / "Share", and
+    // "compartilhamento" / "sharing" do not (`compartilhar` is not a substring of `compartilhamento`;
+    // `share` is not a substring of `sharing`).
+    moreOptions: { pt: 'Mais opções', en: 'More options' },
+    moreOptionsLabel: {
+      pt: 'Mais opções de compartilhamento',
+      en: 'More options for sharing',
+    },
     close: { pt: 'Fechar', en: 'Close' },
     // The fourth destination, and the only one that never leaves the page. pt says `link` rather than
     // `ligação` — `link` is the ordinary BR-Portuguese word here, and the same rule that keeps technical

@@ -126,8 +126,25 @@ export function ArticlePage() {
                 and accepted — after #314 both blocks already reach the same three deeplinks and
                 copy-link — and (B), folding markdown into `ShareLinks`, is decided AGAINST, which is why
                 the footer's silent `catch {}` reasoning is untouched: no article-sized payload enters
-                that block. */}
-            <ShareButton title={article.title} url={lp(articleShareUrl(article))} body={article.body} size="sm" />
+                that block.
+
+                IT DOES NOT ANSWER TO "COMPARTILHAR", and that is the owner's second decision on this
+                slice rather than an implementation detail. The same element in two places under one label
+                put two byte-identical buttons on the page — the collision `share.linksLabel`'s comment
+                had already named and ruled against for the nav beside it. This one names what it ADDS
+                over that nav: the nav is the direct destinations, this opens the dialog that also carries
+                copy-as-markdown (#387). The visible label moves with the accessible name because 2.5.3
+                requires containment; the full reasoning, including why `linksLabel` was not reused
+                despite already reading exactly right, is on the catalog keys. The HEADER trigger is
+                untouched. */}
+            <ShareButton
+              title={article.title}
+              url={lp(articleShareUrl(article))}
+              body={article.body}
+              size="sm"
+              labelKey="share.moreOptions"
+              labelNameKey="share.moreOptionsLabel"
+            />
           </div>
 
           <footer className="mt-5 flex flex-wrap border-t border-border pt-5">
