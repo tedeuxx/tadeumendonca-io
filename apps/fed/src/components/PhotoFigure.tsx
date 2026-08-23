@@ -52,10 +52,12 @@ export function PhotoFigure({
   //
   // `w-full` was written when every registered photograph was landscape, and for those it is right: the
   // widest of them is 1600×704, so at the 920px the body gets inside `max-w-5xl` at 1280 it lays out
-  // 920×405 — a band. The first portrait photograph (900×1360, the badge on the-problem-stopped-changing)
-  // lays out under the same rule at 900×1360: taller than a 900px viewport, so the reader meets a picture
-  // with no text on screen beside it and has to scroll a full screen to reach the sentence it belongs to.
-  // On top of that, `w-full` would upscale it on any body wider than 900px — a blurrier wall.
+  // 920×405 — a band. The first portrait photograph (the badge on the-problem-stopped-changing) shipped
+  // at 900×1360 and laid out under the same rule at 900×1360: taller than a 900px viewport, so the reader
+  // met a picture with no text on screen beside it and had to scroll a full screen to reach the sentence
+  // it belongs to. On top of that, `w-full` would upscale it on any body wider than its own width — a
+  // blurrier wall. That file is now 450×540 (recropped onto the badge), which shrinks the problem
+  // without removing it: `w-full` would upscale a 450px-wide raster 2× in a 920px column.
   //
   // So the cap is on the WIDTH and the ratio is left alone. `mx-auto` centres what no longer fills the
   // column — the same treatment the diagrams already get, so it reads as one page rule rather than an
@@ -64,9 +66,22 @@ export function PhotoFigure({
   // THE CAP IS 224px, HALVED FROM `max-w-md` (448px) ON THE OWNER'S CALL — "a foto do crachá precisa ser
   // menor, no máximo metade do tamanho atual". Written as an arbitrary value rather than a scale step
   // because Tailwind's `max-w` scale has nothing between `max-w-xs` (320px, 71% of the old cap) and
-  // zero: only `max-w-[224px]` is actually half, and the instruction was a ratio. At 900px intrinsic
-  // that is still 4× the CSS box, so the badge's own type — "Luiz Tadeu" and "tadeumen@" — survives the
-  // reduction; checked by rendering the committed file down to 224px and reading it, not assumed.
+  // zero: only `max-w-[224px]` is actually half, and the instruction was a ratio.
+  //
+  // THE NUMBER IS UNCHANGED BY THE RECROP AND THAT IS A DECISION, NOT AN OMISSION — BUT UNTIL THIS SLICE
+  // IT WAS NOT A CAP AT ALL. `.markdown img` in `styles/index.css` was specificity (0,1,1) and beat this
+  // utility (0,1,0), so both 448px and 224px were inert and the badge laid out at the full 922px column
+  // at 1280. That is the real reason "reduzida no tamanho" kept not happening, and it is fixed there, not
+  // here; `e2e/content-photo.spec.ts` now measures the computed box so it cannot come back silently.
+  //
+  // With the cap actually applying, 224px is kept. Measured on the rendered page rather than argued:
+  // the image lays out 224×268 inside a 922px column, and the badge fills ~81% of that frame instead of
+  // the ~59% it filled before the crop — a closer subject in a smaller box. Going below was rendered and
+  // rejected: at 180px "tadeumen@" goes soft, and 224px is the ceiling the owner already ratified.
+  //
+  // At 450px intrinsic the cap is 2× the CSS box — down from 4× at the old 900px, still a retina-grade
+  // reserve, and the badge's own type ("Luiz Tadeu", "tadeumen@") survives it; checked by rendering the
+  // committed file down to 224px and reading it, not assumed.
   //
   // WHAT ELSE IT MOVES: nothing today. The branch is keyed off `photo.height > photo.width`, and
   // `data/photos.json` registers exactly one portrait file — this article's badge. The other two

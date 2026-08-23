@@ -9,7 +9,7 @@ track: engenharia
 excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
 takeaway: 'what repeated all three times the work stopped taking me forward: what I changed was the object of the work, not the company.'
 ---
-![An ID badge lying face-up on a pale wood desk, inside a clear plastic holder: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom. Above the badge sit a retractable badge reel, a key with a white tag numbered 38, and the edge of a black mug.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
+![An ID badge in a clear plastic holder, lying face-up on a pale wood desk and filling most of the frame: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
 
 That is five years at AWS, and the badge reached me six months after the date it marks — the milestone was January; it was only printed now. If it had come in January, I would have had an answer ready. It came on an ordinary day, and I did not.
 

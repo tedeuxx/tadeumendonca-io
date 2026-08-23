@@ -9,7 +9,7 @@ track: engenharia
 excerpt: "O crachá de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
 takeaway: 'o que se repetiu nas três vezes em que o trabalho parou de me levar adiante: o que eu mudei foi o objeto do trabalho, não a empresa.'
 ---
-![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O crachá que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
+![Um crachá dentro de um porta-crachá plástico transparente, deitado com a face para cima sobre uma mesa de madeira clara e ocupando quase todo o quadro: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo.](/photos/five-year-badge.jpg "O crachá que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
 
 São cinco anos de AWS, e o crachá chegou até mim seis meses depois da data que ele comemora — o marco foi em janeiro; ele só foi impresso agora. Se tivesse chegado em janeiro, eu teria uma resposta pronta. Chegou num dia qualquer, e eu não tinha nenhuma.
 
