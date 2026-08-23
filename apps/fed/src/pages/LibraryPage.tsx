@@ -102,7 +102,19 @@ export function LibraryPage({ entries = library }: { entries?: readonly LibraryE
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
             <span>{t('library.kicker')}</span>
           </div>
-          <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
+          {/* The third copy of the header `MarkdownPage.tsx` fixed at #392 — same `max-w-[22ch]
+              text-balance` pair, same squeezed title over a full-width rule; see that file for why
+              `text-balance` is the bigger half of the cause. This one was found by sweeping every `<h1>`
+              on the site, not reported: the owner reported the ARTICLE page, and a sweep is the only
+              reason this is not a third round of the same defect. Measured at 1280px against a 921.63px
+              measure, both editions: pt "Biblioteca — o que eu leio, e o que ficou" widest 587.53 →
+              845.31 (63.7% → 91.7%), en "Library — what I read, and what stuck" 605.00 → 738.25 (65.6%
+              → 80.1%). The en figure is the lowest on the site and is still correct — that title's
+              second line has no word that fits, so a FILLED line ends at 80%. Compare it against its own
+              66%, never against another page's percentage. `e2e/page-heading-measure.spec.ts` asserts
+              both editions, and probes them with a fixed heading rather than this copy for exactly that
+              reason. */}
+          <h1 className="mt-4 text-pretty text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
             {t('library.heading')}
           </h1>
           <p className="mt-5 max-w-[62ch] text-[17px] leading-relaxed text-foreground/90">{t('library.intro')}</p>

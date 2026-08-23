@@ -73,7 +73,39 @@ export function ArticlePage() {
                   clipboard (#387). It is also the exact string rendered below. */}
               <ShareButton title={article.title} url={lp(articleShareUrl(article))} body={article.body} size="sm" />
             </div>
-            <h1 className="mt-4 max-w-[22ch] text-balance text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
+            {/* Same heading shape, same fix, same reasoning as `MarkdownPage.tsx` (#392) — read the long
+                comment there for WHY `text-balance` is the bigger half of the cause and why `text-pretty`
+                replaces it rather than nothing. #392 landed on that component only; this header is a
+                second copy of the same markup (`LibraryPage` is a third), so the article page kept the
+                squeezed title after `/architecture` and `/ramp-up` were fixed, until the owner reported
+                it from the live site. Measured here the same way — Chromium, built site, against the
+                header's own content measure, both editions:
+
+                  1280px, 921.63px measure
+                    pt "Da cloud à IA, com o mesmo crachá."   before  box 912.38 · widest 520.97 (56.5%)
+                                                              after   box 921.63 · widest 793.67 (86.1%)
+                    en "From cloud to AI, on the same badge." before  box 912.38 · widest 568.91 (61.7%)
+                                                              after   box 921.63 · widest 845.52 (91.7%)
+
+                86% and 92%, not the 98% #392 recorded, and that is the fix working rather than working
+                partly: a filled line still has to end at a word boundary, and these two titles have no
+                break point nearer the edge. The number to compare against is the 56–62% the balanced
+                version drew, not `/architecture`'s. The clearer reading is one viewport down, where the
+                change removes the wrap entirely — at 1024px both editions go from two balanced lines
+                (458.45 / 500.64) to ONE line filling the measure (900.63 / 933.28), and the same at 768.
+
+                The short-title case was measured rather than assumed, because it is the one this change
+                could plausibly make worse: "Meu Compromisso" / "My Commitment" fit on one line from 320px
+                up, so `balance` was already a no-op on them and `pretty` is one too — the drawn line is
+                byte-identical before and after at every width swept (266.31 / 239.11 at 320px, 532.61 /
+                478.22 at 1280px). Only the invisible element box moves. At 320px the cap was inert on
+                every title anyway (box 284 = measure 284), which is #392's own finding re-confirmed here.
+
+                What binds this is `e2e/page-heading-measure.spec.ts` — renamed from
+                `markdown-page-heading.spec.ts`, because a check scoped to ONE component is what let this
+                copy drift. It now drives all ten heading routes and probes each with a fixed heading
+                rather than the shipped title. */}
+            <h1 className="mt-4 text-pretty text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
               {article.title}
             </h1>
           </header>
