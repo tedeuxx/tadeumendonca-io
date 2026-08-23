@@ -67,6 +67,6 @@ E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu 
 
 Eu não tenho o final. Estou empregado, não estou anunciando nada, e não tomei a decisão que este texto parece estar construindo.
 
-O que eu tenho é um teto que eu consigo descrever com precisão, uma prática paralela que é real, sem glamour e que acontece quase sempre fora do horário, e dezoito anos embaixo das duas coisas que fazem da novidade uma extensão e não um recomeço.
+O que eu tenho é um teto que eu consigo descrever com precisão e uma prática paralela sem glamour, quase sempre fora do horário. Se você está em algum lugar parecido — o papel está ok, o problema parou de variar, e o trabalho interessante está acontecendo ao lado da sua alocação em vez de dentro dela —, vale nomear isso em voz alta antes que vire outra coisa pior. Você não precisa ter decidido nada ainda. Eu não decidi.
 
-Se você está em algum lugar parecido — o papel está ok, o problema parou de variar, e o trabalho interessante está acontecendo ao lado da sua alocação em vez de dentro dela —, vale nomear isso em voz alta antes que vire outra coisa pior. Você não precisa ter decidido nada ainda. Eu não decidi.
+E enquanto nenhum de nós decide, vale imaginar. Imagina o seu dia se texto deixar de ser a principal forma de falar com a IA — o que muda no que você faz, no que você para de fazer, no que você nem tenta hoje porque explicar levaria mais tempo do que fazer. Eu não sei como isso vai ser. Só sei que é a parte que eu mais quero ver.

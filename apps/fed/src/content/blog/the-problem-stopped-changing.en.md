@@ -67,6 +67,6 @@ The reason it happens anyway is much plainer than a strategy. I am going past bu
 
 I do not have the ending. I am employed, I am not announcing anything, and I have not made the decision this piece looks like it is building toward.
 
-What I have is a ceiling I can describe precisely, a parallel practice that is real and unglamorous and mostly happens late, and eighteen years underneath both that make the new thing an extension rather than a restart.
+What I have is a ceiling I can describe precisely and a parallel practice, unglamorous, mostly late at night. If you are somewhere similar — the role is fine, the problem stopped changing, and the interesting work is happening next to your assignment rather than inside it — that is worth naming out loud before it becomes something worse. You do not need to have decided anything yet. I have not.
 
-If you are somewhere similar — the role is fine, the problem stopped changing, and the interesting work is happening next to your assignment rather than inside it — that is worth naming out loud before it becomes something worse. You do not need to have decided anything yet. I have not.
+And while neither of us decides, it is worth imagining. Picture your day if text stops being the main way you talk to AI — what changes in what you do, in what you stop doing, in what you do not even attempt today because explaining it would take longer than doing it. I do not know what that looks like. I only know it is the part I most want to see.
