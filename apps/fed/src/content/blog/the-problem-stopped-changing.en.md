@@ -55,11 +55,11 @@ I see a lot of similar problems over time, and I want to keep developing technic
 
 AI engineering is what is letting me go further, and **it is not my main activity on the projects I work on.** The projects are not yet fully focused on AI: AI is present as tooling, and the tasks inside them are being reinvented daily with better use of those tools. It is not AI Native yet.
 
-The problem that caught me is not asking a model for code. It is designing the process around it.
+The problem that caught me is making the use of AI reliable, repeatable and observable — observable in the same sense I learned at Globo, only pointed at a model instead of at a system.
 
 And that part can be shown, because it is running. This site is published by an agent loop I built and operate: personas that disagree by construction before anything gets written, and a fresh-context gate that is the only one allowed to merge — not by agreement, by mechanism. This article went through that loop before it reached you.
 
-The challenge in there is making the use of AI less unpredictable and more repeatable: aimed at a specific objective, and reached iteratively and incrementally. It is not writing better prompts — it is deciding what the harness **blocks**, what it **advises**, and what it merely **documents**, and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public — that is what lets me tell what belongs to the model from what belongs to the setup around it, and improve the setup each time round.
+In practice, what takes my time is deciding what the harness **blocks**, what it **advises**, and what it merely **documents**, and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public — that is what lets me tell what belongs to the model from what belongs to the setup around it, and improve the setup each time round.
 
 The reason it happens anyway is much plainer than a strategy. I am going past business hours, across many days, because I got excited about what is possible with AI. That is the engine — my interest going where the assignment does not, which is exactly what happened the first time too.
 
@@ -69,4 +69,4 @@ I do not have the ending. I am employed, I am not announcing anything, and I hav
 
 What I have is a ceiling I can describe precisely and a parallel practice, unglamorous, mostly late at night. If you are somewhere similar — the role is fine, the problem stopped changing, and the interesting work is happening next to your assignment rather than inside it — that is worth naming out loud before it becomes something worse. You do not need to have decided anything yet. I have not.
 
-And while neither of us decides, it is worth imagining. Picture your day if text stops being the main way you talk to AI — what changes in what you do, in what you stop doing, in what you do not even attempt today because explaining it would take longer than doing it. I do not know what that looks like. I only know it is the part I most want to see.
+And while neither of us decides, it is worth imagining. Picture your day if text stops being the main way you talk to AI: almost everything on the surface changes, and the problem of making it reliable, repeatable and observable stays exactly the same. I do not know how to solve that problem yet. It is the part I most want to see.

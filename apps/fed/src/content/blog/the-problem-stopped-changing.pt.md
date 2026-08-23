@@ -55,11 +55,11 @@ Eu vejo muitos problemas parecidos ao longo do tempo, e quero continuar me desen
 
 AI engineering é o que está me permitindo ir além, e **não é a minha atividade principal em projetos.** Os projetos ainda não são totalmente focados em IA: a IA está presente como ferramenta, e as tarefas dentro deles estão sendo reinventadas todo dia com um uso melhor dessas ferramentas. Ainda não é AI Native.
 
-O problema que me pegou não é pedir código a um modelo. É desenhar o processo em volta dele.
+O problema que me pegou é tornar o uso de IA confiável, repetível e observável — observável no mesmo sentido que eu aprendi na Globo, só que apontado para um modelo em vez de para um sistema.
 
 E isso dá para mostrar, porque está no ar. Este site é publicado por um loop de agentes que eu construí e opero: personas que discordam por construção antes de qualquer coisa ser escrita, e um gate de contexto fresco que é o único que pode fazer merge — não por combinado, por mecanismo. Este artigo atravessou esse loop antes de chegar até você.
 
-O desafio ali é tornar o uso de IA menos imprevisível e mais repetível: orientado a um objetivo específico, e chegando nele de forma iterativa e incremental. Não é escrever prompt melhor — é decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta**, e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público — é o que me deixa separar o que é do modelo do que é do setup em volta dele, e melhorar o setup a cada volta.
+Na prática, o que me toma tempo é decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta**, e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público — é o que me deixa separar o que é do modelo do que é do setup em volta dele, e melhorar o setup a cada volta.
 
 E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — o interesse indo para onde a alocação não vai, que foi exatamente o que aconteceu da primeira vez também.
 
@@ -69,4 +69,4 @@ Eu não tenho o final. Estou empregado, não estou anunciando nada, e não tomei
 
 O que eu tenho é um teto que eu consigo descrever com precisão e uma prática paralela sem glamour, quase sempre fora do horário. Se você está em algum lugar parecido — o papel está ok, o problema parou de variar, e o trabalho interessante está acontecendo ao lado da sua alocação em vez de dentro dela —, vale nomear isso em voz alta antes que vire outra coisa pior. Você não precisa ter decidido nada ainda. Eu não decidi.
 
-E enquanto nenhum de nós decide, vale imaginar. Imagina o seu dia se texto deixar de ser a principal forma de falar com a IA — o que muda no que você faz, no que você para de fazer, no que você nem tenta hoje porque explicar levaria mais tempo do que fazer. Eu não sei como isso vai ser. Só sei que é a parte que eu mais quero ver.
+E enquanto nenhum de nós decide, vale imaginar. Imagina o seu dia se texto deixar de ser a principal forma de falar com a IA: muda quase tudo na superfície, e o problema de fazer aquilo ser confiável, repetível e observável continua exatamente o mesmo. Eu não sei resolver esse problema ainda. É a parte que eu mais quero ver.
