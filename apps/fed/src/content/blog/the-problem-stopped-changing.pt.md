@@ -17,7 +17,7 @@ Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a v
 
 ## 2021: o que eu fui buscar
 
-Eu tinha acabado de sair da Accenture depois de treze anos — a carreira começou lá, em 2008 — e ido para a Globo, para ir para um ambiente onde eu achava que ia aprender muito sobre engenharia de software.
+Eu tinha acabado de sair da Accenture depois de quase treze anos — a carreira começou lá, em 2008 — e ido para a Globo, para ir para um ambiente onde eu achava que ia aprender muito sobre engenharia de software.
 
 O que eu queria estar fazendo todo dia era cloud AWS e Terraform, e não era isso que o meu dia tinha para mim — **na direção que eu queria, o desafio parecia pequeno**.
 

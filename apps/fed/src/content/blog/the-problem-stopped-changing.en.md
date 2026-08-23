@@ -17,7 +17,7 @@ So I counted. And what I want to write about is not the five years. It is the tu
 
 ## 2021: what I went looking for
 
-I had just left Accenture after thirteen years — my career started there, in 2008 — and gone to Globo, to be in an environment where I thought I would learn a lot about software engineering.
+I had just left Accenture after almost thirteen years — my career started there, in 2008 — and gone to Globo, to be in an environment where I thought I would learn a lot about software engineering.
 
 What I wanted to be doing every day was AWS cloud and Terraform, and that was not what my day had for me — **on that front, the challenge looked small**.
 
