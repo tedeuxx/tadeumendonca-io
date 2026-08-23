@@ -227,17 +227,16 @@ test.describe('the content photographs', () => {
 // not either — it only visits /architecture, whose photographs are landscape and are SUPPOSED to fill the
 // column, so the one route where the cap is load-bearing was the one route never measured.
 //
-// What is asserted is therefore the COMPUTED BOX, on the article, at a width where the column is four
-// times the cap. A regression that puts specificity back in front of the utility turns this red on the
-// first run instead of shipping a third full-width badge.
-const ARTICLE_ROUTES = ['/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha', '/en/blog/from-cloud-to-ai-same-badge'];
+// What is asserted is therefore the COMPUTED BOX, on the article, at a width where the column is more
+// than twice the cap. A regression that puts specificity back in front of the utility turns this red on
+// the first run instead of shipping a third full-width badge.
 //
-// THE NUMBER MOVED 224 → 448 (#493) AND THE CHECK DID NOT CHANGE SHAPE. 224 was half of the value
-// declared in the CSS; that value had never applied, so half of what the owner was actually seeing is
-// ~461px and 224 was a quarter. 448 is the largest cap that does not upscale the 450px-wide file. What
-// this spec asserts — the COMPUTED box, on the article, in a column much wider than the cap — is exactly
-// the assertion that would have caught the two silent no-ops, so it is kept and re-pointed rather than
-// rewritten.
+// THE NUMBER MOVED 224 → 448 (#493) AND THE CHECK DID NOT CHANGE SHAPE — which is the point of having
+// written it this way. 224 was half of the value DECLARED in the CSS, and that value had never applied,
+// so half of what the owner was actually seeing is ~461px and 224 was a quarter of the column. 448 is
+// the largest cap that does not upscale the 450px-wide file. The assertion is re-pointed, not rewritten:
+// what it measures is exactly what would have caught the two silent no-ops.
+const ARTICLE_ROUTES = ['/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha', '/en/blog/from-cloud-to-ai-same-badge'];
 const PORTRAIT_CAP = 448;
 
 test.describe('the portrait photograph in an article body', () => {
