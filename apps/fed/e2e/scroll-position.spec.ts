@@ -74,6 +74,11 @@ test.describe('scroll position on route change', () => {
     const articles = page.locator('#artigos');
     await expect(articles).toBeVisible();
 
+    // NO PRE-CLICK GUARD HERE, and it is not an omission — this journey has no click. It is a fresh
+    // load, which starts at 0, and the assertion below demands the page ended up BELOW 200. The
+    // direction is the guard: journeys 1 and 2 assert an offset of 0 and so must prove they moved
+    // away from 0 first, while this one asserts movement itself.
+
     // The section ends up at the top of the viewport. POLLED, not read once: this branch deliberately
     // leaves `behavior` at the default so it inherits `html { scroll-behavior: smooth }`, so the
     // offset is ANIMATING — the first version of this test read the rect once and caught it mid-flight
@@ -86,5 +91,43 @@ test.describe('scroll position on route change', () => {
     // And NOT at offset 0 — which is the difference between "the anchor was honoured" and "we scrolled
     // to the top and the section happens to be visible from there".
     expect(await offset(page)).toBeGreaterThan(200);
+  });
+
+  // THE PT/EN TOGGLE IS A ROUTER PUSH CARRYING THE HASH (i18n/context.tsx:49), so it looks exactly
+  // like opening a new page and would be scrolled to the top by a scroll-on-every-PUSH rule. Same
+  // page, different language: the reader's position must survive. Two journeys, because the article
+  // case is the one a pathname comparison gets wrong — an article slug is per-locale (ADR-0037).
+  test('switching language keeps the reader where they were', async ({ page }) => {
+    await page.goto('/pt/architecture'); // the longest read on the site
+
+    await page.mouse.wheel(0, 1500);
+    // The self-guard: without a real offset here, "position preserved" is indistinguishable from
+    // "both values happened to be 0".
+    await expect.poll(() => offset(page)).toBeGreaterThan(1000);
+    const before = await offset(page);
+
+    await page.getByRole('button', { name: 'EN', exact: true }).click();
+    await expect(page).toHaveURL(/\/en\/architecture$/);
+
+    // Within a few pixels: the two editions are the same document in different languages, so the
+    // rendered height is not pixel-identical and asserting equality would test translation length.
+    expect(Math.abs((await offset(page)) - before)).toBeLessThan(150);
+  });
+
+  test('switching language on an article keeps the position despite the per-locale slug', async ({ page }) => {
+    await page.goto('/pt/blog/meu-compromisso');
+
+    await page.mouse.wheel(0, 1200);
+    // Guarded at 400, not higher: this article's maximum scroll is ~726px, and a threshold above the
+    // page's own height is a guard that can never pass. Measured, not guessed — the first version
+    // asked for >800 and failed at 726.
+    await expect.poll(() => offset(page)).toBeGreaterThan(400);
+    const before = await offset(page);
+
+    await page.getByRole('button', { name: 'EN', exact: true }).click();
+    // The slug CHANGES — this is what makes a naive same-pathname exemption miss this case.
+    await expect(page).toHaveURL(/\/en\/blog\/my-commitment$/);
+
+    expect(Math.abs((await offset(page)) - before)).toBeLessThan(150);
   });
 });

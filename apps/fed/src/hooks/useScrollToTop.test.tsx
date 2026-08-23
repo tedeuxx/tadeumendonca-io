@@ -47,6 +47,18 @@ function Harness({ onRender }: { onRender?: () => void } = {}) {
       <button type="button" onClick={() => navigate(-1)}>
         back
       </button>
+      {/* The PT/EN toggle's exact shape: `navigate()`, no `replace`, hash preserved
+          (i18n/context.tsx:49). Two variants, because the article case is the one a naive pathname
+          comparison gets wrong — the slug is per-locale (ADR-0037). */}
+      <button type="button" onClick={() => navigate('/en/architecture')}>
+        toggle-en
+      </button>
+      <button type="button" onClick={() => navigate('/en/blog/my-commitment')}>
+        toggle-en-article
+      </button>
+      <button type="button" onClick={() => navigate('/en/me')}>
+        cross-locale-different-page
+      </button>
     </>
   );
 }
@@ -143,6 +155,50 @@ describe('useScrollToTop', () => {
     expect(() => fireEvent.click(screen.getByRole('button', { name: 'push-malformed-hash' }))).not.toThrow();
     // And it still does the sensible thing: no element by that name, so show the page from the top.
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+  });
+
+  // The PT/EN toggle is a PUSH, so without an explicit exemption it reads as "opened a new page" and
+  // throws the reader to the top for changing language. Same content, re-rendered — position is kept.
+  describe('the PT/EN locale switch', () => {
+    it('preserves the reader position when only the locale segment changed', () => {
+      mount(['/pt/architecture']);
+      fireEvent.click(screen.getByRole('button', { name: 'toggle-en' }));
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    // The case a pathname comparison gets wrong, and the one that matters most: an article slug is
+    // per-locale, so the two paths differ as strings while naming the same document.
+    it('preserves it across an article whose slug is per-locale', () => {
+      mount(['/pt/blog/meu-compromisso']);
+      fireEvent.click(screen.getByRole('button', { name: 'toggle-en-article' }));
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('preserves it even when the URL carries a hash', () => {
+      const section = document.createElement('section');
+      section.id = 'artigos';
+      document.body.appendChild(section);
+
+      mount(['/pt/architecture#artigos']);
+      fireEvent.click(screen.getByRole('button', { name: 'toggle-en' }));
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    // The exemption must be narrow. Crossing locales AND changing page is a real navigation, and
+    // reading it as a language switch would silently reintroduce the reported defect on that path.
+    it('does NOT exempt a cross-locale navigation to a different page', () => {
+      mount(['/pt/architecture']);
+      fireEvent.click(screen.getByRole('button', { name: 'cross-locale-different-page' }));
+      expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+    });
+
+    // Same page, same locale — not a language switch at all, so the normal rule applies.
+    it('does NOT exempt a same-locale navigation', () => {
+      mount(['/pt/']);
+      fireEvent.click(screen.getByRole('button', { name: 'push' }));
+      expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+    });
   });
 
   it('does not scroll on a re-render that navigated nowhere', () => {
