@@ -116,8 +116,11 @@ export function MarkdownPage({
               lone word stranded on the last line — is still wanted; `pretty` keeps the orphan guard
               without redistributing width. It is also the safe degradation: where it is unsupported the
               computed value falls back to `normal`, which fills the line, i.e. what this change asks
-              for. The numbers above are re-measurable — `e2e/markdown-page-heading.spec.ts` asserts the
-              98% case and fails on either half of the mutation. */}
+              for. The numbers above are re-measurable — `e2e/page-heading-measure.spec.ts` asserts the
+              98% case and fails on either half of the mutation. It was `markdown-page-heading.spec.ts`
+              and was scoped to THIS component, which is how the identical header in `ArticlePage` and
+              `LibraryPage` kept the squeezed title after this fix landed; it is now scoped to the
+              property and covers all ten heading routes. */}
           <h1 className="mt-4 text-pretty text-[clamp(2rem,5.5vw,4rem)] font-bold leading-none tracking-[-0.035em]">
             {heading}
           </h1>
