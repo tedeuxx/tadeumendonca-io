@@ -66,11 +66,17 @@ describe('PhotoFigure', () => {
     expect(badge.height, 'the portrait fixture is not portrait any more').toBeGreaterThan(badge.width);
     const { container } = render(<PhotoFigure photo={badge} alt="a" caption="b" />);
     const img = container.querySelector('img')!;
-    // 224px, half of the `max-w-md` this used to assert — the owner's "no máximo metade do tamanho
-    // atual". Asserted as the literal class because that IS the contract: an arbitrary value has no
-    // scale-step name to hide behind, so a change to the number turns this red rather than reading as a
-    // rename.
-    expect(img.className).toContain('max-w-[224px]');
+    // 448px — the owner's "no máximo metade do tamanho atual", applied to the size he was ACTUALLY
+    // seeing. The 224 this used to assert halved the value declared in the CSS, and that value had never
+    // been in effect (`.markdown img` outranked it), so the badge shipped at a quarter of the column and
+    // read as lost. See `PhotoFigure.tsx` for the arithmetic and for why 448 rather than the 461 half of
+    // 922 gives: the file is 450px wide, so 448 is the largest cap that does not upscale it.
+    //
+    // Asserted as the literal class because that IS the contract: an arbitrary value has no scale-step
+    // name to hide behind, so a change to the number turns this red rather than reading as a rename.
+    // WHAT THIS ASSERTION CANNOT DO is the reason `e2e/content-photo.spec.ts` exists — jsdom has no
+    // cascade, so this string was true throughout both slices in which the cap did not apply at all.
+    expect(img.className).toContain('max-w-[448px]');
     expect(img.className).toContain('mx-auto');
     // The ratio is still the file's own — the cap is on width only, so the reservation stays honest.
     expect(img).toHaveAttribute('width', String(badge.width));
