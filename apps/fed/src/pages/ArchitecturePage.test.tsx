@@ -188,7 +188,7 @@ describe('ArchitecturePage', () => {
   });
 
   // The contact route attaches BELOW the body's closing ask — the paragraph that asks the reader to get in
-  // touch — rather than floating anywhere on the page. The ask is `writer`'s copy in the markdown; the
+  // touch — rather than floating anywhere on the page. The ask is `content-writer`'s copy in the markdown; the
   // route is a component, because `contactChannels.ts` is the declared single source of truth for the
   // owner's channels and a hardcoded address in a content file would be a second one.
   it.each([
