@@ -7,7 +7,7 @@ date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
 excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
-takeaway: 'what repeated both times the work stopped taking me forward: what I changed was the object of the work, not the company.'
+takeaway: 'what repeated all three times the work stopped taking me forward: what I changed was the object of the work, not the company.'
 ---
 ![An ID badge lying face-up on a pale wood desk, inside a clear plastic holder: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom. Above the badge sit a retractable badge reel, a key with a white tag numbered 38, and the edge of a black mug.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
 
@@ -45,7 +45,7 @@ Working with AWS cloud and Terraform every day delivered exactly what I asked of
 
 All three times what I changed was the **object** of the work rather than the company — and I only saw it the third time.
 
-At Accenture, moving into digital, I paid a toll: a project implementing Siebel CRM while I was getting ready for web and mobile on a lean stack, learning Node and Docker outside working hours. At Globo it came from inside the assignment: it was doing observability that showed me what I wanted was application work. At AWS it came from outside — the role has not worn out, the new problem ran out, and the work taking me past it is outside what I am staffed on. Two of the three happened outside working hours — the middle one came from inside the assignment.
+At Accenture, moving into digital, I paid a toll: I was staffed on a Siebel CRM project, and what was taking me forward happened beside it — Node and Docker, outside working hours. At Globo what took me forward was inside the assignment: there was plenty to learn, and it was doing observability that showed me what I wanted was application work. At AWS it is outside it again: the role has not worn out, the new problem ran out, and the work taking me past it is not what I am staffed on.
 
 A pattern you can name is one you can recognise before it turns into resentment. All three times I recognised it in time. It is not a method; it is what happens when you pay attention to what actually interests you. But it repeated cleanly enough that I would tell a peer to go looking for it in their own history.
 
