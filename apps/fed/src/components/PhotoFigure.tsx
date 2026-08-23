@@ -63,30 +63,48 @@ export function PhotoFigure({
   // column — the same treatment the diagrams already get, so it reads as one page rule rather than an
   // exception.
   //
-  // THE CAP IS 224px, HALVED FROM `max-w-md` (448px) ON THE OWNER'S CALL — "a foto do crachá precisa ser
-  // menor, no máximo metade do tamanho atual". Written as an arbitrary value rather than a scale step
-  // because Tailwind's `max-w` scale has nothing between `max-w-xs` (320px, 71% of the old cap) and
-  // zero: only `max-w-[224px]` is actually half, and the instruction was a ratio.
+  // THE CAP IS 448px, AND THE NUMBER BEFORE IT — 224px — WAS ARITHMETIC DONE AGAINST A DEAD BASELINE.
   //
-  // THE NUMBER IS UNCHANGED BY THE RECROP AND THAT IS A DECISION, NOT AN OMISSION — BUT UNTIL THIS SLICE
-  // IT WAS NOT A CAP AT ALL. `.markdown img` in `styles/index.css` was specificity (0,1,1) and beat this
-  // utility (0,1,0), so both 448px and 224px were inert and the badge laid out at the full 922px column
-  // at 1280. That is the real reason "reduzida no tamanho" kept not happening, and it is fixed there, not
-  // here; `e2e/content-photo.spec.ts` now measures the computed box so it cannot come back silently.
+  // The owner's instruction has not changed: "no máximo metade do tamanho atual". #488 read "o tamanho
+  // atual" off the CSS — `max-w-md`, 448px — and halved that to 224. But 448px was never in effect.
+  // #482's own finding was that `.markdown img` (specificity 0,1,1) beat every Tailwind utility (0,1,0),
+  // so BOTH declared caps were inert and the badge had been laying out at the FULL COLUMN — measured at
+  // 922px at 1280. So "half of what he was seeing" is ~461px, and 224px is a QUARTER. #492 fixed the
+  // cascade and shipped the quarter, and the owner said so on sight: "agora ta ridiculamente pequena se
+  // comparado a barra divisoria acima da foto". The instruction was right both times; the baseline the
+  // second one was applied to was fiction.
   //
-  // With the cap actually applying, 224px is kept. Measured on the rendered page rather than argued:
-  // the image lays out 224×268 inside a 922px column, and the badge fills ~81% of that frame instead of
-  // the ~59% it filled before the crop — a closer subject in a smaller box. Going below was rendered and
-  // rejected: at 180px "tadeumen@" goes soft, and 224px is the ceiling the owner already ratified.
+  // 448px IS THE MAXIMUM THAT SATISFIES THE INSTRUCTION WITHOUT UPSCALING, which is why it is 448 and
+  // not the 461 the arithmetic gives. The committed file is 450×540 after #492's crop, so any cap above
+  // 450 stretches a raster; 448 is 48.6% of the 922px column — within 3% of half — and lays out
+  // 448×537 with the file's own pixels still doing the work (450 intrinsic ÷ 448 CSS ≈ 1.0, no reserve
+  // left, and none needed at this size on a 1× display). 460 was rendered and rejected for exactly
+  // that: it buys 12px of width and costs the only guarantee that the badge's type is not resampled.
   //
-  // At 450px intrinsic the cap is 2× the CSS box — down from 4× at the old 900px, still a retina-grade
-  // reserve, and the badge's own type ("Luiz Tadeu", "tadeumen@") survives it; checked by rendering the
-  // committed file down to 224px and reading it, not assumed.
+  // CHOSEN BY LOOKING, NOT BY ARITHMETIC ALONE. The owner's reference object is the horizontal rule
+  // under the article title, which spans the full 922px column. 224, 380, 420 and 448 were rendered at
+  // 1280 with that rule in the same frame: at 224 the figure reads as lost beside it, at 380 it reads
+  // as deliberate, and at 448 it reads as deliberately HALF the rule — the proportion the instruction
+  // describes. 448 is the one that answers the sentence he wrote.
+  //
+  // It is the same 448 `max-w-md` names, written as an arbitrary value on purpose: the number is the
+  // contract here, and a scale-step name would let the value move under a Tailwind config change with
+  // `PhotoFigure.test.tsx` still green. `e2e/content-photo.spec.ts` measures the COMPUTED box on the
+  // real article, which is the assertion that would have caught #482 and #488 and did not exist then.
+  //
+  // THE BRANCH IS STILL A REAL DISTINCTION AT 448, and that was checked rather than assumed, because a
+  // cap that creeps toward the column width would make the two branches a smaller version of the same
+  // thing. It does not: 448 is 48.6% of the 922px column, so the two branches differ by a factor of two
+  // in width — and by far more in the dimension the branch actually exists to control. Uncapped, this
+  // 450×540 file lays out 922×1106 at 1280: taller than any laptop viewport, which is the exact defect
+  // #482 was filed for (a picture with no text on screen beside it). Capped at 448 it lays out 448×537
+  // and the first paragraph is on screen underneath it. The branch would stop being meaningful somewhere
+  // near the column width, and 448 is nowhere near it.
   //
   // WHAT ELSE IT MOVES: nothing today. The branch is keyed off `photo.height > photo.width`, and
   // `data/photos.json` registers exactly one portrait file — this article's badge. The other two
   // (`knuth-cv-museum`, `may-week-montage`, both on /architecture) are landscape and take the other
-  // branch untouched. A FUTURE portrait photograph gets 224px too, which is the intended reading: the
+  // branch untouched. A FUTURE portrait photograph gets 448px too, which is the intended reading: the
   // rule is about what a portrait does to a reading column, not about this one picture. The
   // `width`/`height` attributes are untouched, which is the part that matters for the reason this
   // component exists: they set the intrinsic ratio, so the box is still reserved before the bytes arrive
@@ -113,7 +131,7 @@ export function PhotoFigure({
         // matches the diagram box so the two figure kinds sit on the page as one decision.
         className={
           portrait
-            ? 'mx-auto block h-auto w-full max-w-[224px] border border-border'
+            ? 'mx-auto block h-auto w-full max-w-[448px] border border-border'
             : 'block h-auto w-full border border-border'
         }
       />

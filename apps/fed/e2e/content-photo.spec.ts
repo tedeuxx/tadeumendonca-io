@@ -231,7 +231,14 @@ test.describe('the content photographs', () => {
 // times the cap. A regression that puts specificity back in front of the utility turns this red on the
 // first run instead of shipping a third full-width badge.
 const ARTICLE_ROUTES = ['/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha', '/en/blog/from-cloud-to-ai-same-badge'];
-const PORTRAIT_CAP = 224;
+//
+// THE NUMBER MOVED 224 → 448 (#493) AND THE CHECK DID NOT CHANGE SHAPE. 224 was half of the value
+// declared in the CSS; that value had never applied, so half of what the owner was actually seeing is
+// ~461px and 224 was a quarter. 448 is the largest cap that does not upscale the 450px-wide file. What
+// this spec asserts — the COMPUTED box, on the article, in a column much wider than the cap — is exactly
+// the assertion that would have caught the two silent no-ops, so it is kept and re-pointed rather than
+// rewritten.
+const PORTRAIT_CAP = 448;
 
 test.describe('the portrait photograph in an article body', () => {
   for (const route of ARTICLE_ROUTES) {
@@ -277,8 +284,14 @@ test.describe('the portrait photograph in an article body', () => {
       expect(fig.loaded, `${fig.src} did not decode — the file is missing or corrupt`).toBe(true);
       // The premise: without a column much wider than the cap, a capped image and an uncapped one are the
       // same measurement and this test proves nothing.
+      //
+      // The multiplier was `* 2` when the cap was 224. At 448 that reads 896 against a 922px column — it
+      // still passes, by 26px, which is a premise check that would go red on an unrelated 3% change to
+      // the reading column and say "the check is vacuous" about a perfectly good page. 1.5× keeps the
+      // premise true where it matters (uncapped is 922, capped is 448 — two different measurements by a
+      // wide margin) without sitting one layout tweak away from a false failure.
       expect(fig.columnWidth, 'the body column is not wider than the cap — the check is vacuous').toBeGreaterThan(
-        PORTRAIT_CAP * 2,
+        PORTRAIT_CAP * 1.5,
       );
       expect(fig.width, `${fig.src} is not capped — it laid out at ${fig.width}px`).toBe(PORTRAIT_CAP);
       // The height follows the file's own ratio rather than the declared height, which is what `h-auto`
