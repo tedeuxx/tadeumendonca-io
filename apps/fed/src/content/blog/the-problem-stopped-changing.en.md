@@ -19,11 +19,11 @@ So I counted. And what I want to write about is not the five years. It is the tu
 
 I had just left Accenture after thirteen years — my career started there, in 2008 — and gone to Globo, to be in an environment where I thought I would learn a lot about software engineering.
 
-It was not the environment of technical excellence I had gone looking for. I did not find people I could grow by watching, or technical leadership I looked up to — on digital applications, I felt I was already ahead. **The challenge looked small.**
+What I wanted to be doing every day was public cloud and Terraform, and that was not what my day had for me — **on that front, the challenge looked small**. Not for lack of real technical work: I went deep on observability there, on the golden signals out of Google's SRE book. It just was not in the direction I wanted to go.
 
 That is not disappointment, it is information. I came in as DevOps, and at some point I became the application reference — **outside the role I had been hired into**. That is how I found out I liked application work, and how much I had been missing it. Nobody assigned me that. It happened next to the assignment.
 
-What I then wanted from AWS was specific: hyper-exposure to leading-edge technology, becoming cloud native, working with public cloud every single day. That is what I was after when I went.
+What I then wanted from AWS was specific: hyper-exposure to leading-edge technology, becoming cloud native, working with public cloud every single day. It was the list of what had been missing, turned inside out.
 
 And here is the part that is less flattering and more useful. **When I went to AWS Professional Services, I did not know the difference between the Solutions Architect role and the ProServe Cloud Application Architect one.** What I saw was an advantage: I had spent years in the consulting business, and I could tell that would count for ProServe. So I chose by where my history was worth most, not by understanding the job.
 
@@ -49,7 +49,7 @@ Mine was the second one. The hyper-exposure delivered exactly what I asked of it
 
 Both ceilings have the same shape, and I only made out the shape the second time.
 
-At Globo the ceiling was not the role wearing out: it was running out of anywhere to grow from. There was nobody there pulling me forward, and what did pull me was outside the role I was hired into. At AWS the role has not worn out either — the new problem ran out, and the work taking me past it is again outside what I am staffed on.
+At Globo the ceiling was not the role wearing out, and it was not that there was nothing to learn: the growth available there was not the growth I had gone looking for. And what did pull me forward was outside the role I was hired into. At AWS the role has not worn out either — the new problem ran out, and the work taking me past it is again outside what I am staffed on.
 
 A ceiling with a shape is one you can recognise before it turns into resentment. Both times I recognised it in time, and both times what I changed was the **object** of the work rather than the company. It is not a method; it is what happens when you pay attention to what actually interests you. But it is a pattern, and it repeated cleanly enough that I would tell a peer to go looking for it in their own history.
 
@@ -61,7 +61,7 @@ AI engineering is what is letting me go further, and **it is not my main activit
 
 The problem that caught me is not asking a model for code. It is designing the process around it.
 
-And that part can be shown, because it is running. This site is published by an agent loop I built and operate: two leads that disagree by construction before anything gets written, someone who builds, and a fresh-context gate that is the only one allowed to merge — not by agreement, by mechanism: a hook refuses the merge command coming from anyone else. Some hooks deny a tool call **before** it runs, rather than warning after. The ADRs record why each decision was taken, including the ones that were reversed. This article went through that loop before it reached you.
+And that part can be shown, because it is running. This site is published by an agent loop I built and operate: personas that disagree by construction before anything gets written, and a fresh-context gate that is the only one allowed to merge — not by agreement, by mechanism. This article went through that loop before it reached you.
 
 The real work in there is not writing better prompts. It is deciding what the harness **blocks**, what it **advises**, and what it merely **documents** — and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public, because that is what lets me tell what belongs to the model from what belongs to the setup around it.
 
