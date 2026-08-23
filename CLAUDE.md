@@ -39,7 +39,7 @@ irreversible/architectural judgment and the production go/no-go. The floor never
 - **Rigor calibrated to blast-radius** — heavy where irreversible/public, product-speed where cheap to revert.
 
 Depth lives in the plugin's `/principles/*` skills (`harness-engineering`, `verification-and-gates`);
-for deliberate validation of a non-trivial decision, invoke the subagent that **owns** it. **The six
+for deliberate validation of a non-trivial decision, invoke the subagent that **owns** it. **The seven
 below are the whole live roster** — this list is checked against the plugin's `agents/` by the
 `harness-drift` job in the `app` workflow, so a persona retired over there turns this paragraph red here
 rather than leaving a dispatch that fails when followed. The check reads only between the two markers,
@@ -49,7 +49,8 @@ so the history further down this file is not in its scope.
 - **`tech-lead`** — a decision against the principles and the ADR library; it also writes the product/system ADRs.
 - **`product-lead`** — what to build next, and whether published copy is true.
 - **`developer`** — builds a slice end to end against an approved spec.
-- **`writer`** — drafts articles, site copy and social-post language in the owner's voice; contained the same as the product lead (never posts directly).
+- **`content-writer`** — drafts articles, site copy and social-post language in the owner's voice; contained the same as the product lead (never posts directly). Named *writer* until `-skills` #317 — a rename, nothing absorbed.
+- **`content-reviewer`** — reads that draft against *published-voice*, the same skill it was written against, for at most two rounds; blocks only where it can quote a clause. Contained the same way (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
 - **`agents-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
 <!-- /roster:dispatch -->
@@ -64,8 +65,14 @@ which made it the one instruction in this file that *failed when followed*.
 mandate did not move — only the name — so nothing was absorbed and there is nothing else to say about it.
 Worth one line anyway: this file is the dispatch list an agent reads, so a stale name here is an
 instruction that fails when followed, exactly as the `security` row above did for a day.
-`writer` (a sixth persona, added deliberately — it satisfies none of the roster's four persona-existence
-reasons, an owner override for a capability gap rather than a reasoned fit) is added above.
+~~`writer`~~ **`content-writer`** (a sixth persona, added deliberately — it satisfies none of the roster's four
+persona-existence reasons, an owner override for a capability gap rather than a reasoned fit) is added
+above. **Renamed in `-skills` #317**, which also added a **seventh**, `content-reviewer` — the roster's
+first true *pair*, and the first persona added on reason #1, disagreement is wanted. Nothing was
+absorbed by either: the rename moved a name only, and the pair splits drafting from judging a draft.
+**What did move is `product-lead`'s craft opinion**, which left the drafting rounds on the owner's
+decision — its blocking veto on the truth of published copy and its `content` intake did **not**, so the
+row above is unchanged on both counts.
 (`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
