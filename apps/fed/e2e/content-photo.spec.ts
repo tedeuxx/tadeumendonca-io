@@ -296,8 +296,14 @@ test.describe('the portrait photograph in an article body', () => {
       // What the premise actually needs is that the two measurements DIFFER, and the honest form of that
       // is the strict inequality plus the numbers it was checked against: at the pinned 1280 the column
       // is 922 and the cap is 730, so an uncapped badge would measure 922 and a capped one 730 — 192px
-      // apart, and the `toBe(PORTRAIT_CAP)` below is what tells the two apart. The cap binds at every
-      // desktop width (896 ≤ column ≤ 938 > 730), so this stays true if the viewport constant ever moves.
+      // apart, and the `toBe(PORTRAIT_CAP)` below is what tells the two apart.
+      //
+      // WHERE IT WOULD LEGITIMATELY GO RED, since a premise that can never fire is its own kind of
+      // nothing: the column is 938 at 1024, 922 at 1280 and 896 at 1920 — all above the cap — but 703 at
+      // 768 and 354 at 390, where the cap is INERT and a capped badge and an uncapped one really are the
+      // same measurement. Move the pinned viewport below ~800 and this guard fires, and it would be
+      // telling the truth. That is the difference from the multiplier it replaces, which fired at 1920 on
+      // a page where the cap was working perfectly.
       expect(fig.columnWidth, 'the body column is not wider than the cap — the check is vacuous').toBeGreaterThan(
         PORTRAIT_CAP,
       );
