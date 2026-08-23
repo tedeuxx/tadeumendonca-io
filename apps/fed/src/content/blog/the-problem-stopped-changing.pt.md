@@ -7,7 +7,7 @@ date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
 excerpt: "O crachá de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
-takeaway: 'como distinguir um teto estrutural de um teto que é só cansaço — e por que é essa distinção que decide o próximo passo.'
+takeaway: 'o que se repetiu nas duas vezes em que o trabalho parou de me levar adiante: o que eu mudei foi o objeto do trabalho, não a empresa.'
 ---
 ![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O crachá que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
 
@@ -39,11 +39,7 @@ Tudo ali era verdade, e continuou sendo verdade por anos. O que mudou veio depoi
 
 Projetos de cloud enablement se parecem muito entre si, e o que determina isso é a posição do cliente, não a empresa dele: quase sempre é um primeiro contato com cloud pública, logo depois que a landing zone da AWS estabiliza. É o mesmo ponto de uma curva, visitado por companhias diferentes. A variação está nas logomarcas e nos organogramas, não no problema que está sendo resolvido. É o que cinco anos nesse tipo de engajamento me deixaram ver.
 
-E aí aparece uma distinção difícil de fazer, porque as duas coisas são idênticas por dentro e pedem respostas opostas. **Cansaço é sobre você.** Você está cansado, precisa de uma pausa, e em três meses o trabalho volta a ser interessante. **Repetição estrutural é sobre o trabalho.** Descanso nenhum resolve, porque não havia nada ali que fosse variar: três meses depois, o problema que te espera é o mesmo, e a resposta que você tem para ele também.
-
-É essa distinção que decide o próximo passo.
-
-Comigo foi o segundo caso. Trabalhar com cloud AWS e Terraform todo dia entregou exatamente o que eu pedi: profundidade. O que parou de entregar foi problema novo. Foi assim que eu cheguei a um ponto em que não via mais desenvolvimento técnico para mim como application architect — depois de um tempo nos tipos de engajamento em que eu geralmente estou envolvido. Não o papel esgotado no abstrato. O papel, ali dentro.
+Trabalhar com cloud AWS e Terraform todo dia entregou exatamente o que eu pedi: profundidade. O que parou de entregar foi problema novo. Depois de um tempo nos tipos de engajamento em que eu geralmente estou envolvido, eu não via mais desenvolvimento técnico ali para mim como application architect, e percebi que precisava de um desafio novo.
 
 ## A segunda vez, não a primeira
 

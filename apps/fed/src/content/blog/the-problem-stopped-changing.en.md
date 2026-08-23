@@ -7,7 +7,7 @@ date: '2026-08-21T12:00:00.000Z'
 tag: career
 track: engenharia
 excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
-takeaway: 'how to tell a ceiling that is structural from one that is fatigue — and why that distinction decides what you do next.'
+takeaway: 'what repeated both times the work stopped taking me forward: what I changed was the object of the work, not the company.'
 ---
 ![An ID badge lying face-up on a pale wood desk, inside a clear plastic holder: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom. Above the badge sit a retractable badge reel, a key with a white tag numbered 38, and the edge of a black mug.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
 
@@ -39,11 +39,7 @@ All of it was true, and it stayed true for years. What changed came later.
 
 Cloud-enablement projects are broadly alike, and what makes them alike is where the client stands, not which company it is: almost always a first contact with public cloud, right after the AWS landing zone stabilises. It is the same point on a curve, visited by different companies. The variation is in the logos and the org charts, not in the problem being solved. That is what five years in this kind of engagement let me see.
 
-Which raises a distinction that is hard to make, because the two look identical from the inside and need opposite responses. **Fatigue is about you.** You are tired, you need a break, and the work is interesting again in three months. **Structural repetition is about the work.** No amount of rest touches it, because nothing in it was ever going to vary: three months later the problem waiting for you is the same one, and so is the answer you already have for it.
-
-That distinction is what decides your next step.
-
-Mine was the second one. Working with AWS cloud and Terraform every day delivered exactly what I asked of it: depth. What it stopped delivering was a new problem. Which is how I reached the point where I no longer saw technical development for myself as an application architect — after enough time in the kind of engagement I usually get staffed on. Not the role exhausted in the abstract. The role, in there.
+Working with AWS cloud and Terraform every day delivered exactly what I asked of it: depth. What it stopped delivering was a new problem. After enough time in the kind of engagement I usually get staffed on, I no longer saw technical development there for myself as an application architect, and I realised I needed a new challenge.
 
 ## The second time, not the first
 
