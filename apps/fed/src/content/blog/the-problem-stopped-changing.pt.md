@@ -27,7 +27,7 @@ E o que eu quis da AWS depois disso era específico: trabalhar com cloud AWS e T
 
 Agora a parte menos elegante e mais útil. **Quando eu fui para a AWS e para o ProServe, eu não sabia a diferença entre as vagas de Solution Architect e de ProServe Cloud Application Architect.** O que eu vi foi uma vantagem: eu tinha anos de business de consultoria nas costas, e dava para perceber que aquilo seria um diferencial para o ProServe.
 
-Se você está lendo isto no meio da sua própria virada, é provável que esteja exatamente aí — olhando portas que você não consegue diferenciar e decidindo pela porta em que você tem chance. Isso não é falta de pesquisa. De fora, você não tem como saber.
+Se você está lendo isto no meio da sua própria virada, é provável que esteja exatamente aí — olhando portas que você não consegue diferenciar e decidindo pela porta em que você tem chance.
 
 ## O que eu encontrei
 

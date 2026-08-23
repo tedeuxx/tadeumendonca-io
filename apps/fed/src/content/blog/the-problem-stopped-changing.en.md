@@ -27,7 +27,7 @@ What I then wanted from AWS was specific: to work with AWS cloud and Terraform e
 
 And here is the part that is less flattering and more useful. **When I went to AWS Professional Services, I did not know the difference between the Solutions Architect role and the ProServe Cloud Application Architect one.** What I saw was an advantage: I had spent years in the consulting business, and I could tell that would count for ProServe.
 
-If you are reading this in the middle of your own turn, that is probably where you are too — looking at doors you cannot tell apart, and deciding by where you have a chance. That is not a failure of research. From outside, you have no way of knowing.
+If you are reading this in the middle of your own turn, that is probably where you are too — looking at doors you cannot tell apart, and deciding by where you have a chance.
 
 ## What I found
 
