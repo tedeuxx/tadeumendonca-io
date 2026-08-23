@@ -33,15 +33,21 @@ import type { PhotoAsset } from '../data/photos';
  * rhythm is set here with the same `my-8` so the two figure classes read as one decision to a reader while
  * staying two different things to a selector.
  */
+// `Readonly<…>` on the props satisfies SonarCloud's `typescript:S6759`, and it is the FIRST use of that
+// wrapper in this codebase — every other component still declares props bare. That inconsistency is
+// deliberate and is not a cleanup someone forgot: the rule fires 29 more times on `main`, and sweeping
+// them would turn a content PR into a lint pass. It surfaced here only because `main`'s SonarCloud
+// baseline for this file is empty — `sonarqube-scan` is path-filtered and skips on content merges, so
+// `main`'s newest analysis predates this file's last change and every issue in it reads as NEW code.
 export function PhotoFigure({
   photo,
   alt,
   caption,
-}: {
+}: Readonly<{
   photo: PhotoAsset;
   alt: string;
   caption: string;
-}) {
+}>) {
   // A PORTRAIT PHOTOGRAPH IS NOT GIVEN THE FULL COLUMN, and the reason is arithmetic rather than taste.
   //
   // `w-full` was written when every registered photograph was landscape, and for those it is right: the

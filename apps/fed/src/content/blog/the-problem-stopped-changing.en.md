@@ -27,7 +27,7 @@ What I then wanted from AWS was specific: hyper-exposure to leading-edge technol
 
 And here is the part that is less flattering and more useful. **When I went to AWS Professional Services, I did not know the difference between the Solutions Architect role and the ProServe Cloud Application Architect one.** What I saw was an advantage: I had spent years in the consulting business, and I could tell that would count for ProServe. So I chose by where my history was worth most, not by understanding the job.
 
-If you are reading this in the middle of your own turn, that is probably where you are too — looking at doors you cannot tell apart, and deciding by where you have a chance. That is not a failure of research. From outside, you had no way of knowing.
+If you are reading this in the middle of your own turn, that is probably where you are too — looking at doors you cannot tell apart, and deciding by where you have a chance. That is not a failure of research. From outside, you have no way of knowing.
 
 ## What I found
 
@@ -47,11 +47,11 @@ Mine was the second one. The hyper-exposure delivered exactly what I asked of it
 
 ## The second time, not the first
 
-Both ceilings have the same shape, and I only made out the shape the second time.
+Both times, the work that pulled me forward was outside my assignment — and I only saw it the second time.
 
-At Globo the ceiling was not the role wearing out, and it was not that there was nothing to learn: the growth available there was not the growth I had gone looking for. And what did pull me forward was outside the role I was hired into. At AWS the role has not worn out either — the new problem ran out, and the work taking me past it is again outside what I am staffed on.
+The causes were different. At Globo it was not that there was nothing to learn: the growth available there was not the growth I had gone looking for, and what pulled me forward was application work, outside the role I was hired into. At AWS the role has not worn out — the new problem ran out, and the work taking me past it is again outside what I am staffed on.
 
-A ceiling with a shape is one you can recognise before it turns into resentment. Both times I recognised it in time, and both times what I changed was the **object** of the work rather than the company. It is not a method; it is what happens when you pay attention to what actually interests you. But it is a pattern, and it repeated cleanly enough that I would tell a peer to go looking for it in their own history.
+A pattern you can name is one you can recognise before it turns into resentment. Both times I recognised it in time, and both times what I changed was the **object** of the work rather than the company. It is not a method; it is what happens when you pay attention to what actually interests you. But it repeated cleanly enough that I would tell a peer to go looking for it in their own history.
 
 ## The challenge now
 
@@ -63,7 +63,7 @@ The problem that caught me is not asking a model for code. It is designing the p
 
 And that part can be shown, because it is running. This site is published by an agent loop I built and operate: personas that disagree by construction before anything gets written, and a fresh-context gate that is the only one allowed to merge — not by agreement, by mechanism. This article went through that loop before it reached you.
 
-The real work in there is not writing better prompts. It is deciding what the harness **blocks**, what it **advises**, and what it merely **documents** — and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public, because that is what lets me tell what belongs to the model from what belongs to the setup around it.
+What takes my time in there is not writing better prompts: it is deciding what the harness **blocks**, what it **advises**, and what it merely **documents** — and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public, because that is what lets me tell what belongs to the model from what belongs to the setup around it.
 
 The reason it happens anyway is much plainer than a strategy. I am going past business hours, across many days, because I got excited about what is possible with AI. That is the engine — enthusiasm outrunning the assignment, which is exactly what happened the first time too.
 

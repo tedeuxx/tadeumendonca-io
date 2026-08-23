@@ -19,7 +19,7 @@ Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a v
 
 Eu tinha acabado de sair da Accenture depois de treze anos — a carreira começou lá, em 2008 — e ido para a Globo, para ir para um ambiente onde eu achava que ia aprender muito sobre engenharia de software.
 
-O que eu queria estar fazendo todo dia era cloud pública e Terraform, e não era isso que o meu dia tinha para mim — **naquilo, o desafio parecia pequeno**. Não por falta de trabalho técnico de verdade: eu fui fundo em observabilidade ali, nos golden signals do livro de SRE do Google. Só que não era na direção para onde eu queria ir.
+O que eu queria estar fazendo todo dia era cloud pública e Terraform, e não era isso que o meu dia tinha para mim — **na direção que eu queria, o desafio parecia pequeno**. Não por falta de trabalho técnico de verdade: eu fui fundo em observabilidade ali, nos golden signals do livro de SRE do Google. Só que não era para onde eu queria ir.
 
 Isso não é decepção, é informação. Entrei como DevOps e, em algum momento, virei referência em aplicação — **fora da vaga em que eu tinha entrado**. Foi assim que eu descobri que gostava de aplicação e o quanto sentia falta disso. Ninguém me alocou nesse papel. Ele aconteceu ao lado da alocação.
 
@@ -27,7 +27,7 @@ E o que eu quis da AWS depois disso era específico: hiperexposição a tecnolog
 
 Agora a parte menos elegante e mais útil. **Quando eu fui para a AWS e para o ProServe, eu não sabia a diferença entre as vagas de Solution Architect e de ProServe Cloud Application Architect.** O que eu vi foi uma vantagem: eu tinha anos de business de consultoria nas costas, e dava para perceber que aquilo seria um diferencial para o ProServe. Ou seja, escolhi pelo lugar onde meu histórico valia mais, não por entender a vaga.
 
-Se você está lendo isto no meio da sua própria virada, é provável que esteja exatamente aí — olhando portas que você não consegue diferenciar e decidindo pela porta em que você tem chance. Isso não é falta de pesquisa. De fora, você não tinha como saber.
+Se você está lendo isto no meio da sua própria virada, é provável que esteja exatamente aí — olhando portas que você não consegue diferenciar e decidindo pela porta em que você tem chance. Isso não é falta de pesquisa. De fora, você não tem como saber.
 
 ## O que eu encontrei
 
@@ -47,11 +47,11 @@ Comigo foi o segundo caso. A hiperexposição entregou exatamente o que eu pedi 
 
 ## A segunda vez, não a primeira
 
-Os dois tetos têm a mesma forma, e eu só consegui ver a forma na segunda vez.
+Nas duas vezes, o trabalho que me puxou adiante estava fora da minha alocação — e eu só vi isso na segunda.
 
-Na Globo o teto não foi o papel cansar, e nem faltou o que aprender: o que dava para crescer ali não era o crescimento que eu tinha ido buscar. E o que me puxou adiante estava fora da vaga em que eu entrei. Na AWS o papel também não esgotou — acabou o problema novo, e o trabalho que me leva além está, de novo, fora do que eu estou alocado para fazer.
+As causas foram diferentes. Na Globo não faltou o que aprender: o que dava para crescer ali não era o crescimento que eu tinha ido buscar, e o que me puxou adiante foi aplicação, fora da vaga em que eu entrei. Na AWS o papel não esgotou — acabou o problema novo, e o trabalho que me leva além está, de novo, fora do que eu estou alocado para fazer.
 
-Um teto que tem forma dá para reconhecer antes de virar ressentimento. Nas duas eu reconheci a tempo, e nas duas o que eu mudei foi o **objeto** do trabalho, não a empresa. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas é um padrão, e ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
+Um padrão que você consegue nomear dá para reconhecer antes de virar ressentimento. Nas duas eu reconheci a tempo, e nas duas o que eu mudei foi o **objeto** do trabalho, não a empresa. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
 
 ## O desafio de agora
 
@@ -63,7 +63,7 @@ O problema que me pegou não é pedir código a um modelo. É desenhar o process
 
 E isso dá para mostrar, porque está no ar. Este site é publicado por um loop de agentes que eu construí e opero: personas que discordam por construção antes de qualquer coisa ser escrita, e um gate de contexto fresco que é o único que pode fazer merge — não por combinado, por mecanismo. Este artigo atravessou esse loop antes de chegar até você.
 
-O trabalho de verdade ali não é escrever prompt melhor. É decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público, porque é isso que me deixa separar o que é do modelo do que é do setup em volta dele.
+O que me toma tempo ali não é escrever prompt melhor: é decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público, porque é isso que me deixa separar o que é do modelo do que é do setup em volta dele.
 
 E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — entusiasmo passando na frente da alocação, que foi exatamente o que aconteceu da primeira vez também.
 
