@@ -53,13 +53,13 @@ A pattern you can name is one you can recognise before it turns into resentment.
 
 I see a lot of similar problems over time, and I want to keep developing technically.
 
-AI engineering is what is letting me go further, and **it is not my main activity on the projects I work on.** The projects are not about AI. The tasks inside them, on the other hand, are being reinvented daily with better use of AI tooling. Both at once: the work is not an AI project, and AI is changing how the work gets done.
+AI engineering is what is letting me go further, and **it is not my main activity on the projects I work on.** The projects are not yet fully focused on AI: AI is present as tooling, and the tasks inside them are being reinvented daily with better use of those tools. It is not AI Native yet.
 
 The problem that caught me is not asking a model for code. It is designing the process around it.
 
 And that part can be shown, because it is running. This site is published by an agent loop I built and operate: personas that disagree by construction before anything gets written, and a fresh-context gate that is the only one allowed to merge — not by agreement, by mechanism. This article went through that loop before it reached you.
 
-What takes my time in there is not writing better prompts: it is deciding what the harness **blocks**, what it **advises**, and what it merely **documents** — and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public, because that is what lets me tell what belongs to the model from what belongs to the setup around it.
+The challenge in there is making the use of AI less unpredictable and more repeatable: aimed at a specific objective, and reached iteratively and incrementally. It is not writing better prompts — it is deciding what the harness **blocks**, what it **advises**, and what it merely **documents**, and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public — that is what lets me tell what belongs to the model from what belongs to the setup around it, and improve the setup each time round.
 
 The reason it happens anyway is much plainer than a strategy. I am going past business hours, across many days, because I got excited about what is possible with AI. That is the engine — my interest going where the assignment does not, which is exactly what happened the first time too.
 
