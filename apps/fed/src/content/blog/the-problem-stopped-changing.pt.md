@@ -11,7 +11,7 @@ takeaway: 'como distinguir um teto estrutural de um teto que é só cansaço —
 ---
 ![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O objeto que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
 
-São cinco anos de AWS, e ele chegou até mim seis meses depois da data que ele comemora — o marco foi em janeiro; o objeto só chegou ao Brasil agora. Um marco que aparece atrasado é um gatilho melhor que um número redondo: ele te pega sem resposta pronta e te faz contar quando você não estava esperando contar.
+São cinco anos de AWS, e o crachá chegou até mim seis meses depois da data que ele comemora — o marco foi em janeiro; o objeto só foi impresso agora. Um marco que aparece atrasado é um gatilho melhor que um número redondo: ele te pega sem resposta pronta e te faz contar quando você não estava esperando contar.
 
 Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a virada embaixo deles.
 

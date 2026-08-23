@@ -11,7 +11,7 @@ takeaway: 'how to tell a ceiling that is structural from one that is fatigue —
 ---
 ![An ID badge lying face-up on a pale wood desk, inside a clear plastic holder: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom. Above the badge sit a retractable badge reel, a key with a white tag numbered 38, and the edge of a black mug.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
 
-That is five years at AWS, and it reached me six months after the date it marks — the milestone was January; the object only got to Brazil now. A milestone that shows up late is a better prompt than a round number: it catches you with nothing prepared, and it makes you count when you were not expecting to.
+That is five years at AWS, and the badge reached me six months after the date it marks — the milestone was January; the object was only printed now. A milestone that shows up late is a better prompt than a round number: it catches you with nothing prepared, and it makes you count when you were not expecting to.
 
 So I counted. And what I want to write about is not the five years. It is the turn underneath them.
 
