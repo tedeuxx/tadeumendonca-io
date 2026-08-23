@@ -285,11 +285,13 @@ test.describe('the portrait photograph in an article body', () => {
       // The premise: without a column much wider than the cap, a capped image and an uncapped one are the
       // same measurement and this test proves nothing.
       //
-      // The multiplier was `* 2` when the cap was 224. At 448 that reads 896 against a 922px column — it
-      // still passes, by 26px, which is a premise check that would go red on an unrelated 3% change to
-      // the reading column and say "the check is vacuous" about a perfectly good page. 1.5× keeps the
-      // premise true where it matters (uncapped is 922, capped is 448 — two different measurements by a
-      // wide margin) without sitting one layout tweak away from a false failure.
+      // The multiplier was `* 2` when the cap was 224. At 448 that reads 896, and the reading column is
+      // NOT a constant: measured on this same article it is 922px at 1280, 938px at 1024 — and 896px at
+      // 1920, where `> 896` is false and this premise check would fail on a perfectly good page while
+      // reporting "the check is vacuous". The viewport here is pinned to 1280 so that case is not the one
+      // running, which is exactly what makes `* 2` the wrong thing to leave behind: it is one viewport
+      // constant away from a false failure with a misleading message. 1.5× keeps the premise true where
+      // it matters — uncapped is the full column, capped is 448, two measurements a long way apart.
       expect(fig.columnWidth, 'the body column is not wider than the cap — the check is vacuous').toBeGreaterThan(
         PORTRAIT_CAP * 1.5,
       );
