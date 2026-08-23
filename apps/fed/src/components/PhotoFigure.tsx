@@ -56,55 +56,62 @@ export function PhotoFigure({
   // at 900×1360 and laid out under the same rule at 900×1360: taller than a 900px viewport, so the reader
   // met a picture with no text on screen beside it and had to scroll a full screen to reach the sentence
   // it belongs to. On top of that, `w-full` would upscale it on any body wider than its own width — a
-  // blurrier wall. That file is now 450×540 (recropped onto the badge), which shrinks the problem
-  // without removing it: `w-full` would upscale a 450px-wide raster 2× in a 920px column.
+  // blurrier wall.
   //
   // So the cap is on the WIDTH and the ratio is left alone. `mx-auto` centres what no longer fills the
   // column — the same treatment the diagrams already get, so it reads as one page rule rather than an
   // exception.
   //
-  // THE CAP IS 448px, AND THE NUMBER BEFORE IT — 224px — WAS ARITHMETIC DONE AGAINST A DEAD BASELINE.
+  // THE CAP IS 730px, AND IT IS THE FILE'S OWN WIDTH. Every number before it was capped by a decode,
+  // not by a decision.
   //
-  // The owner's instruction has not changed: "no máximo metade do tamanho atual". #488 read "o tamanho
-  // atual" off the CSS — `max-w-md`, 448px — and halved that to 224. But 448px was never in effect.
-  // #482's own finding was that `.markdown img` (specificity 0,1,1) beat every Tailwind utility (0,1,0),
-  // so BOTH declared caps were inert and the badge had been laying out at the FULL COLUMN — measured at
-  // 922px at 1280. So "half of what he was seeing" is ~461px, and 224px is a QUARTER. #492 fixed the
-  // cascade and shipped the quarter, and the owner said so on sight: "agora ta ridiculamente pequena se
-  // comparado a barra divisoria acima da foto". The instruction was right both times; the baseline the
-  // second one was applied to was fiction.
+  // The owner has said the same thing three times, and the last time named what he is comparing against:
+  // "ainda radicalmente menor que a barra separadora acima" — the rule under the article title, which
+  // spans the full reading column (measured 922px at 1280). #488 shipped 224 (half of a `max-w-md` that
+  // `.markdown img` had been vetoing, so half of a number nobody was seeing), #492 made the cap apply,
+  // and #493 raised it to 448 — the largest cap that did not upscale a 450px-wide file.
   //
-  // 448px IS THE MAXIMUM THAT SATISFIES THE INSTRUCTION WITHOUT UPSCALING, which is why it is 448 and
-  // not the 461 the arithmetic gives. The committed file is 450×540 after #492's crop, so any cap above
-  // 450 stretches a raster; 448 is 48.6% of the 922px column — within 3% of half — and lays out
-  // 448×537 with the file's own pixels still doing the work (450 intrinsic ÷ 448 CSS ≈ 1.0, no reserve
-  // left, and none needed at this size on a 1× display). 460 was rendered and rejected for exactly
-  // that: it buys 12px of width and costs the only guarantee that the badge's type is not resampled.
+  // 450px WAS THE MISTAKE, and it was made one slice earlier than anyone was looking. #492 cropped
+  // `730:876:31:358` out of the 900×1360 original — a 730×876 region — and then scaled that down to
+  // 450×540 for no reason the crop required. From then on every cap discussion was really a discussion
+  // about a ceiling of 450, and 448 was the answer to a question the encode had already narrowed.
   //
-  // CHOSEN BY LOOKING, NOT BY ARITHMETIC ALONE. The owner's reference object is the horizontal rule
-  // under the article title, which spans the full 922px column. 224, 380, 420 and 448 were rendered at
-  // 1280 with that rule in the same frame: at 224 the figure reads as lost beside it, at 380 it reads
-  // as deliberate, and at 448 it reads as deliberately HALF the rule — the proportion the instruction
-  // describes. 448 is the one that answers the sentence he wrote.
+  // So the file is re-encoded at the crop's NATIVE size: same geometry, no scale filter, one decode and
+  // one encode from the original in git history, `-map_metadata -1 -q:v 3` unchanged from #492 so the
+  // only variable that moved is resolution. 730×876, 101,681 bytes (46 KB → 99 KB). Reversibility is
+  // unchanged: the uncropped original still lives only in git history, at
+  // `git show ed1ed51:apps/fed/public/photos/five-year-badge.jpg`.
   //
-  // It is the same 448 `max-w-md` names, written as an arbitrary value on purpose: the number is the
-  // contract here, and a scale-step name would let the value move under a Tailwind config change with
-  // `PhotoFigure.test.tsx` still green. `e2e/content-photo.spec.ts` measures the COMPUTED box on the
-  // real article, which is the assertion that would have caught #482 and #488 and did not exist then.
+  // 730 IS THE CEILING THAT DOES NOT UPSCALE, and it is also the one that answers his sentence. It is
+  // 79.2% of the 922px column — no longer "radicalmente menor" than the rule, which is the complaint —
+  // and it lays out 730×876 at an upscale factor of exactly 1.000. 448, 560, 640 and 730 were rendered
+  // at 1280 with that rule in the same frame: at 448 and 560 the figure still reads as a small picture
+  // inside a wide column, at 640 (69.4%) it is defensible, and at 730 it sits under the rule with 96px
+  // of column either side and reads as deliberate. 640 was the alternative and was rejected for being
+  // one more increment on a sentence he has now written three times.
   //
-  // THE BRANCH IS STILL A REAL DISTINCTION AT 448, and that was checked rather than assumed, because a
-  // cap that creeps toward the column width would make the two branches a smaller version of the same
-  // thing. It does not: 448 is 48.6% of the 922px column, so the two branches differ by a factor of two
-  // in width — and by far more in the dimension the branch actually exists to control. Uncapped, this
-  // 450×540 file lays out 922×1106 at 1280: taller than any laptop viewport, which is the exact defect
-  // #482 was filed for (a picture with no text on screen beside it). Capped at 448 it lays out 448×537
-  // and the first paragraph is on screen underneath it. The branch would stop being meaningful somewhere
-  // near the column width, and 448 is nowhere near it.
+  // Written as an arbitrary value on purpose: the number is the contract here, and a scale-step name
+  // would let the value move under a Tailwind config change with `PhotoFigure.test.tsx` still green.
+  // `e2e/content-photo.spec.ts` measures the COMPUTED box on the real article, which is the assertion
+  // that would have caught #482 and #488 and did not exist then.
+  //
+  // WHAT 730 COSTS, said plainly rather than left for the reader to hit. The figure is 876px tall, so at
+  // 1280×900 the first paragraph's top sits at y=1305 instead of 1197 at 640 — the reader scrolls further
+  // before the first sentence. That is a real cost and it is NOT the #482 defect returning: uncapped,
+  // this file lays out 922×1106 and the prose starts at ~1535. It is also not a regression against what
+  // shipped in the sense the old comment here claimed — at the 448 cap the prose already started at 967,
+  // below a 900px fold. That sentence ("the first paragraph is on screen underneath it") was false when
+  // it was written and is removed rather than re-tuned.
+  //
+  // THE BRANCH IS STILL A REAL DISTINCTION AT 730, and it is a narrower margin than before, so it was
+  // measured rather than asserted: the landscape branch takes the full 922px column, the portrait branch
+  // 730 — a 192px difference at 1280, and the column is 938 at 1024 and 896 at 1920, so the cap binds at
+  // every desktop width. It would stop being meaningful at the column width itself; 730 is 79% of it.
   //
   // WHAT ELSE IT MOVES: nothing today. The branch is keyed off `photo.height > photo.width`, and
   // `data/photos.json` registers exactly one portrait file — this article's badge. The other two
   // (`knuth-cv-museum`, `may-week-montage`, both on /architecture) are landscape and take the other
-  // branch untouched. A FUTURE portrait photograph gets 448px too, which is the intended reading: the
+  // branch untouched. A FUTURE portrait photograph gets 730px too, which is the intended reading: the
   // rule is about what a portrait does to a reading column, not about this one picture. The
   // `width`/`height` attributes are untouched, which is the part that matters for the reason this
   // component exists: they set the intrinsic ratio, so the box is still reserved before the bytes arrive
@@ -131,7 +138,7 @@ export function PhotoFigure({
         // matches the diagram box so the two figure kinds sit on the page as one decision.
         className={
           portrait
-            ? 'mx-auto block h-auto w-full max-w-[448px] border border-border'
+            ? 'mx-auto block h-auto w-full max-w-[730px] border border-border'
             : 'block h-auto w-full border border-border'
         }
       />

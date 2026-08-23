@@ -227,21 +227,23 @@ test.describe('the content photographs', () => {
 // not either — it only visits /architecture, whose photographs are landscape and are SUPPOSED to fill the
 // column, so the one route where the cap is load-bearing was the one route never measured.
 //
-// What is asserted is therefore the COMPUTED BOX, on the article, at a width where the column is more
-// than twice the cap. A regression that puts specificity back in front of the utility turns this red on
-// the first run instead of shipping a third full-width badge.
+// What is asserted is therefore the COMPUTED BOX, on the article, at a width where the column (922px at
+// 1280) is wider than the cap and the two are a long way apart. A regression that puts specificity back
+// in front of the utility turns this red on the first run instead of shipping a third full-width badge.
 //
-// THE NUMBER MOVED 224 → 448 (#493) AND THE CHECK DID NOT CHANGE SHAPE — which is the point of having
-// written it this way. 224 was half of the value DECLARED in the CSS, and that value had never applied,
-// so half of what the owner was actually seeing is ~461px and 224 was a quarter of the column. 448 is
-// the largest cap that does not upscale the 450px-wide file. The assertion is re-pointed, not rewritten:
-// what it measures is exactly what would have caught the two silent no-ops.
+// THE NUMBER HAS MOVED TWICE — 224 → 448 (#493) → 730 — AND THE CHECK HAS NOT CHANGED SHAPE, which is
+// the point of having written it this way. 224 was half of a value DECLARED in the CSS that had never
+// applied. 448 was the largest cap that did not upscale a 450×540 file — and that file was 450px wide
+// only because #492 scaled its own 730×876 crop down for no reason the crop required, so every cap
+// argument since has been bounded by a decode rather than by a decision. The file is now re-encoded at
+// the crop's native 730×876, and 730 is both the file's width and the cap. The assertion is re-pointed,
+// not rewritten: what it measures is exactly what would have caught the two silent no-ops.
 const ARTICLE_ROUTES = ['/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha', '/en/blog/from-cloud-to-ai-same-badge'];
-const PORTRAIT_CAP = 448;
+const PORTRAIT_CAP = 730;
 
 test.describe('the portrait photograph in an article body', () => {
   for (const route of ARTICLE_ROUTES) {
-    test(`${route}: is capped at ${PORTRAIT_CAP}px and centred, in a column far wider than that`, async ({
+    test(`${route}: is capped at ${PORTRAIT_CAP}px and centred, in a column wider than that`, async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1280, height: HEIGHT });
@@ -281,18 +283,29 @@ test.describe('the portrait photograph in an article body', () => {
       const fig = seen[0];
 
       expect(fig.loaded, `${fig.src} did not decode — the file is missing or corrupt`).toBe(true);
-      // The premise: without a column much wider than the cap, a capped image and an uncapped one are the
-      // same measurement and this test proves nothing.
+      // The premise: without a column WIDER than the cap, a capped image and an uncapped one are the same
+      // measurement and this test proves nothing.
       //
-      // The multiplier was `* 2` when the cap was 224. At 448 that reads 896, and the reading column is
-      // NOT a constant: measured on this same article it is 922px at 1280, 938px at 1024 — and 896px at
-      // 1920, where `> 896` is false and this premise check would fail on a perfectly good page while
-      // reporting "the check is vacuous". The viewport here is pinned to 1280 so that case is not the one
-      // running, which is exactly what makes `* 2` the wrong thing to leave behind: it is one viewport
-      // constant away from a false failure with a misleading message. 1.5× keeps the premise true where
-      // it matters — uncapped is the full column, capped is 448, two measurements a long way apart.
+      // IT IS KEYED ON THE MEASURED COLUMN NOW, NOT ON A MULTIPLE OF THE CAP, and the multiple had to go
+      // rather than be retuned. It was `* 2` at a 224 cap and `* 1.5` at 448; at 730 the same expression
+      // reads 1095, and the reading column is NOT a constant and is nowhere near that — measured on this
+      // same article it is 922px at 1280, 938px at 1024 and 896px at 1920. Any factor above ~1.22 is now
+      // false at every width the page has, so the guard would fail a healthy page while reporting "the
+      // check is vacuous" — a falsifier that fires on the wrong thing, which is worse than none.
+      //
+      // What the premise actually needs is that the two measurements DIFFER, and the honest form of that
+      // is the strict inequality plus the numbers it was checked against: at the pinned 1280 the column
+      // is 922 and the cap is 730, so an uncapped badge would measure 922 and a capped one 730 — 192px
+      // apart, and the `toBe(PORTRAIT_CAP)` below is what tells the two apart.
+      //
+      // WHERE IT WOULD LEGITIMATELY GO RED, since a premise that can never fire is its own kind of
+      // nothing: the column is 938 at 1024, 922 at 1280 and 896 at 1920 — all above the cap — but 703 at
+      // 768 and 354 at 390, where the cap is INERT and a capped badge and an uncapped one really are the
+      // same measurement. Move the pinned viewport below ~800 and this guard fires, and it would be
+      // telling the truth. That is the difference from the multiplier it replaces, which fired at 1920 on
+      // a page where the cap was working perfectly.
       expect(fig.columnWidth, 'the body column is not wider than the cap — the check is vacuous').toBeGreaterThan(
-        PORTRAIT_CAP * 1.5,
+        PORTRAIT_CAP,
       );
       expect(fig.width, `${fig.src} is not capped — it laid out at ${fig.width}px`).toBe(PORTRAIT_CAP);
       // The height follows the file's own ratio rather than the declared height, which is what `h-auto`
