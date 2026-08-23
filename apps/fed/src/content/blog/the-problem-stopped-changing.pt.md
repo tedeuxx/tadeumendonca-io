@@ -31,7 +31,7 @@ Se você está lendo isto no meio da sua própria virada, é provável que estej
 
 ## O que eu encontrei
 
-Funcionou. Os conhecimentos de AWS finalmente sedimentados, coisas novas construídas, uma prática de Terraform muito maior do que eu tinha antes. Era exatamente o que eu tinha ido buscar na AWS, e era o que me dava prazer **naquele momento**.
+Funcionou. Conhecimentos de AWS finalmente sedimentados, coisas novas construídas, uma prática de Terraform muito maior do que eu tinha antes. Era exatamente o que eu tinha ido buscar na AWS, e era o que me dava prazer **naquele momento**.
 
 Tudo ali era verdade, e continuou sendo verdade por anos. O que mudou veio depois.
 
