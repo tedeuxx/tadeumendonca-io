@@ -61,12 +61,12 @@ And that part can be shown, because it is running. This site is published by an 
 
 In practice, what takes my time is deciding what the harness **blocks**, what it **advises**, and what it merely **documents**, and then proving that split is still true after someone changes something. Getting it wrong is expensive in both directions: a guarantee that only exists in my memory is not a guarantee, and a gate that goes green having verified nothing is worse than no gate. I run two different harnesses over the same kind of work, one internal and this one, public — that is what lets me tell what belongs to the model from what belongs to the setup around it, and improve the setup each time round.
 
-The reason it happens anyway is much plainer than a strategy. I am going past business hours, across many days, because I got excited about what is possible with AI. That is the engine — my interest going where the assignment does not, which is exactly what happened at Accenture too.
+The reason it happens anyway is much plainer than a strategy. I am going past business hours, across many days, because I got excited about what is possible with AI. That is the engine — my interest going where the assignment does not, which is exactly what had happened before.
 
 ## What I do not have
 
-I do not have the ending. I am employed, I am not announcing anything, and I have not made the decision this piece looks like it is building toward.
+I do not have the ending. I am employed, I am not announcing anything, and I have not made the decision this piece looks like it is building toward. It is precisely because nothing is decided that imagining is what is left.
 
-What I have is a ceiling I can describe precisely and a parallel practice, unglamorous, mostly late at night. If you are somewhere similar — the role is fine, the problem stopped changing, and the interesting work is happening next to your assignment rather than inside it — that is worth naming out loud before it becomes something worse. You do not need to have decided anything yet. I have not.
+Picture your day if text stops being the main way you talk to AI: almost everything on the surface changes, and the problem of making it reliable, repeatable and observable stays exactly the same. I do not know how to solve that problem yet. It is the part I most want to see.
 
-And while neither of us decides, it is worth imagining. Picture your day if text stops being the main way you talk to AI: almost everything on the surface changes, and the problem of making it reliable, repeatable and observable stays exactly the same. I do not know how to solve that problem yet. It is the part I most want to see.
+What I have, in the meantime, is a ceiling I can describe precisely and a parallel practice, unglamorous, mostly late at night. If you are somewhere similar — the role is fine, the problem stopped changing, and the interesting work is happening next to your assignment rather than inside it — that is worth naming out loud before it becomes something worse. You do not need to have decided anything yet. I have not. Imagine it with me.
