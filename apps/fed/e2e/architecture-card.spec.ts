@@ -137,9 +137,17 @@ test.describe('the architecture teaser card', () => {
     // green everywhere. "Newest-first" cannot catch it, because a re-pinned card is a correctly sorted
     // list; only the card's own place in it is wrong.
     //
-    // Sound for any future corpus, not just today's: nothing can be published before the site was public,
-    // and the card is dated launch day, so it can never legitimately be the newest row. Guarded by the
-    // length check above — with the card as the only row it would be first, and that is not this defect.
+    // WHAT MAKES IT SOUND, restated because the reason it used to give was false. It read: "nothing can
+    // be published before the site was public, and the card is dated launch day, so it can never
+    // legitimately be the newest row." The card is NOT dated launch day — the section was published
+    // 2026-08-16 (ADR-0038, ADR-0039), three weeks after `my-commitment` — so the section is not the
+    // oldest thing on the page and that argument does not hold.
+    //
+    // What holds instead is narrower and true: at least one published article postdates the section, so
+    // the card cannot legitimately be row one today. That is a property of the corpus, and it is pinned
+    // in the fast suite (`src/components/ArchitectureCard.test.tsx`, "is not the newest row") so a
+    // corpus change that invalidates it fails in seconds rather than here. Guarded by the length check
+    // above — with the card as the only row it would be first, and that is not this defect.
     expect(shape.dates[0].isCard, 'the architecture card is the first row again — it is pinned').toBe(false);
     // Nothing between the hero and the list: the gap is layout padding, not another block. Measured
     // rather than asserted structurally, because "descaracterizou a home" was a visual verdict.

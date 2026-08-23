@@ -5,6 +5,13 @@ import { renderWithLocale } from '../test-utils';
 import { translate } from '../i18n/messages';
 import { dateLocale, type Locale } from '../i18n';
 import { getAllPosts } from '../lib/content';
+// The two records that DATE the section's publication, imported as text so this suite can read the
+// date back out of them. `?raw` rather than `node:fs` — the app's tsconfig carries no Node types, so
+// `readFileSync` typechecks red while vitest (which does not run tsc) stays green; that exact trap is
+// documented at `src/data/vocabulary.test.ts:3`. Out-of-root raw imports are already the idiom here
+// (`src/lib/version.ts:15` reads the repo's `VERSION` the same way).
+import adr0038 from '../../../../docs/adr/0038-content-distribution-linkedin-and-x.md?raw';
+import adr0039 from '../../../../docs/adr/0039-share-campaign-tagging.md?raw';
 
 // The date the card must show, derived from the exported constant rather than typed as a literal: a
 // literal here would keep passing after someone edited the constant, which is the one thing this suite
@@ -104,37 +111,92 @@ describe('ArchitectureCard', () => {
     expect(chip!.textContent).toBe(translate('pt', 'architecture.cardTrack'));
   });
 
-  // THE CARD CANNOT BE THE NEWEST ROW — the assertion that closes a hole the rest of this suite could
-  // not see. Read it against what it was measured on rather than as a nicety.
+  // THE CONSTANT AGAINST THE RECORD THAT SETS IT — the assertion that closes a hole the rest of this
+  // suite structurally cannot see, and the one that replaced a rule built on a false premise.
   //
-  // THE PROBE THAT MOTIVATED IT: set the constant to `2026-08-22T12:00:00.000Z` — a WRONG date that is
-  // still midday, so the hour pin below stays green — and the card is the FIRST row of the live home
-  // page again. Unit suite green, prerendered build re-pinned, Playwright green. The whole gate passed
-  // on the exact state this slice exists to prevent, because every other date assertion here DERIVES its
-  // expectation from the constant, and a derived expectation moves with the value it is meant to check.
+  // WHAT WAS HERE BEFORE, and why it had to go rather than be repaired. The old assertion was *every
+  // published article is dated at or after the section*, justified as a LAW: "nothing can be published
+  // before the site was public, and this constant IS launch day". The constant was launch day because
+  // nothing in the repo recorded the section's own publication, so the date was a reasoned decision.
+  // It is recorded now (ADR-0038 and ADR-0039, both 2026-08-16), the section turns out to postdate
+  // `my-commitment` by three weeks, and the premise of that law is simply false: the section has a real
+  // publication date, articles have theirs, and either may be the older. The old rule does not need a
+  // weaker threshold — it needed to stop existing, because what it asserted is not true of this corpus
+  // and was never true of the world.
+  //
+  // WHAT THE INVARIANT ACTUALLY IS, therefore: the constant must equal the date this repository RECORDS
+  // for the section's publication. That is checkable, it is external to this file, and — unlike every
+  // other date assertion in this suite — it does not derive its expectation from the value it checks,
+  // which is the property that makes it able to fail at all.
+  //
+  // THE PROBE IT CLOSES, and it is the gap the last round measured and could not close: set the constant
+  // to a WRONG date that still sorts the card second — `2026-08-18T12:00:00.000Z`, between the two
+  // published articles and still midday. Every other assertion here stays green (they all derive from
+  // the constant), the row stays in position two, the E2E's newest-first and not-first checks both pass.
+  // Only this one goes red, and it names the two files that disagree with the edit.
+  //
+  // A FALSE RED IS POSSIBLE and is accepted deliberately: reword either quoted clause and the pattern
+  // stops matching. That failure is LOUD, it names the ADR and the sentence it wanted, and it asks a
+  // question worth asking — if the record of the launch date changed, this constant is exactly what
+  // should be re-examined. A silent pass on an unmatched pattern would be the strictly worse trade.
+  it.each([
+    {
+      adr: 'docs/adr/0038-content-distribution-linkedin-and-x.md',
+      source: adr0038,
+      // Wraps across a newline in the file, hence `\s+` rather than a literal space.
+      pattern: /`\/architecture` launch pair went out on both surfaces on\s+(\d{4}-\d{2}-\d{2})/,
+      clause: 'the `/architecture` launch pair went out on both surfaces on <DATE>',
+    },
+    {
+      adr: 'docs/adr/0039-share-campaign-tagging.md',
+      source: adr0039,
+      pattern: /amended (\d{4}-\d{2}-\d{2})\*\*[^)]*`\/architecture` launch is tagged/,
+      clause: '**amended <DATE>** (`author-post` is exercised — the `/architecture` launch is tagged …)',
+    },
+  ])('is the publication date $adr records', ({ adr, source, pattern, clause }) => {
+    const found = pattern.exec(source);
+    expect(
+      found,
+      `${adr} no longer carries "${clause}" in a form this test can read. Either the clause was ` +
+        'reworded (fix the pattern here) or the recorded launch date changed (fix ARCHITECTURE_PUBLISHED).',
+    ).not.toBeNull();
+    expect(
+      found![1],
+      `${adr} records the /architecture launch on ${found![1]}, but ARCHITECTURE_PUBLISHED is ` +
+        `${ARCHITECTURE_PUBLISHED}. The card's date and its position in the home list both come from ` +
+        'that constant, so a value the repo does not record is a date shown to readers that nothing backs.',
+    ).toBe(ARCHITECTURE_PUBLISHED.slice(0, 10));
+  });
+
+  // AND THE CARD IS NOT THE NEWEST ROW — kept, but as what it now is: a property of the CORPUS, not a
+  // law about the world. It is asserted here because `e2e/architecture-card.spec.ts` depends on it
+  // (`shape.dates[0].isCard` must be `false`), and that suite needs a build and a browser where this
+  // one fails in seconds. It is deliberately NOT justified as "nothing predates the site" any more —
+  // that is the false premise the assertion above replaced.
+  //
+  // THE PROBE IT STILL CLOSES, and the reason it is not merely redundant with the ADR check: set the
+  // constant to `2026-08-22T12:00:00.000Z` — newer than every article, still midday so the hour pin
+  // below stays green — and the card is the FIRST row of the live home page again, which is the pinned
+  // state the un-pin exists to prevent. Both this test and the ADR check catch that one; only this one
+  // would catch a future corpus change (an article unpublished, a date corrected) that re-pins the card
+  // without anybody touching the constant.
   //
   // WHY IT LIVES IN THIS FILE, not in `ArticlesSection.test.tsx`: that suite mocks `getAllPosts`, so its
   // dates are synthetic and "the card is not first" is FALSE there by construction — one of its tests
   // correctly asserts the card IS first when every mocked article is older. It cannot see the real
-  // corpus. This file does not mock the module, so it reads what is actually published, and it fails in
-  // seconds where the E2E needs a build and a browser.
-  //
-  // WHY IT IS A RULE rather than a property of today's two articles: nothing can be published before the
-  // site was public, and this constant IS launch day. So every article that will ever exist is dated at
-  // or after it, and the card can never legitimately sort to the top. A future article cannot invalidate
-  // this the way a hardcoded position would.
-  it('is never the newest row — no published article predates the section', () => {
+  // corpus. This file does not mock the module, so it reads what is actually published.
+  it('is not the newest row — at least one published article postdates the section', () => {
     for (const locale of ['pt', 'en'] as const) {
       const posts = getAllPosts(locale);
-      // The corpus is the ruler, so an empty one would leave the loop below asserting nothing at all.
+      // The corpus is the ruler, so an empty one would leave the assertion below vacuous.
       expect(posts.length, 'no articles loaded — this assertion would be vacuous').toBeGreaterThan(0);
-      for (const post of posts) {
-        expect(
-          post.date >= ARCHITECTURE_PUBLISHED,
-          `"${post.title}" (${post.date}) predates the section (${ARCHITECTURE_PUBLISHED}), ` +
-            'which would put the architecture card above it on the home page',
-        ).toBe(true);
-      }
+      const newer = posts.filter((p) => p.date > ARCHITECTURE_PUBLISHED);
+      expect(
+        newer.length,
+        `no ${locale} article postdates the section (${ARCHITECTURE_PUBLISHED}) — the architecture ` +
+          'card would be the first row of the home page, which is the pin the un-pin removed. Newest ' +
+          `article: ${posts[0]?.title} (${posts[0]?.date}).`,
+      ).toBeGreaterThan(0);
     }
   });
 

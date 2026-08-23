@@ -57,38 +57,54 @@ function TrackChip({ track }: { track: Track }) {
  * WHEN `/architecture` WAS PUBLISHED — the one place this date exists, because two places is how the
  * card's rendered date and its position in the list start disagreeing.
  *
- * IT IS LAUNCH DAY, AND IT IS A DECISION RATHER THAN A LOOKUP. `/architecture` shipped BEFORE the site
- * was public, so it has no publication event of its own — it entered the world when the site did. The
- * owner made that call; nothing in this repo could settle it, and the honest form of the record is to
- * say so rather than to dress a decision as a citation.
+ * IT IS 2026-08-16, AND IT IS A LOOKUP RATHER THAN A DECISION. The section was ANNOUNCED that day, on
+ * both distribution surfaces, and two records in this repo say so independently:
+ *   · `docs/adr/0038-content-distribution-linkedin-and-x.md` — *"The `/architecture` launch pair went
+ *     out on both surfaces on 2026-08-16 in exactly this shape; this is a record of a practice, not a
+ *     plan."* The clause after the semicolon is what makes it usable here: it is describing something
+ *     that happened, not scheduling something that would.
+ *   · `docs/adr/0039-share-campaign-tagging.md`'s status line — *"**amended 2026-08-16**
+ *     (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X …)"*. A
+ *     campaign tag is applied to a post at the moment it is posted, so this dates the same event from
+ *     the other side.
+ * `ArchitectureCard.test.tsx` reads both dates back OUT of those files and compares them to this
+ * constant, so the citation above is checked rather than trusted.
  *
- * What the repo DOES establish, and what each clause is good for:
- *   · launch day is 2026-07-26 — `docs/adr/0038-content-distribution-linkedin-and-x.md` dates
- *     `my-commitment`'s frontmatter `2026-07-26T22:00:00.000Z` and glosses it "launch day";
- *   · the site was NOT public before it — `docs/adr/0037-localized-article-slugs.md` records *"The
- *     'pre-launch, not yet published' premise expired on 2026-07-26 — the site launched"*;
- *   · `/architecture` predates that — `docs/adr/0010-routing-landing-cv-split-redirects.md`'s
- *     `## Amendment (2026-07-25)` adds the route, and the later `/library` amendment says of the
- *     post-launch rule *"This is the first surface this ADR has added under that rule"*, which places
- *     every earlier surface, this one included, on the pre-launch side.
+ * THE ROUTE'S BIRTHDAY IS A DIFFERENT DATE AND IS NOT THIS ONE. `/architecture` existed from
+ * 2026-07-25 — `docs/adr/0010-routing-landing-cv-split-redirects.md`'s `## Amendment (2026-07-25) —
+ * `/architecture`, a fifth public surface`. The card's date is when the section was PUBLISHED, i.e.
+ * put in front of readers, not when the route was created; the owner's sort key is the former. That
+ * distinction is the whole of this correction, and it is the one a later reader will otherwise
+ * collapse again, because both dates are real and both are recorded.
  *
- * WHAT WAS REJECTED, so it is not re-proposed: the 2026-07-25 ADR amendment date. That is when the
- * decision was RECORDED, and the owner's sort key is when the section was PUBLISHED — the repo puts
- * those two events on opposite sides of launch. Also rejected: the exact launch instant
- * `T22:00:00.000Z`, which ties `my-commitment` and would move this row above it.
+ * ~~IT IS LAUNCH DAY (2026-07-26), AND IT IS A DECISION RATHER THAN A LOOKUP: `/architecture` shipped
+ * BEFORE the site was public, so it has no publication event of its own — it entered the world when
+ * the site did.~~ **Struck: the premise was false, not merely the value.** The reasoning was sound
+ * against what the repo recorded at the time — nothing then dated the section's own publication, so a
+ * reasoned decision was the honest form. ADR-0038's second 2026-08-16 amendment and ADR-0039's
+ * amendment of the same day both landed afterwards, and between them they record exactly the event
+ * the old comment said did not exist. Kept struck rather than deleted because the argument is
+ * re-derivable from the same evidence a reader still finds (the route does predate launch), and
+ * without this note they would re-derive it and re-apply it.
  *
- * Git cannot corroborate any of it: the history begins at b2b59bc (2026-07-31), a single commit that
- * adds the whole tree with `content/architecture.en.md` already in it, so every `git log
- * --diff-filter=A` on this page reports the history reset rather than a publication.
+ * WHAT THE CORRECTION COST, named because the owner reported it as the defect: at 2026-07-26 this row
+ * and `my-commitment` (`2026-07-26T22:00:00.000Z`) rendered the SAME visible date — *"não foi no mesmo
+ * dia cara"* — with a ten-hour tiebreak deciding their order that no reader could see. Nothing about
+ * the sort was wrong; the input was. Two rows no longer share a rendered date.
+ *
+ * Git cannot corroborate the date either way: the history begins at b2b59bc (2026-07-31), a single
+ * commit that adds the whole tree with `content/architecture.en.md` already in it, so every `git log
+ * --diff-filter=A` on this page reports the history reset rather than a publication. The ADRs above
+ * are the record precisely because the history is not.
  *
  * THE TIME OF DAY IS 12:00Z AND THAT IS LOAD-BEARING, not padding to match the ISO shape. `fmtDate`
  * below renders through `toLocaleDateString` in the READER'S timezone, so `T00:00:00Z` prints as
- * 2026-07-25 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is not safe in
+ * 2026-08-15 to everyone west of Greenwich — including the owner, at UTC-3. Midday UTC is not safe in
  * EVERY zone (UTC+14 would need an hour below 10, UTC-12 an hour at or above 12 — contradictory), it is
  * the maximal-margin choice: the same calendar day from UTC-12 through UTC+11, which covers both
  * editions' readerships. `the-problem-stopped-changing` is authored `T12:00:00.000Z` for the same reason.
  */
-export const ARCHITECTURE_PUBLISHED = '2026-07-26T12:00:00.000Z';
+export const ARCHITECTURE_PUBLISHED = '2026-08-16T12:00:00.000Z';
 
 // THE /architecture TEASER CARD (#450, slice 2) — a row in this list, sorted among the articles by
 // `ARCHITECTURE_PUBLISHED` above, outside the track filter, and visually an article card. It replaces the
@@ -107,8 +123,12 @@ export const ARCHITECTURE_PUBLISHED = '2026-07-26T12:00:00.000Z';
 // constant above, and hence divergence 3 below inverting. The reasoning that argued for the pin is kept
 // rather than deleted, because it is what a later reader would otherwise re-derive and re-apply:
 // the card was pinned so a teaser would not sit below a list the reader has to scroll first. That cost
-// is real and is now accepted deliberately — the row is third of three (below both published articles),
-// and the owner's instruction is that it takes its chronological place like anything else.
+// is real and is now accepted deliberately — the row is SECOND of three today (below
+// `the-problem-stopped-changing`, 2026-08-21; above `my-commitment`, 2026-07-26), and the owner's
+// instruction is that it takes its chronological place like anything else. That position is a fact
+// about the corpus on this commit, not a property this file guarantees: it moves whenever an article
+// ships, which is the point of the un-pin. `e2e/architecture-card.spec.ts` asserts the ORDER and the
+// one thing that must not happen (the card back on top), never a fixed index.
 //
 // IT LIVES HERE, NOT IN ITS OWN FILE, and that is the whole reason it can keep its promise: it renders
 // from the same class constants `ArticleRow` does, a few lines away, where a divergence is visible in one
