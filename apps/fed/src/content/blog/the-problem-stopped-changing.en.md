@@ -9,9 +9,9 @@ track: engenharia
 excerpt: "The badge for five years at AWS arrived six months late, and it made me count. This is not about the milestone — it is about the turn underneath it: what I went looking for in 2021, what I found, and why the work taking me further now is not the work I am assigned."
 takeaway: 'what repeated all three times the work stopped taking me forward: what I changed was the object of the work, not the company.'
 ---
-![An ID badge in a clear plastic holder, lying face-up on a pale wood desk and filling most of the frame: a black card with an orange border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
+![An ID badge in a clear plastic holder, lying face-up on a pale wood desk and filling most of the frame: a black card with a yellow border, the name Luiz Tadeu across the top, a portrait photograph below it, and the username tadeumen@ along the bottom.](/photos/five-year-badge.jpg "The milestone that showed up late — and started the counting the rest of this piece is about.")
 
-That is five years at AWS, and the badge reached me six months after the date it marks — the milestone was January; it was only printed now. If it had come in January, I would have had an answer ready. It came on an ordinary day, and I did not.
+That is five years at AWS, and the badge reached me six months after the date it marks — the milestone was January; it was only printed now. It is yellow — you start at AWS on a blue badge and swap it for the yellow one at five years; the red one comes at ten, and that one I have not seen. The colour is the only part that changes with time; the rest of the badge has been the same since day one. If it had come in January, I would have had an answer ready. It came on an ordinary day, and I did not.
 
 So I counted. And what I want to write about is not the five years. It is the turn underneath them.
 
