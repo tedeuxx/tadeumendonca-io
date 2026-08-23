@@ -9,9 +9,9 @@ track: engenharia
 excerpt: "O crachá de cinco anos de AWS chegou seis meses atrasado, e me fez contar. O assunto não é o marco — é a virada embaixo dele: o que eu fui buscar em 2021, o que encontrei, e por que o trabalho que hoje me leva adiante não é o trabalho em que estou alocado."
 takeaway: 'como distinguir um teto estrutural de um teto que é só cansaço — e por que é essa distinção que decide o próximo passo.'
 ---
-![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O objeto que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
+![Um crachá deitado com a face para cima sobre uma mesa de madeira clara, dentro de um porta-crachá plástico transparente: cartão preto com borda laranja, o nome Luiz Tadeu no topo, uma foto de rosto abaixo e o usuário tadeumen@ na parte de baixo. Acima do crachá estão um roller retrátil de crachá, uma chave com etiqueta branca marcada 38 e a borda de uma caneca preta.](/photos/five-year-badge.jpg "O crachá que disparou a conta que este texto faz — e que só chegou seis meses depois da data.")
 
-São cinco anos de AWS, e o crachá chegou até mim seis meses depois da data que ele comemora — o marco foi em janeiro; o objeto só foi impresso agora. Um marco que aparece atrasado é um gatilho melhor que um número redondo: ele te pega sem resposta pronta e te faz contar quando você não estava esperando contar.
+São cinco anos de AWS, e o crachá chegou até mim seis meses depois da data que ele comemora — o marco foi em janeiro; ele só foi impresso agora. Se tivesse chegado em janeiro, eu teria uma resposta pronta. Chegou num dia qualquer, e eu não tinha nenhuma.
 
 Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a virada embaixo deles.
 
@@ -19,11 +19,11 @@ Então eu contei. E o que eu quero escrever aqui não são os cinco anos. É a v
 
 Eu tinha acabado de sair da Accenture depois de treze anos — a carreira começou lá, em 2008 — e ido para a Globo, para ir para um ambiente onde eu achava que ia aprender muito sobre engenharia de software.
 
-O que eu queria estar fazendo todo dia era cloud pública e Terraform, e não era isso que o meu dia tinha para mim — **na direção que eu queria, o desafio parecia pequeno**. Não por falta de trabalho técnico de verdade: eu fui fundo em observabilidade ali, nos golden signals do livro de SRE do Google. Só que não era para onde eu queria ir.
+O que eu queria estar fazendo todo dia era cloud AWS e Terraform, e não era isso que o meu dia tinha para mim — **na direção que eu queria, o desafio parecia pequeno**.
 
-Isso não é decepção, é informação. Entrei como DevOps e, em algum momento, virei referência em aplicação — **fora da vaga em que eu tinha entrado**. Foi assim que eu descobri que gostava de aplicação e o quanto sentia falta disso. Ninguém me alocou nesse papel. Ele aconteceu ao lado da alocação.
+Isso não é decepção, é informação. Entrei numa vaga de DevOps puro e acabei me especializando em observabilidade — fui fundo ali, nos golden signals do livro de SRE do Google. Foi fazendo isso que eu me dei conta de que sentia falta de trabalhar com aplicação.
 
-E o que eu quis da AWS depois disso era específico: hiperexposição a tecnologia de ponta, me tornar cloud native, trabalhar com cloud pública todos os dias. Era a lista do que tinha faltado, virada do avesso.
+E o que eu quis da AWS depois disso era específico: trabalhar com cloud AWS e Terraform todo dia, com muito mais exposição do que eu tinha.
 
 Agora a parte menos elegante e mais útil. **Quando eu fui para a AWS e para o ProServe, eu não sabia a diferença entre as vagas de Solution Architect e de ProServe Cloud Application Architect.** O que eu vi foi uma vantagem: eu tinha anos de business de consultoria nas costas, e dava para perceber que aquilo seria um diferencial para o ProServe. Ou seja, escolhi pelo lugar onde meu histórico valia mais, não por entender a vaga.
 
@@ -31,7 +31,7 @@ Se você está lendo isto no meio da sua própria virada, é provável que estej
 
 ## O que eu encontrei
 
-Funcionou. Contato real com tecnologia de ponta, os conhecimentos de AWS finalmente sedimentados, coisas novas construídas, uma prática de Terraform muito maior do que eu tinha antes. Era exatamente o que eu tinha ido buscar na AWS, e era o que me dava prazer **naquele momento**.
+Funcionou. Os conhecimentos de AWS finalmente sedimentados, coisas novas construídas, uma prática de Terraform muito maior do que eu tinha antes. Era exatamente o que eu tinha ido buscar na AWS, e era o que me dava prazer **naquele momento**.
 
 Tudo ali era verdade, e continuou sendo verdade por anos. O que mudou veio depois.
 
@@ -43,15 +43,15 @@ E aí aparece uma distinção difícil de fazer, porque as duas coisas são idê
 
 É essa distinção que decide o próximo passo.
 
-Comigo foi o segundo caso. A hiperexposição entregou exatamente o que eu pedi dela: profundidade. O que ela parou de entregar foi problema novo. Foi assim que eu cheguei a um ponto em que não via mais desenvolvimento técnico para mim como application architect — depois de um tempo nos tipos de engajamento em que eu geralmente estou envolvido. Não o papel esgotado no abstrato. O papel, ali dentro.
+Comigo foi o segundo caso. Trabalhar com cloud AWS e Terraform todo dia entregou exatamente o que eu pedi: profundidade. O que parou de entregar foi problema novo. Foi assim que eu cheguei a um ponto em que não via mais desenvolvimento técnico para mim como application architect — depois de um tempo nos tipos de engajamento em que eu geralmente estou envolvido. Não o papel esgotado no abstrato. O papel, ali dentro.
 
 ## A segunda vez, não a primeira
 
-Nas duas vezes, o trabalho que me puxou adiante estava fora da minha alocação — e eu só vi isso na segunda.
+Nas duas vezes o que eu mudei foi o **objeto** do trabalho, não a empresa — e eu só vi isso na segunda.
 
-As causas foram diferentes. Na Globo não faltou o que aprender: o que dava para crescer ali não era o crescimento que eu tinha ido buscar, e o que me puxou adiante foi aplicação, fora da vaga em que eu entrei. Na AWS o papel não esgotou — acabou o problema novo, e o trabalho que me leva além está, de novo, fora do que eu estou alocado para fazer.
+O caminho até ali foi diferente. Na Globo a percepção veio de dentro da alocação: não faltou o que aprender, e foi fazendo observabilidade que eu vi que o que eu queria era aplicação. Na AWS ela veio de fora — o papel não esgotou, acabou o problema novo, e o trabalho que me leva além está fora do que eu estou alocado para fazer.
 
-Um padrão que você consegue nomear dá para reconhecer antes de virar ressentimento. Nas duas eu reconheci a tempo, e nas duas o que eu mudei foi o **objeto** do trabalho, não a empresa. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
+Um padrão que você consegue nomear dá para reconhecer antes de virar ressentimento. Nas duas eu reconheci a tempo. Não é um método; é o que acontece quando você presta atenção no que realmente te interessa. Mas ele se repetiu limpo o bastante para eu sugerir a um par que procure por ele no próprio histórico.
 
 ## O desafio de agora
 
@@ -65,7 +65,7 @@ E isso dá para mostrar, porque está no ar. Este site é publicado por um loop 
 
 O que me toma tempo ali não é escrever prompt melhor: é decidir o que o harness **barra**, o que ele **aconselha** e o que ele só **documenta** — e depois provar que essa divisão continua verdadeira quando alguém mexe. Errar isso custa caro nos dois sentidos: uma garantia que só existe na minha memória não é garantia, e um gate que fica verde sem ter verificado nada é pior do que não ter gate. Eu rodo dois harness diferentes sobre o mesmo tipo de trabalho, um interno e este, público, porque é isso que me deixa separar o que é do modelo do que é do setup em volta dele.
 
-E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — entusiasmo passando na frente da alocação, que foi exatamente o que aconteceu da primeira vez também.
+E o motivo de acontecer assim mesmo é bem mais simples que uma estratégia. Eu estou indo além do horário comercial ao longo de vários dias porque me empolguei com as possibilidades de trabalho com IA. É esse o motor — o interesse indo para onde a alocação não vai, que foi exatamente o que aconteceu da primeira vez também.
 
 ## O que eu não tenho
 
