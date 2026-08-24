@@ -17,6 +17,22 @@
   },
   {
     "kind": "hook",
+    "id": "orchestrator-tool-census.sh",
+    "file": "hooks/scripts/orchestrator-tool-census.sh",
+    "event": "Stop",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
+    "id": "orchestrator-write-guard.sh",
+    "file": "hooks/scripts/orchestrator-write-guard.sh",
+    "event": "PreToolUse",
+    "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+    "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
     "id": "permission-guard.sh",
     "file": "hooks/scripts/permission-guard.sh",
     "event": "PreToolUse",
