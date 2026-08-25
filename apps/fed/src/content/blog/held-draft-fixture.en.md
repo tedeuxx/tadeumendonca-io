@@ -27,5 +27,5 @@ The nonce below is what those checks search for: HELDNONCE-EN-4f7a1c92
 
 It buys **isolation, not privacy**. While this draft is deployed its full text — both editions — sits in
 the JavaScript bundle the site serves to everyone, fetchable with no parameter at all. Nobody stumbles
-into it; anybody who knows to look will find it. That consequence is recorded in ADR-0047 along with the
+into it; anybody who knows to look will find it. That consequence is recorded in ADR-0049 along with the
 command that measures it, and the upgrade to a genuinely private draft is described there too.

@@ -28,5 +28,5 @@ O nonce abaixo é o que essas checagens procuram: HELDNONCE-PT-4f7a1c92
 Ela compra **isolamento, não privacidade**. Enquanto este rascunho está publicado, o texto completo — nas
 duas edições — está dentro do bundle JavaScript que o site serve para todo mundo, acessível sem parâmetro
 nenhum. Ninguém tropeça nele; quem souber procurar vai encontrar. Essa consequência está registrada na
-ADR-0047 junto com o comando que a mede, e o caminho de upgrade para um rascunho de fato privado está
+ADR-0049 junto com o comando que a mede, e o caminho de upgrade para um rascunho de fato privado está
 descrito lá também.

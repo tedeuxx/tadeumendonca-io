@@ -12,7 +12,7 @@ import { HELD_KEY, HELD_NONCES, HELD_SLUGS } from '../src/content/heldFixture';
 // ACCEPTANCE CRITERIA 1, 2, 4, 5 and 6 live here. CRITERION 7 IS DELIBERATELY NOT WRITTEN: under the
 // isolation package the held body DOES ship in `dist/assets/index-*.js`, so an assertion that it does not
 // would be permanently red. Writing it and then relaxing it is how a gate becomes theatre. That
-// consequence is recorded in ADR-0047 with the command that measures it; it is a decision, not a gap.
+// consequence is recorded in ADR-0049 with the command that measures it; it is a decision, not a gap.
 //
 // EVERY assertion below is mutation-checked by flipping the fixture's `draft: true` to `false` and
 // confirming it goes red. A held-state assertion that stays green on a published article asserts nothing

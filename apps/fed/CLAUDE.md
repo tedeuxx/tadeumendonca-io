@@ -86,7 +86,7 @@ in `iac/`.
   (#204 — the unprefixed redirect maps the slug via `articlePathForLocale`, since re-prefixing it
   verbatim dead-ended a pt-BR reader), but it is still un-prerendered and must **not** be re-added to
   hreflang or the sitemap.
-  **An article can be HELD** (#510, ADR-0047): `draft: true` in frontmatter — a **shared fact**, so both
+  **An article can be HELD** (#510, ADR-0049): `draft: true` in frontmatter — a **shared fact**, so both
   editions must agree — takes it out of **four** public enumerations and no more. `lib/content.ts` drops
   it from `byLocale` (the index, the feed, the track filters) while `getPostBySlug`/`getEditions` still
   resolve it; `scripts/routes.mjs` drops it from `localizedRoutes()`, so it leaves the sitemap **and** the
@@ -100,7 +100,7 @@ in `iac/`.
   commit build differently tomorrow, breaking *rebuild the tag to reproduce production*.
   **It buys isolation, not privacy, and the difference is not cosmetic:** while a held draft is deployed
   its full body — both editions — ships inside `dist/assets/index-*.js` and is fetchable by anyone with no
-  parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0047 records that
+  parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0049 records that
   consequence with the command that measures it, and the upgrade path to a genuinely private draft.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its

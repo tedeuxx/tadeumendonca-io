@@ -1,4 +1,4 @@
-// The preview gate for a HELD article (#510, ADR-0047).
+// The preview gate for a HELD article (#510, ADR-0049).
 //
 // One value, read from `location.search`, deciding whether a held article renders or the visitor is sent
 // to the locale home. It is the affordance that lets the owner read a finished article at its real URL,
@@ -8,7 +8,7 @@
 // CONCEALMENT, not enforcement, and it is not a secret. Three facts make that true and none of them is a
 // defect to fix here:
 //  - the article's full body ships in `dist/assets/index-*.js` regardless, so anyone who knows to look
-//    can read it with no parameter at all (ADR-0047 records this with the command that measures it);
+//    can read it with no parameter at all (ADR-0049 records this with the command that measures it);
 //  - the check runs in the browser, on code the visitor already has, so it is trivially bypassed;
 //  - a per-article secret token cannot exist in this architecture anyway — the CloudFront Function that
 //    would validate it is committed to a public repo, and a Terraform variable leaks through the plan
@@ -17,7 +17,7 @@
 // So the parameter buys ISOLATION — the article is out of the index, the sitemap, the navigation and the
 // OG cards, and a reader who lands on the URL without it does not read it. That is the problem the owner
 // actually named ("o problema é isolar trafego organico"). Making it PRIVATE is a strictly larger change
-// and is deliberately not attempted here; the upgrade path is in ADR-0047.
+// and is deliberately not attempted here; the upgrade path is in ADR-0049.
 
 /**
  * The query parameter that opens a held article.

@@ -63,7 +63,7 @@ export interface BlogPost {
    * mechanism; see the `byLocale` / `getPostBySlug` pair below, which is the one place the two behaviours
    * must differ.
    *
-   * An explicit flag rather than a future `date`, deliberately (ADR-0047): a wall-clock comparison makes
+   * An explicit flag rather than a future `date`, deliberately (ADR-0049): a wall-clock comparison makes
    * the SAME COMMIT build differently tomorrow, which breaks "rebuild the tag to reproduce production".
    * Promotion is one edit — `draft: false` plus the real date — and a scheduled publication becomes a
    * scheduled COMMIT, which is strictly more auditable than a time-dependent build.
@@ -71,7 +71,7 @@ export interface BlogPost {
    * WHAT IT DOES NOT DO, stated here because the field name invites the opposite reading: it is
    * ISOLATION, not privacy. While a held draft is deployed its full body — both locales — ships inside
    * `dist/assets/index-*.js` and is fetchable by anyone with no parameter at all. Nobody stumbles into
-   * it; anyone who knows to look will find it. ADR-0047 records that consequence with the command that
+   * it; anyone who knows to look will find it. ADR-0049 records that consequence with the command that
    * measures it.
    *
    * A FACT (`FACT_KEYS`), so the two editions cannot disagree: a held PT edition beside a published EN
