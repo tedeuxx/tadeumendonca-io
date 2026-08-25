@@ -170,9 +170,15 @@ find it.
 Measured at this branch's head, on the committed fixture pair:
 
 ```
+npm --prefix apps/fed run build:static              # dist/ is not committed
 grep -c HELDNONCE apps/fed/dist/assets/index-*.js   # -> 2, one per locale
 grep -rl HELDNONCE apps/fed/dist                    # -> only that file
 ```
+
+The build line is not decoration: `dist/` is gitignored, so on a fresh clone the two greps **error**
+rather than returning `2` and a path — and a falsifier that cannot run reads to whoever runs it as
+*nothing here*, which is worse than publishing no command at all. The two occurrences are the EN and PT
+nonces of `src/content/heldFixture.ts`, one per edition.
 
 **And the edge gate cannot cover it. This is the fact that decided the whole shape.** `iac/frontend.tf`'s
 `ordered_cache_behavior` for `/assets/*` carries **no `function_association`** — the only
@@ -261,9 +267,12 @@ jargon, as *invisible or secret* — and answered sequencing both times:
 
 > *"eu acho que os artigos tem que vir depois que tivermos concluido o modo preview"*
 
-That closed the order and left the fork open. He was told the bundle exposure in those words and did not
-object, and he was told the upgrade path is one sentence from him at any time, including for a single
-sensitive piece.
+That closed the order and left the fork open. **The bundle exposure was put to him in those words, and
+the upgrade path with it** — that it is one sentence from him at any time, including for a single
+sensitive piece. What came back, twice, is the sentence above: sequencing. **He was told; he was not
+recorded as agreeing.** *Did not object* is an inference, and this record does not make it — the fork
+was left open and the orchestrator closed it, which is what the header says and what the paragraph
+below refuses to soften.
 
 **The counter-argument is his own word, and it is not settled by this record.** He said *privacidade*
 when he ratified the parameter. The measurement says this design does not deliver privacy. **If that word
