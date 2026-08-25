@@ -73,6 +73,50 @@ account and no AWS bill at all** — it has neither.
   not pulled in by `npm ci`. It is a **build** dependency rather than a test one: the build prerenders
   every route in a real browser and prints `/cv.pdf` from `/en/me` in the same pass.
 
+
+### Remote control, and why it is not committed
+
+**Optional, and it is the one Claude Code setting this repo documents rather than ships.** Remote Control
+opens a bridge from a *running local* session, so you can watch it and approve its tool calls from the
+Claude mobile app or from `claude.ai/code`. `remoteControlAtStartup` starts that bridge automatically
+instead of making you run `/remote-control` each session. It is **not** the same thing as sending a
+session to the cloud: inside a cloud session Remote Control reports itself unavailable, because the local
+session it exists to reach is not there.
+
+**There are two places to set it, and they are not equivalent.** Read out of the shipped CLI (`claude
+--version` → `2.1.243`) rather than inferred from the key's name, because a setting's name is not a
+specification:
+
+| | where | what it actually does |
+|---|---|---|
+| **User preference** — *the only one that can enable* | `~/.claude/settings.json`, or `/config` → **Enable Remote Control for all sessions** | Turns it on for every session you run, in every project. It follows the person, not the repo, so each person opts in for themselves and nothing replicates on a fork. This is what I run. |
+| **Project setting** | the committed `.claude/settings.json` in either repo | **Can only turn it OFF.** `"remoteControlAtStartup": true` here is *ignored*, and the CLI says so: `remoteControlAtStartup: true in project settings ignored — repo-scoped settings cannot enable Remote Control; set it at user scope (/config)`. `false` **is** honoured, and it wins over the user preference — so a repo can refuse the capability for everyone working in it, and cannot grant it to anyone. |
+
+To enable it, at user scope:
+
+```json
+{
+  "remoteControlAtStartup": true
+}
+```
+
+— or run `/config` inside Claude Code and set **Enable Remote Control for all sessions** to `true`. That
+menu's third option, `default`, removes the key rather than writing `false`, which is not the same thing:
+`false` is an answer and an absent key is not.
+
+**Why the asymmetry is the right way round, and why this repo commits neither value.** Enabling is a
+property of how a *person* works; disabling is a property of what a *project* allows. Committing the
+`true` would hand a session capability to everyone who forks this and to CI without any of them choosing
+it — and, per the table, it would not even take effect. Committing `false` *would* take effect, and would
+remove the choice in the other direction from a forker who wants the capability. So neither is here:
+`.claude/settings.json` carries the permission floor and the plugin wiring, and this setting stays yours.
+An organisation that needs the opposite has the managed `disableRemoteControl` setting, which sits at
+policy scope above both.
+
+`grep -n remoteControlAtStartup .claude/settings.json` returning nothing is that decision, not an
+oversight — and `apps/fed/src/content/remote-control-scope.test.ts` is what keeps it from silently
+becoming one.
+
 ### What it costs to run
 
 **Single-digit dollars a month, and almost all of it is the name.** Registration amortized plus the
