@@ -43,6 +43,20 @@ describe('CVSection', () => {
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
   });
 
+  it('numbers the credential sequence 01–04, each on its own block', () => {
+    const { container } = renderWithLocale(<CVSection profile={profile} />);
+    // `Block`'s `index` became `string | null` (#127) so `JourneyStrip` could opt OUT of this sequence.
+    // That loosening is what this asserts against: the four blocks that ARE credentials — Experience,
+    // Education, Certifications, Skills — must still carry their numeral and their print hook. Read off
+    // the DOM in document order rather than checked one by one, so a block that loses its number, gains
+    // one, or is reordered all read as the same failure.
+    const numbered = [...container.querySelectorAll('[data-print-block]')];
+    expect(numbered.map((s) => s.getAttribute('data-print-block'))).toEqual(['01', '02', '03', '04']);
+    // The hook and the visible numeral are two different things — the hook is for the print stylesheet,
+    // the numeral is what the reader sees on the rail — and either can be lost without the other.
+    expect(numbered.map((s) => s.querySelector('span')?.textContent)).toEqual(['01', '02', '03', '04']);
+  });
+
   it('shows the portrait beside the name when the profile carries one', () => {
     const { container } = renderWithLocale(<CVSection profile={{ ...profile, avatar_url: '/avatar.jpg' }} />);
     const portrait = container.querySelector('img');

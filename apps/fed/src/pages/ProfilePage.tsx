@@ -9,6 +9,7 @@
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { CVSection } from '../components/CVSection';
+import { JourneyStrip } from '../components/JourneyStrip';
 import { Empty } from '../components/Column';
 import { absoluteUrl } from '../lib/site';
 import { useLocalePath, useT } from '../i18n';
@@ -42,5 +43,18 @@ export function ProfilePage() {
 
   if (!profile) return <Empty>{t('cv.unavailable')}</Empty>;
 
-  return <CVSection profile={profile} />;
+  // The journey photographs sit OUTSIDE `CVSection` rather than inside it (#127), and the reason is the
+  // print edition: `CVSection` is the `[data-print="cv"]` tree that `/cv.pdf` is printed from, and its
+  // page budget is guarded at two A4 sheets. A decorative strip inside that tree would be a third sheet's
+  // worth of content held to a CV's budget. Outside it, the strip is web-only chrome and says so with the
+  // same `data-print="hide"` hook the metadata row already uses.
+  //
+  // It renders BELOW the CV on purpose: this page is a hiring surface first, and the four photographs are
+  // rapport, which is what a reader wants after the claims rather than before them.
+  return (
+    <>
+      <CVSection profile={profile} />
+      <JourneyStrip />
+    </>
+  );
 }
