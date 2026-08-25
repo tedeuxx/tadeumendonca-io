@@ -1,7 +1,8 @@
 // The personal journey photographs on /me (#127).
 //
 // WHY ITS OWN MODULE AND NOT `profile.ts`. Two reasons, and only the second one survives this slice.
-// The near-term one: #416 is in flight on `profile.ts` (the role rename), and a second slice editing the
+// The near-term one: #416 (the role rename) is open against `profile.ts` — open rather than in flight,
+// since it carries no `ready` label and has no PR at the time of writing — and a second slice editing the
 // same file buys a conflict for nothing. The lasting one is the reason this file will still be here after
 // that lands — `profile.ts` is the CV, and the CV is the thing `/cv.pdf` is PRINTED from. Everything in it
 // is a claim a recruiter reads on paper. These four photographs are deliberately NOT claims: they carry no

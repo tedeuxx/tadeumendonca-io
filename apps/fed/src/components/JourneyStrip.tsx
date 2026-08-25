@@ -4,8 +4,11 @@
 // WHY A STRIP AND NOT FOUR `PhotoFigure`s. `PhotoFigure` is a figure inside a CONTENT BODY: it takes the
 // reading column, it is read one at a time, and its caption carries an argument the surrounding prose is
 // making. These four are read as a SET — that is the whole reason they were curated as four rather than
-// picked as one — and a set read as a set needs them side by side at one size. Stacked full-column they
-// would add roughly 3,500px of scroll to a page whose job is to be scanned by someone deciding.
+// picked as one — and a set read as a set needs them side by side at one size. The cost of getting this
+// wrong was MEASURED rather than estimated: collapsing the grid to one column (as a deliberate mutation,
+// to check the E2E assertion could fail) spread the four tiles over 3,634px at 1280 — that much extra
+// scroll on a page whose job is to be scanned by someone deciding. `e2e/journey-strip.spec.ts` is what
+// holds them on one row, because the failure is otherwise silent: every photograph still renders.
 //
 // WHY THE TREATMENT IS BAKED INTO THE FILES RATHER THAN APPLIED IN CSS. The four are colour photographs
 // from four different cameras across three years, and left alone they fight the palette in four different
@@ -14,9 +17,15 @@
 //
 // `filter: grayscale(1)` was the alternative and is the worse trade here, for a reason that is arithmetic
 // rather than taste: it ships three colour channels the reader is never shown, and
-// `scripts/photo-assets.test.mjs` caps every photograph in this repo at 1 MB TOTAL — a budget the two
-// /architecture montages already spend half of. Grayscale at the encode is what makes four more files fit
-// inside it. It also cannot be undone by a stylesheet regression, which for the magenta sticky notes in
+// `scripts/photo-assets.test.mjs` caps every photograph in this repo at 1 MB TOTAL, and the three files
+// that predate this slice already spend 572 KB of it (`may-week-montage.jpg` alone is 395 KB). These four
+// add 259 KB, taking the registry to 831 KB against a 1,024 KB ceiling.
+//
+// WHAT IS NOT CLAIMED, because it was not measured: that four COLOUR files would have broken that
+// ceiling. No colour encode at these dimensions was ever produced — every candidate was grayscale from
+// the first pass — so the payload half of this argument is a margin, not a proof, and is written as one.
+// What the encode-time treatment does buy without qualification is that it cannot be undone by a
+// stylesheet regression, which for the magenta sticky notes in
 // the home-office frame is the difference between "on brand" and "on brand until someone edits a CSS
 // file". What it costs is stated plainly: colour is gone from the committed bytes and cannot be recovered
 // from them. The originals are outside the repo, so the decision is reversible by re-encoding, not by an
@@ -27,11 +36,14 @@
 // (`.avatar-round`) is this design system's single carved exception and is deliberately NOT extended
 // here — it is round because a face is a face, and these are not portraits.
 //
-// AND IT IS HIDDEN IN PRINT, which is load-bearing rather than tidy. `/cv.pdf` is printed from /en/me at
-// build time and `e2e/cv-pdf.spec.ts` holds it to two A4 pages. Four 3:4 photographs would take most of a
-// third sheet, and the guard would go red for a reason that has nothing to do with the CV. `data-print`
-// is the ONE stable hook the print stylesheet targets (never a Tailwind utility class), so the block opts
-// out through the same mechanism the metadata row and the download control already use.
+// AND IT IS HIDDEN IN PRINT, which is load-bearing rather than tidy — and MEASURED rather than assumed.
+// `/cv.pdf` is printed from /en/me at build time and `e2e/cv-pdf.spec.ts` holds it to two A4 sheets.
+// Dropping this one attribute and rebuilding produces a THREE-page PDF (the guard reports
+// `Received length: 3`), so without it the CV overruns its budget for a reason that has nothing to do
+// with the CV — and the guard's own comment warns, correctly, against raising the number to go green.
+//
+// `data-print` is the ONE stable hook the print stylesheet targets (never a Tailwind utility class), so
+// the block opts out through the same mechanism the metadata row and the download control already use.
 import { JOURNEY_PHOTOS } from '../data/journey';
 import { Block } from './CVSection';
 import { FIGCAPTION_CLASS } from './DiagramFigure';
@@ -60,9 +72,14 @@ export function JourneyStrip() {
     // `[data-print='cv']`. A wrapper keeps the two mechanisms from sharing an element.
     <div data-print="hide" data-journey="">
       <Block index="05" title={t('cv.journey')}>
-        {/* A list, because it is four items and their ORDER is authored (see `journey.ts`). `gap-px` with
-            the 1px borders makes the four read as one grid rule rather than four floating tiles — the
-            same exposed-grid device the skills block and the metadata row already use. */}
+        {/* A list, because it is four items and their ORDER is authored (see `journey.ts`).
+            THE GAP IS REAL SPACE, NOT `gap-px`. The exposed-grid device the skills block and the metadata
+            row use — `gap-px`, or negative margins collapsing borders into one shared rule — is right for
+            elements whose CONTENT is flat: a keyword chip against a keyword chip reads as one table. Four
+            photographs butted edge to edge read as a contact sheet, and the 1px border stops separating
+            them because each one is then also the neighbour's border. The vertical gap is larger than the
+            horizontal one on purpose: at two columns it separates a caption from the photograph BELOW it,
+            which is a different job than separating two tiles side by side. */}
         <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4">
           {JOURNEY_PHOTOS.map(({ photo, alt, caption }) => (
             <li key={photo.src}>
