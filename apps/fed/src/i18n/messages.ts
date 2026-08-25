@@ -606,6 +606,12 @@ const strings = {
     skills: { pt: 'Skills', en: 'Skills' },
     present: { pt: 'Atual', en: 'Present' },
     unavailable: { pt: 'Perfil ainda não disponível.', en: 'Profile not available yet.' },
+    // The heading of the journey-photograph block (#127). "Percurso" rather than "Jornada": the second is
+    // the literal translation and it is the word pt-BR corporate copy uses for a customer funnel, which is
+    // the register this page spends every other string avoiding. English keeps "Journey" — it carries no
+    // such second meaning there. Deliberately NOT a nav label: the block has no route and no anchor, so
+    // ADR-0045's lead-with-the-nav-label rule has nothing to bind to here.
+    journey: { pt: 'Percurso', en: 'Journey' },
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
     // RETIRED as of #317, and kept as strings rather than deleted only for the length of this comment:
     // these were the print-only proficiency wording for the one-page CV (#161). The meter was hidden in

@@ -21,7 +21,20 @@ const dateRange = (start: string, end: string | null, present: string) =>
 // Friendly labels for the metadata link keys (kept lowercase in the data); falls back to the key.
 const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', x: 'X', medium: 'Medium', website: 'Website' };
 
-function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
+/**
+ * One numbered block of the page: a sticky label rail on the left, the body on the right.
+ *
+ * EXPORTED (#127) so `JourneyStrip` can be a fifth block on /me without re-typing the class strings. It
+ * is exported rather than copied because the print stylesheet reaches these elements POSITIONALLY —
+ * `section > div:first-child > div`, `section > div:last-child` and so on — so a second, hand-copied
+ * version would drift out of print alignment the first time this markup is touched, and nothing would
+ * say so until someone re-read a PDF.
+ *
+ * What it does NOT carry is the decision to print at all: `data-print-block` is only a hook, and the
+ * print rules that use it are all scoped under `[data-print='cv']`. A block rendered outside that
+ * container (which is exactly what `JourneyStrip` is) inherits none of them.
+ */
+export function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
   return (
     // `data-print-block` gives the print stylesheet a stable per-section hook (#161). Targeting
     // `section:nth-of-type(n)` instead would silently re-target the moment a block is added or reordered,
