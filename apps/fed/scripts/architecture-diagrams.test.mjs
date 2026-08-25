@@ -111,6 +111,18 @@ const pt = mermaidFences(read('architecture.pt.md'));
 // rather than left implied: this file no longer looks at the venn figure at all.
 
 /**
+ * The accessible description authored on a fence — what a screen-reader user gets INSTEAD of the
+ * picture, which is why several blocks here assert against it separately from the drawing. Throws on a
+ * fence that carries none, for `byTitle`'s reason: a silent `undefined` would flow into a `.includes`
+ * and read as "the text does not mention it" rather than "there is no text".
+ */
+function accDescrOf(source) {
+  const m = /^\s*accDescr:(.*)$/m.exec(source);
+  if (!m) throw new Error('the fence carries no accDescr');
+  return m[1];
+}
+
+/**
  * Pick a fence by its `accTitle` rather than by its position in the page.
  *
  * The first version of this file addressed them as `en[0]` and `en[1]`. That is a coupling to
@@ -299,6 +311,130 @@ describe('the dev-loop diagram shows where the human stands', () => {
   });
 });
 
+// THE TIER FENCE AGAINST THE MANIFEST (#431) — the roster's MEMBERSHIP, not its size.
+//
+// Everything above this line about the tier fence asserts its SHAPE: two human ends, one return channel,
+// an AFK stretch with nothing human on it. `graphOf` discards labels by construction, so none of it can
+// see WHO is drawn. And `check-harness-drift.mjs`, one link back, compares the manifest to the plugin
+// tree and never looks at this page. So the two surfaces converged the last time only because a human
+// rewrote the prose — nothing compared them, and the next divergence would be as silent as that one was:
+// the page would go on describing a loop that no longer exists, on the page whose whole claim is that it
+// describes this one.
+//
+// This block is the comparison. It is one direction only, and the limit is written here rather than left
+// to be rediscovered:
+//
+//   IT CHECKS: every persona the manifest carries is drawn on this fence, and named in its accessible
+//   description, in both editions.
+//
+//   IT DOES NOT CHECK the reverse — a name on this fence that the manifest no longer carries. A RETIRED
+//   persona left published here passes this block untouched. That direction is covered twice elsewhere
+//   and neither of those covers it HERE: the components grid asserts `PS`'s label equals the manifest's
+//   id list exactly (`names NO persona the manifest has retired`), and CLAUDE.md's `roster:dispatch`
+//   fence is compared by `check-harness-drift.mjs`. Both are about a different surface. Closing this
+//   direction on THIS fence needs an authored anchor the drawing does not have today — its persona names
+//   are scattered across nine boxes and its own prose, so there is no enumeration to compare against, and
+//   inventing one by scraping every capitalised token out of the labels would red on ordinary editing.
+//   Stated as a residual, deliberately, rather than approximated.
+//
+// WHY THE COMPARISON IS BY WHOLE WORD and not `includes`. Every id in this roster is lowercase-and-hyphen
+// and several share a stem. A future id that is a strict prefix of a live one would be satisfied by the
+// live one's own text — the check would report a persona as drawn on the strength of a different
+// persona's name. `matches a whole id, not a prefix of one` is the mutation guard for that: it derives
+// truncations from the live ids and requires the matcher to reject them, so replacing `asWholeWord` with
+// a substring test reddens by name instead of quietly widening what counts as drawn.
+//
+// NOT A FOURTH RESTATEMENT. This file already carries hand-authored restatements of loop rules, and a
+// literal roster here would be one more list nothing generates — the exact drift shape the block exists
+// to catch. Every name compared below comes out of `harness.json`.
+describe('the dev-loop diagram draws every persona the manifest carries', () => {
+  const personaIds = generated('harness.json')
+    .filter((component) => component.kind === 'persona')
+    .map((component) => component.id);
+
+  // Addressed by accessible title, in each edition's own language — never by position. `byTitle`'s
+  // docstring records what positional addressing cost this file the one time it was used.
+  const TIER_FENCE = {
+    en: () => byTitle(en, 'How work crosses the agent tiers'),
+    pt: () => byTitle(pt, 'Como o trabalho atravessa os tiers de agente'),
+  };
+  const LOCALES = Object.keys(TIER_FENCE);
+
+  /**
+   * Every authored NODE label in a fence — the words a sighted reader meets inside a box.
+   *
+   * Edge labels are excluded deliberately, and it is a real choice rather than a parsing convenience: a
+   * persona named only on an arrow would count as "drawn" under a whole-fence scan, and this fence draws
+   * personas as boxes. The `acc*` lines are excluded for a sharper reason — the accessible description
+   * names every persona in prose, so leaving it in would make the label assertion below satisfiable by
+   * the description alone, which is precisely the two-surfaces conflation the components block measured.
+   */
+  const nodeLabels = (source) =>
+    source
+      .split('\n')
+      .filter((line) => !/^\s*acc(?:Title|Descr):/.test(line))
+      .flatMap((line) => [...line.matchAll(/[[({]\s*"([^"]*)"/g)].map((m) => m[1]));
+
+  const ID_CHAR = '[A-Za-z0-9_-]';
+  const asWholeWord = (haystack, id) =>
+    new RegExp(`(?<!${ID_CHAR})${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!${ID_CHAR})`).test(haystack);
+
+  // The anti-vacuity guard, and it carries M2: renaming the fence's accTitle makes `byTitle` throw HERE,
+  // in a test that says the fence is gone, rather than letting the arms below compare an empty id set
+  // against an empty label set and report green. Two empty parses agreeing is this file's named recurring
+  // false green — `parses a non-trivial graph at all` exists for the same reason one describe up.
+  it('is asserting against a real manifest and a real fence, not two empty sets', () => {
+    expect(
+      personaIds.length,
+      'the manifest carries no personas — every assertion in this block would be vacuous',
+    ).toBeGreaterThan(0);
+    for (const locale of LOCALES) {
+      const source = TIER_FENCE[locale]().source;
+      expect(nodeLabels(source).length, `${locale}: the fence parsed to no node labels at all`).toBeGreaterThan(3);
+      expect(
+        accDescrOf(source).length,
+        `${locale}: the accessible description is empty — the arm below would assert nothing`,
+      ).toBeGreaterThan(200);
+    }
+  });
+
+  // The matcher's own mutation guard. Derived from the live ids, so it needs no literal: a strict prefix
+  // of an id that IS drawn must NOT match, which a substring test cannot satisfy. It bites only on ids
+  // currently in the drawing — an id that is absent is absent under either matcher — and that is enough,
+  // because the failure this guards against is a drawn name vouching for a different one.
+  it('matches a whole id, not a prefix of one', () => {
+    for (const locale of LOCALES) {
+      const drawn = nodeLabels(TIER_FENCE[locale]().source).join('\n');
+      const looseMatches = personaIds
+        .map((id) => id.slice(0, -1))
+        .filter((truncated) => asWholeWord(drawn, truncated));
+      expect(
+        looseMatches,
+        `${locale}: a strict prefix of a live id matched — the comparison degraded to a substring test`,
+      ).toEqual([]);
+    }
+  });
+
+  it.each(LOCALES)('draws every persona the manifest carries, in the %s edition', (locale) => {
+    const drawn = nodeLabels(TIER_FENCE[locale]().source).join('\n');
+    const undrawn = personaIds.filter((id) => !asWholeWord(drawn, id));
+    expect(undrawn, `${locale}: a persona is live in the manifest and is in no box on this fence`).toEqual([]);
+  });
+
+  // The same claim on the other surface, separately — a screen-reader user gets the description INSTEAD
+  // of the drawing, so a fence whose boxes are complete and whose description is not publishes a
+  // different roster to that reader. Asserted apart from the labels for the reason the components block
+  // measured: a whole-fence scan is satisfied by either surface alone.
+  it.each(LOCALES)('names every persona in the %s accessible description', (locale) => {
+    const descr = accDescrOf(TIER_FENCE[locale]().source);
+    const unnamed = personaIds.filter((id) => !asWholeWord(descr, id));
+    expect(
+      unnamed,
+      `${locale}: a persona is live in the manifest and the accessible description does not name it`,
+    ).toEqual([]);
+  });
+});
+
 // THE COMPONENTS DIAGRAM (#318, ADR-0043) — the one whose content is DERIVED from another repository.
 //
 // The chain has two links and this file is the second of them. `check-harness-drift.mjs`, in its own CI
@@ -337,11 +473,9 @@ describe('the components diagram carries the inventory it was generated from', (
     if (!m) throw new Error(`the drawing has no node \`${id}\` — it was renamed or removed`);
     return m[1];
   };
-  const accDescrOf = (source) => {
-    const m = /^\s*accDescr:(.*)$/m.exec(source);
-    if (!m) throw new Error('the fence carries no accDescr');
-    return m[1];
-  };
+  // `accDescrOf` LIVED HERE and is now module-scope, above `byTitle`. It was hoisted rather than copied
+  // when a second block needed it (#431): the accessible description is the same surface for every fence
+  // on this page, and a per-block copy is how two readers of one field drift apart.
 
   // The knowledge library is a `skill-library` row now, not five `command-family` rows: the plugin moved
   // `commands/<family>/<name>.md` to `skills/<family>/<name>/SKILL.md`. This guard follows the manifest,
