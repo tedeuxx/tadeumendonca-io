@@ -59,7 +59,7 @@ O que fica na interseção é o trabalho de verdade: decidir o que o harness **b
 
 ## Pilar 1 · a solução
 
-Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir de **S3 atrás do CloudFront**, com uma pequena CloudFront Function reescrevendo URLs limpas. Sem servidor, sem banco, sem auth. O conteúdo é markdown no próprio repositório, e cada rota é **prerenderizada** no build, nos dois idiomas.
+Uma SPA totalmente estática — React + Vite + TypeScript — servida a partir de **S3 atrás do CloudFront**, com uma pequena CloudFront Function reescrevendo URLs limpas. Sem servidor, sem banco, sem auth. O conteúdo é markdown no próprio repositório, e cada rota publicada é **prerenderizada** no build, nos dois idiomas — um artigo pode ficar retido antes de ser publicado, e um retido é compilado no bundle sem nunca ser prerenderizado.
 
 *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) totalmente estático / sem backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
@@ -296,7 +296,7 @@ O argumento clássico para ADRs é o humano do futuro: registre por que a decis�
 
 É esse propósito que escolhe o formato, e não o contrário. **MADR**: contexto, as opções que estavam na mesa, a decidida, e a consequência. Um documento curto por decisão, um arquivo por decisão, tudo no mesmo repositório que o agente já lê — nada de wiki, nada de ferramenta à parte. O que um formato assim entrega para um leitor humano é rastreabilidade; o que ele entrega para um agente é o que ele precisa para não contradizer.
 
-**São 48 decisões — e o que é mecânico aqui é o índice, não este número.** O índice é **gerado** a partir de `docs/adr/`, commitado como artefato e conferido no CI: acrescentar ou substituir uma decisão sem regenerar o índice deixa o pipeline vermelho, então o artefato e o diretório não têm como se separar. O `48` desta frase é digitado à mão: enquanto a tabela era renderizada aqui, ele vinha conferido de graça; cortá-la tirou essa amarração, e o que sustenta o número agora é o link abaixo, a um clique de você contar. As linhas não estão impressas aqui de propósito — esta página **aponta** o detalhe canônico em vez de repeti-lo, e uma cópia de 48 linhas seria a própria regra sendo quebrada na única seção que existe para defendê-la.
+**São 49 decisões — e o que é mecânico aqui é o índice, não este número.** O índice é **gerado** a partir de `docs/adr/`, commitado como artefato e conferido no CI: acrescentar ou substituir uma decisão sem regenerar o índice deixa o pipeline vermelho, então o artefato e o diretório não têm como se separar. O `49` desta frase é digitado à mão: enquanto a tabela era renderizada aqui, ele vinha conferido de graça; cortá-la tirou essa amarração, e o que sustenta o número agora é o link abaixo, a um clique de você contar. As linhas não estão impressas aqui de propósito — esta página **aponta** o detalhe canônico em vez de repeti-lo, e uma cópia de 49 linhas seria a própria regra sendo quebrada na única seção que existe para defendê-la.
 
 *(→ [a biblioteca de decisões](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) enxuto por design)*
 

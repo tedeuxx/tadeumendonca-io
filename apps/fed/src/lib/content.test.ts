@@ -10,6 +10,8 @@ import {
   buildEditions,
   type BlogPost,
 } from './content';
+import { LOCALES } from '../i18n/config';
+import { HELD_NONCES, HELD_SLUGS } from '../content/heldFixture';
 
 // Slugs are per-locale now (ADR-0037): the EN edition and the PT edition of the one live article carry
 // DIFFERENT slugs. The filename KEY (the canonical English slug) is the grouping identity.
@@ -489,5 +491,109 @@ describe('superseded slugs (the back-compat contract for a corrected URL)', () =
       expect(getPostBySlug(ptPath.replace('/blog/', ''), 'pt')).toBeDefined();
       expect(getPostBySlug(enPath.replace('/blog/', ''), 'en')).toBeDefined();
     });
+  });
+});
+
+// #510 — THE HELD STATE, against the real glob and the committed fixture pair.
+//
+// This is the load-bearing block of the slice. `content.ts` is the one module where the two behaviours
+// must DIVERGE: a held article leaves the public enumeration and stays resolvable. Get either half wrong
+// and the feature is either pointless (the page cannot render) or absent (the article is published).
+//
+// ACCEPTANCE CRITERION 4 lives here in its unit form — zero appearances in the index and the feed — and
+// again in `e2e/held-draft.spec.ts` against the built site, where "the navigation" can actually be read.
+//
+// THE MUTATION, run and recorded rather than described: flipping `draft: true` to `false` on the fixture
+// pair reddens every assertion in this block that names the hold. That is the check that separates an
+// assertion ABOUT the hold from one that merely happens to be true.
+describe('a held article (draft: true) leaves the public enumeration and stays resolvable', () => {
+  it('is absent from the index and the feed, in BOTH locales', () => {
+    for (const locale of LOCALES) {
+      const slugs = getAllPosts(locale).map((p) => p.slug);
+      expect(slugs, `${locale}: the held fixture must not be listed`).not.toContain(HELD_SLUGS[locale]);
+    }
+  });
+
+  // Guards the assertion above from passing vacuously. `not.toContain` over an EMPTY list is true, and an
+  // empty list is exactly what a broken glob produces — so without this the block would go green on the
+  // one failure that breaks the whole module.
+  it('is absent from a list that is not empty — the corpus is the ruler', () => {
+    for (const locale of LOCALES) expect(getAllPosts(locale).length).toBeGreaterThan(0);
+  });
+
+  // The held fixture is authored with `track: engenharia` and a real `tag`, so a filter that ignored the
+  // hold would surface it here even though the unfiltered list does not. Asserted separately because
+  // `getAllPosts` applies the filter to `byLocale` — if the exclusion ever moved into the filter instead
+  // of into the source list, the unfiltered assertion above would still pass.
+  it('is absent from the FILTERED lists too, not only the unfiltered one', () => {
+    expect(getAllPosts('en', { track: 'engenharia' }).map((p) => p.slug)).not.toContain(HELD_SLUGS.en);
+    expect(getAllPosts('en', { tag: 'harness' })).toEqual([]);
+  });
+
+  // THE OTHER HALF, and the reason the hold is not simply "delete it from the glob": the page has to
+  // render for the owner reading it with the preview parameter. `getPostBySlug` resolves against the
+  // edition index rather than the public list, which is the one divergence this slice introduces.
+  it('is still resolvable by getPostBySlug, at its own per-locale slug', () => {
+    for (const locale of LOCALES) {
+      const post = getPostBySlug(HELD_SLUGS[locale], locale);
+      expect(post, `${locale}: a held article must remain renderable at its final URL`).toBeDefined();
+      expect(post?.draft).toBe(true);
+      expect(post?.body).toContain(HELD_NONCES[locale]);
+    }
+  });
+
+  // The locale toggle and hreflang go through `getEditions`, so a held article that resolved in one
+  // locale and not the other would strand the owner mid-review with a dead language switch.
+  it('is still resolvable by getEditions, from either locale, with both editions held', () => {
+    for (const locale of LOCALES) {
+      const eds = getEditions(HELD_SLUGS[locale], locale);
+      expect(eds).toBeDefined();
+      expect(eds?.pt.slug).toBe(HELD_SLUGS.pt);
+      expect(eds?.en.slug).toBe(HELD_SLUGS.en);
+      expect(eds?.pt.draft).toBe(true);
+      expect(eds?.en.draft).toBe(true);
+    }
+  });
+
+  it('a published article is not held — the flag distinguishes, it does not blanket', () => {
+    expect(getPostBySlug(EN_SLUG, 'en')?.draft).toBe(false);
+  });
+});
+
+// `draft` is a FACT (FACT_KEYS): the two editions must agree, or a held PT edition ships beside a
+// published EN one — half an article published, which is the precise failure the unpublishable contract
+// exists to make impossible. Exercised through `buildEditions` with synthetic input, because the real
+// corpus always agrees and could therefore never reach the throw.
+describe('draft is a shared fact, not per-locale prose', () => {
+  const fm = (draft: string) =>
+    `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\ndraft: ${draft}\n---\nbody`;
+
+  it('throws when one edition is held and the other is not', () => {
+    expect(() =>
+      buildEditions({ '../content/blog/demo.pt.md': fm('true'), '../content/blog/demo.en.md': fm('false') }),
+    ).toThrow(/disagrees on the fact "draft"/);
+  });
+
+  it('accepts a pair that agrees, in either direction', () => {
+    expect(
+      buildEditions({ '../content/blog/d.pt.md': fm('true'), '../content/blog/d.en.md': fm('true') }).d.en.draft,
+    ).toBe(true);
+    expect(
+      buildEditions({ '../content/blog/d.pt.md': fm('false'), '../content/blog/d.en.md': fm('false') }).d.en.draft,
+    ).toBe(false);
+  });
+
+  // `=== true`, not truthy. `draft: "false"` is a YAML STRING and therefore truthy, and an author who
+  // quotes the value must not silently hold a finished article. The absent case matters more still: every
+  // article written before this field existed carries no `draft:` line at all, and reading that as held
+  // would un-publish the whole site in one commit.
+  it('reads only a real boolean true as held — a quoted "false", and an absent flag, publish', () => {
+    const noFlag = `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n---\nbody`;
+    expect(
+      buildEditions({ '../content/blog/d.pt.md': fm('"false"'), '../content/blog/d.en.md': fm('"false"') }).d.en.draft,
+    ).toBe(false);
+    expect(
+      buildEditions({ '../content/blog/d.pt.md': noFlag, '../content/blog/d.en.md': noFlag }).d.en.draft,
+    ).toBe(false);
   });
 });

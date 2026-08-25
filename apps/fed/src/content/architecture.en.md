@@ -59,7 +59,7 @@ What sits in the intersection is the actual work: deciding what the harness **re
 
 ## Pillar 1 · the solution
 
-A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No server, no database, no auth. The content is markdown in the repository itself, and every route is **prerendered** at build, in both languages.
+A fully static SPA — React + Vite + TypeScript — served from **S3 behind CloudFront**, with a small CloudFront Function rewriting clean URLs. No server, no database, no auth. The content is markdown in the repository itself, and every published route is **prerendered** at build, in both languages — an article can be held back before publication, and a held one is compiled into the bundle without ever being prerendered.
 
 *(→ [ADR-0002](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0002-fully-static-spa-no-backend.md) fully static / no backend · [ADR-0013](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0013-s3-cloudfront-hosting.md) S3 + CloudFront)*
 
@@ -294,7 +294,7 @@ The classic argument for ADRs is the human of the future: record why the decisio
 
 That purpose is what picks the format, not the other way round. **MADR**: context, the options that were on the table, the one decided, and the consequence. One short document per decision, one file per decision, all in the same repository the agent already reads — no wiki, no separate tool. What a format like that gives a human reader is traceability; what it gives an agent is what it needs in order not to contradict.
 
-**There are 48 decisions — and what is mechanical here is the index, not this number.** The index is **generated** from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating it turns the pipeline red, so the artifact and the directory cannot drift apart. The `48` in this sentence is typed by hand: while the table was rendered here it came checked for free; cutting it removed that tie, and what holds the number up now is the link below, one click from counting them yourself. The rows are deliberately not printed here — this page **points at** canonical detail instead of restating it, and a 48-row copy would be that rule broken in the one section that exists to defend it.
+**There are 49 decisions — and what is mechanical here is the index, not this number.** The index is **generated** from `docs/adr/`, committed as an artifact, and checked in CI: adding or superseding a decision without regenerating it turns the pipeline red, so the artifact and the directory cannot drift apart. The `49` in this sentence is typed by hand: while the table was rendered here it came checked for free; cutting it removed that tie, and what holds the number up now is the link below, one click from counting them yourself. The rows are deliberately not printed here — this page **points at** canonical detail instead of restating it, and a 49-row copy would be that rule broken in the one section that exists to defend it.
 
 *(→ [the decision library](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md) · [ADR-0001](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md) lean by design)*
 

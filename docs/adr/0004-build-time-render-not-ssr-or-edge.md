@@ -111,3 +111,26 @@ same quotation.
 
 **Links:** ADR-0013 (the hosting decision that owns the function) · ADR-0026's 2026-08-15 amendment,
 which points here rather than repeating this.
+
+## Amendment, 2026-08-25 — "each route is prerendered" is a claim about PUBLISHED routes
+
+**Decision outcome** above states, in one sentence, that *"the markdown is compiled into the bundle and
+each route is prerendered to static HTML"*.
+[ADR-0049](./0049-held-article-is-isolated-not-private.md) is the first content deliberately **neither
+listed nor prerendered**, so the universal reading of that clause no longer holds.
+
+**The two halves are separable, and only the second is scoped.** Compilation is resolved by the Vite glob
+at build time and is **unchanged** — a held article's markdown is still compiled into the bundle, and
+that half is not incidental to ADR-0049, it *is* the exposure that record exists to state: a runtime
+filter removes an article from every list the site renders and cannot remove its body from the bytes the
+site ships. Prerendering becomes a **per-route** decision: a held article gets no static HTML, no
+listing and no sitemap entry.
+
+**This scopes the record; it does not reverse it.** Build time is still where content and OG resolve,
+the site still needs no Lambda@Edge, and option 2 (runtime-from-bucket) is still unchosen — a held
+article's text lives in the bundle precisely *because* option 1 is still in force. What is narrowed is
+the quantifier *each*, nothing else.
+
+**Links added by this amendment**
+- **Scoped by [ADR-0049](./0049-held-article-is-isolated-not-private.md)** — a held article is compiled
+  in but neither listed nor prerendered; isolation is guaranteed, privacy is explicitly not.

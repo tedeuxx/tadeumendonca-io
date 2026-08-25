@@ -25,6 +25,10 @@ const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   date: '2026-06-01T00:00:00Z',
   tag: 'aws',
   track: 'engenharia',
+  // Published (#510). This section renders whatever `getAllPosts` hands it and never re-checks the flag —
+  // by design: the exclusion happens once, at the source, so no consumer can forget it. That is exactly
+  // why the real exclusion is asserted in `content.test.ts` against the corpus, not here against a mock.
+  draft: false,
   excerpt: 'x',
   body: '# hi',
   ...over,

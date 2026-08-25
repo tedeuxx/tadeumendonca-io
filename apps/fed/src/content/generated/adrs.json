@@ -334,5 +334,12 @@
     "file": "0048-content-photograph-is-a-captioned-figure.md",
     "status": "accepted",
     "amended": false
+  },
+  {
+    "id": "0049",
+    "title": "A held article is isolated, not private — its text ships in the public bundle",
+    "file": "0049-held-article-is-isolated-not-private.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
