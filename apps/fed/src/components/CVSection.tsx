@@ -22,9 +22,9 @@ const dateRange = (start: string, end: string | null, present: string) =>
 const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'LinkedIn', x: 'X', medium: 'Medium', website: 'Website' };
 
 /**
- * One numbered block of the page: a sticky label rail on the left, the body on the right.
+ * One block of the page: a sticky label rail on the left, the body on the right.
  *
- * EXPORTED (#127) so `JourneyStrip` can be a fifth block on /me without re-typing the class strings. It
+ * EXPORTED (#127) so `JourneyStrip` can reuse this shell on /me without re-typing the class strings. It
  * is exported rather than copied because the print stylesheet reaches these elements POSITIONALLY —
  * `section > div:first-child > div`, `section > div:last-child` and so on — so a second, hand-copied
  * version would drift out of print alignment the first time this markup is touched, and nothing would
@@ -33,17 +33,31 @@ const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'Linke
  * What it does NOT carry is the decision to print at all: `data-print-block` is only a hook, and the
  * print rules that use it are all scoped under `[data-print='cv']`. A block rendered outside that
  * container (which is exactly what `JourneyStrip` is) inherits none of them.
+ *
+ * `index` IS REQUIRED AND NULLABLE, WHICH IS NOT THE SAME AS OPTIONAL, and the difference is the whole
+ * point of the type. Blocks 01–04 are a credential sequence — Experience, Education, Certifications,
+ * Skills — read inside `[data-print='cv']` and printed onto the CV. A number on this rail is a claim
+ * that what follows belongs to that sequence, so the only block that may go unnumbered is one that is
+ * deliberately outside it. `index?: string` would let a CV block lose its number by omission, silently
+ * and in the one place nobody re-reads; `string | null` makes every call site state which it is.
  */
-export function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
+export function Block({ index, title, children }: { index: string | null; title: string; children: ReactNode }) {
   return (
     // `data-print-block` gives the print stylesheet a stable per-section hook (#161). Targeting
     // `section:nth-of-type(n)` instead would silently re-target the moment a block is added or reordered,
-    // and the failure would only show up in a PDF nobody re-reads.
-    <section data-print-block={index} className="border-t border-border md:grid md:grid-cols-12">
+    // and the failure would only show up in a PDF nobody re-reads. An unnumbered block emits no hook at
+    // all, which is correct rather than a gap: every rule keyed on it is scoped under `[data-print='cv']`,
+    // and an unnumbered block is by construction not in there.
+    <section data-print-block={index ?? undefined} className="border-t border-border md:grid md:grid-cols-12">
       <div className="px-[--gutter] pb-4 pt-[clamp(2rem,4vw,3.5rem)] md:col-span-3 md:pr-6">
         <div className="md:sticky md:top-[calc(var(--header-h)+2rem)]">
-          <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
-          <h2 className="mt-2 label-mono text-foreground">{title}</h2>
+          {index === null ? null : (
+            <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
+          )}
+          {/* `mt-2` spaces the heading off the numeral above it. With no numeral there is nothing to
+              space it from, and keeping it would push the heading 8px below the body column it is
+              supposed to align with. */}
+          <h2 className={`${index === null ? '' : 'mt-2 '}label-mono text-foreground`}>{title}</h2>
         </div>
       </div>
       <div className="px-[--gutter] pb-[clamp(2.5rem,5vw,4rem)] md:col-span-9 md:border-l md:border-border md:pl-8 md:pt-[clamp(2rem,4vw,3.5rem)]">

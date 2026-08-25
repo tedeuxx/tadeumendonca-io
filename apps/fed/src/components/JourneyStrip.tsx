@@ -1,5 +1,20 @@
-// The personal journey photographs on /me (#127) — four frames from 2020–2022, as a fifth numbered block
+// The personal journey photographs on /me (#127) — four frames from 2020–2022, in an UNNUMBERED block
 // under the CV.
+//
+// WHY UNNUMBERED, WHEN IT SITS UNDER 01–04. It shipped as `index="05"` and that was wrong, for the reason
+// `src/data/journey.ts` had already written down one file over: blocks 01–04 are Experience, Education,
+// Certifications and Skills — a credential sequence, all inside `[data-print='cv']`, all printed onto the
+// CV. Numbering the photographs 05 enrols them in it. The module comment next door explains that these
+// four carry no date, no employer and no title precisely so that nothing "would invite the next reader to
+// treat a photograph as a credential" — and then the label did it anyway. The code separated them for
+// print; the number re-joined them for the reader.
+//
+// It is also the one label with two editions: the web page showed 01–05 and `/cv.pdf` shows 01–04, so a
+// reader holding both saw a block 05 that had vanished from the record.
+//
+// The block, its position and its heading all stay. What an unnumbered heading under a numbered set reads
+// as is "and then, off the record", which is exactly what these four are. `JourneyStrip.test.tsx` holds
+// the absence, because a number is the cheapest thing for the next author to add back for symmetry.
 //
 // WHY A STRIP AND NOT FOUR `PhotoFigure`s. `PhotoFigure` is a figure inside a CONTENT BODY: it takes the
 // reading column, it is read one at a time, and its caption carries an argument the surrounding prose is
@@ -71,7 +86,9 @@ export function JourneyStrip() {
     // `Block`'s own element and the print stylesheet selects `section` positionally within
     // `[data-print='cv']`. A wrapper keeps the two mechanisms from sharing an element.
     <div data-print="hide" data-journey="">
-      <Block index="05" title={t('cv.journey')}>
+      {/* UNNUMBERED, AND THAT IS THE DECISION THIS PROP RECORDS. `index={null}` is not "no number yet"
+          — see `Block`, where the prop is required and nullable so it cannot be dropped by accident. */}
+      <Block index={null} title={t('cv.journey')}>
         {/* A list, because it is four items and their ORDER is authored (see `journey.ts`).
             THE GAP IS REAL SPACE, NOT `gap-px`. The exposed-grid device the skills block and the metadata
             row use — `gap-px`, or negative margins collapsing borders into one shared rule — is right for

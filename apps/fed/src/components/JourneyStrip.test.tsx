@@ -82,6 +82,26 @@ describe('JourneyStrip', () => {
     expect(strip).toHaveAttribute('data-print', 'hide');
   });
 
+  it('is not numbered into the credential sequence', () => {
+    const { container } = renderWithLocale(<JourneyStrip />);
+    const section = container.querySelector('section')!;
+    // THE CONTROL, FIRST. Every assertion below is an absence, and an absence passes trivially against a
+    // component that rendered nothing at all. The heading is what says the block is really here.
+    expect(section.querySelector('h2')?.textContent).toBeTruthy();
+
+    // Blocks 01–04 are Experience, Education, Certifications and Skills — a credential sequence, printed
+    // onto the CV. A numeral on this rail enrols four photographs in it, which is the exact reading
+    // `data/journey.ts` keeps them out of the CV data to avoid. Asserted as "no two-digit label anywhere
+    // in the block" rather than as "not 05", because the failure the next author produces is a number
+    // added back for symmetry, and 06 would be just as wrong as 05.
+    const labels = [...section.querySelectorAll('span')].map((s) => s.textContent ?? '');
+    expect(labels.filter((text) => /^\s*\d+\s*$/.test(text))).toEqual([]);
+
+    // And no print hook either: `data-print-block` is keyed to that same sequence, and a block outside it
+    // has nothing for those rules to key on.
+    expect(section.hasAttribute('data-print-block')).toBe(false);
+  });
+
   it('sits outside the CV print tree entirely', () => {
     const { container } = renderWithLocale(<JourneyStrip />);
     // Belt to the braces of the hook above: even if `data-print="hide"` were dropped, the strip must not
