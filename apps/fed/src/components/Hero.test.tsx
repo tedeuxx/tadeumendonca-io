@@ -100,14 +100,31 @@ describe('Hero', () => {
   });
 
   // THE ORDER IS THE DECISION, not an accident of the JSX, so it is asserted rather than left to
-  // whoever edits the block next. The row runs lighter to heavier commitment and `/architecture` is the
-  // deepest read, so it closes the row. Read off the DOM in document order — a set-membership check
-  // ("all four are present") is the shape that stays green through exactly the reshuffle this pins.
-  it('closes the row with Architecture, after the three that were already there', () => {
+  // whoever edits the block next. The rule the order encodes lives in Hero.tsx beside the JSX and is
+  // not restated here: routes first, the on-page anchor last, with architecture leading the routes on
+  // the owner's call (#429). Read off the DOM in document order — a set-membership check ("all four are
+  // present") is the shape that stays green through exactly the reshuffle this pins.
+  //
+  // This assertion HAS been red for the right reason: #420 proved it could fail by putting Architecture
+  // first, and #429 then shipped that exact order. So the literal below is the previous mutation, which
+  // is worth saying out loud — a tripwire whose expected value is now what once proved it works needs a
+  // fresh mutation to stay meaningful, and #429's was moving `#artigos` back to position 2.
+  it('orders the row routes-first with Architecture leading, and the articles anchor last', () => {
     const { container } = renderHero();
     const row = container.querySelector('header > div > div:last-of-type') as HTMLElement;
     const labels = [...row.querySelectorAll('a')].map((a) => a.textContent?.replace('→', '').trim());
-    expect(labels).toEqual(['Ramp-up', 'Artigos', 'Portfólio', 'Arquitetura']);
+    expect(labels).toEqual(['Arquitetura', 'Ramp-up', 'Portfólio', 'Artigos']);
+  });
+
+  // BOTH EDITIONS, and not for symmetry. The order is structural JSX today, so `en` cannot diverge from
+  // `pt` without someone introducing a locale-conditional in the row — which is exactly the change that
+  // would ship one reader a different opening posture than the other while the pt assertion above
+  // stayed green. #429's acceptance criterion is stated for both editions, so both are asserted.
+  it('orders the row identically for an en reader', () => {
+    const { container } = renderHero('en');
+    const row = container.querySelector('header > div > div:last-of-type') as HTMLElement;
+    const labels = [...row.querySelectorAll('a')].map((a) => a.textContent?.replace('→', '').trim());
+    expect(labels).toEqual(['Architecture', 'Ramp-up', 'Portfolio', 'Articles']);
   });
 
   it('renders the stack marquee once for assistive tech (the loop copy is hidden)', () => {

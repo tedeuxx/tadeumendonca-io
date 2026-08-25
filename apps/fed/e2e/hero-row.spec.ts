@@ -66,6 +66,24 @@ test.describe('the hero control row', () => {
         // change, while "the reader can see and press all four" may not.
         const rows = new Set(controls.map((c) => c.top)).size;
         expect(rows, `the row laid out on ${rows} line(s) at ${width}px`).toBeGreaterThan(0);
+
+        // REPORTED ON EVERY RUN, NOT ONLY ON FAILURE (#429). Reordering the row changes how greedily
+        // `flex-wrap` packs it — the longest control moving to the front is the single change that most
+        // affects line composition — so the layout OUTCOME has to be re-measured whenever the order
+        // moves. #420 measured it with two throwaway scripts under a `.scratch/` that no longer exists;
+        // re-measuring cost more than the reorder did, which is the whole argument for the instrument
+        // living here instead. This spec already computes both figures to assert containment, so
+        // printing them costs one line and makes the measurement a committed, gated command:
+        //
+        //   npm --prefix apps/fed run e2e:local -- hero-row.spec.ts
+        //
+        // Deliberately a report and not an assertion: pinning a line count would turn a legitimate
+        // layout change into a red gate, which is the trade the block above already made. What IS
+        // asserted is the reader's property — every control fully inside the viewport.
+        const margin = viewport - Math.max(...controls.map((c) => c.right));
+        console.log(
+          `hero-row  ${route} @${width}  rows=${rows}  widest control ends ${margin}px INSIDE the viewport`,
+        );
       });
     }
   }
