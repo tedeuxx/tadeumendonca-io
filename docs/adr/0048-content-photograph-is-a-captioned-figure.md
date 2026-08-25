@@ -173,9 +173,10 @@ $ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
 4. **A build-time image optimiser** (sharp, an imagetools plugin, a CDN transform) — *why not:* a new
    dependency and a new tool class, against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), to
    compress four files. The trade is only defensible while the files stay small, so **the bound is asserted
-   rather than remembered**: the four photographs are held under 1 MB in total by a test that names the
-   weight when it fails. An unoptimised export dropped into the directory is caught there instead of in a
-   reader's data allowance.
+   rather than remembered**: the ~~four~~ **seven (2026-08-25, #127)** photographs are held under
+   ~~1 MB~~ **1 MiB** in total by a test that names the weight when it fails. An unoptimised export dropped
+   into the directory is caught there instead of in a reader's data allowance. **The bound is repo-wide and
+   the count moved; the refusal of an optimiser did not — see the 2026-08-25 amendment.**
 
 ### What the copy-as-markdown payload does with an image target
 1. **Absolutize to the bare origin, with no locale prefix** (chosen), while links keep `localizePath`.
@@ -322,8 +323,10 @@ it exists.
 - **The figure treatment is invisible in the markdown.** A photograph is a figure because it is alone in
   its paragraph. An author who wraps a sentence around it silently gets an inline image instead, and the
   only thing that catches it is the parity probe's count.
-- **Four rasters ship unoptimised**, deliberately. The 1 MB total is a bound asserted by a test, not an
-  optimisation, and it will need revisiting the first time a fifth photograph is worth adding.
+- ~~**Four rasters ship unoptimised**~~ **Seven, since #127**, deliberately. The ~~1 MB~~ **1 MiB** total is
+  a bound asserted by a test, not an optimisation, and ~~it will need revisiting the first time a fifth
+  photograph is worth adding~~ **that revisit is done: the fifth photograph arrived as four, the trigger
+  fired, and the bound was ruled to STAND with 193.0 KiB left — see the 2026-08-25 amendment**.
 - **The assets have no in-repo producer.** They were cropped by hand with a tool that silently no-opped
   once; the repo checks the artifact and cannot check the recipe. A future recrop repeats the hand path.
 - **It spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), unmeasured.** `PhotoFigure.tsx`
@@ -372,3 +375,78 @@ it exists.
   `apps/fed/scripts/photo-assets.test.mjs`, `apps/fed/src/content/architecture-photos.test.ts`,
   `apps/fed/e2e/content-photo.spec.ts`, `apps/fed/public/photos/`,
   `apps/fed/src/content/architecture.{en,pt}.md`.
+
+## Amendment, 2026-08-25 — the fifth photograph arrived as four; the bound STANDS and 193.0 KiB is what is left
+
+**What this record said, in two places.** In *Considered options* → *Where the intrinsic dimensions come
+from*, option 4: *"the four photographs are held under 1 MB in total by a test that names the weight when
+it fails."* In *Consequences* → *Bad / accepted costs*: *"**Four rasters ship unoptimised**, deliberately.
+The 1 MB total is a bound asserted by a test, not an optimisation, and it will need revisiting the first
+time a fifth photograph is worth adding."* Both clauses are struck in place above and neither is deleted —
+they are the reason this amendment exists.
+
+**#127 is that fifth photograph, and it is four of them.** The `/me` journey strip adds
+`journey-aws-summit.jpg`, `journey-corridor.jpg`, `journey-home-office.jpg` and `journey-sticker-lid.jpg`
+to `apps/fed/public/photos/` — the directory `photo-assets.test.mjs` sums. **The bound was always
+repo-wide**: the assertion sums every entry of the registry, not the four rasters this record was written
+about, and its sibling arm *"knows about every file in public/photos"* makes the directory and the
+registry the same set in both directions. So the count in both clauses is a claim about the repo, and it
+is now wrong by three.
+
+**Measured at named commits, with the commands that produce the figures:**
+
+```
+git ls-tree -l e496a8e apps/fed/public/photos/   # PR head:  7 blobs, 850,901 bytes
+git ls-tree -l 64c8861 apps/fed/public/photos/   # main:     3 blobs, 585,682 bytes
+```
+
+- **At the head of #127 — 7 rasters, 850,901 B = 830.96 KiB**, against a ceiling of `1024 * 1024` =
+  1,048,576 B. **81.15% spent; 197,675 B = 193.0 KiB left.**
+- **At `main` before it — 3 rasters, 585,682 B = 571.95 KiB**, 55.9% spent.
+- **This one slice spends 265,219 B = 259.0 KiB** — a quarter of the entire budget in a single PR.
+
+**The figures are pinned to a commit on purpose, and the live falsifier is the test rather than this
+paragraph.** The base of the measurement sits inside the diff that publishes it, which is the shape that
+produces a number true only in the sentence that states it; naming the two SHAs is what makes it
+re-derivable by anyone at any later head. The assertion recomputes the sum on every run and names the
+weight when it fails — that is the reader which does not age, and it is why no standing total is written
+into the clauses above.
+
+**Ruling: the 1 MiB bound STANDS, and it is not to be raised to fit the next photograph.** #127's builder
+declined to raise it and was right, for the reason the test states in its own comment — *"a ceiling that
+tracks the payload it is meant to cap can never be exceeded, which is the shape of a gate that verifies
+nothing."* Raising it now would spend the only mechanism this record retained: the build-time optimiser
+was refused against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), so the asserted total is
+the whole of the remaining control on image payload, and a control retuned to whatever it just failed to
+constrain is not a control. **The trade being accepted, stated plainly: photographs are a scarce resource
+on this site, and the scarcity is the intended effect, not a side effect.**
+
+**So the 193.0 KiB is a constraint the next slice MEETS, not capacity it may spend.** What it buys, at
+this head's own weights: #127's four frames average 66,305 B (64.8 KiB), so the remainder is **under three
+more frames of that class** — and `may-week-montage.jpg` alone is 404,534 B (395.0 KiB), **twice the
+entire remaining headroom**. One more journey-class frame fits; a second montage does not, and no pair of
+the two does. **The next photograph is therefore a real decision, and it arrives with one of three things
+named in its Issue: a frame that fits the measured remainder, a re-encode of an existing raster that pays
+for it, or an explicit reopening of ADR-0001's refused optimiser.** *"There is room"* is not a safe
+default at 81% and must not be inferred from the struck clauses above.
+
+**A wording correction the measurement forced.** Both clauses said *1 MB*; the assertion is
+`toBeLessThan(1024 * 1024)`, which is **1 MiB — 1,048,576 bytes**, 4.9% above 1 MB decimal. The imprecision
+was harmless while the set weighed half the budget and is worth correcting now that it is not: the two
+readings differ by 48,576 B (47.4 KiB), about three-quarters of an average frame in this slice, so the
+remainder at this head is **193.0 KiB under the asserted bound and 145.6 KiB under the decimal one**. The
+assertion is the authority — read the bound as 1 MiB.
+
+**One hazard about the corridor frame, recorded here because this is the only place a future re-encoder
+would look.** The copy lens confirmed at 16× on the committed file that the frosted door in
+`journey-corridor.jpg` carries an employer name which is **not recoverable from the committed bytes**.
+**That invisibility is a property of the current derivative, not of the photograph**: the originals are
+unchanged in the owner's library, and `journey.ts` documents that the grayscale conversion and the
+provenance are reversible by re-encoding. **Any re-encode at a larger width re-opens it.** Re-check that
+frame at magnification against the file that will actually ship — the check is on the derivative, never on
+the decision that produced it, and a wider re-export is exactly the change that looks like an optimisation
+and is also a disclosure.
+
+**What is unchanged.** The three conditions, the rendering path, the registry and its two-way assertion,
+the reserved box, the `alt`/caption contract, and the refusal of a build-time optimiser. This amendment
+corrects two counts, rules on the bound, and records one re-encode hazard.
