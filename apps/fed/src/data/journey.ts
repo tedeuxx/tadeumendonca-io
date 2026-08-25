@@ -92,6 +92,27 @@ export interface JourneyPhoto extends Omit<JourneyEntry, 'src'> {
 }
 
 /**
+ * The two editions of one prose leaf, written once each — `pt` first, then `en`.
+ *
+ * IT IS NOT SUGAR, AND IT IS NOT TASTE. The four authored entries below repeat the same record shape four
+ * times, and adding a fifth field to each of them (`engagement`, #516) pushed that repetition past
+ * SonarCloud's copy-paste threshold: the quality gate reddened on `new_duplicated_lines_density` — 3.4%
+ * against a 3% bound — with the four new lines landing inside a block the scanner already considered
+ * duplicated. Naming the shape once is the fix that REMOVES the repetition; raising the bound is the fix
+ * that hides it, and this repo's gate policy says not to take the second one.
+ *
+ * THE ANNOTATED RETURN TYPE IS THE CONTRACT, and it is written out rather than inferred on purpose:
+ * `Record<Locale, string>` built from `{ pt, en }` means adding a third locale turns THIS ONE LINE into a
+ * compile error — which is precisely the property the SHAPE paragraph at the top of this file leans on.
+ * Letting TypeScript infer `{ pt: string; en: string }` would give the same runtime value and lose it.
+ *
+ * ARGUMENT ORDER IS `pt`, `en` — the order the record was written in before this helper existed, and the
+ * order every call below reads in. A swapped pair stays visible on sight, since one string is Portuguese
+ * and the other is not; that is the same protection the object literal gave, no more and no less.
+ */
+const prose = (pt: string, en: string): Record<Locale, string> => ({ pt, en });
+
+/**
  * Everything about an authored entry that TypeScript cannot say, checked at module load.
  *
  * MODELLED ON `assertLibraryShape`, including the part that matters most: it reads its ARGUMENT and never
@@ -146,50 +167,50 @@ const journey: readonly JourneyEntry[] = [
   {
     src: '/photos/journey-sticker-lid.jpg',
     engagement: 'Globo',
-    alt: {
-      pt: 'Homem sorrindo atrás da tampa aberta de um notebook coberta de adesivos de ferramentas — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — vestindo uma camiseta com uma baleia carregando contêineres.',
-      en: 'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
-    },
-    caption: {
-      pt: 'O ofício antes do empregador: o que eu escolhi aprender, colado na tampa.',
-      en: 'The craft before the employer: what I chose to learn, stuck to the lid.',
-    },
+    alt: prose(
+      'Homem sorrindo atrás da tampa aberta de um notebook coberta de adesivos de ferramentas — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — vestindo uma camiseta com uma baleia carregando contêineres.',
+      'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
+    ),
+    caption: prose(
+      'O ofício antes do empregador: o que eu escolhi aprender, colado na tampa.',
+      'The craft before the employer: what I chose to learn, stuck to the lid.',
+    ),
   },
   {
     src: '/photos/journey-home-office.jpg',
     engagement: 'Accenture',
-    alt: {
-      pt: 'Homem de óculos em primeiro plano, de lado, com uma escrivaninha atrás: um monitor externo exibindo um painel de monitoramento com gráficos e um notebook aberto exibindo um editor de código em tema escuro.',
-      en: 'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
-    },
-    caption: {
-      pt: '2020, em casa: gráficos numa tela, código na outra, e ninguém por perto.',
-      en: '2020, at home: charts on one screen, code on the other, and nobody around.',
-    },
+    alt: prose(
+      'Homem de óculos em primeiro plano, de lado, com uma escrivaninha atrás: um monitor externo exibindo um painel de monitoramento com gráficos e um notebook aberto exibindo um editor de código em tema escuro.',
+      'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
+    ),
+    caption: prose(
+      '2020, em casa: gráficos numa tela, código na outra, e ninguém por perto.',
+      '2020, at home: charts on one screen, code on the other, and nobody around.',
+    ),
   },
   {
     src: '/photos/journey-aws-summit.jpg',
     engagement: 'AWS ProServe — Senior Delivery Consultant',
-    alt: {
-      pt: 'Homem de pé diante de um painel liso onde se lê "aws Summit São Paulo", usando um cordão com crachá pendurado no pescoço.',
-      en: 'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
-    },
-    caption: {
-      pt: 'O nome na parede era o da empresa em que eu trabalhava. Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
-      en: 'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
-    },
+    alt: prose(
+      'Homem de pé diante de um painel liso onde se lê "aws Summit São Paulo", usando um cordão com crachá pendurado no pescoço.',
+      'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
+    ),
+    caption: prose(
+      'O nome na parede era o da empresa em que eu trabalhava. Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
+      'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
+    ),
   },
   {
     src: '/photos/journey-corridor.jpg',
     engagement: 'AWS Professional Services',
-    alt: {
-      pt: 'Homem de pé no meio de um corredor de escritório longo e vazio, com luminárias circulares e o forro aberto, mostrando dutos e tubulações; portas de elevador à direita.',
-      en: 'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
-    },
-    caption: {
-      pt: 'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
-      en: 'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
-    },
+    alt: prose(
+      'Homem de pé no meio de um corredor de escritório longo e vazio, com luminárias circulares e o forro aberto, mostrando dutos e tubulações; portas de elevador à direita.',
+      'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
+    ),
+    caption: prose(
+      'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
+      'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
+    ),
   },
 ];
 
