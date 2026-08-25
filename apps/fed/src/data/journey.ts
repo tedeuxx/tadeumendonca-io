@@ -124,8 +124,8 @@ const journey: readonly JourneyEntry[] = [
       en: 'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
     },
     caption: {
-      pt: 'O nome na parede era o da empresa em que eu trabalhava. Eu estava lá a trabalho.',
-      en: 'The name on the wall was the company I worked for. I was there on the job.',
+      pt: 'O nome na parede era o da empresa em que eu trabalhava. Eu ia por interesse meu — antes de trabalhar lá e enquanto trabalhei.',
+      en: 'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
     },
   },
   {
