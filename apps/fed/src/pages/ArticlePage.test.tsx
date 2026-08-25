@@ -35,6 +35,9 @@ const post = (over: Partial<BlogPost> = {}): BlogPost => ({
   date: '2026-06-01T00:00:00Z',
   tag: 'aws',
   track: 'engenharia',
+  // Published by default (#510). The held case is the exception and every test that wants it says so,
+  // which is what keeps `robots` assertions below from passing for the wrong reason.
+  draft: false,
   body: '## Why\n\ncode',
   ...over,
 });
@@ -153,5 +156,40 @@ describe('ArticlePage', () => {
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
     expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/building');
+  });
+
+  // #510 — the weaker half of the hold, and it is written as the weaker half deliberately.
+  //
+  // A held article's real protection is that it is in no sitemap and no snapshot, so a crawler has no
+  // path to it. `noindex` covers the case where the URL reaches one anyway — pasted somewhere, or picked
+  // out of a referrer log. It is emitted from the CLIENT head, so a JS-less crawler never reads it, which
+  // is exactly why it is belt and not braces.
+  describe('robots', () => {
+    const robots = () => document.head.querySelector('meta[name="robots"]')?.getAttribute('content');
+
+    it('marks a held article noindex, nofollow', () => {
+      getPostBySlug.mockReturnValue(post({ draft: true }));
+      renderAt('building');
+      expect(robots()).toBe('noindex, nofollow');
+    });
+
+    // The half that would silently de-index the site. `upsertMeta` only ever WRITES, so a `noindex` left
+    // behind by a held article would ride into the next article the reader navigates to — a
+    // client-side-navigation-only defect, invisible on every hard load and on every prerendered snapshot.
+    it('emits no robots tag for a published article', () => {
+      getPostBySlug.mockReturnValue(post());
+      renderAt('building');
+      expect(robots()).toBeUndefined();
+    });
+
+    it('removes a stale noindex when navigating from a held article to a published one', () => {
+      getPostBySlug.mockReturnValue(post({ draft: true }));
+      const { unmount } = renderAt('building');
+      expect(robots()).toBe('noindex, nofollow');
+      unmount();
+      getPostBySlug.mockReturnValue(post({ slug: 'other' }));
+      renderAt('other');
+      expect(robots()).toBeUndefined();
+    });
   });
 });

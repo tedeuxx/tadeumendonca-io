@@ -129,7 +129,17 @@ Link in the final post: ${url}
 `;
 }
 
-/** Build every article's draft. Pure — takes the file list and route list, touches no disk. */
+/**
+ * Build every article's draft. Pure — takes the file list and route list, touches no disk.
+ *
+ * A HELD article (`draft: true`, #510) is skipped. Two independent reasons, and the second is why the
+ * skip is a `continue` rather than a filter somewhere upstream:
+ *  - a distribution draft is copy for LinkedIn and X, and an article that is deliberately out of the
+ *    index has nothing to distribute yet — scaffolding a post for it is the opposite of holding it;
+ *  - `shareUrlFor` REFUSES a slug with no prerendered English route, and a held article has none by
+ *    construction. Without this line the generator would throw on every held draft, turning a working
+ *    feature into a broken script — a real failure mode, not a hypothetical one.
+ */
 export function buildDrafts(files, routes, readFile) {
   const byKey = new Map();
   for (const file of files) {
@@ -138,6 +148,7 @@ export function buildDrafts(files, routes, readFile) {
     const [, key, locale] = m;
     if (locale !== 'en') continue; // English is canonical (ADR-0024) — it is what both surfaces link.
     const { frontmatter, body } = parseArticle(readFile(file));
+    if (frontmatter.draft === true) continue;
     const enSlug = frontmatter.slug || key;
     byKey.set(key, {
       key,

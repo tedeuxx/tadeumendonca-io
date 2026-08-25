@@ -19,7 +19,8 @@ import { ArticlePage } from './pages/ArticlePage';
 import { LibraryPage } from './pages/LibraryPage';
 import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale, type Locale } from './i18n/config';
-import { articlePathForLocale, supersededSlugTarget } from './lib/content';
+import { articlePathForLocale, getPostBySlug, supersededSlugTarget } from './lib/content';
+import { isPreviewRequested } from './lib/preview';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 const queryClient = new QueryClient({
@@ -64,10 +65,25 @@ function RootRedirect() {
 //
 // Only the retired case is intercepted: a live slug and an unknown slug both render `ArticlePage`
 // unchanged, so the in-locale not-found behaviour is untouched.
+//
+// SECOND INTERCEPT (#510): a HELD article reached WITHOUT the preview parameter goes to the locale home.
+// It lives here, beside the retired-slug redirect, for the reason that one states — this is where every
+// conditional redirect on this site already is, and a gate hidden inside `ArticlePage` would be a
+// redirect nobody reading the route table could see.
+//
+// ORDER IS LOAD-BEARING. The retired-slug redirect runs FIRST, so a held article that has already had a
+// slug corrected lands on its current URL and is judged there. Judging the hold first would evaluate a
+// slug the article no longer answers to, and `getPostBySlug` matches the current slug only — the held
+// article would read as unknown and fall through to the not-found instead of the home.
+//
+// `replace`, like its neighbour: a held URL should not sit in history for the back button to bounce into.
 function ArticleRoute({ locale }: { locale: Locale }) {
   const { slug } = useParams<{ slug: string }>();
+  const { search } = useLocation();
   const current = slug ? supersededSlugTarget(slug, locale) : undefined;
   if (current) return <Navigate to={localePath(locale, `/blog/${current}`)} replace />;
+  const post = slug ? getPostBySlug(slug, locale) : undefined;
+  if (post?.draft && !isPreviewRequested(search)) return <Navigate to={localePath(locale, '/')} replace />;
   return <ArticlePage />;
 }
 

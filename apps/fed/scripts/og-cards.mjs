@@ -3,7 +3,9 @@
 // Split from the generator for the same reason scripts/diagram-source.mjs is: the rendering half needs a
 // browser and cannot be unit tested, while everything that decides WHICH cards exist is decision logic and
 // belongs where a test can reach it without one.
-import { readdirSync } from 'node:fs';
+import { load } from 'js-yaml';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /** Locales the site publishes, in the order the generator emits them. Mirrors src/i18n/config.ts. */
 export const LOCALES = ['pt', 'en'];
@@ -26,21 +28,53 @@ export function requiredCards(articleKeys) {
 }
 
 /**
- * The article KEYS present in a content directory — the filename base of `<key>.<locale>.md`, deduped.
+ * The article KEYS a file list requires cards for — the pure half, over an injected reader.
+ *
+ * Split out at #510, when the answer stopped being derivable from filenames alone: a HELD article
+ * (`draft: true`) requires no card and must not have one. Both directions matter and for different
+ * reasons — a card that is not required is `orphaned` (harmless to a page, which is why nobody would
+ * look), and a card advertised for an article the site does not list is a URL a scraper can pin.
+ *
+ * The injected reader is the same seam `buildBlogEditions(files, readFile)` and `buildDrafts(…)` already
+ * use in this directory — one pattern rather than a per-module improvisation, and it is what lets the
+ * held-key rule be tested without a fixture on disk.
+ *
+ * Only the frontmatter is scanned, anchored and bounded: a lazy any-character sweep over a whole article
+ * body is super-linear (S8786) and a card decision has no reason to read past the fence. It is PARSED
+ * (js-yaml) rather than pattern-matched, so `draft: true # promote after review` reads as held — the
+ * same parser `routes.mjs` and `content.ts` use, which is what keeps the three derivations agreeing.
+ */
+const heldByFrontmatter = (raw) => {
+  const fm = /^---\r?\n([^]*?)\r?\n---/.exec(raw);
+  return (fm ? load(fm[1]) : null)?.draft === true;
+};
+
+export function articleKeysFrom(files, readFile) {
+  const keys = new Set();
+  const held = new Set();
+  for (const file of files) {
+    const m = /^(.+)\.([^.]+)\.md$/.exec(file);
+    if (!m || !LOCALES.includes(m[2])) continue;
+    keys.add(m[1]);
+    // ANY edition held holds the key — the same conservative reading `routes.mjs` takes, for the same
+    // reason: half a published article is worse than none.
+    if (heldByFrontmatter(readFile(file))) held.add(m[1]);
+  }
+  for (const key of held) keys.delete(key);
+  // Explicit comparator: a bare `.sort()` compares by string coercion, which is correct for these keys
+  // and is still flagged (S2871) because the element type is not inferred through the Set. Stating the
+  // comparison rather than suppressing the rule — the intent is alphabetical and now says so.
+  return [...keys].sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * The article KEYS present in a content directory that require a card.
  *
  * Deliberately derived from the filesystem rather than from a list: a list is a second place to update,
  * and the failure it produces (a new article with no card) is invisible until a reader shares it.
  */
 export function articleKeysIn(blogDir) {
-  const keys = new Set();
-  for (const file of readdirSync(blogDir)) {
-    const m = /^(.+)\.([^.]+)\.md$/.exec(file);
-    if (m && LOCALES.includes(m[2])) keys.add(m[1]);
-  }
-  // Explicit comparator: a bare `.sort()` compares by string coercion, which is correct for these keys
-  // and is still flagged (S2871) because the element type is not inferred through the Set. Stating the
-  // comparison rather than suppressing the rule — the intent is alphabetical and now says so.
-  return [...keys].sort((a, b) => a.localeCompare(b));
+  return articleKeysFrom(readdirSync(blogDir), (file) => readFileSync(join(blogDir, file), 'utf8'));
 }
 
 /** The card files actually present in `public/og/`, as public paths. */

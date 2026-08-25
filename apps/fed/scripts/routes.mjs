@@ -85,9 +85,20 @@ function blogEditions() {
  *  - a file with no frontmatter falls back to the filename key as the slug;
  *  - frontmatter without a `slug` does the same — `|| key`, not `?? key`, so an empty string also falls
  *    back rather than producing `/blog/`.
+ *
+ * A FOURTH behaviour since #510: a key whose frontmatter carries `draft: true` is DROPPED, so a held
+ * article leaves `localizedRoutes()` and therefore BOTH the sitemap and the prerender. The never-drift
+ * invariant this module states at the top is preserved rather than broken — the two sets shrink together,
+ * which is exactly the property that makes one enumeration the source of truth for both. The URL still
+ * answers: `custom_error_response` maps 404 to `/index.html` with a 200 and the SPA routes client-side.
+ *
+ * Dropped at the END rather than skipped inline, so the slug-shape contract is still enforced on a held
+ * article. A slug is validated when it is authored, not when it is published — deferring it would move
+ * the error to the promotion commit, which is the one commit nobody wants to discover a build break in.
  */
 export function buildBlogEditions(files, readFile) {
   const byKey = new Map();
+  const held = new Set();
   for (const file of files.filter((f) => f.endsWith('.md'))) {
     const m = /^(.+)\.(pt|en)\.md$/.exec(file);
     if (!m) continue;
@@ -95,11 +106,17 @@ export function buildBlogEditions(files, readFile) {
     const raw = readFile(file);
     const fmm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(raw);
     const fm = fmm ? load(fmm[1]) : null;
+    // ANY edition held holds the KEY. `content.ts` makes `draft` a fact the two editions must agree on,
+    // so this cannot normally differ — but this module re-derives everything independently (it runs in
+    // Node and cannot import the Vite-glob module), and if the two ever disagree the safe answer is the
+    // one that does not publish half an article.
+    if (fm?.draft === true) held.add(key);
     const pair = byKey.get(key) ?? {};
     pair[locale] = fm?.slug || key;
     assertSlugIsUrlSafe(pair[locale], file);
     byKey.set(key, pair);
   }
+  for (const key of held) byKey.delete(key);
   return byKey;
 }
 

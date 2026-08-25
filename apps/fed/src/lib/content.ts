@@ -54,6 +54,30 @@ export interface BlogPost {
   linkedinUrl?: string;
   /** Marks a post whose body embeds a video, so the row can advertise it. */
   hasVideo?: boolean;
+  /**
+   * HELD: built and reachable at its final URL, but out of every public enumeration (#510).
+   *
+   * A held article leaves the index, the feed, the navigation, the sitemap, the prerender, the OG cards
+   * and the distribution drafts — and stays RESOLVABLE by `getPostBySlug`/`getEditions`, because the page
+   * has to render for the owner reading it with the preview parameter. That divergence is the whole
+   * mechanism; see the `byLocale` / `getPostBySlug` pair below, which is the one place the two behaviours
+   * must differ.
+   *
+   * An explicit flag rather than a future `date`, deliberately (ADR-0047): a wall-clock comparison makes
+   * the SAME COMMIT build differently tomorrow, which breaks "rebuild the tag to reproduce production".
+   * Promotion is one edit — `draft: false` plus the real date — and a scheduled publication becomes a
+   * scheduled COMMIT, which is strictly more auditable than a time-dependent build.
+   *
+   * WHAT IT DOES NOT DO, stated here because the field name invites the opposite reading: it is
+   * ISOLATION, not privacy. While a held draft is deployed its full body — both locales — ships inside
+   * `dist/assets/index-*.js` and is fetchable by anyone with no parameter at all. Nobody stumbles into
+   * it; anyone who knows to look will find it. ADR-0047 records that consequence with the command that
+   * measures it.
+   *
+   * A FACT (`FACT_KEYS`), so the two editions cannot disagree: a held PT edition beside a published EN
+   * one would publish half an article, which is the exact failure the unpublishable contract exists for.
+   */
+  draft: boolean;
   /** Optional cover image path. */
   cover?: string;
   /** Optional OG image path (defaults handled by the prerender pipeline). */
@@ -71,7 +95,7 @@ const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 // neither is `slug` — nor `previousSlugs`, which is a list OF slugs and per-locale for the same reason.
 // (It would also throw on every article regardless: FACT_KEYS compares with `!==`, and two arrays are
 // never `===`.) Identity is the filename KEY, not the slug (ADR-0037).
-const FACT_KEYS = ['date', 'tag', 'track', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
+const FACT_KEYS = ['date', 'tag', 'track', 'draft', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
 
 const asTrack = (value: unknown): Track => (TRACKS.has(value as Track) ? (value as Track) : 'engenharia');
 const asString = (value: unknown): string | undefined => (value != null ? String(value) : undefined);
@@ -92,6 +116,11 @@ function parse(fileSlug: string, raw: string): BlogPost {
     date: String(fm.date ?? ''),
     tag: String(fm.tag ?? ''),
     track: asTrack(fm.track),
+    // `=== true`, not truthy: an author writing `draft: "false"` (a YAML string, which is truthy) must not
+    // silently hold a finished article, and an absent flag must never read as held. The conservative
+    // default for a MISSING flag is published, because the alternative — every legacy article suddenly
+    // held — is a site that quietly loses its index.
+    draft: fm.draft === true,
     excerpt: asString(fm.excerpt),
     takeaway: asString(fm.takeaway),
     linkedinUrl: asString(fm.linkedinUrl),
@@ -313,9 +342,21 @@ const raws = import.meta.glob('../content/blog/*.{pt,en}.md', {
 const editionsBySlug = buildEditions(raws);
 
 // Per-locale, newest first (ISO date strings sort lexicographically).
+//
+// THE ONE PLACE THE TWO BEHAVIOURS DIVERGE (#510). `byLocale` is the PUBLIC ENUMERATION — the index, the
+// feed, the track filters, the navigation — and a held article is absent from it. `editionsBySlug` is the
+// RESOLUTION index and keeps every article, held or not, which is what lets `getPostBySlug`/`getEditions`
+// still render the page for the owner arriving with the preview parameter.
+//
+// Excluding a held article from BOTH would make the held state pointless: the URL would resolve to
+// nothing and the article could never be read before publication, which is the entire feature. Excluding
+// it from NEITHER would publish it. So the split is load-bearing, not an optimisation, and the two
+// getters below are written against different sources on purpose rather than by drift.
 const byLocale: Record<Locale, BlogPost[]> = { pt: [], en: [] };
 for (const editions of Object.values(editionsBySlug)) {
-  for (const locale of LOCALES) byLocale[locale].push(editions[locale]);
+  // `draft` is a FACT, so the two editions agree by construction — reading the loop's own locale rather
+  // than a fixed one keeps that true if the fact check is ever relaxed, instead of half-publishing.
+  for (const locale of LOCALES) if (!editions[locale].draft) byLocale[locale].push(editions[locale]);
 }
 for (const locale of LOCALES) {
   byLocale[locale].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -326,8 +367,23 @@ export function getAllPosts(locale: Locale, filter?: { tag?: string; track?: Tra
   return byLocale[locale].filter((p) => (tag ? p.tag === tag : true) && (track ? p.track === track : true));
 }
 
+/**
+ * The article published at `slug` in `locale` — INCLUDING a held one (#510).
+ *
+ * Resolved against `editionsBySlug`, not `byLocale`, and that is the divergence the held state is built
+ * on: `getAllPosts` above enumerates what the site advertises, this one answers what the site can render.
+ * A held article must be renderable at its final URL or the preview mechanism has nothing to show.
+ *
+ * The caller is therefore responsible for the gate. `ArticleRoute` (App.tsx) is the one caller, and it
+ * redirects a held article to the locale home unless the preview parameter is present — placed in the
+ * router because that is where every other conditional redirect on this site already lives, and because
+ * a gate inside the page would be a redirect nobody reading the route table could see.
+ *
+ * Matches the CURRENT slug only. A retired slug still resolves through `supersededSlugTarget`/`getEditions`,
+ * which is the same division of labour as before this field existed.
+ */
 export function getPostBySlug(slug: string, locale: Locale): BlogPost | undefined {
-  return byLocale[locale].find((p) => p.slug === slug);
+  return Object.values(editionsBySlug).find((eds) => eds[locale].slug === slug)?.[locale];
 }
 
 /**
