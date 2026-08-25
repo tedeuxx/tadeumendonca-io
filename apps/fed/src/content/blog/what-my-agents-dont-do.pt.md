@@ -6,7 +6,7 @@ tag: harness
 track: engenharia
 draft: true
 hasVideo: true
-excerpt: "A palestra do Garry Tan me mandou de volta para um arquivo do meu próprio repositório: 33 comportamentos, cada um com uma linha dizendo por que ele existe. É a coluna que eu manteria se tivesse que jogar o resto fora, e o motivo é que o modelo completa o resto."
+excerpt: "A palestra do Garry Tan me mandou de volta para um arquivo do meu próprio repositório: 34 comportamentos, cada um com uma linha dizendo por que ele existe. É a coluna que eu manteria se tivesse que jogar o resto fora, e o motivo é que o modelo completa o resto."
 takeaway: 'o inventário é a metade que o modelo completa sozinho; o que precisa estar escrito é a ideia central — o propósito, o limite e o motivo de alguma coisa ter sido removida.'
 ---
 
@@ -44,7 +44,7 @@ Ou seja: a arquitetura é declarada válida numa escala de um. Eu sou uma escala
 
 O loop que publica este site é um plugin que eu construí e opero. Sete personas que discordam entre si antes de qualquer coisa ser escrita, hooks que recusam certos comandos sem discussão, uma biblioteca de skills, um conjunto de registros de decisão. Tudo rodando, tudo aberto.
 
-O que eu não tinha, até pouco tempo atrás, era um lugar só dizendo o que tudo aquilo **é**. Então eu escrevi um — um registro com uma entrada por comportamento, e não por arquivo, porque um arquivo pode carregar dois comportamentos e um comportamento pode estar espalhado em três arquivos. Hoje ele tem **33 entradas**. Cada uma carrega um id atribuído uma vez e nunca reaproveitado, um tipo de uma lista fechada de cinco, um propósito, o que ela faz — e uma coluna para **o que ela não faz**.
+O que eu não tinha, até pouco tempo atrás, era um lugar só dizendo o que tudo aquilo **é**. Então eu escrevi um — um registro com uma entrada por comportamento, e não por arquivo, porque um arquivo pode carregar dois comportamentos e um comportamento pode estar espalhado em três arquivos. Hoje ele tem **34 entradas**. Cada uma carrega um id atribuído uma vez e nunca reaproveitado, um tipo de uma lista fechada de cinco, um propósito, o que ela faz — e uma coluna para **o que ela não faz**.
 
 **A coluna com que eu mais me importo é a que diz para que cada comportamento existe**, e o motivo é mecânico, não sentimental. Um modelo é bom em completar o texto depois que a ideia central está capturada. Se alguém lê aquele arquivo e entende para que serve uma peça do meu harness, a maior parte do resto dá para reconstruir com a ferramenta já aberta na frente. O que não dá para reconstruir é uma decisão que ninguém tomou. Essa parte precisa existir escrita, porque não tem de onde mais ela sair.
 

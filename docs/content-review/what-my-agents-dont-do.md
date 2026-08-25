@@ -218,11 +218,21 @@ was written against a draft that has since moved and does not apply to the curre
   the registry covers (personas, hooks, commands, skills); the body corrects it immediately.
 - **For the merge gate, not for the writer — a number, not a voice matter.** *"Seven are live. Fourteen
   are gone"* / *"Sete estão vivos. Quatorze sumiram"* was sourced in round 1 against
-  `feat/blueprint-registry-313`. The ADR library in `tadeumendonca-skills` now shows **six** live
+  `feat/blueprint-registry-313`. ~~The ADR library in `tadeumendonca-skills` now shows **six** live
   records on `feat/adr-fold-verification-capability` (`ls docs/adr/` → 6 records plus `README.md` and
-  `template.md`), 0003 having been folded into 0006. **Provenance is intact and this is not a finding**
-  — the figure was true where it was read. Whether it is still true is external correctness, which is
-  `product-lead`'s blocking veto at the merge gate, not this ruler's.
+  `template.md`), 0003 having been folded into 0006.~~ **Corrected 2026-08-25: the round published a
+  number its own command does not return, against a branch that was never the article's base.** At
+  `feat/adr-fold-verification-capability` (`448c506`, that branch's head when this round ran) the
+  library held **19** live records, not six — `git ls-tree --name-only 448c506 docs/adr/ | grep -c
+  '^docs/adr/[0-9]'` → `19`, and the `ls docs/adr/` the round shipped returns **21** entries there, 19
+  records plus `README.md` and `template.md`. The fold of 0003 into 0006 is real and is that branch's
+  head commit; what it left was 19, and the six was measured against nothing. **The figure the article
+  publishes stands on `origin/main`**, which is where it was re-derived at `004d157`: the same command
+  against `origin/main` returns **7**, and
+  `git show origin/main:docs/adr/README.md | grep -cE '^\| 00[0-9][0-9] \|'` returns **14** — so
+  *twenty-one issued · seven live · fourteen gone* holds. **Provenance is intact and this is not a
+  finding** — the figure was true where it was read. Whether it is still true is external correctness,
+  which is `product-lead`'s blocking veto at the merge gate, not this ruler's.
 
 ### Recorded as the owner's calls, not spent on
 

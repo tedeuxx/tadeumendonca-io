@@ -6,7 +6,7 @@ tag: harness
 track: engenharia
 draft: true
 hasVideo: true
-excerpt: "Garry Tan's talk sent me back to a file in my own repository: 33 behaviours, each with a line saying why it exists. That is the column I would keep if I had to throw the rest away, and the reason is that a model can fill in the rest."
+excerpt: "Garry Tan's talk sent me back to a file in my own repository: 34 behaviours, each with a line saying why it exists. That is the column I would keep if I had to throw the rest away, and the reason is that a model can fill in the rest."
 takeaway: 'the inventory is the half a model completes on its own; what has to exist in writing is the central idea — the purpose, the limit, and the reason something was removed.'
 ---
 
@@ -44,7 +44,7 @@ So the architecture is claimed to hold at a scale of one. I am a scale of one. T
 
 The loop that publishes this site is a plugin I built and operate. Seven personas that argue with each other before anything gets written, hooks that refuse certain commands outright, a skill library, a set of decision records. All of it running, all of it in the open.
 
-What I did not have until recently was one place that said what all of it *is*. So I wrote one — a registry, one entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three files. There are **33 entries** in it today. Each one carries an id assigned once and never reused, one of five types from a closed list, a purpose, what it does — and a column for **what it does not do**.
+What I did not have until recently was one place that said what all of it *is*. So I wrote one — a registry, one entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three files. There are **34 entries** in it today. Each one carries an id assigned once and never reused, one of five types from a closed list, a purpose, what it does — and a column for **what it does not do**.
 
 **The column I care most about is the one that says what each behaviour is for**, and the reason is mechanical rather than sentimental. A model is good at completing the text once the central idea is captured. If somebody reads that file and understands what a piece of my harness is *for*, most of the rest can be reconstructed with the tool already open in front of them. What cannot be reconstructed is a decision nobody made. That part has to exist in writing, because there is nowhere else for it to come from.
 
