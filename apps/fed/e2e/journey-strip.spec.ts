@@ -18,6 +18,12 @@ import { test, expect, type Page } from '@playwright/test';
 const ROUTES = ['/pt/me', '/en/me'];
 const HEIGHT = 900;
 
+// The approved set is four (`src/data/journey.test.ts` locks which four). Written here as a literal on
+// purpose: it is what turns a stale selector from a silent pass into a failure. Every loop below is a
+// `for` over a list, and a `for` over an empty list passes in silence — so the count is waited for and
+// asserted before anything is measured.
+const TILES = 4;
+
 /**
  * Force every tile to fetch, and wait for the browser to settle each one.
  *
@@ -34,6 +40,16 @@ const HEIGHT = 900;
  * cover both would make one spec's failure message ambiguous about which page it came from.
  */
 async function loadEveryTile(page: Page) {
+  // WAIT FOR THE TILES TO EXIST BEFORE FORCING THEM TO LOAD, and this line was earned rather than
+  // copied. Without it `page.evaluate` runs against a page that has not hydrated yet: the selector
+  // matches nothing, `Promise.all([])` resolves instantly, and the helper reports success having waited
+  // for nothing. The four tiles then render and the very next assertion reads `naturalWidth === 0` on all
+  // four — "renamed, missing, or corrupt" about four files that are present and fine. That is exactly
+  // what this spec did on its first run.
+  //
+  // `content-photo.spec.ts` gets away with a bare `networkidle` because its page is a markdown body. Here
+  // the wait is on the ELEMENTS, which is both stricter and immune to a page that never goes idle.
+  await expect(page.locator('[data-journey-photo] img')).toHaveCount(TILES);
   await page.evaluate(async () => {
     const imgs = [...document.querySelectorAll('[data-journey-photo] img')] as HTMLImageElement[];
     for (const img of imgs) img.loading = 'eager';
@@ -67,7 +83,7 @@ test.describe('the journey strip on /me', () => {
       expect(broken, 'these photographs did not decode — renamed, missing, or corrupt').toEqual([]);
 
       const count = await page.locator('[data-journey-photo] img').count();
-      expect(count).toBe(4);
+      expect(count).toBe(TILES);
     });
 
     test(`${route} — the four read as one set: a row of equal tiles`, async ({ page }) => {
@@ -81,7 +97,7 @@ test.describe('the journey strip on /me', () => {
           return { top: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) };
         }),
       );
-      expect(boxes).toHaveLength(4);
+      expect(boxes).toHaveLength(TILES);
 
       // ONE ROW. This is the assertion the whole component exists for — four photographs read as a set
       // only when they are seen together, and the failure mode is silent: a grid that collapses to one
