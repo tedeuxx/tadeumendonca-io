@@ -146,7 +146,7 @@ flowchart TB
   subgraph AFK["AFK · from ready to merge, nothing on the path is human"]
     ORCH["ORCHESTRATOR ·<br/>the main session<br/>dispatches every persona, commits, pushes<br/>never edits a repository, never merges<br/>never decides the irreversible"]
     DEV["TIER 2 · BUILD<br/>developer — product"]
-    WRT["TIER 2 · BUILD<br/>content-writer ⇄ content-reviewer — content<br/>at most two rounds, against the same ruler"]
+    WRT["TIER 2 · BUILD<br/>content-writer with content-reviewer — content<br/>at most two rounds, against the same ruler"]
     LB["TIER 2 · BUILD<br/>agents-lead — loop<br/>builds what it stress-tested"]
     MR{{"MERGE REQUEST · one per story"}}
     QA["TIER 3 · GATE<br/>— fresh context, no authorship bias<br/>quality-assurance<br/>the Definition of Done, and whether this breaks production<br/>the only one that may merge"]
