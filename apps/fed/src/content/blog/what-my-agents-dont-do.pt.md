@@ -61,7 +61,7 @@ Que é como eu leio a frase do Tan agora. Valer a consulta não é uma proprieda
 
 Aqui vem a segunda coisa.
 
-Os meus registros de decisão já emitiram vinte números. **Seis estão vivos. Quatorze sumiram** — absorvidos por outros registros quando a decisão que carregavam deixou de ser uma decisão própria. E nenhum daqueles quatorze números está simplesmente faltando. Cada um tem uma linha numa tabela dizendo o que decidiu e onde aquela decisão mora agora. A regra, escrita no topo dessa tabela: *"A record leaves this library only as a disposition, never as an absence."* — um registro só sai desta biblioteca como disposição, nunca como ausência.
+Os meus registros de decisão já emitiram vinte e um números. **Sete estão vivos. Quatorze sumiram** — absorvidos por outros registros quando a decisão que carregavam deixou de ser uma decisão própria. E nenhum daqueles quatorze números está simplesmente faltando. Cada um tem uma linha numa tabela dizendo o que decidiu e onde aquela decisão mora agora. A regra, escrita no topo dessa tabela: *"A record leaves this library only as a disposition, never as an absence."* — um registro só sai desta biblioteca como disposição, nunca como ausência.
 
 E tem um teste que lê isso nos dois sentidos. Um número sem arquivo e sem linha deixa a suíte vermelha. Uma linha para um número que ainda está vivo deixa vermelha também.
 

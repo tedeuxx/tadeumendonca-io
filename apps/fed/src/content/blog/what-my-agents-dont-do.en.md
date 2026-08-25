@@ -59,7 +59,7 @@ Which is also how I read Tan's line now. Being worth retrieving from is not a pr
 
 Here is the second thing.
 
-My decision records have issued twenty numbers. **Six are live. Fourteen are gone** — folded into other records when the decision they carried stopped being a decision of its own. And not one of those fourteen numbers is simply missing. Each has a row in a table saying what it decided and where that decision lives now. The rule, written at the top of that table: *"A record leaves this library only as a disposition, never as an absence."*
+My decision records have issued twenty-one numbers. **Seven are live. Fourteen are gone** — folded into other records when the decision they carried stopped being a decision of its own. And not one of those fourteen numbers is simply missing. Each has a row in a table saying what it decided and where that decision lives now. The rule, written at the top of that table: *"A record leaves this library only as a disposition, never as an absence."*
 
 There is a test that reads it in both directions. A number with no file and no row turns the suite red. A row for a number that is still alive turns it red too.
 
