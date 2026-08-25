@@ -102,6 +102,10 @@ in `iac/`.
   its full body — both editions — ships inside `dist/assets/index-*.js` and is fetchable by anyone with no
   parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0049 records that
   consequence with the command that measures it, and the upgrade path to a genuinely private draft.
+  **So what may be held follows from what the hold does:** hold a piece that is merely UNFINISHED, and
+  never one whose *existence* is the sensitive part — a draft that names something confidential is fully
+  readable in the bundle from the moment it deploys, and the hold protects it not at all. Being out of
+  the index buys time to write, not secrecy; if it must not be readable, it must not be committed.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
   flag is the mutation that proves those gates can go red.
