@@ -42,6 +42,12 @@ export function ArticlePage() {
           imageAlt: article.title,
           type: 'article',
           publishedTime: article.date,
+          // A HELD article is reachable at its final URL and out of the sitemap (#510). Nothing links it,
+          // so a crawler has no path to it — this covers the case where the URL reaches one anyway, and
+          // it is the weaker half of the hold rather than its mechanism (see `DocumentHead.robots`).
+          // `nofollow` too: a held draft's outbound links should not spend crawl budget or pass signal
+          // from a page that is, by construction, not published yet.
+          robots: article.draft ? 'noindex, nofollow' : undefined,
           alternates: { pt: `/blog/${eds.pt.slug}`, en: `/blog/${eds.en.slug}` },
           jsonLd: {
             '@context': 'https://schema.org',

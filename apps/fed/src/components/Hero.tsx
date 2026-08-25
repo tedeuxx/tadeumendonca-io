@@ -36,8 +36,35 @@ export function Hero() {
         </p>
 
         <div className="mb-[clamp(2.2rem,5vw,3.5rem)] flex flex-wrap">
-          {/* Ramp-up leads, but shares the outlined HeroLink styling with the content anchors — it is a
-              real route (not a landing anchor), so it renders as a router Link for client-side nav.
+          {/* THE ORDER OF THIS ROW IS: routes first, the on-page anchor last (#429). It is a rule about
+              what a control COSTS the reader, and it explains all four positions rather than only the
+              first: `/architecture`, `/ramp-up` and `/portfolio` are real routes a reader can only reach
+              by pressing something, while `#artigos` targets `ArticlesSection` — literally the next
+              block after <Hero /> in LandingPage.tsx, one screen of scrolling away, no click required.
+              The least-necessary control gets the least-valuable slot. Checkable against the mechanism,
+              and it does not expire.
+
+              WHICH ROUTE LEADS IS THE OWNER'S CALL, recorded as one rather than dressed up as a
+              derivation: architecture first, owner, 2026-08-10. The rule above orders routes against the
+              anchor; it does not rank the three routes among themselves, and inventing a derivation for
+              a judgement call is how a comment starts arguing for a position nobody chose.
+
+              ~~ARCHITECTURE CLOSES THE ROW (#420), and the position is the whole of the decision. The row
+              runs lighter to heavier: a reading path, then the articles anchor, then the shortlist —
+              `/architecture` is the deepest read on the site, so it goes last rather than interrupting
+              that gradient.~~ STRUCK #429, and struck rather than deleted because it is a stated rule
+              being reversed eight days after it was recorded, in the file that records it. The gradient
+              argument treated `/architecture` as TERMINAL — the page a reader arrives at once convinced,
+              so putting it early would interrupt the climb. That premise moved: it is the destination
+              this presence currently argues for, which makes it the exhibit rather than the reward.
+              "Deepest read" and "goes last" were only ever linked while the page was the reward.
+
+              Every control still renders its existing `nav.*` catalog key, which is what keeps this a
+              chrome change and not a copy one — no string in i18n/messages.ts moves.
+
+              Ramp-up shares the outlined HeroLink styling with the content anchor — it is a real route
+              (not a landing anchor), so it renders as a router Link for client-side nav, as do the two
+              routes beside it.
 
               PORTFOLIO IS A ROUTE HERE FOR THE SAME REASON IT IS ONE IN THE NAV (#315). It renders
               `nav.portfolio` — the identical catalog key the nav entry uses — so the two controls show
@@ -54,21 +81,20 @@ export function Hero() {
               `#portfolio` stays a live anchor with a shareable URL; it simply has no chrome control
               pointing at it now, which is what a section you meet by scrolling should be.
 
-              ARCHITECTURE CLOSES THE ROW (#420), and the position is the whole of the decision. The row
-              runs lighter to heavier: a reading path, then the articles anchor, then the shortlist —
-              `/architecture` is the deepest read on the site, so it goes last rather than interrupting
-              that gradient. It renders the existing `nav.architecture` key, which is what keeps this a
-              routing change and not a copy one: the reasoning recorded above binds it too, so the other
-              three are untouched in label and in order.
-
               FOUR IS STILL A ROW, and it is the wrapping container that makes that true rather than an
               opinion — `flex-wrap` on the parent, so the fourth control wraps to a second line at narrow
-              widths instead of overflowing. Measured at 320 and 390 against the built output, which is
-              where this repo has twice found what a test did not. */}
-          <HeroLink to={lp('/ramp-up')}>{t('nav.rampup')}</HeroLink>
-          <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
-          <HeroLink to={lp('/portfolio')}>{t('nav.portfolio')}</HeroLink>
+              widths instead of overflowing. REORDERING IS NOT LAYOUT-NEUTRAL: `flex-wrap` packs greedily,
+              so moving the longest label ("Arquitetura"/"Architecture", 11/12 chars) from last to first
+              is the single change that most affects how the line breaks. Containment is invariant —
+              item widths do not change under reordering, and a wrapped line never exceeds the container
+              unless one item does — but the LINE COUNT is not, and nothing asserts it. Re-measured at
+              320 and 390 against the built output, both editions, by the committed instrument in
+              `e2e/hero-row.spec.ts` (which reports rows and margin on every run since #429, so the next
+              reorder does not have to re-author it the way this one did). */}
           <HeroLink to={lp('/architecture')}>{t('nav.architecture')}</HeroLink>
+          <HeroLink to={lp('/ramp-up')}>{t('nav.rampup')}</HeroLink>
+          <HeroLink to={lp('/portfolio')}>{t('nav.portfolio')}</HeroLink>
+          <HeroLink href="#artigos">{t('nav.articles')}</HeroLink>
         </div>
       </div>
 

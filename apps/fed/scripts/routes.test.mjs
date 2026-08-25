@@ -13,6 +13,7 @@ import {
   SLUG_SHAPE,
 } from './routes.mjs';
 import { getAllPosts, getEditions, SLUG_SHAPE as CONTENT_SLUG_SHAPE } from '../src/lib/content';
+import { HELD_SLUGS } from '../src/content/heldFixture';
 
 // The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
 // unprefixed URL prerender.mjs writes, as dist/index.html).
@@ -358,5 +359,87 @@ describe('buildBlogEditions — the parsing rules', () => {
     expect(() =>
       buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': '---\nslug: node.js-patterns\n---\nbody' })),
     ).toThrow(/dot/);
+  });
+
+  // #510 — the held key, through the pure seam.
+  const held = (slug) => `---\nslug: ${slug}\ndraft: true\n---\nbody`;
+  const live = (slug) => `---\nslug: ${slug}\n---\nbody`;
+
+  it('drops a key whose frontmatter carries draft: true', () => {
+    const editions = buildBlogEditions(
+      ['demo.en.md', 'demo.pt.md'],
+      read({ 'demo.en.md': held('demo-en'), 'demo.pt.md': held('demo-pt') }),
+    );
+    expect(editions.has('demo')).toBe(false);
+  });
+
+  // The conservative reading, and it is the one that cannot publish half an article. `content.ts` makes
+  // `draft` a fact the two editions must agree on, so this state should be unreachable — but this module
+  // re-derives everything independently (it runs in Node and cannot import the Vite-glob module), so the
+  // two CAN disagree, and the answer that does not advertise a URL for a half-held article is the safe one.
+  it('drops the key when ANY edition is held, in either order', () => {
+    const ptHeld = buildBlogEditions(
+      ['demo.en.md', 'demo.pt.md'],
+      read({ 'demo.en.md': live('demo-en'), 'demo.pt.md': held('demo-pt') }),
+    );
+    const enHeld = buildBlogEditions(
+      ['demo.en.md', 'demo.pt.md'],
+      read({ 'demo.en.md': held('demo-en'), 'demo.pt.md': live('demo-pt') }),
+    );
+    expect(ptHeld.has('demo')).toBe(false);
+    expect(enHeld.has('demo')).toBe(false);
+  });
+
+  // Dropping must not become a blanket. Without this, "drop everything" passes every assertion above.
+  it('keeps every key that is not held, alongside one that is', () => {
+    const editions = buildBlogEditions(
+      ['a.en.md', 'b.en.md'],
+      read({ 'a.en.md': held('a-en'), 'b.en.md': live('b-en') }),
+    );
+    expect([...editions.keys()]).toEqual(['b']);
+  });
+
+  // A held slug is still validated. Deferring the shape check to promotion would move a build break into
+  // the one commit nobody wants to discover one in — the commit that publishes.
+  it('still enforces the slug shape on a HELD article, before dropping it', () => {
+    expect(() =>
+      buildBlogEditions(['demo.en.md'], read({ 'demo.en.md': '---\nslug: node.js-patterns\ndraft: true\n---\nbody' })),
+    ).toThrow(/dot/);
+  });
+});
+
+// #510 — ACCEPTANCE CRITERIA 1 AND 2, at their source.
+//
+// `localizedRoutes()` is the single enumeration BOTH the sitemap generator and the prerender walk, which
+// is why the two can never drift. So "zero sitemap entries" and "zero prerendered routes" are one property
+// here, asserted against the real committed fixture rather than a synthetic pair. The served artifacts are
+// asserted separately in `e2e/held-draft.spec.ts`, against the built site — this block proves the decision,
+// that one proves the output.
+//
+// MUTATION: flipping the fixture's `draft: true` to `false` makes both assertions below red.
+describe('a held article leaves the sitemap and the prerender together', () => {
+  const articleRoutes = () => localizedRoutes().filter((r) => r.route.startsWith('/blog/'));
+
+  it('contributes no route in either locale', () => {
+    const routes = articleRoutes().map((r) => r.route);
+    for (const locale of LOCALES) {
+      expect(routes, `${locale}: the held fixture must not be enumerated`).not.toContain(
+        `/blog/${HELD_SLUGS[locale]}`,
+      );
+    }
+  });
+
+  // Guards the vacuous read of the assertion above: `not.toContain` over an empty list is true, and an
+  // empty article-route list is what a broken content scan produces.
+  it('leaves the published articles enumerated — the list is not simply empty', () => {
+    expect(articleRoutes().length).toBeGreaterThan(0);
+  });
+
+  // The sitemap and the prerender shrink TOGETHER, which is the never-drift invariant this module opens
+  // with. Counted against `content.ts`'s own published list rather than against a literal: the failure it
+  // rules out is a hold applied to one derivation and not the other, and a hard-coded expected count
+  // would go stale the day an article is published and stop measuring anything.
+  it('enumerates exactly the published articles — one route per locale, held ones excluded', () => {
+    expect(articleRoutes()).toHaveLength(getAllPosts('en').length * LOCALES.length);
   });
 });

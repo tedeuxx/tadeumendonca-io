@@ -54,9 +54,9 @@ describe('LandingPage', () => {
     expect(hero!.nextElementSibling!.contains(articles!)).toBe(true);
   });
 
-  // The card adds a SECOND control to /architecture on this page — the hero row already closes on it
-  // (#420). That is the accepted shape; what was rejected is a FIFTH hero control, so the count that
-  // matters is the hero row's, and `e2e/hero-row.spec.ts` pins it at four in a real viewport.
+  // The card adds a SECOND control to /architecture on this page — the hero row already opens with
+  // it (#429). That is the accepted shape; what was rejected is a FIFTH hero control, so the count
+  // that matters is the hero row's, and `e2e/hero-row.spec.ts` pins it at four in a real viewport.
   it('does not add the card as a fifth hero control', async () => {
     const { container } = renderLanding();
     await screen.findByRole('heading', { name: /Artigos/ });

@@ -342,7 +342,7 @@ const strings = {
     // excerpt) works to say "this is not writing"; a control that reads as a NOUN where its neighbours
     // read as verbs is that same signal, for free, in the last place a reader looks before clicking.
     // Against that: #315 recorded the rule that the reader meets ONE word for one destination, and
-    // `nav.architecture` is already what the nav entry and the Hero's fourth control both render. A
+    // `nav.architecture` is already what the nav entry and the Hero's leading control both render. A
     // fourth label for /architecture, duplicating a word the catalog already publishes, is a second
     // source of truth that can only ever drift.
     //

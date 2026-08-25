@@ -164,6 +164,27 @@ describe('buildDrafts', () => {
   it('ignores files that are not per-locale articles', () => {
     expect(buildDrafts(['README.md', 'notes.txt'], ROUTES, () => ARTICLE)).toEqual([]);
   });
+
+  // #510 — a HELD article does not enter the distribution drafts.
+  //
+  // Two failures ride on this one line, and the second is why the skip is inside `buildDrafts` rather
+  // than in the caller. The first is intent: a distribution draft is LinkedIn and X copy, and scaffolding
+  // a post for an article deliberately out of the index is the opposite of holding it. The second is
+  // mechanical: `shareUrlFor` REFUSES a slug with no prerendered English route, and a held article has
+  // none by construction — so without the skip the generator THROWS on every held draft and the whole
+  // script stops working the day the feature is used.
+  it('skips a held article rather than throwing on its missing route', () => {
+    const heldArticle = ARTICLE.replace('---\n', '---\ndraft: true\n');
+    expect(buildDrafts(['my-commitment.en.md'], ROUTES, () => heldArticle)).toEqual([]);
+  });
+
+  // Guards the skip from becoming a blanket: "return nothing" passes the assertion above.
+  it('still drafts the published articles beside a held one', () => {
+    const heldArticle = ARTICLE.replace('---\n', '---\ndraft: true\n');
+    const read = (f) => (f.startsWith('held') ? heldArticle : ARTICLE);
+    const drafts = buildDrafts(['held.en.md', 'my-commitment.en.md'], ROUTES, read);
+    expect(drafts.map((d) => d.key)).toEqual(['my-commitment']);
+  });
 });
 
 // The "we will not clobber your writing" promise. A draft is hand-voiced after generation, so an

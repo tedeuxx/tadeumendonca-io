@@ -67,6 +67,21 @@ export interface DocumentHead {
    * shared-slug routes), the alternates re-prefix `canonicalPath` for both locales, as before.
    */
   alternates?: Record<Locale, string>;
+  /**
+   * `<meta name="robots">`, for the one page class that must not be indexed: a HELD article (#510),
+   * which is reachable at its final URL and deliberately absent from the sitemap.
+   *
+   * Belt and braces, and the braces are the ones that work. The hold's real protection is that the route
+   * is neither prerendered nor listed, so a crawler has nothing to follow; this tag only covers the case
+   * where a URL reaches a crawler by another path — the owner pasting it somewhere, a browser extension,
+   * a referrer log. It is emitted from the CLIENT head, so a JS-less crawler never sees it, which is
+   * precisely why it is the weaker half rather than the mechanism.
+   *
+   * Absent by default and REMOVED when absent, not merely unwritten: `upsertMeta` only ever writes, so a
+   * lingering `noindex` from a previously-viewed held article would silently de-index the next article
+   * the reader navigates to — a client-side-navigation-only defect, invisible on every hard load.
+   */
+  robots?: string;
 }
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
@@ -121,7 +136,7 @@ function setJsonLd(json: string | undefined) {
   if (!existing) document.head.appendChild(el);
 }
 
-export function useDocumentHead({ title, description, canonicalPath, image, imageAlt, type = 'website', publishedTime, jsonLd, alternates }: DocumentHead) {
+export function useDocumentHead({ title, description, canonicalPath, image, imageAlt, type = 'website', publishedTime, jsonLd, alternates, robots }: DocumentHead) {
   const { locale } = useLocale();
   // Serialize JSON-LD so the effect depends on its value, not object identity.
   const jsonLdStr = jsonLd ? JSON.stringify(jsonLd) : undefined;
@@ -140,6 +155,10 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
     document.title = fullTitle;
     if (description) upsertMeta('name', 'description', description);
     if (url) upsertLink('canonical', url);
+    // Written OR removed on every route, never left behind — see the field's own note: a stale `noindex`
+    // carried from a held article into the next client-side navigation de-indexes a published page.
+    if (robots) upsertMeta('name', 'robots', robots);
+    else removeMeta('name', 'robots');
 
     // hreflang alternates (pt · en · x-default). Emitted for every real route so both editions point at
     // the same set — the reciprocity a crawler needs to pair them. When the route's path is per-locale
@@ -209,5 +228,5 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
     if (description) upsertMeta('name', 'twitter:description', description);
 
     setJsonLd(jsonLdStr);
-  }, [locale, title, description, canonicalPath, image, imageAlt, type, publishedTime, jsonLdStr, altPt, altEn]);
+  }, [locale, title, description, canonicalPath, image, imageAlt, type, publishedTime, jsonLdStr, altPt, altEn, robots]);
 }

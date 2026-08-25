@@ -86,6 +86,29 @@ in `iac/`.
   (#204 — the unprefixed redirect maps the slug via `articlePathForLocale`, since re-prefixing it
   verbatim dead-ended a pt-BR reader), but it is still un-prerendered and must **not** be re-added to
   hreflang or the sitemap.
+  **An article can be HELD** (#510, ADR-0049): `draft: true` in frontmatter — a **shared fact**, so both
+  editions must agree — takes it out of **four** public enumerations and no more. `lib/content.ts` drops
+  it from `byLocale` (the index, the feed, the track filters) while `getPostBySlug`/`getEditions` still
+  resolve it; `scripts/routes.mjs` drops it from `localizedRoutes()`, so it leaves the sitemap **and** the
+  prerender together (the never-drift invariant holds — both sets shrink); `scripts/og-cards.mjs` requires
+  no card for it; `scripts/gen-distribution.mjs` writes no draft kit for it. The URL still answers, because
+  `custom_error_response` maps 404 → `/index.html` with a 200 and the SPA routes client-side. **`?preview`
+  is what distinguishes reading it from not finding it** (`lib/preview.ts`): without it, `ArticleRoute`
+  redirects to the locale home; with it, the article renders in the real chrome and declares
+  `robots: noindex, nofollow`. Promotion is one edit — `draft: false` plus the real date — and rebuilds
+  nothing else. **An explicit flag, never a future `date`**: a wall-clock comparison would make the same
+  commit build differently tomorrow, breaking *rebuild the tag to reproduce production*.
+  **It buys isolation, not privacy, and the difference is not cosmetic:** while a held draft is deployed
+  its full body — both editions — ships inside `dist/assets/index-*.js` and is fetchable by anyone with no
+  parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0049 records that
+  consequence with the command that measures it, and the upgrade path to a genuinely private draft.
+  **So what may be held follows from what the hold does:** hold a piece that is merely UNFINISHED, and
+  never one whose *existence* is the sensitive part — a draft that names something confidential is fully
+  readable in the bundle from the moment it deploys, and the hold protects it not at all. Being out of
+  the index buys time to write, not secrecy; if it must not be readable, it must not be committed.
+  The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
+  `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
+  flag is the mutation that proves those gates can go red.
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions
