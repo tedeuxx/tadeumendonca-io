@@ -1,9 +1,10 @@
 ---
 title: "I wrote down what my agents do. The half worth writing is the why."
 slug: what-my-agents-dont-do
-date: '2026-12-31T12:00:00.000Z'
+date: '2026-08-25T12:00:00.000Z'
 tag: harness
 track: engenharia
+draft: true
 hasVideo: true
 excerpt: "Garry Tan's talk sent me back to a file in my own repository: 33 behaviours, each with a line saying why it exists. That is the column I would keep if I had to throw the rest away, and the reason is that a model can fill in the rest."
 takeaway: 'the inventory is the half a model completes on its own; what has to exist in writing is the central idea — the purpose, the limit, and the reason something was removed.'

@@ -1,9 +1,10 @@
 ---
 title: "Registrei o que os meus agentes fazem. A metade que vale escrever é o porquê."
 slug: o-que-os-meus-agentes-nao-fazem
-date: '2026-12-31T12:00:00.000Z'
+date: '2026-08-25T12:00:00.000Z'
 tag: harness
 track: engenharia
+draft: true
 hasVideo: true
 excerpt: "A palestra do Garry Tan me mandou de volta para um arquivo do meu próprio repositório: 33 comportamentos, cada um com uma linha dizendo por que ele existe. É a coluna que eu manteria se tivesse que jogar o resto fora, e o motivo é que o modelo completa o resto."
 takeaway: 'o inventário é a metade que o modelo completa sozinho; o que precisa estar escrito é a ideia central — o propósito, o limite e o motivo de alguma coisa ter sido removida.'
