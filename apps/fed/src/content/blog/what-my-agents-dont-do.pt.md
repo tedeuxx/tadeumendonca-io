@@ -9,17 +9,17 @@ excerpt: "A palestra do Garry Tan me mandou de volta para um arquivo do meu pró
 takeaway: 'o inventário é a metade que o modelo completa sozinho; o que precisa estar escrito é a ideia central — o propósito, o limite e o motivo de alguma coisa ter sido removida.'
 ---
 
-O Garry Tan, que toca a Y Combinator, deu uma palestra de vinte minutos chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando.
+O Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando.
 
 https://www.youtube.com/watch?v=eBUyTS7SzV4
 
-É um pitch. Ele mesmo diz isso no meio — a palestra é em inglês e o meu repositório também, então daqui em diante vai sempre o original e a tradução: *"let me stress test my own pitch because you would anyway"* ("deixa eu mesmo testar o meu pitch, porque vocês fariam isso de qualquer jeito") — e eu quero ser exato com essa palavra, porque ela normalmente chega como acusação e não é assim que eu estou usando. **Pitch descreve o formato da coisa. Diz que a palestra está organizada para te convencer. Não diz nada sobre ela estar certa ou errada.**
+Um aviso de casa, já que o texto inteiro gira em torno da diferença entre um recibo e uma lembrança: tudo o que eu atribuo a ele daqui para a frente está relatado, com as minhas palavras. Não tinha slide e eu não guardei transcrição, então o que chega até você é o conteúdo do que ele disse na minha formulação. As passagens que eu cito literalmente mais adiante são arquivos meus, e dessas eu consigo apontar a linha.
 
-Uma frase ali me mandou de volta para os meus repositórios:
+É um pitch. Ele mesmo diz isso no meio: ele para para testar o próprio pitch, pelo argumento de que a plateia faria isso de qualquer jeito. E eu quero ser exato com essa palavra, porque ela normalmente chega como acusação e não é assim que eu estou usando. **Pitch descreve o formato da coisa. Diz que a palestra está organizada para te convencer. Não diz nada sobre ela estar certa ou errada.**
 
-> "Retrieval is easy. Being worth retrieving from is the product."
->
-> — recuperar é fácil; valer a consulta é que é o produto.
+Uma ideia dali me mandou de volta para os meus repositórios. É assim que eu venho carregando ela desde então — o argumento é dele, a frase é minha:
+
+> Recuperar é fácil. Valer a consulta é que é o produto.
 
 Então eu fui olhar o que eu tinha construído de verdade, e qual parte daquilo sobreviveria a ser lida por alguém que nunca vai rodar nada daquilo.
 
@@ -27,7 +27,7 @@ Então eu fui olhar o que eu tinha construído de verdade, e qual parte daquilo 
 
 O vocabulário da palestra é uma biblioteca. Livros, um bibliotecário, três livros abertos na mesa ao mesmo tempo, uma camada de recuperação cujo trabalho inteiro é escolher quais três. É uma boa imagem e ela carrega o argumento sozinha.
 
-A palavra que começou a aparecer em IA para essa mesma ideia — organizar o conhecimento de uma companhia de um jeito que alguma coisa consiga trabalhar em cima dele — é **ontology** (ontologia). Não é a palavra dele. Ele não usa nenhuma vez em vinte minutos, e nem precisa: a palestra descreve a coisa muito bem sem ela.
+A palavra que começou a aparecer em IA para essa mesma ideia — organizar o conhecimento de uma companhia de um jeito que alguma coisa consiga trabalhar em cima dele — é **ontology** (ontologia). Não é a palavra dele. Ele não usa nenhuma vez, e nem precisa: a palestra descreve a coisa muito bem sem ela.
 
 Ainda assim eu nomeio aqui, por um motivo só. Dar nome a algo que você já tem é o que te deixa ir procurar outras pessoas que construíram um, em vez de achar que você inventou uma mania de arquivar.
 
@@ -35,7 +35,7 @@ Ainda assim eu nomeio aqui, por um motivo só. Dar nome a algo que você já tem
 
 A objeção óbvia a "toda empresa deveria ter um cérebro" é que a maior parte de quem está assistindo não tem uma empresa. Eu também não tenho. Eu tenho dois repositórios e fins de semana.
 
-Ele fecha a palestra exatamente nessa objeção, e fecha com uma história em vez de um argumento: um amigo cujo filho tem uma forma rara de epilepsia, que construiu um repositório de oitenta mil arquivos markdown — *"a company brain for one small boy"* ("um cérebro de empresa para um menininho") — e se empurrou até a borda do que se sabe sobre a condição exata daquela criança. Um pai, um laptop e uma biblioteca. E aí ele diz a frase que transforma aquilo em afirmação em vez de anedota: *"That is the exact architecture I've been describing for the last 20 minutes."* — é exatamente a arquitetura que ele passou vinte minutos descrevendo.
+Ele fecha a palestra exatamente nessa objeção, e fecha com uma história em vez de um argumento: um amigo cujo filho tem uma forma rara de epilepsia, que construiu um repositório de oitenta mil arquivos markdown, um cérebro de empresa construído para um menininho só, e se empurrou até a borda do que se sabe sobre a condição exata daquela criança. Um pai, um laptop e uma biblioteca. E aí ele crava o que transforma aquilo em afirmação em vez de anedota: o que aquele pai construiu é a mesma arquitetura que ele passou a palestra inteira descrevendo. Não uma parecida. A mesma.
 
 Ou seja: a arquitetura é declarada válida numa escala de um. Eu sou uma escala de um. É só por isso que eu tenho o que dizer aqui — não é que eu opere uma empresa como as da palestra, é que a palestra afirma que o formato não precisa de uma.
 
@@ -47,7 +47,7 @@ O que eu não tinha, até pouco tempo atrás, era um lugar só dizendo o que tud
 
 **A coluna com que eu mais me importo é a que diz para que cada comportamento existe**, e o motivo é mecânico, não sentimental. Um modelo é bom em completar o texto depois que a ideia central está capturada. Se alguém lê aquele arquivo e entende para que serve uma peça do meu harness, a maior parte do resto dá para reconstruir com a ferramenta já aberta na frente. O que não dá para reconstruir é uma decisão que ninguém tomou. Essa parte precisa existir escrita, porque não tem de onde mais ela sair.
 
-O meu próprio arquivo define esse campo do jeito mais seco possível, e as três últimas palavras são a regra inteira: *"why the behaviour is wanted — the obligation, stated so a reader on a harness nobody here has measured can decide whether it matters to them. Never a content list."* Por que o comportamento é desejado: a obrigação, escrita de um jeito que alguém rodando um harness que ninguém aqui mediu consiga decidir se aquilo importa para ele. Nunca uma lista de conteúdo.
+O meu próprio arquivo define esse campo do jeito mais seco possível — e como o repositório é em inglês, daqui em diante vem sempre o original e a tradução. As três últimas palavras são a regra inteira: *"why the behaviour is wanted — the obligation, stated so a reader on a harness nobody here has measured can decide whether it matters to them. Never a content list."* Por que o comportamento é desejado: a obrigação, escrita de um jeito que alguém rodando um harness que ninguém aqui mediu consiga decidir se aquilo importa para ele. Nunca uma lista de conteúdo.
 
 Nunca uma lista de conteúdo. A lista é a parte com que eu não preciso tomar cuidado.
 
@@ -55,7 +55,7 @@ A última coluna é da mesma família, e o arquivo diz o porquê melhor do que e
 
 Propósito e limite são os dois um motivo. Só a coluna do meio é inventário — e a coluna do meio é a única que eu entregaria para uma máquina rascunhar.
 
-Que é como eu leio a frase do Tan agora. Valer a consulta não é uma propriedade de quanta coisa tem ali dentro. É de o que está ali dentro ser a parte que não daria para derivar.
+Que é como eu leio o argumento dele agora. Valer a consulta não é uma propriedade de quanta coisa tem ali dentro. É de o que está ali dentro ser a parte que não daria para derivar.
 
 ## Remoção é a parte que ninguém registra
 
@@ -67,9 +67,9 @@ E tem um teste que lê isso nos dois sentidos. Um número sem arquivo e sem linh
 
 A mesma disciplina aparece no formato do loop. Dezenove personas viraram sete. Sessenta e nove skills viraram quatorze. Cada um desses cortes carrega uma data e um motivo, e eu consigo ir ler. Eu não estou trabalhando com a minha lembrança do porquê, eu estou lendo o porquê.
 
-**O Tan nomeia esse modo de falha, e nomeia como sendo o que mata um cérebro desses:** *"a brain nobody curates becomes a garbage dump with great search"* — um cérebro que ninguém cuida vira um lixão com uma busca excelente — e a correção que ele dá é um papel, não uma funcionalidade: *"a librarian, human plus agent, whose actual job is pruning"*, um bibliotecário, humano mais agente, cujo trabalho de verdade é podar.
+**O Tan nomeia esse modo de falha, e nomeia como sendo o que mata um cérebro desses:** um cérebro que ninguém cuida vira um lixão com uma busca excelente. E a correção que ele dá é um papel, não uma funcionalidade: um bibliotecário, humano mais agente, cujo trabalho de verdade é podar.
 
-É dessa frase que eu tenho recibo. Podar não é a parte que dá sensação de progresso. É a parte que deixou o resto utilizável.
+É dessa afirmação que eu tenho recibo. Podar não é a parte que dá sensação de progresso. É a parte que deixou o resto utilizável.
 
 ## O que nada disso consegue conferir — e o meu próprio arquivo diz isso
 

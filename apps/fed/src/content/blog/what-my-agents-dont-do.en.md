@@ -9,15 +9,17 @@ excerpt: "Garry Tan's talk sent me back to a file in my own repository: 33 behav
 takeaway: 'the inventory is the half a model completes on its own; what has to exist in writing is the central idea — the purpose, the limit, and the reason something was removed.'
 ---
 
-Garry Tan, who runs Y Combinator, gave a twenty-minute talk called *Every company should have a Brain*. No slides, no deck, just him talking.
+Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking.
 
 https://www.youtube.com/watch?v=eBUyTS7SzV4
 
-It is a pitch. He says so himself, halfway through — *"let me stress test my own pitch because you would anyway"* — and I want to be precise about that word, because it usually shows up as an accusation and I do not mean it as one. **Pitch describes the shape of the thing. It says the talk is organised to persuade you. It says nothing about whether it is right.**
+One housekeeping note, since this whole piece turns on the difference between a receipt and a recollection: everything I attribute to him below is reported, in my own words. There was no deck and I kept no transcript, so what reaches you is the substance of what he said in my phrasing of it. The passages I quote verbatim later are my own files, and I can point at the line.
 
-One line in it sent me back to my own repositories:
+It is a pitch. He says so himself, halfway through: he stops to stress-test his own pitch, on the grounds that the room would do it for him anyway. I want to be precise about that word, because it usually shows up as an accusation and I do not mean it as one. **Pitch describes the shape of the thing. It says the talk is organised to persuade you. It says nothing about whether it is right.**
 
-> "Retrieval is easy. Being worth retrieving from is the product."
+One idea in it sent me back to my own repositories. This is how I have carried it since — his argument, my sentence:
+
+> Retrieval is easy. Being worth retrieving from is the product.
 
 So I went to look at what I had actually built, and at which part of it would survive being read by somebody who will never run any of it.
 
@@ -25,7 +27,7 @@ So I went to look at what I had actually built, and at which part of it would su
 
 The vocabulary in the talk is a library. Books, a librarian, three books open on a desk at once, a retrieval layer whose whole job is choosing which three. It is a good image and it carries the argument without any help.
 
-The word that has started to appear in AI for the same idea — organising the knowledge of a company so that something can actually work from it — is **ontology**. It is not his word. He does not use it once in twenty minutes, and he does not need it: the talk describes the thing perfectly well without it.
+The word that has started to appear in AI for the same idea — organising the knowledge of a company so that something can actually work from it — is **ontology**. It is not his word. He does not use it once, and he does not need it: the talk describes the thing perfectly well without it.
 
 I am naming it here anyway, and for one reason. Naming something you already have is what lets you go looking for other people who have built one, instead of quietly assuming you invented a filing habit.
 
@@ -33,7 +35,7 @@ I am naming it here anyway, and for one reason. Naming something you already hav
 
 The obvious objection to "every company should have a brain" is that most of the people watching do not have a company. I do not have one either. I have two repositories and weekends.
 
-He closes the talk on that exact objection, and he closes it with a story rather than an argument: a friend whose son has a rare form of epilepsy, who built a repository of eighty thousand markdown files — *"a company brain for one small boy"* — and pushed himself to the edge of what is known about that child's condition. A father, a laptop, and a library. Then he says the thing that makes it a claim instead of an anecdote: *"That is the exact architecture I've been describing for the last 20 minutes."*
+He closes the talk on that exact objection, and he closes it with a story rather than an argument: a friend whose son has a rare form of epilepsy, who built a repository of eighty thousand markdown files, a company brain built for one small boy, and pushed himself to the edge of what is known about that child's condition. A father, a laptop, and a library. Then he lands the thing that makes it a claim instead of an anecdote: what that father built is the same architecture he had spent the whole talk describing. Not a comparable one. The same one.
 
 So the architecture is claimed to hold at a scale of one. I am a scale of one. That is the only reason I have anything to say here at all — it is not that I run a company like the ones in the talk, it is that the talk says the shape does not need one.
 
@@ -53,7 +55,7 @@ The last column belongs to the same family, and the file says why better than I 
 
 Purpose and limit are both reasons. Only the middle column is inventory — and the middle column is the only one I would hand to a machine to draft.
 
-Which is also how I read Tan's line now. Being worth retrieving from is not a property of how much is in there. It is whether what is in there is the part that could not have been derived.
+Which is also how I read his argument now. Being worth retrieving from is not a property of how much is in there. It is whether what is in there is the part that could not have been derived.
 
 ## Removal is the part nobody writes down
 
@@ -65,9 +67,9 @@ There is a test that reads it in both directions. A number with no file and no r
 
 The same discipline shows up in the shape of the loop itself. Nineteen personas became seven. Sixty-nine skills became fourteen. Every one of those cuts carries a date and a reason, and I can go and read them. I am not working from my memory of why; I am reading the why.
 
-**Tan names this failure mode, and he names it as the thing that kills a brain:** *"a brain nobody curates becomes a garbage dump with great search"*, and the fix he gives is a role rather than a feature — *"a librarian, human plus agent, whose actual job is pruning."*
+**Tan names this failure mode, and he names it as the thing that kills a brain:** a brain nobody curates becomes a garbage dump with excellent search. The fix he offers is a role rather than a feature — a librarian, human plus agent, whose actual job is pruning.
 
-That is the sentence I have a receipt for. Pruning is not the part that feels like progress. It is the part that made the rest usable.
+That is the claim I have a receipt for. Pruning is not the part that feels like progress. It is the part that made the rest usable.
 
 ## What none of it can check, and my own file says so
 
