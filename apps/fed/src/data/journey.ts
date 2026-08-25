@@ -124,8 +124,8 @@ const journey: readonly JourneyEntry[] = [
       en: 'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
     },
     caption: {
-      pt: 'AWS Summit São Paulo — do lado de dentro do crachá.',
-      en: 'AWS Summit São Paulo — on the staff side of the badge.',
+      pt: 'O nome na parede era o da empresa em que eu trabalhava. Eu estava lá a trabalho.',
+      en: 'The name on the wall was the company I worked for. I was there on the job.',
     },
   },
   {
@@ -135,8 +135,8 @@ const journey: readonly JourneyEntry[] = [
       en: 'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
     },
     caption: {
-      pt: 'Um corredor de escritório com o forro aberto. Cinza, geométrico, familiar.',
-      en: 'An office corridor with the ceiling opened up. Grey, geometric, familiar.',
+      pt: 'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
+      en: 'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
     },
   },
 ];
