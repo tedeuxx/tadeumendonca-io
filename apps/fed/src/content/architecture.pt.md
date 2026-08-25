@@ -148,7 +148,7 @@ flowchart TB
   subgraph AFK["AFK · do ready ao merge, nada no caminho é humano"]
     ORCH["ORQUESTRADOR ·<br/>a sessão principal<br/>aciona toda persona, commita, empurra<br/>nunca edita um repositório, nunca faz merge<br/>nunca decide o irreversível"]
     DEV["TIER 2 · BUILD<br/>developer — produto"]
-    WRT["TIER 2 · BUILD<br/>content-writer ⇄ content-reviewer — conteúdo<br/>no máximo duas rodadas, contra a mesma régua"]
+    WRT["TIER 2 · BUILD<br/>content-writer com content-reviewer — conteúdo<br/>no máximo duas rodadas, contra a mesma régua"]
     LB["TIER 2 · BUILD<br/>agents-lead — loop<br/>constrói o que estressou"]
     MR{{"MERGE REQUEST · uma por story"}}
     QA["TIER 3 · GATE<br/>— contexto fresco, sem viés de autoria<br/>quality-assurance<br/>a Definition of Done, e se isso quebra a produção<br/>o único que pode fazer merge"]
