@@ -19,12 +19,19 @@ import { LOCALES } from '../i18n';
 /** A valid authored entry, overridable one field at a time — the `library.test.ts` fixture shape. */
 const entry = (over: Partial<JourneyEntry> = {}): JourneyEntry => ({
   src: '/photos/journey-sticker-lid.jpg',
+  engagement: 'An engagement',
   alt: { pt: 'O que está no quadro', en: 'What is in the frame' },
   caption: { pt: 'Por que está na página', en: 'Why it is on the page' },
   ...over,
 });
 
-// The exact set the owner approved, in the exact order he approved it in.
+// The exact set the owner approved. THE LOCK IS ON THE SET — these four frames — RATHER THAN ON THE
+// SEQUENCE (#516, owner ruling 2026-08-25). The order this array is written in was itself an owner
+// decision (`journey.ts`: the craft, the work, the chapter, the place), and it was a decision about how
+// four photographs read AS A SET at the end of the page. Once each frame sits inside the dated experience
+// entry its `engagement` names, there is no set and no photograph sequence left to decide: the entries
+// already have an order, and the frames inherit it. That decision loses its OBJECT — it is not overruled,
+// and nothing here reverses it.
 const APPROVED = [
   '/photos/journey-sticker-lid.jpg',
   '/photos/journey-home-office.jpg',
@@ -32,9 +39,42 @@ const APPROVED = [
   '/photos/journey-corridor.jpg',
 ];
 
+// Which engagement each frame is from — the owner's answer, verbatim (#516, 2026-08-25), locked for the
+// same reason the filenames are: it is not the builder's fact, and it is not derivable. Two of these four
+// could not have been reached any other way. `journey-sticker-lid.jpg` has no date anywhere in this
+// repository (the committed bytes carry no metadata, which `scripts/photo-assets.test.mjs` proves), and
+// `journey-home-office.jpg` is the frame where BOTH available derivations — nearest date, and what is in
+// the frame — landed on Globo and were wrong. A derived assertion here would re-derive the defect it
+// exists to catch.
+const ENGAGEMENTS: Record<string, string> = {
+  '/photos/journey-home-office.jpg': 'Accenture',
+  '/photos/journey-sticker-lid.jpg': 'Globo',
+  '/photos/journey-corridor.jpg': 'AWS Professional Services',
+  '/photos/journey-aws-summit.jpg': 'AWS ProServe — Senior Delivery Consultant',
+};
+
 describe('the journey set is the one the owner approved', () => {
-  it('is exactly those four files, in that order', () => {
+  it('is exactly those four frames', () => {
+    expect([...JOURNEY_PHOTOS.map((p) => p.photo.src)].sort()).toEqual([...APPROVED].sort());
+  });
+
+  it('still renders in the authored order, for as long as the strip is what a reader meets', () => {
+    // TRANSITIONAL, and kept deliberately rather than dropped with the order rule it used to cite.
+    // Slice 1 ships NO layout change at all: `JourneyStrip` still renders this array top to bottom, so
+    // the sequence is still something a reader receives today. Relaxing it in the same slice that leaves
+    // the strip standing would drop a live guarantee one whole slice early — an accidental reorder would
+    // reach the page green. Delete this case WITH the strip (#516 slice 2), not before; the case above is
+    // the lock that outlives it.
     expect(JOURNEY_PHOTOS.map((p) => p.photo.src)).toEqual(APPROVED);
+  });
+
+  it('carries the engagement the owner authored, for every frame', () => {
+    // The length check is what stops this going green-but-vacuous: without it, an entry whose `src` is
+    // absent from ENGAGEMENTS would compare `undefined` against `undefined` and pass.
+    expect(Object.keys(ENGAGEMENTS)).toHaveLength(APPROVED.length);
+    for (const { photo, engagement } of JOURNEY_PHOTOS) {
+      expect(engagement, photo.src).toBe(ENGAGEMENTS[photo.src]);
+    }
   });
 
   it('carries alt and caption in every locale, non-empty', () => {
@@ -97,6 +137,23 @@ describe('assertJourneyShape refuses what the type system cannot', () => {
     // The registry is what supplies width/height, so an unregistered file renders with no reserved box.
     expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })])).toThrow(
       /not in the photograph registry/,
+    );
+  });
+
+  it('refuses an entry with no authored engagement at all', () => {
+    // Deleting the key rather than blanking it: this is the shape a future layout slice would actually
+    // produce — a fifth frame added with `src`, `alt` and `caption` copied from a neighbour and the
+    // attribution simply forgotten.
+    const withoutEngagement: Partial<JourneyEntry> = { ...entry() };
+    delete withoutEngagement.engagement;
+    expect(() => assertJourneyShape([withoutEngagement as JourneyEntry])).toThrow(
+      /has no authored engagement/,
+    );
+  });
+
+  it('refuses a blank engagement', () => {
+    expect(() => assertJourneyShape([entry({ engagement: '   ' })])).toThrow(
+      /has no authored engagement/,
     );
   });
 

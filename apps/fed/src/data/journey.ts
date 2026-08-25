@@ -22,6 +22,30 @@
 // discard that. Substituting, adding or reordering a photograph is an owner decision, not an
 // implementation one, because what was approved was these four rather than a category.
 //
+// THOSE FOUR YEARS ARE A NOTE TO WHOEVER EDITS THIS FILE. THEY ARE NOT A RULE, AND THEY CANNOT CONTRADICT
+// AN `engagement` BELOW (#516, owner ruling 2026-08-25). They are file facts; no reader ever meets one,
+// because no surface prints a date for these photographs. The case that forced this note is
+// `journey-aws-summit.jpg`, recorded above as 2022 and attributed by the owner to a role that starts
+// 2023-04. It looked like a conflict, so it was MEASURED on the original at full resolution rather than
+// argued: the backdrop reads `aws SUMMIT SÃO PAULO` and nothing else — no year — and the badge carries
+// his name, `AWS` and the category `Funcionário`, with no date. In the published 660px grayscale
+// derivative the badge is illegible entirely. THE FRAME CARRIES NO DATE, SO NOTHING IN IT SUSTAINS OR
+// CONTRADICTS A PLACEMENT, and placement is therefore editorial by construction — the owner's, not
+// derivable. A future reader who reads 2022 against a 2023 placement has not found an error. Keep the
+// years, because they are useful to whoever edits; keep this paragraph with them, because without it the
+// years read as a rule.
+//
+// ATTRIBUTION IS AUTHORED, SOURCED TO THE OWNER, AND NEVER DERIVED (#516, 2026-08-25). WHICH ENGAGEMENT A
+// FRAME BELONGS TO is his answer, per frame, recorded as data in `engagement` below — not derived from
+// date proximity, and not derived from what is visible in the frame. BOTH DERIVATIONS PRODUCE A FALSE
+// ATTRIBUTION, and that is measured rather than feared: for `journey-home-office.jpg` — April 2020, two
+// months before `profile.ts` starts Globo at 2020-06 — nearest date lands on Globo, and so does the
+// content of the frame (a monitoring dashboard, against a Globo entry whose highlights are an
+// observability platform). The owner places it at Accenture. Both available heuristics were wrong at
+// once, on the same frame. `journey-sticker-lid.jpg` is the other half of the argument: NOTHING IN THIS
+// REPOSITORY COULD HAVE PLACED IT AT ALL — every metadata segment is stripped from the committed bytes,
+// which `scripts/photo-assets.test.mjs` proves — and he placed it at Globo.
+//
 // PROVENANCE AND REVERSIBILITY. The sources live outside this repo, in the owner's own library, and are
 // deliberately not committed: what ships is a 660x880 grayscale derivative with every metadata segment
 // removed. `scripts/photo-assets.test.mjs` proves the EXIF absence against the committed bytes, which is
@@ -34,6 +58,22 @@ import { photoFor, type PhotoAsset } from './photos';
 export interface JourneyEntry {
   /** Root-relative, and it must be a key of the photograph registry — see `assertJourneyShape`. */
   src: string;
+  /**
+   * WHICH ENGAGEMENT THIS FRAME IS FROM — the owner's own answer, verbatim, and never derived. The
+   * ATTRIBUTION paragraph at the top of this file carries the measurement that makes "never derived" a
+   * rule rather than a preference.
+   *
+   * NOT LOCALE-KEYED, and deliberately not a third prose leaf. It is an employer/role name, and
+   * `profile.ts`'s translation policy already keeps employers and official job titles in English on both
+   * editions — a `Record<Locale, string>` here would invite someone to translate one of them and make the
+   * two editions disagree on a FACT, which is the one thing that file says can never happen.
+   *
+   * AND IT IS NOT READER-FACING COPY. Nothing renders it today, and when a layout places a frame inside
+   * an experience entry (#516 slice 2) the entry's own heading is what a reader reads. This string is the
+   * placement key, not the label — rendering it would publish the attribution twice, once as prose nobody
+   * reviewed.
+   */
+  engagement: string;
   /**
    * What is in the frame, for a reader who never sees it.
    *
@@ -52,6 +92,27 @@ export interface JourneyPhoto extends Omit<JourneyEntry, 'src'> {
 }
 
 /**
+ * The two editions of one prose leaf, written once each — `pt` first, then `en`.
+ *
+ * IT IS NOT SUGAR, AND IT IS NOT TASTE. The four authored entries below repeat the same record shape four
+ * times, and adding a fifth field to each of them (`engagement`, #516) pushed that repetition past
+ * SonarCloud's copy-paste threshold: the quality gate reddened on `new_duplicated_lines_density` — 3.4%
+ * against a 3% bound — with the four new lines landing inside a block the scanner already considered
+ * duplicated. Naming the shape once is the fix that REMOVES the repetition; raising the bound is the fix
+ * that hides it, and this repo's gate policy says not to take the second one.
+ *
+ * THE ANNOTATED RETURN TYPE IS THE CONTRACT, and it is written out rather than inferred on purpose:
+ * `Record<Locale, string>` built from `{ pt, en }` means adding a third locale turns THIS ONE LINE into a
+ * compile error — which is precisely the property the SHAPE paragraph at the top of this file leans on.
+ * Letting TypeScript infer `{ pt: string; en: string }` would give the same runtime value and lose it.
+ *
+ * ARGUMENT ORDER IS `pt`, `en` — the order the record was written in before this helper existed, and the
+ * order every call below reads in. A swapped pair stays visible on sight, since one string is Portuguese
+ * and the other is not; that is the same protection the object literal gave, no more and no less.
+ */
+const prose = (pt: string, en: string): Record<Locale, string> => ({ pt, en });
+
+/**
  * Everything about an authored entry that TypeScript cannot say, checked at module load.
  *
  * MODELLED ON `assertLibraryShape`, including the part that matters most: it reads its ARGUMENT and never
@@ -59,7 +120,7 @@ export interface JourneyPhoto extends Omit<JourneyEntry, 'src'> {
  * exercised through the real, correct data is an assertion nobody has ever seen fail — which is this
  * workspace's recurring defect, not a hypothetical one.
  *
- * Three things it catches that the type system cannot:
+ * Four things it catches that the type system cannot:
  *
  *   1. A `src` that is not in `photos.json`. The registry is what supplies `width`/`height`, so an
  *      unregistered file renders with no reserved box — cumulative layout shift on every tile, which is
@@ -68,14 +129,22 @@ export interface JourneyPhoto extends Omit<JourneyEntry, 'src'> {
  *   2. A blank prose leaf. `Record<Locale, string>` makes a MISSING locale a compile error and has nothing
  *      at all to say about `''`, and an empty `alt` is worse than a missing one: it declares the image
  *      decorative to a screen reader.
- *   3. `alt` equal to `caption`. They are two jobs (describe the frame / say what it is doing here), and
+ *   3. A missing or blank `engagement`. The one that is not about rendering: an entry with no authored
+ *      attribution is an entry a later layout would have to place by GUESSING, and both guesses available
+ *      — nearest date, and what is in the frame — were measured wrong on the same frame (#516). Refusing
+ *      it at module load is what makes a false attribution UNPUBLISHABLE rather than merely discouraged:
+ *      the build fails before a reader can be told the wrong employer.
+ *   4. `alt` equal to `caption`. They are two jobs (describe the frame / say what it is doing here), and
  *      collapsing them is the cheap mistake — it looks like less duplication and costs a reader who cannot
  *      see the photograph the whole photograph.
  */
 export function assertJourneyShape(entries: readonly JourneyEntry[]): void {
-  for (const { src, alt, caption } of entries) {
+  for (const { src, engagement, alt, caption } of entries) {
     if (!photoFor(src)) {
       throw new Error(`journey: ${src} is not in the photograph registry (src/data/photos.json)`);
+    }
+    if (!engagement?.trim()) {
+      throw new Error(`journey: ${src} has no authored engagement`);
     }
     for (const locale of LOCALES) {
       if (!alt[locale]?.trim()) throw new Error(`journey: ${src} has no ${locale} alt text`);
@@ -97,47 +166,51 @@ export function assertJourneyShape(entries: readonly JourneyEntry[]): void {
 const journey: readonly JourneyEntry[] = [
   {
     src: '/photos/journey-sticker-lid.jpg',
-    alt: {
-      pt: 'Homem sorrindo atrás da tampa aberta de um notebook coberta de adesivos de ferramentas — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — vestindo uma camiseta com uma baleia carregando contêineres.',
-      en: 'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
-    },
-    caption: {
-      pt: 'O ofício antes do empregador: o que eu escolhi aprender, colado na tampa.',
-      en: 'The craft before the employer: what I chose to learn, stuck to the lid.',
-    },
+    engagement: 'Globo',
+    alt: prose(
+      'Homem sorrindo atrás da tampa aberta de um notebook coberta de adesivos de ferramentas — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — vestindo uma camiseta com uma baleia carregando contêineres.',
+      'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
+    ),
+    caption: prose(
+      'O ofício antes do empregador: o que eu escolhi aprender, colado na tampa.',
+      'The craft before the employer: what I chose to learn, stuck to the lid.',
+    ),
   },
   {
     src: '/photos/journey-home-office.jpg',
-    alt: {
-      pt: 'Homem de óculos em primeiro plano, de lado, com uma escrivaninha atrás: um monitor externo exibindo um painel de monitoramento com gráficos e um notebook aberto exibindo um editor de código em tema escuro.',
-      en: 'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
-    },
-    caption: {
-      pt: '2020, em casa: gráficos numa tela, código na outra, e ninguém por perto.',
-      en: '2020, at home: charts on one screen, code on the other, and nobody around.',
-    },
+    engagement: 'Accenture',
+    alt: prose(
+      'Homem de óculos em primeiro plano, de lado, com uma escrivaninha atrás: um monitor externo exibindo um painel de monitoramento com gráficos e um notebook aberto exibindo um editor de código em tema escuro.',
+      'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
+    ),
+    caption: prose(
+      '2020, em casa: gráficos numa tela, código na outra, e ninguém por perto.',
+      '2020, at home: charts on one screen, code on the other, and nobody around.',
+    ),
   },
   {
     src: '/photos/journey-aws-summit.jpg',
-    alt: {
-      pt: 'Homem de pé diante de um painel liso onde se lê "aws Summit São Paulo", usando um cordão com crachá pendurado no pescoço.',
-      en: 'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
-    },
-    caption: {
-      pt: 'O nome na parede era o da empresa em que eu trabalhava. Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
-      en: 'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
-    },
+    engagement: 'AWS ProServe — Senior Delivery Consultant',
+    alt: prose(
+      'Homem de pé diante de um painel liso onde se lê "aws Summit São Paulo", usando um cordão com crachá pendurado no pescoço.',
+      'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
+    ),
+    caption: prose(
+      'O nome na parede era o da empresa em que eu trabalhava. Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
+      'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
+    ),
   },
   {
     src: '/photos/journey-corridor.jpg',
-    alt: {
-      pt: 'Homem de pé no meio de um corredor de escritório longo e vazio, com luminárias circulares e o forro aberto, mostrando dutos e tubulações; portas de elevador à direita.',
-      en: 'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
-    },
-    caption: {
-      pt: 'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
-      en: 'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
-    },
+    engagement: 'AWS Professional Services',
+    alt: prose(
+      'Homem de pé no meio de um corredor de escritório longo e vazio, com luminárias circulares e o forro aberto, mostrando dutos e tubulações; portas de elevador à direita.',
+      'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
+    ),
+    caption: prose(
+      'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
+      'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
+    ),
   },
 ];
 
@@ -153,8 +226,11 @@ assertJourneyShape(journey);
  * runtime branch on purpose: a branch here would be unreachable code that no test could cover honestly,
  * and an uncoverable branch is how a suite starts reporting numbers about lines nobody can exercise.
  */
-export const JOURNEY_PHOTOS: readonly JourneyPhoto[] = journey.map(({ src, alt, caption }) => ({
-  photo: photoFor(src)!,
-  alt,
-  caption,
-}));
+export const JOURNEY_PHOTOS: readonly JourneyPhoto[] = journey.map(
+  ({ src, engagement, alt, caption }) => ({
+    photo: photoFor(src)!,
+    engagement,
+    alt,
+    caption,
+  }),
+);
