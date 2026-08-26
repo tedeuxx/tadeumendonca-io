@@ -99,10 +99,20 @@ const sourceTemplate: ProfileSource = {
       end_date: null,
       description: {
         en:
+          'New-platform launch programs — full-stack web and native mobile. Leading the implementation: ' +
+          'solution architecture, AWS infrastructure and the technical direction of the build — and building ' +
+          'hands-on: a serverless data-integration solution for an aerospace manufacturer, an internal ' +
+          'knowledge platform still in progress, and public work at tadeumendonca.io with its agent harness ' +
+          'and plugin. ' +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
         pt:
+          'Programas de launch de novas plataformas — web full-stack e mobile nativo. Liderando a ' +
+          'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção — e ' +
+          'construindo hands-on: uma solução serverless de integração de dados para um fabricante ' +
+          'aeroespacial, uma plataforma interna de conhecimento ainda em andamento, e o trabalho público em ' +
+          'tadeumendonca.io com seu agent harness e plugin. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -152,17 +162,23 @@ const sourceTemplate: ProfileSource = {
       end_date: '2023-03',
       description: {
         en:
+          'New-platform launch programs — full-stack web on a cloud-native stack. Hands-on individual ' +
+          'contributor into tech lead: I set the platform up and wrote application and infrastructure code. ' +
           'Architected and implemented cloud-native solutions embedded within enterprise client teams, ' +
           'operating under legacy, compliance and data-sovereignty constraints.',
         pt:
+          'Programas de launch de novas plataformas — web full-stack sobre uma stack cloud-native. De ' +
+          'individual contributor hands-on a tech lead: levantei a plataforma e escrevi código de aplicação e ' +
+          'de infraestrutura. ' +
           'Arquitetei e implementei soluções cloud-native alocado dentro de times de clientes corporativos, ' +
           'operando sob restrições de legado, compliance e soberania de dados.',
       },
+      print_highlight_index: 0,
       highlights: {
         en: [
           "Stood up the cloud-native foundation of a tier-1 bank's mortgage-credit domain, migrating it off " +
-            'mainframe and ASPX to a full-stack modern platform — Angular; Kotlin/Spring Boot; EKS, ArgoCD and ' +
-            'Istio; RDS, DynamoDB, SQS and SNS.',
+            'mainframe and ASPX to a full-stack modern platform — Angular; Kotlin (Micronaut, later Spring ' +
+            'Boot); EKS, ArgoCD and Istio; RDS, DynamoDB, SQS and SNS.',
           'Grew from hands-on individual contributor to tech lead of a cross-organization team of up to eight ' +
             'over ~2 years; the open-source foundation kept expanding after my rolloff.',
           'Built reusable Terraform modules and deployment patterns other engineering teams relied on, applying ' +
@@ -170,8 +186,8 @@ const sourceTemplate: ProfileSource = {
         ],
         pt: [
           'Levantei a fundação cloud-native do domínio de crédito imobiliário de um banco tier-1, migrando-o de ' +
-            'mainframe e ASPX para uma plataforma moderna full-stack — Angular; Kotlin/Spring Boot; EKS, ArgoCD ' +
-            'e Istio; RDS, DynamoDB, SQS e SNS.',
+            'mainframe e ASPX para uma plataforma moderna full-stack — Angular; Kotlin (Micronaut, depois ' +
+            'Spring Boot); EKS, ArgoCD e Istio; RDS, DynamoDB, SQS e SNS.',
           'Cresci de individual contributor hands-on a tech lead de um time cross-organização de até oito ' +
             'pessoas ao longo de ~2 anos; a fundação open-source seguiu crescendo após meu rolloff.',
           'Construí módulos Terraform e padrões de deploy reutilizáveis que outros times usaram como base, ' +
@@ -186,13 +202,19 @@ const sourceTemplate: ProfileSource = {
       end_date: '2021-01',
       description: {
         en:
+          'New-platform launch program — a direct-to-consumer sales and subscription platform. Function: ' +
+          'observability and DevOps engineering, instrumenting the web revenue path end to end. ' +
           'Owned observability for the sales / subscription journey of a major direct-to-consumer streaming ' +
           'service and its channels — a business-critical revenue path on Angular, Salesforce and Spring Boot.',
         pt:
+          'Programa de launch de nova plataforma — uma plataforma de vendas e assinatura direto ao consumidor. ' +
+          'Função: engenharia de observabilidade e DevOps, instrumentando o caminho de receita web de ponta a ' +
+          'ponta. ' +
           'Responsável pela observabilidade da jornada de vendas / assinatura de um grande serviço de streaming ' +
           'direto ao consumidor e seus canais — um caminho de receita crítico para o negócio, em Angular, ' +
           'Salesforce e Spring Boot.',
       },
+      print_highlight_index: 0,
       highlights: {
         en: [
           'Built an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix ' +
@@ -215,22 +237,32 @@ const sourceTemplate: ProfileSource = {
       end_date: '2020-06',
       description: {
         en:
+          'New-platform launch projects — full-stack web and native mobile — from 2017 at Accenture Digital; ' +
+          'enterprise integration architecture before that. Application architect, hands-on across every tier: ' +
+          'mobile clients, web front ends, the backends under them and the delivery pipeline — four ' +
+          'custom-build engagements across four sectors. ' +
           'Promoted to Consultant, first as an integration architect on enterprise CRM implementation programs, ' +
           'then — the turning point — as an application architect at Accenture Digital, building modern web and ' +
           'native-mobile products. This is where the modern-engineering identity was forged and the ' +
           'distributed-applications architect through-line began.',
         pt:
+          'Projetos de launch de novas plataformas — web full-stack e mobile nativo — a partir de 2017 na ' +
+          'Accenture Digital; arquitetura de integração corporativa antes disso. Arquiteto de aplicação, ' +
+          'hands-on em todas as camadas: clientes mobile, front ends web, os backends embaixo deles e o ' +
+          'pipeline de entrega — quatro engajamentos de construção custom em quatro setores. ' +
           'Promovido a Consultant, primeiro como arquiteto de integração em programas corporativos de ' +
           'implantação de CRM, e então — o ponto de virada — como arquiteto de aplicações na Accenture Digital, ' +
           'construindo produtos web e mobile nativos modernos. É aqui que a identidade de engenharia moderna se ' +
           'formou e começou o fio condutor de arquiteto de aplicações distribuídas.',
       },
+      print_highlight_index: 1,
       highlights: {
         en: [
           'Architected the integration layers for enterprise CRM implementation programs, connecting apps, APIs ' +
             'and heterogeneous enterprise platforms.',
-          'At Accenture Digital, architected and shipped modern web and native-mobile products (React, native ' +
-            'Android, iOS), leaving packaged software behind for modern product engineering — open source, ' +
+          'At Accenture Digital, architected and shipped modern web and mobile products — React on the web, ' +
+            'and three mobile routes: hybrid (Ionic), native Android, and Flutter covering iOS and Android ' +
+            'for a bank. Left packaged software behind for modern product engineering — open source, ' +
             'private-cloud infrastructure, and hands-on distributed-systems design.',
           'Grew into the distributed-applications architect role carried through to today — solution design and ' +
             'tech leadership on delivery teams, as a senior individual contributor.',
@@ -238,9 +270,10 @@ const sourceTemplate: ProfileSource = {
         pt: [
           'Arquitetei as camadas de integração de programas corporativos de implantação de CRM, conectando ' +
             'apps, APIs e plataformas corporativas heterogêneas.',
-          'Na Accenture Digital, arquitetei e entreguei produtos web e mobile nativos modernos (React, Android ' +
-            'nativo, iOS), deixando o software de pacote para trás rumo à engenharia de produto moderna — open ' +
-            'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on.',
+          'Na Accenture Digital, arquitetei e entreguei produtos web e mobile modernos — React na web, e três ' +
+            'caminhos de mobile: híbrido (Ionic), Android nativo, e Flutter cobrindo iOS e Android para um ' +
+            'banco. Deixei o software de pacote para trás rumo à engenharia de produto moderna — open source, ' +
+            'infraestrutura em private cloud e desenho de sistemas distribuídos hands-on.',
           'Amadureci no papel de arquiteto de aplicações distribuídas que carrego até hoje — desenho de soluções ' +
             'e liderança técnica em times de entrega, como individual contributor sênior.',
         ],
@@ -253,14 +286,19 @@ const sourceTemplate: ProfileSource = {
       end_date: '2015-01',
       description: {
         en:
+          'Enterprise-integration SDLC — packaged implementations, ETL and SOA. Hands-on build and integration ' +
+          'of large-scale distributed systems. ' +
           'The root of the career: an enterprise integration factory. Began in web development, then built and ' +
           'integrated large-scale distributed systems — batch (Informatica PowerCenter ETL) and online / ' +
           'real-time (SOA) — growing from junior to senior analyst.',
         pt:
+          'SDLC de integração corporativa — implementações de pacote, ETL e SOA. Construção e integração ' +
+          'hands-on de sistemas distribuídos de larga escala. ' +
           'A raiz da carreira: uma fábrica de integração corporativa. Comecei em desenvolvimento web, e então ' +
           'construí e integrei sistemas distribuídos de larga escala — batch (Informatica PowerCenter ETL) e ' +
           'online / tempo real (SOA) — crescendo de analista júnior a sênior.',
       },
+      print_highlight_index: 1,
       highlights: {
         en: [
           'Joined as an intern in 2008 while completing the Information Systems degree; from graduating in 2010, ' +
