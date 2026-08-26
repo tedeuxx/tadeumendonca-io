@@ -50,9 +50,15 @@ describe('renderAdrTitle', () => {
   // It moved from six to seven on 2026-08-08: ADR-0045's heading carries `nav.*` as a code span. That is
   // the guard working exactly as written — the number was not bumped to clear a red gate, it was bumped
   // because a seventh title really does carry markup, and it is rendered as an element like the other six.
+  //
+  // Seven to EIGHT on 2026-08-25, same shape and worth stating again: ADR-0050's heading carries
+  // `{ company, start_date }` as a code span, because the record is about that pair specifically and a
+  // title naming it in prose would be a title about something vaguer. The loop below is what makes the
+  // bump safe — the eighth title is asserted to render as an element like the other seven, so the number
+  // is never the only thing the case checks.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(7);
+    expect(withMarkup).toHaveLength(8);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

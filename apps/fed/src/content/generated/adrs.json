@@ -341,5 +341,12 @@
     "file": "0049-held-article-is-isolated-not-private.md",
     "status": "accepted",
     "amended": false
+  },
+  {
+    "id": "0050",
+    "title": "A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`",
+    "file": "0050-journey-attribution-joins-profile-on-company-and-start-date.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
