@@ -46,6 +46,45 @@
 // REPOSITORY COULD HAVE PLACED IT AT ALL — every metadata segment is stripped from the committed bytes,
 // which `scripts/photo-assets.test.mjs` proves — and he placed it at Globo.
 //
+// HIS ANSWERS, VERBATIM, BECAUSE THE KEYS BELOW ARE A NORMALISATION OF THEM AND NORMALISATION LAUNDERS
+// PROVENANCE (#516 slice 2a). `engagement` is now a `{ company, start_date }` pair that matches
+// `profile.ts` exactly, which is what makes the attribution CHECKABLE — and the cost of that shape is
+// that this file no longer carries the owner's own words as data. It carries them here instead, and this
+// paragraph is the only place they exist in the repository:
+//
+//   2026-08-25, the four frames:
+//     "home office para a accenture, docker com notebook globo, corredor corporativo aws,
+//      aws summit senior delivery consultant"
+//
+//   2026-08-25, closing the two employer-level ambiguities the pair had to resolve:
+//     "na accenture coloca no 2015-2020"
+//     "aws proserve do corredor eu falei para a entrada de caa, a do delivery consultant falei a foto
+//      do aws summit"
+//
+// Read the keys against those three sentences: `{ 'Accenture', '2015-01' }` is *na accenture no
+// 2015-2020*; the corridor at `2021-01` is *a entrada de caa* (Cloud Application Architect); the Summit
+// at `2023-04` is *senior delivery consultant*. A reviewer holding his sentences can verify every key on
+// sight, which is the whole reason the key is a legible pair rather than an opaque id — see ADR-0050.
+//
+// THE JOIN, AND THE DIRECTION IT MUST KEEP (#516 slice 2a, ADR-0050). `engagement` is a natural key into
+// `profile.ts`'s experience array: `{ company, start_date }`, because `start_date` is unique across all
+// five entries while `company` is not — `Accenture` names two and the AWS ProServe string names two.
+// `assertJourneyShape` resolves every key at module load and REFUSES a key matching zero entries, a key
+// matching more than one, and two frames landing on the same entry.
+//
+// THE DEPENDENCY EDGE IS ONE-WAY AND MUST STAY SO: `journey.ts` imports `profile.ts`, and `profile.ts`
+// must NEVER import `journey.ts`. The reverse edge would put a photograph's placement into the module
+// `/cv.pdf` is printed from, which is the leak the first paragraph of this file exists to prevent,
+// arriving from the other direction.
+//
+// TWO HAZARDS, NAMED RATHER THAN DISCOVERED. The AWS employer string carries a U+2014 EM DASH; spelling
+// it with a hyphen produces a key that matches zero entries, so the mistake is a RED BUILD and never a
+// wrong attribution — the failure direction we want, and the reason the string is written once below.
+// And the duplication is real: two files now carry the same employer strings, so a correction in
+// `profile.ts` reddens this module until it follows. That is stated as a bad consequence in ADR-0050
+// rather than mitigated, because the alternative — resolving by anything softer than exact equality —
+// is the derivation this whole slice exists to forbid.
+//
 // PROVENANCE AND REVERSIBILITY. The sources live outside this repo, in the owner's own library, and are
 // deliberately not committed: what ships is a 660x880 grayscale derivative with every metadata segment
 // removed. `scripts/photo-assets.test.mjs` proves the EXIF absence against the committed bytes, which is
@@ -53,27 +92,51 @@
 // process fact recorded in the PR rather than a property of this file.
 import { LOCALES, type Locale } from '../i18n';
 import { photoFor, type PhotoAsset } from './photos';
+import { profileSource } from './profile';
+
+/**
+ * The natural key into `profile.ts`'s experience array — see the JOIN paragraph above and ADR-0050.
+ *
+ * BOTH FIELDS, NOT EITHER. `company` alone is ambiguous by measurement (`Accenture` names two entries,
+ * the AWS ProServe string names two); `start_date` alone is unique today and is unique by accident
+ * rather than by rule — two roles beginning the same month is an ordinary thing for a CV to record.
+ * The pair is what carries the meaning a reader of the owner's own sentence can check.
+ *
+ * SPELLED EXACTLY AS `profile.ts` SPELLS IT. Resolution is exact string equality, never normalised,
+ * trimmed-and-compared or matched case-insensitively: every softening turns a red build into a
+ * plausible-looking wrong answer, and a wrong answer here is a false attribution inside a work-experience
+ * entry.
+ */
+export interface EngagementKey {
+  company: string;
+  start_date: string;
+}
 
 /** An entry as AUTHORED: the filename, plus the two prose leaves. */
 export interface JourneyEntry {
   /** Root-relative, and it must be a key of the photograph registry — see `assertJourneyShape`. */
   src: string;
   /**
-   * WHICH ENGAGEMENT THIS FRAME IS FROM — the owner's own answer, verbatim, and never derived. The
-   * ATTRIBUTION paragraph at the top of this file carries the measurement that makes "never derived" a
-   * rule rather than a preference.
+   * WHICH EXPERIENCE ENTRY THIS FRAME IS FROM — the owner's own answer, normalised into the pair that
+   * `profile.ts` can be joined on, with his sentences kept verbatim in the ATTRIBUTION paragraph at the
+   * top of this file. That paragraph also carries the measurement that makes "never derived" a rule
+   * rather than a preference.
    *
-   * NOT LOCALE-KEYED, and deliberately not a third prose leaf. It is an employer/role name, and
-   * `profile.ts`'s translation policy already keeps employers and official job titles in English on both
-   * editions — a `Record<Locale, string>` here would invite someone to translate one of them and make the
-   * two editions disagree on a FACT, which is the one thing that file says can never happen.
+   * IT RESOLVES TO EXACTLY ONE ENTRY, AND THAT IS CHECKED AT MODULE LOAD, NOT HOPED FOR. Slice 1
+   * authored an employer NAME here and the shape could not carry the answer: three of the four strings
+   * matched no entry at all and the fourth matched two. See `assertJourneyShape`.
    *
-   * AND IT IS NOT READER-FACING COPY. Nothing renders it today, and when a layout places a frame inside
-   * an experience entry (#516 slice 2) the entry's own heading is what a reader reads. This string is the
-   * placement key, not the label — rendering it would publish the attribution twice, once as prose nobody
-   * reviewed.
+   * NOT LOCALE-KEYED, and deliberately not a prose leaf. Both fields are facts `profile.ts` authors once
+   * and shares across editions — employers and dates never localize — so a `Record<Locale, …>` here would
+   * invite someone to translate one edition and make the two disagree on a FACT, which is the one thing
+   * that file says can never happen.
+   *
+   * AND IT IS NOT READER-FACING COPY. Nothing renders it, and when a layout places a frame inside an
+   * experience entry (#516 slice 2b) the entry's own heading is what a reader reads. This is the
+   * placement key, not the label — rendering it would publish the attribution twice, once as prose
+   * nobody reviewed.
    */
-  engagement: string;
+  engagement: EngagementKey;
   /**
    * What is in the frame, for a reader who never sees it.
    *
@@ -113,6 +176,31 @@ export interface JourneyPhoto extends Omit<JourneyEntry, 'src'> {
 const prose = (pt: string, en: string): Record<Locale, string> => ({ pt, en });
 
 /**
+ * The AWS employer string, spelled ONCE — and the reason it is a constant is the em dash, not the length.
+ *
+ * It is U+2014, and `profile.ts` authors it that way on both of its ProServe entries. Written inline
+ * twice below it would be two chances to type a hyphen, and a hyphen produces a key matching zero
+ * entries rather than a visibly different string. Here the mistake can only be made once, and
+ * `assertJourneyShape` catches it either way.
+ */
+const AWS_PROSERVE = 'Amazon Web Services — Professional Services';
+
+/**
+ * One engagement key, named once — the `prose` helper's argument, applied to the other repeated shape.
+ *
+ * SAME REASON AS `prose`, MEASURED THE SAME WAY. Slice 1 added a fifth FIELD to four repeated literals
+ * and tripped SonarCloud's `new_duplicated_lines_density` (3.4% against a 3% bound); slice 2a turns that
+ * field into a two-field OBJECT in each of the same four literals, which is strictly more of the shape
+ * the scanner already flagged. Naming it once REMOVES the repetition; raising the bound would hide it,
+ * and this repo's gate policy says not to take the second one.
+ *
+ * ARGUMENT ORDER IS `company`, `start_date` — the order `profile.ts` authors them in, and the order the
+ * owner's own sentences read in ("na accenture coloca no 2015-2020"). A swapped pair is not a silent
+ * defect: a date is not an employer name, so it matches zero entries and the build goes red by name.
+ */
+const at = (company: string, start_date: string): EngagementKey => ({ company, start_date });
+
+/**
  * Everything about an authored entry that TypeScript cannot say, checked at module load.
  *
  * MODELLED ON `assertLibraryShape`, including the part that matters most: it reads its ARGUMENT and never
@@ -120,7 +208,10 @@ const prose = (pt: string, en: string): Record<Locale, string> => ({ pt, en });
  * exercised through the real, correct data is an assertion nobody has ever seen fail — which is this
  * workspace's recurring defect, not a hypothetical one.
  *
- * Four things it catches that the type system cannot:
+ * IT TAKES THE EXPERIENCE ARRAY AS AN ARGUMENT for the same reason it takes the entries: so a test can
+ * feed it a `profile.ts` that has drifted and watch each join failure fire, without editing the real CV.
+ *
+ * What it catches that the type system cannot:
  *
  *   1. A `src` that is not in `photos.json`. The registry is what supplies `width`/`height`, so an
  *      unregistered file renders with no reserved box — cumulative layout shift on every tile, which is
@@ -129,23 +220,67 @@ const prose = (pt: string, en: string): Record<Locale, string> => ({ pt, en });
  *   2. A blank prose leaf. `Record<Locale, string>` makes a MISSING locale a compile error and has nothing
  *      at all to say about `''`, and an empty `alt` is worse than a missing one: it declares the image
  *      decorative to a screen reader.
- *   3. A missing or blank `engagement`. The one that is not about rendering: an entry with no authored
- *      attribution is an entry a later layout would have to place by GUESSING, and both guesses available
- *      — nearest date, and what is in the frame — were measured wrong on the same frame (#516). Refusing
- *      it at module load is what makes a false attribution UNPUBLISHABLE rather than merely discouraged:
- *      the build fails before a reader can be told the wrong employer.
- *   4. `alt` equal to `caption`. They are two jobs (describe the frame / say what it is doing here), and
+ *   3. A missing or blank `engagement` field. An entry with no authored attribution is an entry a later
+ *      layout would have to place by GUESSING, and both guesses available — nearest date, and what is in
+ *      the frame — were measured wrong on the same frame (#516).
+ *   4. AN `engagement` MATCHING NO EXPERIENCE ENTRY — the drift case. `Globo.com` renamed, a role's
+ *      `start_date` corrected, the AWS em dash retyped as a hyphen: each one silently orphans a frame,
+ *      and a layout keyed on the join would then render it nowhere or, worse, somewhere.
+ *   5. AN `engagement` MATCHING MORE THAN ONE — the case a bare employer name produced today, before the
+ *      key became a pair. Two entries a frame could equally belong to is not a placement.
+ *   6. TWO FRAMES ON ONE ENTRY. The layout has no defined behaviour for a second figure inside one
+ *      experience block; without this the failure is silent stacking rather than a message.
+ *   7. `alt` equal to `caption`. They are two jobs (describe the frame / say what it is doing here), and
  *      collapsing them is the cheap mistake — it looks like less duplication and costs a reader who cannot
  *      see the photograph the whole photograph.
+ *
+ * 4, 5 and 6 are what make a FALSE ATTRIBUTION UNPUBLISHABLE rather than merely discouraged: they fail
+ * the build before a reader can be told the wrong employer.
  */
-export function assertJourneyShape(entries: readonly JourneyEntry[]): void {
+export function assertJourneyShape(
+  entries: readonly JourneyEntry[],
+  experience: readonly EngagementKey[],
+): void {
+  // Which frame already claimed each entry — the state case 6 needs, and the reason this is a `Map`
+  // rather than a `Set`: the message names BOTH frames, so the reader does not have to go and find the
+  // other one.
+  const claimed = new Map<string, string>();
+
   for (const { src, engagement, alt, caption } of entries) {
     if (!photoFor(src)) {
       throw new Error(`journey: ${src} is not in the photograph registry (src/data/photos.json)`);
     }
-    if (!engagement?.trim()) {
+    if (!engagement?.company?.trim() || !engagement?.start_date?.trim()) {
       throw new Error(`journey: ${src} has no authored engagement`);
     }
+
+    const { company, start_date } = engagement;
+    const matches = experience.filter(
+      (item) => item.company === company && item.start_date === start_date,
+    );
+    if (matches.length === 0) {
+      throw new Error(
+        `journey: ${src} names an engagement no experience entry matches (${company}, ${start_date})`,
+      );
+    }
+    if (matches.length > 1) {
+      throw new Error(
+        `journey: ${src} names an engagement matching ${matches.length} experience entries (${company}, ${start_date})`,
+      );
+    }
+
+    // NUL as the separator, written as an ESCAPE rather than as a raw byte: it is the one character
+    // neither an employer name nor a `YYYY-MM` can contain, so two distinct pairs can never collapse
+    // into one key and read as a duplicate that is not one.
+    const key = `${company}\u0000${start_date}`;
+    const alreadyClaimedBy = claimed.get(key);
+    if (alreadyClaimedBy) {
+      throw new Error(
+        `journey: ${src} and ${alreadyClaimedBy} both claim the experience entry (${company}, ${start_date})`,
+      );
+    }
+    claimed.set(key, src);
+
     for (const locale of LOCALES) {
       if (!alt[locale]?.trim()) throw new Error(`journey: ${src} has no ${locale} alt text`);
       if (!caption[locale]?.trim()) throw new Error(`journey: ${src} has no ${locale} caption`);
@@ -166,7 +301,7 @@ export function assertJourneyShape(entries: readonly JourneyEntry[]): void {
 const journey: readonly JourneyEntry[] = [
   {
     src: '/photos/journey-sticker-lid.jpg',
-    engagement: 'Globo',
+    engagement: at('Globo.com', '2020-06'),
     alt: prose(
       'Homem sorrindo atrás da tampa aberta de um notebook coberta de adesivos de ferramentas — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — vestindo uma camiseta com uma baleia carregando contêineres.',
       'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
@@ -178,7 +313,7 @@ const journey: readonly JourneyEntry[] = [
   },
   {
     src: '/photos/journey-home-office.jpg',
-    engagement: 'Accenture',
+    engagement: at('Accenture', '2015-01'),
     alt: prose(
       'Homem de óculos em primeiro plano, de lado, com uma escrivaninha atrás: um monitor externo exibindo um painel de monitoramento com gráficos e um notebook aberto exibindo um editor de código em tema escuro.',
       'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
@@ -190,7 +325,7 @@ const journey: readonly JourneyEntry[] = [
   },
   {
     src: '/photos/journey-aws-summit.jpg',
-    engagement: 'AWS ProServe — Senior Delivery Consultant',
+    engagement: at(AWS_PROSERVE, '2023-04'),
     alt: prose(
       'Homem de pé diante de um painel liso onde se lê "aws Summit São Paulo", usando um cordão com crachá pendurado no pescoço.',
       'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
@@ -202,7 +337,7 @@ const journey: readonly JourneyEntry[] = [
   },
   {
     src: '/photos/journey-corridor.jpg',
-    engagement: 'AWS Professional Services',
+    engagement: at(AWS_PROSERVE, '2021-01'),
     alt: prose(
       'Homem de pé no meio de um corredor de escritório longo e vazio, com luminárias circulares e o forro aberto, mostrando dutos e tubulações; portas de elevador à direita.',
       'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
@@ -216,7 +351,11 @@ const journey: readonly JourneyEntry[] = [
 
 // Checked at module load, exactly as `library.ts` does it: a defect in the authored data fails the build
 // and every test that imports it, rather than reaching a reader as a missing box or a silent `undefined`.
-assertJourneyShape(journey);
+//
+// `profileSource.experience` and NOT `profile.experience`: the join is on facts — an employer name and a
+// date — which the source authors once and shares across both editions, so resolving against a
+// locale-resolved edition would key the attribution on a locale for no reason at all.
+assertJourneyShape(journey, profileSource.experience);
 
 /**
  * The set, with each `src` resolved to its measured asset.

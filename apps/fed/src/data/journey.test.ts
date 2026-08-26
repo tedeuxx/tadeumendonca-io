@@ -13,13 +13,32 @@
 // turns it red, and the correct response is to get the owner's approval and edit the literals in the same
 // commit — never to relax the assertion.
 import { describe, it, expect } from 'vitest';
-import { assertJourneyShape, JOURNEY_PHOTOS, type JourneyEntry } from './journey';
+import {
+  assertJourneyShape,
+  JOURNEY_PHOTOS,
+  type EngagementKey,
+  type JourneyEntry,
+} from './journey';
+import { profileSource } from './profile';
 import { LOCALES } from '../i18n';
+
+// A stand-in for `profile.ts`'s experience array, so every join case below is exercised against data
+// this test OWNS. The three refusals are drift cases by nature — an employer renamed, a date corrected,
+// a second frame added — and the only honest way to watch one fire is to author the drift, which cannot
+// be done to the real CV from inside a test. The two `Ambiguous Co` rows exist for one case and one
+// only: two entries sharing a company AND a start_date, which is what `assertJourneyShape` refuses as
+// unresolvable. The real CV has no such pair, and the last case in this file is what asserts that.
+const EXPERIENCE: readonly EngagementKey[] = [
+  { company: 'Globo.com', start_date: '2020-06' },
+  { company: 'Accenture', start_date: '2015-01' },
+  { company: 'Ambiguous Co', start_date: '2019-01' },
+  { company: 'Ambiguous Co', start_date: '2019-01' },
+];
 
 /** A valid authored entry, overridable one field at a time — the `library.test.ts` fixture shape. */
 const entry = (over: Partial<JourneyEntry> = {}): JourneyEntry => ({
   src: '/photos/journey-sticker-lid.jpg',
-  engagement: 'An engagement',
+  engagement: { company: 'Globo.com', start_date: '2020-06' },
   alt: { pt: 'O que está no quadro', en: 'What is in the frame' },
   caption: { pt: 'Por que está na página', en: 'Why it is on the page' },
   ...over,
@@ -39,18 +58,29 @@ const APPROVED = [
   '/photos/journey-corridor.jpg',
 ];
 
-// Which engagement each frame is from — the owner's answer, verbatim (#516, 2026-08-25), locked for the
-// same reason the filenames are: it is not the builder's fact, and it is not derivable. Two of these four
-// could not have been reached any other way. `journey-sticker-lid.jpg` has no date anywhere in this
-// repository (the committed bytes carry no metadata, which `scripts/photo-assets.test.mjs` proves), and
-// `journey-home-office.jpg` is the frame where BOTH available derivations — nearest date, and what is in
-// the frame — landed on Globo and were wrong. A derived assertion here would re-derive the defect it
-// exists to catch.
-const ENGAGEMENTS: Record<string, string> = {
-  '/photos/journey-home-office.jpg': 'Accenture',
-  '/photos/journey-sticker-lid.jpg': 'Globo',
-  '/photos/journey-corridor.jpg': 'AWS Professional Services',
-  '/photos/journey-aws-summit.jpg': 'AWS ProServe — Senior Delivery Consultant',
+// Which EXPERIENCE ENTRY each frame is from — the owner's answer, resolved to the pair `profile.ts` can
+// be joined on (#516, 2026-08-25), locked for the same reason the filenames are: it is not the builder's
+// fact, and it is not derivable. Two of these four could not have been reached any other way.
+// `journey-sticker-lid.jpg` has no date anywhere in this repository (the committed bytes carry no
+// metadata, which `scripts/photo-assets.test.mjs` proves), and `journey-home-office.jpg` is the frame
+// where BOTH available derivations — nearest date, and what is in the frame — landed on Globo and were
+// wrong. A derived assertion here would re-derive the defect it exists to catch.
+//
+// WRITTEN OUT RATHER THAN IMPORTED FROM `journey.ts`. The values are spelled here a second time on
+// purpose — importing the `at()` helper or the AWS constant would make this file agree with the source
+// by construction and assert nothing about it. The cost is that correcting an attribution is two edits;
+// the benefit is that a wrong attribution is one.
+const ENGAGEMENTS: Record<string, EngagementKey> = {
+  '/photos/journey-home-office.jpg': { company: 'Accenture', start_date: '2015-01' },
+  '/photos/journey-sticker-lid.jpg': { company: 'Globo.com', start_date: '2020-06' },
+  '/photos/journey-corridor.jpg': {
+    company: 'Amazon Web Services — Professional Services',
+    start_date: '2021-01',
+  },
+  '/photos/journey-aws-summit.jpg': {
+    company: 'Amazon Web Services — Professional Services',
+    start_date: '2023-04',
+  },
 };
 
 describe('the journey set is the one the owner approved', () => {
@@ -73,8 +103,32 @@ describe('the journey set is the one the owner approved', () => {
     // absent from ENGAGEMENTS would compare `undefined` against `undefined` and pass.
     expect(Object.keys(ENGAGEMENTS)).toHaveLength(APPROVED.length);
     for (const { photo, engagement } of JOURNEY_PHOTOS) {
-      expect(engagement, photo.src).toBe(ENGAGEMENTS[photo.src]);
+      // `toEqual`, not `toBe`: the key is an object now, and `toBe` would compare identity and pass on
+      // nothing but the same reference — which no two independently authored literals ever are.
+      expect(engagement, photo.src).toEqual(ENGAGEMENTS[photo.src]);
     }
+  });
+
+  it('resolves every frame to exactly one entry of the REAL CV, not of a fixture', () => {
+    // The case that makes the module-load guard mean something about production data. Everything in the
+    // second describe block runs against `EXPERIENCE`, a fixture this file owns; this one runs the same
+    // resolution against `profile.ts` itself, so a CV edit that orphans a frame — or that introduces the
+    // duplicate pair the fixture has to fake — fails HERE by name rather than as an opaque import error.
+    expect(profileSource.experience.length).toBeGreaterThan(1);
+    for (const { photo, engagement } of JOURNEY_PHOTOS) {
+      const matches = profileSource.experience.filter(
+        (item) =>
+          item.company === engagement.company && item.start_date === engagement.start_date,
+      );
+      expect(matches, photo.src).toHaveLength(1);
+    }
+  });
+
+  it('places no two frames on the same experience entry', () => {
+    const keys = JOURNEY_PHOTOS.map(
+      ({ engagement }) => `${engagement.company}\u0000${engagement.start_date}`,
+    );
+    expect(new Set(keys).size).toBe(keys.length);
   });
 
   it('carries alt and caption in every locale, non-empty', () => {
@@ -130,12 +184,12 @@ describe('the journey set is the one the owner approved', () => {
 // which is indistinguishable from a guard that does not work.
 describe('assertJourneyShape refuses what the type system cannot', () => {
   it('accepts a well-formed entry', () => {
-    expect(() => assertJourneyShape([entry()])).not.toThrow();
+    expect(() => assertJourneyShape([entry()], EXPERIENCE)).not.toThrow();
   });
 
   it('refuses a file that is not in the photograph registry', () => {
     // The registry is what supplies width/height, so an unregistered file renders with no reserved box.
-    expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })])).toThrow(
+    expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })], EXPERIENCE)).toThrow(
       /not in the photograph registry/,
     );
   });
@@ -146,31 +200,83 @@ describe('assertJourneyShape refuses what the type system cannot', () => {
     // attribution simply forgotten.
     const withoutEngagement: Partial<JourneyEntry> = { ...entry() };
     delete withoutEngagement.engagement;
-    expect(() => assertJourneyShape([withoutEngagement as JourneyEntry])).toThrow(
+    expect(() => assertJourneyShape([withoutEngagement as JourneyEntry], EXPERIENCE)).toThrow(
       /has no authored engagement/,
     );
   });
 
   it('refuses a blank engagement', () => {
-    expect(() => assertJourneyShape([entry({ engagement: '   ' })])).toThrow(
-      /has no authored engagement/,
-    );
+    expect(() =>
+      assertJourneyShape([entry({ engagement: { company: '   ', start_date: '   ' } })], EXPERIENCE),
+    ).toThrow(/has no authored engagement/);
+  });
+
+  it('refuses an engagement no experience entry matches', () => {
+    // The DRIFT case, and the one this join is most likely to meet in real life: `Globo.com` renamed in
+    // `profile.ts`, a start_date corrected, or the AWS em dash retyped as a hyphen. Each one silently
+    // orphans a frame, and a layout keyed on the join would then place it nowhere — or somewhere.
+    expect(() =>
+      assertJourneyShape(
+        [entry({ engagement: { company: 'Globo', start_date: '2020-06' } })],
+        EXPERIENCE,
+      ),
+    ).toThrow(/names an engagement no experience entry matches/);
+  });
+
+  it('refuses an engagement matching more than one experience entry', () => {
+    // The case a bare employer name produced for real, before the key became a pair: `Accenture` named
+    // two entries and `AWS Professional Services` named two. Two entries a frame could equally belong to
+    // is not a placement, and picking one by date is the derivation this module forbids.
+    expect(() =>
+      assertJourneyShape(
+        [entry({ engagement: { company: 'Ambiguous Co', start_date: '2019-01' } })],
+        EXPERIENCE,
+      ),
+    ).toThrow(/names an engagement matching 2 experience entries/);
+  });
+
+  it('refuses two frames claiming the same experience entry', () => {
+    // Without this the failure is SILENT: two figures stack inside one experience block and every other
+    // assertion here stays green. The message names both frames, which is why the guard keeps a Map.
+    expect(() =>
+      assertJourneyShape(
+        [entry(), entry({ src: '/photos/journey-corridor.jpg' })],
+        EXPERIENCE,
+      ),
+    ).toThrow(/both claim the experience entry/);
+  });
+
+  it('accepts two frames on two different entries', () => {
+    // The control for the case above. Without it, a guard that refused EVERY second frame would pass
+    // that test for the wrong reason and make the layout impossible one slice later.
+    expect(() =>
+      assertJourneyShape(
+        [
+          entry(),
+          entry({
+            src: '/photos/journey-corridor.jpg',
+            engagement: { company: 'Accenture', start_date: '2015-01' },
+          }),
+        ],
+        EXPERIENCE,
+      ),
+    ).not.toThrow();
   });
 
   it.each(LOCALES)('refuses a blank %s alt text', (locale) => {
     const alt = { ...entry().alt, [locale]: '   ' };
-    expect(() => assertJourneyShape([entry({ alt })])).toThrow(new RegExp(`no ${locale} alt text`));
+    expect(() => assertJourneyShape([entry({ alt })], EXPERIENCE)).toThrow(new RegExp(`no ${locale} alt text`));
   });
 
   it.each(LOCALES)('refuses a blank %s caption', (locale) => {
     const caption = { ...entry().caption, [locale]: '' };
-    expect(() => assertJourneyShape([entry({ caption })])).toThrow(new RegExp(`no ${locale} caption`));
+    expect(() => assertJourneyShape([entry({ caption })], EXPERIENCE)).toThrow(new RegExp(`no ${locale} caption`));
   });
 
   it.each(LOCALES)('refuses the %s caption being reused as alt text', (locale) => {
     const base = entry();
     const alt = { ...base.alt, [locale]: base.caption[locale] };
-    expect(() => assertJourneyShape([entry({ alt })])).toThrow(
+    expect(() => assertJourneyShape([entry({ alt })], EXPERIENCE)).toThrow(
       new RegExp(`reuses its ${locale} caption as alt text`),
     );
   });
@@ -178,7 +284,7 @@ describe('assertJourneyShape refuses what the type system cannot', () => {
   it('reads its argument, never the shipped set', () => {
     // The one that keeps the cases above honest: if the guard secretly validated `JOURNEY_PHOTOS` it
     // would pass every test here for the wrong reason, and would still be green on a broken entry.
-    expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })])).toThrow();
-    expect(() => assertJourneyShape([])).not.toThrow();
+    expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })], EXPERIENCE)).toThrow();
+    expect(() => assertJourneyShape([], EXPERIENCE)).not.toThrow();
   });
 });
