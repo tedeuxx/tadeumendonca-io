@@ -19,10 +19,18 @@ export interface ExperienceItem {
   description?: string;
   highlights?: string[];
   /**
-   * Index into `highlights` of the ONE the print edition keeps (#161). The one-page CV drops the
-   * highlight lists wholesale, which left every AI statement in the PDF as self-description or a
+   * Index into `highlights` of the ONE the print edition keeps, per role (#161). The one-page CV drops
+   * the highlight lists wholesale, which left every AI statement in the PDF as self-description or a
    * certification while the role bodies read landing zones and CRM integration — the positioning
-   * asserted rather than shown. This names the single highlight that carries built evidence.
+   * asserted rather than shown.
+   *
+   * #161 set this on ONE role only, and its rationale was that the kept entry named the single
+   * highlight carrying built evidence. #522 superseded that: every role sets it, because a role
+   * printing no bullet reads as a thin role, and the selection rule is now `print the item the role's
+   * practice line does NOT already carry` — the `description` opens with a fixed-shape practice line
+   * that already states the arc and the function, so a bullet repeating it spends the only printed
+   * line on a restatement. Prefer a COMPLETED artifact: a printed CV whose sole evidence for a role is
+   * something still in progress understates the role.
    *
    * An index, not a copy of the text: the highlight is authored once, bilingually, and the two
    * editions cannot drift. Positional in the array but SEMANTIC in intent — which is why it lives in

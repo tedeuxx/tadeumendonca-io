@@ -117,7 +117,7 @@ const sourceTemplate: ProfileSource = {
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
       },
-      print_highlight_index: 1,
+      print_highlight_index: 2,
       highlights: {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +

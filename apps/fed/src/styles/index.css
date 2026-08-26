@@ -364,10 +364,19 @@ body {
      The `description` is one coherent sentence per role — it survives compression without lying, and it
      is what a scan wants first. The rest stay in full on /me, which the printed contact line now points
      to — that pointer is what makes the omission a deferral rather than a loss.
-     ONE highlight survives, marked in the data (`print_highlight_index`, #161): dropping the lists
-     wholesale left every AI statement in the PDF as self-description or a certification, while the role
-     bodies read landing zones and CRM integration — the positioning asserted rather than shown. The kept
-     entry is the only place the CV shows something agentic actually BUILT. */
+     ONE highlight per role survives, marked in the data (`print_highlight_index`, #161): dropping the
+     lists wholesale left every AI statement in the PDF as self-description or a certification, while the
+     role bodies read landing zones and CRM integration — the positioning asserted rather than shown.
+     #161 SET THE FLAG ON EXACTLY ONE ROLE, so four of five printed no bullet at all, and its rationale
+     was that the kept entry was `the only place the CV shows something agentic actually BUILT`. #522
+     superseded both halves and the reason is recorded here rather than left to be re-derived:
+       · every role now carries the flag — a role printing zero bullets reads as a thin role, and the
+         four that did were the four a screener reaches after the current one;
+       · the agentic evidence moved INTO each role's `description`, which #522 turned into a fixed-shape
+         practice line, so the bullet no longer has to carry it;
+       · which makes the selection rule `print the item the practice line does NOT already carry`. The
+         slot is one line; spending it restating the sentence directly above wastes it. That is exactly
+         what the current role did — practice line and bullet both naming the same unfinished item. */
   [data-print='cv'] [data-print-block='01'] li {
     display: none !important;
   }
