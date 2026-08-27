@@ -267,15 +267,13 @@ const sourceTemplate: ProfileSource = {
             'architecture that held across the change of mobile technology. Hands-on at every tier: the ' +
             'Android clients, a React back-office portal, and the Node.js / Express services under them ' +
             'on MongoDB and Redis, offline-first throughout.',
-          'The rest of the custom builds in that period, one per sector: a Flutter app covering iOS and ' +
-            'Android for a bank, the DevOps and delivery pipeline for a commerce platform, and — in the ' +
-            'final Accenture years — AWS architecture with a Spring Boot microservices backend for an ' +
-            'education product, plus the performance engineering around it. That last one is AWS work ' +
-            'three years before the AWS employment entries begin.',
+          'A Flutter app covering iOS and Android for a bank; the DevOps and delivery pipeline for a ' +
+            'commerce platform; and, in the final Accenture years, AWS architecture with a Spring Boot ' +
+            'microservices backend for an education product, plus the performance engineering around it.',
           'Left packaged software behind at that point for custom, lean-stack product engineering — open ' +
             'source, private-cloud infrastructure, and hands-on distributed-systems design. 2017 is the ' +
-            'seam in this entry: after it, the work was platforms being built rather than packages being ' +
-            'implemented.',
+            'seam, and from there to the end of the Accenture years the work was platforms being built ' +
+            'rather than packages being implemented.',
           'Grew into the distributed-applications architect role carried through to today — solution design and ' +
             'tech leadership on delivery teams, as a senior individual contributor.',
         ],
@@ -287,15 +285,14 @@ const sourceTemplate: ProfileSource = {
             'uma arquitetura similar que se sustentou na troca de tecnologia do mobile. Hands-on em todas ' +
             'as camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
-          'As demais construções custom do período, uma por setor: um app Flutter cobrindo iOS e Android ' +
-            'para um banco, o DevOps e o pipeline de entrega de uma plataforma de commerce, e — nos ' +
-            'últimos anos de Accenture — arquitetura AWS com um backend de microsserviços Spring Boot ' +
-            'para um produto de educação, mais a engenharia de performance em volta. Essa última é ' +
-            'trabalho AWS três anos antes de começarem as entradas de emprego na AWS.',
+          'Um app Flutter cobrindo iOS e Android para um banco; o DevOps e o pipeline de entrega de uma ' +
+            'plataforma de commerce; e, nos últimos anos de Accenture, arquitetura AWS com um backend de ' +
+            'microsserviços Spring Boot para um produto de educação, mais a engenharia de performance em ' +
+            'volta.',
           'Deixei o software de pacote para trás ali para engenharia de produto custom e lean stack — open ' +
             'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on. 2017 é a ' +
-            'costura desta entrada: depois dela, o trabalho foi plataforma sendo construída, não pacote ' +
-            'sendo implantado.',
+            'costura, e daí até o fim dos anos de Accenture o trabalho foi plataforma sendo construída, ' +
+            'não pacote sendo implantado.',
           'Amadureci no papel de arquiteto de aplicações distribuídas que carrego até hoje — desenho de soluções ' +
             'e liderança técnica em times de entrega, como individual contributor sênior.',
         ],
