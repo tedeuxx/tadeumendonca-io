@@ -180,3 +180,127 @@ it says about the copy. pt was read on its own terms, not against en.
   `2023-04` line. Cross-surface coherence has no clause in this ruler; routing to `product-lead`.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-08-27
+
+draft: `apps/fed/src/data/profile.ts` @ `efd6321`
+
+**Terminal round.** Two `## Round` sections now exist; the pair is spent and the draft goes to the owner
+in whatever state this leaves it. Nothing below holds anything.
+
+**Round 1's findings 2, 3 and 4 are resolved. Finding 1 is CARRIED, unresolved, by instruction** — it
+sits in the `2023-04` practice line whose fate the owner is deciding, and he may revert that line
+entirely, so it was deliberately not worked. **`"native across six platforms"` still contradicts this
+entry's own unchanged bullet (`native apps across five platforms … plus Web`), and the two advisories in
+that same line are carried with it, undecided rather than dropped.** It is not re-raised below and it is
+not re-argued; read the literal at the foot of this section as *this round produced nothing new*, never
+as *nothing is outstanding*.
+
+### Citable findings
+
+**None.** Nothing in the rewritten text can be held against a quoted clause of `published-voice`, and no
+finding is manufactured to justify the round. What was checked, and what the checks cost me, is below.
+
+### Checked, no finding
+
+- **Finding 2 — re-measured with round 1's own command at the new head, and the three reported figures
+  hold.**
+
+  ```
+  git -C <repo> show efd6321:apps/fed/src/data/profile.ts | python3 -c "import sys,re; s=sys.stdin.read(); b=s[s.index(\"start_date: '2015-01'\"):]; b=b[b.index('en: ['):b.index('pt: [')]; print([len(re.sub(r\"[\\\"']\s*\+?|\s+\",' ',x).split()) for x in re.split(r\",\n {10}(?=[\\\"'])\", b)])"
+  → [18, 85, 60, 47, 52, 37, 26]
+  ```
+
+  Field-force bullets 2, 3 and 4: **192 of 325 words, 59%**, down from 272 of 405 and 67%. The longest new
+  bullet is 60 words; the longest in the entry is now the **85-word three-apps bullet the slice never
+  touched**, which is the right shape — the established fact outweighs the new one. The seven-link chain
+  is gone; what replaced it is a three-beat *from / through / to*, which is a reach, not a diagram.
+
+- **The event trail was kept against my smallest change, and the call is right. I was wrong.** Round 1
+  said the event auditing was *"already in bullet 2 (`offline-first throughout`) and bullet 3"*. It was
+  not: `offline-first throughout` is a different fact, and bullet 3 never carried auditing. Checked
+  rather than conceded —
+
+  ```
+  git -C <repo> show efd6321:apps/fed/src/data/profile.ts | grep -n -i "audit\|event trail\|trilha de eventos\|operable\|operáve"
+  → 279 (en), 309 (pt) — and nothing else in the file
+  ```
+
+  The eight words are the **only** place any surface carries the operate-the-app fact. They also discharge
+  the Issue's own note on this entry — *"this line should say what was instrumented and why (operating the
+  app), not reuse the label"* — by saying `the event trail that made them operable in the field` and
+  never saying *observability*, which the 2020–2021 entry owns (`:210–229`). Declining a reviewer's
+  smallest change and arguing why is the pair working, not the pair failing.
+
+- **Finding 3 is cut in both editions**, and nothing was left dangling by the cut.
+
+- **Finding 4 — the register is his, and it is the same shape the earlier pair landed, not a second shape
+  wearing its clothes.** Verb-first past tense: `Designed…`, `Ran…` / `Desenhei…`, `Fiz…`, matching this
+  entry's own `Architected the integration layers…`, `Architected and shipped…`, `Left packaged software
+  behind…`, `Grew into…` and pt's `Arquitetei`, `Construí`, `Deixei`, `Amadureci`. **The first-person
+  plural is sourced twice over** — this entry already publishes *"because **we** traded what worked"* /
+  *"porque **trocamos** sinergias"*, itself transcribed from his *"trocamos sinergias"*. It is also used
+  correctly: the singular carries the design he is on record as owning (*"isso que **me** levou a um
+  desenho de api"*), the plural carries only the framing move around it. That is a finer split than round
+  1 suggested and a better one.
+
+- **`had been tried` stays passive, and that is the correct call rather than a residue of finding 4.** The
+  source names no actor for the two sync stacks. Supplying one would be an unsourced claim; the past
+  perfect establishes the causal order without a chronology sentence, which is what round 1's chronology
+  symptom needed.
+
+- **The chronology symptom is fixed by moving a fact, not a word.** The design bullet no longer ends on
+  the salesperson app, so the span bullet no longer opens against it. **Both scales survive intact:** the
+  span runs on both apps in order, and `where the model proved out` still attaches to the salesperson app
+  alone.
+
+- **Conclusion-first is not a finding, and this is the one place a reviewer would be wrong to block.**
+  The design bullet now leads with the answer (`Designed the API contract … MongoDB on the server, SQLite
+  on the device`) and gives the cause after. The corpus clause pulls against that — *"He accumulates lived
+  cases before stating a thesis … A draft that opens on the thesis and then illustrates it runs his form
+  backwards."* — but the interview clause pulls with it: *"**He leads with feeling and conclusion**, not
+  chronology or evidence."* **Precedence settles it and the ruler states the precedence outright:** *"it
+  overrides the corpus wherever the two disagree."* The higher anchor backs the draft. Recorded because a
+  quotable clause pointing the wrong way is exactly how a terminal round manufactures a finding.
+
+- **The hybrid app, re-checked at the new text:** still a bare mention plus an approach-level statement
+  scoped by `for this workload`, no verdict on any delivery, team or vendor; the three-apps count and the
+  per-app front-technology argument untouched. **No client or employer named.** **The two open owner items
+  untouched** — `"launch"` in the pt practice lines and *"levantei a plataforma"* in `2021-01`.
+
+- **Several round-1 pt advisories were taken** where the line was rewritten anyway: `carga` → `carga de
+  trabalho`, `correu de ponta a ponta` → `Fiz esse mesmo percurso`, `não somando infraestrutura` →
+  `tiramos o offline-first da infraestrutura e o resolvemos no desenho`, and the `a analytics de
+  stakeholders` article problem is gone.
+
+### Advisory and droppable
+
+- **`Ran the same span` has no antecedent.** No span has been named on the page — *span* is this Issue's
+  and this review's vocabulary, not the reader's, and `the same` points back at a bullet that describes a
+  design decision rather than a span. **pt does not have this problem to the same degree**, judged on its
+  own: `Fiz esse mesmo percurso` uses a word that explains itself even with nothing to refer back to.
+  Smallest change in en, if it is ever worth one: `Ran the full delivery on both native Android apps`.
+- **`to the analytics stakeholders read`** garden-paths — *analytics stakeholders* reads as a compound
+  noun until `read` arrives and re-parses it. `to the analytics that stakeholders read` costs one word.
+- **pt: `até a análise que os stakeholders liam`** translates a term the same sentence keeps in English
+  elsewhere (`look and feel`), and which this entry keeps throughout (`offline-first`, `sync`, `private
+  cloud`, `hands-on`). *analytics* is the term in his own register. **Stated as advisory deliberately:**
+  the corpus gloss clause could be dressed up to make this citable, and doing so in a terminal round would
+  be taste wearing a ruler's clothes.
+- Round 1's two advisories on the `2023-04` practice line are **carried, not dropped** — *The launches:*
+  leading on a landing zone, and pt's *sobre ela* — and travel with finding 1 into the owner's decision.
+
+### Flags to route — not craft findings, and not mine to judge
+
+- **Round 1's carried finding 1 is a sourcing finding, not a truth finding.** Whether the platform is
+  native on six platforms is `product-lead`'s blocking veto at the merge gate. What is checkable without
+  leaving this file is that the practice line and the bullet below it disagree, and they still do at
+  `efd6321`.
+- **The byte-pin.** If the owner's decision moves the `2023-04` practice line, `PRACTICE_LINES_EN` in
+  `apps/fed/src/data/vocabulary.test.ts` and the `.brand/surfaces.md` block move with it or the suite
+  reddens. `quality-assurance`'s, stated here only so it is not discovered late.
+- **The work-built-in-the-open clause is still absent** from the `2023-04` practice line, against the
+  Issue's recorded *A closed decision*. Unchanged from round 1, unchanged in class: `quality-assurance`'s
+  lens and the owner's word, not this ruler's.
+
+CONTENT-REVIEW-CLEAR
