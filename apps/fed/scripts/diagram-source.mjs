@@ -68,6 +68,43 @@ export function collectFences(contentDir) {
 }
 
 /**
+ * The dagre spacing a fence is laid out with, keyed on the flow DIRECTION it declares (#473).
+ *
+ * WHY THIS IS NOT ONE CONSTANT, which is what the Issue proposed and what was measured instead. On
+ * /architecture the three mermaid figures render at 2.1–3.5px painted type on a phone, because the SVG
+ * carries `width="100%"` with an inline `max-width` at its natural width — so the render scale on a
+ * narrow canvas is `canvas ÷ figure width` and NOTHING ELSE. Only the figure's WIDTH matters, and which
+ * mermaid knob controls width depends on the direction:
+ *
+ *   `flowchart LR` — ranks run left to right, so `rankSpacing` is the horizontal gap. It is the lever.
+ *   `flowchart TB` — ranks run top to bottom, so `rankSpacing` is VERTICAL and buys zero width.
+ *                    Measured: 1235.75px at rankSpacing 50, 1235.75px at 20, 1235.75px at 10.
+ *
+ * `nodeSpacing` is the other axis in both, and it narrows both figure kinds (in LR it repacks the
+ * subgraph columns), so it is lowered everywhere.
+ *
+ * AND `rankSpacing` MUST NOT BE LOWERED ON A `TB` FENCE — this is the load-bearing half. In a top-down
+ * flow the band a subgraph's own title is drawn in comes out of the inter-rank gap, so shrinking it
+ * slides the first row of boxes up THROUGH the title: at rankSpacing 16 the `TIER 1 · product`,
+ * `TIER 1 · content` and `AFK · from ready to merge…` labels render struck through by the nodes beneath
+ * them, still legible enough to look intentional. Rendered to PNG and looked at, because it is invisible
+ * to every assertion this repo has — the suite measures WIDTHS, and the width is what improves.
+ *
+ * Values are deliberately small-but-nonzero. mermaid treats `0` as absent and falls back to its own
+ * defaults, so a floor of 0/0 renders WIDER than 16/12 — measured at 1802px against 1628px, which reads
+ * as the knob having no effect rather than as a rejected value.
+ */
+export function spacingFor(source) {
+  const nodeSpacing = 12;
+  // `graph` as well as `flowchart`: mermaid still accepts the older keyword, and every fence here is
+  // authored by hand. A `graph LR` falling through to the vertical branch would keep the wide default
+  // silently — the figure would simply stay unreadable, with nothing anywhere to say why.
+  return /^\s*(?:flowchart|graph)\s+(?:LR|RL)\b/.test(source)
+    ? { rankSpacing: 16, nodeSpacing }
+    : { nodeSpacing };
+}
+
+/**
  * Compare the authored sources against the committed artifact, both ways.
  *
  * BOTH directions matter and for different reasons. `missing` is the staleness case — someone edited a

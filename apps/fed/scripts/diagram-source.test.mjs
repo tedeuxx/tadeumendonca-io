@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
-import { collectFences, mermaidFences, normalise, hashOf, diffAgainstArtifact } from './diagram-source.mjs';
+import { collectFences, mermaidFences, normalise, hashOf, diffAgainstArtifact, spacingFor } from './diagram-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content');
@@ -45,6 +45,38 @@ describe('mermaid source extraction', () => {
     expect(normalise('flowchart LR  \r\n  A --> B\t\n\n')).toBe('flowchart LR\n  A --> B');
     expect(hashOf('flowchart LR\nA --> B')).toBe(hashOf('  flowchart LR\nA --> B  \n'));
     expect(hashOf('flowchart LR\nA --> B')).not.toBe(hashOf('flowchart LR\nA --> C'));
+  });
+});
+
+// The direction-keyed spacing (#473). Both branches are asserted, and the TB one is the one that
+// matters: `rankSpacing` is ABSENT there on purpose, so mermaid keeps its default and the band a
+// subgraph's title is drawn in survives. A regression here is invisible to every other assertion in this
+// repo — the figure gets NARROWER, which is what the ratchet below rewards, while the `TIER 1 · product`
+// label renders struck through by the box beneath it.
+describe('dagre spacing is keyed on the flow direction', () => {
+  it('lowers rankSpacing only where ranks run horizontally, and nodeSpacing everywhere', () => {
+    expect(spacingFor('flowchart LR\n  A --> B')).toEqual({ rankSpacing: 16, nodeSpacing: 12 });
+    expect(spacingFor('flowchart RL\n  A --> B')).toEqual({ rankSpacing: 16, nodeSpacing: 12 });
+    // No `rankSpacing` key at all, not a large one: the generator spreads this over the base config, so
+    // absence is what leaves mermaid's own default in place.
+    expect(spacingFor('flowchart TB\n  A --> B')).toEqual({ nodeSpacing: 12 });
+    expect(spacingFor('flowchart TD\n  A --> B')).toEqual({ nodeSpacing: 12 });
+    // mermaid's older keyword for the same thing. A fence authored `graph LR` that fell through would
+    // keep the wide default and simply stay unreadable, with nothing to say why.
+    expect(spacingFor('graph LR\n  A --> B')).toEqual({ rankSpacing: 16, nodeSpacing: 12 });
+  });
+
+  it('does not mistake a direction that merely appears in a label for the fence direction', () => {
+    // `LR` inside a node label must not flip a top-down chart onto the horizontal branch and take its
+    // subgraph titles with it.
+    expect(spacingFor('flowchart TB\n  A["reads LR and RL"] --> B')).toEqual({ nodeSpacing: 12 });
+  });
+
+  it('takes the vertical branch for a non-flowchart, where the whole block is inert anyway', () => {
+    // A sequence or state diagram lays out on its own engine and never reads `flowchart:` config, so
+    // what this returns for one cannot matter. Asserted so that a future reader does not mistake the
+    // fall-through for a decision about diagrams this repo does not have.
+    expect(spacingFor('sequenceDiagram\n  A->>B: hi')).toEqual({ nodeSpacing: 12 });
   });
 });
 
@@ -107,4 +139,21 @@ describe('every compiled diagram is in the site’s visual language and carries 
   it.each(entries.map(([, svg], i) => [i, svg]))('diagram %i declares a viewBox, so it can actually size', (_i, svg) => {
     expect(svg).toMatch(/viewBox="[-\d. ]+"/);
   });
+
+  // THE WIDTH RATCHET (#473), and what it is NOT is the first thing to say about it: it does not assert
+  // the figure is legible on a phone. At this very ceiling a 390px viewport paints 15px * 320/1700 =
+  // 2.8px type, which this repo's own record calls unreadable. It asserts only that the direction-keyed
+  // spacing is still being applied and that the figures have not grown back — the ratchet the page never
+  // had, and whose absence is why "every figure passed every assertion at 7.2px" was true.
+  //
+  // The width is the whole ballgame: each figure ships `width="100%"` with an inline `max-width` at its
+  // natural width, so its render scale on a narrow canvas is `canvas ÷ this number`. Height is not
+  // ratcheted, deliberately — a taller figure costs a phone reader scrolling, not resolution.
+  it.each(entries.map(([, svg], i) => [i, svg]))(
+    'diagram %i stays under the width ratchet, so its phone render scale cannot silently regress',
+    (_i, svg) => {
+      const width = Number(/viewBox="0 0 ([\d.]+) /.exec(svg)[1]);
+      expect(width, `${width.toFixed(0)}px wide — a figure that grows shrinks the phone reader's type`).toBeLessThan(1700);
+    },
+  );
 });
