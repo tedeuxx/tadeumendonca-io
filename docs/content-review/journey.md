@@ -28,9 +28,9 @@ judged. Each item is the finding this round expected to raise and the reason it 
    published piece is named source material by that clause**:
 
    - the figure itself is his, published five days ago —
-     `content/blog/the-problem-stopped-changing.pt.md:72`, *"o que eu tenho, enquanto isso, é **um
-     teto que eu consigo descrever com precisão**"*, and the EN edition at the same line, *"a
-     **ceiling I can describe precisely**"*;
+     `apps/fed/src/content/blog/the-problem-stopped-changing.pt.md:72`, *"o que eu tenho, enquanto
+     isso, é **um teto que eu consigo descrever com precisão**"*, and the EN edition at the same
+     line, *"a **ceiling I can describe precisely**"*;
    - the state it asserts for 2021 is that article's own account of 2021 — *"Funcionou … Tudo ali
      era verdade, e continuou sendo verdade por anos. **O que mudou veio depois.**"* The article
      places the closing **after** the arrival, so a caption saying the ceiling was open at the
@@ -48,11 +48,25 @@ judged. Each item is the finding this round expected to raise and the reason it 
    and the draft carries only the second. **Judged, and it is the right cut, on the ruler rather than
    on preference.** The journey rule says *"Cut the good parts he supplied too"* and *"a detail earns
    its place by what it moves, never by what it proves"*; culture and brand are about the employer
-   and move nothing in his arc. The kept clause is additionally the one his own published article
-   already leads with: *"What I wanted to be doing every day was AWS cloud and Terraform"*
-   (`the-problem-stopped-changing.en.md:22`). The cut clause would also have been the passage that
-   *"only earns its place because it positions him"* — the ruler's own test for what does not earn
-   its place.
+   and move nothing in his arc. The kept clause is additionally what his own published article says
+   about the AWS move itself: *"What I then wanted from AWS was specific: to work with AWS cloud and
+   Terraform every day, with far more exposure than I had"*
+   (`apps/fed/src/content/blog/the-problem-stopped-changing.en.md:26`). The cut clause would also
+   have been the passage that *"only earns its place because it positions him"* — the ruler's own
+   test for what does not earn its place.
+
+   **Citation corrected 2026-08-27, inside a closed round and without reopening it.** This item
+   originally cited `:22` — *"What I wanted to be doing every day was AWS cloud and Terraform"*. That
+   line is really in the article, so the record was not false, but it belongs to the **Globo** period
+   and its own clause continues *"and that was not what my day had for me"* — the wish **frustrated**,
+   which is the opposite of the state the caption asserts about AWS. A reader re-deriving the caption
+   from it would land on the wrong employer and on a contradicting clause. **The conclusion is
+   unchanged and `:26` supports it outright, but the reasoning stands on a different line than it was
+   originally written on**, which is why this is recorded rather than swapped silently — this file is
+   the durable provenance for a caption whose sourcing was the whole dispute. Found by `product-lead`
+   on its re-read at head `4798123` and raised as an advisory on PR #549; `:22`, `:26` and both `:72`
+   citations above were re-verified here against that head rather than taken from the report. The
+   round's verdict is untouched.
 
 3. **The ironic reading — *the dream turned out to be ducts* — was tested and does not land.** Two
    things close it off: `aberto` / `open` is positively valenced in both editions, and the first
