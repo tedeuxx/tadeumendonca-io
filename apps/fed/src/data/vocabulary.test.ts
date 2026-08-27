@@ -8,6 +8,12 @@ import { STACK } from '../components/Marquee';
 import profileSrc from './profile.ts?raw';
 import architectureEn from '../content/architecture.en.md?raw';
 import architecturePt from '../content/architecture.pt.md?raw';
+// The practice-line block at the foot of this file reads the RESOLVED profile rather than the source
+// text above, and the reason is written out beside the assertions — same import pair
+// `resolveProfile.test.ts` opens with, so there is one way to read this data in tests, not two.
+import { resolveProfile } from './resolveProfile';
+import { profileSource } from './profile';
+import type { Profile } from '../types/profile';
 
 // THE PRACTICE'S NAME, PINNED ON EVERY SURFACE THAT CARRIES IT — not just the OG card.
 //
@@ -227,5 +233,127 @@ describe('the practice is named consistently across every surface', () => {
     expect(STACK).toContain(CURRENT);
     expect(STACK.filter((s) => BARE_UNPREFIXED.test(s))).toEqual([]);
     expect(STACK.filter((s) => RETIRED_STEM.test(s))).toEqual([]);
+  });
+});
+
+// THE PRACTICE LINE, PINNED ON THE ONE SURFACE A TEST CAN REACH (#522).
+//
+// WHAT IT GUARDS. Every `experience` entry's `description` opens with a fixed-shape practice line —
+// the arc noun, then his function in it — in both editions (criterion 1); and the 2008–2015 entry
+// names enterprise-integration SDLC while claiming neither software engineering nor a platform launch
+// (criterion 2). The device only works if a reader scanning the first line under each title meets one
+// continuous practice; a single entry losing its opener puts four unrelated roles back on the page,
+// and nothing else in this repo would say so.
+//
+// ── THE LIMIT, AND IT IS WHY CRITERION 7 ASKS FOR IT IN THE TEST'S OWN BODY ──
+// THIS COVERS THE REPO HALF ONLY. IT CANNOT REACH LINKEDIN. A green run says `profile.ts` still
+// matches the copy recorded in the private, gitignored `.brand/surfaces.md` on 2026-08-26 — the
+// record of what was published to the LinkedIn profile that day. It does NOT say that record still
+// matches what is live there now. LinkedIn is hand-edited, external, and unreachable from any test
+// in this repo, so the third surface of criterion 6 is verified by a human opening the page and by
+// nothing else. Read a green here as "the site has not drifted from the record", never as "the three
+// surfaces agree" — and when the record itself is re-synced, that is a manual step this suite is
+// blind to.
+//
+// WHY THE RESOLVED PROFILE RATHER THAN `profile.ts?raw`. The idiom the rest of this file uses cannot
+// work for this: each practice line is authored as five or six concatenated string literals, so no
+// regex over the raw source ever meets the assembled sentence — a `?raw` assertion here would be
+// green because it matched nothing, which is the worst available failure. `resolveProfile` is how the
+// components read this data, so the assertions run against the sentence a reader actually gets.
+//
+// WHY THE EXPECTED LINES ARE INLINE LITERALS, AND WHERE THEY COME FROM. They are transcribed from
+// `.brand/surfaces.md`'s 2026-08-26 block — the other side of the sync — and NOT derived from
+// `profile.ts`. An expectation built from the file it guards passes unconditionally and reading it
+// never reveals that. Because these came from the record, editing the site copy alone reddens here,
+// which is exactly the drift criterion 6 exists to stop. The private file is READ, never quoted into
+// a public surface; the practice lines themselves are published copy, so they are safe in this file.
+//
+// SELECTED BY `start_date`, NOT BY ARRAY POSITION. Reordering the entries must fail as a missing
+// entry, not silently move an assertion onto a different role.
+const enProfile = resolveProfile(profileSource, 'en');
+const ptProfile = resolveProfile(profileSource, 'pt');
+
+const descriptionOf = (profile: Profile, start: string): string => {
+  const matches = profile.experience.filter((e) => e.start_date === start);
+  // Exactly one, asserted before anything is read off it: a duplicated or missing start date must
+  // redden as a broken anchor rather than pass on whichever entry happened to be first.
+  expect(matches).toHaveLength(1);
+  return matches[0]?.description ?? '';
+};
+
+// The recorded English practice lines, keyed by the entry each one opens.
+const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
+  [
+    '2023-04',
+    'New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build — and building hands-on: a serverless data-integration solution for an aerospace manufacturer, an internal knowledge platform still in progress, and public work at tadeumendonca.io with its agent harness and plugin.',
+  ],
+  [
+    '2021-01',
+    'New-platform launch programs — full-stack web on a cloud-native stack. Hands-on individual contributor into tech lead: I set the platform up and wrote application and infrastructure code.',
+  ],
+  [
+    '2020-06',
+    'New-platform launch program — a direct-to-consumer sales and subscription platform. Function: observability and DevOps engineering, instrumenting the web revenue path end to end.',
+  ],
+  [
+    '2015-01',
+    'New-platform launch projects — full-stack web and native mobile — from 2017 at Accenture Digital; enterprise integration architecture before that. Application architect, hands-on across every tier: mobile clients, web front ends, the backends under them and the delivery pipeline — four custom-build engagements across four sectors.',
+  ],
+  [
+    '2008-03',
+    'Enterprise-integration SDLC — packaged implementations, ETL and SOA. Hands-on build and integration of large-scale distributed systems.',
+  ],
+];
+
+// THE SHAPE, PER LOCALE — the weaker assertion, and it carries the Portuguese edition alone.
+// There is no `.brand/` record to transcribe for pt (LinkedIn publishes English), so pt has no
+// byte-exact anchor and this is the only thing guarding it. What it pins is the part the device is
+// made of: the arc noun, and the em-dash that separates it from the function.
+//
+// THE PT ARC NOUN IS NOT ONE WORD. The Accenture Digital entry opens `Projetos de …` where the other
+// three open `Programas? de …` — the en side already spelled all three (`programs|program|projects`)
+// and the pt side must too, or this arm reddens on correct copy.
+const ARC_NOUN: ReadonlyArray<[string, RegExp, RegExp]> = [
+  ['2023-04', /^New-platform launch programs — /, /^Programas de launch de novas plataformas — /],
+  ['2021-01', /^New-platform launch programs — /, /^Programas de launch de novas plataformas — /],
+  ['2020-06', /^New-platform launch program — /, /^Programa de launch de nova plataforma — /],
+  ['2015-01', /^New-platform launch projects — /, /^Projetos de launch de novas plataformas — /],
+  ['2008-03', /^Enterprise-integration SDLC — /, /^SDLC de integração corporativa — /],
+];
+
+describe('every role opens with the practice line (#522)', () => {
+  // "EVERY entry" is criterion 1's word, so the count is asserted rather than assumed: a sixth role
+  // appended with no practice line would otherwise ship green past a table that never mentions it.
+  it('covers every experience entry, in both editions', () => {
+    expect(enProfile.experience).toHaveLength(PRACTICE_LINES_EN.length);
+    expect(ptProfile.experience).toHaveLength(ARC_NOUN.length);
+  });
+
+  it.each(PRACTICE_LINES_EN)('%s opens with the recorded line, byte for byte (en)', (start, line) => {
+    // Compared as a prefix rather than with `startsWith`, so a drift prints the two strings side by
+    // side instead of `expected false to be true`.
+    expect(descriptionOf(enProfile, start).slice(0, line.length)).toBe(line);
+  });
+
+  it.each(ARC_NOUN)('%s states the arc noun in both editions', (start, enPattern, ptPattern) => {
+    expect(descriptionOf(enProfile, start)).toMatch(enPattern);
+    expect(descriptionOf(ptProfile, start)).toMatch(ptPattern);
+  });
+
+  // CRITERION 2 — SCOPED TO THE 2008–2015 ENTRY AND TO NOWHERE ELSE. Software engineering is a
+  // legitimate, load-bearing claim on the four later entries; what the Issue forbids is dating it
+  // before 2017. So this is a negative on ONE entry, selected by its start date, and it would be
+  // wrong as a file-wide grep.
+  it('the 2008–2015 entry claims enterprise-integration SDLC, and neither engineering nor a launch', () => {
+    const enEarly = descriptionOf(enProfile, '2008-03');
+    const ptEarly = descriptionOf(ptProfile, '2008-03');
+
+    expect(enEarly).toContain('Enterprise-integration SDLC');
+    expect(ptEarly).toContain('SDLC de integração corporativa');
+
+    expect(enEarly).not.toMatch(/software engineer/i);
+    expect(enEarly).not.toMatch(/launch/i);
+    expect(ptEarly).not.toMatch(/engenharia de software/i);
+    expect(ptEarly).not.toMatch(/launch/i);
   });
 });

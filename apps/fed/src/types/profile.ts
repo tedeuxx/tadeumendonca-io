@@ -19,10 +19,23 @@ export interface ExperienceItem {
   description?: string;
   highlights?: string[];
   /**
-   * Index into `highlights` of the ONE the print edition keeps (#161). The one-page CV drops the
-   * highlight lists wholesale, which left every AI statement in the PDF as self-description or a
-   * certification while the role bodies read landing zones and CRM integration — the positioning
-   * asserted rather than shown. This names the single highlight that carries built evidence.
+   * Index into `highlights` of the ONE the print edition keeps for a role (#161). The compressed CV
+   * drops the highlight lists wholesale, which left every AI statement in the PDF as self-description
+   * or a certification while the role bodies read landing zones and CRM integration — the positioning
+   * asserted rather than shown.
+   *
+   * UNSET ON EVERY ROLE SINCE #522, and the reason is a measured page budget rather than a change of
+   * mind. #522 gave every `description` a fixed-shape practice line; a practice line and a printed
+   * bullet cost about the same, and the two-page budget (`e2e/cv-pdf.spec.ts`) fits one of them. Built
+   * and counted rather than inferred: practice lines with any bullet at all — including the SHORTEST
+   * one in the array — render 3 pages; practice lines with none render 2. The practice line wins,
+   * because it is the only field that exists identically on `/me`, `/cv.pdf` and LinkedIn.
+   *
+   * THE RULE FOR SETTING IT SURVIVES, for whenever the budget moves: print the item the role's
+   * practice line does NOT already carry, and prefer a COMPLETED artifact — a printed CV whose sole
+   * evidence for a role is something still in progress understates the role. Both were paid for: the
+   * current role once printed a bullet naming the same unfinished item its practice line named.
+   * Setting this on any role changes the page count, so rebuild and count before doing it.
    *
    * An index, not a copy of the text: the highlight is authored once, bilingually, and the two
    * editions cannot drift. Positional in the array but SEMANTIC in intent — which is why it lives in
