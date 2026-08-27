@@ -93,15 +93,27 @@ const strings = {
     // eighty characters, so anything longer here is read before the thing it is about.
     //
     // WHY AN ACCESSIBLE NAME AT ALL, when the visible label already says it: the page carries FOUR of
-    // these controls, and four buttons called "Expandir" are indistinguishable to a screen-reader user
+    // these controls, and four buttons called "Ampliar" are indistinguishable to a screen-reader user
     // moving by control. The caption is what tells them apart, and it is the same word a sighted reader
-    // has under the drawing. WCAG 2.5.3 holds because the long form starts with the short one.
+    // has under the drawing. WCAG 2.5.3 holds because the long form starts with the short one — and the
+    // VERB LEADS deliberately: a voice-input user says the word they can SEE, so "Ampliar: <caption>"
+    // is reachable by voice and "<caption>: Ampliar" is not. Do not reorder it.
     //
-    // pt says "Ampliar" rather than "Expandir": what the control does is make the drawing BIGGER (it
-    // opens at the figure's natural size, panned), not unfold hidden content — and "expandir" in BR
-    // interface Portuguese is the accordion word, which is the wrong promise. en keeps "Expand", where
-    // the same ambiguity does not bite.
-    expand: { pt: 'Ampliar', en: 'Expand' },
+    // BOTH EDITIONS PROMISE MAGNIFICATION, and getting there took a correction worth recording, because
+    // the first version gave the two editions different promises. "Ampliar" was chosen for pt on the
+    // argument that "expandir" is the ACCORDION word in BR interface Portuguese — an unfold, not a zoom
+    // — and this control opens the figure at its natural size rather than revealing hidden content. en
+    // was then left as "Expand", with the claim that the same ambiguity did not bite there.
+    //
+    // IT BITES HARDER IN ENGLISH. "Expand"/"Collapse" is the canonical disclosure pair, and it is the
+    // word the aria-expanded attribute is named after — an attribute DiagramFigure sets on this very
+    // button. So the vaguer promise was going to the edition every launch surface links to, while the
+    // Portuguese reader got the clearer one. "Enlarge" is the exact English of "Ampliar" and carries no
+    // disclosure history, so the pair now says one thing in two languages.
+    //
+    // aria-expanded STAYS regardless: it is the correct attribute for a control that opens a dialog,
+    // whatever verb the visible label uses. The ARIA name is not the copy.
+    expand: { pt: 'Ampliar', en: 'Enlarge' },
     collapse: { pt: 'Fechar', en: 'Close' },
   },
   marquee: {

@@ -21,7 +21,7 @@ const PHONE_WIDTHS = [320, 390, 430] as const;
 const HEIGHT = 900;
 
 /** The trigger's accessible name is `"<verb>: <caption>"` in the page's own locale. */
-const EXPAND = /^(Expand|Ampliar):/;
+const EXPAND = /^(Enlarge|Ampliar):/;
 const COLLAPSE = /^(Close|Fechar):/;
 
 /**
@@ -120,6 +120,59 @@ test.describe('a figure can be read at the size it was drawn', () => {
         expect(await paintedType(page)).toEqual(inFlow);
       });
     }
+  }
+
+  // THE CONTROL HAS TO LOOK PRESSABLE WITHOUT A POINTER, and this is E2E rather than a unit test for
+  // the reason the whole file exists: jsdom does not run the stylesheet, so "the element carries a
+  // border class" and "a phone reader sees a boundary" are different claims and only a browser settles
+  // the second.
+  //
+  // The defect this pins: the trigger first shipped with FIGCAPTION_CLASS's exact five properties, so
+  // the only thing distinguishing a control from a label was a `hover:` variant — and a phone has no
+  // hover. The measured 2.6px → 15px is entirely behind a press, so a control that reads as a caption
+  // costs this feature its whole value on the device it was built for.
+  //
+  // NOTHING IS HOVERED BEFORE THE READING: this runs immediately after load, with no click and no
+  // mouse move, so what it measures is the resting state a phone reader actually meets.
+  for (const width of PHONE_WIDTHS) {
+    test(`/en/architecture: the expand control is visibly pressable without hover, at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: HEIGHT });
+      await page.goto('/en/architecture');
+      await page.waitForLoadState('networkidle');
+
+      const seen = await page
+        .locator('figure.diagram')
+        .first()
+        .evaluate((figure) => {
+          const button = figure.querySelector('button')!;
+          const caption = figure.querySelector('figcaption')!;
+          const read = (el: Element) => {
+            const s = getComputedStyle(el);
+            return {
+              borderWidth: parseFloat(s.borderTopWidth),
+              borderColor: s.borderTopColor,
+              background: s.backgroundColor,
+            };
+          };
+          return { button: read(button), caption: read(caption) };
+        });
+
+      // A border that exists and is actually painted. `borderColor` is read too because a 1px border in
+      // `transparent` satisfies a width-only assertion and shows the reader nothing.
+      expect(seen.button.borderWidth, 'the control has no border at rest').toBeGreaterThanOrEqual(1);
+      expect(seen.button.borderColor, 'the control border is painted in transparent').not.toMatch(
+        /rgba\(0, 0, 0, 0\)|transparent/,
+      );
+      // COMPARATIVE, against the one element it must not be mistaken for. "The button has a border" on
+      // its own would stay green on a page where the caption grew one too — which is precisely the state
+      // this test exists to forbid, since the defect was the two being indistinguishable.
+      expect(
+        seen.caption.borderWidth,
+        'the caption grew a border — the control is indistinguishable from a label again',
+      ).toBe(0);
+    });
   }
 
   // The keyboard path is the point of the feature, not a checkbox: a figure a mouse can expand and a

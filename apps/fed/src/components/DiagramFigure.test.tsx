@@ -10,7 +10,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { createRef } from 'react';
-import { DiagramFigure, floorToNaturalWidth } from './DiagramFigure';
+import { DiagramFigure, FIGCAPTION_CLASS, floorToNaturalWidth } from './DiagramFigure';
 
 /** A stand-in for a compiled mermaid figure: `width="100%"` plus an inline `max-width` at its natural
  *  width, which is the exact shape `gen-diagrams.mjs` emits and the only shape the floor reads. */
@@ -19,7 +19,7 @@ const HTML =
 
 const drawing = (container: HTMLElement) => container.querySelector('.diagram-canvas svg') as SVGSVGElement;
 
-const expandButton = () => screen.getByRole('button', { name: /Expand/ });
+const expandButton = () => screen.getByRole('button', { name: /Enlarge/ });
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -31,10 +31,33 @@ describe('DiagramFigure — the expand affordance', () => {
     // than as two literals, because that is the property — a caller free to reword either one is free
     // to break it, and the visible/accessible split exists precisely because four identical "Ampliar"
     // buttons on one page are indistinguishable by voice.
-    expect(button).toHaveAccessibleName('Expand: The lanes and the tiers');
+    expect(button).toHaveAccessibleName('Enlarge: The lanes and the tiers');
     expect(button.getAttribute('aria-label')).toContain(button.textContent!.trim());
     expect(button.getAttribute('aria-expanded')).toBe('false');
     expect(button.getAttribute('aria-haspopup')).toBe('dialog');
+  });
+
+  // THE CONTROL MUST NOT READ AS A LABEL, and this is the assertion that would have caught the defect
+  // the copy lens found: the trigger shipped with FIGCAPTION_CLASS's five properties and nothing else,
+  // so its only pressable signal was `hover:bg-muted` — and a phone has no hover. The whole measured
+  // value of this feature is behind a press, on the device the feature exists for.
+  //
+  // Stated as the property rather than as a class literal: with every HOVER/FOCUS variant stripped, the
+  // control must still declare a boundary the caption does not. A treatment swap (border → background →
+  // an outline) keeps this green; deleting the non-hover signal reddens it, which is the only shape of
+  // change that reintroduces the defect.
+  it('keeps a pressable signal that survives with every hover variant removed', () => {
+    render(<DiagramFigure caption="A caption" html={HTML} />);
+    const nonHover = (el: Element) =>
+      el.className.split(/\s+/).filter((c) => c.length > 0 && !c.includes(':'));
+    const button = nonHover(expandButton());
+    const caption = nonHover(screen.getByText('A caption'));
+
+    expect(button).toContain('border');
+    // The caption is the control it must not be mistaken for, so the assertion is COMPARATIVE. Asserting
+    // only "the button has a border" would stay green if the caption grew one too.
+    expect(caption).not.toContain('border');
+    expect(FIGCAPTION_CLASS.split(/\s+/)).not.toContain('border');
   });
 
   // THE ICON REGRESSION, pinned rather than remembered. The first build put a lucide glyph in this

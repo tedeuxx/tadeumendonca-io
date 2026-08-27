@@ -192,13 +192,35 @@ export function DiagramFigure({
               setOpen(!open);
             }}
             // The VISIBLE label is one word and the ACCESSIBLE name names the figure, because a page
-            // with four of these otherwise offers a screen-reader user four controls called "Expand".
+            // with four of these otherwise offers a screen-reader user four controls called "Enlarge".
             // WCAG 2.5.3 (Label in Name) needs the visible label to be contained in the accessible one,
             // which is why the long form is built by extending the short one rather than replacing it.
+            // The verb LEADS: a voice-input user says the word they can see, so reordering this into
+            // caption-first would take the control out of reach by voice.
             aria-label={`${t(open ? 'diagram.collapse' : 'diagram.expand')}: ${caption}`}
             aria-haspopup={open ? undefined : 'dialog'}
             aria-expanded={open}
-            className="inline-flex items-center gap-1.5 px-2 py-1 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            // THE BORDER IS THE PRESSABLE SIGNAL, AND IT IS NOT DECORATION — it is the correction of a
+            // defect that would have cost this feature its whole value on the device it was built for.
+            //
+            // The first version styled this control `font-mono text-xs uppercase tracking-wider
+            // text-muted-foreground` — five properties, byte-for-byte `FIGCAPTION_CLASS` above. The only
+            // thing separating a control from a label was `hover:bg-muted` / `hover:text-foreground`,
+            // and A PHONE HAS NO HOVER. On the one device whose 2.6px type this slice exists to fix, the
+            // trigger read as a second caption — and the measured 2.6px → 15px is entirely behind a
+            // press nobody would know to make.
+            //
+            // `border border-border` + `invert-hover` is not a new treatment: it is verbatim the
+            // bordered mono control `AppShell`'s nav items carry, where #346 already decided the border
+            // is what makes an item read as chrome rather than as text. Reused so the page has one
+            // pressable language, not two. It could NOT be an icon — a lucide glyph is an <svg>, and
+            // three suites read a figure's drawing as `querySelector('svg')` (see the label below).
+            //
+            // Asserted twice, because "it declares a border class" and "a browser paints a boundary the
+            // reader can see" are different claims: `DiagramFigure.test.tsx` pins that the signal
+            // survives with every hover variant stripped, and `e2e/diagram-expand.spec.ts` reads the
+            // COMPUTED border at three phone widths, unhovered, against the caption's own.
+            className="border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-muted-foreground invert-hover"
           >
             {/* NO ICON, AND IT IS NOT A STYLE CALL — a lucide glyph is an <svg>, and three of this
                 repo's measurement suites read a figure's drawing as `el.querySelector('svg')`
