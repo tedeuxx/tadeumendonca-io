@@ -42,9 +42,9 @@ What the prompt is good for is showing you where the material came from. "My wor
 
 What came back was a full parody, in his shape: three verses, a chorus, a bridge, an outro. It scanned. It made me laugh on a Tuesday night. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
-**And it is not printed here, deliberately.** It is not a piece that echoes a song — it is that song with the words swapped, line for line, position for position. Reproducing it in full is reproducing somebody else's form with substitutions in it, and that is not a thing this platform should publish.
+**And it is not printed here, deliberately.** It is not a piece that echoes a song — it is that song with the words swapped, line for line, position for position. Reproducing it in full is reproducing somebody else's form with substitutions in it, and that is not a thing this platform should publish. **So none of it is printed here — not the whole, not a verse, not a phrase.** What you get is what each image refers to, described in my own words.
 
-So what is left is the part that was always worth reading anyway.
+Which is the part that was always worth reading anyway.
 
 **Fourteen images.** A doc nobody read. Infrastructure back from the dead. A pager at three in the morning. A change going out faster than anyone could look at it. A plan that ate the state. A rollback with a blast radius. Hooks firing twice. A file I had declared dead and that loads anyway. Scope being cut. A sprint that never converges. The same maze again. Drift. A context deadline. And, at the end, three repetitions of a line about having shipped blind.
 
@@ -80,7 +80,7 @@ Infrastructure you stop using does not stop existing. It stops being *in the dif
 
 ### The text I struck, which loads anyway
 
-This one I quote, because the phrase is the mechanism: *"a steering file I swore would die."*
+The image is a file somebody swore they had killed, loading anyway at the start of every session. That is the mechanism, and it is mine.
 
 A **steering file** is the standing-instructions document an agentic tool loads before it does anything — the thing that tells the agent how this project works. I run two harnesses, one at work and one here, and both have a version of it.
 
@@ -124,7 +124,7 @@ Everywhere else, I can undo it. In those two, "undo" is a word that stops workin
 
 ### Two hooks, one command, every time
 
-Here I quote as well, because both halves of the sentence do work: *"the hooks fire twice, I don't know why."*
+The image has two halves and they land differently — hooks firing twice, and not knowing why. Both are true of me, and not in the same way.
 
 The first half is literally true and I can point at the line. My plugin registers **two** hooks on the same trigger — every shell command I run passes through `permission-guard`, which can refuse it outright, and then through `wip-guard`, which checks whether I already have work in flight. Two scripts, one command, every time. It is in `hooks.json` and you can count them.
 
@@ -186,13 +186,13 @@ What exists instead is one file, `iac/budget.tf`, which sets a ceiling on the wh
 
 ### The one with nothing behind it
 
-The outro repeats a single line three times: *"we were shipping blind."*
+The piece ends on one statement, repeated three times: that we used to ship without being able to see what we had shipped.
 
 It is the one image in the set with nothing at all under it, and I want to be blunt about that, because the rest of this piece would be worth nothing if I let a good closing line make a false claim.
 
-It is not a description of this platform. Everything above exists precisely so that sentence is not true here: gates that refuse, hooks that deny a command before it runs, an inventory that reddens a build when it stops being accurate.
+It is not a description of this platform. Everything above exists precisely so that it is not true here: gates that refuse, hooks that deny a command before it runs, an inventory that reddens a build when it stops being accurate.
 
-**Read the tense.** *Were.* It is the condition the whole apparatus was built against — the ordinary state of a lot of software work, mine included, for a long stretch of it.
+**And the tense is the whole thing.** It is written as something that *was*, not something that is — a condition closed off and looked back at. That is what the apparatus above was built against: the ordinary state of a lot of software work, mine included, for a long stretch of it.
 
 And I have a small, exact receipt for what it actually looks like. A path misroute once sent every per-article social card into this site's catch-all route, so each one answered every scraper that asked with a `200` and the home page's HTML. Well-formed, confident, wrong. Nothing was watching that path, so nothing said anything, and I found out the way you always find out — afterwards, from the outside. What watches it now is that rewrite function's own unit tests and a post-deploy check that the live function still matches this repository, which is the shape every fix in this piece takes: not more care, something that fails loudly.
 

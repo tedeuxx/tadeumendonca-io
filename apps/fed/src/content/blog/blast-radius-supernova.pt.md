@@ -40,9 +40,9 @@ O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu
 
 O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro (o encerramento). Escandiu. Me fez rir numa noite de terça. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
-**E ela não está impressa aqui, de propósito.** Não é uma peça que ecoa uma música — é aquela música com as palavras trocadas, verso por verso, posição por posição. Reproduzir isso inteiro é reproduzir a forma de outra pessoa com substituições dentro, e não é coisa que esta plataforma deva publicar.
+**E ela não está impressa aqui, de propósito.** Não é uma peça que ecoa uma música — é aquela música com as palavras trocadas, verso por verso, posição por posição. Reproduzir isso inteiro é reproduzir a forma de outra pessoa com substituições dentro, e não é coisa que esta plataforma deva publicar. **Então nada dela está impresso aqui — nem o todo, nem um verso, nem uma expressão.** O que você recebe é a que cada imagem se refere, descrito com as minhas palavras.
 
-Então o que sobra é a parte que sempre foi a que valia ler.
+Que é a parte que sempre foi a que valia ler.
 
 **Catorze imagens.** Uma doc que ninguém leu. Infraestrutura de volta dos mortos. Um pager às três da manhã. Uma mudança saindo mais rápido do que alguém conseguia olhar. Um plan que comeu o state. Um rollback com raio de destruição. Hooks disparando duas vezes. Um arquivo que eu tinha declarado morto e que carrega assim mesmo. Escopo sendo cortado. Uma sprint que nunca converge. O mesmo labirinto de novo. Drift. Um deadline de contexto estourado. E, no fim, três repetições de um verso sobre ter publicado às cegas.
 
@@ -78,7 +78,7 @@ Infraestrutura que você para de usar não para de existir. Ela para de estar *n
 
 ### O texto que eu risquei, e que carrega assim mesmo
 
-Esse eu cito, porque a expressão é o mecanismo: *"a steering file I swore would die"* — um steering file que eu jurei que ia morrer.
+A imagem é um arquivo que alguém jurou ter matado, e que carrega assim mesmo no início de toda sessão. É esse o mecanismo, e ele é meu.
 
 Um **steering file** é o documento de instruções permanentes que uma ferramenta agêntica carrega antes de fazer qualquer coisa — o negócio que conta pro agente como este projeto funciona. Eu rodo dois harnesses, um no trabalho e um aqui, e os dois têm uma versão disso.
 
@@ -122,7 +122,7 @@ Em todo o resto eu consigo desfazer. Nesses dois, "desfazer" é uma palavra que 
 
 ### Dois hooks, um comando, toda vez
 
-Aqui eu também cito, porque as duas metades da frase trabalham: *"the hooks fire twice, I don't know why"* — os hooks disparam duas vezes, não sei por quê.
+A imagem tem duas metades e elas caem de jeitos diferentes — hooks disparando duas vezes, e não saber por quê. As duas são verdade sobre mim, e não do mesmo jeito.
 
 A primeira metade é literalmente verdadeira e eu consigo apontar a linha. Meu plugin registra **dois** hooks no mesmo gatilho — cada comando de shell que eu rodo passa pelo `permission-guard`, que pode recusar na hora, e depois pelo `wip-guard`, que checa se eu já tenho trabalho em voo. Dois scripts, um comando, toda vez. Está no `hooks.json` e dá para contar.
 
@@ -184,13 +184,13 @@ O que existe no lugar é um arquivo, `iac/budget.tf`, que define um teto para a 
 
 ### A única sem nada por trás
 
-O encerramento repete um verso três vezes: *"we were shipping blind"* — a gente publicava às cegas.
+A peça termina numa afirmação só, repetida três vezes: que a gente publicava sem conseguir enxergar o que tinha publicado.
 
 É a única imagem do conjunto sem absolutamente nada embaixo, e eu quero ser direto sobre isso, porque o resto desta peça não valeria nada se eu deixasse um bom verso de fechamento fazer uma afirmação falsa.
 
-Não é uma descrição desta plataforma. Tudo lá em cima existe precisamente para que aquela frase não seja verdade aqui: gates que recusam, hooks que negam um comando antes de ele rodar, um inventário que deixa um build vermelho quando ele para de ser exato.
+Não é uma descrição desta plataforma. Tudo lá em cima existe precisamente para que isso não seja verdade aqui: gates que recusam, hooks que negam um comando antes de ele rodar, um inventário que deixa um build vermelho quando ele para de ser exato.
 
-**Repare no tempo verbal.** *Were.* É a condição contra a qual o aparato inteiro foi construído — o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo.
+**E o tempo verbal é a coisa toda.** Está escrito como uma coisa que *foi*, não como uma que é — uma condição encerrada e olhada de longe. É contra ela que o aparato lá de cima foi construído: o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo.
 
 E eu tenho um recibo pequeno e exato de como isso é na prática. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora. O que olha aquilo hoje são os testes unitários da própria função de rewrite e um check pós-deploy de que a função no ar continua sendo a deste repositório, que é o formato de toda correção desta peça: não mais cuidado, e sim uma coisa que falha alto.
 
