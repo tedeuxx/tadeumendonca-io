@@ -262,11 +262,13 @@ const sourceTemplate: ProfileSource = {
         en: [
           'Architected the integration layers for enterprise CRM implementation programs, connecting apps, APIs ' +
             'and heterogeneous enterprise platforms.',
-          'Responsible application architect on a telecom field-force programme — three apps shipped in ' +
-            'sequence, the first hybrid (Ionic) and the next two native Android, on a similar ' +
-            'architecture that held across the change of mobile technology. Hands-on at every tier: the ' +
-            'Android clients, a React back-office portal, and the Node.js / Express services under them ' +
-            'on MongoDB and Redis, offline-first throughout.',
+          'Responsible application architect on a telecom field-force programme — three apps built in ' +
+            'parallel, one hybrid (Ionic) and two native Android, the front technology fixed per app at ' +
+            'requirements time by the device profile of each user population. Under fronts that were ' +
+            'required to differ, the backends converged on much the same architectural concept, because ' +
+            'the parallel teams traded what worked. Hands-on at every tier: the Android clients, a React ' +
+            'back-office portal, and the Node.js / Express services under them on MongoDB and Redis, ' +
+            'offline-first throughout.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
             'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
             'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
@@ -282,9 +284,11 @@ const sourceTemplate: ProfileSource = {
           'Arquitetei as camadas de integração de programas corporativos de implantação de CRM, conectando ' +
             'apps, APIs e plataformas corporativas heterogêneas.',
           'Arquiteto de aplicação responsável por um programa de força de campo em telecom — três apps ' +
-            'entregues em sequência, o primeiro híbrido (Ionic) e os dois seguintes Android nativo, sobre ' +
-            'uma arquitetura similar que se sustentou na troca de tecnologia do mobile. Hands-on em todas ' +
-            'as camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
+            'construídos em paralelo, um híbrido (Ionic) e dois Android nativo, com a tecnologia de front ' +
+            'fixada por app já nos requisitos pelo perfil de dispositivo de cada população de usuários. ' +
+            'Sob fronts que precisavam ser diferentes, os backends convergiram para muita semelhança de ' +
+            'conceito arquitetural, porque os times em paralelo trocaram sinergias. Hands-on em todas as ' +
+            'camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
             'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
