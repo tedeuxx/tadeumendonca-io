@@ -247,13 +247,20 @@ describe('the practice is named consistently across every surface', () => {
 //
 // ── THE LIMIT, AND IT IS WHY CRITERION 7 ASKS FOR IT IN THE TEST'S OWN BODY ──
 // THIS COVERS THE REPO HALF ONLY. IT CANNOT REACH LINKEDIN. A green run says `profile.ts` still
-// matches the copy recorded in the private, gitignored `.brand/surfaces.md` on 2026-08-26 — the
-// record of what was published to the LinkedIn profile that day. It does NOT say that record still
-// matches what is live there now. LinkedIn is hand-edited, external, and unreachable from any test
-// in this repo, so the third surface of criterion 6 is verified by a human opening the page and by
-// nothing else. Read a green here as "the site has not drifted from the record", never as "the three
-// surfaces agree" — and when the record itself is re-synced, that is a manual step this suite is
-// blind to.
+// matches the copy recorded in the private, gitignored `.brand/surfaces.md`. It does NOT say that
+// record still matches what is live on LinkedIn. LinkedIn is hand-edited, external, and unreachable
+// from any test in this repo, so the third surface of criterion 6 is verified by a human opening the
+// page and by nothing else. Read a green here as "the site has not drifted from the record", never as
+// "the three surfaces agree" — and when the record itself is re-synced, that is a manual step this
+// suite is blind to.
+//
+// AND SINCE 2026-08-27 THE THREE SURFACES ARE KNOWN NOT TO AGREE, DELIBERATELY. The `2023-04` line
+// below is transcribed from `.brand/surfaces.md`'s **2026-08-27** block, which records copy the site
+// publishes and LinkedIn does NOT yet carry — #522's surface-parity pass is a separate, owner-
+// authorised step after the repo half merges. The other four lines still come from the 2026-08-26
+// block and are unchanged. So a green run means exactly what it always meant — site matches record —
+// and the record now says, in writing, which of its lines LinkedIn is behind on. The date in a comment
+// is not the anchor; the literal is.
 //
 // WHY THE RESOLVED PROFILE RATHER THAN `profile.ts?raw`. The idiom the rest of this file uses cannot
 // work for this: each practice line is authored as five or six concatenated string literals, so no
@@ -262,8 +269,8 @@ describe('the practice is named consistently across every surface', () => {
 // components read this data, so the assertions run against the sentence a reader actually gets.
 //
 // WHY THE EXPECTED LINES ARE INLINE LITERALS, AND WHERE THEY COME FROM. They are transcribed from
-// `.brand/surfaces.md`'s 2026-08-26 block — the other side of the sync — and NOT derived from
-// `profile.ts`. An expectation built from the file it guards passes unconditionally and reading it
+// `.brand/surfaces.md` — the other side of the sync, the 2026-08-26 block for four of them and the
+// 2026-08-27 block for `2023-04` — and NOT derived from `profile.ts`. An expectation built from the file it guards passes unconditionally and reading it
 // never reveals that. Because these came from the record, editing the site copy alone reddens here,
 // which is exactly the drift criterion 6 exists to stop. The private file is READ, never quoted into
 // a public surface; the practice lines themselves are published copy, so they are safe in this file.
@@ -285,7 +292,7 @@ const descriptionOf = (profile: Profile, start: string): string => {
 const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
   [
     '2023-04',
-    'New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build — and building hands-on: a serverless data-integration solution for an aerospace manufacturer, an internal knowledge platform still in progress, and public work at tadeumendonca.io with its agent harness and plugin.',
+    "New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone.",
   ],
   [
     '2021-01',

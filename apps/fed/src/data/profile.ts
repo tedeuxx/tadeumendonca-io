@@ -100,19 +100,19 @@ const sourceTemplate: ProfileSource = {
       description: {
         en:
           'New-platform launch programs — full-stack web and native mobile. Leading the implementation: ' +
-          'solution architecture, AWS infrastructure and the technical direction of the build — and building ' +
-          'hands-on: a serverless data-integration solution for an aerospace manufacturer, an internal ' +
-          'knowledge platform still in progress, and public work at tadeumendonca.io with its agent harness ' +
-          'and plugin. ' +
+          'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
+          'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
+          'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
+          "& gas operator's AWS landing zone. " +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
         pt:
           'Programas de launch de novas plataformas — web full-stack e mobile nativo. Liderando a ' +
-          'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção — e ' +
-          'construindo hands-on: uma solução serverless de integração de dados para um fabricante ' +
-          'aeroespacial, uma plataforma interna de conhecimento ainda em andamento, e o trabalho público em ' +
-          'tadeumendonca.io com seu agent harness e plugin. ' +
+          'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
+          'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
+          'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -121,19 +121,19 @@ const sourceTemplate: ProfileSource = {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and structured the practice for team-scale adoption.',
+          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across five ' +
+            'platforms (iOS, Android, Tizen, webOS, Apple TV) plus Web, on a BFF + microservices backend, designed ' +
+            'for future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
+          "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
+            'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
+            "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
+            'of the deliveries.',
           'Built, hands-on, the serverless data integration for an aerospace manufacturer after its ' +
             'Heroku-to-AWS migration — Salesforce into a modernized custom backend, on Terraform, ' +
             'Amazon AppFlow and Python.',
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search — embeddings on Amazon Bedrock, stored and queried on Amazon S3 Vectors — so AI agents can ' +
             'both search and create knowledge; MVP in progress.',
-          "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
-            'workload — an upstream operational-monitoring platform — owning the infrastructure and coordinating ' +
-            "a separate consultancy's development across a ~2-year engagement the client renewed on the strength " +
-            'of the deliveries.',
-          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across five ' +
-            'platforms (iOS, Android, Tizen, webOS, Apple TV) plus Web, on a BFF + microservices backend, designed ' +
-            'for future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
           'Led engagements across LATAM, presenting architecture and delivery strategy to C-level and ' +
             'technical stakeholders in English, Spanish and Portuguese.',
         ],
@@ -141,20 +141,20 @@ const sourceTemplate: ProfileSource = {
           'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
             'adoção em escala de time.',
+          'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
+            'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
+            'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
+            'condução da entrega multi-fornecedor.',
+          'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
+            'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
+            'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
+            '~2 anos que o cliente renovou pela qualidade das entregas.',
           'Construí, hands-on, a integração serverless de dados de um fabricante aeroespacial depois da ' +
             'migração dele de Heroku para AWS — do Salesforce para um backend custom modernizado, em ' +
             'Terraform, Amazon AppFlow e Python.',
           'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
             'e busca semântica — embeddings no Amazon Bedrock, armazenados e consultados no Amazon S3 Vectors — ' +
             'para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
-          'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
-            'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
-            'infraestrutura e coordenando o desenvolvimento de outra consultoria ao longo de um engajamento de ' +
-            '~2 anos que o cliente renovou pela qualidade das entregas.',
-          'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
-            'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
-            'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
-            'condução da entrega multi-fornecedor.',
           'Conduzi engajamentos na América Latina, apresentando arquitetura e estratégia de entrega para ' +
             'stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],
@@ -269,6 +269,15 @@ const sourceTemplate: ProfileSource = {
             'worked across the parallel teams. Hands-on at every tier: the Android clients, a React ' +
             'back-office portal, and the Node.js / Express services under them on MongoDB and Redis, ' +
             'offline-first throughout.',
+          'Designed the API contract and the non-relational data model so that synchronising needed no ' +
+            'additional backend component at all — MongoDB on the server, SQLite on the device. Two ' +
+            'off-the-shelf sync stacks had been tried on the hybrid app, RabbitMQ then CouchDB, and neither ' +
+            'held for this workload, so we moved offline-first out of the infrastructure and into the ' +
+            'design.',
+          "Ran the full delivery on both native Android apps — the field technician's, then the field " +
+            "salesperson's, where the model proved out: from look-and-feel ideation with the UX team, " +
+            'through the event trail that made them operable in the field, to the analytics that ' +
+            'stakeholders read.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
             'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
             'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
@@ -290,6 +299,15 @@ const sourceTemplate: ProfileSource = {
             'arquitetural, porque trocamos sinergias entre os times em paralelo. Hands-on em todas as ' +
             'camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
+          'Desenhei o contrato de API e o modelo de dados não relacional de forma que sincronizar não ' +
+            'precisasse de nenhum componente de backend adicional — MongoDB no servidor, SQLite no ' +
+            'dispositivo. Duas soluções de sync de prateleira tinham sido tentadas no app híbrido, ' +
+            'RabbitMQ e depois CouchDB, e nenhuma se sustentou para essa carga de trabalho, então tiramos ' +
+            'o offline-first da infraestrutura e o resolvemos no desenho.',
+          'Fiz esse mesmo percurso nos dois apps Android nativo — primeiro o do técnico de campo, depois ' +
+            'o do vendedor de campo, onde a modelagem se provou: da ideação de look and feel junto com o ' +
+            'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até o ' +
+            'acompanhamento analítico que os stakeholders liam.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
             'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
             'orientei a reversão de um problema recorrente de performance em um backend de microsserviços ' +
