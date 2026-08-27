@@ -360,8 +360,8 @@ const journey: readonly JourneyEntry[] = [
       'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
     ),
     caption: prose(
-      'O que eu escolhi aprender, colado na tampa.',
-      'What I chose to learn, stuck to the lid.',
+      'Meus stacks favoritos na época, colados na tampa.',
+      'My favourite stacks at the time, stuck to the lid.',
     ),
   },
   {
@@ -396,8 +396,8 @@ const journey: readonly JourneyEntry[] = [
       'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
     ),
     caption: prose(
-      'Nunca aconteceu nada nesse corredor. Você provavelmente tem o seu.',
-      'Nothing ever happened in this corridor. You probably have one too.',
+      'Uma tecnologia que eu admirava e queria usar todos os dias. Aqui o teto estava aberto.',
+      'A technology I admired and wanted to use every day. Here the ceiling was open.',
     ),
   },
 ];
