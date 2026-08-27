@@ -20,7 +20,7 @@
 import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
-import { collectFences } from './diagram-source.mjs';
+import { collectFences, spacingFor } from './diagram-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content');
@@ -77,6 +77,10 @@ const THEME = {
     errorTextColor: '#F5F4EF',
   },
   // Real <text>, not <foreignObject> HTML: selectable, translatable, and survives being read as SVG.
+  //
+  // `rankSpacing`/`nodeSpacing` are NOT set here: they are merged in per fence from `spacingFor()`,
+  // because the knob that controls a figure's WIDTH — the only dimension that sets its render scale on a
+  // phone — depends on the flow direction the fence declares. See the note on that function (#473).
   flowchart: { htmlLabels: false, curve: 'linear', padding: 12 },
   securityLevel: 'strict',
 };
@@ -128,7 +132,11 @@ for (const { source, hash, file } of fences) {
         const { svg } = await mermaid.render(`d-${hash}`, source);
         return svg;
       },
-      { source, hash, theme: THEME },
+      {
+        source,
+        hash,
+        theme: { ...THEME, flowchart: { ...THEME.flowchart, ...spacingFor(source) } },
+      },
     );
     // Keyed by the NORMALISED SOURCE, not by the hash. The renderer looks a diagram up from the text it
     // finds in the markdown body, and hashing in the browser to do that would ship a sha256 into the
