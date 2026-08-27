@@ -396,8 +396,8 @@ const journey: readonly JourneyEntry[] = [
       'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
     ),
     caption: prose(
-      'Entrei para escrever infraestrutura. Aqui ela estava toda à vista, logo acima.',
-      'I came in to write infrastructure. Here it was all in plain sight, right overhead.',
+      'Uma tecnologia que eu admirava e queria usar todos os dias. Aqui o teto estava aberto.',
+      'A technology I admired and wanted to use every day. Here the ceiling was open.',
     ),
   },
 ];
