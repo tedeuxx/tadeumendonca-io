@@ -12,7 +12,9 @@ takeaway: 'that a prompt and its output prove nothing on their own; what makes t
 
 I like *Champagne Supernova*, by Oasis. The song is thirty years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
 
-**Source, up front: the meter, the shape and the rhyme scheme that started this are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. Everything I wrote is mine.** The video is here, and it is the only reason I got the idea at all:
+**Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word after it.**
+
+The video is here, and it is the only reason I got the idea at all:
 
 https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
@@ -20,9 +22,7 @@ https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
 The idea was not sophisticated. I wanted a version of that song about **my own work** — the harness I build on weekends, the loop that publishes this site, and the very specific kind of grief that comes with running agents against your own repositories.
 
-I want to be exact about why I am publishing anything at all, because "I made an AI write a funny thing" is not a reason.
-
-Everything else on this site is a technical argument with receipts under it. This is the same move applied to **form** instead of to subject: I took a fixed shape I did not invent, put my own material through it, and then did the thing that makes it mine — I went back over every image and asked what it actually refers to.
+Everything else on this site is a technical argument with receipts under it. This is the same move applied to **form** instead of to subject: I pointed a model at a fixed shape I did not invent and at my own material, and then did the part that makes any of it mine — I went back over every image it produced and asked what that image actually refers to.
 
 That second half is the article. The first half is a Tuesday.
 
@@ -36,13 +36,13 @@ Here is what I typed, unedited, lowercase and typos included. I write to Claude 
 
 **I am showing you the prompt because it is the method, not because it is evidence.** A prompt plus its output proves one thing: that a model produced text. It is circular as an argument about engineering, and I would not waste your time on it.
 
-What the prompt is good for is showing you where the material came from. "My work, my drama, my learning journey" is not a creative brief — it is a pointer at two repositories I have been living in for months. The model supplied the meter. The grief was already there, and so were the files.
+What the prompt is good for is showing you where the material came from. "My work, my drama, my learning journey" is not a creative brief — it is a pointer at two repositories I have been living in for months, and the model has never seen either of them. It wrote the lines. The grief was already there, and so were the files.
 
 ## 3 · What came back, and why you are not reading it
 
 What came back was a full parody, in his shape: three verses, a chorus, a bridge, an outro. It scanned. It made me laugh on a Tuesday night. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
-**And it is not printed here, deliberately.** It is not a piece that echoes a song — it is that song with the words swapped, line for line, position for position. Reproducing it in full is reproducing somebody else's form with my substitutions in it, and that is not a thing this platform should publish. I would rather lose the joke than have the one page on this site that is playing loose.
+**And it is not printed here, deliberately.** It is not a piece that echoes a song — it is that song with the words swapped, line for line, position for position. Reproducing it in full is reproducing somebody else's form with substitutions in it, and that is not a thing this platform should publish.
 
 So what is left is the part that was always worth reading anyway.
 
@@ -92,9 +92,9 @@ There is no slow rollout here. There is no staging environment, no canary, no pe
 
 That is a deliberate choice and it has a stated price, which I will restate rather than soften: what decides whether a change is safe enough to merge without me is the same kind of thing that wrote the change. Mis-classify one and it goes straight out. What makes that acceptable is not confidence — it is that this is a static site and a revert is a merge.
 
-### The plan that is blind to the one thing granting access to everything else
+### The plan that is not the safety net it looks like
 
-`terraform plan` is the command that tells you what is about to change in your cloud account before it changes. The joke in the image is that the plan is supposed to be the safe part.
+`terraform plan` is the command that tells you what is about to change in your cloud account before it changes. The image is a plan that ate the state — the safeguard itself doing the damage. What I have is the same fear from the other side: a plan that says nothing at all.
 
 The referent is a hole I documented on purpose. The trust between my pipeline and AWS — the identity provider and the role the pipeline assumes — is **created by hand, outside Terraform**, because there is no way to bootstrap it from inside. Which means the sentence in that decision record reads, in full: if somebody edits that trust policy in the console, **no `plan` objects**. The tool that exists to tell you the truth about your infrastructure is structurally blind to the one piece of it that grants access to the rest.
 
@@ -152,13 +152,13 @@ The fix was to bound the pool instead of the ambition: what gets drained is now 
 
 ### The scope that got cut
 
-The cutting is the most documented thing about this platform, and it is the part I am least embarrassed by.
+The cutting is the most documented thing about this platform.
 
 This site was not built lean. It was built **full and then cut**. There was a backend on Lambda, a database, an authentication service, a mail service, an edge function rendering social cards per request, a link-unfurling service, a two-environment branching model and an offline-first mobile app. A database with nothing to store. Auth with nobody to authenticate. A staging environment for a site whose rollback is a merge. Every one of those reversals is a numbered record you can open.
 
 The harness went the same way. **Nineteen personas became seven. Sixty-nine skills became fourteen.** Each cut carries a date and a reason.
 
-I am not going to pretend cutting is heroic. It is what happens when you finally ask a component what it is for *here*, and it has no answer.
+Cutting is what happens when you finally ask a component what it is for *here*, and it has no answer.
 
 ### The maze I had already learned
 
@@ -184,7 +184,9 @@ It is the only image in the set with no mechanism under it, and I want to be blu
 
 It is not a description of this platform. Everything above exists precisely so that sentence is not true here: gates that refuse, hooks that deny a command before it runs, an inventory that reddens a build when it stops being accurate.
 
-**Read the tense.** *Were.* It is the condition the whole apparatus was built against — the ordinary state of a lot of software work, mine included, for a long stretch of it. That state is the profession's, not a verdict on anybody in it, and certainly not on the people I did that work beside.
+**Read the tense.** *Were.* It is the condition the whole apparatus was built against — the ordinary state of a lot of software work, mine included, for a long stretch of it.
+
+And I have a small, exact receipt for what it actually looks like, from right here. A path misroute once sent every per-article social card into this site's catch-all route, so each one answered every scraper that asked with a `200` and the home page's HTML. Well-formed, confident, wrong. Nothing was watching that path, so nothing said anything, and I found out the way you always find out — afterwards, from the outside.
 
 The reason it belongs at the end is that it is what a chorus is for. You do not build gates because you are careful by temperament. You build them because you remember what it was like without them.
 
@@ -192,9 +194,9 @@ The reason it belongs at the end is that it is what a chorus is for. You do not 
 
 Not the parody — you are not even reading it. Take the exercise.
 
-Something hands you a piece of machine-generated nonsense about your own work, and it lands. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for six days, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
+A model that has never opened your repositories writes a joke about your job, and it lands fourteen times. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for six days, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
 
-The model supplied the shape. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
+The model wrote it. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
 
 So — put something you made through a shape you did not invent, and then go and check what it claims about you, one item at a time. I would genuinely like to know what falls out. **Which of the fourteen above is a Tuesday in your week, and which one is the file you have been meaning to open?**
 

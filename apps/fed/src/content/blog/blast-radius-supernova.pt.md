@@ -12,7 +12,9 @@ takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a 
 
 Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta anos, o clipe é a banda atravessando uma sala em câmera lenta, e eu já trabalhei ouvindo isso mais vezes do que consigo contar.
 
-**A fonte, logo de cara: a métrica, o formato e o esquema de rimas que começaram isso são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. Tudo o que eu escrevi é meu.** O clipe está aqui, e é o único motivo de eu ter tido a ideia:
+**A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra depois dele.**
+
+O clipe está aqui, e é o único motivo de eu ter tido a ideia:
 
 https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
@@ -20,9 +22,7 @@ https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
 A ideia não tinha nada de sofisticado. Eu queria uma versão daquela música sobre **o meu trabalho** — o harness que eu construo nos fins de semana, o loop que publica este site, e aquele tipo bem específico de sofrimento que vem de rodar agentes contra os seus próprios repositórios.
 
-Quero ser exato sobre por que eu estou publicando alguma coisa, porque "fiz uma IA escrever uma coisa engraçada" não é motivo.
-
-Todo o resto deste site é um argumento técnico com recibo embaixo. Isso aqui é o mesmo movimento aplicado à **forma** em vez do assunto: peguei um formato fixo que eu não inventei, passei o meu material por ele, e aí fiz a parte que torna a coisa minha — voltei em cada imagem e perguntei a que ela se refere de verdade.
+Todo o resto deste site é um argumento técnico com recibo embaixo. Isso aqui é o mesmo movimento aplicado à **forma** em vez do assunto: apontei um modelo para um formato fixo que eu não inventei e para o meu próprio material, e aí fiz a parte que torna qualquer coisa disso minha — voltei em cada imagem que ele produziu e perguntei a que aquela imagem se refere de verdade.
 
 Essa segunda metade é o artigo. A primeira é uma terça-feira.
 
@@ -34,13 +34,13 @@ Foi isto que eu digitei, sem editar, em caixa baixa e com os erros que tinham. E
 
 **Estou mostrando o prompt porque ele é o método, não porque ele é prova.** Um prompt mais a saída dele provam uma coisa: que um modelo produziu texto. Como argumento sobre engenharia isso é circular, e eu não ia gastar o seu tempo com isso.
 
-O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu drama, minha jornada de aprendizado" não é um briefing criativo — é um ponteiro para dois repositórios dentro dos quais eu venho morando há meses. O modelo forneceu a métrica. O sofrimento já estava lá, e os arquivos também.
+O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu drama, minha jornada de aprendizado" não é um briefing criativo — é um ponteiro para dois repositórios dentro dos quais eu venho morando há meses, e o modelo nunca viu nenhum dos dois. Ele escreveu os versos. O sofrimento já estava lá, e os arquivos também.
 
 ## 3 · O que voltou, e por que você não vai ler
 
-O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro. Escandiu. Me fez rir numa noite de terça. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
+O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro (o encerramento). Escandiu. Me fez rir numa noite de terça. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
-**E ela não está impressa aqui, de propósito.** Não é uma peça que ecoa uma música — é aquela música com as palavras trocadas, verso por verso, posição por posição. Reproduzir isso inteiro é reproduzir a forma de outra pessoa com as minhas substituições dentro, e não é coisa que esta plataforma deva publicar. Prefiro perder a piada a ter no site uma única página jogando solto.
+**E ela não está impressa aqui, de propósito.** Não é uma peça que ecoa uma música — é aquela música com as palavras trocadas, verso por verso, posição por posição. Reproduzir isso inteiro é reproduzir a forma de outra pessoa com substituições dentro, e não é coisa que esta plataforma deva publicar.
 
 Então o que sobra é a parte que sempre foi a que valia ler.
 
@@ -90,9 +90,9 @@ Aqui não tem rollout lento. Não tem ambiente de homologação, não tem canár
 
 É uma escolha deliberada e tem um preço declarado, que eu vou repetir em vez de suavizar: o que decide se uma mudança é segura o bastante para mergear sem mim é o mesmo tipo de coisa que escreveu a mudança. Classifique uma errado e ela vai direto pra rua. O que torna isso aceitável não é confiança — é que isto é um site estático e um revert é um merge.
 
-### O plan que é cego justo para o que dá acesso a todo o resto
+### O plan que não é a rede de segurança que parece
 
-`terraform plan` é o comando que te conta o que está prestes a mudar na sua conta de nuvem antes de mudar. A piada da imagem é que o plan deveria ser a parte segura.
+`terraform plan` é o comando que te conta o que está prestes a mudar na sua conta de nuvem antes de mudar. A imagem é um plan que comeu o state — a própria salvaguarda fazendo o estrago. O que eu tenho é o mesmo medo pelo outro lado: um plan que não fala nada.
 
 O referente é um buraco que eu documentei de propósito. A confiança entre o meu pipeline e a AWS — o provedor de identidade e o papel que o pipeline assume — é **criada na mão, fora do Terraform**, porque não existe jeito de bootstrapar isso por dentro. O que significa que a frase naquele registro de decisão diz, na íntegra: se alguém editar aquela política de confiança pelo console, **nenhum `plan` reclama**. A ferramenta que existe para te contar a verdade sobre a sua infraestrutura é estruturalmente cega justo para o pedaço que dá acesso ao resto.
 
@@ -150,13 +150,13 @@ A correção foi limitar o pool em vez da ambição: o que é drenado agora é u
 
 ### O escopo que foi cortado
 
-O corte é a coisa mais documentada desta plataforma, e é a parte de que eu menos me envergonho.
+O corte é a coisa mais documentada desta plataforma.
 
 Este site não foi construído enxuto. Foi construído **cheio e depois cortado**. Teve backend em Lambda, banco, serviço de autenticação, serviço de e-mail, uma função na borda renderizando card social a cada requisição, um serviço de unfurl de link, um modelo de branching com dois ambientes e um app offline-first. Um banco sem nada para guardar. Autenticação sem ninguém para autenticar. Um ambiente de homologação para um site cujo rollback é um merge. Cada uma dessas reversões é um registro numerado que você pode abrir.
 
 O harness foi pelo mesmo caminho. **Dezenove personas viraram sete. Sessenta e nove skills viraram catorze.** Cada corte carrega data e motivo.
 
-Não vou fingir que cortar é heroico. É o que acontece quando você finalmente pergunta a um componente para que ele serve *aqui*, e ele não tem resposta.
+Cortar é o que acontece quando você finalmente pergunta a um componente para que ele serve *aqui*, e ele não tem resposta.
 
 ### O labirinto que eu já tinha decorado
 
@@ -176,13 +176,15 @@ O que existe no lugar é um arquivo, `iac/budget.tf`, que define um teto para a 
 
 ### A única sem nada por trás
 
-O outro repete um verso três vezes: *"we were shipping blind"* — a gente publicava às cegas.
+O encerramento repete um verso três vezes: *"we were shipping blind"* — a gente publicava às cegas.
 
 É a única imagem do conjunto sem mecanismo embaixo, e eu quero ser direto sobre isso, porque o resto desta peça não valeria nada se eu deixasse um bom verso de fechamento fazer uma afirmação falsa.
 
 Não é uma descrição desta plataforma. Tudo lá em cima existe precisamente para que aquela frase não seja verdade aqui: gates que recusam, hooks que negam um comando antes de ele rodar, um inventário que deixa um build vermelho quando ele para de ser exato.
 
-**Repare no tempo verbal.** *Were.* É a condição contra a qual o aparato inteiro foi construído — o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo. Esse estado é da profissão, não é veredito sobre ninguém que está nela, e muito menos sobre as pessoas ao lado de quem eu fiz aquele trabalho.
+**Repare no tempo verbal.** *Were.* É a condição contra a qual o aparato inteiro foi construído — o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo.
+
+E eu tenho um recibo pequeno e exato de como isso é na prática, daqui mesmo. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora.
 
 O motivo de ele estar no fim é que é para isso que serve um refrão. Você não constrói gate porque é cuidadoso de temperamento. Você constrói porque lembra de como era sem eles.
 
@@ -190,9 +192,9 @@ O motivo de ele estar no fim é que é para isso que serve um refrão. Você nã
 
 Não a paródia — você nem está lendo ela. Leve o exercício.
 
-Alguma coisa te entrega um texto de máquina meio bobo sobre o seu próprio trabalho, e ele acerta. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por seis dias, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
+Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e ela acerta catorze vezes. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por seis dias, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
 
-O modelo forneceu o formato. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
+O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
 
 Então — passe alguma coisa que você fez por um formato que você não inventou, e depois vá conferir o que ele afirma sobre você, item por item. Eu ia gostar bastante de saber o que cai fora. **Qual das catorze lá em cima é uma terça-feira na sua semana, e qual é o arquivo que você vem adiando abrir?**
 
