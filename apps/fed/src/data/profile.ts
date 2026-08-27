@@ -269,20 +269,15 @@ const sourceTemplate: ProfileSource = {
             'worked across the parallel teams. Hands-on at every tier: the Android clients, a React ' +
             'back-office portal, and the Node.js / Express services under them on MongoDB and Redis, ' +
             'offline-first throughout.',
-          'The offline-first problem on that programme was solved in the design rather than by adding ' +
-            'infrastructure. Two off-the-shelf sync stacks were tried on the hybrid app — RabbitMQ, then ' +
-            'CouchDB — and neither held for this workload, so the API contract and the non-relational data ' +
-            'model were shaped so that synchronising needed no additional backend component at all: ' +
-            'MongoDB on the server, SQLite on the device. That pairing was the big win of the engagement, ' +
-            'and the field-salesperson app is where it was proven.',
-          "The same delivery then ran end to end on both native Android apps — the field technician's " +
-            "first, then the field salesperson's: look-and-feel ideation alongside the UX team, the " +
-            'technical architecture, the API and data model above, the open-source private-cloud ' +
-            'infrastructure, and offline-first built directly on that model — local persistence, sync and ' +
-            'conflict resolution for people working with no connectivity. Auditing every event is what made ' +
-            'the apps operable in the field, and it fed the stakeholder-facing analytics the same model had ' +
-            'been designed to carry. Running the span twice is what makes it a practice rather than a ' +
-            'one-off.',
+          'Designed the API contract and the non-relational data model so that synchronising needed no ' +
+            'additional backend component at all — MongoDB on the server, SQLite on the device. Two ' +
+            'off-the-shelf sync stacks had been tried on the hybrid app, RabbitMQ then CouchDB, and neither ' +
+            'held for this workload, so we moved offline-first out of the infrastructure and into the ' +
+            'design.',
+          "Ran the same span on both native Android apps — the field technician's, then the field " +
+            "salesperson's, where the model proved out: from look-and-feel ideation with the UX team, " +
+            'through the event trail that made them operable in the field, to the analytics stakeholders ' +
+            'read.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
             'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
             'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
@@ -304,20 +299,15 @@ const sourceTemplate: ProfileSource = {
             'arquitetural, porque trocamos sinergias entre os times em paralelo. Hands-on em todas as ' +
             'camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
-          'O problema de offline-first desse programa foi resolvido no desenho, não somando ' +
-            'infraestrutura. Duas soluções de sync de prateleira foram tentadas no app híbrido — RabbitMQ, ' +
-            'depois CouchDB — e nenhuma se sustentou para essa carga, então o contrato de API e o modelo de ' +
-            'dados não relacional foram desenhados de forma que sincronizar não precisasse de nenhum ' +
-            'componente de backend adicional: MongoDB no servidor, SQLite no dispositivo. Essa dupla foi o ' +
-            'grande acerto do engajamento, e foi no app do vendedor de campo que ela se provou.',
-          'A mesma entrega então correu de ponta a ponta nos dois apps Android nativo — primeiro o do ' +
-            'técnico de campo, depois o do vendedor de campo: ideação de look and feel junto com o time de ' +
-            'UX, a arquitetura técnica, a API e o modelo de dados acima, a infraestrutura open source em ' +
-            'private cloud, e o offline-first construído direto sobre esse modelo — persistência local, ' +
-            'sync e resolução de conflito para quem trabalhava sem conectividade. Auditar cada evento é o ' +
-            'que tornava os apps operáveis em campo, e alimentava a analytics de stakeholders que esse ' +
-            'mesmo modelo tinha sido desenhado para carregar. Rodar isso duas vezes é o que faz disso uma ' +
-            'prática, e não um caso isolado.',
+          'Desenhei o contrato de API e o modelo de dados não relacional de forma que sincronizar não ' +
+            'precisasse de nenhum componente de backend adicional — MongoDB no servidor, SQLite no ' +
+            'dispositivo. Duas soluções de sync de prateleira tinham sido tentadas no app híbrido, ' +
+            'RabbitMQ e depois CouchDB, e nenhuma se sustentou para essa carga de trabalho, então tiramos ' +
+            'o offline-first da infraestrutura e o resolvemos no desenho.',
+          'Fiz esse mesmo percurso nos dois apps Android nativo — primeiro o do técnico de campo, depois ' +
+            'o do vendedor de campo, onde a modelagem se provou: da ideação de look and feel junto com o ' +
+            'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até a análise ' +
+            'que os stakeholders liam.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
             'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
             'orientei a reversão de um problema recorrente de performance em um backend de microsserviços ' +
