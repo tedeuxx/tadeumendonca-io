@@ -748,3 +748,55 @@ body {
     inset 14px 0 12px -12px hsl(var(--primary) / 0.55),
     inset -14px 0 12px -12px hsl(var(--primary) / 0.55);
 }
+
+/* THE PROMOTED FIGURE (#473) — the same <figure>, taken out of the column and given the whole viewport.
+   `DiagramFigure` adds this class and the dialog role together; nothing else in the tree changes, which
+   is what keeps the SVG's ids unique and the Venn's ResizeObserver pointed at the box it was observing.
+
+   WHY A FULL VIEWPORT AND NOT A CENTRED PANEL like `ShareModal`'s. The figure's problem is width: at
+   390px the widest drawing is 1628px at its natural size, so every pixel the panel gives back to a
+   backdrop is a pixel of drawing the reader has to pan past. A panel with margins would show LESS of a
+   figure that already does not fit, in exchange for a scrim nobody needs — the page behind is fully
+   covered either way. Opaque `--background` rather than a translucent scrim for the same reason: this
+   is a reading surface, and text at 15px over a ghost of the page behind it is the defect this whole
+   Issue is about.
+
+   `margin-inline: 0` is not tidiness — it is the one line that has to win. The desktop breakout above
+   sets a negative inline margin on `.diagram` inside a media query, so without this a promoted figure
+   on a 1280px screen would sit 65px off the left of the viewport with its right edge past it.
+
+   The z-index sits one below `ShareModal`'s `z-50` deliberately: the two dialogs are opened from
+   different controls and never coexist, but if they ever did, the SHARE dialog is the one that must be
+   on top — it is the one that can be dismissed back to something, and a share sheet trapped under a
+   drawing is unreachable. */
+.diagram-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  margin-inline: 0;
+  padding: 0.75rem;
+  background: hsl(var(--background));
+}
+
+/* The scroller takes every row the toolbar and the caption do not, and scrolls in BOTH axes — the tall
+   `flowchart TB` figure is 1677px high at its natural size, so a viewport-height box that only panned
+   sideways would clip it with no way back. `min-height: 0` because a flex child's default `min-height:
+   auto` refuses to shrink below its content, which on a 1677px drawing means the box grows past the
+   viewport and the page scrolls instead of the figure. */
+.diagram-overlay .diagram-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  /* Scroll chaining: without this, panning to the end of the drawing hands the next wheel or swipe to
+     the page BEHIND the overlay, which then scrolls invisibly — so closing the overlay returns the
+     reader somewhere else on the page. The wrapper div already stops the page from re-laying out; this
+     stops it from moving. */
+  overscroll-behavior: contain;
+}
+
+/* The centring rule (`.diagram-canvas > svg { margin-inline: auto }`) still applies and still does the
+   right thing: auto margins resolve to zero when the drawing is wider than the box, so a phone gets a
+   figure flush to the origin it can pan from, and a desktop gets it centred. Nothing to override. */
+

@@ -86,6 +86,24 @@ const strings = {
     // plainly "accepted" nor superseded, and collapsing it to either loses the bit a reader needs.
     amended: { pt: 'emendada', en: 'amended' },
   },
+  diagram: {
+    // The expand affordance on every figure of /architecture (#473). Two strings, and both are
+    // deliberately ONE WORD: the control sits in a `text-xs uppercase` row above a drawing, and the
+    // accessible name is built as `"<this>: <the figure's caption>"` — the captions on this page run to
+    // eighty characters, so anything longer here is read before the thing it is about.
+    //
+    // WHY AN ACCESSIBLE NAME AT ALL, when the visible label already says it: the page carries FOUR of
+    // these controls, and four buttons called "Expandir" are indistinguishable to a screen-reader user
+    // moving by control. The caption is what tells them apart, and it is the same word a sighted reader
+    // has under the drawing. WCAG 2.5.3 holds because the long form starts with the short one.
+    //
+    // pt says "Ampliar" rather than "Expandir": what the control does is make the drawing BIGGER (it
+    // opens at the figure's natural size, panned), not unfold hidden content — and "expandir" in BR
+    // interface Portuguese is the accordion word, which is the wrong promise. en keeps "Expand", where
+    // the same ambiguity does not bite.
+    expand: { pt: 'Ampliar', en: 'Expand' },
+    collapse: { pt: 'Fechar', en: 'Close' },
+  },
   marquee: {
     // The key stays `subjects` — renaming it would touch every call site for no reader benefit —
     // but the LABEL is now "Stack", because that is what the strip lists. See Marquee.tsx.
