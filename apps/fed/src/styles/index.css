@@ -401,8 +401,18 @@ body {
   }
   /* A role with no kept highlight would still render an empty <ul>, contributing its margin and padding
      as unexplained whitespace between jobs. Since #522 that is FIVE of the five — no role sets
-     `print_highlight_index`, so all 16 <li> are hidden by the rule above and every <ul> is emptied.
-     This read `Four of the five` until #522 and described the state before it. */
+     `print_highlight_index`, so EVERY <li> in the block is hidden by the rule above and every <ul> is
+     emptied. This read `Four of the five` until #522 and described the state before it.
+     It also carried a COUNT of those <li> until the #522 highlights pass, which added bullets and
+     falsified it from another file, in a diff that never touches this one. The count was never
+     load-bearing — the rule hides every unmarked <li> regardless of how many there are — so it is
+     replaced by the quantifier rather than re-measured: a number here has no reader and one edit's
+     distance to being wrong.
+     THE FIRST ATTEMPT AT THIS PARAGRAPH PUT A DELTA WHERE THE COUNT HAD BEEN — `added five more`,
+     when the pass added three — and a wrong number inside the sentence explaining why numbers here go
+     stale is the defect arguing against itself. The delta is gone for the same reason the count is: it
+     ages against a file this one cannot see. If you need the number, derive it — every `en` entry in
+     each `highlights` array in `data/profile.ts` renders one <li> here. */
   [data-print='cv'] [data-print-block='01'] ul:not(:has(li[data-print-keep])) {
     display: none !important;
   }
