@@ -66,7 +66,7 @@ A parte interessante não é uma doc ter envelhecido. É que a doc em questão �
 
 Tenho um segundo caso, pior, de outra semana: escrevi numa guia a regra de que uma lista que enumera coisas falha *em silêncio* quando falta alguma — e a lista seguinte escrita sob aquela regra deixou de fora exatamente o arquivo sobre o qual a regra tinha sido escrita.
 
-E eu te devo a metade feia do primeiro caso. Eu tinha escrito *seis dias* aqui, porque seis dias é o que a própria correção diz, e eu copiei sem conferir. São três dias e três horas — `git log` no arquivo apagado, contra o commit que consertou o texto. **Um registro sobre uma afirmação vencida estava carregando um número vencido, e este artigo sobre auditar afirmações reimprimiu ele até alguém rodar de novo.** A contagem lá em cima está medida. O registro ainda precisa ser corrigido.
+E eu te devo a metade feia do primeiro caso. Eu tinha escrito *seis dias* aqui, porque seis dias é o que a própria correção diz, e eu copiei sem conferir. São pouco mais de três dias — `git log` no arquivo apagado, contra o commit que consertou o texto. **Um registro sobre uma afirmação vencida estava carregando um número vencido, e este artigo sobre auditar afirmações reimprimiu ele até alguém rodar de novo.** A contagem lá em cima está medida. O registro ainda precisa ser corrigido.
 
 ### A infraestrutura que eu aposentei, e que continuou faturando
 
@@ -176,7 +176,7 @@ Isso é a descrição de um teto, não uma reclamação sobre alguém. Os labiri
 
 ### O pager que não existe
 
-Essa é a única imagem cujo referente é uma **ausência** em vez de um mecanismo — e a ausência é deliberada e já está publicada na minha página de arquitetura, então não estou confessando nada aqui.
+O referente aqui é uma **ausência** em vez de um mecanismo — e a ausência é deliberada e já está publicada na minha página de arquitetura, então não estou confessando nada aqui.
 
 Nada neste site aciona ninguém. Não tem monitor de disponibilidade, não tem rastreador de erro olhando o navegador do leitor, não tem log de acesso. Um site estático servido de um bucket quase não tem o que te acordar, e montar um aparato de plantão para isso seria fantasia.
 
@@ -200,7 +200,7 @@ O motivo de ele estar no fim é que é para isso que serve um refrão. Você nã
 
 Não a paródia — você nem está lendo ela. Leve o exercício.
 
-Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e doze das catorze imagens caem em cima de alguma coisa que você consegue abrir. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
+Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e doze das catorze têm um arquivo, uma fatura, um commit ou uma medição por trás. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
 
 O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
 

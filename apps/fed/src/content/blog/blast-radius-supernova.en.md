@@ -68,7 +68,7 @@ The interesting part is not that a doc went stale. It is that the doc in questio
 
 I have a second one, worse, from a different week: I wrote a rule into a guide saying that a list which enumerates things will fail *silently* when something is missing from it — and the very next list written under that rule left out the exact file the rule had been written about.
 
-And I owe you the ugly half of the first one. I first wrote *six days* here, because six days is what the correction itself says, and I copied it across without checking. It is three days and three hours — `git log` on the deleted file, against the commit that fixed the text. **A record about a stale claim was carrying a stale number, and this article about auditing claims reprinted it until somebody re-ran it.** The count above is measured. The record still needs fixing.
+And I owe you the ugly half of the first one. I first wrote *six days* here, because six days is what the correction itself says, and I copied it across without checking. It is just over three days — `git log` on the deleted file, against the commit that fixed the text. **A record about a stale claim was carrying a stale number, and this article about auditing claims reprinted it until somebody re-ran it.** The count above is measured. The record still needs fixing.
 
 ### The infrastructure I retired, which kept billing
 
@@ -178,7 +178,7 @@ That is a description of a ceiling, not a complaint about anybody. The mazes wer
 
 ### The pager that does not exist
 
-This is the one image whose referent is an **absence** rather than a mechanism — and the absence is deliberate and already published on my architecture page, so I am not confessing anything here.
+The referent here is an **absence** rather than a mechanism — and the absence is deliberate and already published on my architecture page, so I am not confessing anything here.
 
 Nothing on this site pages anyone. There is no uptime monitor, no error tracker watching the reader's browser, no access log. A static site served from a bucket has almost nothing that can wake you up, and building an on-call apparatus for it would be a costume.
 
@@ -202,7 +202,7 @@ The reason it belongs at the end is that it is what a chorus is for. You do not 
 
 Not the parody — you are not even reading it. Take the exercise.
 
-A model that has never opened your repositories writes a joke about your job, and twelve of the fourteen images land on something you can open. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for three days, a stale number inside the correction that fixed it, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
+A model that has never opened your repositories writes a joke about your job, and twelve of the fourteen have a file, a bill, a commit or a measurement behind them. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for three days, a stale number inside the correction that fixed it, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
 
 The model wrote it. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
 
