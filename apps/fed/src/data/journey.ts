@@ -105,8 +105,10 @@
 // THE LAYOUT IS FINISHED AT FOUR, AND THE BUDGET IS A CONSTRAINT RATHER THAN A CAPACITY. Five experience
 // entries carry four frames, so one entry carries none — which is correct rather than a gap: a frame is a
 // figure an entry MAY carry, not a slot every entry must fill, and nothing in the markup announces an
-// absence. Do not read the empty entry as an invitation to fill it. The photograph budget and the arithmetic
-// behind that wording live in ADR-0048's 2026-08-25 amendment and are deliberately NOT restated here — a
+// absence — though the two-track layout is conditional on the frame (#516 slice 2c), so at `md` and up a
+// photoless entry stays a single track and a reader comparing rows can infer the absence from the
+// alignment even though no markup states it. Do not read the empty entry as an invitation to fill it. The
+// photograph budget and the arithmetic behind that wording live in ADR-0048's 2026-08-25 amendment and are deliberately NOT restated here — a
 // measured number copied into a second place is a number that goes stale in one of them silently. There is
 // also no `<= 4` assertion anywhere, on purpose: the set lock in `journey.test.ts` already refuses a fifth
 // frame, and a second guard on the same fact would be a second thing to keep in step.
