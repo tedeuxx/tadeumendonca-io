@@ -9,6 +9,8 @@
 // "Habilidades") — they are what the tests and the reader anchor on.
 import { type ReactNode } from 'react';
 import type { CertificationItem, Profile } from '../types/profile';
+import { engagementKey, type JourneyFrame } from '../data/journey';
+import { FIGCAPTION_CLASS } from './DiagramFigure';
 import { useT } from '../i18n';
 import { SITE_URL } from '../lib/site';
 
@@ -24,40 +26,30 @@ const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'Linke
 /**
  * One block of the page: a sticky label rail on the left, the body on the right.
  *
- * EXPORTED (#127) so `JourneyStrip` can reuse this shell on /me without re-typing the class strings. It
- * is exported rather than copied because the print stylesheet reaches these elements POSITIONALLY —
- * `section > div:first-child > div`, `section > div:last-child` and so on — so a second, hand-copied
- * version would drift out of print alignment the first time this markup is touched, and nothing would
- * say so until someone re-read a PDF.
+ * `index` IS REQUIRED AND NOT NULLABLE AGAIN (#516 slice 2b). It was widened to `string | null` at #127
+ * so `JourneyStrip` could render an unnumbered fifth block under the CV; that component is gone — the
+ * four photographs now render inside the experience entries themselves — and `index={null}` had exactly
+ * one caller. Keeping the nullable type would leave a branch no test could honestly reach, which is how a
+ * suite starts reporting coverage about lines nobody can exercise. Blocks 01–04 are a credential sequence
+ * (Experience, Education, Certifications, Skills), all inside `[data-print='cv']` and all printed onto the
+ * CV, and every block this component renders is now one of them.
  *
- * What it does NOT carry is the decision to print at all: `data-print-block` is only a hook, and the
- * print rules that use it are all scoped under `[data-print='cv']`. A block rendered outside that
- * container (which is exactly what `JourneyStrip` is) inherits none of them.
- *
- * `index` IS REQUIRED AND NULLABLE, WHICH IS NOT THE SAME AS OPTIONAL, and the difference is the whole
- * point of the type. Blocks 01–04 are a credential sequence — Experience, Education, Certifications,
- * Skills — read inside `[data-print='cv']` and printed onto the CV. A number on this rail is a claim
- * that what follows belongs to that sequence, so the only block that may go unnumbered is one that is
- * deliberately outside it. `index?: string` would let a CV block lose its number by omission, silently
- * and in the one place nobody re-reads; `string | null` makes every call site state which it is.
+ * STILL EXPORTED, and the reason survives the caller that motivated it: the print stylesheet reaches
+ * these elements POSITIONALLY — `section > div:first-child > div`, `section > div:last-child` and so on —
+ * so a second, hand-copied version of this shell would drift out of print alignment the first time this
+ * markup is touched, and nothing would say so until someone re-read a PDF.
  */
-export function Block({ index, title, children }: { index: string | null; title: string; children: ReactNode }) {
+export function Block({ index, title, children }: { index: string; title: string; children: ReactNode }) {
   return (
     // `data-print-block` gives the print stylesheet a stable per-section hook (#161). Targeting
     // `section:nth-of-type(n)` instead would silently re-target the moment a block is added or reordered,
-    // and the failure would only show up in a PDF nobody re-reads. An unnumbered block emits no hook at
-    // all, which is correct rather than a gap: every rule keyed on it is scoped under `[data-print='cv']`,
-    // and an unnumbered block is by construction not in there.
-    <section data-print-block={index ?? undefined} className="border-t border-border md:grid md:grid-cols-12">
+    // and the failure would only show up in a PDF nobody re-reads.
+    <section data-print-block={index} className="border-t border-border md:grid md:grid-cols-12">
       <div className="px-[--gutter] pb-4 pt-[clamp(2rem,4vw,3.5rem)] md:col-span-3 md:pr-6">
         <div className="md:sticky md:top-[calc(var(--header-h)+2rem)]">
-          {index === null ? null : (
-            <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
-          )}
-          {/* `mt-2` spaces the heading off the numeral above it. With no numeral there is nothing to
-              space it from, and keeping it would push the heading 8px below the body column it is
-              supposed to align with. */}
-          <h2 className={`${index === null ? '' : 'mt-2 '}label-mono text-foreground`}>{title}</h2>
+          <span className="block font-mono text-[clamp(2rem,4vw,3.4rem)] font-bold leading-none tracking-tight text-primary">{index}</span>
+          {/* `mt-2` spaces the heading off the numeral above it. */}
+          <h2 className="mt-2 label-mono text-foreground">{title}</h2>
         </div>
       </div>
       <div className="px-[--gutter] pb-[clamp(2.5rem,5vw,4rem)] md:col-span-9 md:border-l md:border-border md:pl-8 md:pt-[clamp(2rem,4vw,3.5rem)]">
@@ -134,11 +126,85 @@ function CertBadge({ cert }: { cert: CertificationItem }) {
   );
 }
 
-export function CVSection({ profile }: { profile: Profile }) {
+/**
+ * One journey photograph, rendered as the LAST CHILD of the experience entry its attribution names (#516).
+ *
+ * WHY APPENDED BELOW AND NOT FLOATED BESIDE THE PROSE. A right-floated portrait reflows text the owner
+ * validated — *"não é esperada alteração nas entradas de work experiences"*. Floating is not a markup
+ * restructure, so it survives the letter of that constraint and violates its substance: the reader meets
+ * the same words in a different shape. Appended below is the only form in which the entry's existing
+ * children lay out identically whether the figure is present or absent, which is what makes the constraint
+ * a test rather than a promise.
+ *
+ * WHY A `<figure>` AND NOT A `<div>`, AND WHY IT IS NESTED RATHER THAN A SIBLING. Both halves are
+ * load-bearing and each closes a different trap. `e2e/cv-pdf.spec.ts` counts roles positionally with
+ * `[data-print-block="01"] > div:last-child > div > div` — a `div` at exactly that depth. A `div` added as
+ * a SIBLING of an entry matches that selector, inflates the on-screen count, is hidden in print, and turns
+ * the "print drops no role" assertion red for a reason that has nothing to do with a role. A `<figure>`
+ * nested inside the entry matches neither the element nor the depth. Do not "simplify" either half.
+ *
+ * WEB-ONLY, THROUGH THE HOOK THAT ALREADY EXISTS. `data-print="hide"` has an unscoped `@media print` rule
+ * that reaches inside the CV tree, so this needs no new rule under `[data-print='cv']` — and adding one
+ * would be the thing that made the printed CV differ from the one that shipped before this slice. The
+ * owner ratified the suppression on 2026-08-25 ("eu aceito"), accepting that /me and /cv.pdf now diverge
+ * structurally rather than by one appended block.
+ *
+ * `data-journey-photo` is the selector `e2e/journey-photos.spec.ts` holds the decode guard on — the only
+ * thing in the repository standing between a renamed asset and four alt strings, since a `src` that 404s
+ * still lays out a box from the width and height attributes.
+ *
+ * `frame` IS OPTIONAL AND AN ABSENT ONE RENDERS `null`, rather than the caller branching. Four frames sit
+ * in a CV with more roles than that, so the empty case is the COMMON one and it is not an edge: putting
+ * the branch here keeps the entry's JSX unchanged from what shipped before this slice, which is the thing
+ * the owner's constraint is about. The branch is reachable and exercised in both directions.
+ *
+ * `max-w-[260px]` bounds the figure well inside the entry column — the committed files are 660px wide and
+ * `w-full` alone would lay one out at the full body width on a desktop, which is a photograph competing
+ * with the role it belongs to rather than illustrating it. The upper bound is held mechanically by the
+ * no-upscale assertion in the E2E; this is the editorial number below it, and it is the one thing here a
+ * reader could reasonably want tuned.
+ */
+function JourneyFigure({ frame }: { frame?: JourneyFrame }) {
+  if (!frame) return null;
+  return (
+    <figure data-print="hide" data-journey-photo="" className="mt-3 w-full max-w-[260px]">
+      <img
+        src={frame.photo.src}
+        alt={frame.alt}
+        // The intrinsic size of the COMMITTED file, proved against the JPEG's own SOF marker in
+        // `scripts/photo-assets.test.mjs`. This is what reserves the box before the bytes arrive;
+        // without it the entry below reflows under the reader as the photograph loads.
+        width={frame.photo.width}
+        height={frame.photo.height}
+        loading="lazy"
+        decoding="async"
+        // `h-auto` is load-bearing beside the width/height attributes: they set the intrinsic ratio, and
+        // `w-full` alone would let the ATTRIBUTE height win and squash the picture.
+        className="block h-auto w-full border border-border"
+      />
+      <figcaption className={FIGCAPTION_CLASS}>{frame.caption}</figcaption>
+    </figure>
+  );
+}
+
+export function CVSection({ profile, journey = [] }: { profile: Profile; journey?: readonly JourneyFrame[] }) {
   const t = useT();
   const present = t('cv.present');
   const hasEducation = profile.education.length > 0;
   const hasCertifications = profile.certifications.length > 0;
+
+  // `journey` DEFAULTS TO EMPTY, and the default is not convenience (#516 slice 2b). With the prop
+  // omitted this component renders exactly the tree it rendered before this slice — which is the
+  // unit-level half of the falsifier for *"nothing a reader reads today reads differently tomorrow"*.
+  // The other half is `/cv.pdf`, which stays at its budgeted page count because every figure is hidden
+  // in print.
+  //
+  // A MAP RATHER THAN A `find` PER ENTRY, and keyed through `engagementKey` rather than through a second
+  // spelling of the join: `assertJourneyShape` refuses two frames on one entry using that exact function,
+  // so the lookup performed here is the lookup that was guarded. A frame whose key matches no entry
+  // renders nowhere — which cannot happen with the shipped data, because the same guard refuses it at
+  // module load, and is asserted anyway so the component's own behaviour is not merely inherited.
+  const frameFor = new Map(journey.map((frame) => [engagementKey(frame.engagement), frame]));
 
   return (
     // `data-print="cv"` is the single stable hook the print stylesheet targets to compact this page onto
@@ -231,6 +297,11 @@ export function CVSection({ profile }: { profile: Profile }) {
                     ))}
                   </ul>
                 )}
+                {/* LAST CHILD, ALWAYS — see `JourneyFigure`. Anything added after it here would put a
+                    reader's eye back on the entry's prose after the photograph, and would move the
+                    figure out of the position the layout was validated in. Most entries have no frame
+                    and this renders nothing at all. */}
+                <JourneyFigure frame={frameFor.get(engagementKey(item))} />
               </div>
             ))}
           </div>

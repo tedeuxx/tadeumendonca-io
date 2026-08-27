@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { CVSection } from './CVSection';
 import type { Profile } from '../types/profile';
+import type { JourneyFrame } from '../data/journey';
 import { renderWithLocale } from '../test-utils';
 
 const profile: Profile = {
@@ -45,11 +46,12 @@ describe('CVSection', () => {
 
   it('numbers the credential sequence 01–04, each on its own block', () => {
     const { container } = renderWithLocale(<CVSection profile={profile} />);
-    // `Block`'s `index` became `string | null` (#127) so `JourneyStrip` could opt OUT of this sequence.
-    // That loosening is what this asserts against: the four blocks that ARE credentials — Experience,
-    // Education, Certifications, Skills — must still carry their numeral and their print hook. Read off
-    // the DOM in document order rather than checked one by one, so a block that loses its number, gains
-    // one, or is reordered all read as the same failure.
+    // `Block`'s `index` was widened to `string | null` at #127 so `JourneyStrip` could render an
+    // unnumbered fifth block, and narrowed back to `string` at #516 when that component was deleted. This
+    // is what held through both: the four blocks that ARE credentials — Experience, Education,
+    // Certifications, Skills — carry their numeral and their print hook. Read off the DOM in document
+    // order rather than checked one by one, so a block that loses its number, gains one, or is reordered
+    // all read as the same failure.
     const numbered = [...container.querySelectorAll('[data-print-block]')];
     expect(numbered.map((s) => s.getAttribute('data-print-block'))).toEqual(['01', '02', '03', '04']);
     // The hook and the visible numeral are two different things — the hook is for the print stylesheet,
@@ -226,5 +228,129 @@ describe('CVSection', () => {
     expect(screen.queryByText('Experiência')).not.toBeInTheDocument();
     expect(screen.queryByText('Certificações')).not.toBeInTheDocument();
     expect(screen.queryByText('Skills')).not.toBeInTheDocument();
+  });
+});
+
+// The journey photographs, fitted inside the work-experience entries (#516 slice 2b).
+//
+// WHAT THIS FILE CAN AND CANNOT PROVE. jsdom has no layout engine and no cascade: it reports zero-sized
+// rects and applies no print stylesheet, so "the figure sits below the prose at 1280" and "the figure is
+// absent from the PDF" are not assertable here. Those live in `e2e/journey-photos.spec.ts` and
+// `e2e/cv-pdf.spec.ts`. What IS assertable here is everything structural: which entry a frame lands in,
+// where in that entry, the attributes that reserve the box, the two prose jobs kept apart, and the print
+// hook being EMITTED — which is a different claim from it being WIRED, and both are needed.
+//
+// The fixtures are this file's own, deliberately. Importing the real four would make every assertion below
+// agree with the shipped data by construction and say nothing about the component.
+const FRAME_A: JourneyFrame = {
+  photo: { src: '/photos/a.jpg', width: 660, height: 880 },
+  engagement: { company: 'tadeumendonca.io', start_date: '2026-01' },
+  alt: 'A man at a desk',
+  caption: 'Why it is on the page',
+};
+const FRAME_ORPHAN: JourneyFrame = {
+  ...FRAME_A,
+  photo: { src: '/photos/orphan.jpg', width: 660, height: 880 },
+  engagement: { company: 'Nowhere Ltd', start_date: '1999-01' },
+};
+
+const twoRoles: Profile = {
+  ...profile,
+  experience: [
+    profile.experience[0],
+    { ...profile.experience[0], company: 'Elsewhere', start_date: '2020-01', end_date: '2025-12' },
+  ],
+};
+
+describe('CVSection — the journey photographs inside the experience entries', () => {
+  it('renders nothing at all when the prop is omitted', () => {
+    // THE UNIT HALF OF THE FALSIFIER for the owner's constraint — "nao e esperada alteracao nas entradas
+    // de work experiences". With the prop omitted this component must render exactly the tree it rendered
+    // before this slice; the other half is `/cv.pdf`, which the E2E page count holds.
+    const { container } = renderWithLocale(<CVSection profile={profile} />);
+    expect(container.querySelectorAll('[data-journey-photo]')).toHaveLength(0);
+    expect(container.querySelectorAll('figure')).toHaveLength(0);
+  });
+
+  it('places the frame inside the entry its attribution names, and inside no other', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const entries = [...container.querySelectorAll('[data-print-block="01"] > div:last-child > div > div')];
+    expect(entries).toHaveLength(2);
+    // The first entry is the one FRAME_A names; the second names a different company and start_date.
+    expect(entries[0].querySelectorAll('[data-journey-photo]')).toHaveLength(1);
+    expect(entries[1].querySelectorAll('[data-journey-photo]')).toHaveLength(0);
+  });
+
+  it('renders a frame whose attribution matches no entry nowhere at all', () => {
+    // `assertJourneyShape` refuses this at module load, so it cannot happen with the shipped data. Asserted
+    // anyway, because the component's own behaviour should not be a property inherited from a guard one
+    // module over: a lookup that fell back to "the first entry" would publish a false attribution, and the
+    // container is the assertion.
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_ORPHAN]} />);
+    expect(container.querySelectorAll('[data-journey-photo]')).toHaveLength(0);
+  });
+
+  it('is the LAST child of its entry — nothing of the entry reads after the photograph', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const entry = container.querySelector('[data-print-block="01"] > div:last-child > div > div')!;
+    expect(entry.lastElementChild!.tagName).toBe('FIGURE');
+    // And the entry's own children are all still there, in front of it: the date row, the title, the
+    // company, the description and the highlight list.
+    expect(entry.querySelector('p')!.textContent).toBe('Platform work.');
+    expect(entry.querySelectorAll('li')).toHaveLength(2);
+  });
+
+  it('is a <figure> and not a <div>, which is what keeps the print role count honest', () => {
+    // `e2e/cv-pdf.spec.ts` counts roles with `[data-print-block="01"] > div:last-child > div > div`. A
+    // `div` at that depth — a sibling of the entry, or a wrapper around the figure — inflates the
+    // on-screen count, hides in print, and reddens that assertion for a reason that has nothing to do with
+    // a role. Asserted here so the failure names the cause rather than the page count.
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const counted = container.querySelectorAll('[data-print-block="01"] > div:last-child > div > div');
+    expect(counted).toHaveLength(twoRoles.experience.length);
+    expect(container.querySelector('[data-journey-photo]')!.tagName).toBe('FIGURE');
+  });
+
+  it('opts out of the print edition through the stable hook', () => {
+    // `/cv.pdf` is printed from /en/me and held to two A4 pages. Without this attribute a 3:4 photograph
+    // per role lands on a third sheet and that guard goes red — on a test whose own comment warns against
+    // raising the number to go green. Asserted on the ATTRIBUTE because jsdom applies no print stylesheet;
+    // the rendered effect is the E2E's job, the hook being emitted is this one's.
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    expect(container.querySelector('[data-journey-photo]')).toHaveAttribute('data-print', 'hide');
+  });
+
+  it('reserves the box with the committed file\u2019s own intrinsic size, and defers the bytes', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const img = container.querySelector('[data-journey-photo] img')!;
+    expect(img).toHaveAttribute('width', String(FRAME_A.photo.width));
+    expect(img).toHaveAttribute('height', String(FRAME_A.photo.height));
+    // Guards the guard: a registry yielding 0 would satisfy the two assertions above while reserving
+    // nothing, which is the exact defect the attributes exist to prevent.
+    expect(FRAME_A.photo.width).toBeGreaterThan(0);
+    expect(FRAME_A.photo.height).toBeGreaterThan(0);
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('decoding', 'async');
+  });
+
+  it('gives a reader who cannot see it a description, not the caption', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const img = container.querySelector('[data-journey-photo] img')!;
+    const figcaption = container.querySelector('[data-journey-photo] figcaption')!;
+    expect(img.getAttribute('alt')).toBe(FRAME_A.alt);
+    expect(figcaption.textContent).toBe(FRAME_A.caption);
+    // Two jobs, two strings. Passing the caption into `alt` would leave a screen-reader user with the
+    // editorial line and none of the picture, and every other assertion here would still be green.
+    expect(img.getAttribute('alt')).not.toBe(figcaption.textContent);
+  });
+
+  it('does not extend the round-portrait exception to a photograph', () => {
+    // `.avatar-round` is this design system's single carved exception to radius 0 and belongs to the
+    // portrait alone. Asserted rather than assumed because it is the one class an author reaching for
+    // "make the photos look nice" would copy.
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const img = container.querySelector('[data-journey-photo] img')!;
+    expect(img).not.toHaveClass('avatar-round');
+    expect(img).toHaveClass('border', 'border-border');
   });
 });

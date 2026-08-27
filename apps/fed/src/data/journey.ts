@@ -5,10 +5,22 @@
 // since it carries no `ready` label and has no PR at the time of writing — and a second slice editing the
 // same file buys a conflict for nothing. The lasting one is the reason this file will still be here after
 // that lands — `profile.ts` is the CV, and the CV is the thing `/cv.pdf` is PRINTED from. Everything in it
-// is a claim a recruiter reads on paper. These four photographs are deliberately NOT claims: they carry no
-// date, no employer, no title, and they are hidden in the print edition (see `JourneyStrip`). Putting them
-// in the CV data would make the two-page budget in `e2e/cv-pdf.spec.ts` depend on a decorative strip, and
-// would invite the next reader to treat a photograph as a credential.
+// is a claim a recruiter reads on paper, and these four photographs are kept OUT of that data so the
+// two-page budget in `e2e/cv-pdf.spec.ts` never depends on decoration. They are suppressed in the print
+// edition through `data-print="hide"` (see `CVSection`), which is the owner's ruling of 2026-08-25 and the
+// reason the printed CV is unchanged by the layout that renders them.
+//
+// WHAT THIS PARAGRAPH USED TO CLAIM, AND WHY IT IS CORRECTED RATHER THAN DELETED (#516 slice 2b). It read
+// that these four "carry no date, no employer, no title" and that putting them among the credentials
+// "would invite the next reader to treat a photograph as a credential". The first half is now FALSE on the
+// web edition and the second half describes what the layout deliberately does: each frame renders inside
+// the dated, employer-headed experience entry its `engagement` names, so it inherits a date, an employer
+// and a title by placement. That is a cost the owner accepted knowingly — `product-lead` stated it as
+// finding 7 on #516 ("they stop being rapport and become evidence — and evidence is judged"), and the
+// answer to it is not a disclaimer but the attribution machinery below: an authored, sourced, checkable
+// key, refused at module load if it resolves to anything other than exactly one entry. A future reader
+// finding the old sentence in git history has not found a rule that was broken; they have found the rule
+// this one replaced.
 //
 // SHAPE: modelled on `library.ts` — the FACTS (which file) authored once with no locale, and the
 // reader-facing prose leaves typed `Record<Locale, string>` so a missing translation is a COMPILE error.
@@ -16,11 +28,16 @@
 // (#235), and it matters more here than there: `alt` is the ONLY thing a reader who cannot see the
 // photograph gets, so an untranslated one is not a cosmetic defect.
 //
-// ORDER IS AUTHORED, NOT SORTED, AND IT IS NOT THE AGENT'S TO CHANGE. The owner approved this exact set in
-// this exact order (#127, 2026-08-25, "de acordo"). It is not chronological — 2020, 2020, 2022, 2022 — it
-// is an order of reading: the craft, the work, the chapter, the place. A sort by date would silently
-// discard that. Substituting, adding or reordering a photograph is an owner decision, not an
-// implementation one, because what was approved was these four rather than a category.
+// THE SET IS THE OWNER'S; THE ORDER OF THIS ARRAY NO LONGER REACHES A READER (#516, ruling 2026-08-25).
+// He approved these exact four photographs (#127, 2026-08-25, "de acordo"), and substituting or adding one
+// is an owner decision rather than an implementation one, because what was approved was these four rather
+// than a category. The SEQUENCE was also his decision and it has lost its object: it was an order of
+// reading for a strip — the craft, the work, the chapter, the place, deliberately not chronological
+// (2020, 2020, 2022, 2022) — and the strip stopped existing when each frame moved inside the experience
+// entry its `engagement` names. The entries have an order already, newest first because it is a CV, and
+// the frames inherit it. Nothing here reverses that decision; the thing it governed is gone, which is why
+// `journey.test.ts` locks the SET and no longer locks the sequence. Keep authoring this array in a
+// sensible order anyway — it is what a reader of this file meets — but do not treat it as a guarantee.
 //
 // THOSE FOUR YEARS ARE A NOTE TO WHOEVER EDITS THIS FILE. THEY ARE NOT A RULE, AND THEY CANNOT CONTRADICT
 // AN `engagement` BELOW (#516, owner ruling 2026-08-25). They are file facts; no reader ever meets one,
@@ -85,6 +102,15 @@
 // rather than mitigated, because the alternative — resolving by anything softer than exact equality —
 // is the derivation this whole slice exists to forbid.
 //
+// THE LAYOUT IS FINISHED AT FOUR, AND THE BUDGET IS A CONSTRAINT RATHER THAN A CAPACITY. Five experience
+// entries carry four frames, so one entry carries none — which is correct rather than a gap: a frame is a
+// figure an entry MAY carry, not a slot every entry must fill, and nothing in the markup announces an
+// absence. Do not read the empty entry as an invitation to fill it. The photograph budget and the arithmetic
+// behind that wording live in ADR-0048's 2026-08-25 amendment and are deliberately NOT restated here — a
+// measured number copied into a second place is a number that goes stale in one of them silently. There is
+// also no `<= 4` assertion anywhere, on purpose: the set lock in `journey.test.ts` already refuses a fifth
+// frame, and a second guard on the same fact would be a second thing to keep in step.
+//
 // PROVENANCE AND REVERSIBILITY. The sources live outside this repo, in the owner's own library, and are
 // deliberately not committed: what ships is a 660x880 grayscale derivative with every metadata segment
 // removed. `scripts/photo-assets.test.mjs` proves the EXIF absence against the committed bytes, which is
@@ -112,6 +138,22 @@ export interface EngagementKey {
   start_date: string;
 }
 
+/**
+ * One engagement pair, flattened to a single comparable string — the ONE spelling of the join.
+ *
+ * NUL AS THE SEPARATOR, WRITTEN AS AN ESCAPE RATHER THAN AS A RAW BYTE: it is the one character neither an
+ * employer name nor a `YYYY-MM` can contain, so two distinct pairs can never collapse into one key and read
+ * as a duplicate that is not one.
+ *
+ * EXPORTED, AND THAT IS THE POINT (#516 slice 2b). `assertJourneyShape` uses it to refuse two frames on one
+ * entry, and `CVSection` uses it to decide which entry a frame renders inside. Those two have to agree
+ * exactly — the guard's promise is "at most one frame per entry", and a component joining on a different
+ * spelling would be checking a different fact than the one that was guarded. Spelled twice, they could
+ * drift; spelled once, the guard is about the lookup the layout actually performs.
+ */
+export const engagementKey = ({ company, start_date }: EngagementKey): string =>
+  `${company}\u0000${start_date}`;
+
 /** An entry as AUTHORED: the filename, plus the two prose leaves. */
 export interface JourneyEntry {
   /** Root-relative, and it must be a key of the photograph registry — see `assertJourneyShape`. */
@@ -131,8 +173,8 @@ export interface JourneyEntry {
    * invite someone to translate one edition and make the two disagree on a FACT, which is the one thing
    * that file says can never happen.
    *
-   * AND IT IS NOT READER-FACING COPY. Nothing renders it, and when a layout places a frame inside an
-   * experience entry (#516 slice 2b) the entry's own heading is what a reader reads. This is the
+   * AND IT IS NOT READER-FACING COPY. Nothing renders it: `CVSection` places the frame inside the
+   * experience entry this key names, and that entry's own heading is what a reader reads. This is the
    * placement key, not the label — rendering it would publish the attribution twice, once as prose
    * nobody reviewed.
    */
@@ -269,10 +311,9 @@ export function assertJourneyShape(
       );
     }
 
-    // NUL as the separator, written as an ESCAPE rather than as a raw byte: it is the one character
-    // neither an employer name nor a `YYYY-MM` can contain, so two distinct pairs can never collapse
-    // into one key and read as a duplicate that is not one.
-    const key = `${company}\u0000${start_date}`;
+    // `engagementKey`, and NOT a second spelling of the same join (#516 slice 2b). The NUL-separator
+    // argument moved to that function's own comment, with the code it argues about.
+    const key = engagementKey(engagement);
     const alreadyClaimedBy = claimed.get(key);
     if (alreadyClaimedBy) {
       throw new Error(
@@ -373,3 +414,33 @@ export const JOURNEY_PHOTOS: readonly JourneyPhoto[] = journey.map(
     caption,
   }),
 );
+
+/** One frame as a COMPONENT reads it: the measured asset, the placement key, and one edition's prose. */
+export interface JourneyFrame {
+  photo: PhotoAsset;
+  engagement: EngagementKey;
+  alt: string;
+  caption: string;
+}
+
+/**
+ * The set flattened to a single locale — the same shape `resolveProfile` already establishes next door.
+ *
+ * WHY THE PAGE RESOLVES AND THE COMPONENT DOES NOT (#516 slice 2b). `CVSection` is a pure presentational
+ * component: it receives a resolved `Profile` and renders it, and every localized leaf on this page is
+ * already flattened before it arrives. Passing `Record<Locale, string>` leaves into it instead would make
+ * it the one component on /me that reads the locale context, for no reason but that these four strings
+ * happen to live in a different module.
+ *
+ * IT RETURNS A NEW ARRAY PER CALL, and that is deliberate rather than careless. Memoizing it would cache
+ * two arrays for the lifetime of the process to save mapping four objects on a page that renders once per
+ * navigation; the cache would be the more expensive object. If this ever renders in a hot path, measure
+ * before adding one.
+ */
+export const resolveJourney = (locale: Locale): readonly JourneyFrame[] =>
+  JOURNEY_PHOTOS.map(({ photo, engagement, alt, caption }) => ({
+    photo,
+    engagement,
+    alt: alt[locale],
+    caption: caption[locale],
+  }));
