@@ -117,7 +117,6 @@ const sourceTemplate: ProfileSource = {
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
       },
-      print_highlight_index: 2,
       highlights: {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +
@@ -173,7 +172,6 @@ const sourceTemplate: ProfileSource = {
           'Arquitetei e implementei soluções cloud-native alocado dentro de times de clientes corporativos, ' +
           'operando sob restrições de legado, compliance e soberania de dados.',
       },
-      print_highlight_index: 0,
       highlights: {
         en: [
           "Stood up the cloud-native foundation of a tier-1 bank's mortgage-credit domain, migrating it off " +
@@ -214,7 +212,6 @@ const sourceTemplate: ProfileSource = {
           'direto ao consumidor e seus canais — um caminho de receita crítico para o negócio, em Angular, ' +
           'Salesforce e Spring Boot.',
       },
-      print_highlight_index: 0,
       highlights: {
         en: [
           'Built an end-to-end observability platform integrating AppDynamics, Grafana, Prometheus and Zabbix ' +
@@ -255,7 +252,6 @@ const sourceTemplate: ProfileSource = {
           'construindo produtos web e mobile nativos modernos. É aqui que a identidade de engenharia moderna se ' +
           'formou e começou o fio condutor de arquiteto de aplicações distribuídas.',
       },
-      print_highlight_index: 1,
       highlights: {
         en: [
           'Architected the integration layers for enterprise CRM implementation programs, connecting apps, APIs ' +
@@ -298,7 +294,6 @@ const sourceTemplate: ProfileSource = {
           'construí e integrei sistemas distribuídos de larga escala — batch (Informatica PowerCenter ETL) e ' +
           'online / tempo real (SOA) — crescendo de analista júnior a sênior.',
       },
-      print_highlight_index: 1,
       highlights: {
         en: [
           'Joined as an intern in 2008 while completing the Information Systems degree; from graduating in 2010, ' +

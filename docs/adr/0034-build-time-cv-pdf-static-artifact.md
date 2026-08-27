@@ -1,6 +1,6 @@
 # 0034. The downloadable CV is a build-time PDF, printed from `/me` to a static asset
 
-- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-02** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back)
+- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-02** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back) · **amended 2026-08-26** (the print edition carries no experience highlight; the page budget is recorded as what prices the selection)
 - **Date:** 2026-07-25
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
@@ -72,16 +72,28 @@ it **selects** what the printed edition carries.
   levels only (`foundational` / `working`) — 3 and 4 print bare, because they are not what the flattening
   exaggerated. Two labels rather than one: collapsing 1 and 2 into "basic" would under-claim level 2,
   which is the same distortion in the other direction;
-- **the experience `highlights`, all but one** — measured at 88 of 143px per role, each running 3–5 lines.
+- **the experience `highlights`, ~~all but one~~ *all of them*** — measured at 88 of 143px per role, each
+  running 3–5 lines.
   Clamping them to two lines truncates mid-sentence, which reads worse than dropping them. Each role's
-  one-sentence `description` survives, and the rest stay in full on `/me`.
+  one-sentence `description` survives, and the rest stay in full on `/me`. **Struck 2026-08-26 (#522) —
+  see the amendment of that date below.** The measurement and the argument in this bullet are unchanged
+  and still load-bearing; only the exception is gone.
 
-**The one highlight that survives, and why the count is one.** Dropping the lists wholesale left every AI
+~~**The one highlight that survives, and why the count is one.** Dropping the lists wholesale left every AI
 statement in the PDF as either self-description or a certification, while the surviving role bodies read
 landing zones, mainframe migration, observability and CRM integration — the repositioning **asserted
 rather than shown**, which is the exact ratio the owner's own framing rules exist to prevent. Exactly one
 highlight is kept: the one that shows something agentic actually **built**. It also restores the
-"MVP in progress" qualifier that kept "ship production-ready systems" calibrated.
+"MVP in progress" qualifier that kept "ship production-ready systems" calibrated.~~
+
+**Struck 2026-08-26 (#522), and the premise is what fell rather than the reasoning.** This paragraph kept
+one highlight because the print edition otherwise carried the repositioning *asserted rather than shown*.
+#522 rewrote every role's `description` into a fixed-shape practice line that names the arc and the
+function, so the shown-evidence the exception existed to buy is now in the sentence the paragraph itself
+calls the survivor — and the qualifier clause is doubly stale, because the bullet carrying
+*"MVP in progress"* is no longer the one printed and, under the amendment below, nothing is. Struck rather
+than rewritten: a reader who took the one-highlight rule from this record needs to find out it changed,
+not to find it silently gone.
 
 It is named in the DATA (`ExperienceSource.print_highlight_index`), not selected by an `nth-child` in the
 stylesheet. An index is positional but the intent is semantic, and a stylesheet rule would silently point
@@ -230,6 +242,102 @@ on the argument that the screen reading is the common case and boldness is the p
 count that drifts silently is the defect; a count changed alongside its reason is the guard working. What
 must not happen is the number being raised to turn a red test green.
 
+## Amendment (2026-08-26) — the print edition carries NO experience highlight, and the page budget is why
+
+Issue [#522](https://github.com/tedeuxx/tadeumendonca-io/issues/522) gave every experience `description`
+a fixed-shape **practice line** — what kind of work the role was, then his function in it — in both
+editions. The printed bullets were then set on all five roles, which is what falsified the three
+sentences struck above. This amendment records the decision taken after that, and one constraint this
+record should have carried since 2026-07-28 and did not.
+
+### The decision
+
+**The practice lines stay. The per-role printed bullet goes — the print edition carries no experience
+`highlights` entry at all.** The 2026-07-28 exception ("exactly one, the one that shows something
+agentic built") is retired, not narrowed: the evidence it existed to buy now sits in the `description`
+the same amendment already called the survivor, so the exception buys nothing and costs a page.
+
+Issue #522's own criterion 3 is satisfied by its escape clause — *"or the Issue records explicitly why a
+role does not"* — and the reason is the measurement below, not an editorial preference.
+
+### The constraint that was never recorded, which is the finding worth more than the corrected sentences
+
+The 2026-07-28 amendment recorded a **selection rule** for what the print edition carries, and the
+2026-08-02 amendment recorded a **page budget** ("The budget is TWO pages"). Neither recorded that they
+are the same budget. **A printed bullet and a practice line cost about the same vertical space, and the
+sheet fits one of them, not both.** So the number of printed bullets was never a free choice at any point
+after 2026-08-02 — it was a trade against every other print-selection decision in this record.
+
+Whoever set an index before this had no way to know that adding one could cost a page, because this ADR
+described the rule that selects a highlight and never the constraint that prices it. **That is why the
+drift happened.** Recording the selection rule without its budget is what made a claim-preserving edit
+look free.
+
+**Measured on the artifact, by the merge gate on PR #523, by toggling one lever at a time in the DOM and
+editing no repository file:** practice lines with NO printed bullet fit the budget; the pre-#522 shape fits it only WITHOUT the practice lines;
+practice lines plus even one printed bullet does not — including the pre-#522 single index, and including the SHORTEST bullet in the current role array, both re-measured at three pages while implementing this decision. **No shape that prints any bullet fits.** Runnable falsifier, unchanged by this amendment:
+
+```
+npm --prefix apps/fed run build:static
+grep -ao "/Type /Page[s]*" apps/fed/dist/cv.pdf | sort | uniq -c
+```
+
+**The budget itself is untouched at two pages, and `e2e/cv-pdf.spec.ts` is not edited by this decision.**
+That is the point of choosing this lever: the spec's own instruction — *"What must never happen is the
+number being raised to make a red test green"* — is honoured by changing what prints, not what is
+asserted.
+
+### Considered options
+
+1. **Drop the printed bullets, keep the practice lines (chosen).** *Trade-off:* the print edition loses
+   its only per-role sub-item, so a role's printed evidence is exactly one sentence. Accepted because
+   that sentence is now the fixed-shape practice line, which is *denser* per line than the bullet it
+   replaces. **It is not the best of several fitting shapes — under the two-page budget it is the ONLY one**, per the measurement above.
+2. **Keep one bullet per role and shorten the practice lines until the sheet fits.** *Rejected:* the
+   practice lines are byte-pinned against the private surfaces record and against what already shipped
+   to LinkedIn, so shortening them is a change on three surfaces and re-opens a cross-surface identity
+   #522 exists to close. **And it was then measured infeasible outright**, which is stronger than the cost argument and supersedes it: the shortest available bullet still overflows, so there is no length of practice line that buys room for one. Recorded as rejected-and-then-disproved rather than dropped, because the cost argument is what a future reader would otherwise re-run.
+3. **Raise the budget to three pages.** *Rejected here, but rejected as a decision rather than as an
+   impossibility* — the budget has moved deliberately once already (one → two, 2026-08-02) and could
+   move again on the owner's call with the artifact looked at. It is rejected in this slice because
+   nothing was measured to be missing from the two-page sheet; the third page would exist to carry the
+   bullets, and option 1 establishes that the bullets are what the practice lines already say.
+4. **Cut print volume elsewhere in the stylesheet to buy room for the bullets.** *Rejected:* every
+   remaining block was already argued into the sheet by the two amendments above, so this trades a
+   decision with a recorded reason for one without.
+
+### What survives unexercised, deliberately
+
+`ExperienceSource.print_highlight_index` and the two `[data-print-block='01'] li` rules that read it are
+kept as a mechanism with no instances, rather than deleted. Keeping an unexercised convention is the
+correct disposition for a rule that is current but not currently fired, and it means a future budget
+change is one flag rather than a re-derivation of the selection machinery.
+
+*Its cost, stated as a cost:* a mechanism nothing exercises is a mechanism nothing re-tests, and this one
+already has a known unguarded hole — an out-of-range index prints **zero** bullets for that role
+silently, which is precisely the defect #522 found by hand. Nothing asserts the index is in range.
+
+**The shape this landed in, verified rather than assumed:** the implementing diff removes every
+`print_highlight_index` assignment from `profile.ts` and **keeps the optional field on both interfaces**
+in `types/profile.ts` — the disposition this section prefers. It has one dependency worth naming, and it
+is discharged: [ADR-0012](./0012-snake-case-content-no-mapping.md)'s convention table cites
+`print_highlight_index` as a `profile.ts` snake_case example, and that example **still stands**, because
+the field survives. Were a later slice to remove the field outright, that table moves in the same MR.
+
+### Why this is an amendment and not a new record
+
+One decision per ADR — and this *is* the same decision this record has taken twice already (2026-07-28
+selected one highlight; 2026-08-02 re-priced the budget it is selected against). A new record would
+restate the operative rule for *what the print edition carries*, which creates a second surface to keep
+true about one artifact — the failure this MR exists to correct, reproduced one level up. The
+significance gate fires on *alters a previously-recorded decision*; that is satisfied by amending the
+record that holds it.
+
+**No History row and no `## What this replaced` fold are owed.** Those dispositions govern a record that
+is *leaving* the library — *"This rule is about whole records, not about sentences inside a live one"* —
+and this record stays `accepted`. Inside a live record the convention is unchanged and is what was applied
+above: **amend by appending, strike in place, never rewrite.**
+
 ## Links
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it; the Canva retirement it deferred was taken by 0024's 2026-07-28 amendment, #225).
 - Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
@@ -238,3 +346,9 @@ must not happen is the number being raised to turn a red test green.
 - Deliberately **outside** ADR-0005's HTML-route OG/SEO coverage (a static asset, not a crawlable route); exercised on the PR via `build:static` (ADR-0018).
 - Implements Issue #140; amended by Issue #161 (one-page edition — the "cannot disagree" consequence above
   is superseded by the "every claim survives" invariant).
+- Amended by Issue #522 / PR #523 (2026-08-26) — the practice line replaces the printed highlight, and the
+  two-page budget is recorded as the constraint that prices every print-selection decision here. The
+  "every ROLE, every CERTIFICATION and every SKILL keyword survives" invariant is **untouched**: a
+  highlight is elaboration, and this drops no role, no credential and no keyword.
+- Interacts with [ADR-0012](./0012-snake-case-content-no-mapping.md) — its convention table names
+  `print_highlight_index` as a `profile.ts` snake_case example; the field is kept, so that example stands.

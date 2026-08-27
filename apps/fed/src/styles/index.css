@@ -364,19 +364,30 @@ body {
      The `description` is one coherent sentence per role — it survives compression without lying, and it
      is what a scan wants first. The rest stay in full on /me, which the printed contact line now points
      to — that pointer is what makes the omission a deferral rather than a loss.
-     ONE highlight per role survives, marked in the data (`print_highlight_index`, #161): dropping the
-     lists wholesale left every AI statement in the PDF as self-description or a certification, while the
-     role bodies read landing zones and CRM integration — the positioning asserted rather than shown.
-     #161 SET THE FLAG ON EXACTLY ONE ROLE, so four of five printed no bullet at all, and its rationale
-     was that the kept entry was `the only place the CV shows something agentic actually BUILT`. #522
-     superseded both halves and the reason is recorded here rather than left to be re-derived:
-       · every role now carries the flag — a role printing zero bullets reads as a thin role, and the
-         four that did were the four a screener reaches after the current one;
-       · the agentic evidence moved INTO each role's `description`, which #522 turned into a fixed-shape
-         practice line, so the bullet no longer has to carry it;
-       · which makes the selection rule `print the item the practice line does NOT already carry`. The
-         slot is one line; spending it restating the sentence directly above wastes it. That is exactly
-         what the current role did — practice line and bullet both naming the same unfinished item. */
+     A highlight can survive, marked in the data (`print_highlight_index`, #161): dropping the lists
+     wholesale left every AI statement in the PDF as self-description or a certification, while the role
+     bodies read landing zones and CRM integration — the positioning asserted rather than shown.
+
+     AS OF #522 NO ROLE SETS THE FLAG, AND THAT IS A PAGE-BUDGET RESULT RATHER THAN A CHANGE OF MIND.
+     #522 gave every `description` a fixed-shape practice line, and the practice lines and the printed
+     bullets cost about the same: the two-page budget (`e2e/cv-pdf.spec.ts`) fits ONE of them, not both.
+     Measured on the built artifact, not inferred — `npm run build:static`, then counting `/Type /Page`
+     in `dist/cv.pdf` with the spec's own regex:
+       · practice lines + the longest current-role bullet ......... 3 pages
+       · practice lines + the SHORTEST bullet in that array ....... 3 pages
+       · practice lines + one bullet on each of the five roles .... 3 pages
+       · practice lines, zero printed bullets .................... 2 pages
+     So no shape that prints any bullet fits, and the bound was measured against the shortest item
+     available rather than the preferred one. The practice line wins the slot because it is the only
+     field that exists identically on all three surfaces and, for these roles, the only text the PDF
+     prints at all. #522's acceptance criterion 3 is satisfied by its own escape clause — a role prints
+     no highlight, and this measurement is the recorded reason.
+
+     THE SELECTION RULE SURVIVES, scoped to WHEN a bullet prints, because it will be needed the moment
+     the budget moves: print the item the practice line does NOT already carry, and prefer a COMPLETED
+     artifact. Its cost was paid — the current role once printed a bullet naming the same unfinished
+     item its practice line already named, spending the only printed line on a restatement. Check the
+     page count before setting the flag on anything; the regression arrives through CONTENT. */
   [data-print='cv'] [data-print-block='01'] li {
     display: none !important;
   }
