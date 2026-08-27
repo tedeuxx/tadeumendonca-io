@@ -333,7 +333,17 @@ export function assertJourneyShape(
 }
 
 /**
- * The four photographs, in the approved order.
+ * The four photographs the owner approved. A SET — the order this array is written in is not part of
+ * what was approved any more (#516 slice 2b).
+ *
+ * IT READ "in the approved order" UNTIL THIS SLICE, and that line outlived the rule it described. The
+ * sequence WAS his decision — the craft, the work, the chapter, the place — and it was a decision about
+ * how four photographs read together at the end of the page; it lost its object when each frame moved
+ * inside the experience entry its `engagement` names. `journey.test.ts` is what this now agrees with:
+ * its set lock compares this array against the approved filenames SORTED on both sides, so it refuses a
+ * substituted, added or missing frame and asserts nothing whatever about the sequence. Reordering these
+ * four breaks no test and changes nothing a reader meets — so do not preserve this order as though it
+ * were load-bearing, and do not read a reorder as damage.
  *
  * Every string below is reader-facing copy on a hiring surface, so it is `product-lead`'s to rule on and
  * not the builder's to rewrite. What the builder owns is that both editions exist and that `alt` and
