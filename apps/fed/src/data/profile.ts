@@ -100,24 +100,19 @@ const sourceTemplate: ProfileSource = {
       description: {
         en:
           'New-platform launch programs — full-stack web and native mobile. Leading the implementation: ' +
-          'solution architecture, AWS infrastructure and the technical direction of the build. The two ' +
+          'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
           'launches: a custom cloud-native replacement for a SaaS streaming platform, native across six ' +
-          "platforms; and, as tech lead, an oil & gas operator's landing zone and the upstream " +
-          'operational-monitoring platform launched on it. Hands-on besides: a serverless data-integration ' +
-          'solution for an aerospace manufacturer, an internal knowledge platform still in progress, and ' +
-          'public work at tadeumendonca.io with its agent harness and plugin. ' +
+          "platforms, and — as tech lead — an oil & gas operator's landing zone with the upstream " +
+          'operational-monitoring platform on it. ' +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
         pt:
           'Programas de launch de novas plataformas — web full-stack e mobile nativo. Liderando a ' +
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
-          'dois launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, ' +
-          'nativa em seis plataformas; e, como tech lead, a landing zone de uma operadora de óleo & gás e a ' +
-          'plataforma upstream de acompanhamento operacional lançada sobre ela. Hands-on além disso: uma ' +
-          'solução serverless de integração de dados para um fabricante aeroespacial, uma plataforma ' +
-          'interna de conhecimento ainda em andamento, e o trabalho público em tadeumendonca.io com seu ' +
-          'agent harness e plugin. ' +
+          'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
+          'em seis plataformas, e — como tech lead — a landing zone de uma operadora de óleo & gás com a ' +
+          'plataforma upstream de acompanhamento operacional sobre ela. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
