@@ -168,3 +168,159 @@ print, it is recorded under *Routed, not judged* instead of as a craft finding.
   3 above is about how the shipping-blind paragraph is **written**, not about whether it is true.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-08-27 · TERMINAL
+draft: `apps/fed/src/content/blog/blast-radius-supernova.en.md` · `apps/fed/src/content/blog/blast-radius-supernova.pt.md` @ `40047f7`
+ruler: `published-voice` (plugin `1.1.32`). Issue #527. Read against `d2d2d48`, the head of round 1.
+
+**All five round-1 blocking findings were taken, and four of the six advisories with them.** The bound
+is two rounds; this is the second `## Round` section, so **the pair is terminal whatever this section
+says.** The draft goes to the owner from here.
+
+Scope of this round: the three paragraphs the dispatch flagged as having moved in consecutive rounds
+(the README self-audit, the trust-root rewrite, the shipping-blind receipt), the new `pt` prose that
+has had no second reader, and a re-read of the whole against the claims the article makes about
+itself. The parody text was again neither requested nor reconstructed.
+
+### Citable findings
+
+1. **The article's headline count is contradicted by two of its own sections, and one of those
+   contradictions is new in this round.** — clause: *"if you cannot point to where in the source
+   material (an ADR, a `CLAUDE.md` passage, a transcript, a prior published piece, an explicit answer
+   he gave) a claim, a number or a stance comes from, it does not go in the draft as his."*
+
+   Movement 3 states the blanket: **"Every single one has a file, a bill, a commit or a measurement
+   behind it"** (`pt`: *"Cada uma tem um arquivo, uma fatura, um commit ou uma medição por trás"*).
+   The close restates it as the takeaway: **"it lands fourteen times"** (`pt`: *"e ela acerta catorze
+   vezes"*). Two sections in the audit itself say otherwise:
+
+   - Section 14 says, in terms, **"It is the only image in the set with no mechanism under it."**
+     That has contradicted movement 3 since `d2d2d48`; **I missed it in round 1 and it is mine, not a
+     regression.**
+   - Section 5, rewritten in this round, now says **"What I have is the same fear from the other
+     side: a plan that says nothing at all."** So the image's referent is adjacent, not identical —
+     which is the honest thing to write, and it makes **"only"** in section 14 false as well.
+
+   The source that disproves the claim is the article's own body. Nothing outside the printed text is
+   needed to see it, so this is not a truth question routed to the merge gate — it is a claim the
+   draft cannot point at a source for, in a piece whose entire subject is not reprinting claims you
+   have not re-run. **This is the same defect the new README paragraph apologises for, one level up
+   and still standing.**
+
+   *What it costs the reader:* the reader who reaches section 5 or section 14 has been handed the
+   counter-example to the sentence that sold them the article. On any other piece that is a slip; on
+   this one it is the thesis failing against itself, and it is the first thing a hostile reader would
+   quote back.
+
+   *Smallest change that clears it:* say the real shape in movement 3 and let the close inherit it —
+   *"Twelve have a file, a bill, a commit or a measurement behind them. One points at a fear I have
+   from the other side, and one has nothing under it at all — and those two get their own sections,
+   because they are the interesting ones."* Then **"it lands fourteen times"** in the close becomes
+   *"it lands, and I can show you where each one lands or fails to"*, and section 14 drops **"only"**.
+   Three edits, no material added, and the piece gets stronger: a count with two named exceptions
+   reads as an audit, a count with none reads as a pitch.
+
+2. **`pt` · the trust-root section gives a Portuguese reader a second version of the paragraph
+   instead of an aside — twice, and once three times over.** — clause: *"**The technical reader gets
+   an aside rather than a second version of the paragraph**"*, from the gloss discipline the
+   precedence section admits by name as a mechanic.
+
+   Round 1 cleared the `pt` gloss pattern at three short phrases across a whole article, and that
+   clearance does not transfer at this density. In one section a `pt` reader now meets three English
+   fragments, two of them complete sentences, each immediately followed by its full Portuguese
+   equivalent with no parenthesis, no marker and no announcement:
+
+   - *"mechanical, and would go away"* **(mecânico, e um dia sumiria)** — this one is correct: a
+     phrase, glossed in parentheses, exactly the corpus mechanic.
+   - *"The blast radius of an `apply` must not include the authority to perform the next `apply`."*
+     **O raio de destruição de um `apply` não pode incluir a autoridade de fazer o `apply` seguinte.**
+     — a sentence printed twice, unmarked.
+   - *"If the provider's thumbprint or the infra role's trust policy is edited in the console, no
+     `plan` objects."* **Se a impressão digital do provedor … nenhum `plan` reclama.** — then the very
+     next sentence says it a **third** time: *"A ferramenta … é estruturalmente cega justo para o
+     pedaço que dá acesso ao resto."*
+
+   The corpus mechanic is a **term** glossed in parentheses, and he **announces** the move rather than
+   hiding it. Neither happens here. The result is not a bilingual courtesy, it is a document being
+   cited at a reader.
+
+   *What it costs the reader:* the `pt` reader reads the section's two load-bearing propositions two
+   and three times respectively, which is the one place in either edition where the prose stops
+   sounding like him and starts sounding like a record being quoted into evidence.
+
+   *Smallest change that clears it:* keep **one** English quotation in `pt` — the title-as-constraint
+   line, because its whole point is that the record's own words are this article's title — and gloss
+   it in parentheses like the first one. For the blind-spot quotation, drop the English entirely and
+   keep only the Portuguese; the sentence after it already carries the meaning, so cut one of those
+   two as well. Net: `pt` goes from three quotations and four restatements to two quotations and one.
+
+   *`en` is milder and is not raised as a finding:* it quotes the same three fragments with no
+   translation, and only the blind-spot quotation is followed by a restatement of itself. One of those
+   two can go; that is advisory, below.
+
+### Advisory and droppable
+
+- **The README self-audit paragraph earns its place. Judged, as asked, and it is not a
+  congratulation.** Three things separate it from one: it names precisely what was copied without
+  checking (*"six days is what the correction itself says, and I copied it across without checking"*),
+  it publishes the instrument (*"`git log` on the deleted file, against the commit that fixed the
+  text"*), and it ends **owing** something — *"The record still needs fixing."* A congratulation ends
+  on the repair. One wobble, droppable: it now sits directly before *"The interesting part is not that
+  a doc went stale"*, so the section tells the reader what is not interesting immediately after
+  introducing the most interesting thing in it. Moving the self-audit to the end of the section fixes
+  it without touching a word.
+- **The shipping-blind receipt is the right fix and lands.** *"Well-formed, confident, wrong"* and
+  *"I found out the way you always find out — afterwards, from the outside"* are the register the
+  section needed, and the tense discipline holds under inspection (*once* … *what watches it now*).
+  One clause of friction: it opens *"from right here"* two paragraphs after *"It is not a description
+  of this platform"*, and what resolves the two — that the incident predates the gates — is implied by
+  *"now"* rather than said. Six words would close it.
+- **`en` trust-root: *"the reason is not the one people reach for first"*** tips toward the *"listen,
+  I know"* register the goal section rules out, where the rest of the section is precise description.
+  *"and the bootstrapping problem is only half of it"* does the same structural work without telling
+  the reader what they would have guessed.
+- **`en` queue section: *"and it was recorded once and never re-run, which you should weigh it by"*
+  does not parse** — the `it` is stranded. *"…and never re-run, which is how you should weigh it."*
+  `pt`'s *"o que é como você deve pesá-lo"* has the same awkwardness in gentler form. Named because
+  `en` is the canonical URL on both social posts.
+- **Three relative-time expressions in a permanently published article** — *"Until this week"*, *"the
+  decision is three days old"*, *"the mechanism merged yesterday"* (`pt` identical). All correct
+  today; all stale next Thursday, in the one piece on this site whose subject is numbers that went
+  stale while nobody re-ran them. Anchoring one of them to a date would immunise the paragraph.
+- **`en` blind-spot quotation is followed by its own restatement** (*"The tool that exists to tell you
+  the truth … is structurally blind …"*). Same shape as finding 2 at half the dose; cutting either one
+  loses nothing.
+- **Round-1 advisories not taken were re-checked and are not re-raised.** The nine-item retired-
+  components list stands, and it reads better now that the two hedges around it are gone.
+
+### Resolved since round 1
+
+- **The image/referent mismatch routed in round 1 is closed, and closed better than by rewording.**
+  Section 5 now prints the image's own sense and then says how his differs: *"The image is a plan that
+  ate the state — the safeguard itself doing the damage. What I have is the same fear from the other
+  side."* That is the correct move for a referent that is adjacent rather than identical — and it is
+  what surfaces finding 1 above, so the honesty in this paragraph is what made the count checkable.
+- **Round-1 findings 1–5 all taken.** The three-part credit block is the strongest single sentence to
+  land in either round: *"Mine are the idea, the prompt you are about to read, and every word after
+  it."* The `pt` *"outro (o encerramento)"* / *"O encerramento repete…"* fix is applied in both places.
+
+### Routed, not judged
+
+- **"the model has never seen either of them" / "o modelo nunca viu nenhum dos dois"** is new in this
+  round and is now the article's single load-bearing factual claim — it is what makes fourteen hits
+  remarkable rather than expected — and it appears twice, in movement 2 and in the close. Whether it
+  is true of the session that produced the lines is the merge gate's, not this round's. Named because
+  it arrived after the round the truth lens ran on and because everything else in the piece rests on
+  it.
+- Nothing in this round judges truth. Acceptance criterion 6 is recorded as cleared by the lens; the
+  advisory about *"from right here"* is about how that paragraph **reads**, not about whether the
+  incident happened.
+
+### Terminal
+
+**Two rounds are spent and there is no third.** The pair's bound is a hard cap: whatever the state of
+finding 1 and finding 2, the draft goes to the owner from here, and neither persona in this pair
+decides that it is good. Finding 1 is the one worth carrying into his read, because it is cheap to fix
+and it is the piece's own thesis applied to the piece.
+
+CONTENT-REVIEW-FINDINGS

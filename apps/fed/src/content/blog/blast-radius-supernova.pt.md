@@ -46,7 +46,9 @@ Então o que sobra é a parte que sempre foi a que valia ler.
 
 **Catorze imagens.** Uma doc que ninguém leu. Infraestrutura de volta dos mortos. Um pager às três da manhã. Uma mudança saindo mais rápido do que alguém conseguia olhar. Um plan que comeu o state. Um rollback com raio de destruição. Hooks disparando duas vezes. Um arquivo que eu tinha declarado morto e que carrega assim mesmo. Escopo sendo cortado. Uma sprint que nunca converge. O mesmo labirinto de novo. Drift. Um deadline de contexto estourado. E, no fim, três repetições de um verso sobre ter publicado às cegas.
 
-Li as catorze e tive a reação que transformou isso num artigo em vez de um print: **nenhuma delas é genérica.** Cada uma tem um arquivo, uma fatura, um commit ou uma medição por trás, nos dois repositórios que produzem este site. Um modelo escreveu uma piada sobre o trabalho de um estranho e acertou catorze do meu.
+Li as catorze e tive a reação que transformou isso num artigo em vez de um print, e vou te dar a conta com as exceções em vez de arredondar pra cima. **Doze** têm um arquivo, uma fatura, um commit ou uma medição por trás, nos dois repositórios que produzem este site. **Uma** cai ao lado de uma coisa real em vez de em cima dela. **Uma** não tem nada embaixo, e eu digo qual quando a gente chegar nela.
+
+Um modelo escreveu uma piada sobre o trabalho de um estranho e acertou doze do meu em cheio.
 
 **Essa distância é o punch, e é ela que vale o seu tempo** — não o verso em que chegou. Então vamos à auditoria.
 
@@ -60,11 +62,11 @@ O vocabulário vai explicado conforme aparece, porque metade dele é específico
 
 Existe um parágrafo no arquivo de instruções do meu próprio plugin que ficou **errado por três dias** antes de alguém notar — ele apontava para um arquivo que tinha deixado de ser arquivo. Só foi corrigido porque um trabalho não relacionado fez alguém ler aquela frase, e a correção diz isso com todas as letras em vez de consertar a linha caladinho.
 
-E eu te devo a metade feia dessa frase. Eu tinha escrito *seis dias* aqui, porque seis dias é o que a própria correção diz, e eu copiei sem conferir. São três dias e três horas — `git log` no arquivo apagado, contra o commit que consertou o texto. **Um registro sobre uma afirmação vencida estava carregando um número vencido, e este artigo sobre auditar afirmações reimprimiu ele até alguém rodar de novo.** A contagem lá em cima está medida. O registro ainda precisa ser corrigido.
-
 A parte interessante não é uma doc ter envelhecido. É que a doc em questão é a que é **carregada em toda e qualquer sessão** — não é um README esquecido numa pasta, é o arquivo que o agente lê primeiro, sempre.
 
 Tenho um segundo caso, pior, de outra semana: escrevi numa guia a regra de que uma lista que enumera coisas falha *em silêncio* quando falta alguma — e a lista seguinte escrita sob aquela regra deixou de fora exatamente o arquivo sobre o qual a regra tinha sido escrita.
+
+E eu te devo a metade feia do primeiro caso. Eu tinha escrito *seis dias* aqui, porque seis dias é o que a própria correção diz, e eu copiei sem conferir. São três dias e três horas — `git log` no arquivo apagado, contra o commit que consertou o texto. **Um registro sobre uma afirmação vencida estava carregando um número vencido, e este artigo sobre auditar afirmações reimprimiu ele até alguém rodar de novo.** A contagem lá em cima está medida. O registro ainda precisa ser corrigido.
 
 ### A infraestrutura que eu aposentei, e que continuou faturando
 
@@ -96,11 +98,11 @@ Aqui não tem rollout lento. Não tem ambiente de homologação, não tem canár
 
 `terraform plan` é o comando que te conta o que está prestes a mudar na sua conta de nuvem antes de mudar. A imagem é um plan que comeu o state — a própria salvaguarda fazendo o estrago. O que eu tenho é o mesmo medo pelo outro lado: um plan que não fala nada.
 
-O referente é um buraco que eu documentei de propósito. A confiança entre o meu pipeline e a AWS — o provedor de identidade e o papel que o pipeline assume — é **criada na mão, fora do Terraform**, e o motivo não é o que as pessoas chutam primeiro.
+O referente é um buraco que eu documentei de propósito. A confiança entre o meu pipeline e a AWS — o provedor de identidade e o papel que o pipeline assume — é **criada na mão, fora do Terraform**, e o motivo não é o óbvio.
 
-Existe, sim, um problema de bootstrap, e o meu próprio registro arquiva ele como *"mechanical, and would go away"* (mecânico, e um dia sumiria). O motivo permanente é o outro, e o registro diz com todas as letras que os dois não podem ser colapsados num só: **um papel que consegue reescrever a própria política de confiança não tem teto.** Ele poderia adicionar um sujeito à própria confiança, e a mudança chegaria pelo mesmo caminho automatizado de uma rotineira. A regra que sai disso cabe numa linha, e é o título deste artigo enunciado como restrição — *"The blast radius of an `apply` must not include the authority to perform the next `apply`."* O raio de destruição de um `apply` não pode incluir a autoridade de fazer o `apply` seguinte.
+Existe, sim, um problema de bootstrap, e o meu próprio registro arquiva ele como *"mechanical, and would go away"* (mecânico, e um dia sumiria). O motivo permanente é o outro, e o registro diz com todas as letras que os dois não podem ser colapsados num só: **um papel que consegue reescrever a própria política de confiança não tem teto.** Ele poderia adicionar um sujeito à própria confiança, e a mudança chegaria pelo mesmo caminho automatizado de uma rotineira. A regra que sai disso cabe numa linha, e é o título deste artigo enunciado como restrição — *"The blast radius of an `apply` must not include the authority to perform the next `apply`"* (o raio de destruição de um `apply` não pode incluir a autoridade de fazer o `apply` seguinte).
 
-O preço de segurar essa linha é o ponto cego: *"If the provider's thumbprint or the infra role's trust policy is edited in the console, no `plan` objects."* Se a impressão digital do provedor ou a política de confiança do papel de infra for editada pelo console, nenhum `plan` reclama. A ferramenta que existe para te contar a verdade sobre a sua infraestrutura é estruturalmente cega justo para o pedaço que dá acesso ao resto.
+O preço de segurar essa linha é o ponto cego, e o registro diz qual: se a impressão digital do provedor ou a política de confiança do papel de infra for editada pelo console, nenhum `plan` reclama. A ferramenta que existe para te contar a verdade sobre a sua infraestrutura é estruturalmente cega justo para o pedaço que dá acesso ao resto.
 
 Escrevi isso como limitação em vez de decorar, e continua sendo uma limitação.
 
@@ -148,9 +150,9 @@ E não é escapatória. Aquela mesma sessão ficou sem espaço e compactou duas 
 
 ### A fila que crescia por estar sendo trabalhada
 
-Até esta semana o meu loop **não tinha iteração nenhuma** — a decisão tem três dias e o mecanismo mergeou ontem. Tinha uma fila e um comando que drenava ela, e a condição de parada do comando era "até a fila secar" — que não é condição de parada, porque a fila cresce trabalhando.
+Até o fim de agosto o meu loop **não tinha iteração nenhuma** — a decisão caiu no dia 24 e o mecanismo mergeou no dia 26. Tinha uma fila e um comando que drenava ela, e a condição de parada do comando era "até a fila secar" — que não é condição de parada, porque a fila cresce trabalhando.
 
-O número está no meu próprio registro de decisão, e foi medido uma vez e nunca mais rodado, o que é como você deve pesá-lo: numa sessão o backlog cresceu **19 issues líquidas**, das quais umas **13 nasceram dentro de uma revisão de outra coisa**. Cada achado virava trabalho que ninguém tinha decidido fazer. O loop não estava falhando; estava tendo sucesso na coisa errada, que é muito mais difícil de enxergar.
+O número está no meu próprio registro de decisão, e foi medido uma vez e nunca mais rodado, que é como você deve pesar ele: numa sessão o backlog cresceu **19 issues líquidas**, das quais umas **13 nasceram dentro de uma revisão de outra coisa**. Cada achado virava trabalho que ninguém tinha decidido fazer. O loop não estava falhando; estava tendo sucesso na coisa errada, que é muito mais difícil de enxergar.
 
 A correção foi limitar o pool em vez da ambição: o que é drenado agora é uma iteração, fixada num momento em que eu estou na sala, e não tudo o que por acaso está marcado como pronto. Isso não limita o backlog. Move o crescimento para um lugar onde um humano precisa olhar, que é o único lugar onde este loop já limitou alguma coisa que é questão de valor e não de aritmética.
 
@@ -184,13 +186,13 @@ O que existe no lugar é um arquivo, `iac/budget.tf`, que define um teto para a 
 
 O encerramento repete um verso três vezes: *"we were shipping blind"* — a gente publicava às cegas.
 
-É a única imagem do conjunto sem mecanismo embaixo, e eu quero ser direto sobre isso, porque o resto desta peça não valeria nada se eu deixasse um bom verso de fechamento fazer uma afirmação falsa.
+É a única imagem do conjunto sem absolutamente nada embaixo, e eu quero ser direto sobre isso, porque o resto desta peça não valeria nada se eu deixasse um bom verso de fechamento fazer uma afirmação falsa.
 
 Não é uma descrição desta plataforma. Tudo lá em cima existe precisamente para que aquela frase não seja verdade aqui: gates que recusam, hooks que negam um comando antes de ele rodar, um inventário que deixa um build vermelho quando ele para de ser exato.
 
 **Repare no tempo verbal.** *Were.* É a condição contra a qual o aparato inteiro foi construído — o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo.
 
-E eu tenho um recibo pequeno e exato de como isso é na prática, daqui mesmo. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora. O que olha aquilo hoje são os testes unitários da própria função de rewrite e um check pós-deploy de que a função no ar continua sendo a deste repositório, que é o formato de toda correção desta peça: não mais cuidado, e sim uma coisa que falha alto.
+E eu tenho um recibo pequeno e exato de como isso é na prática. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora. O que olha aquilo hoje são os testes unitários da própria função de rewrite e um check pós-deploy de que a função no ar continua sendo a deste repositório, que é o formato de toda correção desta peça: não mais cuidado, e sim uma coisa que falha alto.
 
 O motivo de ele estar no fim é que é para isso que serve um refrão. Você não constrói gate porque é cuidadoso de temperamento. Você constrói porque lembra de como era sem eles.
 
@@ -198,7 +200,7 @@ O motivo de ele estar no fim é que é para isso que serve um refrão. Você nã
 
 Não a paródia — você nem está lendo ela. Leve o exercício.
 
-Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e ela acerta catorze vezes. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
+Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e doze das catorze imagens caem em cima de alguma coisa que você consegue abrir. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
 
 O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
 
