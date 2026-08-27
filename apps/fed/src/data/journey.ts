@@ -382,8 +382,8 @@ const journey: readonly JourneyEntry[] = [
       'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
     ),
     caption: prose(
-      'Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
-      'I went because I wanted to — before I worked there, and while I did.',
+      'O evento voltou depois da pandemia. Eu voltei junto — pela primeira vez como funcionário.',
+      'The event came back after the pandemic. I came back with it — for the first time as an employee.',
     ),
   },
   {
