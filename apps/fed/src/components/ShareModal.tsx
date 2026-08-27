@@ -22,9 +22,10 @@
 // `transition-[padding]` on each row). The behaviour was always right; the stated reason was not, and
 // naming the wrong mechanism is how the next component "follows the pattern" by omitting a transition
 // it could have had.
-import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
 import { X as CloseIcon, Link2, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
 import { useT } from '../i18n';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 import { SHARE_TARGETS, shareHref } from './shareTargets';
 
 /**
@@ -130,54 +131,15 @@ export function ShareModal({
   const t = useT();
   const panel = useRef<HTMLDivElement>(null);
 
-  // Focusable descendants, read at the moment they are needed rather than cached. The panel's content
-  // changes while it is open — the copy button swaps its label to "Copied" — and a cached list is how a
-  // focus trap starts pointing at detached nodes.
-  const focusables = useCallback(
-    () => Array.from(panel.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? []),
-    [],
-  );
-
-  useEffect(() => {
-    // Read once, here, rather than in the cleanup — `react-hooks/exhaustive-deps` is right that a ref
-    // read at teardown may point somewhere else by then. Safe to capture at this moment because the
-    // trigger stays mounted for the whole life of this dialog: the component that renders the button
-    // is the component that renders us.
-    const trigger = returnFocusTo.current;
-    focusables()[0]?.focus();
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-      if (e.key !== 'Tab') return;
-      const items = focusables();
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      // Wrap manually. Without this, Tab from the last control lands on the browser chrome and the
-      // reader is outside a dialog that is still covering the page — the failure mode that makes a
-      // modal worse than the inline links it replaced.
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      // Return focus on ANY unmount, not only on an explicit close. A route change while the modal is
-      // open would otherwise leave focus on a removed node, which reads to a screen reader as the page
-      // having no focus at all.
-      trigger?.focus();
-    };
-  }, [focusables, onClose, returnFocusTo]);
+  // THE KEYBOARD CONTRACT MOVED TO A HOOK (#473) AND DID NOT CHANGE. It was thirty lines here — focus
+  // in on open, Tab trapped and wrapped, `Escape` closes, focus back to the trigger on any unmount —
+  // and the diagram overlay needs the identical set. The alternative was a second copy, which is how
+  // two dialogs come to answer `Escape` differently. `active` defaults to true, which is this
+  // component's case exactly: it is mounted only while it is open.
+  //
+  // The six focus assertions in `ShareButton.test.tsx` are unchanged and are what says the move was
+  // behaviour-preserving.
+  useDialogFocus({ panel, onClose, returnFocusTo });
 
   return (
     <div
