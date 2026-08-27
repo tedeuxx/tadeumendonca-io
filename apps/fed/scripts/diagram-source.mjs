@@ -96,7 +96,10 @@ export function collectFences(contentDir) {
  */
 export function spacingFor(source) {
   const nodeSpacing = 12;
-  return /^\s*flowchart\s+(LR|RL)\b/.test(source)
+  // `graph` as well as `flowchart`: mermaid still accepts the older keyword, and every fence here is
+  // authored by hand. A `graph LR` falling through to the vertical branch would keep the wide default
+  // silently — the figure would simply stay unreadable, with nothing anywhere to say why.
+  return /^\s*(?:flowchart|graph)\s+(?:LR|RL)\b/.test(source)
     ? { rankSpacing: 16, nodeSpacing }
     : { nodeSpacing };
 }

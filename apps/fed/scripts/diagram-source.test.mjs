@@ -61,6 +61,9 @@ describe('dagre spacing is keyed on the flow direction', () => {
     // absence is what leaves mermaid's own default in place.
     expect(spacingFor('flowchart TB\n  A --> B')).toEqual({ nodeSpacing: 12 });
     expect(spacingFor('flowchart TD\n  A --> B')).toEqual({ nodeSpacing: 12 });
+    // mermaid's older keyword for the same thing. A fence authored `graph LR` that fell through would
+    // keep the wide default and simply stay unreadable, with nothing to say why.
+    expect(spacingFor('graph LR\n  A --> B')).toEqual({ rankSpacing: 16, nodeSpacing: 12 });
   });
 
   it('does not mistake a direction that merely appears in a label for the fence direction', () => {
