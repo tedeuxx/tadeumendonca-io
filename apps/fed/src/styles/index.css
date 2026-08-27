@@ -263,6 +263,25 @@ body {
     padding-bottom: 0.45rem !important;
     padding-left: 0.7rem !important;
   }
+  /* THE TWO-TRACK EXPERIENCE ENTRY IS A SCREEN DEVICE (#516 slice 2c). An entry carrying a journey
+     photograph is `md:grid` with a 9rem/14rem left track; the figure itself is already gone from the
+     sheet through `[data-print='hide']`, but the TRACK is not — a print render lays out at ~794px, so
+     the `md:` breakpoint applies and every photographed role would be indented past an empty column.
+     That reaches the printed artifact, which is on a two-page budget with no room in it (see the
+     Experience note below: any shape that prints one more bullet already costs a third sheet).
+
+     SCOPED TO BLOCK 01, not to the shared `section > div:last-child > div > div` rule above it. That
+     selector also matches the certification rows in 03, which are `flex` on purpose — forcing them to
+     `block` here would put every badge above its name and change a block this slice never touched.
+
+     THE ALTERNATIVE, and why it was rejected on a defect rather than on taste: the two tracks could be
+     built with no wrapper at all, placing each prose child in a column directly. The timeline marker is
+     `position: absolute` inside the entry, and an absolutely-positioned child of a GRID container with
+     a definite column placement takes that grid AREA as its containing block — the square would have
+     jumped out of the rail it marks. */
+  [data-print='cv'] [data-print-block='01'] > div:last-child > div > div {
+    display: block !important;
+  }
   [data-print='cv'] section > div:last-child ul {
     margin-top: 0.3rem !important;
     padding-left: 0.95rem !important;
@@ -424,7 +443,19 @@ body {
     font-size: 1em !important;
     line-height: inherit !important;
   }
-  [data-print='cv'] [data-print-block='01'] > div:last-child > div > div > p {
+  /* SELECTED BY WHAT IT IS, NOT BY HOW DEEP IT SITS (#516 slice 2c). This read
+     `> div:last-child > div > div > p` — the role description as a DIRECT child of the entry — and the
+     two-track layout put a wrapper between them, so it silently stopped matching and the description
+     fell back to its screen `mt-2`. Silently is the whole problem: nothing in the suite mentions a
+     paragraph. The one thing that noticed was `dist/cv.pdf` coming out at THREE pages.
+
+     MEASURED, on the built artifact, before and after: 8px vs 0.14rem is 5.76px per role, five roles,
+     28.8px — and block 01 went 622px → 651px, which is that number to the pixel. The whole regression
+     was this one selector.
+
+     Block 01 has exactly one kind of paragraph — the role description — so the descendant form names
+     the thing rather than its address, and no depth can break it again. */
+  [data-print='cv'] [data-print-block='01'] p {
     margin-top: 0.14rem !important;
   }
   /* With the highlights gone, a role is four short lines — the generous screen padding is now the

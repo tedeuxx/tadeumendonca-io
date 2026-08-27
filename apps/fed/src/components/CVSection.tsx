@@ -129,12 +129,22 @@ function CertBadge({ cert }: { cert: CertificationItem }) {
 /**
  * One journey photograph, rendered as the LAST CHILD of the experience entry its attribution names (#516).
  *
- * WHY APPENDED BELOW AND NOT FLOATED BESIDE THE PROSE. A right-floated portrait reflows text the owner
+ * ~~WHY APPENDED BELOW AND NOT FLOATED BESIDE THE PROSE. A right-floated portrait reflows text the owner
  * validated — *"não é esperada alteração nas entradas de work experiences"*. Floating is not a markup
  * restructure, so it survives the letter of that constraint and violates its substance: the reader meets
  * the same words in a different shape. Appended below is the only form in which the entry's existing
  * children lay out identically whether the figure is present or absent, which is what makes the constraint
- * a test rather than a promise.
+ * a test rather than a promise.~~
+ *
+ * STRUCK BY THE OWNER, #516 slice 2c, after reading the shipped result: *"vc nao consegue colocar as fotos
+ * ao lado da entrada de texto no lado oposto a divisao? ia ficar melhor que abaixo da entrada de work
+ * experience"*. Struck rather than deleted because the reasoning was correct about what it was protecting
+ * — the constraint it served was "the entries must not change", and this slice is him changing that
+ * constraint on the finished thing. What replaced the append is NOT the float it argued against: the
+ * entry becomes a two-track grid at `md` and up (see the call site), so the prose keeps its own column
+ * and its own measure instead of wrapping around a picture. The photograph is beside the entry, on the
+ * left, opposite the prose — and below `md` it is still appended below, unchanged, because there is no
+ * band to move it into there.
  *
  * WHY A `<figure>` AND NOT A `<div>`, AND WHY IT IS NESTED RATHER THAN A SIBLING. Both halves are
  * load-bearing and each closes a different trap. `e2e/cv-pdf.spec.ts` counts roles positionally with
@@ -162,12 +172,30 @@ function CertBadge({ cert }: { cert: CertificationItem }) {
  * `w-full` alone would lay one out at the full body width on a desktop, which is a photograph competing
  * with the role it belongs to rather than illustrating it. The upper bound is held mechanically by the
  * no-upscale assertion in the E2E; this is the editorial number below it, and it is the one thing here a
- * reader could reasonably want tuned.
+ * reader could reasonably want tuned. At `md` and up the GRID TRACK is what binds first (9rem, 14rem from
+ * `lg`), and the two do not fight: the track is narrower than the cap at every width, so `max-w` stays the
+ * bound for the one place the track does not exist — the phone.
  */
 function JourneyFigure({ frame }: { frame?: JourneyFrame }) {
   if (!frame) return null;
   return (
-    <figure data-print="hide" data-journey-photo="" className="mt-3 w-full max-w-[260px]">
+    <figure
+      data-print="hide"
+      data-journey-photo=""
+      // `md:row-start-1` IS LOAD-BEARING AND NOT SYMMETRY WITH THE LINE ABOVE IT. The prose wrapper is
+      // placed first, at row 1 / column 2, which leaves the auto-placement cursor past the end of row 1 —
+      // a figure carrying only `md:col-start-1` would be placed on row 2, under the prose, which is the
+      // exact layout this slice exists to leave behind, and it would look like a spacing bug rather than
+      // a placement one.
+      //
+      // `md:self-start` because a grid item stretches to its row by default: without it the figure's box
+      // grows to the height of the prose beside it and the caption floats off the bottom of the picture.
+      //
+      // NO `sticky`. The band this figure now sits beside is the one the label column pins
+      // (`md:sticky`, the `Block` shell above), and a per-entry photograph that inherited that would
+      // detach from the role it documents and follow the scroll down the whole section.
+      className="mt-3 w-full max-w-[260px] md:col-start-1 md:row-start-1 md:mt-0 md:self-start"
+    >
       <img
         src={frame.photo.src}
         alt={frame.alt}
@@ -275,35 +303,70 @@ export function CVSection({ profile, journey = [] }: { profile: Profile; journey
       {profile.experience.length > 0 && (
         <Block index="01" title={t('cv.experience')}>
           <div className="flex flex-col">
-            {profile.experience.map((item, i) => (
-              <div key={i} className="relative border-l-2 border-border py-3 pl-5">
-                <span aria-hidden="true" className="absolute -left-[5px] top-[1.15rem] h-2 w-2 bg-primary" />
-                <span className="block font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                  {dateRange(item.start_date, item.end_date, present)}
-                </span>
-                <span className="mt-1 block text-lg font-bold leading-tight">{item.title}</span>
-                <span className="block text-muted-foreground">{item.company}</span>
-                {item.description && <p className="mt-2 max-w-prose leading-relaxed text-foreground/90">{item.description}</p>}
-                {item.highlights && item.highlights.length > 0 && (
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-foreground/90">
-                    {item.highlights.map((h, j) => (
-                      // `data-print-keep` marks the one highlight the print edition keeps (#161). The
-                      // stylesheet hides the list and un-hides this; the flag is authored in the data
-                      // (see `print_highlight_index`) so it points at a MEANING, not at a position that
-                      // silently shifts when the list is reordered.
-                      <li key={j} data-print-keep={j === item.print_highlight_index ? '' : undefined}>
-                        {h}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {/* LAST CHILD, ALWAYS — see `JourneyFigure`. Anything added after it here would put a
-                    reader's eye back on the entry's prose after the photograph, and would move the
-                    figure out of the position the layout was validated in. Most entries have no frame
-                    and this renders nothing at all. */}
-                <JourneyFigure frame={frameFor.get(engagementKey(item))} />
-              </div>
-            ))}
+            {profile.experience.map((item, i) => {
+              const frame = frameFor.get(engagementKey(item));
+              return (
+                // THE TWO-TRACK LAYOUT IS CONDITIONAL ON THE FRAME (#516 slice 2c). The owner asked for
+                // the photograph beside its entry rather than stacked under it — *"colocar as fotos ao
+                // lado da entrada de texto"* — so an entry that carries one becomes a grid: the figure in
+                // the left track, the prose in the right. An entry that carries none stays exactly the
+                // block it is today, because a uniform grid would open a 14rem gutter on every photoless
+                // role, and four frames sit in a CV with five. The cost, named rather than hidden: the
+                // prose of a photoless entry starts further left than its neighbours'. Alignment was the
+                // cheaper of the two losses.
+                //
+                // `md:` AND UP, WITHOUT EXCEPTION. The label column, the section divider and the
+                // twelve-column grid are all `md:`-prefixed — below that breakpoint this section is one
+                // stacked column with no band to put a photograph in, so a phone keeps the figure where
+                // it is today: under the entry.
+                //
+                // THE TIMELINE RAIL DOES NOT MOVE. The grid lives INSIDE the entry, so `border-l-2` and
+                // its square marker stay on the same x for every role, photographed or not. Putting the
+                // two tracks one level up — a wrapper around the entry — would have shifted the rail
+                // right for the entries carrying a frame and left the spine jagged.
+                <div
+                  key={i}
+                  className={`relative border-l-2 border-border py-3 pl-5${
+                    frame ? ' md:grid md:grid-cols-[9rem_minmax(0,1fr)] md:gap-x-5 lg:grid-cols-[14rem_minmax(0,1fr)]' : ''
+                  }`}
+                >
+                  <span aria-hidden="true" className="absolute -left-[5px] top-[1.15rem] h-2 w-2 bg-primary" />
+                  {/* The prose track. This wrapper exists so the entry's five prose children move as ONE
+                      grid item instead of each needing its own placement — and it is deliberately a
+                      `div` at a depth that matches nothing: `[data-print-block="01"] > div:last-child >
+                      div > div` counts ROLES, and this sits one level below it. A wrapper at the entry's
+                      own depth would have inflated that count and reddened `e2e/cv-pdf.spec.ts` for a
+                      reason that has nothing to do with a role. */}
+                  <div className="md:col-start-2">
+                    <span className="block font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                      {dateRange(item.start_date, item.end_date, present)}
+                    </span>
+                    <span className="mt-1 block text-lg font-bold leading-tight">{item.title}</span>
+                    <span className="block text-muted-foreground">{item.company}</span>
+                    {item.description && <p className="mt-2 max-w-prose leading-relaxed text-foreground/90">{item.description}</p>}
+                    {item.highlights && item.highlights.length > 0 && (
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-foreground/90">
+                        {item.highlights.map((h, j) => (
+                          // `data-print-keep` marks the one highlight the print edition keeps (#161). The
+                          // stylesheet hides the list and un-hides this; the flag is authored in the data
+                          // (see `print_highlight_index`) so it points at a MEANING, not at a position that
+                          // silently shifts when the list is reordered.
+                          <li key={j} data-print-keep={j === item.print_highlight_index ? '' : undefined}>
+                            {h}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {/* STILL THE LAST CHILD, AND STILL FOR THE ORIGINAL REASON — see `JourneyFigure`. Below
+                      `md` this is document order and the reader meets the photograph after the prose,
+                      exactly as before; at `md` and up the grid re-places it into the left track without
+                      moving it in the DOM, so the reading order a screen reader follows is unchanged.
+                      Most entries have no frame and this renders nothing at all. */}
+                  <JourneyFigure frame={frame} />
+                </div>
+              );
+            })}
           </div>
         </Block>
       )}

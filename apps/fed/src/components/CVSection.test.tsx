@@ -311,6 +311,49 @@ describe('CVSection — the journey photographs inside the experience entries', 
     expect(container.querySelector('[data-journey-photo]')!.tagName).toBe('FIGURE');
   });
 
+  // ── The move beside the entry (#516 slice 2c) ───────────────────────────────────────────────────
+  // WHAT THESE THREE CAN HONESTLY CLAIM. jsdom has no layout engine, so "the figure is to the LEFT of the
+  // prose" is not assertable here and is not asserted — that is measured with real rects in
+  // `e2e/journey-photos.spec.ts`. What is assertable is the wiring the geometry depends on: which entry
+  // becomes a grid, which track each item is placed in, and the one class that must never appear.
+  it('turns an entry into a two-track layout ONLY when it carries a frame', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const entries = [...container.querySelectorAll('[data-print-block="01"] > div:last-child > div > div')];
+    expect(entries[0].className).toContain('md:grid');
+    // The photoless role keeps the block it is today. A uniform grid would open the left track on every
+    // entry, and four frames sit in a CV with five roles — the fifth would carry an empty 14rem gutter
+    // that means nothing to a reader.
+    expect(entries[1].className).not.toContain('md:grid');
+    // Below `md` neither is a grid at all: the section has no left band there, and a phone keeps the
+    // photograph under the entry. Asserted on the ABSENCE of an unprefixed `grid`, which is what a
+    // dropped breakpoint prefix would leave behind.
+    expect(entries[0].className.split(' ')).not.toContain('grid');
+  });
+
+  it('places the figure in the left track of row one, beside the prose rather than under it', () => {
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    const entry = container.querySelector('[data-print-block="01"] > div:last-child > div > div')!;
+    const prose = entry.querySelector(':scope > div')!;
+    const figure = container.querySelector('[data-journey-photo]')!;
+    expect(prose.className).toContain('md:col-start-2');
+    expect(figure.className).toContain('md:col-start-1');
+    // Without the explicit row the auto-placement cursor, already past row 1 after the prose, would put
+    // the figure on row 2 — under the prose, which is the layout this slice replaced.
+    expect(figure.className).toContain('md:row-start-1');
+    expect(figure.className).toContain('md:self-start');
+    // The prose track is ONE grid item, and it is one level below the depth `e2e/cv-pdf.spec.ts` counts
+    // roles at. Exactly one direct-child div in an entry that also holds a figure and the rail marker.
+    expect(entry.querySelectorAll(':scope > div')).toHaveLength(1);
+  });
+
+  it('does not inherit the sticky behaviour of the band it now sits beside', () => {
+    // The label column is `md:sticky` (see `Block`). A per-entry photograph carrying that would unpin
+    // from the role it documents and travel down the whole section as the reader scrolls — visible only
+    // to someone scrolling a built page, which is why it is nailed down here.
+    const { container } = renderWithLocale(<CVSection profile={twoRoles} journey={[FRAME_A]} />);
+    expect(container.querySelector('[data-journey-photo]')!.className).not.toContain('sticky');
+  });
+
   it('opts out of the print edition through the stable hook', () => {
     // `/cv.pdf` is printed from /en/me and held to two A4 pages. Without this attribute a 3:4 photograph
     // per role lands on a third sheet and that guard goes red — on a test whose own comment warns against

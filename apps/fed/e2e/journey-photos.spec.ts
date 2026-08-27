@@ -119,6 +119,64 @@ test.describe('the journey photographs on /me', () => {
       expect(nested.carrying, 'a frame is rendering outside an experience entry').toBe(FRAMES);
     });
 
+    test(`${route} — at md and up each frame sits BESIDE its entry, not under it`, async ({ page }) => {
+      // THE ASSERTION THIS SLICE EXISTS FOR (#516 slice 2c), and it is only assertable here: jsdom reports
+      // zero-sized rects, so `CVSection.test.tsx` can prove which grid track each item was ASSIGNED and
+      // nothing at all about where either one landed. A dropped `md:row-start-1`, a track that collapsed,
+      // a `col-start` that stopped applying because the parent stopped being a grid — every one of those
+      // leaves the class assertions green and puts the photograph back under the prose.
+      await page.setViewportSize({ width: 1280, height: HEIGHT });
+      await page.goto(route);
+      await loadEveryFrame(page);
+
+      const beside = await page.evaluate(() =>
+        [...document.querySelectorAll('[data-print-block="01"] > div:last-child > div > div')]
+          .filter((el) => el.querySelector(':scope > [data-journey-photo]'))
+          .map((el) => {
+            const fig = el.querySelector(':scope > [data-journey-photo]')!.getBoundingClientRect();
+            const prose = el.querySelector(':scope > div')!.getBoundingClientRect();
+            return { figRight: fig.right, figTop: fig.top, proseLeft: prose.left, proseTop: prose.top };
+          }),
+      );
+      // The count guard, for the same reason every other one in this file exists: a filter that matched
+      // nothing would report that nothing was misplaced.
+      expect(beside, 'no entry carries a frame — the selector has drifted').toHaveLength(FRAMES);
+      for (const g of beside) {
+        // Beside and to the LEFT: the figure's right edge does not reach the prose's left edge. This is
+        // the whole of the owner's ask expressed as a number, and it is false under the layout that
+        // shipped before this slice, where the two boxes shared a left edge.
+        expect(Math.round(g.figRight), 'a frame overlaps the prose beside it').toBeLessThanOrEqual(Math.round(g.proseLeft));
+        // And on the SAME row — a figure pushed to row 2 still satisfies the test above, since it would
+        // sit in the left track under everything.
+        expect(Math.abs(g.figTop - g.proseTop), 'a frame is not on the same row as its entry').toBeLessThanOrEqual(4);
+      }
+    });
+
+    test(`${route} — below md each frame is still under its entry`, async ({ page }) => {
+      // THE OTHER HALF, and it is the one a change written without the `md:` prefix breaks silently. There
+      // is no label column, no section divider and no twelve-column grid below 768px, so there is no band
+      // to put a photograph beside; a phone must keep it where it has always been.
+      await page.setViewportSize({ width: 375, height: HEIGHT });
+      await page.goto(route);
+      await loadEveryFrame(page);
+
+      const stacked = await page.evaluate(() =>
+        [...document.querySelectorAll('[data-print-block="01"] > div:last-child > div > div')]
+          .filter((el) => el.querySelector(':scope > [data-journey-photo]'))
+          .map((el) => {
+            const fig = el.querySelector(':scope > [data-journey-photo]')!.getBoundingClientRect();
+            const prose = el.querySelector(':scope > div')!.getBoundingClientRect();
+            return { figTop: fig.top, proseBottom: prose.bottom };
+          }),
+      );
+      expect(stacked, 'no entry carries a frame — the selector has drifted').toHaveLength(FRAMES);
+      for (const g of stacked) {
+        expect(Math.round(g.figTop), 'a frame has moved beside the prose on a phone').toBeGreaterThanOrEqual(
+          Math.round(g.proseBottom),
+        );
+      }
+    });
+
     test(`${route} — no frame is upscaled past the committed 660px`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: HEIGHT });
       await page.goto(route);
