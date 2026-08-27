@@ -264,9 +264,9 @@ const sourceTemplate: ProfileSource = {
             'and heterogeneous enterprise platforms.',
           'Responsible application architect on a telecom field-force programme — three apps built in ' +
             'parallel, one hybrid (Ionic) and two native Android, the front technology fixed per app at ' +
-            'requirements time by the device profile of each user population. Under fronts that were ' +
-            'required to differ, the backends converged on much the same architectural concept, because ' +
-            'the parallel teams traded what worked. Hands-on at every tier: the Android clients, a React ' +
+            "requirements time by each user population's devices. Under fronts that were required to " +
+            'differ, the backends were much alike in architectural concept, because we traded what ' +
+            'worked across the parallel teams. Hands-on at every tier: the Android clients, a React ' +
             'back-office portal, and the Node.js / Express services under them on MongoDB and Redis, ' +
             'offline-first throughout.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
@@ -285,9 +285,9 @@ const sourceTemplate: ProfileSource = {
             'apps, APIs e plataformas corporativas heterogêneas.',
           'Arquiteto de aplicação responsável por um programa de força de campo em telecom — três apps ' +
             'construídos em paralelo, um híbrido (Ionic) e dois Android nativo, com a tecnologia de front ' +
-            'fixada por app já nos requisitos pelo perfil de dispositivo de cada população de usuários. ' +
-            'Sob fronts que precisavam ser diferentes, os backends convergiram para muita semelhança de ' +
-            'conceito arquitetural, porque os times em paralelo trocaram sinergias. Hands-on em todas as ' +
+            'fixada por app já nos requisitos pelos dispositivos de cada população de usuários. Sob ' +
+            'fronts que precisavam ser diferentes, os backends ficaram muito parecidos em conceito ' +
+            'arquitetural, porque trocamos sinergias entre os times em paralelo. Hands-on em todas as ' +
             'camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
