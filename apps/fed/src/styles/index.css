@@ -374,14 +374,19 @@ body {
      Measured on the built artifact, not inferred — `npm run build:static`, then counting `/Type /Page`
      in `dist/cv.pdf` with the spec's own regex:
        · practice lines + the longest current-role bullet ......... 3 pages
-       · practice lines + the SHORTEST bullet in that array ....... 3 pages
+       · practice lines + the shortest bullet in that role ........ 3 pages
+       · practice lines + the shortest <li> ANYWHERE in the block
+         (117 chars, on the 2008–2015 role) ...................... 3 pages
        · practice lines + one bullet on each of the five roles .... 3 pages
        · practice lines, zero printed bullets .................... 2 pages
-     So no shape that prints any bullet fits, and the bound was measured against the shortest item
-     available rather than the preferred one. The practice line wins the slot because it is the only
+     So no shape that prints any bullet fits, and the bound is the strongest one available: not the
+     preferred bullet, not the shortest in the role that wanted one, but the shortest that exists. The practice line wins the slot because it is the only
      field that exists identically on all three surfaces and, for these roles, the only text the PDF
-     prints at all. #522's acceptance criterion 3 is satisfied by its own escape clause — a role prints
-     no highlight, and this measurement is the recorded reason.
+     prints at all. NO ACCEPTANCE CRITERION IS WAIVED BY THIS, and the earlier claim that one was is
+     struck: #522 sets no criterion on printed highlights at all — its criterion 3 reads `2017 is
+     scannable on a public surface`, and the criterion that asks for built evidence on the current role
+     (5) is met by the practice line, which names the artifacts. The bullets are dropped because the
+     budget does not fit them beside the practice lines. That is the whole reason; nothing is excused.
 
      THE SELECTION RULE SURVIVES, scoped to WHEN a bullet prints, because it will be needed the moment
      the budget moves: print the item the practice line does NOT already carry, and prefer a COMPLETED
@@ -395,12 +400,15 @@ body {
     display: list-item !important;
   }
   /* A role with no kept highlight would still render an empty <ul>, contributing its margin and padding
-     as unexplained whitespace between jobs. Four of the five roles are in that case. */
+     as unexplained whitespace between jobs. Since #522 that is FIVE of the five — no role sets
+     `print_highlight_index`, so all 16 <li> are hidden by the rule above and every <ul> is emptied.
+     This read `Four of the five` until #522 and described the state before it. */
   [data-print='cv'] [data-print-block='01'] ul:not(:has(li[data-print-keep])) {
     display: none !important;
   }
-  /* The list carries a literal `text-[15px]`, which survives the print scale and would print the one
-     kept highlight half again larger than the roles around it. */
+  /* The list carries a literal `text-[15px]`, which survives the print scale and would print a kept
+     highlight half again larger than the roles around it. Nothing is kept today, so this rule is
+     dormant rather than dead — it is what makes setting the flag safe if the budget ever allows it. */
   [data-print='cv'] [data-print-block='01'] ul {
     margin-top: 0.14rem !important;
     font-size: 1em !important;

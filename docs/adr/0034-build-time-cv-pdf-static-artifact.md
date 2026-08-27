@@ -257,8 +257,27 @@ record should have carried since 2026-07-28 and did not.
 agentic built") is retired, not narrowed: the evidence it existed to buy now sits in the `description`
 the same amendment already called the survivor, so the exception buys nothing and costs a page.
 
-Issue #522's own criterion 3 is satisfied by its escape clause — *"or the Issue records explicitly why a
-role does not"* — and the reason is the measurement below, not an editorial preference.
+**No acceptance criterion is waived here, because none applies.** Issue #522 sets nine acceptance
+criteria and **not one of them requires a printed highlight** — read off the Issue at head rather than
+from any account of it (`gh issue view 522 --repo <owner>/<repo> --json body --jq .body`). Its criterion
+3 reads *"**2017** is scannable on a public surface"*. So there is nothing to discharge and nothing to
+excuse: **the print bullets are dropped because the two-page budget does not fit them alongside the
+practice lines. That is the whole reason.**
+
+The one criterion the print edition does touch is **9** — *"A reader scanning only titles and the first
+line under each, on `/me` and `/cv.pdf`, can say what he builds"* — and dropping the bullets does not
+threaten it, it is what makes it legible: **the first line under each title IS the practice line**, which
+is what criterion 1 put there.
+
+~~Issue #522's own criterion 3 is satisfied by its escape clause — *"or the Issue records explicitly why a
+role does not"* — and the reason is the measurement below, not an editorial preference.~~
+**Struck within the hour it stood (2026-08-26).** The quoted clause **is not in Issue #522** and never
+was — it belonged to a draft body that was replaced wholesale when intake returned the closed
+description, and the dead version went on being cited. Falsifier, at head:
+`gh issue view 522 --json body --jq .body | grep -c "records explicitly why"` → **0**. Struck rather than
+deleted because it is the third time this MR has carried a claim inherited from a superseded source
+instead of checked against the live one, and a record that quietly drops the evidence teaches nothing.
+**The decision and the measurement are unchanged; only this justification was false.**
 
 ### The constraint that was never recorded, which is the finding worth more than the corrected sentences
 
@@ -275,7 +294,7 @@ look free.
 
 **Measured on the artifact, by the merge gate on PR #523, by toggling one lever at a time in the DOM and
 editing no repository file:** practice lines with NO printed bullet fit the budget; the pre-#522 shape fits it only WITHOUT the practice lines;
-practice lines plus even one printed bullet does not — including the pre-#522 single index, and including the SHORTEST bullet in the current role array, both re-measured at three pages while implementing this decision. **No shape that prints any bullet fits.** Runnable falsifier, unchanged by this amendment:
+practice lines plus even one printed bullet does not — including the pre-#522 single index, and including the SHORTEST highlight anywhere in the experience block (117 characters, forced into the print slot by the merge gate — shorter than the 149-character minimum available inside the current role). Every one renders three pages. **No shape that prints any bullet fits.** Runnable falsifier, unchanged by this amendment:
 
 ```
 npm --prefix apps/fed run build:static
