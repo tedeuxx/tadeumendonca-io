@@ -10,7 +10,7 @@ excerpt: "I asked for a parody of a song I like, about my own work. Then I went 
 takeaway: 'that a prompt and its output prove nothing on their own; what makes the output worth publishing is going image by image and naming what each one refers to.'
 ---
 
-I like *Champagne Supernova*, by Oasis. The song is thirty years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
+I like *Champagne Supernova*, by Oasis. The song is thirty-one years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
 
 **Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word after it.**
 
@@ -60,7 +60,9 @@ The vocabulary is glossed as it comes, because half of it is specific to the way
 
 ### The doc that is read constantly and consulted never
 
-There is a paragraph in my plugin's own instruction file that had been **wrong for six days** before anybody noticed — it pointed at a file that had stopped being a file. It was fixed only because a piece of unrelated work happened to make somebody read that sentence, and the correction says so in as many words rather than quietly repairing the line.
+There is a paragraph in my plugin's own instruction file that had been **wrong for three days** before anybody noticed — it pointed at a file that had stopped being a file. It was fixed only because a piece of unrelated work happened to make somebody read that sentence, and the correction says so in as many words rather than quietly repairing the line.
+
+And I owe you the ugly half of that sentence. I first wrote *six days* here, because six days is what the correction itself says, and I copied it across without checking. It is three days and three hours — `git log` on the deleted file, against the commit that fixed the text. **A record about a stale claim was carrying a stale number, and this article about auditing claims reprinted it until somebody re-ran it.** The count above is measured. The record still needs fixing.
 
 The interesting part is not that a doc went stale. It is that the doc in question is the one **loaded into every single session** — it is not a README somebody forgot in a folder, it is the file the agent reads first, every time.
 
@@ -82,7 +84,7 @@ A **steering file** is the standing-instructions document an agentic tool loads 
 
 Mine is full of text I have declared dead. It is a convention I chose and still defend: when a rule turns out to be wrong, I **strike it through and leave it in place**, with the date and the reason, because somebody made a decision based on the old sentence and deserves to find out it changed rather than to find it silently gone.
 
-The cost is exact and I pay it every session. That file is loaded at session start, in full, struck passages included. And it is not alone: at one measured point, the descriptions of my skill library alone had become roughly **ten thousand tokens loaded before a single word of the actual task** — a decision that had been free while nothing loaded them, and stopped being free the moment something did.
+The cost is exact and I pay it every session. That file is loaded at session start, in full, struck passages included. And it is not alone: at one measured point, the descriptions of my skill library alone had become roughly **ten thousand tokens loaded before a single word of the actual task** — a decision that had been free while nothing loaded them, and stopped being free the moment something did. That figure was taken when the library held sixty-nine skills. It holds fourteen now, so today's number is smaller, and I have deliberately not restated it: re-measuring would trade a checkable old figure for a new one nobody but me can re-run.
 
 Everything I have buried is still in the room. On purpose, and not for free.
 
@@ -96,7 +98,11 @@ That is a deliberate choice and it has a stated price, which I will restate rath
 
 `terraform plan` is the command that tells you what is about to change in your cloud account before it changes. The image is a plan that ate the state — the safeguard itself doing the damage. What I have is the same fear from the other side: a plan that says nothing at all.
 
-The referent is a hole I documented on purpose. The trust between my pipeline and AWS — the identity provider and the role the pipeline assumes — is **created by hand, outside Terraform**, because there is no way to bootstrap it from inside. Which means the sentence in that decision record reads, in full: if somebody edits that trust policy in the console, **no `plan` objects**. The tool that exists to tell you the truth about your infrastructure is structurally blind to the one piece of it that grants access to the rest.
+The referent is a hole I documented on purpose. The trust between my pipeline and AWS — the identity provider and the role the pipeline assumes — is **created by hand, outside Terraform**, and the reason is not the one people reach for first.
+
+There *is* a bootstrapping problem, and my own record files it under *"mechanical, and would go away"*. The permanent reason is the other one, and the record says in terms that the two must not be collapsed: **a role that can rewrite its own trust policy has no ceiling on it.** It could add a subject to its own trust, and the change would arrive down the same automated path as a routine one. The rule that follows is one line, and it is this article's title stated as a constraint — *"The blast radius of an `apply` must not include the authority to perform the next `apply`."*
+
+The cost of holding that line is the blind spot: *"If the provider's thumbprint or the infra role's trust policy is edited in the console, no `plan` objects."* The tool that exists to tell you the truth about your infrastructure is structurally blind to the one piece of it that grants access to the rest.
 
 I wrote that down as a limitation instead of decorating it, and it is still a limitation.
 
@@ -144,9 +150,9 @@ And it is not an escape. That same session ran out of room and compacted twice a
 
 ### The queue that grew by being worked
 
-Until three days ago my loop had **no iteration at all**. It had a queue and a command that drained it, and the command's stopping condition was "until the queue is dry" — which is not a stopping condition, because the queue grows by working.
+Until this week my loop had **no iteration at all** — the decision is three days old and the mechanism merged yesterday. It had a queue and a command that drained it, and the command's stopping condition was "until the queue is dry" — which is not a stopping condition, because the queue grows by working.
 
-I have the measurement. In one session the backlog grew by **19 issues net**, of which roughly **13 were born inside a review of something else**. Every finding turned into work nobody had decided to do. The loop was not failing; it was succeeding at the wrong thing, which is much harder to see.
+The figure sits in my own decision record, and it was recorded once and never re-run, which you should weigh it by: in one session the backlog grew by **19 issues net**, of which roughly **13 were born inside a review of something else**. Every finding turned into work nobody had decided to do. The loop was not failing; it was succeeding at the wrong thing, which is much harder to see.
 
 The fix was to bound the pool instead of the ambition: what gets drained is now one iteration, fixed at a moment when I am in the room, rather than everything that happens to be marked ready. It does not bound the backlog. It moves the growth somewhere a human has to look at it, which is the only place this loop has ever bounded anything that is a matter of worth rather than arithmetic.
 
@@ -186,7 +192,7 @@ It is not a description of this platform. Everything above exists precisely so t
 
 **Read the tense.** *Were.* It is the condition the whole apparatus was built against — the ordinary state of a lot of software work, mine included, for a long stretch of it.
 
-And I have a small, exact receipt for what it actually looks like, from right here. A path misroute once sent every per-article social card into this site's catch-all route, so each one answered every scraper that asked with a `200` and the home page's HTML. Well-formed, confident, wrong. Nothing was watching that path, so nothing said anything, and I found out the way you always find out — afterwards, from the outside.
+And I have a small, exact receipt for what it actually looks like, from right here. A path misroute once sent every per-article social card into this site's catch-all route, so each one answered every scraper that asked with a `200` and the home page's HTML. Well-formed, confident, wrong. Nothing was watching that path, so nothing said anything, and I found out the way you always find out — afterwards, from the outside. What watches it now is that rewrite function's own unit tests and a post-deploy check that the live function still matches this repository, which is the shape every fix in this piece takes: not more care, something that fails loudly.
 
 The reason it belongs at the end is that it is what a chorus is for. You do not build gates because you are careful by temperament. You build them because you remember what it was like without them.
 
@@ -194,7 +200,7 @@ The reason it belongs at the end is that it is what a chorus is for. You do not 
 
 Not the parody — you are not even reading it. Take the exercise.
 
-A model that has never opened your repositories writes a joke about your job, and it lands fourteen times. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for six days, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
+A model that has never opened your repositories writes a joke about your job, and it lands fourteen times. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for three days, a stale number inside the correction that fixed it, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
 
 The model wrote it. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
 

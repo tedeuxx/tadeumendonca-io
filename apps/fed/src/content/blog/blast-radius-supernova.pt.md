@@ -10,7 +10,7 @@ excerpt: "Pedi uma paródia de uma música que eu gosto, sobre o meu próprio tr
 takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a saída valer publicação é ir imagem por imagem e nomear a que cada uma se refere.'
 ---
 
-Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta anos, o clipe é a banda atravessando uma sala em câmera lenta, e eu já trabalhei ouvindo isso mais vezes do que consigo contar.
+Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta e um anos, o clipe é a banda atravessando uma sala em câmera lenta, e eu já trabalhei ouvindo isso mais vezes do que consigo contar.
 
 **A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra depois dele.**
 
@@ -58,7 +58,9 @@ O vocabulário vai explicado conforme aparece, porque metade dele é específico
 
 ### A doc que é lida o tempo todo e consultada nunca
 
-Existe um parágrafo no arquivo de instruções do meu próprio plugin que ficou **errado por seis dias** antes de alguém notar — ele apontava para um arquivo que tinha deixado de ser arquivo. Só foi corrigido porque um trabalho não relacionado fez alguém ler aquela frase, e a correção diz isso com todas as letras em vez de consertar a linha caladinho.
+Existe um parágrafo no arquivo de instruções do meu próprio plugin que ficou **errado por três dias** antes de alguém notar — ele apontava para um arquivo que tinha deixado de ser arquivo. Só foi corrigido porque um trabalho não relacionado fez alguém ler aquela frase, e a correção diz isso com todas as letras em vez de consertar a linha caladinho.
+
+E eu te devo a metade feia dessa frase. Eu tinha escrito *seis dias* aqui, porque seis dias é o que a própria correção diz, e eu copiei sem conferir. São três dias e três horas — `git log` no arquivo apagado, contra o commit que consertou o texto. **Um registro sobre uma afirmação vencida estava carregando um número vencido, e este artigo sobre auditar afirmações reimprimiu ele até alguém rodar de novo.** A contagem lá em cima está medida. O registro ainda precisa ser corrigido.
 
 A parte interessante não é uma doc ter envelhecido. É que a doc em questão é a que é **carregada em toda e qualquer sessão** — não é um README esquecido numa pasta, é o arquivo que o agente lê primeiro, sempre.
 
@@ -80,7 +82,7 @@ Um **steering file** é o documento de instruções permanentes que uma ferramen
 
 O meu é cheio de texto que eu declarei morto. É uma convenção que eu escolhi e ainda defendo: quando uma regra se revela errada, eu **risco e deixo no lugar**, com data e motivo, porque alguém tomou uma decisão baseada na frase antiga e merece descobrir que ela mudou em vez de descobrir que ela sumiu.
 
-O custo é exato e eu pago toda sessão. Aquele arquivo é carregado no início da sessão, inteiro, com os trechos riscados junto. E ele não está sozinho: num ponto medido, só as descrições da minha biblioteca de skills tinham virado uns **dez mil tokens carregados antes da primeira palavra da tarefa de verdade** — uma decisão que era de graça enquanto nada as carregava, e deixou de ser no instante em que alguma coisa passou a carregar.
+O custo é exato e eu pago toda sessão. Aquele arquivo é carregado no início da sessão, inteiro, com os trechos riscados junto. E ele não está sozinho: num ponto medido, só as descrições da minha biblioteca de skills tinham virado uns **dez mil tokens carregados antes da primeira palavra da tarefa de verdade** — uma decisão que era de graça enquanto nada as carregava, e deixou de ser no instante em que alguma coisa passou a carregar. Esse número foi tirado quando a biblioteca tinha sessenta e nove skills. Hoje ela tem catorze, então o número de hoje é menor, e eu deliberadamente não reescrevi ele: remedir seria trocar um número antigo e conferível por um novo que ninguém além de mim consegue rodar.
 
 Tudo o que eu enterrei continua na sala. De propósito, e não de graça.
 
@@ -94,7 +96,11 @@ Aqui não tem rollout lento. Não tem ambiente de homologação, não tem canár
 
 `terraform plan` é o comando que te conta o que está prestes a mudar na sua conta de nuvem antes de mudar. A imagem é um plan que comeu o state — a própria salvaguarda fazendo o estrago. O que eu tenho é o mesmo medo pelo outro lado: um plan que não fala nada.
 
-O referente é um buraco que eu documentei de propósito. A confiança entre o meu pipeline e a AWS — o provedor de identidade e o papel que o pipeline assume — é **criada na mão, fora do Terraform**, porque não existe jeito de bootstrapar isso por dentro. O que significa que a frase naquele registro de decisão diz, na íntegra: se alguém editar aquela política de confiança pelo console, **nenhum `plan` reclama**. A ferramenta que existe para te contar a verdade sobre a sua infraestrutura é estruturalmente cega justo para o pedaço que dá acesso ao resto.
+O referente é um buraco que eu documentei de propósito. A confiança entre o meu pipeline e a AWS — o provedor de identidade e o papel que o pipeline assume — é **criada na mão, fora do Terraform**, e o motivo não é o que as pessoas chutam primeiro.
+
+Existe, sim, um problema de bootstrap, e o meu próprio registro arquiva ele como *"mechanical, and would go away"* (mecânico, e um dia sumiria). O motivo permanente é o outro, e o registro diz com todas as letras que os dois não podem ser colapsados num só: **um papel que consegue reescrever a própria política de confiança não tem teto.** Ele poderia adicionar um sujeito à própria confiança, e a mudança chegaria pelo mesmo caminho automatizado de uma rotineira. A regra que sai disso cabe numa linha, e é o título deste artigo enunciado como restrição — *"The blast radius of an `apply` must not include the authority to perform the next `apply`."* O raio de destruição de um `apply` não pode incluir a autoridade de fazer o `apply` seguinte.
+
+O preço de segurar essa linha é o ponto cego: *"If the provider's thumbprint or the infra role's trust policy is edited in the console, no `plan` objects."* Se a impressão digital do provedor ou a política de confiança do papel de infra for editada pelo console, nenhum `plan` reclama. A ferramenta que existe para te contar a verdade sobre a sua infraestrutura é estruturalmente cega justo para o pedaço que dá acesso ao resto.
 
 Escrevi isso como limitação em vez de decorar, e continua sendo uma limitação.
 
@@ -142,9 +148,9 @@ E não é escapatória. Aquela mesma sessão ficou sem espaço e compactou duas 
 
 ### A fila que crescia por estar sendo trabalhada
 
-Até três dias atrás o meu loop **não tinha iteração nenhuma**. Tinha uma fila e um comando que drenava ela, e a condição de parada do comando era "até a fila secar" — que não é condição de parada, porque a fila cresce trabalhando.
+Até esta semana o meu loop **não tinha iteração nenhuma** — a decisão tem três dias e o mecanismo mergeou ontem. Tinha uma fila e um comando que drenava ela, e a condição de parada do comando era "até a fila secar" — que não é condição de parada, porque a fila cresce trabalhando.
 
-Eu tenho a medição. Numa sessão o backlog cresceu **19 issues líquidas**, das quais umas **13 nasceram dentro de uma revisão de outra coisa**. Cada achado virava trabalho que ninguém tinha decidido fazer. O loop não estava falhando; estava tendo sucesso na coisa errada, que é muito mais difícil de enxergar.
+O número está no meu próprio registro de decisão, e foi medido uma vez e nunca mais rodado, o que é como você deve pesá-lo: numa sessão o backlog cresceu **19 issues líquidas**, das quais umas **13 nasceram dentro de uma revisão de outra coisa**. Cada achado virava trabalho que ninguém tinha decidido fazer. O loop não estava falhando; estava tendo sucesso na coisa errada, que é muito mais difícil de enxergar.
 
 A correção foi limitar o pool em vez da ambição: o que é drenado agora é uma iteração, fixada num momento em que eu estou na sala, e não tudo o que por acaso está marcado como pronto. Isso não limita o backlog. Move o crescimento para um lugar onde um humano precisa olhar, que é o único lugar onde este loop já limitou alguma coisa que é questão de valor e não de aritmética.
 
@@ -184,7 +190,7 @@ Não é uma descrição desta plataforma. Tudo lá em cima existe precisamente p
 
 **Repare no tempo verbal.** *Were.* É a condição contra a qual o aparato inteiro foi construído — o estado ordinário de muito trabalho de software, o meu incluído, por um bom tempo.
 
-E eu tenho um recibo pequeno e exato de como isso é na prática, daqui mesmo. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora.
+E eu tenho um recibo pequeno e exato de como isso é na prática, daqui mesmo. Um erro de rota mandou todos os cards sociais por artigo deste site para a rota catch-all, então cada um respondia a qualquer scraper que perguntasse com um `200` e o HTML da home. Bem formado, confiante, errado. Não tinha nada olhando aquele caminho, então nada falou nada, e eu descobri do jeito que a gente sempre descobre — depois, e de fora. O que olha aquilo hoje são os testes unitários da própria função de rewrite e um check pós-deploy de que a função no ar continua sendo a deste repositório, que é o formato de toda correção desta peça: não mais cuidado, e sim uma coisa que falha alto.
 
 O motivo de ele estar no fim é que é para isso que serve um refrão. Você não constrói gate porque é cuidadoso de temperamento. Você constrói porque lembra de como era sem eles.
 
@@ -192,7 +198,7 @@ O motivo de ele estar no fim é que é para isso que serve um refrão. Você nã
 
 Não a paródia — você nem está lendo ela. Leve o exercício.
 
-Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e ela acerta catorze vezes. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por seis dias, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
+Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e ela acerta catorze vezes. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
 
 O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
 
