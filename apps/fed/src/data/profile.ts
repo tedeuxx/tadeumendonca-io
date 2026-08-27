@@ -268,9 +268,9 @@ const sourceTemplate: ProfileSource = {
             'Android clients, a React back-office portal, and the Node.js / Express services under them ' +
             'on MongoDB and Redis, offline-first throughout.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
-            'and delivery pipeline for a commerce platform; and, in the final Accenture years, did the ' +
-            'performance engineering on an AWS architecture with a Spring Boot microservices backend for ' +
-            'an education product.',
+            'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
+            'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
+            'running on AWS, for an education product.',
           'Left packaged software behind for custom, lean-stack product engineering — open source, ' +
             'private-cloud infrastructure, and hands-on distributed-systems design. 2017 is the seam: ' +
             'from there on, the work has been platforms being built rather than packages being ' +
@@ -287,9 +287,9 @@ const sourceTemplate: ProfileSource = {
             'as camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
             'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
-            'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, fiz ' +
-            'a engenharia de performance sobre uma arquitetura AWS com backend de microsserviços Spring ' +
-            'Boot para um produto de educação.',
+            'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
+            'orientei a reversão de um problema recorrente de performance em um backend de microsserviços ' +
+            'Java / Spring Boot rodando na AWS, para um produto de educação.',
           'Deixei o software de pacote para trás para engenharia de produto custom e lean stack — open ' +
             'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on. 2017 é a ' +
             'costura: de lá para cá, o trabalho tem sido plataforma sendo construída, não pacote sendo ' +
