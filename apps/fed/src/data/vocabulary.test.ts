@@ -292,7 +292,7 @@ const descriptionOf = (profile: Profile, start: string): string => {
 const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
   [
     '2023-04',
-    "New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across six platforms, and — as tech lead — an oil & gas operator's landing zone with the upstream operational-monitoring platform on it.",
+    "New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone.",
   ],
   [
     '2021-01',

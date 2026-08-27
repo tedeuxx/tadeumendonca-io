@@ -101,9 +101,9 @@ const sourceTemplate: ProfileSource = {
         en:
           'New-platform launch programs — full-stack web and native mobile. Leading the implementation: ' +
           'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
-          'launches: a custom cloud-native replacement for a SaaS streaming platform, native across six ' +
-          "platforms, and — as tech lead — an oil & gas operator's landing zone with the upstream " +
-          'operational-monitoring platform on it. ' +
+          'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
+          'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
+          "& gas operator's AWS landing zone. " +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
@@ -111,8 +111,8 @@ const sourceTemplate: ProfileSource = {
           'Programas de launch de novas plataformas — web full-stack e mobile nativo. Liderando a ' +
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
           'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
-          'em seis plataformas, e — como tech lead — a landing zone de uma operadora de óleo & gás com a ' +
-          'plataforma upstream de acompanhamento operacional sobre ela. ' +
+          'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -274,10 +274,10 @@ const sourceTemplate: ProfileSource = {
             'off-the-shelf sync stacks had been tried on the hybrid app, RabbitMQ then CouchDB, and neither ' +
             'held for this workload, so we moved offline-first out of the infrastructure and into the ' +
             'design.',
-          "Ran the same span on both native Android apps — the field technician's, then the field " +
+          "Ran the full delivery on both native Android apps — the field technician's, then the field " +
             "salesperson's, where the model proved out: from look-and-feel ideation with the UX team, " +
-            'through the event trail that made them operable in the field, to the analytics stakeholders ' +
-            'read.',
+            'through the event trail that made them operable in the field, to the analytics that ' +
+            'stakeholders read.',
           'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
             'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
             'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
@@ -306,8 +306,8 @@ const sourceTemplate: ProfileSource = {
             'o offline-first da infraestrutura e o resolvemos no desenho.',
           'Fiz esse mesmo percurso nos dois apps Android nativo — primeiro o do técnico de campo, depois ' +
             'o do vendedor de campo, onde a modelagem se provou: da ideação de look and feel junto com o ' +
-            'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até a análise ' +
-            'que os stakeholders liam.',
+            'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até o ' +
+            'acompanhamento analítico que os stakeholders liam.',
           'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
             'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
             'orientei a reversão de um problema recorrente de performance em um backend de microsserviços ' +
