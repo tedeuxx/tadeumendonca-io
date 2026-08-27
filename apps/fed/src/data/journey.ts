@@ -348,8 +348,8 @@ const journey: readonly JourneyEntry[] = [
       'A smiling man behind the open lid of a laptop covered in tool stickers — Amazon Web Services, Elastic Stack, Terraform, Flutter, npm, VS Code, SonarQube, Docker, Kubernetes, MongoDB, Redis, Python, Android — wearing a t-shirt of a whale carrying containers.',
     ),
     caption: prose(
-      'O ofício antes do empregador: o que eu escolhi aprender, colado na tampa.',
-      'The craft before the employer: what I chose to learn, stuck to the lid.',
+      'O que eu escolhi aprender, colado na tampa.',
+      'What I chose to learn, stuck to the lid.',
     ),
   },
   {
@@ -360,8 +360,8 @@ const journey: readonly JourneyEntry[] = [
       'A man in glasses in the foreground, turned to the side, with a desk behind him: an external monitor showing a monitoring dashboard of charts, and an open laptop showing a dark-theme code editor.',
     ),
     caption: prose(
-      '2020, em casa: gráficos numa tela, código na outra, e ninguém por perto.',
-      '2020, at home: charts on one screen, code on the other, and nobody around.',
+      'Os últimos meses aqui foram em casa, sem ninguém por perto.',
+      'The last months of this one were at home, with nobody around.',
     ),
   },
   {
@@ -372,8 +372,8 @@ const journey: readonly JourneyEntry[] = [
       'A man standing in front of a plain wall reading "aws Summit São Paulo", a lanyard and badge around his neck.',
     ),
     caption: prose(
-      'O nome na parede era o da empresa em que eu trabalhava. Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
-      'The name on the wall was the company I worked for. I went because I wanted to — before I worked there, and while I did.',
+      'Eu ia por meu próprio interesse — antes de trabalhar lá e enquanto trabalhei.',
+      'I went because I wanted to — before I worked there, and while I did.',
     ),
   },
   {
@@ -384,8 +384,8 @@ const journey: readonly JourneyEntry[] = [
       'A man standing in the middle of a long, empty office corridor, circular light fittings overhead and the ceiling opened up to show ducts and pipework; lift doors along the right.',
     ),
     caption: prose(
-      'Nunca aconteceu nada nesse corredor. A maior parte do trabalho tem essa cara.',
-      'Nothing ever happened in this corridor. Most of the work looks exactly like this.',
+      'Nunca aconteceu nada nesse corredor. Você provavelmente tem o seu.',
+      'Nothing ever happened in this corridor. You probably have one too.',
     ),
   },
 ];
