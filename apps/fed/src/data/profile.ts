@@ -121,6 +121,9 @@ const sourceTemplate: ProfileSource = {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and structured the practice for team-scale adoption.',
+          'Built, hands-on, the serverless data integration for an aerospace manufacturer after its ' +
+            'Heroku-to-AWS migration — Salesforce into a modernized custom backend, on Terraform, ' +
+            'Amazon AppFlow and Python.',
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search — embeddings on Amazon Bedrock, stored and queried on Amazon S3 Vectors — so AI agents can ' +
             'both search and create knowledge; MVP in progress.',
@@ -138,6 +141,9 @@ const sourceTemplate: ProfileSource = {
           'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
             'adoção em escala de time.',
+          'Construí, hands-on, a integração serverless de dados de um fabricante aeroespacial depois da ' +
+            'migração dele de Heroku para AWS — do Salesforce para um backend custom modernizado, em ' +
+            'Terraform, Amazon AppFlow e Python.',
           'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
             'e busca semântica — embeddings no Amazon Bedrock, armazenados e consultados no Amazon S3 Vectors — ' +
             'para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
@@ -256,20 +262,40 @@ const sourceTemplate: ProfileSource = {
         en: [
           'Architected the integration layers for enterprise CRM implementation programs, connecting apps, APIs ' +
             'and heterogeneous enterprise platforms.',
-          'At Accenture Digital, architected and shipped modern web and mobile products — React on the web, ' +
-            'and three mobile routes: hybrid (Ionic), native Android, and Flutter covering iOS and Android ' +
-            'for a bank. Left packaged software behind for modern product engineering — open source, ' +
-            'private-cloud infrastructure, and hands-on distributed-systems design.',
+          'Responsible application architect on a telecom field-force programme — three apps shipped in ' +
+            'sequence, the first hybrid (Ionic) and the next two native Android, on a similar ' +
+            'architecture that held across the change of mobile technology. Hands-on at every tier: the ' +
+            'Android clients, a React back-office portal, and the Node.js / Express services under them ' +
+            'on MongoDB and Redis, offline-first throughout.',
+          'The rest of the custom builds in that period, one per sector: a Flutter app covering iOS and ' +
+            'Android for a bank, the DevOps and delivery pipeline for a commerce platform, and — in the ' +
+            'final Accenture years — AWS architecture with a Spring Boot microservices backend for an ' +
+            'education product, plus the performance engineering around it. That last one is AWS work ' +
+            'three years before the AWS employment entries begin.',
+          'Left packaged software behind at that point for custom, lean-stack product engineering — open ' +
+            'source, private-cloud infrastructure, and hands-on distributed-systems design. 2017 is the ' +
+            'seam in this entry: after it, the work was platforms being built rather than packages being ' +
+            'implemented.',
           'Grew into the distributed-applications architect role carried through to today — solution design and ' +
             'tech leadership on delivery teams, as a senior individual contributor.',
         ],
         pt: [
           'Arquitetei as camadas de integração de programas corporativos de implantação de CRM, conectando ' +
             'apps, APIs e plataformas corporativas heterogêneas.',
-          'Na Accenture Digital, arquitetei e entreguei produtos web e mobile modernos — React na web, e três ' +
-            'caminhos de mobile: híbrido (Ionic), Android nativo, e Flutter cobrindo iOS e Android para um ' +
-            'banco. Deixei o software de pacote para trás rumo à engenharia de produto moderna — open source, ' +
-            'infraestrutura em private cloud e desenho de sistemas distribuídos hands-on.',
+          'Arquiteto de aplicação responsável por um programa de força de campo em telecom — três apps ' +
+            'entregues em sequência, o primeiro híbrido (Ionic) e os dois seguintes Android nativo, sobre ' +
+            'uma arquitetura similar que se sustentou na troca de tecnologia do mobile. Hands-on em todas ' +
+            'as camadas: os clientes Android, um portal de back-office em React e os serviços Node.js / ' +
+            'Express embaixo deles, sobre MongoDB e Redis, offline-first do começo ao fim.',
+          'As demais construções custom do período, uma por setor: um app Flutter cobrindo iOS e Android ' +
+            'para um banco, o DevOps e o pipeline de entrega de uma plataforma de commerce, e — nos ' +
+            'últimos anos de Accenture — arquitetura AWS com um backend de microsserviços Spring Boot ' +
+            'para um produto de educação, mais a engenharia de performance em volta. Essa última é ' +
+            'trabalho AWS três anos antes de começarem as entradas de emprego na AWS.',
+          'Deixei o software de pacote para trás ali para engenharia de produto custom e lean stack — open ' +
+            'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on. 2017 é a ' +
+            'costura desta entrada: depois dela, o trabalho foi plataforma sendo construída, não pacote ' +
+            'sendo implantado.',
           'Amadureci no papel de arquiteto de aplicações distribuídas que carrego até hoje — desenho de soluções ' +
             'e liderança técnica em times de entrega, como individual contributor sênior.',
         ],
