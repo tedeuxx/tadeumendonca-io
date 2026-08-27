@@ -9,14 +9,20 @@
 import { useProfile } from '../hooks/useProfile';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { CVSection } from '../components/CVSection';
-import { JourneyStrip } from '../components/JourneyStrip';
+import { resolveJourney } from '../data/journey';
 import { Empty } from '../components/Column';
 import { absoluteUrl } from '../lib/site';
-import { useLocalePath, useT } from '../i18n';
+import { useLocale, useLocalePath, useT } from '../i18n';
 
 export function ProfilePage() {
   const t = useT();
   const lp = useLocalePath();
+  // `useLocale()` returns the whole context (`{ locale, setLocale, t }`), not the locale string — the
+  // destructuring is load-bearing. Indexing a prose leaf with the context object yields `undefined`,
+  // React then omits the attribute entirely, and the page ships four photographs with NO alt text at
+  // all: invisible on screen, catastrophic for a screen reader, and green under any assertion that only
+  // checks `src`. `CVSection.test.tsx` reads `alt` rather than assuming it, for exactly this.
+  const { locale } = useLocale();
   const { data: profile } = useProfile();
 
   useDocumentHead({
@@ -43,18 +49,23 @@ export function ProfilePage() {
 
   if (!profile) return <Empty>{t('cv.unavailable')}</Empty>;
 
-  // The journey photographs sit OUTSIDE `CVSection` rather than inside it (#127), and the reason is the
-  // print edition: `CVSection` is the `[data-print="cv"]` tree that `/cv.pdf` is printed from, and its
-  // page budget is guarded at two A4 sheets. A decorative strip inside that tree would be a third sheet's
-  // worth of content held to a CV's budget. Outside it, the strip is web-only chrome and says so with the
-  // same `data-print="hide"` hook the metadata row already uses.
+  // THE JOURNEY PHOTOGRAPHS ARE PASSED IN, ONE PER EXPERIENCE ENTRY (#516). Each frame renders inside the
+  // entry its authored attribution names — the owner's ask, in his words: *"as fotos ao longo de cada
+  // entrada de work experience"*, bounded by *"manter a estrutura atual do cv, agregando as fotos
+  // encaixadas nas experiencias ja validadas"*. Four frames, five entries, and the fifth carries none:
+  // a photograph is a figure an entry MAY carry, not a slot every entry must fill.
   //
-  // It renders BELOW the CV on purpose: this page is a hiring surface first, and the four photographs are
-  // rapport, which is what a reader wants after the claims rather than before them.
-  return (
-    <>
-      <CVSection profile={profile} />
-      <JourneyStrip />
-    </>
-  );
+  // THIS REVERSES A RECORDED DECISION, AND THE OLD ONE IS RESTATED HERE RATHER THAN ERASED. Until this
+  // slice the photographs rendered as `JourneyStrip`, an unnumbered block BELOW the CV and outside the
+  // `[data-print="cv"]` tree, because /me is a hiring surface first and rapport belongs after the claims
+  // — and because a decorative strip inside the print tree would have been a third A4 sheet held to a
+  // CV's two-page budget. The first half was overruled by the owner on 2026-08-25, after reading the
+  // shipped result. The second half was NOT overruled and is why this is more than a move: the print
+  // budget is still guarded, and it holds because every figure carries `data-print="hide"` (see
+  // `CVSection`'s `JourneyFigure`), so the printed CV is unchanged by a layout that only exists on screen.
+  //
+  // WHY THE PAGE RESOLVES THE LOCALE RATHER THAN `CVSection`. That component is pure and presentational:
+  // it takes an already-resolved `Profile` and renders it. Reading the locale context inside it, for four
+  // strings that happen to live in another module, would make it the one component on this page that does.
+  return <CVSection profile={profile} journey={resolveJourney(locale)} />;
 }

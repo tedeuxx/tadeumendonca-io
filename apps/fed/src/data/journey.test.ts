@@ -15,7 +15,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   assertJourneyShape,
+  engagementKey,
   JOURNEY_PHOTOS,
+  resolveJourney,
   type EngagementKey,
   type JourneyEntry,
 } from './journey';
@@ -88,15 +90,12 @@ describe('the journey set is the one the owner approved', () => {
     expect([...JOURNEY_PHOTOS.map((p) => p.photo.src)].sort()).toEqual([...APPROVED].sort());
   });
 
-  it('still renders in the authored order, for as long as the strip is what a reader meets', () => {
-    // TRANSITIONAL, and kept deliberately rather than dropped with the order rule it used to cite.
-    // Slice 1 ships NO layout change at all: `JourneyStrip` still renders this array top to bottom, so
-    // the sequence is still something a reader receives today. Relaxing it in the same slice that leaves
-    // the strip standing would drop a live guarantee one whole slice early — an accidental reorder would
-    // reach the page green. Delete this case WITH the strip (#516 slice 2), not before; the case above is
-    // the lock that outlives it.
-    expect(JOURNEY_PHOTOS.map((p) => p.photo.src)).toEqual(APPROVED);
-  });
+  // THE TRANSITIONAL ORDER CASE IS GONE (#516 slice 2b), deleted in the slice its own comment named. It
+  // asserted `JOURNEY_PHOTOS` rendered top-to-bottom in the authored sequence, and was kept through slice
+  // 1 only because `JourneyStrip` still put that sequence in front of a reader. The strip is deleted here;
+  // each frame now renders inside the experience entry its `engagement` names, so the array's order
+  // reaches nobody and an assertion on it would be a lock on a fact with no consumer. The set lock above
+  // is the one that outlives it, exactly as that comment said it would.
 
   it('carries the engagement the owner authored, for every frame', () => {
     // The length check is what stops this going green-but-vacuous: without it, an entry whose `src` is
@@ -281,10 +280,93 @@ describe('assertJourneyShape refuses what the type system cannot', () => {
     );
   });
 
+  it('accepts two frames whose pairs differ only by the field on the other side of the separator', () => {
+    // The control for `engagementKey`'s separator, and the only test that can catch it being replaced by
+    // something an employer name or a date could contain. `'A-B' + '' + 'C'` and `'A' + '' + 'B-C'` are
+    // two different placements that a hyphen (or any other printable joiner) would collapse into the same
+    // string — and the guard would then refuse a perfectly valid second frame with "both claim the
+    // experience entry", pointing at the wrong cause.
+    const EDGE: readonly EngagementKey[] = [
+      { company: 'A-B', start_date: 'C' },
+      { company: 'A', start_date: 'B-C' },
+    ];
+    expect(() =>
+      assertJourneyShape(
+        [
+          entry({ engagement: { company: 'A-B', start_date: 'C' } }),
+          entry({ src: '/photos/journey-corridor.jpg', engagement: { company: 'A', start_date: 'B-C' } }),
+        ],
+        EDGE,
+      ),
+    ).not.toThrow();
+  });
+
   it('reads its argument, never the shipped set', () => {
     // The one that keeps the cases above honest: if the guard secretly validated `JOURNEY_PHOTOS` it
     // would pass every test here for the wrong reason, and would still be green on a broken entry.
     expect(() => assertJourneyShape([entry({ src: '/photos/never-committed.jpg' })], EXPERIENCE)).toThrow();
     expect(() => assertJourneyShape([], EXPERIENCE)).not.toThrow();
+  });
+});
+
+// `resolveJourney` is what a component receives (#516 slice 2b): the same four frames with one edition's
+// prose picked, so `CVSection` stays pure and never reads the locale context itself.
+describe('resolveJourney flattens the set to one edition', () => {
+  it('keeps the whole set, with the asset and the placement key untouched', () => {
+    for (const locale of LOCALES) {
+      const frames = resolveJourney(locale);
+      expect(frames).toHaveLength(JOURNEY_PHOTOS.length);
+      frames.forEach((frame, i) => {
+        expect(frame.photo).toBe(JOURNEY_PHOTOS[i].photo);
+        expect(frame.engagement).toEqual(JOURNEY_PHOTOS[i].engagement);
+      });
+    }
+  });
+
+  it('picks the requested edition, and not the other one', () => {
+    // Asserted against the SOURCE record rather than against literals, and in both directions: a resolver
+    // that returned `pt` for every locale would pass a one-sided check on the pt edition alone.
+    for (const locale of LOCALES) {
+      resolveJourney(locale).forEach((frame, i) => {
+        expect(frame.alt, `alt[${locale}]`).toBe(JOURNEY_PHOTOS[i].alt[locale]);
+        expect(frame.caption, `caption[${locale}]`).toBe(JOURNEY_PHOTOS[i].caption[locale]);
+      });
+    }
+  });
+
+  it('gives the two editions different words', () => {
+    // The failure this catches is the one that actually happened on #235: one edition served for the
+    // other. A per-locale equality check passes on a copy; a difference check does not.
+    const pt = resolveJourney('pt');
+    const en = resolveJourney('en');
+    pt.forEach((frame, i) => {
+      expect(frame.alt, frame.photo.src).not.toBe(en[i].alt);
+      expect(frame.caption, frame.photo.src).not.toBe(en[i].caption);
+    });
+  });
+});
+
+// The join spelling itself. It is exported so `assertJourneyShape` and `CVSection` cannot drift apart —
+// the guard promises "at most one frame per entry" about the lookup the layout actually performs.
+describe('engagementKey is one spelling of the join', () => {
+  it('separates two pairs that would collide under a printable joiner', () => {
+    expect(engagementKey({ company: 'A-B', start_date: 'C' })).not.toBe(
+      engagementKey({ company: 'A', start_date: 'B-C' }),
+    );
+  });
+
+  it('is stable for equal pairs authored independently', () => {
+    expect(engagementKey({ company: 'Globo.com', start_date: '2020-06' })).toBe(
+      engagementKey({ company: 'Globo.com', start_date: '2020-06' }),
+    );
+  });
+
+  it('reads the pair off anything carrying the two fields, which is how the layout calls it', () => {
+    // `CVSection` passes a whole `ExperienceItem` — company, start_date, title, dates, highlights. If this
+    // ever started reading a third field, the component's lookup would silently stop matching.
+    const [first] = profileSource.experience;
+    expect(engagementKey(first)).toBe(
+      engagementKey({ company: first.company, start_date: first.start_date }),
+    );
   });
 });
