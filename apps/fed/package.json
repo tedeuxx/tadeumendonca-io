@@ -21,6 +21,7 @@
     "gen-distribution": "node scripts/gen-distribution.mjs",
     "gen-og": "node scripts/gen-og-default.mjs",
     "gen-og-articles": "node scripts/gen-og-articles.mjs",
+    "gen-banners": "node scripts/gen-banners.mjs",
     "gen-video-thumbs": "node scripts/gen-video-thumbs.mjs",
     "gen-adrs": "node scripts/gen-adrs.mjs",
     "gen-harness": "node scripts/gen-harness.mjs",

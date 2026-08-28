@@ -8,6 +8,13 @@ import { STACK } from '../components/Marquee';
 import profileSrc from './profile.ts?raw';
 import architectureEn from '../content/architecture.en.md?raw';
 import architecturePt from '../content/architecture.pt.md?raw';
+// #558. The profile banners' copy module. It is registered here IN THE COMMIT THAT CREATES IT, and the
+// reason is the shape of this guard rather than anything about banners: `SURFACES` is an ALLOWLIST, so a
+// new surface that names the practice is not "unguarded" — it is invisible, and invisible reads as green
+// to the next person who opens this file. The private positioning record licenses a short form of the
+// practice name ON LINKEDIN, which is exactly the surface a banner is uploaded to, so this is the one new
+// module where the short form would have looked correct while breaking the repo-side rule.
+import bannersSrc from '../../scripts/banners.mjs?raw';
 // The practice-line block at the foot of this file reads the RESOLVED profile rather than the source
 // text above, and the reason is written out beside the assertions — same import pair
 // `resolveProfile.test.ts` opens with, so there is one way to read this data in tests, not two.
@@ -127,6 +134,12 @@ const SURFACES: ReadonlyArray<[string, string, RegExp]> = [
   ['profile.ts', profileSrc, BARE_UNPREFIXED],
   ['architecture.en.md', architectureEn, BARE_ALLOWING_PARENTHESISED],
   ['architecture.pt.md', architecturePt, BARE_ALLOWING_PARENTHESISED],
+  // STRICT, like `profile.ts` and unlike the two prose pages: nothing on this surface ARGUES about the
+  // term, so nothing here earns the parenthesised affordance. The banner copy itself carries no form of
+  // the practice name at all — the LinkedIn headline sitting beside the cover already does, and the same
+  // words twice on one screen is one sentence stuttering. What this row guards is the edit a month from
+  // now that decides the banner should say it after all.
+  ['banners.mjs', bannersSrc, BARE_UNPREFIXED],
 ];
 
 // THE ONE SENTENCE ON THOSE TWO SURFACES THAT STILL MAY NOT PARENTHESISE, AND WHY IT IS PINNED APART.

@@ -72,6 +72,16 @@ export default defineConfig({
         // gen-video-thumbs.mjs is deliberately NOT here, on the same rule as gen-og-articles.mjs: it is a
         // browser harness with no unit-testable surface left once the decisions moved into this module.
         'scripts/video-thumbs.mjs',
+        // #558. The decision half of the profile-banner pipeline: which banners exist, what they say,
+        // and — the part that carries the risk on a surface nobody ever sees whole — where on the canvas
+        // a word is allowed to be, given the avatar overlay and the mobile crop. On this list for the
+        // reason the entries above spell out: it is an ALLOWLIST, so a tested file left off it reads as
+        // 0% on new code to SonarCloud while the local average stays comfortably high.
+        //
+        // gen-banners.mjs is deliberately NOT here, on the same rule as gen-og-default.mjs and
+        // gen-video-thumbs.mjs: it is a browser harness with no unit-testable surface left once the
+        // decisions moved into this module.
+        'scripts/banners.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
