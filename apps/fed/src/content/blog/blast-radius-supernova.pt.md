@@ -6,7 +6,7 @@ tag: harness
 track: engenharia
 draft: false
 hasVideo: true
-excerpt: "Pedi uma paródia de uma música que eu gosto, sobre o meu próprio trabalho. Depois fui conferir se cada imagem dela era verdade — e a conferência é o artigo, porque cada uma virou um modo de falha real, com arquivo por trás."
+excerpt: "Pedi uma paródia de uma música que eu gosto, sobre o meu próprio trabalho. Depois fui imagem por imagem conferir a que cada uma se referia de verdade — e a conferência é o artigo."
 takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a saída valer publicação é ir imagem por imagem e nomear a que cada uma se refere.'
 ---
 

@@ -6,7 +6,7 @@ tag: harness
 track: engenharia
 draft: false
 hasVideo: true
-excerpt: "I asked for a parody of a song I like, about my own work. Then I went and checked whether every image in it was true — and the checking is the article, because each one turned out to be a real failure mode with a file behind it."
+excerpt: "I asked for a parody of a song I like, about my own work. Then I went image by image to check what each one actually referred to — and the checking is the article."
 takeaway: 'that a prompt and its output prove nothing on their own; what makes the output worth publishing is going image by image and naming what each one refers to.'
 ---
 
