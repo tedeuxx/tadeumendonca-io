@@ -52,6 +52,9 @@ const STYLE = {
 const bannerHtml = (id) => {
   const s = SURFACES[id];
   const t = STYLE[id];
+  // A surface added to banners.mjs without a type scale here would otherwise fail as `undefined is not
+  // an object` several lines into a template string — a loud crash, but one that names the wrong file.
+  if (!t) throw new Error(`gen-banners: no type scale for surface \`${id}\` — add one to STYLE in this file`);
   const safe = safeAreaPx(s);
   const stack = s.layout === 'stack-centre';
 
