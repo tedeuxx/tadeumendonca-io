@@ -292,7 +292,7 @@ const descriptionOf = (profile: Profile, start: string): string => {
 const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
   [
     '2023-04',
-    "Application-modernization and new digital-platform launch programs — microservices, full-stack web, smart TVs and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone. And building hands-on: tadeumendonca.io, the live platform this CV is served from, and the agent harness that delivers it — personas, hooks and permission gates, published as a Claude Code plugin and consumed by the repository itself.",
+    "Application-modernization and new digital-platform launch programs — microservices, full-stack web, smart TVs and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone. And building hands-on alongside those engagements — tadeumendonca.io, the live platform this CV is served from, and the agent harness that delivers it: personas, hooks and permission gates, itself published as a Claude Code plugin and consumed by the site's own repository.",
   ],
   [
     '2021-01',

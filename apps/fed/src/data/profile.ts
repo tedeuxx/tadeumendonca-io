@@ -107,9 +107,10 @@ const sourceTemplate: ProfileSource = {
           'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
           'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
           'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
-          "& gas operator's AWS landing zone. And building hands-on: tadeumendonca.io, the live platform this " +
-          'CV is served from, and the agent harness that delivers it — personas, hooks and permission gates, ' +
-          'published as a Claude Code plugin and consumed by the repository itself. ' +
+          "& gas operator's AWS landing zone. And building hands-on alongside those engagements — " +
+          'tadeumendonca.io, the live platform this CV is served from, and the agent harness that delivers ' +
+          'it: personas, hooks and permission gates, itself published as a Claude Code plugin and consumed ' +
+          "by the site's own repository. " +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
@@ -119,10 +120,10 @@ const sourceTemplate: ProfileSource = {
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
           'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
           'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
-          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on: o ' +
-          'tadeumendonca.io, a plataforma no ar de onde este CV é servido, e o agent harness que a entrega — ' +
-          'personas, hooks e gates de permissão, publicado como plugin do Claude Code e consumido pelo próprio ' +
-          'repositório. ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on em ' +
+          'paralelo a esses engajamentos — o tadeumendonca.io, a plataforma no ar de onde este CV é servido, ' +
+          'e o agent harness que a entrega: personas, hooks e gates de permissão, ele próprio publicado como ' +
+          'plugin do Claude Code e consumido pelo repositório do site. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -176,9 +177,12 @@ const sourceTemplate: ProfileSource = {
       // …" — the one bullet of the six written as building, and the reason the Issue exists: five
       // accurate leadership bullets plus a printed CV with no build verb read as «somente papel».
       // CHOSEN AGAINST THE RULE IN `types/profile.ts`, NOT AROUND IT: print what the practice line does
-      // not already carry, and prefer a COMPLETED artifact. The practice line's hands-on clause was
-      // deliberately narrowed to the internal knowledge platform and tadeumendonca.io — both ongoing —
-      // so this bullet is the completed one and nothing is named twice inside one role.
+      // not already carry, and prefer a COMPLETED artifact. The practice line's hands-on clause carries
+      // tadeumendonca.io and the agent harness that delivers it — both live and both ongoing — so this
+      // bullet is the completed artifact and nothing is named twice inside one role. It was narrowed
+      // TWICE: the second pass dropped the internal knowledge platform on this same rule, because
+      // bullet 5 already sizes it — so read the rule off what the clause says today, never off this
+      // sentence's memory of it.
       print_highlight_index: 3,
     },
     {
