@@ -43,13 +43,34 @@ test.describe('CV PDF export', () => {
   // drifts is the defect; a page count changed in the same commit as the decision, with the reason, is
   // the guard doing its job. What must never happen is the number being raised to make a red test green.
   //
+  // AND FROM 2 TO 3 (#542, owner 2026-08-27) — same route, same discipline. Asked directly whether
+  // `/cv.pdf` may grow or must stay at two with something else cut, he answered «pode aumentar sem
+  // problemas». What the third page BUYS is the thing the two-page budget had been paying for with:
+  // the current role's hands-on evidence. Four measured builds on 2026-08-27 had established that the
+  // two named launches and the hands-on artefacts could not coexist inside two pages, so the hands-on
+  // clause was dropped and `print_highlight_index` was left unset on every role — which left a reader
+  // of the printed CV alone meeting ZERO building verbs under the current role. That is what #542 was
+  // opened about, in the owner's words: «senao as pessoas entendem como somente papel».
+  //
+  // MEASURED, NOT PREDICTED: `npm run build:static` then this file's own regex over `dist/cv.pdf` → 3.
+  // The number is raised in the same commit as the decision that spends it, which is the only form
+  // this comment permits — and note what did NOT happen: nothing here was red first. The count was
+  // taken after the copy change and the assertion follows it.
+  //
+  // THE CEILING IS ADR-0034's AND THE AMENDMENT IS `tech-lead`'s, not this file's. This assertion is
+  // the mechanism, never the record. It is deliberately still a NUMBER rather than an upper bound or a
+  // deleted test: a budget that is simply removed removes the measurement with it, and the artifact
+  // then grows one honest slice at a time until someone reads it and is surprised.
+  //
   // Counted straight out of the bytes rather than with a PDF library: `/Type /Page` (excluding the
   // `/Pages` tree node) is stable in Chromium's output, and a dependency for one integer is not worth
   // the supply-chain surface on a repo that pins and audits them.
-  test('fits the budgeted two A4 pages', async ({ request }) => {
+  test('fits the budgeted three A4 pages', async ({ request }) => {
     const body = (await (await request.get('/cv.pdf')).body()).toString('latin1');
     const pages = body.match(/\/Type\s*\/Page(?![s/\w])/g) ?? [];
-    expect(pages, 'the CV PDF must stay within two pages — trim the print view, not this assertion').toHaveLength(2);
+    expect(pages, 'the CV PDF must stay within three pages — trim the print view, not this assertion').toHaveLength(
+      3,
+    );
   });
 
   // ADR-0034's 2026-07-28 amendment gave up "the PDF cannot disagree with /me" and replaced it with a
@@ -91,6 +112,47 @@ test.describe('CV PDF export', () => {
     const inPrint = await Promise.all(SELECTORS.map(countVisible));
 
     expect(inPrint, 'the print edition may drop elaboration and decoration — never a claim').toEqual(onScreen);
+  });
+
+  // The page count above no longer says anything about whether a bullet printed, and #542 is the reason:
+  // it set `print_highlight_index` on the current role AND lengthened the practice lines past the point
+  // where the budget discriminated. Measured 2026-08-27, three builds, one variable — `main` 0 bullets /
+  // 2 pages, head 1 bullet / 3 pages, head with the index out of range 0 bullets / STILL 3 pages. The
+  // slice created the exposure and destroyed the signal, so the printed bullet needs its own guard.
+  //
+  // TWO LAYERS, DELIBERATELY, because they fail on different mutations and neither subsumes the other:
+  //   · `src/data/resolveProfile.test.ts` proves the index is IN RANGE — it catches `99`, on every role,
+  //     with no build. That is the floor.
+  //   · this test proves the kept bullet is the RIGHT one and that it SURVIVES print — it catches `0`
+  //     (in range, wrong meaning, invisible to the floor) and it catches a stylesheet regression that
+  //     would hide the <li> the data correctly marked. Neither of those is a data-shape defect, so
+  //     neither is reachable from a unit test over `profile.ts`.
+  //
+  // The TOKEN is pinned, not the sentence — the same shape `types/profile.ts` prescribes for the
+  // unpinned `GenAI` clause. Rewording the bullet stays free; losing the build verb under the current
+  // role does not, because that verb IS #542 («senao as pessoas entendem como somente papel»).
+  test('the print edition keeps a hands-on bullet under the current role', async ({ page }) => {
+    await page.goto('/en/me');
+    // Same wait as the count test above: `goto` resolves at the SPA shell, and a locator read before
+    // hydration would count zero of everything and pass.
+    await expect(page.locator('[data-print-block="01"]')).toBeVisible();
+
+    const kept = page.locator('[data-print-block="01"] li[data-print-keep]');
+    // Exactly one, across every role: the selection rule prints ONE item, and two kept bullets would be
+    // a page-budget change nobody decided.
+    await expect(kept).toHaveCount(1);
+    await expect(kept, 'the printed CV must keep a bullet written as BUILDING under the current role').toContainText(
+      'Built, hands-on,',
+    );
+
+    await page.emulateMedia({ media: 'print' });
+    // The data marking a bullet and the stylesheet printing it are two mechanisms; assert the second.
+    expect(await display(kept), 'the marked highlight must survive into the print edition').toBe('list-item');
+    // …and the control: an unmarked sibling is still dropped, so a stylesheet that printed EVERY <li>
+    // (blowing the budget silently, since the count assertion is a fixed number in the other direction)
+    // would redden here rather than read as this test passing.
+    const dropped = page.locator('[data-print-block="01"] li:not([data-print-keep])').first();
+    expect(await display(dropped), 'unmarked highlights must stay dropped from the print edition').toBe('none');
   });
 
   test('offers a Download-CV link on /me pointing at the static asset', async ({ page }) => {

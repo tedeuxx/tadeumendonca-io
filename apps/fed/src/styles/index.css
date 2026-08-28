@@ -387,7 +387,16 @@ body {
      wholesale left every AI statement in the PDF as self-description or a certification, while the role
      bodies read landing zones and CRM integration — the positioning asserted rather than shown.
 
-     AS OF #522 NO ROLE SETS THE FLAG, AND THAT IS A PAGE-BUDGET RESULT RATHER THAN A CHANGE OF MIND.
+     AS OF #542 (2026-08-27) THE CURRENT ROLE SETS THE FLAG AGAIN — one role of the five, index 3, the
+     `Built, hands-on, the serverless data integration …` bullet. What unblocked it is not new evidence
+     but the owner LIFTING the ceiling the block below was written under («pode aumentar sem
+     problemas»): the budget is three pages now, measured on the built artifact, and a printed bullet
+     fits inside it. Read everything from here to the end of the next block as the record of WHY the
+     flag was unset for five days, not as the current state — the measurements are still true, and the
+     bound they establish (no shape printing any bullet fits in TWO pages) is exactly what the owner
+     answered.
+
+     AS OF #522 NO ROLE SET THE FLAG, AND THAT WAS A PAGE-BUDGET RESULT RATHER THAN A CHANGE OF MIND.
      #522 gave every `description` a fixed-shape practice line, and the practice lines and the printed
      bullets cost about the same: the two-page budget (`e2e/cv-pdf.spec.ts`) fits ONE of them, not both.
      Measured on the built artifact, not inferred — `npm run build:static`, then counting `/Type /Page`
@@ -419,9 +428,11 @@ body {
     display: list-item !important;
   }
   /* A role with no kept highlight would still render an empty <ul>, contributing its margin and padding
-     as unexplained whitespace between jobs. Since #522 that is FIVE of the five — no role sets
-     `print_highlight_index`, so EVERY <li> in the block is hidden by the rule above and every <ul> is
-     emptied. This read `Four of the five` until #522 and described the state before it.
+     as unexplained whitespace between jobs. Since #542 that is FOUR of the five again — the current
+     role sets `print_highlight_index` and keeps one <li>; the other four keep none, so every <li> in
+     them is hidden by the rule above and their <ul>s are emptied. This read `FIVE of the five` between
+     #522 and #542, and `Four of the five` before #522 — the quantifier has now been wrong twice from a
+     diff in another file, which is the same defect the paragraph below describes about the count.
      It also carried a COUNT of those <li> until the #522 highlights pass, which added bullets and
      falsified it from another file, in a diff that never touches this one. The count was never
      load-bearing — the rule hides every unmarked <li> regardless of how many there are — so it is
@@ -436,8 +447,11 @@ body {
     display: none !important;
   }
   /* The list carries a literal `text-[15px]`, which survives the print scale and would print a kept
-     highlight half again larger than the roles around it. Nothing is kept today, so this rule is
-     dormant rather than dead — it is what makes setting the flag safe if the budget ever allows it. */
+     highlight half again larger than the roles around it. ~~Nothing is kept today, so this rule is
+     dormant rather than dead — it is what makes setting the flag safe if the budget ever allows it.~~
+     STRUCK #542 (2026-08-27): the budget allowed it, the current role keeps one, and this rule is LIVE
+     — it is what sizes that bullet. Struck rather than deleted because it was the argument for keeping
+     a rule with no subject, and it turned out to be right. */
   [data-print='cv'] [data-print-block='01'] ul {
     margin-top: 0.14rem !important;
     font-size: 1em !important;
