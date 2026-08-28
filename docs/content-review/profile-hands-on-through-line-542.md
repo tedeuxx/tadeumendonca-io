@@ -107,3 +107,56 @@ streaming engagement (`internalization`). One exception, finding 3 below.
 - The `en` summary's opening runs *"AI Engineering applied to agile software development — … — **to** design, build and ship"*: two `to`s of different function inside eight words, and the subject of the sentence is now a discipline rather than him, so he first appears in the sentence after. `pt`'s `para` does not have this problem.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-08-27
+
+draft: `apps/fed/src/data/profile.ts` @ `8481e62`
+
+**This is the last round.** The bound is two and this section is the second; the pair is terminal on it
+whatever it says. Scope read: the diff `5dac200..8481e62` against round 1's three findings, and the
+replacement hands-on sentence read fresh in both editions as a sentence on a hiring surface — the three
+claims it introduced (the live platform, the harness's components, the plugin published and consumed)
+were never in front of round 1.
+
+### Round 1's three findings are answered
+
+- **Finding 1 discharged.** Both objects are now sized: *"tadeumendonca.io, the live platform this CV is
+  served from, and the agent harness that delivers it — personas, hooks and permission gates, published
+  as a Claude Code plugin and consumed by the repository itself."* The possessive that made the harness
+  an accessory is gone, `"public work"` is gone, and the self-reference — the artifact the reader is
+  holding, named as evidence — is the strongest move in the entry: it is the text being an instance of
+  the thing rather than describing it. **Dropping the knowledge platform from the practice line is the
+  right half of the trade**, and it is what finding 1 asked for: bullet 5 already sizes it, and the
+  practice line now carries the one that is live.
+- **Finding 2 discharged.** `shipping`/`entregando` for the earlier period leaves `building`/`construindo`
+  once per summary; the LATAM bullet pronominalises (`presenting **them**` / `e **as** apresento`) so
+  neither `architecture`/`arquitetura` nor `strategy`/`estratégia` occurs twice.
+- **Finding 3 discharged.** `spent` → `have spent` carries `venho construindo`'s aspect, and the editions
+  now agree that the building has not closed.
+- The two advisories taken (`I lead` → `Lead`, `desenhados` → `desenhado`) both hold. `Lead engagements
+  across LATAM` reads present without the pronoun and without breaking the list's elided subject.
+
+### Citable findings
+
+**None.** No clause of `published-voice` is violated by the three new claims or by anything else in
+`5dac200..8481e62`.
+
+Stated plainly rather than filled: the new sentence is denser than what it replaced, and every one of
+its added words was added in answer to round 1. Density is not a rule in the ruler — there is no clause
+about subordination depth or sentence length to quote — and the nearest thing to one, the corpus's
+plain-language habit, is admissible for **mechanics only** under *Precedence* and is overridden by the
+interview's *"precise description is 'I built this, it runs like this, here is what broke'"*, which is
+what this sentence now does. Blocking a fix this round asked for, on a rule this round cannot cite,
+is the failure mode the second round exists inside a bound to prevent.
+
+**What this round did NOT check, said so it is not read as coverage:** whether the three new claims are
+true, and whether the practice line still fits the printed budget now that ADR-0034's ceiling has moved.
+Neither is mine.
+
+### Advisory and droppable
+
+- `en` has nothing pinning *"published as a Claude Code plugin and consumed by the repository itself"* to its host — grammatically it can attach to the harness, to the permission gates, or to `tadeumendonca.io`. `pt` pins it with agreement (`publicado`, `consumido`, masculine singular → `o agent harness`), so the ambiguity exists in one edition only.
+- *"the repository itself"* / *"o próprio repositório"* is the sentence's only unnamed referent — a reader of `/cv.pdf` has met a platform and a harness by this point, never a repository, and the self-consumption is the most interesting fact in the clause.
+- **The colon parallel, ruled on since it was asked.** The device is not two sentences but **three** — *"Leading the implementation:"*, *"The launches:"*, *"And building hands-on:"* — which correct's round 1's own advisory, where I counted two. A shape used three times in one paragraph is the paragraph's default sentence, so it cannot mark a contrast between the last two; and the one thing that differentiates the third is a leading conjunction, which reads as an append rather than as a turn. **I disagree with the reason the advisory was declined, and the advisory stays droppable anyway** — there is no clause to quote for it, and it was droppable in round 1 for the same reason.
+
+CONTENT-REVIEW-CLEAR
