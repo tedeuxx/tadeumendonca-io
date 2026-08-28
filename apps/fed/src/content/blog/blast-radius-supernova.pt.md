@@ -12,7 +12,7 @@ takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a 
 
 Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta e um anos, o clipe é a banda atravessando uma sala em câmera lenta, e eu já trabalhei ouvindo isso mais vezes do que consigo contar.
 
-**A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra depois dele.**
+**A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra da auditoria que vem depois deles.**
 
 ## 1 · A provocação
 
@@ -34,11 +34,13 @@ O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu
 
 ## 3 · O resultado — a paródia
 
-O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro (o encerramento). Escandiu. Me fez rir numa noite de semana. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
+O que voltou foi uma paródia inteira, naquela forma. Escandiu. Me fez rir numa noite de semana. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
 O clipe está aqui, e é o único motivo de eu ter tido a ideia. Põe pra tocar para o que vem agora — é a forma em que os versos estão sentados:
 
 https://www.youtube.com/watch?v=P5AjSVwZ9H0
+
+Os versos estão em inglês e vão ficar assim: a métrica e a rima são o que eles são, e nenhuma das duas sobrevive a uma tradução.
 
 > [verso 1]  
 > Another README no one read  
@@ -78,13 +80,11 @@ https://www.youtube.com/watch?v=P5AjSVwZ9H0
 > Terraform drift for eighteen days  
 > Context deadline exceeded in my dreams
 >
-> [outro]  
+> [encerramento]  
 > We were shipping blind  
 > We were shipping blind  
 > We were shipping blind  
 > (repete até o solo do Weller acabar)
-
-Os versos estão em inglês e vão ficar assim: a métrica e a rima são o que eles são, e nenhuma das duas sobrevive a uma tradução.
 
 A fonte, repetida uma vez no lugar certo: a métrica, o formato e o esquema de rimas são do Oasis, *Champagne Supernova*, 1995. Os versos acima são do Claude, escritos sob instrução minha.
 
@@ -94,7 +94,7 @@ A fonte, repetida uma vez no lugar certo: a métrica, o formato e o esquema de r
 
 Um modelo escreveu uma piada sobre o trabalho de um estranho e acertou doze do meu em cheio.
 
-**Essa distância é o punch, e é ela que vale o seu tempo** — não o verso em que chegou. Então vamos à auditoria.
+**Essa distância é o punch, e é ela que vale o seu tempo.** Então vamos à auditoria.
 
 O vocabulário vai explicado conforme aparece, porque metade dele é específico do jeito que eu trabalho e nada disso deveria exigir uma ferramenta aberta para acompanhar.
 
@@ -215,6 +215,8 @@ Não vou nomear ninguém, e não há o que nomear: o ponto é justamente que ele
 Já escrevi sobre isso, então fico no formato. O trabalho que eu vinha fazendo tinha chegado num lugar onde cada engajamento novo rimava com o anterior — mesmos problemas de integração, mesmas formas organizacionais, mesmas soluções, e um crescimento técnico que eu já não sentia. Foi isso que me mandou procurar outro tipo de problema, e é por isso que existe um site aqui.
 
 Isso é a descrição de um teto, não uma reclamação sobre alguém. Os labirintos estavam ótimos. Eu é que tinha decorado o labirinto.
+
+**Esta é a que eu prometi, a que cai ao lado de uma coisa real em vez de em cima dela.** Não tem arquivo, nem fatura, nem commit embaixo — o que ela aponta é um trecho da minha própria carreira, e o único artefato que ela deixou é este site.
 
 ### O pager que não existe
 

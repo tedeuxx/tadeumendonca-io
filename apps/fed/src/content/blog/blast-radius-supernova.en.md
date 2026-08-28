@@ -12,7 +12,7 @@ takeaway: 'that a prompt and its output prove nothing on their own; what makes t
 
 I like *Champagne Supernova*, by Oasis. The song is thirty-one years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
 
-**Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word after it.**
+**Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word of the audit that follows them.**
 
 ## 1 · The provocation
 
@@ -36,7 +36,7 @@ What the prompt is good for is showing you where the material came from. "My wor
 
 ## 3 · The result — the parody
 
-What came back was a full parody, in his shape: three verses, a chorus, a bridge, an outro. It scanned. It made me laugh on a weeknight. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
+What came back was a full parody, in that shape. It scanned. It made me laugh on a weeknight. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
 The video is here, and it is the only reason I got the idea at all. Put it on for what follows — the lines are sitting in its shape:
 
@@ -94,7 +94,7 @@ Source, restated once where it belongs: the meter, the shape and the rhyme schem
 
 A model wrote a joke about a stranger's job and hit twelve of mine dead on.
 
-**That gap is the punchline, and it is the thing worth your time** — not the verse it arrived in. So here is the audit.
+**That gap is the punchline, and it is the thing worth your time.** So here is the audit.
 
 The vocabulary is glossed as it comes, because half of it is specific to the way I work and none of it should need a tool open to follow.
 
@@ -215,6 +215,8 @@ I will not name anyone, and there is nothing to name: the point is precisely tha
 I have written about this already, so I will keep it to the shape. The work I was doing had reached a place where each new engagement rhymed with the last one — same integration problems, same organisational shapes, same solutions, and technical growth I could no longer feel. That is what sent me looking for a different kind of problem, and it is why there is a site here at all.
 
 That is a description of a ceiling, not a complaint about anybody. The mazes were fine. I had learned the maze.
+
+**This is the one I promised that lands next to a real thing rather than on it.** There is no file, no bill and no commit under it — what it points at is a stretch of my own career, and the only artifact it left is this site.
 
 ### The pager that does not exist
 
