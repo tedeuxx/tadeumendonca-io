@@ -153,7 +153,11 @@
 // (1152x1152); the set's 3:4 portrait ratio is locked by `journey.test.ts`, so 25% of the width had to
 // go. The window is off-centre (`crop=864:1152:230:0`) because a centred one bisects a face at the right
 // edge — the geometry is a consequence of the ratio lock, not an editorial decision about who is in the
-// photograph, and it dropped two people from the left of the frame.
+// photograph, and it dropped two people from the left of the SOURCE frame. THAT COUNT IS SOURCE-SIDE and
+// is not checkable here, since the source is not committed. The published count has its own base and is
+// checkable: six full faces plus a seventh the crop edge CUTS rather than removes — taken on the committed
+// bytes in `journey.test.ts`'s third-party paragraph, with the command that re-takes it. The two counts
+// count different things and must not be netted against each other.
 import { LOCALES, type Locale } from '../i18n';
 import { photoFor, type PhotoAsset } from './photos';
 import { profileSource } from './profile';
@@ -426,14 +430,19 @@ const journey: readonly JourneyEntry[] = [
   },
   {
     // THE FIFTH FRAME (#548), AND THE ONLY ONE THE OWNER IS NOT IN. Every other entry below is a
-    // photograph of him; this one is eight colleagues in front of the office, and he supplied it for
-    // exactly that reason — it is the only thing that exists from 2008–2015. `alt` therefore has to
+    // photograph of him; this one is a group in front of the office, and he supplied it for exactly that
+    // reason — it is the only thing that exists from 2008–2015. TWO COUNTS, TWO BASES, NEVER MIXED: the
+    // SOURCE carries eight colleagues (a source-side fact — the source is not committed, see the
+    // provenance paragraph above), and the PUBLISHED 660x880 crop carries seven identifiable presences,
+    // six of them full faces and the seventh cut by the left edge — counted on the committed bytes in
+    // `journey.test.ts`'s third-party paragraph, which also carries the command that re-takes the count.
+    // `alt` describes the published frame, and it therefore has to
     // describe PEOPLE, which is a job none of the other four alt strings has had.
     src: '/photos/journey-manila.jpg',
     engagement: at('Accenture', '2008-03'),
     alt: prose(
-      'Grupo de pessoas em pé, lado a lado, sorrindo para a câmera, diante de um prédio de escritórios onde se lê "accenture"; algumas usam crachá pendurado no pescoço, e torres altas fecham o fundo.',
-      'A group of people standing side by side, smiling at the camera, in front of an office building reading "accenture", some with badges on lanyards around their necks and tall towers closing the background.',
+      'Grupo de pessoas diante de um prédio de escritórios onde se lê "accenture": cinco em pé na frente — a da ponta esquerda só meio dentro do quadro — e duas outras atrás delas, sorrindo para a câmera; algumas usam crachá pendurado no pescoço, e torres altas fecham o fundo.',
+      'A group of people in front of an office building reading "accenture": five standing across the front — the one at the left edge only half in frame — and two more behind them, smiling at the camera; some with badges on lanyards around their necks and tall towers closing the background.',
     ),
     caption: prose(
       'Manila. Esse trabalho me levou até o outro lado do mundo.',

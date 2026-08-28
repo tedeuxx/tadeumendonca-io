@@ -3,9 +3,11 @@
 // WHY THE FILENAMES ARE WRITTEN OUT AS LITERALS HERE, when every other assertion in this slice is
 // deliberately derived from the data: because THIS is the one fact that is not the builder's. The owner
 // approved four specific photographs, in a specific order, on 2026-08-25 ("de acordo"), and two of the
-// eleven he did not approve were excluded by RULING rather than by taste — one carries a legible internal
-// client project name, one carries two other identifiable people. A derived assertion ("there are as many
-// entries as there are entries") would go green on a set someone else had quietly changed, which is
+// eleven he did not approve were excluded on stated grounds rather than by taste — one carries a legible
+// internal client project name, one carries two other identifiable people. ONLY THE FIRST OF THOSE TWO IS
+// A STANDING BAR: what he decided on 2026-08-27 about a frame carrying other people is recorded in the
+// third-party paragraph below, and it is a decision about THAT frame. A derived assertion ("there are as
+// many entries as there are entries") would go green on a set someone else had quietly changed, which is
 // exactly the change this repo cannot afford to make silently: publishing a photograph is irreversible in
 // the way OG art already is — a scraper that fetches it keeps it.
 //
@@ -13,14 +15,22 @@
 // turns it red, and the correct response is to get the owner's approval and edit the literals in the same
 // commit — never to relax the assertion.
 //
-// THE THIRD-PARTY EXCLUSION ABOVE IS NO LONGER A RULE, AND THAT CHANGE IS THE OWNER'S (#548). One of the
-// two 2026-08-25 exclusions was "carries two other identifiable people"; `journey-manila.jpg` carries six.
+// THE THIRD PARTIES IN `journey-manila.jpg` ARE PUBLISHED ON THE OWNER'S EXPLICIT DECISION (#548), AND
+// WHAT HE AUTHORISED IS THIS ONE FRAME. One of the two 2026-08-25 exclusions was "carries two other
+// identifiable people". This frame carries SEVEN identifiable presences: six full faces, plus a seventh
+// at the extreme left edge — a half-face (hair, brow, one eye, cheek, jawline) above a vertically striped
+// shirt, cut by the frame and still recognisable. That count is of the PUBLISHED 660x880 crop and was
+// taken on the committed bytes, where anyone can re-take it:
+//
+//   ffmpeg -i apps/fed/public/photos/journey-manila.jpg -vf "crop=120:260:0:440,scale=600:1300" out.png
+//
 // He was told, in those terms and before choosing — identifiable faces, several wearing badges — and
-// chose it anyway, because it is the only photograph that exists from 2008–2015. So the exclusion was a
-// judgement about a specific candidate against available alternatives, not a standing bar on other
-// people, and it is recorded that way here rather than left as a sentence this file's own data
-// contradicts. WHAT IS STILL A STANDING BAR is the other exclusion: a legible internal client name. That
-// one is about confidentiality rather than taste, and no photograph clears it by being the only one left.
+// chose this frame anyway, because it is the only photograph that exists from 2008–2015. THAT IS THE
+// WHOLE OF WHAT IS DOCUMENTED, and it is deliberately not generalised into a characterisation of the
+// 2026-08-25 ruling or into a licence for the next frame: another photograph carrying people who are not
+// him is a fresh decision of his, asked and recorded the same way, not something this one already
+// settled. WHAT IS A STANDING BAR is the other exclusion: a legible internal client name. That one is
+// about confidentiality rather than taste, and no photograph clears it by being the only one left.
 import { describe, it, expect } from 'vitest';
 import {
   assertJourneyShape,
