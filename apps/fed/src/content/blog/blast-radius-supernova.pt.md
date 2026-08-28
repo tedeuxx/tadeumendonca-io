@@ -14,10 +14,6 @@ Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta e um anos, o c
 
 **A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra depois dele.**
 
-O clipe está aqui, e é o único motivo de eu ter tido a ideia:
-
-https://www.youtube.com/watch?v=P5AjSVwZ9H0
-
 ## 1 · A provocação
 
 A ideia não tinha nada de sofisticado. Eu queria uma versão daquela música sobre **o meu trabalho** — o harness que eu construo nos fins de semana, o loop que publica este site, e aquele tipo bem específico de sofrimento que vem de rodar agentes contra os seus próprios repositórios.
@@ -36,23 +32,69 @@ Foi isto que eu digitei, sem editar, em caixa baixa e com os erros que tinham. E
 
 O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu drama, minha jornada de aprendizado" não é um briefing criativo — é um ponteiro para dois repositórios dentro dos quais eu venho morando há meses, e o modelo nunca viu nenhum dos dois. Ele escreveu os versos. O sofrimento já estava lá, e os arquivos também.
 
-## 3 · O que voltou, e por que você não vai ler
+## 3 · O resultado — a paródia
 
-O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro (o encerramento). Escandiu. Me fez rir numa noite de terça. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
+O que voltou foi uma paródia inteira, no formato dele: três versos, refrão, ponte, outro (o encerramento). Escandiu. Me fez rir numa noite de semana. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
-**E ela não está impressa aqui, de propósito.** Não é uma peça que ecoa uma música — é aquela música com as palavras trocadas, verso por verso, posição por posição. Reproduzir isso inteiro é reproduzir a forma de outra pessoa com substituições dentro, e não é coisa que esta plataforma deva publicar. **Então nada dela está impresso aqui — nem o todo, nem um verso, nem uma expressão.** O que você recebe é a que cada imagem se refere, descrito com as minhas palavras.
+O clipe está aqui, e é o único motivo de eu ter tido a ideia. Põe pra tocar para o que vem agora — é a forma em que os versos estão sentados:
 
-Que é a parte que sempre foi a que valia ler.
+https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
-**Catorze imagens.** Uma doc que ninguém leu. Infraestrutura de volta dos mortos. Um pager às três da manhã. Uma mudança saindo mais rápido do que alguém conseguia olhar. Um plan que comeu o state. Um rollback com raio de destruição. Hooks disparando duas vezes. Um arquivo que eu tinha declarado morto e que carrega assim mesmo. Escopo sendo cortado. Uma sprint que nunca converge. O mesmo labirinto de novo. Drift. Um deadline de contexto estourado. E, no fim, três repetições de um verso sobre ter publicado às cegas.
+> [verso 1]  
+> Another README no one read  
+> Another cluster back from dead  
+> Where were you when the pager sang at three?  
+> Slowly rolling out the change  
+> Faster than the diff can rage  
+> Where were you when the plan ate the state?
+>
+> [refrão]  
+> One day they will find me  
+> Buried in the rollback  
+> With a blast radius wide as the sky  
+> One day they will find me  
+> Buried in the rollback  
+> With a blast radius  
+> A blast radius wide as the sky
+>
+> [verso 2]  
+> The hooks fire twice, I don't know why  
+> A steering file I swore would die  
+> Still loading every time the session starts  
+> Slowly rolling out the change  
+> Faster than the diff can rage  
+> Where were you when the plan ate the state?
+>
+> [ponte]  
+> 'Cause everybody swears  
+> they're gonna have it done by summer  
+> But you and me, we cut the scope  
+> The sprint just keeps turning around  
+> and no one knows  
+> why, why, why, why
+>
+> [verso 3]  
+> Another client, same old maze  
+> Terraform drift for eighteen days  
+> Context deadline exceeded in my dreams
+>
+> [outro]  
+> We were shipping blind  
+> We were shipping blind  
+> We were shipping blind  
+> (repete até o solo do Weller acabar)
 
-Li as catorze e tive a reação que transformou isso num artigo em vez de um print, e vou te dar a conta com as exceções em vez de arredondar pra cima. **Doze** têm um arquivo, uma fatura, um commit ou uma medição por trás, nos dois repositórios que produzem este site. **Uma** cai ao lado de uma coisa real em vez de em cima dela. **Uma** não tem nada embaixo, e eu digo qual quando a gente chegar nela.
+Os versos estão em inglês e vão ficar assim: a métrica e a rima são o que eles são, e nenhuma das duas sobrevive a uma tradução.
+
+A fonte, repetida uma vez no lugar certo: a métrica, o formato e o esquema de rimas são do Oasis, *Champagne Supernova*, 1995. Os versos acima são do Claude, escritos sob instrução minha.
+
+## 4 · O recibo, uma imagem por vez
+
+**Catorze imagens**, e eu li elas do mesmo jeito que você acabou de ler — com a diferença de que eu sei o que tem atrás de cada uma. Foi essa a reação que transformou isso num artigo em vez de um print, e vou te dar a conta com as exceções em vez de arredondar pra cima. **Doze** têm um arquivo, uma fatura, um commit ou uma medição por trás, nos dois repositórios que produzem este site. **Uma** cai ao lado de uma coisa real em vez de em cima dela. **Uma** não tem nada embaixo, e eu digo qual quando a gente chegar nela.
 
 Um modelo escreveu uma piada sobre o trabalho de um estranho e acertou doze do meu em cheio.
 
 **Essa distância é o punch, e é ela que vale o seu tempo** — não o verso em que chegou. Então vamos à auditoria.
-
-## 4 · O recibo, uma imagem por vez
 
 O vocabulário vai explicado conforme aparece, porque metade dele é específico do jeito que eu trabalho e nada disso deveria exigir uma ferramenta aberta para acompanhar.
 
@@ -198,7 +240,7 @@ O motivo de ele estar no fim é que é para isso que serve um refrão. Você nã
 
 ## O que eu levaria daqui
 
-Não a paródia — você nem está lendo ela. Leve o exercício.
+Não a paródia. Leve o exercício.
 
 Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu trabalho, e doze das catorze têm um arquivo, uma fatura, um commit ou uma medição por trás. A pergunta útil nunca é *isso está bom* — é **a que cada imagem se refere**. Catorze delas, e passar por elas uma a uma revelou uma doc que esteve errada por três dias, um número vencido dentro da correção que consertou ela, uma fatura de infraestrutura que eu achava ter apagado, um detector de drift com um buraco que eu tinha documentado e depois parado de pensar sobre, e um backlog que crescia por estar sendo trabalhado.
 
