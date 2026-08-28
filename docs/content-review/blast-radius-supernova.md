@@ -324,3 +324,177 @@ decides that it is good. Finding 1 is the one worth carrying into his read, beca
 and it is the piece's own thesis applied to the piece.
 
 CONTENT-REVIEW-FINDINGS
+
+---
+
+## Round 1 · revision 2 (PR #557) — 2026-08-28
+draft: `apps/fed/src/content/blog/blast-radius-supernova.en.md` · `apps/fed/src/content/blog/blast-radius-supernova.pt.md` @ `b9f6fed`
+ruler: `published-voice` (plugin `1.1.32`). Issue #555.
+
+### How this round is counted, and why
+
+**This opens a fresh pair against a materially changed draft, and it is numbered as round 1 of
+revision 2 rather than as round 3.** The reasoning, since the number is the least useful part of it:
+
+- **The two-round bound is per draft, not per file.** Rounds 1 and 2 above read the article that
+  shipped as `bdcc4b1` — a page whose central passage was an argument for *withholding* the parody.
+  That passage no longer exists, and the movement #527 specified as the piece's centre is now on the
+  page. A bound spent on a draft cannot be spent on text that did not exist when it was spent.
+- **The mechanical terminal condition is a section count, so the count has to stay checkable.**
+  `grep -c '^## Round' docs/content-review/blast-radius-supernova.md` now returns **3**, and that
+  number is *not* this revision's round count. The falsifier for this pair is
+  `grep -c '^## Round .*revision 2' docs/content-review/blast-radius-supernova.md` → **1**. The pair
+  on revision 2 is terminal on the first section carrying `CONTENT-REVIEW-CLEAR`, or on the second
+  section matching that pattern, whichever comes first.
+- **Restarting is the permissive reading, and it is stated as such.** It grants this draft up to two
+  more rounds on top of the two already spent. The alternative — declaring the bound spent because
+  the filename has two sections — would send a republication of a live article to the owner with
+  nobody having read the new centre against the ruler at all. Round 1 of revision 2 found a citable
+  defect introduced *by* the fix, which is the case that argument was made for.
+
+### Scope, and what this round did NOT read
+
+**The verse block was not read, not once and not partially.** `en` lines 45–87 and `pt` lines 43–85
+were excluded from every command in this round; the prose was read as `1,44` / `88,end` and the `pt`
+equivalents. The block carries #527's scoped exemption from the ruler and is the owner's own text.
+
+**What that leaves uncovered, said plainly so a finding count is not read as coverage:** movement 4's
+opening makes four counting claims over the verse — fourteen images, twelve with a file/bill/commit/
+measurement behind them, one landing beside a real thing, one with nothing under it. **Their
+provenance was not checked and could not be**, because the objects they count are in the block this
+round did not read. What *was* checked is the other side of the same arithmetic: the audit delivers
+**fourteen** `###` referent sections in both editions, and the promised exceptions (the "beside"
+one and the "nothing under it" one) are both delivered and named where the opening said they would
+be.
+
+### Citable findings
+
+1. **The credit block now claims the parody as his, because the parody is what comes immediately
+   after the prompt.** — clause: *"if you cannot point to where in the source material (an ADR, a
+   `CLAUDE.md` passage, a transcript, a prior published piece, an explicit answer he gave) a claim, a
+   number or a stance comes from, it does not go in the draft as his."*
+
+   The three-part credit block closes on **"Mine are the idea, the prompt you are about to read, and
+   every word after it."** (`en` line 15) and **"Meus são a ideia, o prompt que você vai ler daqui a
+   pouco, e cada palavra depois dele."** (`pt` line 15). That sentence was written for a page where
+   nothing but his prose followed the prompt. It now has the verse block sitting between the prompt
+   and the prose, and the same block's first part assigns those lines to the model. **The sentence
+   was not touched by the fix and shares no vocabulary with it** — no grep for *parody*, *verse*,
+   *omission* or *movement* reaches it.
+
+   This is round 1's finding 1 failing again, from the other direction: that round found the credit
+   line and the body disagreeing about who wrote the parody; the fix settled the disagreement in the
+   credit block, and the structural change re-opened it in the same paragraph.
+
+   *What it costs the reader:* this is the one paragraph on the site whose entire job is that the
+   borrowing is named exactly — it says so in its own first sentence. A reader who reads it, reads
+   nine lines further and finds the model's lines inside the span the sentence just claimed does not
+   conclude "loose phrasing"; they conclude the attribution was written to look complete. That is the
+   precise reading the paragraph exists to prevent, and it is now produced by the paragraph itself.
+
+   *Smallest change that clears it:* bound the third part to the prose rather than to position — one
+   clause, e.g. *"and every word of the audit that follows them"* / *"e cada palavra da auditoria que
+   vem depois deles"*. **Both editions, and each checked on its own text** — `pt`'s *"depois dele"*
+   points at the prompt and inherits the same defect independently.
+
+   *A dependency, not a second finding:* #555 describes the parody as *"his own writing"*, and the
+   article says the lines are the model's. The fix above is correct under the article's own account.
+   If #555's account is the true one, the credit block's **first** part is what needs the edit, not
+   the third. That is a question for him, not an inference to take, and the truth of the published
+   attribution is the copy lens's blocking veto, not this round's.
+
+2. **Movement 3 inventories the verse's structure one line before the reader sees it.** — clause:
+   *"a detail earns its place by what it moves, never by what it proves. Name the job before
+   selecting, then cut what merely describes."*
+
+   `en` line 41 / `pt` line 39: **"What came back was a full parody, in his shape: three verses, a
+   chorus, a bridge, an outro."** — a description of the shape of a block the reader reaches four
+   lines later and can see for themselves. On the previous revision this list *was* the reader's only
+   access to the form; with the block present it describes what is about to be visible. The `pt`
+   edition pays extra for it — *"outro (o encerramento)"* carries a gloss round 1 asked for, glossing
+   a term that no longer needs introducing.
+
+   *What it costs the reader:* the one place in the piece where the reader should be moving toward
+   the thing they came for, they are handed a table of contents for it. It is small, and it is the
+   shape the owner named — telling rather than showing, immediately before the showing.
+
+   *Smallest change that clears it:* cut the list, keep the two sentences that do work — it scanned,
+   it made him laugh on a weeknight — and the title sentence. **Fix the pronoun in the same edit:**
+   *"in his shape"* / *"no formato dele"* has no unambiguous antecedent (Oasis is a band; the nearest
+   named person in the paragraph above is the model). *"in the song's shape"* / *"no formato da
+   música"* costs nothing.
+
+3. **The piece tells the reader three times that the parody is not the part worth their time, and one
+   of those now lands on text the reader has just been given.** — clause: *"**Self-deprecation is not
+   his signature and must not be written as one** — a draft that has him minimising his own work or
+   hedging something he earned reproduces the thing he is working against. Where the material
+   contains a real limit, state it plainly and stop."*
+
+   The three: movement 1's **"That second half is the article. The first half is a Tuesday."**;
+   movement 4's opening **"That gap is the punchline, and it is the thing worth your time — not the
+   verse it arrived in."** / **"— não o verso em que chegou"**; and the close's **"Not the parody.
+   Take the exercise."** / **"Não a paródia. Leve o exercício."**
+
+   The thesis itself is his and is #527's — the audit is the piece. **The clause is failed by the
+   dose, not by the claim:** stating it once is stating a limit plainly; stating it three times, with
+   the middle instance placed immediately under the block the reader just read, is the draft
+   minimising something he chose to publish as the piece's centre. It is also the residue this round
+   was asked to look for: the middle instance was written when the demotion had no object on the
+   page, and it now has one.
+
+   *What it costs the reader:* they finish the verse and are told, in the next line, that it was not
+   what they were here for. That is the reader's experience of the owner's own complaint, inverted —
+   he was frustrated at not seeing the lines, and the prose greets the reader who does see them by
+   discounting them.
+
+   *Smallest change that clears it:* delete the demotion clause in movement 4 — *"— not the verse it
+   arrived in"* / *"— não o verso em que chegou"* — and leave the sentence at *"That gap is the
+   punchline, and it is the thing worth your time."* The close keeps the thesis; movement 1 keeps the
+   frame; the limit is stated, once, and stopped.
+
+### Advisory and droppable
+
+- Movement 2's disclaimer runs three sentences for one point (*it is the method, not evidence* · *a
+  prompt plus its output proves one thing* · *it is circular and I would not waste your time*), and
+  the `takeaway` field states the same thesis a third time above the fold. One sentence would carry it.
+- The source is given in full at line 15 and restated at line 88/89. The restatement is flagged as
+  deliberate and sits where the borrowing ends; no change asked, recorded only so its deliberateness
+  is on the record rather than re-litigated in a later round.
+- `pt` line 86's note that the verses stay in English earns its place; `en` has no counterpart and
+  needs none. Recorded as an intended asymmetry, not a parity gap.
+- **Prose parity was checked claim by claim across both editions and no gap was found.** Every
+  figure, date, count, file path and quoted record line matches: `USD 12.80` / `12,80`, ten thousand
+  tokens, sixty-nine → fourteen, nineteen → seven, three days against six, 19 net / roughly 13, the
+  24th and the 26th, `iac/budget.tf`, `hooks.json`, `permission-guard` / `wip-guard`, fourteen
+  images and twelve referents. The two deliberate divergences are the prompt gloss (`en` carries an
+  English translation under the Portuguese; `pt` does not need one) and `pt` line 86 above.
+- **The attribution survived the revision unchanged and is clean against #527's bar.** No *"with
+  apologies to"* in either edition, no apologetic or self-diminishing register anywhere near the
+  credit (`grep -i` for *apolog* / *desculp* / *perdão* / *humbl* / *humild* / *sorry* returns
+  nothing in either file). Oasis, the album and 1995 are named up front and again at the block's
+  close. This is a check that passed, recorded because a silent pass is indistinguishable from a
+  check that was never run.
+
+### Routed, not judged
+
+- **Whether the lines are the model's or his** — see finding 1's dependency. Source question for him;
+  truth of the published attribution is the copy lens's blocking veto at the merge gate.
+- **Every figure, date and measurement in the fourteen referent sections** was read for provenance
+  only — each names an instrument, a file or a record it comes from. Whether any of them is *true
+  against the repositories* is not this round's and no clause of the ruler authorises it here.
+- **The verse block, and the four counting claims that quantify it** — out of scope by construction;
+  see *Scope* above. A round that did not read the object cannot have cleared it.
+- **That the article now commits a derived work to a public repository, under its own paragraph about
+  git history being permanent** — noted without judgement. It is a legal/positioning question, not a
+  craft one, and the owner's #527 decision already governs it.
+
+### Round accounting
+
+Round 1 of revision 2 produced citable findings, so a second round on this revision is available and
+is **not** automatically warranted — it exists only if the writer revises. Whatever the state after
+it, the draft goes to the owner: **the rounds are spent** at the second `revision 2` section, and
+neither persona in this pair decides the draft is good. Finding 1 is the one to carry into his read —
+it is one clause, in both editions, and it is the piece's own thesis applied to the piece for the
+second time.
+
+CONTENT-REVIEW-FINDINGS

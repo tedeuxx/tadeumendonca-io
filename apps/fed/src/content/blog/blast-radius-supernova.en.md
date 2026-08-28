@@ -12,11 +12,7 @@ takeaway: 'that a prompt and its output prove nothing on their own; what makes t
 
 I like *Champagne Supernova*, by Oasis. The song is thirty-one years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
 
-**Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word after it.**
-
-The video is here, and it is the only reason I got the idea at all:
-
-https://www.youtube.com/watch?v=P5AjSVwZ9H0
+**Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word of the audit that follows them.**
 
 ## 1 · The provocation
 
@@ -38,23 +34,67 @@ Here is what I typed, unedited, lowercase and typos included. I write to Claude 
 
 What the prompt is good for is showing you where the material came from. "My work, my drama, my learning journey" is not a creative brief — it is a pointer at two repositories I have been living in for months, and the model has never seen either of them. It wrote the lines. The grief was already there, and so were the files.
 
-## 3 · What came back, and why you are not reading it
+## 3 · The result — the parody
 
-What came back was a full parody, in his shape: three verses, a chorus, a bridge, an outro. It scanned. It made me laugh on a Tuesday night. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
+What came back was a full parody, in that shape. It scanned. It made me laugh on a weeknight. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
-**And it is not printed here, deliberately.** It is not a piece that echoes a song — it is that song with the words swapped, line for line, position for position. Reproducing it in full is reproducing somebody else's form with substitutions in it, and that is not a thing this platform should publish. **So none of it is printed here — not the whole, not a verse, not a phrase.** What you get is what each image refers to, described in my own words.
+The video is here, and it is the only reason I got the idea at all. Put it on for what follows — the lines are sitting in its shape:
 
-Which is the part that was always worth reading anyway.
+https://www.youtube.com/watch?v=P5AjSVwZ9H0
 
-**Fourteen images.** A doc nobody read. Infrastructure back from the dead. A pager at three in the morning. A change going out faster than anyone could look at it. A plan that ate the state. A rollback with a blast radius. Hooks firing twice. A file I had declared dead and that loads anyway. Scope being cut. A sprint that never converges. The same maze again. Drift. A context deadline. And, at the end, three repetitions of a line about having shipped blind.
+> [verse 1]  
+> Another README no one read  
+> Another cluster back from dead  
+> Where were you when the pager sang at three?  
+> Slowly rolling out the change  
+> Faster than the diff can rage  
+> Where were you when the plan ate the state?
+>
+> [chorus]  
+> One day they will find me  
+> Buried in the rollback  
+> With a blast radius wide as the sky  
+> One day they will find me  
+> Buried in the rollback  
+> With a blast radius  
+> A blast radius wide as the sky
+>
+> [verse 2]  
+> The hooks fire twice, I don't know why  
+> A steering file I swore would die  
+> Still loading every time the session starts  
+> Slowly rolling out the change  
+> Faster than the diff can rage  
+> Where were you when the plan ate the state?
+>
+> [bridge]  
+> 'Cause everybody swears  
+> they're gonna have it done by summer  
+> But you and me, we cut the scope  
+> The sprint just keeps turning around  
+> and no one knows  
+> why, why, why, why
+>
+> [verse 3]  
+> Another client, same old maze  
+> Terraform drift for eighteen days  
+> Context deadline exceeded in my dreams
+>
+> [outro]  
+> We were shipping blind  
+> We were shipping blind  
+> We were shipping blind  
+> (repete até o solo do Weller acabar)
 
-I read those fourteen and had the reaction that made this an article instead of a screenshot, and I will give you the count with its exceptions rather than round it up. **Twelve** have a file, a bill, a commit or a measurement behind them, in the two repositories that produce this site. **One** lands next to a real thing rather than on it. **One** has nothing under it at all, and I will tell you which when we reach it.
+Source, restated once where it belongs: the meter, the shape and the rhyme scheme are Oasis's, *Champagne Supernova*, 1995. The lines above are Claude's, written to my instruction.
+
+## 4 · The receipt, one image at a time
+
+**Fourteen images**, and I read them the way you just did — with the difference that I know what is behind each one. That is the reaction that made this an article instead of a screenshot, and I will give you the count with its exceptions rather than round it up. **Twelve** have a file, a bill, a commit or a measurement behind them, in the two repositories that produce this site. **One** lands next to a real thing rather than on it. **One** has nothing under it at all, and I will tell you which when we reach it.
 
 A model wrote a joke about a stranger's job and hit twelve of mine dead on.
 
-**That gap is the punchline, and it is the thing worth your time** — not the verse it arrived in. So here is the audit.
-
-## 4 · The receipt, one image at a time
+**That gap is the punchline, and it is the thing worth your time.** So here is the audit.
 
 The vocabulary is glossed as it comes, because half of it is specific to the way I work and none of it should need a tool open to follow.
 
@@ -176,6 +216,8 @@ I have written about this already, so I will keep it to the shape. The work I wa
 
 That is a description of a ceiling, not a complaint about anybody. The mazes were fine. I had learned the maze.
 
+**This is the one I promised that lands next to a real thing rather than on it.** There is no file, no bill and no commit under it — what it points at is a stretch of my own career, and the only artifact it left is this site.
+
 ### The pager that does not exist
 
 The referent here is an **absence** rather than a mechanism — and the absence is deliberate and already published on my architecture page, so I am not confessing anything here.
@@ -200,12 +242,14 @@ The reason it belongs at the end is that it is what a chorus is for. You do not 
 
 ## What I would take from this
 
-Not the parody — you are not even reading it. Take the exercise.
+Not the parody. Take the exercise.
 
 A model that has never opened your repositories writes a joke about your job, and twelve of the fourteen have a file, a bill, a commit or a measurement behind them. The useful question is never *is this good* — it is **what does each image refer to**. Fourteen of them, and going through them one at a time turned up a doc that had been wrong for three days, a stale number inside the correction that fixed it, a bill for infrastructure I thought I had deleted, a drift detector with a hole I had documented and then stopped thinking about, and a backlog that was growing by being worked on.
 
 The model wrote it. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
 
-So — put something you made through a shape you did not invent, and then go and check what it claims about you, one item at a time. I would genuinely like to know what falls out. **Which of the fourteen above is a Tuesday in your week, and which one is the file you have been meaning to open?**
+**Which of the fourteen above is a Tuesday in your week, and which one is the file you have been meaning to open?**
+
+**So: take something you made, run it through a shape you did not invent, and check what it claims about you — one item at a time. Tell me what falls out.**
 
 Good luck out there, and may your radius be narrow.
