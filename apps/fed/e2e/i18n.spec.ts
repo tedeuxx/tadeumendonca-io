@@ -114,7 +114,7 @@ test.describe('i18n — the CV content follows the locale', () => {
       await page.goto('/me');
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
       // Prose is Portuguese.
-      await expect(page.getByText(/\d+\+ anos em SDLC/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toBeVisible();
       // Facts are shared, not translated.
       await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
       // Section chrome is pt-BR: the "Experiência" label and the ongoing-role "Atual" marker.
@@ -129,7 +129,7 @@ test.describe('i18n — the CV content follows the locale', () => {
     test('renders an English CV, with the same facts', async ({ page }) => {
       await page.goto('/me');
       await expect(page.getByRole('heading', { level: 1, name: CV_NAME })).toBeVisible();
-      await expect(page.getByText(/\d+\+ years across SDLC/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ years across Software Development/)).toBeVisible();
       await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
       // Section chrome flips to English: "Experience" label and the "Present" marker.
       await expect(page.getByRole('heading', { name: 'Experience' })).toBeVisible();
@@ -142,9 +142,9 @@ test.describe('i18n — the CV content follows the locale', () => {
 
     test('flipping to PT re-renders the CV in Portuguese', async ({ page }) => {
       await page.goto('/me');
-      await expect(page.getByText(/\d+\+ years across SDLC/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ years across Software Development/)).toBeVisible();
       await page.getByRole('button', { name: 'PT', exact: true }).click();
-      await expect(page.getByText(/\d+\+ anos em SDLC/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toBeVisible();
       await expect(page.getByText(OFFICIAL_ROLE)).toBeVisible();
     });
   });
