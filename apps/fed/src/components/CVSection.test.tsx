@@ -321,8 +321,11 @@ describe('CVSection — the journey photographs inside the experience entries', 
     const entries = [...container.querySelectorAll('[data-print-block="01"] > div:last-child > div > div')];
     expect(entries[0].className).toContain('md:grid');
     // The photoless role keeps the block it is today. A uniform grid would open the left track on every
-    // entry, and four frames sit in a CV with five roles — the fifth would carry an empty 14rem gutter
-    // that means nothing to a reader.
+    // entry, and a photoless one would carry an empty 14rem gutter that means nothing to a reader.
+    //
+    // THIS IS NOW THE ONLY PLACE THE PHOTOLESS BRANCH IS EXERCISED (#548): the real CV has a frame on
+    // every role, so production data reaches only the other side. The fixture is what keeps the branch
+    // honest, and it is why the fixture exists rather than the test running against `resolveJourney`.
     expect(entries[1].className).not.toContain('md:grid');
     // Below `md` neither is a grid at all: the section has no left band there, and a phone keeps the
     // photograph under the entry. Asserted on the ABSENCE of an unprefixed `grid`, which is what a

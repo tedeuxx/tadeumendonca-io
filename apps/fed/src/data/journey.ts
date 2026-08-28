@@ -5,13 +5,13 @@
 // since it carries no `ready` label and has no PR at the time of writing — and a second slice editing the
 // same file buys a conflict for nothing. The lasting one is the reason this file will still be here after
 // that lands — `profile.ts` is the CV, and the CV is the thing `/cv.pdf` is PRINTED from. Everything in it
-// is a claim a recruiter reads on paper, and these four photographs are kept OUT of that data so the
+// is a claim a recruiter reads on paper, and these five photographs are kept OUT of that data so the
 // two-page budget in `e2e/cv-pdf.spec.ts` never depends on decoration. They are suppressed in the print
 // edition through `data-print="hide"` (see `CVSection`), which is the owner's ruling of 2026-08-25 and the
 // reason the printed CV is unchanged by the layout that renders them.
 //
 // WHAT THIS PARAGRAPH USED TO CLAIM, AND WHY IT IS CORRECTED RATHER THAN DELETED (#516 slice 2b). It read
-// that these four "carry no date, no employer, no title" and that putting them among the credentials
+// that those four "carry no date, no employer, no title" and that putting them among the credentials
 // "would invite the next reader to treat a photograph as a credential". The first half is now FALSE on the
 // web edition and the second half describes what the layout deliberately does: each frame renders inside
 // the dated, employer-headed experience entry its `engagement` names, so it inherits a date, an employer
@@ -29,9 +29,13 @@
 // photograph gets, so an untranslated one is not a cosmetic defect.
 //
 // THE SET IS THE OWNER'S; THE ORDER OF THIS ARRAY NO LONGER REACHES A READER (#516, ruling 2026-08-25).
-// He approved these exact four photographs (#127, 2026-08-25, "de acordo"), and substituting or adding one
-// is an owner decision rather than an implementation one, because what was approved was these four rather
-// than a category. The SEQUENCE was also his decision and it has lost its object: it was an order of
+// He approved the first four photographs (#127, 2026-08-25, "de acordo") and named the fifth himself
+// (#548, 2026-08-27), and substituting or adding one is an owner decision rather than an implementation
+// one, because what was approved was these photographs rather than a category. THE FIFTH IS THE PROOF OF
+// THAT RULE RATHER THAN AN EXCEPTION TO IT: two other candidates from the same source folder were offered
+// to him and declined, so the file below is his answer and not a search result.
+//
+// The SEQUENCE was also his decision and it has lost its object: it was an order of
 // reading for a strip — the craft, the work, the chapter, the place, deliberately not chronological
 // (2020, 2020, 2022, 2022) — and the strip stopped existing when each frame moved inside the experience
 // entry its `engagement` names. The entries have an order already, newest first because it is a CV, and
@@ -78,6 +82,17 @@
 //     "aws proserve do corredor eu falei para a entrada de caa, a do delivery consultant falei a foto
 //      do aws summit"
 //
+//   2026-08-27, the fifth frame (#548), placing it before it existed as a file:
+//     "vi que preciso de uma foto para Systems Integration Analyst"
+//     "eu colocaria a foto em manila"
+//     "tinah uma foto na frente do predio da accenture"
+//
+// THE FIFTH IS THE STRONGEST CASE THIS FILE HAS FOR "NEVER DERIVED", and it is worth stating because it
+// is the one frame where a derivation would have looked plausible. Its filename carries a 2021 stamp
+// (an export date from an editing app, not a capture date) and NOTHING in the frame carries a year —
+// nearest-date lands it on the AWS ProServe entry, four employers away from where he put it. He named
+// the ROLE first and the photograph second, which is the only order in which this attribution is his.
+//
 // Read the keys against those three sentences: `{ 'Accenture', '2015-01' }` is *na accenture no
 // 2015-2020*; the corridor at `2021-01` is *a entrada de caa* (Cloud Application Architect); the Summit
 // at `2023-04` is *senior delivery consultant*. A reviewer holding his sentences can verify every key on
@@ -102,22 +117,47 @@
 // rather than mitigated, because the alternative — resolving by anything softer than exact equality —
 // is the derivation this whole slice exists to forbid.
 //
-// THE LAYOUT IS FINISHED AT FOUR, AND THE BUDGET IS A CONSTRAINT RATHER THAN A CAPACITY. Five experience
+// ~~THE LAYOUT IS FINISHED AT FOUR, AND THE BUDGET IS A CONSTRAINT RATHER THAN A CAPACITY. Five experience
 // entries carry four frames, so one entry carries none — which is correct rather than a gap: a frame is a
 // figure an entry MAY carry, not a slot every entry must fill, and nothing in the markup announces an
 // absence — though the two-track layout is conditional on the frame (#516 slice 2c), so at `md` and up a
 // photoless entry stays a single track and a reader comparing rows can infer the absence from the
-// alignment even though no markup states it. Do not read the empty entry as an invitation to fill it. The
-// photograph budget and the arithmetic behind that wording live in ADR-0048's 2026-08-25 amendment and are deliberately NOT restated here — a
-// measured number copied into a second place is a number that goes stale in one of them silently. There is
-// also no `<= 4` assertion anywhere, on purpose: the set lock in `journey.test.ts` already refuses a fifth
-// frame, and a second guard on the same fact would be a second thing to keep in step.
+// alignment even though no markup states it. Do not read the empty entry as an invitation to fill it.~~
+//
+// STRUCK BY THE OWNER, #548 (2026-08-27): *"vi que preciso de uma foto para Systems Integration Analyst"*.
+// Struck rather than deleted because it was not wrong about the LAYOUT — it was a statement about a set
+// he had approved, and he changed the set. Five entries now carry five frames, so the sentence it was
+// really defending ("do not read the empty entry as an invitation") has no empty entry left to defend.
+//
+// WHAT SURVIVES IT, AND IT IS THE HALF A FUTURE READER WILL BE TEMPTED TO DELETE: the two-track layout is
+// still CONDITIONAL on the frame (`CVSection`'s `JourneyFigure` returns `null` for an absent one), and
+// that branch is now unexercised by production data. It is not dead code — a sixth experience entry, or a
+// frame withdrawn, reaches it immediately — and `CVSection.test.tsx` exercises it in both directions with
+// its own fixtures. Do not "simplify" it on the grounds that every entry currently has a photograph.
+//
+// THE BUDGET IS STILL A CONSTRAINT RATHER THAN A CAPACITY, and the arithmetic behind that wording lives in
+// ADR-0048's 2026-08-25 amendment, deliberately NOT restated here — a measured number copied into a second
+// place is a number that goes stale in one of them silently. What IS enforced here is the total payload
+// bound in `scripts/photo-assets.test.mjs`, which this frame consumed 77 KB of. There is still no `<= 5`
+// assertion anywhere, on purpose: the set lock in `journey.test.ts` already refuses a sixth frame, and a
+// second guard on the same fact would be a second thing to keep in step.
 //
 // PROVENANCE AND REVERSIBILITY. The sources live outside this repo, in the owner's own library, and are
 // deliberately not committed: what ships is a 660x880 grayscale derivative with every metadata segment
 // removed. `scripts/photo-assets.test.mjs` proves the EXIF absence against the committed bytes, which is
 // the half that can be checked here; the originals staying out of git is the half that cannot, and is a
 // process fact recorded in the PR rather than a property of this file.
+//
+// THE FIFTH FRAME'S DERIVATIVE IS THE ONLY ONE THAT LOST CONTENT, and it is named here because a reader
+// comparing it with the original would otherwise think something went wrong. The source is SQUARE
+// (1152x1152); the set's 3:4 portrait ratio is locked by `journey.test.ts`, so 25% of the width had to
+// go. The window is off-centre (`crop=864:1152:230:0`) because a centred one bisects a face at the right
+// edge — the geometry is a consequence of the ratio lock, not an editorial decision about who is in the
+// photograph, and it dropped two people from the left of the SOURCE frame. THAT COUNT IS SOURCE-SIDE and
+// is not checkable here, since the source is not committed. The published count has its own base and is
+// checkable: six full faces plus a seventh the crop edge CUTS rather than removes — taken on the committed
+// bytes in `journey.test.ts`'s third-party paragraph, with the command that re-takes it. The two counts
+// count different things and must not be netted against each other.
 import { LOCALES, type Locale } from '../i18n';
 import { photoFor, type PhotoAsset } from './photos';
 import { profileSource } from './profile';
@@ -335,12 +375,12 @@ export function assertJourneyShape(
 }
 
 /**
- * The four photographs the owner approved. A SET — the order this array is written in is not part of
+ * The five photographs the owner approved. A SET — the order this array is written in is not part of
  * what was approved any more (#516 slice 2b).
  *
  * IT READ "in the approved order" UNTIL THIS SLICE, and that line outlived the rule it described. The
  * sequence WAS his decision — the craft, the work, the chapter, the place — and it was a decision about
- * how four photographs read together at the end of the page; it lost its object when each frame moved
+ * how those photographs read together at the end of the page; it lost its object when each frame moved
  * inside the experience entry its `engagement` names. `journey.test.ts` is what this now agrees with:
  * its set lock compares this array against the approved filenames SORTED on both sides, so it refuses a
  * substituted, added or missing frame and asserts nothing whatever about the sequence. Reordering these
@@ -386,6 +426,27 @@ const journey: readonly JourneyEntry[] = [
     caption: prose(
       'O evento voltou depois da pandemia. Eu voltei junto — pela primeira vez como funcionário.',
       'The event came back after the pandemic. I came back with it — for the first time as an employee.',
+    ),
+  },
+  {
+    // THE FIFTH FRAME (#548), AND THE ONLY ONE THE OWNER IS NOT IN. Every other entry below is a
+    // photograph of him; this one is a group in front of the office, and he supplied it for exactly that
+    // reason — it is the only thing that exists from 2008–2015. TWO COUNTS, TWO BASES, NEVER MIXED: the
+    // SOURCE carries eight colleagues (a source-side fact — the source is not committed, see the
+    // provenance paragraph above), and the PUBLISHED 660x880 crop carries seven identifiable presences,
+    // six of them full faces and the seventh cut by the left edge — counted on the committed bytes in
+    // `journey.test.ts`'s third-party paragraph, which also carries the command that re-takes the count.
+    // `alt` describes the published frame, and it therefore has to
+    // describe PEOPLE, which is a job none of the other four alt strings has had.
+    src: '/photos/journey-manila.jpg',
+    engagement: at('Accenture', '2008-03'),
+    alt: prose(
+      'Grupo de pessoas diante de um prédio de escritórios onde se lê "accenture": cinco em pé na frente — a da ponta esquerda só meio dentro do quadro — e duas outras atrás delas, sorrindo para a câmera; algumas usam crachá pendurado no pescoço, e torres altas fecham o fundo.',
+      'A group of people in front of an office building reading "accenture": five standing across the front — the one at the left edge only half in frame — and two more behind them, smiling at the camera; some with badges on lanyards around their necks and tall towers closing the background.',
+    ),
+    caption: prose(
+      'Manila. Esse trabalho me levou até o outro lado do mundo.',
+      'Manila. This job took me to the other side of the world.',
     ),
   },
   {
@@ -441,11 +502,11 @@ export interface JourneyFrame {
  * WHY THE PAGE RESOLVES AND THE COMPONENT DOES NOT (#516 slice 2b). `CVSection` is a pure presentational
  * component: it receives a resolved `Profile` and renders it, and every localized leaf on this page is
  * already flattened before it arrives. Passing `Record<Locale, string>` leaves into it instead would make
- * it the one component on /me that reads the locale context, for no reason but that these four strings
+ * it the one component on /me that reads the locale context, for no reason but that these prose strings
  * happen to live in a different module.
  *
  * IT RETURNS A NEW ARRAY PER CALL, and that is deliberate rather than careless. Memoizing it would cache
- * two arrays for the lifetime of the process to save mapping four objects on a page that renders once per
+ * two arrays for the lifetime of the process to save mapping five objects on a page that renders once per
  * navigation; the cache would be the more expensive object. If this ever renders in a hot path, measure
  * before adding one.
  */

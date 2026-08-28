@@ -20,16 +20,25 @@ import { test, expect, type Page } from '@playwright/test';
 //
 // THE ONE THIS FILE EXISTS FOR IS THE DECODE. A `src` that 404s still lays out a box from the width and
 // height attributes, so every geometry assertion in the repo would pass on a page of broken images. It is
-// the only thing standing between a renamed asset and four alt strings. It is also why the assertions name
+// the only thing standing between a renamed asset and five alt strings. It is also why the assertions name
 // the file: a failure has to say WHICH photograph, not "an image is missing".
 const ROUTES = ['/pt/me', '/en/me'];
 const HEIGHT = 900;
 
-// The approved set is four (`src/data/journey.test.ts` locks which four). Written here as a literal on
+// The approved set is five (`src/data/journey.test.ts` locks which five). Written here as a literal on
 // purpose: it is what turns a stale selector from a silent pass into a failure. Every loop below is a `for`
 // over a list, and a `for` over an empty list passes in silence — so the count is waited for and asserted
 // before anything is measured.
-const FRAMES = 4;
+const FRAMES = 5;
+
+// How many work-experience entries the CV has. WRITTEN OUT rather than derived from the page for the same
+// reason `FRAMES` is: a selector that drifted would otherwise define its own expectation and pass.
+//
+// IT USED TO BE ASSERTED AS `entries > FRAMES` (#516), and #548 made that false rather than wrong: the CV
+// has five roles and now carries five frames, so "more entries than frames" no longer holds. Replacing it
+// with `>=` would have kept a green suite and asserted almost nothing; asserting the real number keeps the
+// check that the selector still finds the whole experience list, which is all that comparison ever did.
+const ENTRIES = 5;
 
 /**
  * Force every photograph to fetch, and wait for the browser to settle each one.
@@ -109,9 +118,11 @@ test.describe('the journey photographs on /me', () => {
           total: document.querySelectorAll('[data-journey-photo]').length,
         };
       });
-      // More entries than frames: the set is four and the CV has more roles than that, which is the
-      // owner's "a figure an entry MAY carry" and not a gap to fill.
-      expect(nested.entries).toBeGreaterThan(FRAMES);
+      // The experience list itself, so a drifted selector cannot silently redefine what is being counted.
+      // Since #548 every role carries a frame, so this no longer says anything about the layout being
+      // conditional — that branch is proved in `CVSection.test.tsx`, against fixtures, where it is still
+      // reachable in both directions.
+      expect(nested.entries, 'the experience selector has drifted').toBe(ENTRIES);
       expect(nested.total).toBe(FRAMES);
       // Every frame on the page is a DIRECT child of a distinct entry. Compared against the total rather
       // than asserted alone: `carrying` counts entries, so on its own it would stay green with a fifth
@@ -215,7 +226,7 @@ test.describe('the journey photographs on /me', () => {
   // live INSIDE `[data-print="cv"]`, the tree `/cv.pdf` is printed from. `CVSection.test.tsx` proves the
   // `data-print="hide"` hook is EMITTED; jsdom applies no stylesheet, so it cannot prove the hook is WIRED.
   // Both are needed and they fail for different reasons: dropping the attribute is a component edit,
-  // dropping the rule is a CSS edit, and either one alone puts four 3:4 photographs onto a third sheet of a
+  // dropping the rule is a CSS edit, and either one alone puts five 3:4 photographs onto a third sheet of a
   // CV budgeted at two.
   //
   // `e2e/cv-pdf.spec.ts` would eventually catch it via the page count, which is the belt to this brace —

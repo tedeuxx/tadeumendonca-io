@@ -28,7 +28,7 @@ const LINK_LABELS: Record<string, string> = { github: 'GitHub', linkedin: 'Linke
  *
  * `index` IS REQUIRED AND NOT NULLABLE AGAIN (#516 slice 2b). It was widened to `string | null` at #127
  * so `JourneyStrip` could render an unnumbered fifth block under the CV; that component is gone — the
- * four photographs now render inside the experience entries themselves — and `index={null}` had exactly
+ * journey photographs now render inside the experience entries themselves — and `index={null}` had exactly
  * one caller. Keeping the nullable type would leave a branch no test could honestly reach, which is how a
  * suite starts reporting coverage about lines nobody can exercise. Blocks 01–04 are a credential sequence
  * (Experience, Education, Certifications, Skills), all inside `[data-print='cv']` and all printed onto the
@@ -311,9 +311,15 @@ export function CVSection({ profile, journey = [] }: { profile: Profile; journey
                 // lado da entrada de texto"* — so an entry that carries one becomes a grid: the figure in
                 // the left track, the prose in the right. An entry that carries none stays exactly the
                 // block it is today, because a uniform grid would open a 14rem gutter on every photoless
-                // role, and four frames sit in a CV with five. The cost, named rather than hidden: the
-                // prose of a photoless entry starts further left than its neighbours'. Alignment was the
-                // cheaper of the two losses.
+                // role. The cost, named rather than hidden: the prose of a photoless entry starts further
+                // left than its neighbours'. Alignment was the cheaper of the two losses.
+                //
+                // SINCE #548 NO ENTRY IS PHOTOLESS, so neither the gutter nor the misalignment is
+                // reachable from production data — and the branch STAYS. It is not dead code: a sixth role
+                // added to `profile.ts`, or a frame withdrawn, reaches it on the next render, and
+                // `CVSection.test.tsx` exercises both directions against its own fixtures. Deleting it
+                // would trade a condition nobody pays for against an empty gutter nobody would notice
+                // until it shipped.
                 //
                 // `md:` AND UP, WITHOUT EXCEPTION. The label column, the section divider and the
                 // twelve-column grid are all `md:`-prefixed — below that breakpoint this section is one

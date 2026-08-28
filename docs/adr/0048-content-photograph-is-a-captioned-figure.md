@@ -173,7 +173,7 @@ $ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
 4. **A build-time image optimiser** (sharp, an imagetools plugin, a CDN transform) — *why not:* a new
    dependency and a new tool class, against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), to
    compress four files. The trade is only defensible while the files stay small, so **the bound is asserted
-   rather than remembered**: the ~~four~~ **seven (2026-08-25, #127)** photographs are held under
+   rather than remembered**: the ~~four~~ ~~seven (2026-08-25, #127)~~ **eight (2026-08-27, #548)** photographs are held under
    ~~1 MB~~ **1 MiB** in total by a test that names the weight when it fails. An unoptimised export dropped
    into the directory is caught there instead of in a reader's data allowance. **The bound is repo-wide and
    the count moved; the refusal of an optimiser did not — see the 2026-08-25 amendment.**
@@ -450,3 +450,49 @@ and is also a disclosure.
 **What is unchanged.** The three conditions, the rendering path, the registry and its two-way assertion,
 the reserved box, the `alt`/caption contract, and the refusal of a build-time optimiser. This amendment
 corrects two counts, rules on the bound, and records one re-encode hazard.
+
+## Amendment, 2026-08-27 — the eighth raster took the first of the three named routes; 117.7 KiB is what is left
+
+**The 2026-08-25 amendment set a procedure and this is the first slice to walk it.** It required the next
+photograph to arrive with one of three things named in its Issue — *a frame that fits the measured
+remainder, a re-encode of an existing raster that pays for it, or an explicit reopening of ADR-0001's
+refused optimiser.* [#548](https://github.com/tedeuxx/tadeumendonca-io/issues/548) took the **first**, and
+it is recorded here because a procedure nobody is ever seen following is indistinguishable from one nobody
+follows.
+
+**Measured, with the commands.** The base is pinned to a SHA rather than to `main`, because a moving ref
+makes the figure true only on the day it is read:
+
+```
+git ls-tree -l 1eaebf4 apps/fed/public/photos/   # base:  7 blobs, 850,901 bytes
+# at any later head, re-derive rather than trusting this paragraph:
+git ls-tree -l HEAD apps/fed/public/photos/
+```
+
+- **`journey-manila.jpg` weighs 77,114 B (75.3 KiB)** — inside the 197,675 B remainder the previous
+  amendment measured, and slightly above the 66,305 B average of #127's four frames because the source is
+  a group photograph with far more high-frequency detail than a corridor or a desk.
+- **At this PR's head — 8 rasters, 928,015 B = 906.3 KiB** against the 1,048,576 B ceiling. **88.50%
+  spent; 120,561 B = 117.7 KiB left.**
+
+**The bound STILL stands and was not touched.** The remainder is now **under two more journey-class frames
+and under one of anything larger** — `may-week-montage.jpg` alone is 3.4× what is left. The previous
+amendment's sentence holds with less slack than it had: *"there is room" is not a safe default*, and at
+88.5% it is closer to being the wrong default outright. **The next photograph after this one very likely
+cannot take route one**, so a re-encode or the optimiser question is the realistic next decision, and that
+is the owner's rather than a builder's.
+
+**The re-encode hazard has a second instance, and it points the other way.** The 2026-08-25 amendment
+recorded that `journey-corridor.jpg` hides an employer name that a wider re-export would re-open. The
+same check was run on this frame and the finding is different in kind: **`journey-manila.jpg` contains
+identifiable faces that no derivative size can suppress**, plus two badges. Measured on the committed
+660px grayscale file at 1:1, neither badge yields a readable name, employer or portrait — the same result
+the Summit badge gives, and stated with the same caveat: **a badge going illegible is not a face going
+illegible, and the faces are the exposure here.** They were named to the owner in those terms before he
+chose the frame, and he chose it because it is the only photograph that exists from that period. **So the
+re-encode rule for this file is not "re-check at magnification" — it is that no re-encode changes the
+answer, and the decision is already made and is his.**
+
+**What is unchanged.** Everything the previous amendment left standing, plus the bound itself. This
+amendment corrects one count, records the first use of the three-route procedure, and records that the
+route the *next* slice can take is narrower than the one this slice took.
