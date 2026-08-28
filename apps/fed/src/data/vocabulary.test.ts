@@ -255,7 +255,8 @@ describe('the practice is named consistently across every surface', () => {
 // suite is blind to.
 //
 // AND SINCE 2026-08-27 THE THREE SURFACES ARE KNOWN NOT TO AGREE, DELIBERATELY. The `2023-04` line
-// below is transcribed from `.brand/surfaces.md`'s **2026-08-27** block, which records copy the site
+// below is transcribed from `.brand/surfaces.md`'s **2026-08-28** block (it was the 2026-08-27 block
+// until #566 shortened the line), which records copy the site
 // publishes and LinkedIn does NOT yet carry — #522's surface-parity pass is a separate, owner-
 // authorised step after the repo half merges. The other four lines still come from the 2026-08-26
 // block and are unchanged. So a green run means exactly what it always meant — site matches record —
@@ -270,7 +271,7 @@ describe('the practice is named consistently across every surface', () => {
 //
 // WHY THE EXPECTED LINES ARE INLINE LITERALS, AND WHERE THEY COME FROM. They are transcribed from
 // `.brand/surfaces.md` — the other side of the sync, the 2026-08-26 block for four of them and the
-// 2026-08-27 block for `2023-04` — and NOT derived from `profile.ts`. An expectation built from the file it guards passes unconditionally and reading it
+// 2026-08-28 block for `2023-04` — and NOT derived from `profile.ts`. An expectation built from the file it guards passes unconditionally and reading it
 // never reveals that. Because these came from the record, editing the site copy alone reddens here,
 // which is exactly the drift criterion 6 exists to stop. The private file is READ, never quoted into
 // a public surface; the practice lines themselves are published copy, so they are safe in this file.
@@ -292,7 +293,12 @@ const descriptionOf = (profile: Profile, start: string): string => {
 const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
   [
     '2023-04',
-    "Application-modernization and new digital-platform launch programs — microservices, full-stack web, smart TVs and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone. And building hands-on alongside those engagements — tadeumendonca.io, the live platform this CV is served from, and the agent harness that delivers it: personas, hooks and permission gates, itself published as a Claude Code plugin and consumed by the site's own repository.",
+    // SHORTENED ON #566: the trailing personal-platforms clause came OUT of the `description`, on the
+    // owner's own reading — «esse paragrafo do pessoal nao deveria estar dentro do work experience,
+    // pode dar a impressao errada». It is not relocated anywhere in `profile.ts`; `/architecture`
+    // already carries it («o site tem a area arquitetura ja» · «nao precisamos colocar no perfil»).
+    // Transcribed from `.brand/surfaces.md`'s 2026-08-28 block, like every other line in this table.
+    "Application-modernization and new digital-platform launch programs — microservices, full-stack web, smart TVs and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone.",
   ],
   [
     '2021-01',

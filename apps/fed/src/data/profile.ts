@@ -107,10 +107,7 @@ const sourceTemplate: ProfileSource = {
           'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
           'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
           'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
-          "& gas operator's AWS landing zone. And building hands-on alongside those engagements — " +
-          'tadeumendonca.io, the live platform this CV is served from, and the agent harness that delivers ' +
-          'it: personas, hooks and permission gates, itself published as a Claude Code plugin and consumed ' +
-          "by the site's own repository. " +
+          "& gas operator's AWS landing zone. " +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
@@ -120,10 +117,7 @@ const sourceTemplate: ProfileSource = {
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
           'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
           'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
-          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on em ' +
-          'paralelo a esses engajamentos — o tadeumendonca.io, a plataforma no ar de onde este CV é servido, ' +
-          'e o agent harness que a entrega: personas, hooks e gates de permissão, ele próprio publicado como ' +
-          'plugin do Claude Code e consumido pelo repositório do site. ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -143,9 +137,11 @@ const sourceTemplate: ProfileSource = {
           'Built, hands-on, the serverless data integration for an aerospace manufacturer after its ' +
             'Heroku-to-AWS migration — Salesforce into a modernized custom backend, on Terraform, ' +
             'Amazon AppFlow and Python.',
-          'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
-            'search — embeddings on Amazon Bedrock, stored and queried on Amazon S3 Vectors — so AI agents can ' +
-            'both search and create knowledge; MVP in progress.',
+          'Developing an internal full-stack web platform for sharing how AI is used in LATAM ' +
+            'app-modernization delivery — implemented in AI-DLC, with a reusable Kiro harness customization ' +
+            'other projects can adopt; embeddings-based semantic search running on Amazon Bedrock over ' +
+            'Amazon S3 Vectors; integrated with inbound corporate Slack and with AI tooling over MCP; ' +
+            'MVP in progress.',
           'Lead engagements across LATAM, developing architectures, applications and delivery strategy, and ' +
             'presenting them to C-level and technical stakeholders in English, Spanish and Portuguese.',
         ],
@@ -165,25 +161,37 @@ const sourceTemplate: ProfileSource = {
           'Construí, hands-on, a integração serverless de dados de um fabricante aeroespacial depois da ' +
             'migração dele de Heroku para AWS — do Salesforce para um backend custom modernizado, em ' +
             'Terraform, Amazon AppFlow e Python.',
-          'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
-            'e busca semântica — embeddings no Amazon Bedrock, armazenados e consultados no Amazon S3 Vectors — ' +
-            'para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
+          'Desenvolvendo uma plataforma interna web full-stack de troca de conhecimento sobre uso de IA na ' +
+            'entrega de modernização de aplicações na América Latina — implementação em AI-DLC, com ' +
+            'customização de um harness Kiro reutilizável por outros projetos; busca semântica baseada em ' +
+            'embeddings rodando no Amazon Bedrock e base no Amazon S3 Vectors; integrada a Slack corporativo ' +
+            'inbound e a ferramentas de IA via MCP; MVP em andamento.',
           'Conduzo engajamentos na América Latina, desenvolvendo arquiteturas, aplicações e estratégia de ' +
             'entrega, e as apresento para stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],
       },
-      // SET AGAIN ON THE CURRENT ROLE (#542), after the owner lifted ADR-0034's two-page ceiling
-      // («pode aumentar sem problemas»). It points at "Built, hands-on, the serverless data integration
-      // …" — the one bullet of the six written as building, and the reason the Issue exists: five
-      // accurate leadership bullets plus a printed CV with no build verb read as «somente papel».
-      // CHOSEN AGAINST THE RULE IN `types/profile.ts`, NOT AROUND IT: print what the practice line does
-      // not already carry, and prefer a COMPLETED artifact. The practice line's hands-on clause carries
-      // tadeumendonca.io and the agent harness that delivers it — both live and both ongoing — so this
-      // bullet is the completed artifact and nothing is named twice inside one role. It was narrowed
-      // TWICE: the second pass dropped the internal knowledge platform on this same rule, because
-      // bullet 5 already sizes it — so read the rule off what the clause says today, never off this
-      // sentence's memory of it.
-      print_highlight_index: 3,
+      // MOVED 3 → 4 ON #566, ON THE OWNER'S OWN READING OF THE PRINTED CV: «voce foca numa experiencia
+      // do data integration que é pontual e mto distante do que faco diariamente». Index 3 is the
+      // aerospace serverless data integration; index 4 is the internal knowledge platform. It POINTS AT
+      // A MEANING, so verify by content and not by position — the two arrays are parallel, and index 4
+      // is the `Developing an internal full-stack web platform …` / `Desenvolvendo uma plataforma
+      // interna web full-stack …` bullet in both editions.
+      //
+      // WHY 3 HELD THE PLACE UNTIL NOW, because it explains the move rather than reversing a whim: the
+      // bullet that should have printed had lost its hands-on wording in transcription (`Desenvolvendo`
+      // → `Idealizei e coloquei pra rodar`), so index 3 was the only bullet of the six still SOUNDING
+      // hands-on. #566 restored the wording the owner supplied; the showcase follows it.
+      //
+      // AGAINST HALF THE RULE IN `types/profile.ts`, DELIBERATELY AND ON HIS INSTRUCTION. That rule has
+      // two halves. The first — print what the practice line does not already carry — is satisfied
+      // MORE strongly now: #566 also removed the practice line's personal-platforms clause, so the
+      // description carries no named build at all. The second — prefer a COMPLETED artifact — is NOT
+      // satisfied: this platform's MVP is in progress. It is overridden because the reason that
+      // preference exists is that a role understates itself when its sole printed evidence is
+      // unfinished, and the owner measured the opposite cost as larger: a one-off engagement in a
+      // sector he does not work in reads, to a scanner, as his domain. Understating by "in progress"
+      // beats mis-stating the domain. Do not restore 3 without his word.
+      print_highlight_index: 4,
     },
     {
       company: 'Amazon Web Services — Professional Services',

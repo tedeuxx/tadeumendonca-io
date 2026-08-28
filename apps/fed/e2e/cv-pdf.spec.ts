@@ -57,6 +57,12 @@ test.describe('CV PDF export', () => {
   // this comment permits — and note what did NOT happen: nothing here was red first. The count was
   // taken after the copy change and the assertion follows it.
   //
+  // RE-MEASURED ON #566 AND UNCHANGED AT 3 — recorded because that slice moved text between two fields
+  // that BOTH print (the current role's `description` lost its personal-platforms clause; the printed
+  // bullet moved to a longer one), so "no page-count change" is a measurement here rather than an
+  // assumption. `npm run build:static` then this file's own regex over `dist/cv.pdf` → 3. The number
+  // below is untouched, which is what a re-measurement that agrees is supposed to look like.
+  //
   // THE CEILING IS ADR-0034's AND THE AMENDMENT IS `tech-lead`'s, not this file's. This assertion is
   // the mechanism, never the record. It is deliberately still a NUMBER rather than an upper bound or a
   // deleted test: a budget that is simply removed removes the measurement with it, and the artifact
@@ -131,6 +137,14 @@ test.describe('CV PDF export', () => {
   // The TOKEN is pinned, not the sentence — the same shape `types/profile.ts` prescribes for the
   // unpinned `GenAI` clause. Rewording the bullet stays free; losing the build verb under the current
   // role does not, because that verb IS #542 («senao as pessoas entendem como somente papel»).
+  //
+  // THE TOKEN MOVED `Built, hands-on,` → `Developing` ON #566, AND IT IS A DIFFERENT BULLET, NOT A
+  // REWORDING. `print_highlight_index` went 3 → 4 on the owner's own reading of the printed CV — the
+  // aerospace serverless integration is a one-off in a sector he does not work in, and a scanner reads
+  // it as his domain. What prints now is the internal knowledge platform, whose verb is `Developing` /
+  // `Desenvolvendo` — his own word, present and ongoing. So the pin is still the build verb and still
+  // #542's requirement; only which bullet carries it changed. A past-tense token would be wrong here:
+  // this artefact is in progress, deliberately (see the note beside `print_highlight_index`).
   test('the print edition keeps a hands-on bullet under the current role', async ({ page }) => {
     await page.goto('/en/me');
     // Same wait as the count test above: `goto` resolves at the SPA shell, and a locator read before
@@ -142,7 +156,7 @@ test.describe('CV PDF export', () => {
     // a page-budget change nobody decided.
     await expect(kept).toHaveCount(1);
     await expect(kept, 'the printed CV must keep a bullet written as BUILDING under the current role').toContainText(
-      'Built, hands-on,',
+      'Developing',
     );
 
     await page.emulateMedia({ media: 'print' });
