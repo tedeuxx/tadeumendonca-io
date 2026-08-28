@@ -114,6 +114,47 @@ test.describe('CV PDF export', () => {
     expect(inPrint, 'the print edition may drop elaboration and decoration — never a claim').toEqual(onScreen);
   });
 
+  // The page count above no longer says anything about whether a bullet printed, and #542 is the reason:
+  // it set `print_highlight_index` on the current role AND lengthened the practice lines past the point
+  // where the budget discriminated. Measured 2026-08-27, three builds, one variable — `main` 0 bullets /
+  // 2 pages, head 1 bullet / 3 pages, head with the index out of range 0 bullets / STILL 3 pages. The
+  // slice created the exposure and destroyed the signal, so the printed bullet needs its own guard.
+  //
+  // TWO LAYERS, DELIBERATELY, because they fail on different mutations and neither subsumes the other:
+  //   · `src/data/resolveProfile.test.ts` proves the index is IN RANGE — it catches `99`, on every role,
+  //     with no build. That is the floor.
+  //   · this test proves the kept bullet is the RIGHT one and that it SURVIVES print — it catches `0`
+  //     (in range, wrong meaning, invisible to the floor) and it catches a stylesheet regression that
+  //     would hide the <li> the data correctly marked. Neither of those is a data-shape defect, so
+  //     neither is reachable from a unit test over `profile.ts`.
+  //
+  // The TOKEN is pinned, not the sentence — the same shape `types/profile.ts` prescribes for the
+  // unpinned `GenAI` clause. Rewording the bullet stays free; losing the build verb under the current
+  // role does not, because that verb IS #542 («senao as pessoas entendem como somente papel»).
+  test('the print edition keeps a hands-on bullet under the current role', async ({ page }) => {
+    await page.goto('/en/me');
+    // Same wait as the count test above: `goto` resolves at the SPA shell, and a locator read before
+    // hydration would count zero of everything and pass.
+    await expect(page.locator('[data-print-block="01"]')).toBeVisible();
+
+    const kept = page.locator('[data-print-block="01"] li[data-print-keep]');
+    // Exactly one, across every role: the selection rule prints ONE item, and two kept bullets would be
+    // a page-budget change nobody decided.
+    await expect(kept).toHaveCount(1);
+    await expect(kept, 'the printed CV must keep a bullet written as BUILDING under the current role').toContainText(
+      'Built, hands-on,',
+    );
+
+    await page.emulateMedia({ media: 'print' });
+    // The data marking a bullet and the stylesheet printing it are two mechanisms; assert the second.
+    expect(await display(kept), 'the marked highlight must survive into the print edition').toBe('list-item');
+    // …and the control: an unmarked sibling is still dropped, so a stylesheet that printed EVERY <li>
+    // (blowing the budget silently, since the count assertion is a fixed number in the other direction)
+    // would redden here rather than read as this test passing.
+    const dropped = page.locator('[data-print-block="01"] li:not([data-print-keep])').first();
+    expect(await display(dropped), 'unmarked highlights must stay dropped from the print edition').toBe('none');
+  });
+
   test('offers a Download-CV link on /me pointing at the static asset', async ({ page }) => {
     await page.goto('/en/me');
     const link = page.getByRole('link', { name: 'Download CV (PDF)' });

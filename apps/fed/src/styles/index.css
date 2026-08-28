@@ -447,8 +447,11 @@ body {
     display: none !important;
   }
   /* The list carries a literal `text-[15px]`, which survives the print scale and would print a kept
-     highlight half again larger than the roles around it. Nothing is kept today, so this rule is
-     dormant rather than dead — it is what makes setting the flag safe if the budget ever allows it. */
+     highlight half again larger than the roles around it. ~~Nothing is kept today, so this rule is
+     dormant rather than dead — it is what makes setting the flag safe if the budget ever allows it.~~
+     STRUCK #542 (2026-08-27): the budget allowed it, the current role keeps one, and this rule is LIVE
+     — it is what sizes that bullet. Struck rather than deleted because it was the argument for keeping
+     a rule with no subject, and it turned out to be right. */
   [data-print='cv'] [data-print-block='01'] ul {
     margin-top: 0.14rem !important;
     font-size: 1em !important;

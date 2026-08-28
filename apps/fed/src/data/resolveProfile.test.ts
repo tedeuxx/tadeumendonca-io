@@ -93,6 +93,47 @@ describe('resolveProfile', () => {
     expect(Object.keys(pt.skills)[0]).toBe('AWS Cloud');
   });
 
+  // `print_highlight_index` is an INDEX into an array authored a hundred lines away in the same file,
+  // and nothing relates the two: `print_highlight_index: 99` typechecks, renders no `data-print-keep`,
+  // and prints ZERO bullets — silently, with every gate green.
+  //
+  // THE PAGE BUDGET CANNOT CATCH IT, and the reason is this slice's own doing. Measured on 2026-08-27,
+  // three builds, one variable: `main` prints 0 bullets in 2 pages; head prints 1 in 3; head with the
+  // index out of range prints 0 in — still 3. On `main` the count accidentally discriminated
+  // bullet-presence; #542 lengthened the practice lines enough that three pages are spent on the
+  // practice lines alone, so the budget now carries no information about whether the bullet it was
+  // raised to buy actually printed. The slice created the exposure AND removed the only signal that
+  // had been covering it, which is why the invariant is asserted here directly rather than inferred
+  // from `cv-pdf.spec.ts`'s `toHaveLength(3)`.
+  //
+  // OVER EVERY ROLE AND BOTH EDITIONS, not over the one role that sets the flag today: the hole belongs
+  // to the field, not to this year's CV, and a test naming one role stops covering the next role to set
+  // it. This is the FLOOR — it proves the flag points at a highlight that exists. That it points at the
+  // RIGHT one is a claim about meaning, and it is asserted where the meaning is visible, on the printed
+  // artifact (`e2e/cv-pdf.spec.ts`, "keeps a hands-on bullet under the current role").
+  it('points `print_highlight_index` at a highlight that exists, on every role and in both editions', () => {
+    const flagged = [...en.experience, ...pt.experience].filter((role) => role.print_highlight_index !== undefined);
+
+    // Without this, the test passes by iterating an empty list the day the flag is unset everywhere —
+    // the same "compares nothing to nothing" failure `cv-pdf.spec.ts` guards its own selectors against.
+    // It is a real coupling to the data: unsetting the flag on every role reddens here, deliberately,
+    // because that is a decision (it happened between #522 and #542) and not something to drift into.
+    expect(flagged.length, 'no role sets print_highlight_index — this test would assert nothing').toBeGreaterThan(0);
+
+    for (const role of flagged) {
+      const i = role.print_highlight_index as number;
+      expect(Number.isInteger(i), `${role.company}: print_highlight_index must be an integer, got ${i}`).toBe(true);
+      expect(i, `${role.company}: print_highlight_index must not be negative`).toBeGreaterThanOrEqual(0);
+      // The assertion that actually closes the hole: the index must land INSIDE the array it indexes.
+      // `highlights?.[99]` is `undefined`, which is precisely the state that prints nothing.
+      expect(
+        role.highlights?.[i],
+        `${role.company}: print_highlight_index ${i} points at no highlight (${role.highlights?.length ?? 0} authored)`,
+      ).toEqual(expect.any(String));
+      expect((role.highlights?.[i] ?? '').trim().length, `${role.company}: the printed highlight is empty`).toBeGreaterThan(0);
+    }
+  });
+
   it('omits optional fields that were not authored', () => {
     const minimal: ProfileSource = {
       profile_id: 'x',
