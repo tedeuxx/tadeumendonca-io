@@ -305,7 +305,7 @@ const sourceTemplate: ProfileSource = {
             "salesperson's, where the model proved out: from look-and-feel ideation with the UX team, " +
             'through the event trail that made them operable in the field, to the analytics that ' +
             'stakeholders read.',
-          'Collaborated on the delivery of a Flutter app covering iOS and Android for a digital bank; ' +
+          'Collaborated on the delivery of a Flutter app covering iOS and Android for a bank; ' +
             'built the DevOps and delivery pipeline for a commerce platform; and, in the final Accenture ' +
             'years, guided the reversal of a recurring performance problem in a Java / Spring Boot ' +
             'microservices backend running on AWS, for an education product.',
@@ -335,7 +335,7 @@ const sourceTemplate: ProfileSource = {
             'o do vendedor de campo, onde a modelagem se provou: da ideação de look and feel junto com o ' +
             'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até o ' +
             'acompanhamento analítico que os stakeholders liam.',
-          'Colaborei com a entrega de um app Flutter cobrindo iOS e Android para um banco digital; ' +
+          'Colaborei com a entrega de um app Flutter cobrindo iOS e Android para um banco; ' +
             'construí o DevOps e o pipeline de entrega de uma plataforma de commerce; e, nos últimos ' +
             'anos de Accenture, orientei a reversão de um problema recorrente de performance em um ' +
             'backend de microsserviços Java / Spring Boot rodando na AWS, para um produto de educação.',
