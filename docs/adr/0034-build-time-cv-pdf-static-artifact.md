@@ -1,6 +1,6 @@
 # 0034. The downloadable CV is a build-time PDF, printed from `/me` to a static asset
 
-- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-02** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back) · **amended 2026-08-26** (the print edition carries no experience highlight; the page budget is recorded as what prices the selection)
+- **Status:** accepted · **amended 2026-07-26** (the source route string) · **amended 2026-07-28** (a one-page edition, not a faithful print) · **amended 2026-08-02** (the print palette becomes the page's own; the budget goes to two pages and the proficiency meters come back) · **amended 2026-08-26** (the print edition carries no experience highlight; the page budget is recorded as what prices the selection) · **amended 2026-08-27** (the budget goes to THREE pages on the owner's call, and the third page buys back the current role's printed hands-on bullet)
 - **Date:** 2026-07-25
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
@@ -301,10 +301,19 @@ npm --prefix apps/fed run build:static
 grep -ao "/Type /Page[s]*" apps/fed/dist/cv.pdf | sort | uniq -c
 ```
 
-**The budget itself is untouched at two pages, and `e2e/cv-pdf.spec.ts` is not edited by this decision.**
+~~**The budget itself is untouched at two pages, and `e2e/cv-pdf.spec.ts` is not edited by this decision.**~~
+**Struck 2026-08-27 (#542).** It was true of the 2026-08-26 decision — that slice did move the print
+selection rather than the ceiling — and it is false read at head, which is the only way anyone reads it:
+it is a present-tense claim about *the budget*, in a record whose budget is now **three** pages and whose
+spec now asserts `3`. Restated with its scope: **the 2026-08-26 decision did not touch the budget or the
+spec; the 2026-08-27 amendment below does both.** Struck rather than edited because the sentence is the
+argument for choosing that lever, and a reader needs to see the claim that stopped being true, not a
+tidied version of it.
+
 That is the point of choosing this lever: the spec's own instruction — *"What must never happen is the
 number being raised to make a red test green"* — is honoured by changing what prints, not what is
-asserted.
+asserted. **That instruction still binds and was not spent by the 2026-08-27 amendment** — see its
+*"Nothing was red first"* paragraph, which records the ordering rather than asserting the discipline.
 
 ### Considered options
 
@@ -316,7 +325,13 @@ asserted.
    practice lines are byte-pinned against the private surfaces record and against what already shipped
    to LinkedIn, so shortening them is a change on three surfaces and re-opens a cross-surface identity
    #522 exists to close. **And it was then measured infeasible outright**, which is stronger than the cost argument and supersedes it: the shortest available bullet still overflows, so there is no length of practice line that buys room for one. Recorded as rejected-and-then-disproved rather than dropped, because the cost argument is what a future reader would otherwise re-run.
-3. **Raise the budget to three pages.** *Rejected here, but rejected as a decision rather than as an
+3. **Raise the budget to three pages.** — **SUPERSEDED 2026-08-27 (#542): this option was TAKEN.** The
+   rejection below is kept intact and unedited, because it was **not wrong, it was outdated**: it
+   recorded in its own words that the budget *"could move again on the owner's call with the artifact
+   looked at"*, and on 2026-08-27 the owner looked at the artifact and moved it — «pode aumentar sem
+   problemas». Its stated condition for rejection was *"nothing was measured to be missing from the
+   two-page sheet"*; #542 is that condition failing, from the owner's own reading. See the
+   *"Amendment (2026-08-27)"* section below. *Rejected here, but rejected as a decision rather than as an
    impossibility* — the budget has moved deliberately once already (one → two, 2026-08-02) and could
    move again on the owner's call with the artifact looked at. It is rejected in this slice because
    nothing was measured to be missing from the two-page sheet; the third page would exist to carry the
@@ -326,6 +341,13 @@ asserted.
    decision with a recorded reason for one without.
 
 ### What survives unexercised, deliberately
+
+**No longer unexercised as of 2026-08-27 (#542) — this section's own bet paid, and that is why it is
+marked rather than struck.** It reasoned that keeping the mechanism means *"a future budget change is one
+flag rather than a re-derivation of the selection machinery"*; the budget changed twenty-four hours
+later and the change was exactly one flag (`print_highlight_index: 3`). Read the rest as the disposition
+that was taken and the cost that was accepted — both still accurate about the mechanism — with its
+present tense now historical.
 
 `ExperienceSource.print_highlight_index` and the two `[data-print-block='01'] li` rules that read it are
 kept as a mechanism with no instances, rather than deleted. Keeping an unexercised convention is the
@@ -357,6 +379,149 @@ is *leaving* the library — *"This rule is about whole records, not about sente
 and this record stays `accepted`. Inside a live record the convention is unchanged and is what was applied
 above: **amend by appending, strike in place, never rewrite.**
 
+## Amendment (2026-08-27) — the budget is THREE pages, and the third page buys back the printed hands-on bullet
+
+### The decision, in the owner's words
+
+Asked directly — may `/cv.pdf` grow to three pages, or must it stay at two with something else removed? —
+he answered:
+
+> «pode aumentar sem problemas»
+
+**The budget is three pages.** `e2e/cv-pdf.spec.ts` asserts `toHaveLength(3)`, and
+`print_highlight_index` is set again on the current role.
+
+### Measured at head, not inherited
+
+Taken on this branch by `tech-lead` writing this amendment, from a real build rather than from any
+account of one — the same falsifier the 2026-08-26 amendment published, unchanged:
+
+```
+npm --prefix apps/fed run build:static
+grep -ao "/Type /Page[s]*" apps/fed/dist/cv.pdf | sort | uniq -c
+   3 /Type /Page
+   1 /Type /Pages
+```
+
+**Three pages. That is the artifact this amendment is about, and it is why the ceiling had to move in
+this MR rather than after it** — merging the copy change without it leaves `main` publishing a rejected
+option as the current decision.
+
+### Why the ceiling moved — the substantive part
+
+The 2026-08-26 amendment established, and this amendment does **not** disturb, that *"no shape that
+prints any bullet fits"* two pages. Four further measured builds on 2026-08-27 established the same
+constraint one level up on the **practice line itself**: the two named launches (the streaming
+replacement and the oil & gas landing zone) and the hands-on artefacts (`tadeumendonca.io`, its agent
+harness and plugin, the internal knowledge platform) **cannot coexist inside two pages.** The launches
+were kept and **the hands-on clause was dropped to hold the ceiling.**
+
+**That is what emptied criterion 5 of Issue [#522](https://github.com/tedeuxx/tadeumendonca-io/issues/522)
+on the printed surface.** #522's own answer to *where is the hands-on evidence of this period* was **the
+work built in the open** — accurately, because the client work of the period is leadership and
+architecture and rewriting it as building would make it false. With the practice line's hands-on clause
+gone and `print_highlight_index` unset on every role, **a reader of `/cv.pdf` alone met no artefact he
+personally built under the current role, and no building verb at all.**
+
+**Issue [#542](https://github.com/tedeuxx/tadeumendonca-io/issues/542) is where the owner named that
+consequence**, reading his own profile, before anyone connected it to the budget:
+
+> «tem que ter algo mais indicando hands-on»
+> «senão as pessoas entendem como somente papel»
+
+So the ceiling did not move for space. **It moved because the thing the ceiling was being paid for with
+turned out to be the one claim the artifact exists to make.** Two pages was a good budget while what it
+cost was elaboration; it stopped being one when what it cost was the evidence.
+
+### `print_highlight_index` is a live lever again
+
+This record's own measurement — printing any bullet means three pages — is **unchanged, and now spent
+deliberately rather than avoided.** #542's body recorded this lever as *"measured and closed … this lever
+does not exist"*; that was correct **under the two-page ceiling**, and the ceiling is what moved. Nothing
+about the measurement was revised.
+
+`print_highlight_index: 3` on the current role prints
+*"Built, hands-on, the serverless data integration…"* — the one bullet of that role's six written as
+building, and a **completed** artefact. Chosen against the selection rule rather than around it: the
+practice line's restored hands-on clause names the internal knowledge platform and `tadeumendonca.io`,
+both in progress, so the printed bullet carries what the practice line does not and nothing is named
+twice inside one role.
+
+### The assertion moved WITH the decision, not after it went red
+
+Recorded explicitly, because the two acts are different and only one of them is legitimate.
+`e2e/cv-pdf.spec.ts` went `toHaveLength(2)` → `3` **in the same commit as the copy change that spends the
+page**, and **nothing was red first**: the count was taken from a build after the copy change, and the
+assertion was written to the number that was measured, with the reason in the file. The spec's standing
+instruction — *"What must never happen is the number being raised to make a red test green"* — is intact
+and unspent. An assertion loosened *because* it failed is a defect; an assertion moved with the decision
+that moved the artifact is the guard doing its job, and this record says which one happened so a later
+reader does not have to infer it from the diff.
+
+### A NUMBER, not an unbounded artifact — decided here, because «pode aumentar sem problemas» does not say which
+
+The owner's sentence authorises growth. It does not choose between *"the ceiling is now three"* and
+*"there is no ceiling"*, and the record's author has to, because **silently having neither is the failure
+this repository names most often.**
+
+**The budget's value was never the number.** It was that every change to `profile.ts` had to be measured
+against something. That property is what caught the practice-line slice going to three pages on
+2026-08-27, what caught the architecture-diagram slice, and why every PR body this week carries a page
+count from a real build. **A ceiling raised from 2 to 3 keeps that property in full; a ceiling removed
+destroys it** — with no asserted number, nothing reports that the CV grew, and it grows one honest slice
+at a time until someone opens it and is surprised. That is not hypothetical here: this record already
+documents one silent drift of exactly that shape (*"Whoever set an index before this had no way to know
+that adding one could cost a page"*).
+
+**So: three pages, asserted.** The spec is the mechanism, this record is the ceiling, and the next slice
+that wants a fourth page pays the same price this one did — a measurement, an owner decision, and an
+amendment. Reporting-without-enforcing was considered and rejected below.
+
+### Considered options
+
+1. **Raise the ceiling to three and keep it asserted (chosen).** *Trade-off:* a three-page CV is a longer
+   document than a recruiter's convention prefers, and the ceiling will be argued again the next time
+   `profile.ts` grows. Accepted, because the argument is the point — the ceiling's job is to make growth
+   a decision rather than a drift, and it does that at 3 exactly as it did at 2.
+2. **Remove the ceiling; report the page count without enforcing it.** *Rejected:* it reads as the
+   permissive reading of «pode aumentar sem problemas» and it is the option that quietly discards the
+   only property the budget ever bought. A reported number nothing fails on is a number nobody reads —
+   and every drift this record documents was found by a *failing* count, never by a printed one.
+   *Its real cost, stated:* one fewer amendment the next time the CV legitimately needs a page.
+3. **Hold two pages and cut something else to fit the printed bullet.** *Rejected, and measured rather
+   than argued:* the 2026-08-26 amendment's option 4 already established that every remaining print block
+   was argued into the sheet by an earlier amendment, so this trades a decision with a recorded reason
+   for one without — and the 2026-08-27 builds add that the launches and the hands-on artefacts do not
+   both fit either. There is no cut left that is cheaper than the page.
+4. **Keep the two-page PDF and carry the hands-on weight on screen only.** *Rejected:* it is the state
+   #542 was opened about. `/cv.pdf` is the file a recruiter saves and forwards, so a claim that exists
+   only on `/me` is absent from the surface that travels — which is the whole reason ADR-0024 makes the
+   PDF derived rather than optional.
+
+### Consequences
+
+**Good.** The printed CV carries a building verb and a named, completed artefact under the current role
+again — criterion 5 of #522 holds on both surfaces, not one. The practice line keeps both launches. The
+`print_highlight_index` mechanism kept unexercised by the 2026-08-26 amendment turned out to be one flag,
+exactly as that section bet. The budget survives as an asserted number, so growth stays a decision.
+
+**Bad, and named rather than solved.** The PDF is 50% longer than the edition this record opened with, and
+a third page is a real cost against a recruiter's scan. **The out-of-range hole this record already
+flagged is now live rather than theoretical** — *"an out-of-range index prints zero bullets for that role
+silently"*, and an index is now set; nothing asserts it is in range, and the page-count assertion would
+not catch it, because printing zero bullets makes the document *shorter*. And the two-page measurement
+this record spent three amendments establishing is now historical: a future reader must read the
+2026-08-26 measurement as *why the ceiling was expensive*, not as *what the ceiling is*.
+
+### Why this is an amendment and not a new record
+
+The same reason the 2026-08-26 amendment gave, and it is stronger here: this is the **third** movement of
+one budget in one record (1 → 2 on 2026-08-02, priced against the selection rule on 2026-08-26, 2 → 3
+here). A separate record would put the current ceiling in one file and its three prior values in another,
+which is precisely the second-surface failure this record has now corrected twice. The significance gate
+fires on *alters a previously-recorded decision*. No History row and no `## What this replaced` fold are
+owed — this record stays `accepted` and nothing is leaving the library.
+
 ## Links
 - Driven by ADR-0002 (static, no backend), ADR-0004 (build-time render; Playwright already a build cost), ADR-0024 (`profile.ts` canonical CV — this derives the downloadable edition from it; the Canva retirement it deferred was taken by 0024's 2026-07-28 amendment, #225).
 - Source route string moved `/me` → `/en/me` by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (per-locale URL prefixes); the English print edition and `/cv.pdf` output are unchanged.
@@ -371,3 +536,8 @@ above: **amend by appending, strike in place, never rewrite.**
   highlight is elaboration, and this drops no role, no credential and no keyword.
 - Interacts with [ADR-0012](./0012-snake-case-content-no-mapping.md) — its convention table names
   `print_highlight_index` as a `profile.ts` snake_case example; the field is kept, so that example stands.
+  Since 2026-08-27 the field is also *set*, so the example is now exercised rather than merely declared.
+- Amended by Issue #542 / PR #552 (2026-08-27) — the budget goes to three pages on the owner's call
+  («pode aumentar sem problemas»), the 2026-08-26 amendment's considered option 3 is superseded as
+  **taken**, and `print_highlight_index` returns on the current role. The 2026-08-26 measurement is
+  unchanged; only the ceiling it was measured against moved.
