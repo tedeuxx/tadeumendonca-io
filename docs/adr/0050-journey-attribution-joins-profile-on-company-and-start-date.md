@@ -162,8 +162,10 @@ sentences exist.
   sharing a company and a start_date would be legal CV data and would make one frame unplaceable. The
   guard refuses it rather than guessing, so the CV edit would be blocked by the photograph module — again
   the right direction and again a real constraint on the CV.
-- **The test map spells the four keys a second time**, deliberately, so it asserts something about the
-  source instead of agreeing with it by construction. Correcting an attribution is therefore two edits.
+- **The test map spells every key a second time**, deliberately, so it asserts something about the
+  source instead of agreeing with it by construction. Correcting an attribution is therefore two edits,
+  and adding a frame is two authorings. ~~the four keys~~ — struck 2026-08-27 (#548), which added a fifth
+  frame and paid exactly that cost; the mechanism is unchanged, only the count it was written against.
 
 ## Links
 

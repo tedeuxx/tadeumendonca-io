@@ -19,7 +19,7 @@ export function ProfilePage() {
   const lp = useLocalePath();
   // `useLocale()` returns the whole context (`{ locale, setLocale, t }`), not the locale string — the
   // destructuring is load-bearing. Indexing a prose leaf with the context object yields `undefined`,
-  // React then omits the attribute entirely, and the page ships four photographs with NO alt text at
+  // React then omits the attribute entirely, and the page ships every journey photograph with NO alt text at
   // all: invisible on screen, catastrophic for a screen reader, and green under any assertion that only
   // checks `src`. `CVSection.test.tsx` reads `alt` rather than assuming it, for exactly this.
   const { locale } = useLocale();

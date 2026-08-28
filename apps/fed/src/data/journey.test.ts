@@ -1,4 +1,4 @@
-// The approved journey set (#127).
+// The approved journey set (#127, extended to five by #548).
 //
 // WHY THE FILENAMES ARE WRITTEN OUT AS LITERALS HERE, when every other assertion in this slice is
 // deliberately derived from the data: because THIS is the one fact that is not the builder's. The owner
@@ -12,6 +12,15 @@
 // So this test is a LOCK, not a measurement. Adding, removing, substituting or reordering a photograph
 // turns it red, and the correct response is to get the owner's approval and edit the literals in the same
 // commit — never to relax the assertion.
+//
+// THE THIRD-PARTY EXCLUSION ABOVE IS NO LONGER A RULE, AND THAT CHANGE IS THE OWNER'S (#548). One of the
+// two 2026-08-25 exclusions was "carries two other identifiable people"; `journey-manila.jpg` carries six.
+// He was told, in those terms and before choosing — identifiable faces, several wearing badges — and
+// chose it anyway, because it is the only photograph that exists from 2008–2015. So the exclusion was a
+// judgement about a specific candidate against available alternatives, not a standing bar on other
+// people, and it is recorded that way here rather than left as a sentence this file's own data
+// contradicts. WHAT IS STILL A STANDING BAR is the other exclusion: a legible internal client name. That
+// one is about confidentiality rather than taste, and no photograph clears it by being the only one left.
 import { describe, it, expect } from 'vitest';
 import {
   assertJourneyShape,
@@ -46,7 +55,7 @@ const entry = (over: Partial<JourneyEntry> = {}): JourneyEntry => ({
   ...over,
 });
 
-// The exact set the owner approved. THE LOCK IS ON THE SET — these four frames — RATHER THAN ON THE
+// The exact set the owner approved. THE LOCK IS ON THE SET — these five frames — RATHER THAN ON THE
 // SEQUENCE (#516, owner ruling 2026-08-25). The order this array is written in was itself an owner
 // decision (`journey.ts`: the craft, the work, the chapter, the place), and it was a decision about how
 // four photographs read AS A SET at the end of the page. Once each frame sits inside the dated experience
@@ -58,11 +67,16 @@ const APPROVED = [
   '/photos/journey-home-office.jpg',
   '/photos/journey-aws-summit.jpg',
   '/photos/journey-corridor.jpg',
+  // #548, 2026-08-27. He named the ROLE that needed a frame, then the photograph, then the file — and
+  // declined two alternatives from the same folder before choosing this one. It is the only frame in the
+  // set he is not in, and the only one whose subject is other people; that it is here at all is his call
+  // and not the builder's, which is exactly what this lock exists to make unfakeable.
+  '/photos/journey-manila.jpg',
 ];
 
 // Which EXPERIENCE ENTRY each frame is from — the owner's answer, resolved to the pair `profile.ts` can
 // be joined on (#516, 2026-08-25), locked for the same reason the filenames are: it is not the builder's
-// fact, and it is not derivable. Two of these four could not have been reached any other way.
+// fact, and it is not derivable. Three of these five could not have been reached any other way.
 // `journey-sticker-lid.jpg` has no date anywhere in this repository (the committed bytes carry no
 // metadata, which `scripts/photo-assets.test.mjs` proves), and `journey-home-office.jpg` is the frame
 // where BOTH available derivations — nearest date, and what is in the frame — landed on Globo and were
@@ -83,10 +97,15 @@ const ENGAGEMENTS: Record<string, EngagementKey> = {
     company: 'Amazon Web Services — Professional Services',
     start_date: '2023-04',
   },
+  // The third frame that could not have been derived, and the most emphatic of them: its filename carries
+  // a 2021 export stamp and the frame carries no year, so nearest-date would place it four employers away
+  // from where he put it. `Accenture` names two entries, which is why the pair matters here more than
+  // anywhere else in this table.
+  '/photos/journey-manila.jpg': { company: 'Accenture', start_date: '2008-03' },
 };
 
 describe('the journey set is the one the owner approved', () => {
-  it('is exactly those four frames', () => {
+  it('is exactly those five frames', () => {
     expect([...JOURNEY_PHOTOS.map((p) => p.photo.src)].sort()).toEqual([...APPROVED].sort());
   });
 
@@ -164,9 +183,14 @@ describe('the journey set is the one the owner approved', () => {
     }
   });
 
-  it('treats the four as one set: same aspect ratio, portrait', () => {
-    // The consistency is the whole reason four photographs from four cameras across three years read as a
-    // set rather than as four snapshots, and it is a property of the COMMITTED FILES — which
+  it('treats the whole set as one set: same aspect ratio, portrait', () => {
+    // The consistency is the whole reason photographs from five cameras across fifteen years read as a
+    // set rather than as five snapshots, and it is a property of the COMMITTED FILES — which
+    //
+    // IT IS ALSO A REAL CONSTRAINT ON WHAT CAN BE ADDED, and #548 is what proved that. The Manila source
+    // is SQUARE, so shipping it un-recropped would have failed here — and the correct response was to
+    // recrop the file, never to widen this assertion. Losing 25% of that frame's width is the price of
+    // the set reading as one thing; that trade is recorded in `journey.ts`'s provenance paragraph.
     // `scripts/photo-assets.test.mjs` proves against each JPEG's own SOF marker. A recrop that changed one
     // of them would pass every other assertion in this slice and quietly break the grid.
     const ratios = JOURNEY_PHOTOS.map(({ photo }) => photo.width / photo.height);
@@ -309,7 +333,7 @@ describe('assertJourneyShape refuses what the type system cannot', () => {
   });
 });
 
-// `resolveJourney` is what a component receives (#516 slice 2b): the same four frames with one edition's
+// `resolveJourney` is what a component receives (#516 slice 2b): the same five frames with one edition's
 // prose picked, so `CVSection` stays pure and never reads the locale context itself.
 describe('resolveJourney flattens the set to one edition', () => {
   it('keeps the whole set, with the asset and the placement key untouched', () => {
