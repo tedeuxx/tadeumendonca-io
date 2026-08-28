@@ -70,25 +70,28 @@ const sourceTemplate: ProfileSource = {
   // the PDF a recruiter's parser reads — not only on `/me`.
   summary: {
     en:
-      'AI Engineer applying AI-native development — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — to design, ' +
-      "build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
+      'AI Engineering applied to agile software development — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
+      "to design, build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
       'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
-      'modern product engineering building web and native-mobile apps, and spent the last years as a ' +
-      'distributed-applications architect — cloud and distributed systems on AWS, across regulated industries ' +
-      'like financial services, aerospace and energy. My lane is applied GenAI and agentic development, not ' +
+      'modern product engineering building web and native-mobile apps, and spent the last years building ' +
+      'modern applications on AWS — solution architecture, application and infrastructure code, and the ' +
+      'technical direction of the build — across regulated industries like financial services, aerospace and ' +
+      'energy. My lane is applied GenAI and agentic development, not ' +
       'machine learning research: I build with agentic patterns — tool-calling, RAG, memory, evaluation loops, ' +
       'MCP — and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and ' +
-      'backend; TypeScript for the full-stack and web layer.',
+      'backend; Node.js and TypeScript for the full-stack and web layer; Spring Boot for microservices.',
     pt:
-      'AI Engineer aplicando desenvolvimento AI-native — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — para ' +
-      'projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
+      'AI Engineering aplicada ao desenvolvimento de software ágil — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
+      'para projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
       '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
       'e software empacotado, passei para engenharia de produto moderna construindo apps web e mobile nativo, e ' +
-      'nos últimos anos atuei como arquiteto de aplicações distribuídas — cloud e sistemas distribuídos na AWS, ' +
-      'em setores regulados como serviços financeiros, aeroespacial e energia. Minha faixa é GenAI aplicada e ' +
+      'nos últimos anos venho construindo aplicações modernas na AWS — arquitetura de solução, código de ' +
+      'aplicação e de infraestrutura e a direção técnica da construção — em setores regulados como serviços ' +
+      'financeiros, aeroespacial e energia. Minha faixa é GenAI aplicada e ' +
       'agentic development, não pesquisa em machine learning: construo com padrões agênticos — tool-calling, ' +
       'RAG, memória, loops de avaliação, MCP — e trago o rigor de SDLC que transforma trabalho de IA em software ' +
-      'de produção. Python para IA, agentes e backend; TypeScript para a camada full-stack e web.',
+      'de produção. Python para IA, agentes e backend; Node.js e TypeScript para a camada full-stack e web; ' +
+      'Spring Boot para microserviços.',
   },
   location: { en: 'São Paulo — Brazil', pt: 'São Paulo — Brasil' },
   experience: [
@@ -99,20 +102,25 @@ const sourceTemplate: ProfileSource = {
       end_date: null,
       description: {
         en:
-          'New-platform launch programs — full-stack web and native mobile. Leading the implementation: ' +
+          'Application-modernization and new digital-platform launch programs — microservices, full-stack web, ' +
+          'smart TVs and native mobile. Leading the implementation: ' +
           'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
           'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
           'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
-          "& gas operator's AWS landing zone. " +
+          "& gas operator's AWS landing zone. And building hands-on: an internal knowledge platform still in " +
+          'progress, and public work at tadeumendonca.io with its agent harness and plugin. ' +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
         pt:
-          'Programas de launch de novas plataformas — web full-stack e mobile nativo. Liderando a ' +
+          'Programas de modernização de aplicações e launch de novas plataformas digitais — microserviços, ' +
+          'web full-stack, smart TVs e mobile nativo. Liderando a ' +
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
           'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
           'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
-          'operacional na landing zone AWS de uma operadora de óleo & gás. ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on: uma ' +
+          'plataforma interna de conhecimento ainda em andamento, e o trabalho público em tadeumendonca.io, ' +
+          'com seu agent harness e plugin. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -120,8 +128,9 @@ const sourceTemplate: ProfileSource = {
       highlights: {
         en: [
           'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +
-            'build and ship production-ready systems, and structured the practice for team-scale adoption.',
-          'Architected a custom, cloud-native replacement for a SaaS streaming platform — native apps across five ' +
+            'build and ship production-ready systems, and am structuring the practice for team-scale adoption.',
+          'Architected the internalization of a third-party SaaS streaming platform and the modernization of that ' +
+            'workload on AWS — native apps across five ' +
             'platforms (iOS, Android, Tizen, webOS, Apple TV) plus Web, on a BFF + microservices backend, designed ' +
             'for future B2B enablement — from envisioning and team setup through to steering multi-vendor delivery.',
           "As tech lead, stood up an oil & gas operator's AWS landing zone and delivered its first modernized " +
@@ -134,16 +143,18 @@ const sourceTemplate: ProfileSource = {
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search — embeddings on Amazon Bedrock, stored and queried on Amazon S3 Vectors — so AI agents can ' +
             'both search and create knowledge; MVP in progress.',
-          'Led engagements across LATAM, presenting architecture and delivery strategy to C-level and ' +
-            'technical stakeholders in English, Spanish and Portuguese.',
+          'I lead engagements across LATAM, developing architectures, applications and delivery strategy — and ' +
+            'presenting architecture and strategy to C-level and technical stakeholders in English, Spanish and ' +
+            'Portuguese.',
         ],
         pt: [
           'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) em 2026 para ' +
-            'projetar, construir e entregar sistemas prontos para produção, e estruturei a prática para ' +
-            'adoção em escala de time.',
-          'Arquitetei uma substituição custom e cloud-native para uma plataforma de streaming SaaS — apps ' +
+            'projetar, construir e entregar sistemas prontos para produção, e estou estruturando a prática ' +
+            'para adoção em escala de time.',
+          'Arquitetei a internalização de uma plataforma de streaming SaaS de terceiro e a modernização desse ' +
+            'workload na AWS — apps ' +
             'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
-            'microserviços, desenhada para habilitar B2B no futuro — do envisioning e montagem do time à ' +
+            'microserviços, desenhados para habilitar B2B no futuro — do envisioning e montagem do time à ' +
             'condução da entrega multi-fornecedor.',
           'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
             'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
@@ -155,10 +166,20 @@ const sourceTemplate: ProfileSource = {
           'Idealizei e coloquei pra rodar uma plataforma interna de conhecimento — um servidor MCP bidirecional ' +
             'e busca semântica — embeddings no Amazon Bedrock, armazenados e consultados no Amazon S3 Vectors — ' +
             'para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
-          'Conduzi engajamentos na América Latina, apresentando arquitetura e estratégia de entrega para ' +
-            'stakeholders técnicos e C-level em inglês, espanhol e português.',
+          'Conduzo engajamentos na América Latina, desenvolvendo arquiteturas, aplicações e estratégia de ' +
+            'entrega — e apresentando arquitetura e estratégia para stakeholders técnicos e C-level em inglês, ' +
+            'espanhol e português.',
         ],
       },
+      // SET AGAIN ON THE CURRENT ROLE (#542), after the owner lifted ADR-0034's two-page ceiling
+      // («pode aumentar sem problemas»). It points at "Built, hands-on, the serverless data integration
+      // …" — the one bullet of the six written as building, and the reason the Issue exists: five
+      // accurate leadership bullets plus a printed CV with no build verb read as «somente papel».
+      // CHOSEN AGAINST THE RULE IN `types/profile.ts`, NOT AROUND IT: print what the practice line does
+      // not already carry, and prefer a COMPLETED artifact. The practice line's hands-on clause was
+      // deliberately narrowed to the internal knowledge platform and tadeumendonca.io — both ongoing —
+      // so this bullet is the completed one and nothing is named twice inside one role.
+      print_highlight_index: 3,
     },
     {
       company: 'Amazon Web Services — Professional Services',
@@ -167,12 +188,12 @@ const sourceTemplate: ProfileSource = {
       end_date: '2023-03',
       description: {
         en:
-          'New-platform launch programs — full-stack web on a cloud-native stack. Hands-on individual ' +
+          'Application-modernization programs — full-stack web on a cloud-native stack. Hands-on individual ' +
           'contributor into tech lead: I set the platform up and wrote application and infrastructure code. ' +
           'Architected and implemented cloud-native solutions embedded within enterprise client teams, ' +
           'operating under legacy, compliance and data-sovereignty constraints.',
         pt:
-          'Programas de launch de novas plataformas — web full-stack sobre uma stack cloud-native. De ' +
+          'Programas de modernização de aplicações — web full-stack sobre uma stack cloud-native. De ' +
           'individual contributor hands-on a tech lead: levantei a plataforma e escrevi código de aplicação e ' +
           'de infraestrutura. ' +
           'Arquitetei e implementei soluções cloud-native alocado dentro de times de clientes corporativos, ' +
@@ -247,7 +268,8 @@ const sourceTemplate: ProfileSource = {
           'Promoted to Consultant, first as an integration architect on enterprise CRM implementation programs, ' +
           'then — the turning point — as an application architect at Accenture Digital, building modern web and ' +
           'native-mobile products. This is where the modern-engineering identity was forged and the ' +
-          'distributed-applications architect through-line began.',
+          'through-line I carry today began — designing and building modern applications, and leading the ' +
+          'build.',
         pt:
           'Projetos de launch de novas plataformas — web full-stack e mobile nativo — a partir de 2017 na ' +
           'Accenture Digital; arquitetura de integração corporativa antes disso. Arquiteto de aplicação, ' +
@@ -256,7 +278,8 @@ const sourceTemplate: ProfileSource = {
           'Promovido a Consultant, primeiro como arquiteto de integração em programas corporativos de ' +
           'implantação de CRM, e então — o ponto de virada — como arquiteto de aplicações na Accenture Digital, ' +
           'construindo produtos web e mobile nativos modernos. É aqui que a identidade de engenharia moderna se ' +
-          'formou e começou o fio condutor de arquiteto de aplicações distribuídas.',
+          'formou e começou o fio condutor que carrego até hoje — projetar e construir aplicações modernas, e ' +
+          'liderar a construção.',
       },
       highlights: {
         en: [
@@ -286,8 +309,8 @@ const sourceTemplate: ProfileSource = {
             'private-cloud infrastructure, and hands-on distributed-systems design. 2017 is the seam: ' +
             'from there on, the work has been platforms being built rather than packages being ' +
             'implemented.',
-          'Grew into the distributed-applications architect role carried through to today — solution design and ' +
-            'tech leadership on delivery teams, as a senior individual contributor.',
+          'Grew into the through-line I carry today — designing and building modern applications and leading ' +
+            'the build on delivery teams, as a senior individual contributor.',
         ],
         pt: [
           'Arquitetei as camadas de integração de programas corporativos de implantação de CRM, conectando ' +
@@ -316,8 +339,8 @@ const sourceTemplate: ProfileSource = {
             'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on. 2017 é a ' +
             'costura: de lá para cá, o trabalho tem sido plataforma sendo construída, não pacote sendo ' +
             'implantado.',
-          'Amadureci no papel de arquiteto de aplicações distribuídas que carrego até hoje — desenho de soluções ' +
-            'e liderança técnica em times de entrega, como individual contributor sênior.',
+          'Amadureci no fio condutor que carrego até hoje — projetar e construir aplicações modernas e liderar ' +
+            'a construção em times de entrega, como individual contributor sênior.',
         ],
       },
     },

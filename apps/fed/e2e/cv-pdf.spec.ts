@@ -43,13 +43,34 @@ test.describe('CV PDF export', () => {
   // drifts is the defect; a page count changed in the same commit as the decision, with the reason, is
   // the guard doing its job. What must never happen is the number being raised to make a red test green.
   //
+  // AND FROM 2 TO 3 (#542, owner 2026-08-27) — same route, same discipline. Asked directly whether
+  // `/cv.pdf` may grow or must stay at two with something else cut, he answered «pode aumentar sem
+  // problemas». What the third page BUYS is the thing the two-page budget had been paying for with:
+  // the current role's hands-on evidence. Four measured builds on 2026-08-27 had established that the
+  // two named launches and the hands-on artefacts could not coexist inside two pages, so the hands-on
+  // clause was dropped and `print_highlight_index` was left unset on every role — which left a reader
+  // of the printed CV alone meeting ZERO building verbs under the current role. That is what #542 was
+  // opened about, in the owner's words: «senao as pessoas entendem como somente papel».
+  //
+  // MEASURED, NOT PREDICTED: `npm run build:static` then this file's own regex over `dist/cv.pdf` → 3.
+  // The number is raised in the same commit as the decision that spends it, which is the only form
+  // this comment permits — and note what did NOT happen: nothing here was red first. The count was
+  // taken after the copy change and the assertion follows it.
+  //
+  // THE CEILING IS ADR-0034's AND THE AMENDMENT IS `tech-lead`'s, not this file's. This assertion is
+  // the mechanism, never the record. It is deliberately still a NUMBER rather than an upper bound or a
+  // deleted test: a budget that is simply removed removes the measurement with it, and the artifact
+  // then grows one honest slice at a time until someone reads it and is surprised.
+  //
   // Counted straight out of the bytes rather than with a PDF library: `/Type /Page` (excluding the
   // `/Pages` tree node) is stable in Chromium's output, and a dependency for one integer is not worth
   // the supply-chain surface on a repo that pins and audits them.
-  test('fits the budgeted two A4 pages', async ({ request }) => {
+  test('fits the budgeted three A4 pages', async ({ request }) => {
     const body = (await (await request.get('/cv.pdf')).body()).toString('latin1');
     const pages = body.match(/\/Type\s*\/Page(?![s/\w])/g) ?? [];
-    expect(pages, 'the CV PDF must stay within two pages — trim the print view, not this assertion').toHaveLength(2);
+    expect(pages, 'the CV PDF must stay within three pages — trim the print view, not this assertion').toHaveLength(
+      3,
+    );
   });
 
   // ADR-0034's 2026-07-28 amendment gave up "the PDF cannot disagree with /me" and replaced it with a

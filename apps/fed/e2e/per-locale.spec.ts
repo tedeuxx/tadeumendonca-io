@@ -17,8 +17,11 @@ import { LOCALE_OFFER_LABEL, LOCALE_OFFER_LABELS } from './locale-offer-labels';
 const SITE = 'https://tadeumendonca.io';
 
 // A distinctive pt-only vs en-only marker inside the profile summary (the /me og:description source).
-const PT_ONLY = /aplicando desenvolvimento AI-native/;
-const EN_ONLY = /applying AI-native development/;
+// Repointed 2026-08-27 (#536): the summary used to open `AI Engineer applying AI-native development` /
+// `AI Engineer aplicando desenvolvimento AI-native`, which said AI twice in five words. The markers
+// move with it — what they need is a phrase unique to one edition, not that particular phrase.
+const PT_ONLY = /aplicada ao desenvolvimento de software ágil/;
+const EN_ONLY = /applied to agile software development/;
 
 // 1 · Path beats the browser AND a persisted preference — a shared /pt/… link wins over everything.
 test.describe('the path is authoritative', () => {

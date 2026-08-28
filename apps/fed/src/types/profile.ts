@@ -24,8 +24,14 @@ export interface ExperienceItem {
    * or a certification while the role bodies read landing zones and CRM integration — the positioning
    * asserted rather than shown.
    *
-   * UNSET ON EVERY ROLE SINCE #522, and the reason is a measured page budget rather than a change of
-   * mind. #522 gave every `description` a fixed-shape practice line; a practice line and a printed
+   * SET ON THE CURRENT ROLE AGAIN SINCE #542 (2026-08-27) — index 3, the one bullet of that role's six
+   * written as building. It was unset on every role between #522 and #542 for the measured reason
+   * below, and what changed is not the measurement but the ceiling: the owner lifted ADR-0034's
+   * two-page budget («pode aumentar sem problemas»), the artifact is three pages, and a printed bullet
+   * fits. Read the next paragraph as the record of the constraint, which still binds at its own number.
+   *
+   * WAS UNSET ON EVERY ROLE SINCE #522, and the reason was a measured page budget rather than a change
+   * of mind. #522 gave every `description` a fixed-shape practice line; a practice line and a printed
    * bullet cost about the same, and the two-page budget (`e2e/cv-pdf.spec.ts`) fits one of them. Built
    * and counted rather than inferred: practice lines with any bullet at all — including the SHORTEST
    * one in the array — render 3 pages; practice lines with none render 2. The practice line wins,

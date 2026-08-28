@@ -292,11 +292,11 @@ const descriptionOf = (profile: Profile, start: string): string => {
 const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
   [
     '2023-04',
-    "New-platform launch programs — full-stack web and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone.",
+    "Application-modernization and new digital-platform launch programs — microservices, full-stack web, smart TVs and native mobile. Leading the implementation: solution architecture, AWS infrastructure and the technical direction of the build. The launches: a custom cloud-native replacement for a SaaS streaming platform, native across five platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil & gas operator's AWS landing zone. And building hands-on: an internal knowledge platform still in progress, and public work at tadeumendonca.io with its agent harness and plugin.",
   ],
   [
     '2021-01',
-    'New-platform launch programs — full-stack web on a cloud-native stack. Hands-on individual contributor into tech lead: I set the platform up and wrote application and infrastructure code.',
+    'Application-modernization programs — full-stack web on a cloud-native stack. Hands-on individual contributor into tech lead: I set the platform up and wrote application and infrastructure code.',
   ],
   [
     '2020-06',
@@ -321,8 +321,18 @@ const PRACTICE_LINES_EN: ReadonlyArray<[string, string]> = [
 // three open `Programas? de …` — the en side already spelled all three (`programs|program|projects`)
 // and the pt side must too, or this arm reddens on correct copy.
 const ARC_NOUN: ReadonlyArray<[string, RegExp, RegExp]> = [
-  ['2023-04', /^New-platform launch programs — /, /^Programas de launch de novas plataformas — /],
-  ['2021-01', /^New-platform launch programs — /, /^Programas de launch de novas plataformas — /],
+  // THE TWO AWS ENTRIES MOVED OFF `launch` ON 2026-08-27 (#539), AND ON `2021-01` IT WAS A TRUTH
+  // FINDING RATHER THAN A PREFERENCE — that entry's own bullet says the bank's mortgage-credit domain
+  // was MIGRATED OFF MAINFRAME, which is modernization and not the launch of a new platform. Same
+  // instrument #522 used to cut `lean stack`: the arc noun has to survive every role it covers. The
+  // `2020-06` and `2015-01` rows are untouched — a D2C platform genuinely launched, and the Accenture
+  // Digital entry's evidence is custom builds — so this is not a file-wide replacement.
+  [
+    '2023-04',
+    /^Application-modernization and new digital-platform launch programs — /,
+    /^Programas de modernização de aplicações e launch de novas plataformas digitais — /,
+  ],
+  ['2021-01', /^Application-modernization programs — /, /^Programas de modernização de aplicações — /],
   ['2020-06', /^New-platform launch program — /, /^Programa de launch de nova plataforma — /],
   ['2015-01', /^New-platform launch projects — /, /^Projetos de launch de novas plataformas — /],
   ['2008-03', /^Enterprise-integration SDLC — /, /^SDLC de integração corporativa — /],

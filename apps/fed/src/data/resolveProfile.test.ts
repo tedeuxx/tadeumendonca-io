@@ -23,12 +23,20 @@ describe('resolveProfile', () => {
     expect(en.summary).toMatch(/^AI Engineer/);
     expect(pt.summary).toMatch(/^AI Engineer/);
     // …with the ~two-decade journey legible underneath as the substance: the beginnings (packaged
-    // software) and the through-line identity (distributed-applications architect) both named, so the
-    // arc reads as a journey the AI work sits on — not a fresh start. This is the point of #125.
+    // software) and the through-line both named, so the arc reads as a journey the AI work sits on —
+    // not a fresh start. This is the point of #125.
+    //
+    // THE THROUGH-LINE IS NO LONGER AN IDENTITY NOUN, AND THAT IS THE ASSERTION THAT MOVED (#537). It
+    // read `distributed-applications architect` / `arquiteto de aplicações distribuídas` until
+    // 2026-08-27, when the owner objected that `architect` reads to the market as someone who does not
+    // write code. What replaced it is a statement of what he DOES across the same span, which is the
+    // device the practice lines already use one layer down. #125's requirement is unchanged — the arc
+    // must still be named here — so the assertion is repointed rather than deleted; deleting it would
+    // have left the summary free to lose the through-line entirely and ship green.
     expect(en.summary).toContain('packaged software');
-    expect(en.summary).toContain('distributed-applications architect');
+    expect(en.summary).toContain('building modern applications on AWS');
     expect(pt.summary).toContain('software empacotado');
-    expect(pt.summary).toContain('arquiteto de aplicações distribuídas');
+    expect(pt.summary).toContain('construindo aplicações modernas na AWS');
   });
 
   it('shares the facts across editions — the two CVs can never disagree', () => {
