@@ -440,12 +440,21 @@ deliberately rather than avoided.** #542's body recorded this lever as *"measure
 does not exist"*; that was correct **under the two-page ceiling**, and the ceiling is what moved. Nothing
 about the measurement was revised.
 
-`print_highlight_index: 3` on the current role prints
+~~`print_highlight_index: 3` on the current role prints
 *"Built, hands-on, the serverless data integration…"* — the one bullet of that role's six written as
 building, and a **completed** artefact. Chosen against the selection rule rather than around it: the
 practice line's restored hands-on clause names the internal knowledge platform and `tadeumendonca.io`,
 both in progress, so the printed bullet carries what the practice line does not and nothing is named
-twice inside one role.
+twice inside one role.~~
+
+**STRUCK 2026-08-28 (#566). Every clause above was TRUE when written and is false at head** — the
+2026-08-28 amendment below supersedes it in full, and it is struck here rather than corrected in place
+because the paragraph is the whole reasoning a later reader would take the printed-CV decision from. Five
+independent falsities, not one stale number: the index is **4**; it prints the internal knowledge
+platform, not the aerospace data integration; **two** of that role's six bullets are now written as
+building, so *"the one bullet"* fails independently of the number; the printed artefact is an **MVP in
+progress** rather than a completed one, deliberately; and the practice-line clause this paragraph leans
+on was itself removed by the same slice.
 
 ### The assertion moved WITH the decision, not after it went red
 
@@ -500,8 +509,10 @@ amendment. Reporting-without-enforcing was considered and rejected below.
 
 ### Consequences
 
-**Good.** The printed CV carries a building verb and a named, completed artefact under the current role
-again — criterion 5 of #522 holds on both surfaces, not one. The practice line keeps both launches. The
+**Good.** The printed CV carries a building verb and a named, ~~completed~~ artefact under the current role
+again — criterion 5 of #522 holds on both surfaces, not one. **`completed` struck 2026-08-28 (#566): the
+printed artefact is an MVP in progress, and that half of the selection rule is now deliberately
+overridden — see the 2026-08-28 amendment.** The practice line keeps both launches. The
 `print_highlight_index` mechanism kept unexercised by the 2026-08-26 amendment turned out to be one flag,
 exactly as that section bet. The budget survives as an asserted number, so growth stays a decision.
 
@@ -519,6 +530,130 @@ The same reason the 2026-08-26 amendment gave, and it is stronger here: this is 
 one budget in one record (1 → 2 on 2026-08-02, priced against the selection rule on 2026-08-26, 2 → 3
 here). A separate record would put the current ceiling in one file and its three prior values in another,
 which is precisely the second-surface failure this record has now corrected twice. The significance gate
+fires on *alters a previously-recorded decision*. No History row and no `## What this replaced` fold are
+owed — this record stays `accepted` and nothing is leaving the library.
+
+## Amendment (2026-08-28) — the printed bullet is the internal knowledge platform, and the "completed artefact" half of the selection rule is deliberately overridden
+
+**This supersedes a decision; it does not correct rot.** The 2026-08-27 amendment's
+*"`print_highlight_index` is a live lever again"* section was accurate at `origin/main` and is struck in
+place above, where a reader meets it, rather than quoted into this section while the original stands
+hundreds of lines up. That half-executed form of the convention shipped once already this week; it is
+avoided here on purpose.
+
+### The decision, in the owner's words
+
+Reading the printed CV as it stood, he named what the printed bullet was doing wrong:
+
+> «voce foca numa experiencia do data integration que é pontual e mto distante do que faco diariamente»
+
+and what it had to do instead:
+
+> «precisa ser algo mais tangivel e conectado com pitch de build digital platforms at scale»
+
+**`print_highlight_index` moves 3 → 4 on the current role.** What prints is now the internal knowledge
+platform — *"Developing an internal full-stack web platform … MVP in progress"* / *"Desenvolvendo uma
+plataforma interna web full-stack … MVP em andamento"* — instead of the aerospace serverless data
+integration. The index points at a MEANING and the two locale arrays are parallel, so it is verified by
+content and never by position:
+
+```
+grep -n 'print_highlight_index:' apps/fed/src/data/profile.ts     # -> 4, on the current role only
+```
+
+### What this changes about the record's own selection rule, stated as an override rather than edited away
+
+The rule the previous amendment applied has **two** halves — print what the practice line does not
+already carry, and prefer a **completed** artefact.
+
+- **The first half is satisfied MORE strongly than before.** Part 3 of this same slice removed the
+  current role's practice-line clause naming `tadeumendonca.io` and the agent harness, on the owner's
+  decision that `/architecture` already carries them. The `description` now names **no** build at all, so
+  the printed bullet cannot duplicate anything inside its own role.
+- **The second half is NOT satisfied, and is overridden rather than reinterpreted.** The printed artefact
+  is an MVP in progress. The reason that preference exists is that a role understates itself when its
+  sole printed evidence is unfinished; the owner measured the opposite cost as larger — a one-off
+  engagement in a sector he does not work in reads, to a scanner, as his domain. **Understating by "in
+  progress" beats mis-stating the domain.** The preference survives as the default for the next slice;
+  what is recorded here is that it was outranked once, by whom, and on which criterion.
+
+**Do not restore index 3 without his word.** The same instruction is written beside the flag in
+`profile.ts`, deliberately in two places: the record carries the reasoning, the data carries the warning
+at the point of edit.
+
+### The page budget did not move, and that is a measurement here rather than an assumption
+
+The ceiling stays **three pages**, asserted, exactly as the 2026-08-27 amendment left it. This slice moved
+text between two fields that **both** print — the `description` lost a clause, the printed bullet gained a
+longer one — so "no change" had to be built and counted rather than reasoned: `npm run build:static`, then
+`e2e/cv-pdf.spec.ts`'s own regex over `dist/cv.pdf` → 3, with `toHaveLength(3)` untouched. A
+re-measurement that agrees looks like nothing happened, which is why it is written down.
+
+### Considered options
+
+1. **Move the index to 4 and override the completed-artefact half (chosen).** *Trade-off:* the role's only
+   printed evidence is now unfinished work, and the sentence carrying it (`MVP in progress`) is a claim
+   that expires. Accepted on the owner's criterion above.
+2. **Keep index 3 and add the platform to the practice line instead.** *Rejected:* it re-adds to the
+   `description` the personal-build clause part 3 of this slice just removed, and it leaves the printed
+   bullet — the thing a scanner reads first under the role — still naming the sector he does not work in.
+   It answers the second complaint and not the first.
+3. **Print both bullets.** *Rejected, and measured rather than argued:* `print_highlight_index` is one
+   number by construction, and the mechanism that reads it keeps exactly one `<li>` per role. Making it
+   an array is a schema change to `profile.ts` and a fourth page's worth of print budget for a role that
+   already has the most; this record's own ceiling exists to stop precisely that trade being made
+   silently.
+4. **Rewrite the bullet so the artefact reads as completed.** *Rejected, and it is the only option here
+   that would be dishonest:* the platform is an MVP in progress, and this record is attached to a
+   document whose entire value is that a recruiter can check every claim in it.
+
+### Consequences
+
+**Good.** The printed CV's one piece of hands-on evidence under the current role is now the work he
+actually does daily, and it is the work the repositioning is aimed at. The practice line and the printed
+bullet no longer compete: one carries the launches, the other carries the build, and neither names the
+other's subject. The `print_highlight_index` mechanism took a second decision without a code change —
+one flag, again — which is the second time this record's bet on that mechanism has paid.
+
+**Bad, and named rather than solved. `MVP in progress` is a claim that ages, and nothing pins it.** When
+that platform ships, the printed bullet says something false about the artefact's state and no gate
+reports it. **The mitigation is partial and it is worth knowing exactly how partial:** `e2e/cv-pdf.spec.ts`
+pins the token `Developing`, so a move to past tense (`Built`, `Delivered`, `Shipped`) reddens that
+assertion and forces a decision. **It does not pin `MVP in progress`** — measured, one command:
+
+```
+grep -rn 'MVP in progress' apps/fed/src apps/fed/e2e apps/fed/scripts   # -> profile.ts only, no assertion
+```
+
+So the *verb* is guarded and the *status clause* is not, and the failure that survives is the one where
+the tense is never updated at all. The out-of-range hole this record has flagged since 2026-08-27 is
+unchanged and still live: an index pointing at no highlight prints zero bullets silently, and the
+page-count assertion cannot catch it because a missing bullet makes the document shorter.
+
+### Why this record went stale, and the instrument that would have caught it — the part worth more than the correction
+
+**The sweep for this slice was run by VOCABULARY** — the copy phrasings that moved — and this record's
+false sentences share **none** of it. They name the field, the old index and the old bullet's opening
+words; not one of the removed phrases appears in them, so a word sweep over the retired copy returned
+nothing here and read as clean.
+
+**The discriminating instrument is a sweep by the OBJECT changed, not by the words that moved:**
+
+```
+grep -rn 'print_highlight_index' docs/
+```
+
+That returns this record immediately, and it would have returned it before the PR was opened. **This is
+the third claim this week to survive a word sweep because it shared no words with what moved** — the
+generalisable rule is that a sweep must key on the identifier of the thing being changed, since the
+identifier is what every downstream claim about it necessarily spells the same way, and the prose around
+it is exactly what does not.
+
+### Why this is an amendment and not a new record
+
+Same reason as the two amendments before it, and it applies unchanged: this moves a lever this record
+already owns and prices against a budget this record already sets. A separate record would put the
+current printed bullet in one file and the rule it was chosen against in another. The significance gate
 fires on *alters a previously-recorded decision*. No History row and no `## What this replaced` fold are
 owed — this record stays `accepted` and nothing is leaving the library.
 
@@ -541,3 +676,9 @@ owed — this record stays `accepted` and nothing is leaving the library.
   («pode aumentar sem problemas»), the 2026-08-26 amendment's considered option 3 is superseded as
   **taken**, and `print_highlight_index` returns on the current role. The 2026-08-26 measurement is
   unchanged; only the ceiling it was measured against moved.
+- Amended by Issue #566 / PR #567 (2026-08-28) — `print_highlight_index` moves 3 → 4 on the owner's own
+  reading of the printed CV, so the printed bullet is the internal knowledge platform; the selection
+  rule's **completed-artefact** half is deliberately overridden and recorded as an override; the
+  three-page ceiling is **re-measured and unchanged**. The 2026-08-27 amendment's
+  *"`print_highlight_index` is a live lever again"* paragraph is struck in place — it was true at
+  `origin/main` and is false at head in five independent clauses.

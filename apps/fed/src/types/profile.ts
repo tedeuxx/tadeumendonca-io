@@ -24,8 +24,18 @@ export interface ExperienceItem {
    * or a certification while the role bodies read landing zones and CRM integration — the positioning
    * asserted rather than shown.
    *
-   * SET ON THE CURRENT ROLE AGAIN SINCE #542 (2026-08-27) — index 3, the one bullet of that role's six
-   * written as building. It was unset on every role between #522 and #542 for the measured reason
+   * ~~SET ON THE CURRENT ROLE AGAIN SINCE #542 (2026-08-27) — index 3, the one bullet of that role's
+   * six written as building.~~ STRUCK 2026-08-28 (#566), and it was false TWICE rather than stale
+   * once. (1) The index is **4** — it moved on the owner's own reading of the printed CV, because
+   * index 3 is a one-off engagement in a sector he does not work in. (2) `the one bullet` was the
+   * load-bearing half and it died independently of the number: the same slice restored the current
+   * role's fifth bullet to the ongoing verb he wrote (`Developing` / `Desenvolvendo`), so **two** of
+   * that role's six are now written as building — index 3 (`Built, hands-on,`) and index 4. A reader
+   * opening this file to learn the rule met a false statement of the current state first, which is why
+   * this is struck in place rather than quietly corrected.
+   *
+   * SET ON THE CURRENT ROLE SINCE #542 (2026-08-27), AT INDEX 4 SINCE #566 (2026-08-28).
+   * It was unset on every role between #522 and #542 for the measured reason
    * below, and what changed is not the measurement but the ceiling: the owner lifted ADR-0034's
    * two-page budget («pode aumentar sem problemas»), the artifact is three pages, and a printed bullet
    * fits. Read the next paragraph as the record of the constraint, which still binds at its own number.
