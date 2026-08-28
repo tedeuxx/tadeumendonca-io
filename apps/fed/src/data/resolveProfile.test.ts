@@ -10,8 +10,8 @@ describe('resolveProfile', () => {
   it('resolves prose to the requested locale', () => {
     // The public figure is the evergreen "N+" floor (#124); assert the SHAPE and the locale, not the
     // exact floor — pinning the number here would recreate the drift this replaced, one layer down.
-    expect(en.headline).toMatch(/\d+\+ years across SDLC/);
-    expect(pt.headline).toMatch(/\d+\+ anos em SDLC/);
+    expect(en.headline).toMatch(/\d+\+ years across Software Development/);
+    expect(pt.headline).toMatch(/\d+\+ anos em Desenvolvimento de Software/);
     expect(en.summary).toContain('not machine learning research');
     expect(pt.summary).toContain('não pesquisa em machine learning');
     expect(en.location).toBe('São Paulo — Brazil');
