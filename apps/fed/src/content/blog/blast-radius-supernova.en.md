@@ -12,6 +12,8 @@ takeaway: 'that a prompt and its output prove nothing on their own; what makes t
 
 I like *Champagne Supernova*, by Oasis. The song is thirty-one years old, the video is a band walking through a room in slow motion, and I have had it on while working more times than I can count.
 
+https://www.youtube.com/watch?v=P5AjSVwZ9H0
+
 **Source, up front, in three parts, because this piece only works if the borrowing is named exactly.** The meter, the shape and the rhyme scheme are Oasis's — *Champagne Supernova*, from *(What's the Story) Morning Glory?*, 1995. **The lines are Claude's**, written to my instruction, on that form. **Mine are the idea, the prompt you are about to read, and every word of the audit that follows them.**
 
 ## 1 · The provocation
@@ -38,9 +40,7 @@ What the prompt is good for is showing you where the material came from. "My wor
 
 What came back was a full parody, in that shape. It scanned. It made me laugh on a weeknight. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
-The video is here, and it is the only reason I got the idea at all. Put it on for what follows — the lines are sitting in its shape:
-
-https://www.youtube.com/watch?v=P5AjSVwZ9H0
+The video that opens this piece is the only reason I got the idea at all — the lines are sitting in its shape.
 
 > [verse 1]  
 > Another README no one read  

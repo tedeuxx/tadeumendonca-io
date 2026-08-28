@@ -237,4 +237,71 @@ test.describe('content detail', () => {
       await expect(page.getByRole('navigation', { name: articleName })).toBeVisible();
     });
   }
+
+  // The article's video is a MOVE, not an insertion, and the defect it guards against is a SECOND
+  // player: the lone-URL paragraph is what the renderer turns into a `<VideoEmbed>` (ADR-0035), so
+  // leaving a copy of the URL where it used to live republishes the same video twice on one page —
+  // near-missed once already on this article. A count of one is therefore the assertion, not a
+  // presence check, and it is taken on the SERVED build because the source is where the mistake is
+  // invisible: two paragraphs 28 lines apart both read fine in the markdown.
+  //
+  // Position is asserted through DOM order rather than pixels, so it survives a layout change: the
+  // player must follow the opening paragraph and precede the source/credit paragraph, which is the
+  // owner's instruction stated as a structure instead of as a line number.
+  //
+  // Both anchors are PLAIN text inside their paragraph, deliberately — the credit paragraph opens
+  // with a bold run, and anchoring there would match the <strong> and its ancestors alike.
+  for (const [locale, path, opening, credit, playName] of [
+    [
+      'pt',
+      '/pt/blog/blast-radius-supernova',
+      'mais vezes do que consigo contar',
+      'escritos sob instrução minha, em cima daquela forma',
+      'Reproduzir vídeo',
+    ],
+    [
+      'en',
+      '/en/blog/blast-radius-supernova',
+      'more times than I can count',
+      'written to my instruction, on that form',
+      'Play video',
+    ],
+  ] as const) {
+    test(`/${locale}: the parody article serves ONE player, right after the opening paragraph`, async ({
+      page,
+    }) => {
+      await page.goto(path);
+      await page.waitForLoadState('networkidle');
+
+      const poster = page.locator('img[src="/video/P5AjSVwZ9H0.png"]');
+      await expect(poster).toHaveCount(1);
+      await expect(page.getByRole('button', { name: playName })).toHaveCount(1);
+      // The facade's own property, re-asserted here because this page is not in the /ramp-up journey
+      // that pins it: no third-party frame until the reader asks for one.
+      await expect(page.locator('iframe')).toHaveCount(0);
+
+      const openingPara = page.getByText(opening);
+      const creditPara = page.getByText(credit);
+      await expect(openingPara).toHaveCount(1);
+      await expect(creditPara).toHaveCount(1);
+
+      const playerFollowsOpening = await openingPara.evaluate((el, sel) => {
+        const player = document.querySelector(sel);
+        if (!player) return false;
+        return Boolean(
+          el.compareDocumentPosition(player) & Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+      }, 'img[src="/video/P5AjSVwZ9H0.png"]');
+      expect(playerFollowsOpening, 'the player must come after the opening paragraph').toBe(true);
+
+      const creditFollowsPlayer = await creditPara.evaluate((el, sel) => {
+        const player = document.querySelector(sel);
+        if (!player) return false;
+        return Boolean(
+          player.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+      }, 'img[src="/video/P5AjSVwZ9H0.png"]');
+      expect(creditFollowsPlayer, 'the player must come before the source paragraph').toBe(true);
+    });
+  }
 });

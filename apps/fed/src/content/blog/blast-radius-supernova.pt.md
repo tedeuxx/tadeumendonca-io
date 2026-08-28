@@ -12,6 +12,8 @@ takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a 
 
 Eu gosto de *Champagne Supernova*, do Oasis. A música tem trinta e um anos, o clipe é a banda atravessando uma sala em câmera lenta, e eu já trabalhei ouvindo isso mais vezes do que consigo contar.
 
+https://www.youtube.com/watch?v=P5AjSVwZ9H0
+
 **A fonte, logo de cara e em três partes, porque esta peça só funciona se o empréstimo for nomeado com exatidão.** A métrica, o formato e o esquema de rimas são do Oasis — *Champagne Supernova*, de *(What's the Story) Morning Glory?*, 1995. **Os versos são do Claude**, escritos sob instrução minha, em cima daquela forma. **Meus são a ideia, o prompt que você vai ler daqui a pouco, e cada palavra da auditoria que vem depois deles.**
 
 ## 1 · A provocação
@@ -36,9 +38,7 @@ O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu
 
 O que voltou foi uma paródia inteira, naquela forma. Escandiu. Me fez rir numa noite de semana. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
-O clipe está aqui, e é o único motivo de eu ter tido a ideia. Põe pra tocar para o que vem agora — é a forma em que os versos estão sentados:
-
-https://www.youtube.com/watch?v=P5AjSVwZ9H0
+O clipe que abre o artigo é o único motivo de eu ter tido a ideia — e é a forma em que os versos estão sentados.
 
 Os versos estão em inglês e vão ficar assim: a métrica e a rima são o que eles são, e nenhuma das duas sobrevive a uma tradução.
 
