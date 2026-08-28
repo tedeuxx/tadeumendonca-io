@@ -40,7 +40,7 @@ What the prompt is good for is showing you where the material came from. "My wor
 
 What came back was a full parody, in that shape. It scanned. It made me laugh on a weeknight. It is titled *Blast Radius Supernova*, which is where this piece gets its name.
 
-The video that opens this piece is the only reason I got the idea at all. Leave it playing for what follows — the lines are sitting in its shape.
+The video that opens this piece is the only reason I got the idea at all — the lines are sitting in its shape.
 
 > [verse 1]  
 > Another README no one read  

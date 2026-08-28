@@ -38,7 +38,7 @@ O que o prompt serve para mostrar é de onde veio o material. "Meu trabalho, meu
 
 O que voltou foi uma paródia inteira, naquela forma. Escandiu. Me fez rir numa noite de semana. Chama-se *Blast Radius Supernova*, que é de onde esta peça tira o nome.
 
-O clipe que abre o artigo é o único motivo de eu ter tido a ideia. Deixa ele tocando para o que vem agora — é a forma em que os versos estão sentados.
+O clipe que abre o artigo é o único motivo de eu ter tido a ideia — e é a forma em que os versos estão sentados.
 
 Os versos estão em inglês e vão ficar assim: a métrica e a rima são o que eles são, e nenhuma das duas sobrevive a uma tradução.
 
