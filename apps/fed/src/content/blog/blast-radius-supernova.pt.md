@@ -1,10 +1,10 @@
 ---
 title: "Blast Radius Supernova"
 slug: blast-radius-supernova
-date: '2026-08-27T12:00:00.000Z'
+date: '2026-08-28T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
+draft: false
 hasVideo: true
 excerpt: "Pedi uma paródia de uma música que eu gosto, sobre o meu próprio trabalho. Depois fui conferir se cada imagem dela era verdade — e a conferência é o artigo, porque cada uma virou um modo de falha real, com arquivo por trás."
 takeaway: 'que um prompt e a saída dele não provam nada sozinhos; o que faz a saída valer publicação é ir imagem por imagem e nomear a que cada uma se refere.'

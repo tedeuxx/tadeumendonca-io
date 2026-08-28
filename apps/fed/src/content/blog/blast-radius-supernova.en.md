@@ -1,10 +1,10 @@
 ---
 title: "Blast Radius Supernova"
 slug: blast-radius-supernova
-date: '2026-08-27T12:00:00.000Z'
+date: '2026-08-28T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
+draft: false
 hasVideo: true
 excerpt: "I asked for a parody of a song I like, about my own work. Then I went and checked whether every image in it was true — and the checking is the article, because each one turned out to be a real failure mode with a file behind it."
 takeaway: 'that a prompt and its output prove nothing on their own; what makes the output worth publishing is going image by image and naming what each one refers to.'
