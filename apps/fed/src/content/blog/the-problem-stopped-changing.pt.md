@@ -1,5 +1,5 @@
 ---
-title: "Da cloud à IA, com o mesmo crachá."
+title: "Da cloud à IA, com o mesmo crachá"
 slug: da-cloud-a-ia-com-o-mesmo-cracha
 previousSlugs:
   - o-problema-parou-de-variar
