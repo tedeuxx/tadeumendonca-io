@@ -71,8 +71,8 @@ describe('the published figure', () => {
   });
 
   it('substitutes the evergreen figure, in both locales', () => {
-    expect(profileSource.headline.en).toContain('18+ years across SDLC');
-    expect(profileSource.headline.pt).toContain('18+ anos em SDLC');
+    expect(profileSource.headline.en).toContain('18+ years across Software Development');
+    expect(profileSource.headline.pt).toContain('18+ anos em Desenvolvimento de Software');
   });
 
   // The claim this whole slice is named for: the CV and the ramp-up page cannot disagree, because

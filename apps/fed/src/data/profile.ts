@@ -31,11 +31,11 @@ const sourceTemplate: ProfileSource = {
     en:
       'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
       'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
-      '{{years}} years across SDLC & Distributed Systems',
+      '{{years}} years across Software Development & Distributed Systems',
     pt:
       'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
       'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
-      '{{years}} anos em SDLC & Sistemas Distribuídos',
+      '{{years}} anos em Desenvolvimento de Software & Sistemas Distribuídos',
   },
   // THE `applied GenAI` PHRASE IN THIS PARAGRAPH IS THE ONLY STRUCTURED SITE HOME THAT EXACT PHRASE HAS,
   // AND NOTHING PINS IT. Both editions of the block IMMEDIATELY BELOW carry it — en "My lane is applied
