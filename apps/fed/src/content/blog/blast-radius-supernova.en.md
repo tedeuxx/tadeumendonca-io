@@ -248,6 +248,8 @@ A model that has never opened your repositories writes a joke about your job, an
 
 The model wrote it. The audit is what made it worth your time, and the audit is not a thing a model can do for you, because the referents are in your repositories and your invoices and your memory.
 
-So — put something you made through a shape you did not invent, and then go and check what it claims about you, one item at a time. I would genuinely like to know what falls out. **Which of the fourteen above is a Tuesday in your week, and which one is the file you have been meaning to open?**
+**Which of the fourteen above is a Tuesday in your week, and which one is the file you have been meaning to open?**
+
+**So: take something you made, run it through a shape you did not invent, and check what it claims about you — one item at a time. Tell me what falls out.**
 
 Good luck out there, and may your radius be narrow.

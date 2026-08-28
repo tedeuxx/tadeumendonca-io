@@ -248,6 +248,8 @@ Um modelo que nunca abriu os seus repositórios escreve uma piada sobre o seu tr
 
 O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a auditoria não é coisa que um modelo faça por você, porque os referentes estão nos seus repositórios, nas suas faturas e na sua memória.
 
-Então — passe alguma coisa que você fez por um formato que você não inventou, e depois vá conferir o que ele afirma sobre você, item por item. Eu ia gostar bastante de saber o que cai fora. **Qual das catorze lá em cima é uma terça-feira na sua semana, e qual é o arquivo que você vem adiando abrir?**
+**Qual das catorze lá em cima é uma terça-feira na sua semana, e qual é o arquivo que você vem adiando abrir?**
+
+**Então: pega uma coisa que você fez, passa ela por um formato que você não inventou, e vai conferir o que aquilo afirma sobre você — item por item. Me conta o que cai fora.**
 
 Boa sorte por aí, e que o seu raio seja estreito.
