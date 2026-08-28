@@ -305,10 +305,10 @@ const sourceTemplate: ProfileSource = {
             "salesperson's, where the model proved out: from look-and-feel ideation with the UX team, " +
             'through the event trail that made them operable in the field, to the analytics that ' +
             'stakeholders read.',
-          'Architected and shipped a Flutter app covering iOS and Android for a bank; built the DevOps ' +
-            'and delivery pipeline for a commerce platform; and, in the final Accenture years, guided the ' +
-            'reversal of a recurring performance problem in a Java / Spring Boot microservices backend ' +
-            'running on AWS, for an education product.',
+          'Collaborated on the delivery of a Flutter app covering iOS and Android for a digital bank; ' +
+            'built the DevOps and delivery pipeline for a commerce platform; and, in the final Accenture ' +
+            'years, guided the reversal of a recurring performance problem in a Java / Spring Boot ' +
+            'microservices backend running on AWS, for an education product.',
           'Left packaged software behind for custom, lean-stack product engineering — open source, ' +
             'private-cloud infrastructure, and hands-on distributed-systems design. 2017 is the seam: ' +
             'from there on, the work has been platforms being built rather than packages being ' +
@@ -335,10 +335,10 @@ const sourceTemplate: ProfileSource = {
             'o do vendedor de campo, onde a modelagem se provou: da ideação de look and feel junto com o ' +
             'time de UX, passando pela trilha de eventos que os tornava operáveis em campo, até o ' +
             'acompanhamento analítico que os stakeholders liam.',
-          'Arquitetei e entreguei um app Flutter cobrindo iOS e Android para um banco; construí o DevOps ' +
-            'e o pipeline de entrega de uma plataforma de commerce; e, nos últimos anos de Accenture, ' +
-            'orientei a reversão de um problema recorrente de performance em um backend de microsserviços ' +
-            'Java / Spring Boot rodando na AWS, para um produto de educação.',
+          'Colaborei com a entrega de um app Flutter cobrindo iOS e Android para um banco digital; ' +
+            'construí o DevOps e o pipeline de entrega de uma plataforma de commerce; e, nos últimos ' +
+            'anos de Accenture, orientei a reversão de um problema recorrente de performance em um ' +
+            'backend de microsserviços Java / Spring Boot rodando na AWS, para um produto de educação.',
           'Deixei o software de pacote para trás para engenharia de produto custom e lean stack — open ' +
             'source, infraestrutura em private cloud e desenho de sistemas distribuídos hands-on. 2017 é a ' +
             'costura: de lá para cá, o trabalho tem sido plataforma sendo construída, não pacote sendo ' +
