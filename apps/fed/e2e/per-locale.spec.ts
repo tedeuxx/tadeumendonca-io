@@ -581,13 +581,18 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
   const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
-  // Every article carries a PER-LOCALE slug (ADR-0037), so each one's two <loc>s do NOT share a path.
+  // Article slugs are per-locale (ADR-0037), so an article's two <loc>s USUALLY do not share a path.
+  // `blast-radius-supernova` is the exception and it is deliberate: the title is a proper name and a
+  // play on one, so there is nothing to localise, and the loader permits a shared slug explicitly. The
+  // entry is written with the same string twice rather than "corrected", and the arithmetic below is
+  // unaffected — a shared slug still produces two distinct prefixed URLs.
   // This list moves by one entry per article — the same "arithmetic going red" guard as SHARED above.
   // It moves in BOTH directions: an article withdrawn from `src/content/blog/` leaves this list in the
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
   const ARTICLES = [
     { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
     { pt: `${SITE}/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
+    { pt: `${SITE}/pt/blog/blast-radius-supernova`, en: `${SITE}/en/blog/blast-radius-supernova` },
   ];
   // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
   // below, the article is still live — at a different address — so these must stay reachable via redirect

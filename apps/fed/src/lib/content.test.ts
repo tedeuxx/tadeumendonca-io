@@ -525,9 +525,17 @@ describe('a held article (draft: true) leaves the public enumeration and stays r
   // hold would surface it here even though the unfiltered list does not. Asserted separately because
   // `getAllPosts` applies the filter to `byLocale` — if the exclusion ever moved into the filter instead
   // of into the source list, the unfiltered assertion above would still pass.
+  // The `tag` half was written `toEqual([])` and that form was WRONG, not merely brittle: it asserted a
+  // property of the CORPUS (nothing else carries `tag: harness`) while claiming to assert a property of
+  // the HOLD. Publishing the first `harness`-tagged article reddened it (#527) with the mechanism it
+  // guards working perfectly. Restated against the fixture itself: the filter is read off the fixture's
+  // own frontmatter, so it cannot drift into filtering on something the fixture does not carry, and the
+  // assertion is absence-of-the-fixture rather than emptiness-of-the-list.
   it('is absent from the FILTERED lists too, not only the unfiltered one', () => {
+    const held = getPostBySlug(HELD_SLUGS.en, 'en');
+    expect(held?.tag, 'the fixture must carry a tag, or the filter below tests nothing').toBeTruthy();
     expect(getAllPosts('en', { track: 'engenharia' }).map((p) => p.slug)).not.toContain(HELD_SLUGS.en);
-    expect(getAllPosts('en', { tag: 'harness' })).toEqual([]);
+    expect(getAllPosts('en', { tag: held!.tag }).map((p) => p.slug)).not.toContain(HELD_SLUGS.en);
   });
 
   // THE OTHER HALF, and the reason the hold is not simply "delete it from the glob": the page has to
