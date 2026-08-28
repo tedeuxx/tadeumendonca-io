@@ -73,8 +73,8 @@ const sourceTemplate: ProfileSource = {
       'AI Engineering applied to agile software development — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
       "to design, build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
       'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
-      'modern product engineering building web and native-mobile apps, and spent the last years building ' +
-      'modern applications on AWS — solution architecture, application and infrastructure code, and the ' +
+      'modern product engineering shipping web and native-mobile apps, and have spent the last years ' +
+      'building modern applications on AWS — solution architecture, application and infrastructure code, and the ' +
       'technical direction of the build — across regulated industries like financial services, aerospace and ' +
       'energy. My lane is applied GenAI and agentic development, not ' +
       'machine learning research: I build with agentic patterns — tool-calling, RAG, memory, evaluation loops, ' +
@@ -84,7 +84,7 @@ const sourceTemplate: ProfileSource = {
       'AI Engineering aplicada ao desenvolvimento de software ágil — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
       'para projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
       '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
-      'e software empacotado, passei para engenharia de produto moderna construindo apps web e mobile nativo, e ' +
+      'e software empacotado, passei para engenharia de produto moderna entregando apps web e mobile nativo, e ' +
       'nos últimos anos venho construindo aplicações modernas na AWS — arquitetura de solução, código de ' +
       'aplicação e de infraestrutura e a direção técnica da construção — em setores regulados como serviços ' +
       'financeiros, aeroespacial e energia. Minha faixa é GenAI aplicada e ' +
@@ -107,8 +107,9 @@ const sourceTemplate: ProfileSource = {
           'solution architecture, AWS infrastructure and the technical direction of the build. The ' +
           'launches: a custom cloud-native replacement for a SaaS streaming platform, native across five ' +
           'platforms plus Web, and — as tech lead — an upstream operational-monitoring platform on an oil ' +
-          "& gas operator's AWS landing zone. And building hands-on: an internal knowledge platform still in " +
-          'progress, and public work at tadeumendonca.io with its agent harness and plugin. ' +
+          "& gas operator's AWS landing zone. And building hands-on: tadeumendonca.io, the live platform this " +
+          'CV is served from, and the agent harness that delivers it — personas, hooks and permission gates, ' +
+          'published as a Claude Code plugin and consumed by the repository itself. ' +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
           'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
@@ -118,9 +119,10 @@ const sourceTemplate: ProfileSource = {
           'implementação: arquitetura de solução, infraestrutura AWS e a direção técnica da construção. Os ' +
           'launches: uma substituição custom e cloud-native para uma plataforma de streaming SaaS, nativa ' +
           'em cinco plataformas mais Web, e — como tech lead — uma plataforma upstream de acompanhamento ' +
-          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on: uma ' +
-          'plataforma interna de conhecimento ainda em andamento, e o trabalho público em tadeumendonca.io, ' +
-          'com seu agent harness e plugin. ' +
+          'operacional na landing zone AWS de uma operadora de óleo & gás. E construindo hands-on: o ' +
+          'tadeumendonca.io, a plataforma no ar de onde este CV é servido, e o agent harness que a entrega — ' +
+          'personas, hooks e gates de permissão, publicado como plugin do Claude Code e consumido pelo próprio ' +
+          'repositório. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
           'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
@@ -143,9 +145,8 @@ const sourceTemplate: ProfileSource = {
           'Conceived and kicked off an internal knowledge platform — a bidirectional MCP server and semantic ' +
             'search — embeddings on Amazon Bedrock, stored and queried on Amazon S3 Vectors — so AI agents can ' +
             'both search and create knowledge; MVP in progress.',
-          'I lead engagements across LATAM, developing architectures, applications and delivery strategy — and ' +
-            'presenting architecture and strategy to C-level and technical stakeholders in English, Spanish and ' +
-            'Portuguese.',
+          'Lead engagements across LATAM, developing architectures, applications and delivery strategy, and ' +
+            'presenting them to C-level and technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
           'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) em 2026 para ' +
@@ -154,7 +155,7 @@ const sourceTemplate: ProfileSource = {
           'Arquitetei a internalização de uma plataforma de streaming SaaS de terceiro e a modernização desse ' +
             'workload na AWS — apps ' +
             'nativos em cinco plataformas (iOS, Android, Tizen, webOS, Apple TV) mais Web, sobre um backend BFF + ' +
-            'microserviços, desenhados para habilitar B2B no futuro — do envisioning e montagem do time à ' +
+            'microserviços, desenhado para habilitar B2B no futuro — do envisioning e montagem do time à ' +
             'condução da entrega multi-fornecedor.',
           'Como tech lead, levantei a landing zone AWS de uma operadora de óleo & gás e entreguei seu primeiro ' +
             'workload modernizado — uma plataforma upstream de acompanhamento operacional — sendo dono da ' +
@@ -167,8 +168,7 @@ const sourceTemplate: ProfileSource = {
             'e busca semântica — embeddings no Amazon Bedrock, armazenados e consultados no Amazon S3 Vectors — ' +
             'para que agentes de IA possam pesquisar e criar conhecimento; MVP em andamento.',
           'Conduzo engajamentos na América Latina, desenvolvendo arquiteturas, aplicações e estratégia de ' +
-            'entrega — e apresentando arquitetura e estratégia para stakeholders técnicos e C-level em inglês, ' +
-            'espanhol e português.',
+            'entrega, e as apresento para stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],
       },
       // SET AGAIN ON THE CURRENT ROLE (#542), after the owner lifted ADR-0034's two-page ceiling
