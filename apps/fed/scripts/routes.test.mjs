@@ -443,3 +443,35 @@ describe('a held article leaves the sitemap and the prerender together', () => {
     expect(articleRoutes()).toHaveLength(getAllPosts('en').length * LOCALES.length);
   });
 });
+
+// #506 — the mechanism that keeps the review bar out of every prerendered snapshot, pinned rather than
+// argued.
+//
+// WHY THIS ASSERTION AND NOT THE OBVIOUS ONE. ADR-0049's amendment first gave the reason as "a held
+// article is already out of the sitemap and the prerender". That is TRUE of a held article and FALSE of
+// a published one — `routes.mjs` drops a key only on `fm?.draft === true`, so every published article is
+// in this set — and the bar renders on a published article too, because the gate is the parameter alone.
+// The true reason is one layer down and holds for both: `prerender.mjs` navigates `base + navUrl` with
+// the `url` this module emits, and that url NEVER carries a query string, so no snapshot can request the
+// preview and no snapshot can contain the bar.
+//
+// Asserted HERE rather than against the built HTML on purpose: `vite preview` answers the SPA fallback
+// for every nested path (measured, and recorded in `e2e/held-draft.spec.ts`), so a raw-HTML assertion on
+// the local target would read the template instead of the snapshot and pass for the wrong reason. This
+// checks the input the prerender actually consumes.
+describe('no prerendered route can carry the preview parameter (#506)', () => {
+  it('emits no url containing a query string, for any locale or route', () => {
+    const routes = localizedRoutes();
+    // The ruler: an empty set would make the absence below vacuously true, which is the exact false-green
+    // this file already guards elsewhere.
+    expect(routes.length).toBeGreaterThan(0);
+    expect(routes.filter((r) => r.url.includes('?'))).toEqual([]);
+  });
+
+  // And specifically the parameter this slice reads. Separate from the general check because they fail
+  // for different reasons: a url could acquire some other query string without acquiring this one, and
+  // it is THIS one that would put the review bar into a public snapshot.
+  it('emits no url carrying the preview parameter', () => {
+    expect(localizedRoutes().filter((r) => r.url.includes('preview'))).toEqual([]);
+  });
+});

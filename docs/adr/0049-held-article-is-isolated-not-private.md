@@ -321,6 +321,64 @@ change**, which is a permanent cost on cadence, not a one-time build cost.
   reproduce it. The E2E control — a published article's card **is** served — is what stands between this
   design and that shape.
 
+## Amendment (2026-08-29) — the parameter also gates the two REVIEW affordances, and the review Issue is frontmatter
+
+Implemented by [#506](https://github.com/tedeuxx/tadeumendonca-io/issues/506). This record decided what
+`?preview` *reveals* — a held article's page. It now also decides what that page *offers*, and two calls
+were made inside the ratified spec that a later reader would otherwise have to reconstruct from the diff.
+
+**1 · The gate is the PARAMETER ALONE, not `draft && parameter`.** The owner's refinement, verbatim:
+*"esse argumento de query string pode permitir esses dois botoes visualizados tbm"*. So a **published**
+article reached with `?preview` renders the review bar as well. Three reasons, in the order they weighed:
+it is what he asked for; it is what makes promotion **rebuild nothing** — the date moves, the article
+enters the index, and this page is not rebuilt, because the mode was never in the build, which is this
+record's *"the same page in two modes"* property applied to the affordances; and a second review round on an already-published piece
+is a real case that a `draft` gate would take the affordance away from. **What it costs, stated rather
+than hidden, and stated LARGER than the first draft of this paragraph did:** a visitor who arrives at a
+published URL **carrying** the parameter meets two controls not addressed to them — a copy button that
+copies what the page already shows, and, only where the article names one, a link to a public Issue.
+
+**Not "appends".** The copy payload's citation carries `?preview` unconditionally, and the ratified
+workflow pastes that payload into a **public** `content` Issue every review round — so the parameter, with
+a live link to a page that renders the bar, **is published on the tracker at each round**. Nobody has to
+guess it. **This is not a problem and must not be narrowed:** a stranger following such a link finds the
+owner's own review machinery on the page, which is the site's argument visible rather than asserted. Only
+the earlier description was wrong. Nothing here weakens the isolation this record describes, because the bar reveals
+no article that the parameter did not already reveal. The decision is pinned by an assertion (`renders for
+a PUBLISHED article too, when the parameter is present`) rather than by a comment, so narrowing the gate
+later means deleting a test on purpose.
+
+**2 · The review artifact is the `content` Issue, carried in frontmatter as `contentIssue`.** The Issue
+and not the PR — a PR is transient, merges, and a second round needs a second thread, while the Issue
+outlives every PR the article travels through. The carrier is frontmatter and the field is a **shared
+fact**, so the two editions cannot name two Issues and split one review. **The degradation is asymmetric
+on purpose:** an article that omits the field renders **no link** (every article published before #506
+omits it, and a link to the tracker's front page is a control that appears to work and lands the reviewer
+somewhere he did not ask to be), while a field that is *present and unusable* **throws at module load and
+fails the build** — an author who meant to name an Issue and mistyped it must not silently get the
+no-button state, which is indistinguishable from never having tried.
+
+**3 · Clipboard, never a prefilled URL** — recorded here because it is the constraint most likely to be
+"improved" later. A prefilled `?body=` becomes a URL; browsers and servers cut around 8 KB and the
+articles run 6–12 KB, so it would work on the short pieces and truncate the long ones **silently**. The
+reviewer cannot see what was dropped and has no reason to suspect anything was.
+
+**What this does not change:** the isolation-not-privacy consequence, the upgrade path, and the three
+records this one scopes. **No prerendered snapshot can contain the bar** — but the reason is not the one
+first written here.
+
+~~The bar is client-rendered on a page that is already out of the sitemap and the prerender.~~ **Struck:
+true of a held article, false of a published one, and it is a published article this same amendment
+introduces four paragraphs above.** `apps/fed/scripts/routes.mjs` drops a key only on `fm?.draft === true`,
+so every published article is in `localizedRoutes()` and therefore in both the sitemap and the prerender.
+Written against the narrower gate that was considered and not built.
+
+**The true reason is one layer down and holds for both cases:** `prerender.mjs` navigates `base + navUrl`
+using the `url` `routes.mjs` emits, and that url is `localePath(locale, route)` — **it never carries a
+query string**. No snapshot can request the preview, so no snapshot can render the bar, held or published.
+**Pinned rather than argued**, which is what makes it worth more than the correction itself:
+`scripts/routes.test.mjs`, *"no prerendered route can carry the preview parameter (#506)"*.
+
 ## Links
 
 - [#510](https://github.com/tedeuxx/tadeumendonca-io/issues/510) — the Issue, its intake and its

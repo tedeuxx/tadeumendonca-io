@@ -27,16 +27,11 @@ import { X as CloseIcon, Link2, FileText, AlertTriangle, type LucideIcon } from 
 import { useT } from '../i18n';
 import { useDialogFocus } from '../hooks/useDialogFocus';
 import { SHARE_TARGETS, shareHref } from './shareTargets';
-
-/**
- * What the last clipboard attempt on one control did.
- *
- * `failed` is the state that did not exist before #387, and its absence was the defect: a rejected
- * `writeText` left the label reading "Copy link" forever, which is indistinguishable from the reader
- * having not clicked yet. A button that appears to work and does not is worse than one that says it
- * could not.
- */
-export type CopyStatus = 'idle' | 'copied' | 'failed';
+// `CopyStatus` MOVED to the hook that owns the state machine (#506) — it is the mechanism's type, not
+// this dialog's, and the draft review bar renders the same three states with no dialog at all. Not
+// re-exported from here: the one importer that read it from this module now reads the hook instead, and
+// a re-export would leave two spellings of one import path for the next component to choose between.
+import type { CopyStatus } from '../hooks/useCopyToClipboard';
 
 /**
  * One clipboard row in the option list.

@@ -5,6 +5,7 @@ date: '2026-08-25T12:00:00.000Z'
 tag: harness
 track: engenharia
 draft: true
+contentIssue: 510
 excerpt: "O fixture permanente do mecanismo de rascunho retido (#510). Ele está retido, então está fora do índice, do sitemap, da navegação e dos cards de OG — e renderiza aqui, na URL real, para quem chega com o parâmetro de preview."
 takeaway: 'o que é um artigo retido, e o que a retenção não compra.'
 ---

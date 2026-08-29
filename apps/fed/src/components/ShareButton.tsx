@@ -44,7 +44,8 @@ import { Share2 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useLocalePath, useT } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
-import { ShareModal, type CopyStatus } from './ShareModal';
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import { ShareModal } from './ShareModal';
 import { copyLinkUrl } from './shareTargets';
 import { markdownPayload } from './shareMarkdown';
 import { ADR_INDEX_URL } from '../content/adrs';
@@ -94,41 +95,20 @@ export function ShareButton({
   const t = useT();
   const lp = useLocalePath();
   const [open, setOpen] = useState(false);
-  const [linkStatus, setLinkStatus] = useState<CopyStatus>('idle');
-  const [markdownStatus, setMarkdownStatus] = useState<CopyStatus>('idle');
+  // ONE HOOK CALL PER CONTROL — the two states stay independent, which is the property the suite asserts
+  // ("the state is per control, and both were silent before"). See `useCopyToClipboard` for the whole
+  // state machine; it moved there at #506 unchanged, so the draft review bar's copy affordance cannot
+  // announce a failure differently from these two.
+  const link = useCopyToClipboard();
+  const markdown = useCopyToClipboard();
   const trigger = useRef<HTMLButtonElement>(null);
 
-  /**
-   * One clipboard write, one visible outcome.
-   *
-   * THE TEXT IS BUILT BY THE CALLER, BEFORE THIS RUNS, and synchronously. WebKit rejects with
-   * `NotAllowedError` when an unrelated `await` intervenes between the user gesture and `writeText` — so
-   * anything that awaits a dynamic import or a fetch first works everywhere except Safari, which is the
-   * browser this site's phone readers are most likely on. Deriving the payload in memory keeps
-   * `writeText` the first thing the handler awaits.
-   *
-   * The failure branch SETS A STATE rather than swallowing. `catch {}` was defensible while the payload
-   * was a URL the reader could still select by hand; it is not for a whole article.
-   */
-  const copy = async (text: string, setStatus: (status: CopyStatus) => void) => {
-    let outcome: CopyStatus;
-    try {
-      await navigator.clipboard.writeText(text);
-      outcome = 'copied';
-    } catch {
-      outcome = 'failed';
-    }
-    setStatus(outcome);
-    // A failure stays up longer than a confirmation. The success message is a nicety — the reader already
-    // has the text — while the failure is the only signal that their paste will be empty, and 1.5s is
-    // short enough to miss while looking at the app they were about to paste into.
-    setTimeout(() => setStatus('idle'), outcome === 'copied' ? 1500 : 5000);
-  };
-
-  // Built at click time, synchronously, and only when there is a body to build from.
+  // Built at click time, synchronously, and only when there is a body to build from. The synchronous
+  // build is the Safari user-activation rule, argued on the hook: `writeText` must be the first thing
+  // the handler awaits.
   const copyMarkdown = body
     ? () =>
-        void copy(
+        void markdown.copy(
           markdownPayload({
             title,
             path: url,
@@ -138,7 +118,6 @@ export function ShareButton({
             adrIndexLabel: t('share.adrIndexLink'),
             adrIndexUrl: ADR_INDEX_URL,
           }),
-          setMarkdownStatus,
         )
     : undefined;
 
@@ -163,9 +142,9 @@ export function ShareButton({
         <ShareModal
           title={title}
           path={url}
-          linkStatus={linkStatus}
-          onCopyLink={() => void copy(copyLinkUrl(url), setLinkStatus)}
-          markdownStatus={markdownStatus}
+          linkStatus={link.status}
+          onCopyLink={() => void link.copy(copyLinkUrl(url))}
+          markdownStatus={markdown.status}
           onCopyMarkdown={copyMarkdown}
           onClose={() => setOpen(false)}
           returnFocusTo={trigger}

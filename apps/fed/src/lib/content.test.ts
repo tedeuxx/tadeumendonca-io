@@ -11,7 +11,7 @@ import {
   type BlogPost,
 } from './content';
 import { LOCALES } from '../i18n/config';
-import { HELD_NONCES, HELD_SLUGS } from '../content/heldFixture';
+import { HELD_CONTENT_ISSUE, HELD_NONCES, HELD_SLUGS } from '../content/heldFixture';
 
 // Slugs are per-locale now (ADR-0037): the EN edition and the PT edition of the one live article carry
 // DIFFERENT slugs. The filename KEY (the canonical English slug) is the grouping identity.
@@ -603,5 +603,78 @@ describe('draft is a shared fact, not per-locale prose', () => {
     expect(
       buildEditions({ '../content/blog/d.pt.md': noFlag, '../content/blog/d.en.md': noFlag }).d.en.draft,
     ).toBe(false);
+  });
+});
+
+// #506 — the frontmatter carrier for an article's review Issue.
+//
+// THE FIELD IS A LINK TARGET, which is why its parsing is asserted harder than the other optional
+// fields': `asString` returning undefined for a malformed excerpt loses a sentence, while this value
+// either builds a URL or builds a broken one. The two failure directions are not comparable, so the
+// parser refuses to guess and the tests below are about which input lands in which of the two states —
+// absent (no button) or a build failure.
+describe('contentIssue (the review Issue, #506)', () => {
+  const withIssue = (value: string) =>
+    `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\n${value}---\nbody`;
+  const both = (value: string) =>
+    buildEditions({
+      '../content/blog/demo.pt.md': withIssue(value),
+      '../content/blog/demo.en.md': withIssue(value),
+    });
+
+  it('parses a plain YAML number', () => {
+    expect(both('contentIssue: 506\n').demo.en.contentIssue).toBe(506);
+  });
+
+  // A quoted value is a real authoring shape and no mistake — YAML gives a string for `"506"`, and the
+  // author who quoted it meant the same thing. This is the assertion that fails if the parser gates on
+  // `typeof value === 'number'`.
+  it('parses a QUOTED number as the same number', () => {
+    expect(both("contentIssue: '506'\n").demo.en.contentIssue).toBe(506);
+  });
+
+  // The absent case is the one every article written before #506 takes, so it must be silent — and it
+  // must be `undefined`, not `0` or `NaN`, because the review bar branches on exactly that.
+  it('leaves it undefined when the field is absent', () => {
+    expect(both('').demo.en.contentIssue).toBeUndefined();
+  });
+
+  // EACH OF THESE IS A SEPARATE WAY TO BE WRONG and each is checked, because a single `NaN` case would
+  // pass for a parser that also accepted 0, -3 and 506.5 — three inputs that all build a live GitHub URL
+  // that 404s the reviewer, or none at all.
+  it.each([
+    ['contentIssue: abc\n', 'not a number'],
+    ['contentIssue: 506.5\n', 'not an integer'],
+    ['contentIssue: 0\n', 'zero — Number("") coerces here too, which is why > 0 is checked'],
+    ['contentIssue: -3\n', 'negative'],
+    ["contentIssue: ''\n", 'empty string, which Number() turns into 0'],
+  ])('throws on %s (%s)', (value) => {
+    expect(() => both(value)).toThrow(/unusable contentIssue/);
+  });
+
+  // The error has to be actionable: an author reading it must learn the shape AND that omitting the field
+  // is legal, or the obvious fix is to delete the article's frontmatter until the build goes green.
+  it('names the shape and the omit-it option in the message', () => {
+    expect(() => both('contentIssue: abc\n')).toThrow(/positive integer/);
+    expect(() => both('contentIssue: abc\n')).toThrow(/Omit the field/);
+  });
+
+  // A FACT: one article, one review thread. Two editions naming two Issues would split one review across
+  // two places with nothing pointing at the other — and the owner reads the pair together.
+  it('throws when the two editions name different Issues', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/demo.pt.md': withIssue('contentIssue: 506\n'),
+        '../content/blog/demo.en.md': withIssue('contentIssue: 507\n'),
+      }),
+    ).toThrow(/disagrees on the fact "contentIssue"/);
+  });
+
+  // Against the REAL committed fixture, through the real glob — the parse above is a fixture of its own,
+  // and a field that works on a synthetic string and not on the file that ships is the drift this repo's
+  // held-fixture module exists to prevent.
+  it('reads the committed held fixture’s Issue, identically in both editions', () => {
+    expect(getPostBySlug(HELD_SLUGS.en, 'en')?.contentIssue).toBe(HELD_CONTENT_ISSUE);
+    expect(getPostBySlug(HELD_SLUGS.pt, 'pt')?.contentIssue).toBe(HELD_CONTENT_ISSUE);
   });
 });

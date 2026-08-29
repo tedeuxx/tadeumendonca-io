@@ -15,9 +15,12 @@ const canonicalHref = () => document.head.querySelector('link[rel="canonical"]')
 
 // Render under a locale-prefixed route (ADR-0036): the LocaleProvider reads the locale off the path, and
 // the :slug param comes from the matched route. Default locale pt (the suite's historical baseline).
-const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt') =>
+// `search` defaults to empty — the published-reader case every existing test was written against. It is a
+// parameter rather than a second helper so the review-bar cases below differ from those by exactly the
+// one thing under test (#506).
+const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt', search = '') =>
   render(
-    <MemoryRouter initialEntries={[`/${locale}/blog/${slug}`]}>
+    <MemoryRouter initialEntries={[`/${locale}/blog/${slug}${search}`]}>
       <LocaleProvider>
         <Routes>
           <Route path="/:locale/blog/:slug" element={<ArticlePage />} />
@@ -191,5 +194,71 @@ describe('ArticlePage', () => {
       renderAt('other');
       expect(robots()).toBeUndefined();
     });
+  });
+});
+
+// #506 — the review bar, and specifically ITS GATE, which is the only part of the feature that lives on
+// this page. What the bar itself does is `DraftReviewBar.test.tsx`'s subject; what is asserted here is
+// which visitors meet it at all, because that is what keeps the slice reader-invisible.
+describe('the draft review bar', () => {
+  const ISSUE_LINK = 'Abrir a issue deste artigo no GitHub';
+  const COPY = 'Copiar o texto do artigo';
+
+  // THE WHOLE SAFE-CLASS CLAIM, in one assertion. If this goes green with the bar rendered, two controls
+  // and four strings a reader was never meant to see are on every published article.
+  it('renders NOTHING for a visitor with no preview parameter', () => {
+    getPostBySlug.mockReturnValue(post({ contentIssue: 506 }));
+    renderAt('building');
+    expect(screen.queryByRole('group', { name: 'Revisão do artigo' })).toBeNull();
+    expect(screen.queryByRole('link', { name: ISSUE_LINK })).toBeNull();
+    expect(screen.queryByRole('button', { name: COPY })).toBeNull();
+  });
+
+  it('renders both affordances behind the preview parameter', () => {
+    getPostBySlug.mockReturnValue(post({ contentIssue: 506 }));
+    renderAt('building', 'pt', '?preview');
+    expect(screen.getByRole('group', { name: 'Revisão do artigo' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: ISSUE_LINK })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: COPY })).toBeInTheDocument();
+  });
+
+  // THE GATE IS THE PARAMETER ALONE, and this is the assertion that pins that decision rather than
+  // leaving it as a comment. The article here is PUBLISHED (`draft: false`, the helper's default), so a
+  // gate narrowed to `draft && preview` — the reading the Issue's title invites — turns this red. It is
+  // written this way round on purpose: the decision is reversible, and a reviewer who wants the narrower
+  // gate should have to delete an assertion that states the current one.
+  it('renders for a PUBLISHED article too, when the parameter is present', () => {
+    getPostBySlug.mockReturnValue(post({ draft: false, contentIssue: 506 }));
+    renderAt('building', 'pt', '?preview');
+    expect(screen.getByRole('group', { name: 'Revisão do artigo' })).toBeInTheDocument();
+  });
+
+  // The degradation, at the page's own seam: `contentIssue` travels from frontmatter to the bar, and an
+  // article that names no Issue offers the copy control and no link. Asserted here as well as in the
+  // component's suite because what could break here is the WIRING — passing a constant, or nothing.
+  it('offers the copy control and no link for an article that names no Issue', () => {
+    getPostBySlug.mockReturnValue(post({ contentIssue: undefined }));
+    renderAt('building', 'pt', '?preview');
+    expect(screen.getByRole('button', { name: COPY })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: ISSUE_LINK })).toBeNull();
+  });
+
+  // And the wiring in the other direction: the link carries THE ARTICLE'S number, not a fixed one. Two
+  // different numbers, because an assertion against a single value passes for a hardcoded constant.
+  it('carries the article’s own Issue number into the link', () => {
+    getPostBySlug.mockReturnValue(post({ contentIssue: 4242 }));
+    const { unmount } = renderAt('building', 'pt', '?preview');
+    expect(screen.getByRole('link', { name: ISSUE_LINK })).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-io/issues/4242',
+    );
+    unmount();
+
+    getPostBySlug.mockReturnValue(post({ contentIssue: 7 }));
+    renderAt('building', 'pt', '?preview');
+    expect(screen.getByRole('link', { name: ISSUE_LINK })).toHaveAttribute(
+      'href',
+      'https://github.com/tedeuxx/tadeumendonca-io/issues/7',
+    );
   });
 });

@@ -78,6 +78,27 @@ export interface BlogPost {
    * one would publish half an article, which is the exact failure the unpublishable contract exists for.
    */
   draft: boolean;
+  /**
+   * The GitHub Issue this article's review happens on — the `content`-typed Issue, where `content-writer`
+   * reads and where the owner pastes his marked-up copy (#506).
+   *
+   * THE ISSUE, NOT THE PR, and that is the ratified proposal rather than a coin toss: a PR is transient —
+   * it merges, its conversation stops being the place anyone looks, and a second round needs a second
+   * thread. The Issue outlives every PR the article travels through, so one address holds the whole
+   * review history.
+   *
+   * OPTIONAL, and the degradation is the design. Every article published before #506 has no such field,
+   * and the review bar renders NO issue button for one — a button that opened the wrong Issue, or the
+   * tracker's front page, is worse than no button, because it looks like it worked. A present-but-
+   * unusable value is the opposite case and throws at module load (see `asIssueNumber`): an author who
+   * meant to name an Issue and mistyped it must not silently get the no-button state, which is
+   * indistinguishable from never having tried.
+   *
+   * A FACT (`FACT_KEYS`), so the two editions cannot disagree. One article is reviewed on one Issue in
+   * both languages — the owner reads the pair together and comments in one place — so two editions naming
+   * two Issues would split one review across two threads with nothing pointing at the other.
+   */
+  contentIssue?: number;
   /** Optional cover image path. */
   cover?: string;
   /** Optional OG image path (defaults handled by the prerender pipeline). */
@@ -95,7 +116,17 @@ const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 // neither is `slug` — nor `previousSlugs`, which is a list OF slugs and per-locale for the same reason.
 // (It would also throw on every article regardless: FACT_KEYS compares with `!==`, and two arrays are
 // never `===`.) Identity is the filename KEY, not the slug (ADR-0037).
-const FACT_KEYS = ['date', 'tag', 'track', 'draft', 'linkedinUrl', 'hasVideo', 'cover', 'ogImage'] as const;
+const FACT_KEYS = [
+  'date',
+  'tag',
+  'track',
+  'draft',
+  'contentIssue',
+  'linkedinUrl',
+  'hasVideo',
+  'cover',
+  'ogImage',
+] as const;
 
 const asTrack = (value: unknown): Track => (TRACKS.has(value as Track) ? (value as Track) : 'engenharia');
 const asString = (value: unknown): string | undefined => (value != null ? String(value) : undefined);
@@ -104,6 +135,34 @@ const asString = (value: unknown): string | undefined => (value != null ? String
 // get a redirect rather than a silent no-op — the failure mode of dropping it is a dead published URL.
 const asStringList = (value: unknown): string[] =>
   value == null ? [] : (Array.isArray(value) ? value : [value]).map((v) => String(v));
+
+/**
+ * A GitHub Issue number from frontmatter — absent, or a positive integer, or a build failure.
+ *
+ * IT THROWS RATHER THAN FALLING BACK, unlike every other optional field parsed here, and the asymmetry is
+ * the point. `asString` returning `undefined` for a malformed excerpt loses a sentence; this value becomes
+ * a LINK TARGET, so the two failure directions are not comparable: a silent `undefined` removes the button
+ * the author was trying to add (invisible — it looks exactly like an article that never had one), and a
+ * coerced `NaN`/`0` would build `/issues/NaN`, a live GitHub URL that 404s the reviewer. The build is the
+ * only place this can fail loudly, so it fails there.
+ *
+ * `Number(String(...))` rather than a `typeof value === 'number'` gate: YAML gives a number for `506` and a
+ * string for `"506"`, and an author quoting it has made no mistake. `Number.isInteger` then rejects `506.5`,
+ * `abc` (NaN) and the empty string (which `Number('')` coerces to 0 — the reason `> 0` is checked and not
+ * merely `!== NaN`).
+ */
+const asIssueNumber = (fileSlug: string, value: unknown): number | undefined => {
+  if (value == null) return undefined;
+  const parsed = Number(String(value).trim());
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(
+      `content: article "${fileSlug}" has an unusable contentIssue "${String(value)}" — it becomes a link ` +
+        'to a GitHub Issue, so it must be a positive integer (e.g. `contentIssue: 506`). Omit the field ' +
+        'entirely for an article with no review Issue; the review affordance then renders no button.',
+    );
+  }
+  return parsed;
+};
 
 function parse(fileSlug: string, raw: string): BlogPost {
   const m = FRONTMATTER.exec(raw);
@@ -121,6 +180,7 @@ function parse(fileSlug: string, raw: string): BlogPost {
     // default for a MISSING flag is published, because the alternative — every legacy article suddenly
     // held — is a site that quietly loses its index.
     draft: fm.draft === true,
+    contentIssue: asIssueNumber(fileSlug, fm.contentIssue),
     excerpt: asString(fm.excerpt),
     takeaway: asString(fm.takeaway),
     linkedinUrl: asString(fm.linkedinUrl),

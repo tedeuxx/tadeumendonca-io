@@ -1,10 +1,12 @@
 // Article detail (/frontend/markdown). Public; /blog/:slug is what OG deep-links point at. Reads the
 // post from markdown-in-repo (../lib/content) and renders its markdown body — fully static, no backend.
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
 import { getEditions, getPostBySlug } from '../lib/content';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { absoluteUrl } from '../lib/site';
+import { isPreviewRequested } from '../lib/preview';
 import { Markdown } from '../components/Markdown';
+import { DraftReviewBar } from '../components/DraftReviewBar';
 import { ShareButton, articleShareUrl } from '../components/ShareButton';
 import { ShareLinks } from '../components/ShareLinks';
 import { ColumnHeader, Notice } from '../components/Column';
@@ -19,7 +21,34 @@ export function ArticlePage() {
   const { locale, t } = useLocale();
   const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
+  const { search } = useLocation();
   const article = slug ? getPostBySlug(slug, locale) : undefined;
+  // THE REVIEW BAR'S GATE, and it is the parameter ALONE (#506) — the owner's refinement: "esse argumento
+  // de query string pode permitir esses dois botoes visualizados tbm".
+  //
+  // NOT `article.draft && …`, deliberately, and the consequence is stated rather than left to be
+  // discovered: a PUBLISHED article reached with `?preview` renders the bar too. Three reasons, in the
+  // order they weighed. (1) It is what he asked for, in those words. (2) It is what makes promotion
+  // rebuild nothing — the date moves, the article enters the index, and NOTHING about this page is
+  // rebuilt, because the mode was never in the build. (3) A second round on an already-published piece is
+  // a real case, and a `draft` gate would take the affordance away exactly there.
+  //
+  // WHAT IT COSTS, and this is larger than "a visitor who appends the parameter" — the enlargement is
+  // this slice's own doing. The copy payload's citation carries `?preview` unconditionally, and the
+  // ratified workflow pastes that payload into a PUBLIC `content` Issue every review round. So the
+  // parameter travels in published links: a reader can arrive here by CLICKING, without ever knowing the
+  // parameter exists. What they meet is a copy button that copies what the page already shows, plus —
+  // only where the article names one — a link to a public Issue. Judged and accepted rather than
+  // narrowed: a stranger following such a link finds the owner's own review machinery on the page, which
+  // is this site's argument visible rather than asserted.
+  //
+  // What stays true without qualification, and is the sentence to reach for: NOBODY SEES ANY OF THIS AT A
+  // URL THAT DOES NOT CARRY THE PARAMETER. That one is pinned — the two tests named on the `review` group
+  // in `messages.ts`.
+  //
+  // Read from `useLocation`, not `window.location`, for the reason `ArticleRoute` gives one layer up: a
+  // client-side navigation is the one moment the two disagree.
+  const reviewing = isPreviewRequested(search);
   // The edition GROUP (both locales) so hreflang can advertise each locale's OWN slug — the canonical /
   // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
   const eds = slug ? getEditions(slug, locale) : undefined;
@@ -69,6 +98,19 @@ export function ArticlePage() {
 
       {article && (
         <article className="px-[--gutter] py-6">
+          {/* ABOVE THE TITLE, not below the body. The reviewer's first action on landing is to copy the
+              text, and a control he has to scroll past the whole article to reach is a control he reaches
+              after doing the thing it was there to help with. It also keeps the published page's own
+              layout untouched: nothing above the header moves when the bar is absent, because the bar is
+              the only thing that was ever there. */}
+          {reviewing && (
+            <DraftReviewBar
+              title={article.title}
+              path={lp(articleShareUrl(article))}
+              body={article.body}
+              contentIssue={article.contentIssue}
+            />
+          )}
           <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
               <time dateTime={article.date}>{fmtDate(article.date, locale)}</time>

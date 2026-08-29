@@ -340,7 +340,7 @@
     "title": "A held article is isolated, not private — its text ships in the public bundle",
     "file": "0049-held-article-is-isolated-not-private.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0050",

@@ -20,6 +20,18 @@ export const HELD_KEY = 'held-draft-fixture';
 export const HELD_SLUGS = { en: 'held-draft-fixture', pt: 'rascunho-retido-fixture' } as const;
 
 /**
+ * The review Issue the fixture names in its frontmatter (#506), and the reason it is here rather than
+ * re-typed in the specs: the same argument the slugs and the nonces are here for. A number spelled
+ * independently in two suites is a number that can be corrected in one of them, and the assertion left
+ * behind would check a link against an Issue the fixture no longer names — green, and about nothing.
+ *
+ * It is #510's number, not #506's: the fixture exists BECAUSE of the held-draft mechanism, so the Issue
+ * that would carry its review is the one that created it. Nothing depends on which number it is; the
+ * suites assert the built URL agrees with the frontmatter.
+ */
+export const HELD_CONTENT_ISSUE = 510;
+
+/**
  * The per-locale nonce carried in each edition's body.
  *
  * A nonce rather than a phrase from the prose: the assertions are "this string appears zero times in the
