@@ -321,6 +321,45 @@ change**, which is a permanent cost on cadence, not a one-time build cost.
   reproduce it. The E2E control — a published article's card **is** served — is what stands between this
   design and that shape.
 
+## Amendment (2026-08-29) — the parameter also gates the two REVIEW affordances, and the review Issue is frontmatter
+
+Implemented by [#506](https://github.com/tedeuxx/tadeumendonca-io/issues/506). This record decided what
+`?preview` *reveals* — a held article's page. It now also decides what that page *offers*, and two calls
+were made inside the ratified spec that a later reader would otherwise have to reconstruct from the diff.
+
+**1 · The gate is the PARAMETER ALONE, not `draft && parameter`.** The owner's refinement, verbatim:
+*"esse argumento de query string pode permitir esses dois botoes visualizados tbm"*. So a **published**
+article reached with `?preview` renders the review bar as well. Three reasons, in the order they weighed:
+it is what he asked for; it is what makes promotion **rebuild nothing** — the bar stops appearing because
+nobody arrives with the parameter, not because a flag flipped, which is this record's *"the same page in
+two modes"* property applied to the affordances; and a second review round on an already-published piece
+is a real case that a `draft` gate would take the affordance away from. **What it costs, stated rather
+than hidden:** a visitor who appends the parameter to a published URL meets two controls not addressed to
+them — a copy button that copies what the page already shows, and, only where the article names one, a
+link to a public Issue. Nothing here weakens the isolation this record describes, because the bar reveals
+no article that the parameter did not already reveal. The decision is pinned by an assertion (`renders for
+a PUBLISHED article too, when the parameter is present`) rather than by a comment, so narrowing the gate
+later means deleting a test on purpose.
+
+**2 · The review artifact is the `content` Issue, carried in frontmatter as `contentIssue`.** The Issue
+and not the PR — a PR is transient, merges, and a second round needs a second thread, while the Issue
+outlives every PR the article travels through. The carrier is frontmatter and the field is a **shared
+fact**, so the two editions cannot name two Issues and split one review. **The degradation is asymmetric
+on purpose:** an article that omits the field renders **no link** (every article published before #506
+omits it, and a link to the tracker's front page is a control that appears to work and lands the reviewer
+somewhere he did not ask to be), while a field that is *present and unusable* **throws at module load and
+fails the build** — an author who meant to name an Issue and mistyped it must not silently get the
+no-button state, which is indistinguishable from never having tried.
+
+**3 · Clipboard, never a prefilled URL** — recorded here because it is the constraint most likely to be
+"improved" later. A prefilled `?body=` becomes a URL; browsers and servers cut around 8 KB and the
+articles run 6–12 KB, so it would work on the short pieces and truncate the long ones **silently**. The
+reviewer cannot see what was dropped and has no reason to suspect anything was.
+
+**What this does not change:** the isolation-not-privacy consequence, the upgrade path, and the three
+records this one scopes. The bar is client-rendered on a page that is already out of the sitemap and the
+prerender, so it adds nothing to the served snapshot of anything.
+
 ## Links
 
 - [#510](https://github.com/tedeuxx/tadeumendonca-io/issues/510) — the Issue, its intake and its

@@ -106,6 +106,17 @@ in `iac/`.
   never one whose *existence* is the sensitive part — a draft that names something confidential is fully
   readable in the bundle from the moment it deploys, and the hold protects it not at all. Being out of
   the index buys time to write, not secrecy; if it must not be readable, it must not be committed.
+  **Reviewing a held draft is two controls, and they are gated by the PARAMETER and not by the flag**
+  (#506): behind `?preview` an article renders a review bar with **a link to its `content` Issue** and
+  **a button that copies the whole article to the clipboard**. The Issue is named in frontmatter —
+  `contentIssue: <number>`, a **shared fact**, so both editions must agree; **omit it and no link is
+  rendered** (a button opening the wrong Issue is worse than none), while a value that is present and not
+  a positive integer **fails the build** rather than degrading silently. Copy and never a prefilled
+  `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
+  the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means
+  a PUBLISHED article reached with `?preview` renders the bar too — that is what makes promotion rebuild
+  nothing, and it is why none of these four strings is ever seen by a reader who did not type the
+  parameter.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
   flag is the mutation that proves those gates can go red.

@@ -5,6 +5,7 @@ date: '2026-08-25T12:00:00.000Z'
 tag: harness
 track: engenharia
 draft: true
+contentIssue: 510
 excerpt: "The permanent fixture for the held-draft mechanism (#510). It is held, so it is out of the index, the sitemap, the navigation and the OG cards — and it renders here, at its real URL, for anyone arriving with the preview parameter."
 takeaway: 'what a held article is, and what the hold does not buy.'
 ---

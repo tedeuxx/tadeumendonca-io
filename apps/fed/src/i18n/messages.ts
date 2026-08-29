@@ -807,6 +807,36 @@ const strings = {
       en: 'Decision index (ADRs), in the repository',
     },
   },
+  // #506 — the draft review bar. THESE FOUR STRINGS ARE READER-FACING ONLY BEHIND `?preview`: the bar
+  // renders nowhere else, so no visitor arriving at any published URL sees any of them. Stated here
+  // because that is what keeps the slice in the safe class, and it is a property of the render gate in
+  // `ArticlePage`, not of the catalog — move the bar and this sentence stops being true.
+  //
+  // Written for ONE reader, and he is the owner. Every other string in this catalog is addressed to a
+  // visitor; these are tooling labels, so they are plain and name the destination rather than being
+  // inviting. They are still authored in both locales, because he reviews the pt and en editions of an
+  // article side by side and a bar that switched language mid-review would read as a different page.
+  review: {
+    // The bar's accessible name. NOT "Rascunho": a published article reached with the parameter renders
+    // this bar too — the gate is the parameter alone (see `ArticlePage`) — so naming it after the held
+    // state would be a name that is sometimes false.
+    label: { pt: 'Revisão do artigo', en: 'Article review' },
+    // The VISIBLE label / the ACCESSIBLE NAME — the `share.moreOptions` / `moreOptionsLabel` shape and the
+    // same WCAG 2.5.3 containment rule: the long form EXTENDS the short one rather than replacing it, so
+    // 'Abrir a issue' is a substring of 'Abrir a issue de conteúdo no GitHub', and 'Open the issue' of
+    // 'Open the issue for this article on GitHub'. The short form is what fits the mono row beside the
+    // copy control; the long one is what tells a screen-reader user the link leaves the site.
+    openIssue: { pt: 'Abrir a issue', en: 'Open the issue' },
+    openIssueLabel: {
+      pt: 'Abrir a issue de conteúdo no GitHub',
+      en: 'Open the issue for this article on GitHub',
+    },
+    // NAMES THE ARTICLE, not the format. `share.copyMarkdown` names its destination because a second copy
+    // row sits beside it offering the same destination in another format; here there is one clipboard
+    // control and the question it answers is "the whole piece, or the link" — so the noun that
+    // disambiguates is the article, and the destination stays implicit as it does in `share.copyLink`.
+    copyText: { pt: 'Copiar o texto do artigo', en: 'Copy the article text' },
+  },
   video: {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
