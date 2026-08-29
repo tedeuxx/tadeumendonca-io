@@ -129,6 +129,9 @@ export const SURFACES = {
      * A centred stack: mark on its own row, wordmark under it, CTA under that. 3:1 leaves real vertical
      * room above the profile card, and X crops harder from the sides than LinkedIn does — so the block
      * moves to the middle of the band instead of hugging an edge.
+     *
+     * The middle of the BAND, and that is load-bearing: it is centred on `crop`, never on `safe`, whose
+     * left inset exists only to clear the avatar. See `visibleCentreXPx` (#572).
      */
     layout: 'stack-centre',
     avatar: { x0: 0, y0: 0.42, x1: 0.2, y1: 1 },
@@ -209,6 +212,41 @@ export const overlaps = (a, b) => !(a.x1 <= b.x0 || b.x1 <= a.x0 || a.y1 <= b.y0
 
 /** The safe area of a surface, in pixels. */
 export const safeAreaPx = (surface) => toPx(surface.safe, surface);
+
+/**
+ * ── WHAT A CENTRED COMPOSITION IS CENTRED ON (#572) ──
+ *
+ * `safe` is a CLEARANCE constraint and it is one-sided: its left edge is pushed in to clear the avatar,
+ * and nothing on the right pushes back. So its own centre is not the centre of anything a reader looks
+ * at — on the X surface it sits at 0.55 while the visible band is centred on 0.50, and a stack centred
+ * in `safe` therefore lands 75px right of centre on a 1500px canvas while satisfying every rectangle
+ * this file declares. That is exactly what shipped, and it is why "inside `safe`" was never the same
+ * property as "centred".
+ *
+ * The two properties are now separated: `safe` keeps saying WHERE A WORD MAY BE, and this says WHAT THE
+ * COMPOSITION IS BUILT AROUND — the middle of `crop`, which is the middle of what is actually seen.
+ *
+ * Symmetrising `safe` instead would have been the wrong repair: mirroring its left inset to the right
+ * (0.22 → 0.78) narrows the usable width to 56% of the canvas AND keeps every row inside it, which cuts
+ * the CTA harder rather than less. Centring on `crop` costs the same 56% of usable width — a centred
+ * block can only be as wide as twice its nearest safe edge — but spends it symmetrically.
+ */
+export const visibleCentreXPx = (surface) => ((surface.crop.x0 + surface.crop.x1) / 2) * surface.width;
+
+/**
+ * The widest SYMMETRIC band about the visible centre that still fits inside `safe`, in pixels.
+ *
+ * This is the real budget a centred row has, and it is smaller than `safe` whenever `safe` is
+ * asymmetric — the half-width is bounded by the NEARER of the two safe edges, because a centred row
+ * grows in both directions at once. Its `y` bounds are `safe`'s, so the band is a rectangle the
+ * ordinary `contains` arithmetic can be pointed at rather than a second, x-only special case.
+ */
+export const centredBandPx = (surface) => {
+  const centre = visibleCentreXPx(surface);
+  const safe = safeAreaPx(surface);
+  const half = Math.min(centre - safe.x0, safe.x1 - centre);
+  return { x0: centre - half, y0: safe.y0, x1: centre + half, y1: safe.y1 };
+};
 
 /** Is a measured, pixel-space box entirely inside the surface's safe area? */
 export const withinSafeArea = (box, surface) => contains(safeAreaPx(surface), box);

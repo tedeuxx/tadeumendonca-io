@@ -7,7 +7,7 @@
 // screenshotted, site fonts embedded as data: URIs so it renders identically everywhere, the brand mark
 // inline, no image library and no network.
 //
-// ── THE THREE REFUSALS, and each one is a different failure ──
+// ── THE FOUR REFUSALS, and each one is a different failure ──
 //
 // 1. OVERFLOW — inherited from gen-og-default.mjs, for the same reason: `overflow:hidden` turns "the
 //    words did not fit" into a valid PNG with them sliced off rather than into an error.
@@ -17,7 +17,12 @@
 //    are MEASURED and checked against `SURFACES[id].safe`. Composition-by-eye is not available on a
 //    surface nobody can see whole, and "I checked it looks fine" is not a thing a reviewer can re-run.
 //
-// 3. THE DIMENSIONS — asserted on the bytes actually written, not on the viewport asked for. A banner at
+// 3. THE CENTRING — added by #572, and the one the other three cannot see. Refusal 2 asks whether the
+//    artwork is inside the boundaries; a lockup can satisfy that and still be visibly off-centre,
+//    because the safe area is a ONE-SIDED clearance constraint and its midpoint is not the midpoint of
+//    what a reader sees. So a `stack-centre` composition is measured against the visible centre.
+//
+// 4. THE DIMENSIONS — asserted on the bytes actually written, not on the viewport asked for. A banner at
 //    the wrong size is the failure nobody notices until it has been uploaded and cropped.
 //
 // WHAT NONE OF THEM COVER, said plainly because a green run here reads like more than it is: this writes
@@ -26,7 +31,19 @@
 import { chromium } from '@playwright/test';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { BANNER_COPY, PALETTE, SURFACES, SURFACE_IDS, bannerFile, markSvg, pngSize, safeAreaPx, withinSafeArea } from './banners.mjs';
+import {
+  BANNER_COPY,
+  PALETTE,
+  SURFACES,
+  SURFACE_IDS,
+  bannerFile,
+  centredBandPx,
+  markSvg,
+  pngSize,
+  safeAreaPx,
+  visibleCentreXPx,
+  withinSafeArea,
+} from './banners.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const fontsDir = join(root, 'node_modules', '@fontsource');
@@ -65,9 +82,15 @@ const bannerHtml = (id) => {
   // edge placed exactly ON the safe boundary measures a fraction of a pixel outside it about half the
   // time. Sitting flush against the limit of what is visible is also the wrong composition — the safe
   // area is where a word MAY go, not where it should end. 4px at these canvas sizes is invisible.
+  //
+  // HORIZONTALLY, a centred stack is centred on `visibleCentreXPx` and NOT on the middle of `safe` (#572).
+  // `safe` is one-sided — its left edge is inset to clear the avatar and nothing insets the right — so
+  // its midpoint is 0.55 of the X canvas while the visible band's is 0.50, and centring in it shipped a
+  // lockup 75px right of centre that satisfied every check this file makes. Vertically `safe` IS the
+  // frame (its top and bottom are both real limits), so the y term below still reads from it.
   const INSET = 4;
   const place = stack
-    ? `left:${(safe.x0 + safe.x1) / 2}px; top:${(safe.y0 + safe.y1) / 2}px; transform:translate(-50%,-50%);
+    ? `left:${visibleCentreXPx(s)}px; top:${(safe.y0 + safe.y1) / 2}px; transform:translate(-50%,-50%);
        align-items:center; text-align:center;`
     : `right:${s.width - safe.x1 + INSET}px; top:${(safe.y0 + safe.y1) / 2}px; transform:translateY(-50%);
        align-items:flex-end; text-align:right;`;
@@ -138,6 +161,30 @@ for (const id of SURFACE_IDS) {
     }
   }
 
+  // REFUSAL 4 — the centring, and it is a different property from refusal 2 rather than a stricter
+  // version of it. Everything above asks whether the artwork is INSIDE the boundaries; this asks
+  // whether it is where the composition says it is. A stack that drifts right still sits inside `safe`
+  // (that is exactly what #572 shipped), so no containment check can ever see it. Measured on the boxes
+  // the browser laid out, not on the CSS asked for.
+  //
+  // Only for `stack-centre`. `lockup-right` is anchored to an edge deliberately, and asserting a centre
+  // there would collapse the two compositions into one — which banners.test.mjs separately reddens on.
+  if (s.layout === 'stack-centre') {
+    const centre = visibleCentreXPx(s);
+    for (const box of boxes) {
+      const drift = (box.x0 + box.x1) / 2 - centre;
+      // Half a pixel. A browser lays out in 1/64px units, so an exact-equality check would be flaky;
+      // the defect this catches is tens of pixels wide, so the tolerance costs nothing real.
+      if (Math.abs(drift) > 0.5) {
+        throw new Error(
+          `banner-${id}: \`${box.sel}\` is not centred on what a reader sees — it sits ${drift.toFixed(0)}px ` +
+            `${drift > 0 ? 'right' : 'left'} of the visible centre (${centre.toFixed(0)}px). Inside the safe ` +
+            'area is not the same property as centred: the safe area is one-sided.',
+        );
+      }
+    }
+  }
+
   const out = join(root, 'public', bannerFile(id));
   await page.screenshot({ path: out, clip: { x: 0, y: 0, width: s.width, height: s.height } });
 
@@ -150,7 +197,15 @@ for (const id of SURFACE_IDS) {
     );
   }
 
-  console.log(`Wrote ${out} (${s.width}x${s.height}, ${s.label})`);
+  // The widest row against the budget it had. Printed because every check above is pass/fail and none
+  // of them says how much room was left — which is the number a human needs when deciding whether the
+  // copy or the type scale can move at all.
+  const widest = Math.max(...boxes.map((b) => b.x1 - b.x0));
+  const budget = s.layout === 'stack-centre' ? centredBandPx(s) : safeAreaPx(s);
+  console.log(
+    `Wrote ${out} (${s.width}x${s.height}, ${s.label}) — widest row ${widest.toFixed(0)}px of ` +
+      `${(budget.x1 - budget.x0).toFixed(0)}px usable`,
+  );
   await page.close();
 }
 

@@ -25,6 +25,7 @@ import {
   SURFACE_IDS,
   bannerFile,
   bannerPath,
+  centredBandPx,
   contains,
   diffBanners,
   generatedBannersIn,
@@ -34,6 +35,7 @@ import {
   requiredBanners,
   safeAreaPx,
   toPx,
+  visibleCentreXPx,
   withinSafeArea,
 } from './banners.mjs';
 import { strings } from '../src/i18n/messages';
@@ -87,6 +89,69 @@ describe('the occlusion model holds together', () => {
     expect(s.avatar.y1).toBe(1);
     expect(contains({ x0: 0, y0: 0, x1: 1, y1: 1 }, s.safe)).toBe(true);
     expect(s.safe.x1 - s.safe.x0).toBeLessThan(0.7);
+  });
+});
+
+describe('the composition is centred on what a reader sees, not on the safe area (#572)', () => {
+  // THE PROPERTY NOBODY HAD WRITTEN DOWN. Every assertion above asks whether the artwork is INSIDE the
+  // declared boundaries, and the X banner shipped satisfying all of them while sitting visibly right of
+  // centre. It could, because `safe` is a CLEARANCE constraint and a one-sided one: its left edge is
+  // inset to clear the avatar and nothing insets the right, so its midpoint is not the midpoint of
+  // anything a reader looks at. Containment and centring are different properties; these are the
+  // centring ones.
+
+  it.each(surfaceCases)('%s: the visible centre is equidistant from the two crop edges', (_id, s) => {
+    // Stated as the defining PROPERTY rather than as the formula, so re-deriving the centre from `safe`
+    // — the defect — reddens here instead of being restated in two places and agreeing with itself.
+    const crop = toPx(s.crop, s);
+    const centre = visibleCentreXPx(s);
+    expect(centre - crop.x0).toBeCloseTo(crop.x1 - centre, 6);
+    expect(centre - crop.x0).toBeGreaterThan(0); // and it is a real interval, not a degenerate point
+  });
+
+  it('x: the safe area is one-sided, so its centre is NOT the visible centre', () => {
+    // Guards the assertion above from being vacuously true. On LinkedIn the two midpoints coincide by
+    // accident of the numbers, so a suite that only ever compared them there would pass whichever one
+    // the generator used. On X they differ, which is the whole bug.
+    const s = SURFACES.x;
+    const safe = safeAreaPx(s);
+    const safeCentre = (safe.x0 + safe.x1) / 2;
+    expect(Math.abs(safeCentre - visibleCentreXPx(s))).toBeGreaterThan(10);
+    expect(safeCentre).toBeGreaterThan(visibleCentreXPx(s)); // and it errs RIGHT — the avatar is on the left
+  });
+
+  it.each(surfaceCases)('%s: the centred band is centred, and inside the safe area', (_id, s) => {
+    const band = centredBandPx(s);
+    const safe = safeAreaPx(s);
+    const centre = visibleCentreXPx(s);
+    expect(centre - band.x0).toBeCloseTo(band.x1 - centre, 6);
+    // Deliberately NOT `contains`. One of the band's edges is derived by subtracting a distance from a
+    // safe edge and adding it back, so it can land a billionth of a pixel outside the rect it was
+    // measured from — an exact containment test would be a gate that goes red on float noise rather
+    // than on a composition, and a flaky gate is a defect in the gate. The epsilon is nine orders of
+    // magnitude below the drift this suite exists to catch.
+    expect(band.x0).toBeGreaterThanOrEqual(safe.x0 - 1e-9);
+    expect(band.x1).toBeLessThanOrEqual(safe.x1 + 1e-9);
+  });
+
+  it.each(surfaceCases)('%s: a symmetric composition on it still has half the canvas to work with', (_id, s) => {
+    // The cost of this fix, asserted rather than asserted-away. A centred row grows in both directions
+    // at once, so its budget is twice the NEARER safe edge — narrower than `safe` itself whenever `safe`
+    // is asymmetric. Pinning a floor is what stops the next inset from being widened until the copy no
+    // longer fits: the truncation would come back, and nothing else here would notice.
+    //
+    // Asserted on EVERY surface, including the one anchored to an edge rather than centred. `layout` is
+    // a field, and a surface that switches to `stack-centre` should find the budget already there — a
+    // check that only exists for the layouts currently using it arrives one release after it was needed.
+    const band = centredBandPx(s);
+    expect((band.x1 - band.x0) / s.width).toBeGreaterThanOrEqual(0.5);
+  });
+
+  it('x: the asymmetry really does cost width — the band is narrower than the safe area', () => {
+    const s = SURFACES.x;
+    const safe = safeAreaPx(s);
+    const band = centredBandPx(s);
+    expect(band.x1 - band.x0).toBeLessThan(safe.x1 - safe.x0);
   });
 });
 
