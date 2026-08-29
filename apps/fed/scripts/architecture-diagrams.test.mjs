@@ -246,6 +246,20 @@ describe('the two editions describe the same system', () => {
 // below is what makes the convention enforceable rather than decorative.
 const humanNodes = (graph) => graph.nodes.filter((n) => /^H/.test(n));
 
+/**
+ * The tier fence, addressed by accessible title in each edition's own language — never by position.
+ * `byTitle`'s docstring records what positional addressing cost this file the one time it was used.
+ *
+ * Hoisted to module scope on #431's second slice rather than copied a third time, for the reason
+ * `accDescrOf` was hoisted on its first: three blocks now address this same fence, and three literal
+ * copies of the two accTitles are three chances for a rename to fix two of them.
+ */
+const TIER_FENCE = {
+  en: () => byTitle(en, 'How work crosses the agent tiers'),
+  pt: () => byTitle(pt, 'Como o trabalho atravessa os tiers de agente'),
+};
+const LOCALES = Object.keys(TIER_FENCE);
+
 describe('the dev-loop diagram shows where the human stands', () => {
   const graph = graphOf(byTitle(en, 'How work crosses the agent tiers').source);
 
@@ -352,14 +366,6 @@ describe('the dev-loop diagram draws every persona the manifest carries', () => 
     .filter((component) => component.kind === 'persona')
     .map((component) => component.id);
 
-  // Addressed by accessible title, in each edition's own language — never by position. `byTitle`'s
-  // docstring records what positional addressing cost this file the one time it was used.
-  const TIER_FENCE = {
-    en: () => byTitle(en, 'How work crosses the agent tiers'),
-    pt: () => byTitle(pt, 'Como o trabalho atravessa os tiers de agente'),
-  };
-  const LOCALES = Object.keys(TIER_FENCE);
-
   /**
    * Every authored NODE label in a fence — the words a sighted reader meets inside a box.
    *
@@ -432,6 +438,156 @@ describe('the dev-loop diagram draws every persona the manifest carries', () => 
       unnamed,
       `${locale}: a persona is live in the manifest and the accessible description does not name it`,
     ).toEqual([]);
+  });
+});
+
+// THE TIER FENCE'S LANE TOPOLOGY (#431) — the half of that Issue nothing had ever asserted.
+//
+// #431 opened on a defect of SHAPE, not of membership: the published fence drew tier 1 as one intake box
+// with no branching by issue type, and drew the `loop` lane reaching production without passing the gate.
+// A human rewrote the prose and the two surfaces converged; nothing compared them, so the next divergence
+// would be as silent as that one was. The persona-membership block above closed the "who is drawn" half.
+// This block closes the "how the lanes run" half — and they are genuinely different failures: every
+// assertion above is satisfied by a drawing with all seven names in one undifferentiated box.
+//
+// WHAT COUNTS AS THE TOPOLOGY, and it is the design question the Issue said was not obvious. The two
+// surfaces this figure is drift-checked against are deliberately NOT identical — the `-skills` README is
+// written for someone adopting the plugin, this page is written for a reader of this site, in two
+// languages — so a checker demanding identical graphs would red on every legitimate editorial difference
+// and be disabled inside a month, which is worse than no checker because a disabled gate reads as a
+// passing one. So the invariant chosen here is the smallest one that still catches #431's actual defect:
+//
+//   INTAKE BRANCHES BY TYPE, THE SAME TYPES ARE DISPATCHED AT BUILD, EVERY LANE REACHES THE `ready`
+//   LABEL, AND NO LANE REACHES THE MERGE WITHOUT PASSING THE GATE.
+//
+// WHAT IS DELIBERATELY LET DIFFER, written here so the next reader does not take the omission for an
+// oversight:
+//
+//   THE LANE NAMES THEMSELVES. `H -- "product" --> PL` in English is `H -- "produto" --> PL` in
+//   Portuguese, and translating the labels is the whole point of shipping two editions (`translates the
+//   labels rather than shipping the English diagram twice`, one describe up, asserts the OPPOSITE of
+//   name equality here). So every assertion below is WITHIN one edition, and the only thing compared
+//   ACROSS them is how MANY lanes there are. A mistranslated lane label — `conteúdo` where the English
+//   says `product` — is invisible to this block and to everything else in this repo. It would need a
+//   glossary nobody maintains; stated as a residual rather than approximated.
+//
+//   THE LANE VOCABULARY'S TRUTH. Nothing here knows that the three types are `product`, `content` and
+//   `loop`. That vocabulary lives in the plugin's `harness-engineering` skill as prose, and `harness.json`
+//   — the one derived artifact this repo has from that tree — carries component kinds, not issue types.
+//   Scraping the label set out of another repository's markdown would be a FOURTH independent derivation
+//   of a rule two surfaces already state, which is the drift shape this whole mechanism exists to remove.
+//   So what is asserted is that the drawing AGREES WITH ITSELF about which lanes exist — add a lane at
+//   intake and forget it at build, or the reverse, and this reds. Renaming all six edges consistently
+//   passes. That is a real hole and it is the deliberate one.
+//
+//   THE PROSE BENEATH THE FIGURE. The paragraph under this fence restates the no-bypass claim in words.
+//   Nothing compares it to the drawing, for the reason the components block already records about column
+//   titles: a sentence is not an enumeration, and the only mechanical form of "the prose agrees" this
+//   file has ever found is a count, which this prose does not print.
+//
+// EVERY NAME AND NUMBER BELOW COMES OUT OF THE FENCE. There is no literal lane list in this block —
+// a literal one would be the fourth restatement described above, wearing a test's clothes.
+describe('the tier fence branches intake by issue type, and routes every lane through the gate', () => {
+  /**
+   * Every LABELLED directed edge in a fence, as `{ from, label, to }`.
+   *
+   * `graphOf` discards labels by construction — which is correct for it, since the two editions must
+   * share a SHAPE and not a vocabulary — and that is exactly why nothing in this file could see a lane
+   * before. The label is the only place the issue type appears on this fence: the lane subgraphs carry
+   * translated titles and the build boxes carry translated glosses, but the routing decision itself is
+   * drawn as the edge's text.
+   *
+   * Matched anchored end-to-end rather than with a loose scan. A permissive pattern would also catch the
+   * dashed `H <-.-> ORCH` channel and `MR -- "dispatched by the orchestrator" --> QA`, neither of which
+   * is a lane, and the lane sets would then agree only by accident.
+   */
+  const labelledEdges = (source) =>
+    source
+      .split('\n')
+      .filter((line) => !line.trimStart().startsWith('%%'))
+      .flatMap((line) => {
+        const m = /^\s*([A-Za-z0-9_]+)\s+--\s*"([^"]*)"\s*-->\s*([A-Za-z0-9_]+)\s*$/.exec(line);
+        return m ? [{ from: m[1], label: m[2], to: m[3] }] : [];
+      });
+
+  const lanesOut = (source, from) => [
+    ...new Set(labelledEdges(source).filter((e) => e.from === from).map((e) => e.label)),
+  ].sort();
+  const targetsOut = (source, from) => [
+    ...new Set(labelledEdges(source).filter((e) => e.from === from).map((e) => e.to)),
+  ].sort();
+
+  // The anti-vacuity guard, and it carries the `byTitle` throw the same way the persona block's does: a
+  // renamed fence reds HERE, saying the fence is gone, rather than letting every arm below compare two
+  // empty sets and report green. Two empty parses agreeing is this file's named recurring false green.
+  //
+  // The floor is three because #431's defect was a fence with FEWER lanes than the loop has, and an arm
+  // that accepts one lane accepts the drawing the Issue was filed about.
+  it.each(LOCALES)('is asserting against a real fence with real lanes, in the %s edition', (locale) => {
+    const source = TIER_FENCE[locale]().source;
+    expect(labelledEdges(source).length, `${locale}: no labelled edge parsed at all`).toBeGreaterThan(6);
+    expect(
+      lanesOut(source, 'H').length,
+      `${locale}: intake does not branch — tier 1 is drawn as one undifferentiated box`,
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  // THE CORE ARM, and the one that catches "the missing lane and the missing persona are the same defect
+  // seen from two sides" (the owner's words on this Issue). A type the owner can file but that nothing
+  // dispatches at build is a lane that dead-ends; a type dispatched at build that intake cannot admit is
+  // a builder nobody can reach. Both are drawings of a loop that does not exist.
+  it.each(LOCALES)('dispatches at build exactly the types it admits at intake, in the %s edition', (locale) => {
+    const source = TIER_FENCE[locale]().source;
+    expect(
+      lanesOut(source, 'ORCH'),
+      `${locale}: the lanes the orchestrator dispatches are not the lanes intake admits`,
+    ).toEqual(lanesOut(source, 'H'));
+  });
+
+  // Tier 1 closes at the `ready` label — that is the artifact the whole intake chain exists to produce,
+  // and a lane that reaches the orchestrator without it is a lane with no precondition. Asserted per
+  // lane rather than in aggregate so a failure names the one that is wrong.
+  it.each(LOCALES)('closes every intake lane on the ready label, in the %s edition', (locale) => {
+    const graph = graphOf(TIER_FENCE[locale]().source);
+    const unclosed = targetsOut(TIER_FENCE[locale]().source, 'H').filter((n) => !reaches(graph, n, 'RQ'));
+    expect(unclosed, `${locale}: an intake lane never reaches the ready label`).toEqual([]);
+  });
+
+  // #431's ORIGINAL sentence, in its falsifiable form: "the loop lane reaches the same MR to gate to
+  // merge path rather than bypassing tier 3". Per-build-node first, so a red names the lane.
+  it.each(LOCALES)('routes every build lane into the gate, in the %s edition', (locale) => {
+    const graph = graphOf(TIER_FENCE[locale]().source);
+    const unreviewed = targetsOut(TIER_FENCE[locale]().source, 'ORCH').filter((n) => !reaches(graph, n, 'QA'));
+    expect(unreviewed, `${locale}: a build lane reaches production without the gate on its path`).toEqual([]);
+  });
+
+  // And the same claim in the form no per-lane arm can express: the gate is a CUT. `reaches(LB, QA)` is
+  // satisfied by a lane that reaches the gate AND has a second edge going round it — which is precisely
+  // the shape #431 was filed about, a `loop` lane drawn both ways. Deleting the node and re-asking is
+  // what turns "the gate is on the path" into "the gate is on EVERY path".
+  //
+  // The guard above it is not decoration: with `RQ` or `M` misspelled, `reaches` returns false and the
+  // assertion passes for the wrong reason — a cut test on a graph where the two ends were never connected
+  // is vacuous, and this file has paid for that shape before.
+  it.each(LOCALES)('makes the gate a cut, not merely a station, in the %s edition', (locale) => {
+    const graph = graphOf(TIER_FENCE[locale]().source);
+    expect(reaches(graph, 'RQ', 'M'), `${locale}: ready does not reach the merge — the cut is vacuous`).toBe(true);
+    const withoutGate = {
+      nodes: graph.nodes.filter((n) => n !== 'QA'),
+      edges: graph.edges.filter((e) => !/(^|>)QA/.test(e)),
+    };
+    expect(
+      reaches(withoutGate, 'RQ', 'M'),
+      `${locale}: a lane reaches the merge with the gate removed — something goes round tier 3`,
+    ).toBe(false);
+  });
+
+  // The only cross-edition claim this block makes, and it is a COUNT because the names are translated.
+  // The graph-parity test one describe up compares node ids and edge structure with labels discarded, so
+  // it is already satisfied by two editions that disagree about how many lanes those edges represent.
+  it('draws the same number of lanes in both editions', () => {
+    const counts = LOCALES.map((locale) => lanesOut(TIER_FENCE[locale]().source, 'H').length);
+    expect(new Set(counts).size, `the editions branch intake differently: ${counts.join(' vs ')}`).toBe(1);
   });
 });
 
