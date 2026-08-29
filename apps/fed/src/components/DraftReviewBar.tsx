@@ -18,10 +18,16 @@
 // stated because it is the surprising half: a PUBLISHED article reached with `?preview` renders this bar
 // too. That is the owner's own refinement — "esse argumento de query string pode permitir esses dois
 // botoes visualizados tbm" — and it is why nothing in this component reads `draft`. The consequence he
-// asked for is that promotion rebuilds NOTHING: the date moves, the article enters the index, and the bar
-// stops appearing because nobody arrives with the parameter. Narrowing the gate to `draft && preview`
+// asked for is that promotion rebuilds NOTHING: the date moves, the article enters the index, and this
+// page is not rebuilt, because the mode was never in the build. Narrowing the gate to `draft && preview`
 // would be a second condition nobody asked for and would take the affordance away from the case where an
 // already-published piece needs another round.
+//
+// ~~the bar stops appearing because nobody arrives with the parameter~~ — STRUCK. The citation this
+// component copies carries `?preview`, and the ratified workflow publishes that payload on a public
+// Issue every round, so links carrying the parameter exist in the world and survive promotion. The true
+// statement is narrower and is the one to rely on: nobody sees the bar at a URL that does not carry the
+// parameter. `ArticlePage`'s own comment carries the full accounting.
 import { MessageSquare, ClipboardCopy, AlertTriangle } from 'lucide-react';
 import { useLocalePath, useT } from '../i18n';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';

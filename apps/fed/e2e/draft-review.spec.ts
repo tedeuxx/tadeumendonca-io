@@ -23,7 +23,7 @@ test.use({ locale: 'pt-BR' });
 
 const held = (locale: 'pt' | 'en') => `/${locale}/blog/${HELD_SLUGS[locale]}`;
 
-const ISSUE_LINK = { pt: 'Abrir a issue de conteúdo no GitHub', en: 'Open the issue for this article on GitHub' };
+const ISSUE_LINK = { pt: 'Abrir a issue deste artigo no GitHub', en: 'Open the issue for this article on GitHub' };
 const COPY = { pt: 'Copiar o texto do artigo', en: 'Copy the article text' };
 
 test.describe('the review affordances on a held article', () => {

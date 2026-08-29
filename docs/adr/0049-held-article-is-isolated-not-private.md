@@ -334,9 +334,16 @@ it is what he asked for; it is what makes promotion **rebuild nothing** — the 
 nobody arrives with the parameter, not because a flag flipped, which is this record's *"the same page in
 two modes"* property applied to the affordances; and a second review round on an already-published piece
 is a real case that a `draft` gate would take the affordance away from. **What it costs, stated rather
-than hidden:** a visitor who appends the parameter to a published URL meets two controls not addressed to
-them — a copy button that copies what the page already shows, and, only where the article names one, a
-link to a public Issue. Nothing here weakens the isolation this record describes, because the bar reveals
+than hidden, and stated LARGER than the first draft of this paragraph did:** a visitor who arrives at a
+published URL **carrying** the parameter meets two controls not addressed to them — a copy button that
+copies what the page already shows, and, only where the article names one, a link to a public Issue.
+
+**Not "appends".** The copy payload's citation carries `?preview` unconditionally, and the ratified
+workflow pastes that payload into a **public** `content` Issue every review round — so the parameter, with
+a live link to a page that renders the bar, **is published on the tracker at each round**. Nobody has to
+guess it. **This is not a problem and must not be narrowed:** a stranger following such a link finds the
+owner's own review machinery on the page, which is the site's argument visible rather than asserted. Only
+the earlier description was wrong. Nothing here weakens the isolation this record describes, because the bar reveals
 no article that the parameter did not already reveal. The decision is pinned by an assertion (`renders for
 a PUBLISHED article too, when the parameter is present`) rather than by a comment, so narrowing the gate
 later means deleting a test on purpose.
@@ -357,8 +364,20 @@ articles run 6–12 KB, so it would work on the short pieces and truncate the lo
 reviewer cannot see what was dropped and has no reason to suspect anything was.
 
 **What this does not change:** the isolation-not-privacy consequence, the upgrade path, and the three
-records this one scopes. The bar is client-rendered on a page that is already out of the sitemap and the
-prerender, so it adds nothing to the served snapshot of anything.
+records this one scopes. **No prerendered snapshot can contain the bar** — but the reason is not the one
+first written here.
+
+~~The bar is client-rendered on a page that is already out of the sitemap and the prerender.~~ **Struck:
+true of a held article, false of a published one, and it is a published article this same amendment
+introduces four paragraphs above.** `apps/fed/scripts/routes.mjs` drops a key only on `fm?.draft === true`,
+so every published article is in `localizedRoutes()` and therefore in both the sitemap and the prerender.
+Written against the narrower gate that was considered and not built.
+
+**The true reason is one layer down and holds for both cases:** `prerender.mjs` navigates `base + navUrl`
+using the `url` `routes.mjs` emits, and that url is `localePath(locale, route)` — **it never carries a
+query string**. No snapshot can request the preview, so no snapshot can render the bar, held or published.
+**Pinned rather than argued**, which is what makes it worth more than the correction itself:
+`scripts/routes.test.mjs`, *"no prerendered route can carry the preview parameter (#506)"*.
 
 ## Links
 

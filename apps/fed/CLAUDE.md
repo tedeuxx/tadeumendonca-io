@@ -115,8 +115,13 @@ in `iac/`.
   `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
   the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means
   a PUBLISHED article reached with `?preview` renders the bar too — that is what makes promotion rebuild
-  nothing, and it is why none of these four strings is ever seen by a reader who did not type the
-  parameter.
+  nothing, and it is why **none of these four strings is ever seen at a URL that does not carry the
+  parameter**. ~~is ever seen by a reader who did not type the parameter~~ — **struck: a reader who
+  CLICKS such a link did not type it**, and the copy payload's citation carries `?preview` into the public
+  `content` Issue every review round, so links carrying it are published deliberately. The claim that
+  holds is about the URL, not about how the reader got it; it is pinned by `ArticlePage.test.tsx`'s
+  *"renders NOTHING for a visitor with no preview parameter"* and `e2e/draft-review.spec.ts`'s
+  *"a published article shows nothing of it to an ordinary reader"*.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
   flag is the mutation that proves those gates can go red.

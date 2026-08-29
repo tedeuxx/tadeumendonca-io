@@ -29,12 +29,22 @@ export function ArticlePage() {
   // NOT `article.draft && …`, deliberately, and the consequence is stated rather than left to be
   // discovered: a PUBLISHED article reached with `?preview` renders the bar too. Three reasons, in the
   // order they weighed. (1) It is what he asked for, in those words. (2) It is what makes promotion
-  // rebuild nothing — the bar stops appearing because nobody arrives with the parameter, not because a
-  // flag flipped, so the same page in two modes stays one page. (3) A second round on an
-  // already-published piece is a real case, and a `draft` gate would take the affordance away exactly
-  // there. What it costs: a visitor who appends the parameter to a published URL meets two controls that
-  // are not addressed to them. The exposure is a copy button that copies what the page already shows,
-  // plus — only where the article names one — a link to a public Issue.
+  // rebuild nothing — the date moves, the article enters the index, and NOTHING about this page is
+  // rebuilt, because the mode was never in the build. (3) A second round on an already-published piece is
+  // a real case, and a `draft` gate would take the affordance away exactly there.
+  //
+  // WHAT IT COSTS, and this is larger than "a visitor who appends the parameter" — the enlargement is
+  // this slice's own doing. The copy payload's citation carries `?preview` unconditionally, and the
+  // ratified workflow pastes that payload into a PUBLIC `content` Issue every review round. So the
+  // parameter travels in published links: a reader can arrive here by CLICKING, without ever knowing the
+  // parameter exists. What they meet is a copy button that copies what the page already shows, plus —
+  // only where the article names one — a link to a public Issue. Judged and accepted rather than
+  // narrowed: a stranger following such a link finds the owner's own review machinery on the page, which
+  // is this site's argument visible rather than asserted.
+  //
+  // What stays true without qualification, and is the sentence to reach for: NOBODY SEES ANY OF THIS AT A
+  // URL THAT DOES NOT CARRY THE PARAMETER. That one is pinned — the two tests named on the `review` group
+  // in `messages.ts`.
   //
   // Read from `useLocation`, not `window.location`, for the reason `ArticleRoute` gives one layer up: a
   // client-side navigation is the one moment the two disagree.

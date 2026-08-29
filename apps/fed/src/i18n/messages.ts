@@ -797,7 +797,13 @@ const strings = {
     // is an entire article: they paste nothing and blame their notes app. `copied` stays the shared
     // success state for both controls.
     copyFailed: { pt: 'Não foi possível copiar', en: "Couldn't copy" },
-    // The copied text's attribution line — the canonical URL, clean, directly under the generated title.
+    // The copied text's attribution line, directly under the generated title. WHICH URL IT CARRIES
+    // DEPENDS ON THE CALLER, and this comment used to claim one shape for both: `ShareButton` (#387) cites
+    // the canonical path, clean and UTM-free for the reason argued at length in `shareMarkdown.ts`;
+    // `DraftReviewBar` (#506) cites the same path with `?preview` appended, because the reviewer's article
+    // is held while he is reviewing it and a clean citation would redirect him to the locale home from
+    // inside the review he is writing. Stated as two shapes rather than corrected to one: the divergence
+    // is deliberate, and ADR-0049's amendment records the counter-argument it was taken against.
     source: { pt: 'Fonte', en: 'Source' },
     // Stands in for the ` ```adr-index ` fence, which is EMPTY in source and expands into a live table
     // only in the renderer. Copied verbatim it is three backticks; copied through this it is the link the
@@ -808,9 +814,22 @@ const strings = {
     },
   },
   // #506 — the draft review bar. THESE FOUR STRINGS ARE READER-FACING ONLY BEHIND `?preview`: the bar
-  // renders nowhere else, so no visitor arriving at any published URL sees any of them. Stated here
-  // because that is what keeps the slice in the safe class, and it is a property of the render gate in
-  // `ArticlePage`, not of the catalog — move the bar and this sentence stops being true.
+  // renders nowhere else, so NO VISITOR SEES THEM AT ANY URL THAT DOES NOT CARRY THE PARAMETER. Stated
+  // here because that is what keeps the slice in the safe class, and it is a property of the render gate
+  // in `ArticlePage`, not of the catalog — move the bar and this sentence stops being true.
+  //
+  // ~~so no visitor arriving at any published URL sees any of them~~ — STRUCK. It was false, and false in
+  // the direction that reads as safer: `/en/blog/<slug>?preview` IS a published URL, and `ArticlePage`'s
+  // gate carries no `draft` term. The gate is the parameter ALONE, deliberately (the owner's refinement,
+  // recorded in ADR-0049's 2026-08-29 amendment) — so this comment was written against the narrower gate
+  // that was considered and not built, which is the one way a safe-class claim can be wrong without
+  // looking wrong.
+  //
+  // THE CORRECTED SENTENCE IS PINNED, which is why it can be trusted where the first one could not:
+  // `ArticlePage.test.tsx`'s "renders NOTHING for a visitor with no preview parameter", and
+  // `e2e/draft-review.spec.ts`'s "a published article shows nothing of it to an ordinary reader" —
+  // the latter reading the whole rendered body text, so a control that lost its accessible name is
+  // still caught.
   //
   // Written for ONE reader, and he is the owner. Every other string in this catalog is addressed to a
   // visitor; these are tooling labels, so they are plain and name the destination rather than being
@@ -823,12 +842,26 @@ const strings = {
     label: { pt: 'Revisão do artigo', en: 'Article review' },
     // The VISIBLE label / the ACCESSIBLE NAME — the `share.moreOptions` / `moreOptionsLabel` shape and the
     // same WCAG 2.5.3 containment rule: the long form EXTENDS the short one rather than replacing it, so
-    // 'Abrir a issue' is a substring of 'Abrir a issue de conteúdo no GitHub', and 'Open the issue' of
+    // 'Abrir a issue' is a substring of 'Abrir a issue deste artigo no GitHub', and 'Open the issue' of
     // 'Open the issue for this article on GitHub'. The short form is what fits the mono row beside the
     // copy control; the long one is what tells a screen-reader user the link leaves the site.
+    //
+    // THE TWO EDITIONS SAY THE SAME THING NOW, and they did not. pt read 'a issue de conteúdo' — naming
+    // the Issue's TYPE — while en read 'the issue for this article' — naming its RELATION to the article.
+    // Both were true, so nothing was false; but an ACCESSIBLE NAME is the one string where the two
+    // editions have to be interchangeable, because the owner reads them side by side and a screen-reader
+    // user gets only one of them. The relation is the more useful meaning to a reader, and the type
+    // additionally exported this project's internal routing taxonomy (`content`-typed Issues) into a UI
+    // label, where it means nothing to anyone who has not read the harness docs. pt takes the relation.
+    //
+    // `issue` STAYS IN THE pt STRING, AND THAT IS A DECISION RATHER THAN A DEFAULT — the first anglicism
+    // of its kind in this catalog, so it is where the precedent gets set. It stays because the control
+    // opens a GitHub **Issue**, which is that object's name on the destination page; 'chamado' or 'tarefa'
+    // would name something the reader will not find when they arrive. The same rule already keeps `link`
+    // rather than `ligação` two groups down.
     openIssue: { pt: 'Abrir a issue', en: 'Open the issue' },
     openIssueLabel: {
-      pt: 'Abrir a issue de conteúdo no GitHub',
+      pt: 'Abrir a issue deste artigo no GitHub',
       en: 'Open the issue for this article on GitHub',
     },
     // NAMES THE ARTICLE, not the format. `share.copyMarkdown` names its destination because a second copy

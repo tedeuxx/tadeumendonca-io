@@ -201,7 +201,7 @@ describe('ArticlePage', () => {
 // this page. What the bar itself does is `DraftReviewBar.test.tsx`'s subject; what is asserted here is
 // which visitors meet it at all, because that is what keeps the slice reader-invisible.
 describe('the draft review bar', () => {
-  const ISSUE_LINK = 'Abrir a issue de conteúdo no GitHub';
+  const ISSUE_LINK = 'Abrir a issue deste artigo no GitHub';
   const COPY = 'Copiar o texto do artigo';
 
   // THE WHOLE SAFE-CLASS CLAIM, in one assertion. If this goes green with the bar rendered, two controls

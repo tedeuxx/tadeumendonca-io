@@ -20,7 +20,7 @@ afterEach(() => {
 // The labels are held as constants and asserted through `getByRole({ name })`, which matches the WHOLE
 // accessible name here — so the short visible label and the long accessible one genuinely exclude each
 // other, and a test that re-typed a string would keep passing against the label it replaced.
-const OPEN_ISSUE_PT = 'Abrir a issue de conteúdo no GitHub';
+const OPEN_ISSUE_PT = 'Abrir a issue deste artigo no GitHub';
 const OPEN_ISSUE_EN = 'Open the issue for this article on GitHub';
 const COPY_PT = 'Copiar o texto do artigo';
 const COPY_EN = 'Copy the article text';
