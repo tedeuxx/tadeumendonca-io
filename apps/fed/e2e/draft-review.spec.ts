@@ -83,7 +83,13 @@ test.describe('who does NOT meet the review affordances', () => {
     await page.goto('/pt/blog/meu-compromisso');
     // The ruler first: the article really rendered, so the absences below are findings and not an empty
     // page — the false-green shape this suite keeps guarding against.
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    //
+    // BY NAME, not `{ level: 1 }`: the page carries TWO h1s — the column header's "Blog" and the
+    // article's own title — so the level locator is a strict-mode violation and this ruler failed on its
+    // first run against the built site. Naming the article's title is also the stronger ruler: the
+    // column header renders on the not-found branch too, so it would have been satisfied by a page that
+    // never found the article at all.
+    await expect(page.getByRole('heading', { name: 'Meu Compromisso' })).toBeVisible();
     const body = await page.locator('body').innerText();
     expect(body).not.toContain('Copiar o texto do artigo');
     expect(body).not.toContain('Abrir a issue');

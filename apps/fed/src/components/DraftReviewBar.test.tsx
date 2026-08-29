@@ -59,8 +59,14 @@ describe('the issue button', () => {
 
   // The builder itself, asserted literally ONCE — otherwise every assertion above is `f(x) === f(x)`,
   // which is true for a builder that returns the empty string.
+  //
+  // 4242 AND NOT 506, and the difference is the whole value of this line. Written with 506 — the number
+  // every other case here uses — it stayed GREEN under a builder mutated to ignore its argument and
+  // return `/issues/506`, because the literal and the hardcode were the same string. Caught by running
+  // that mutation rather than by reading the test. A literal assertion has to use a value the rest of
+  // the suite does not, or it pins the shape and not the substitution.
   it('builds the tracker URL from the number', () => {
-    expect(contentIssueUrl(506)).toBe('https://github.com/tedeuxx/tadeumendonca-io/issues/506');
+    expect(contentIssueUrl(4242)).toBe('https://github.com/tedeuxx/tadeumendonca-io/issues/4242');
   });
 
   // THE DEGRADATION, and it is the half worth testing hardest: a button that opened the wrong Issue —
