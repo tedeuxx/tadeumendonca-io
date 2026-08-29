@@ -131,12 +131,30 @@ export const SURFACES = {
      * moves to the middle of the band instead of hugging an edge.
      *
      * The middle of the BAND, and that is load-bearing: it is centred on `crop`, never on `safe`, whose
-     * left inset exists only to clear the avatar. See `visibleCentreXPx` (#572).
+     * insets exist to clear an occluder. See `compositionCentrePx` (#572).
+     *
+     * `safe.y1` WAS 0.6, and it was the one number in this file with no derivation behind it. The two
+     * occluders declared here are the bottom-left avatar and the lateral phone crop; neither takes
+     * anything from the bottom of the column a centred lockup occupies, and `crop.y` is `0 → 1`. So a
+     * bottom inset of 0.40 against a top inset of 0.08 was asking for clearance from nothing — and
+     * anything centred inside it sat 80px high. It is now 0.92, the MIRROR of `y0 = 0.08`, which is
+     * what `cropInsets` + `occluderReachesSide` assert and what LinkedIn below already did on both
+     * axes with the same avatar in the same corner. Deliberately not 0.705, the smallest value that
+     * fits the current block: that number would be tuned to today's type scale, and would silently
+     * stop being right the first time the copy or the scale moved.
+     *
+     * WHAT KEEPS `safe` CLEAR OF THE AVATAR AFTER THIS, since a taller safe area now runs the whole
+     * height the avatar occupies: `x0 = 0.22` against `avatar.x1 = 0.2`. The two rectangles are
+     * disjoint HORIZONTALLY and always were — the old `y1 = 0.6` never contributed to it, which is
+     * visible in the fact that 0.6 sits BELOW `avatar.y0 = 0.42` and the two were disjoint anyway. So
+     * the disjointness assertion is untouched by this change rather than rescued by it. If a future
+     * edit moves `x0` left of 0.2, that assertion reddens — and the fix is that edit, never a shorter
+     * safe area standing in for a clearance it does not provide.
      */
     layout: 'stack-centre',
     avatar: { x0: 0, y0: 0.42, x1: 0.2, y1: 1 },
     crop: { x0: 0.1, y0: 0, x1: 0.9, y1: 1 },
-    safe: { x0: 0.22, y0: 0.08, x1: 0.88, y1: 0.6 },
+    safe: { x0: 0.22, y0: 0.08, x1: 0.88, y1: 0.92 },
   },
 };
 
@@ -214,38 +232,102 @@ export const overlaps = (a, b) => !(a.x1 <= b.x0 || b.x1 <= a.x0 || a.y1 <= b.y0
 export const safeAreaPx = (surface) => toPx(surface.safe, surface);
 
 /**
- * ── WHAT A CENTRED COMPOSITION IS CENTRED ON (#572) ──
+ * ── WHAT A CENTRED COMPOSITION IS CENTRED ON (#572, both axes) ──
  *
- * `safe` is a CLEARANCE constraint and it is one-sided: its left edge is pushed in to clear the avatar,
- * and nothing on the right pushes back. So its own centre is not the centre of anything a reader looks
- * at — on the X surface it sits at 0.55 while the visible band is centred on 0.50, and a stack centred
- * in `safe` therefore lands 75px right of centre on a 1500px canvas while satisfying every rectangle
- * this file declares. That is exactly what shipped, and it is why "inside `safe`" was never the same
- * property as "centred".
+ * `safe` is a CLEARANCE constraint, and on this platform it is a one-sided one on BOTH axes. Its left
+ * edge is pushed in to clear the avatar and nothing on the right pushes back; its bottom edge was inset
+ * five times deeper than its top, and — see `cropInsets` below — nothing in the model ever explained
+ * why. So its own midpoint is not the midpoint of anything a reader looks at: on X it sat at 0.55
+ * across and 0.34 down, and a stack centred inside it landed 75px right and 80px above centre while
+ * satisfying every rectangle this file declares. That is exactly what shipped, twice, and it is why
+ * "inside `safe`" was never the same property as "centred".
  *
  * The two properties are now separated: `safe` keeps saying WHERE A WORD MAY BE, and this says WHAT THE
- * COMPOSITION IS BUILT AROUND — the middle of `crop`, which is the middle of what is actually seen.
+ * COMPOSITION IS BUILT AROUND. Both coordinates are the midpoint of `crop` on their axis — but they are
+ * NOT equally well supported, and the difference is stated here rather than left to be inferred:
  *
- * Symmetrising `safe` instead would have been the wrong repair: mirroring its left inset to the right
- * (0.22 → 0.78) narrows the usable width to 56% of the canvas AND keeps every row inside it, which cuts
- * the CTA harder rather than less. Centring on `crop` costs the same 56% of usable width — a centred
- * block can only be as wide as twice its nearest safe edge — but spends it symmetrically.
+ *   · `x` — `crop.x` is a real modelled band (0.1 → 0.9 on X): the lateral crop a phone applies. Its
+ *     midpoint is the middle of the strip this file claims is seen. Still a CHOSEN fraction, per the
+ *     SURFACES comment above, but a fraction standing for something.
+ *
+ *   · `y` — `crop.y` is `0 → 1`. THE MODEL DECLARES NO VERTICAL CROP AT ALL, so this coordinate is the
+ *     middle of the CANVAS, and calling it "the middle of what is seen" would dress an absence up as a
+ *     measurement. What makes it the right centre anyway is not `crop`, it is the avatar: the only
+ *     occluder declared here is a RECTANGLE confined to `x <= 0.2`, while a centred lockup spans about
+ *     `x 0.31 → 0.69`. The two are disjoint, so the lockup's own column is unoccluded top to bottom and
+ *     its centre is the canvas centre. The two readings of "centred vertically" — the full band, and
+ *     the region left visible by the occluder — COINCIDE here, and they coincide for a reason rather
+ *     than by luck: the occluder is not in this column.
+ *
+ * What that argument rests on, said plainly because it is thinner than the horizontal one: the model's
+ * two declared occluders are the bottom-LEFT avatar and the LATERAL mobile crop. If a profile card
+ * covers the bottom-middle of an X header, this file has never said so, no assertion here would catch
+ * it, and the fix is to declare it — not to leave an unexplained inset standing in for it.
+ *
+ * Symmetrising `safe` horizontally would have been the wrong repair: mirroring its left inset to the
+ * right (0.22 → 0.78) narrows the usable width to 56% of the canvas AND keeps every row inside it,
+ * which cuts the CTA harder rather than less. Centring on `crop` costs the same 56% of usable width —
+ * a centred block can only be as wide as twice its nearest safe edge — but spends it symmetrically.
  */
-export const visibleCentreXPx = (surface) => ((surface.crop.x0 + surface.crop.x1) / 2) * surface.width;
+export const compositionCentrePx = (surface) => ({
+  x: ((surface.crop.x0 + surface.crop.x1) / 2) * surface.width,
+  y: ((surface.crop.y0 + surface.crop.y1) / 2) * surface.height,
+});
 
 /**
- * The widest SYMMETRIC band about the visible centre that still fits inside `safe`, in pixels.
+ * The largest SYMMETRIC rectangle about the composition centre that still fits inside `safe`.
  *
- * This is the real budget a centred row has, and it is smaller than `safe` whenever `safe` is
- * asymmetric — the half-width is bounded by the NEARER of the two safe edges, because a centred row
- * grows in both directions at once. Its `y` bounds are `safe`'s, so the band is a rectangle the
- * ordinary `contains` arithmetic can be pointed at rather than a second, x-only special case.
+ * This is the real budget a centred composition has, and it is smaller than `safe` on any axis where
+ * `safe` is asymmetric — the half-extent is bounded by the NEARER of the two safe edges, because a
+ * centred block grows in both directions at once.
  */
 export const centredBandPx = (surface) => {
-  const centre = visibleCentreXPx(surface);
+  const centre = compositionCentrePx(surface);
   const safe = safeAreaPx(surface);
-  const half = Math.min(centre - safe.x0, safe.x1 - centre);
-  return { x0: centre - half, y0: safe.y0, x1: centre + half, y1: safe.y1 };
+  const halfX = Math.min(centre.x - safe.x0, safe.x1 - centre.x);
+  const halfY = Math.min(centre.y - safe.y0, safe.y1 - centre.y);
+  return { x0: centre.x - halfX, y0: centre.y - halfY, x1: centre.x + halfX, y1: centre.y + halfY };
+};
+
+/**
+ * ── WHY AN INSET IS ALLOWED TO BE DEEPER THAN ITS OPPOSITE ──
+ *
+ * `safe`'s four insets, measured from `crop` rather than from the canvas: `crop` is already the outer
+ * limit (`contains(crop, safe)` is asserted above), so an inset from it is the EXTRA clearance this
+ * model asks for, which is the part that needs a reason.
+ *
+ * The rule the assertions enforce: on each axis the two insets are EQUAL unless a declared occluder
+ * reaches into the deeper side — see `occluderReachesSide`. A deeper inset with nothing reaching it is
+ * a one-sided constraint with no one-sided reason, and anything centred inside it inherits the tilt.
+ * Not hypothetical: X's bottom inset was 0.40 against a top of 0.08, and the only occluder declared
+ * anywhere near it is confined to a column `safe` is separately asserted to be disjoint from. The model
+ * contradicted itself, and that contradiction is what the owner could see.
+ */
+export const cropInsets = (surface) => ({
+  left: surface.safe.x0 - surface.crop.x0,
+  right: surface.crop.x1 - surface.safe.x1,
+  top: surface.safe.y0 - surface.crop.y0,
+  bottom: surface.crop.y1 - surface.safe.y1,
+});
+
+/**
+ * Does a declared occluder actually reach `side`, in the part of the canvas `safe` occupies?
+ *
+ * BOTH halves matter, and the second is the one the model was missing. An occluder reaches a side if it
+ * runs to that edge of the crop AND its span on the OTHER axis overlaps `safe`'s. The avatar runs to
+ * the bottom edge (`y1 = 1`) — but it lives at `x <= 0.2` while `safe` starts at `x = 0.22`, so it
+ * reaches the bottom of the canvas without reaching the bottom of anything a word could occupy.
+ * Flattening that rectangle into a full-width band is what made 0.40 of bottom clearance look earned.
+ */
+export const occluderReachesSide = (surface, side) => {
+  const { avatar, crop, safe } = surface;
+  const spansX = avatar.x1 > safe.x0 && avatar.x0 < safe.x1;
+  const spansY = avatar.y1 > safe.y0 && avatar.y0 < safe.y1;
+  if (side === 'left') return avatar.x0 <= crop.x0 && spansY;
+  if (side === 'right') return avatar.x1 >= crop.x1 && spansY;
+  if (side === 'top') return avatar.y0 <= crop.y0 && spansX;
+  if (side === 'bottom') return avatar.y1 >= crop.y1 && spansX;
+  throw new Error(`occluderReachesSide: unknown side "${side}"`);
 };
 
 /** Is a measured, pixel-space box entirely inside the surface's safe area? */

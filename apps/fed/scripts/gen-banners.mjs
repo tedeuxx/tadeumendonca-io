@@ -17,10 +17,18 @@
 //    are MEASURED and checked against `SURFACES[id].safe`. Composition-by-eye is not available on a
 //    surface nobody can see whole, and "I checked it looks fine" is not a thing a reviewer can re-run.
 //
-// 3. THE CENTRING — added by #572, and the one the other three cannot see. Refusal 2 asks whether the
-//    artwork is inside the boundaries; a lockup can satisfy that and still be visibly off-centre,
-//    because the safe area is a ONE-SIDED clearance constraint and its midpoint is not the midpoint of
-//    what a reader sees. So a `stack-centre` composition is measured against the visible centre.
+// 3. THE CENTRING, on both axes — added by #572, and the one the other three cannot see. Refusal 2 asks
+//    whether the artwork is inside the boundaries; a lockup can satisfy that and still be visibly
+//    off-centre, because the safe area is a ONE-SIDED clearance constraint on each axis and its midpoint
+//    is not the middle of the canvas. So a `stack-centre` composition is measured against the
+//    composition centre.
+//
+//    AND IT HAS TO CARRY THAT ALONE, which is the reason it is a separate refusal rather than a tighter
+//    refusal 2. Before this slice, centring the X stack vertically on the canvas threw refusal 2 —
+//    `#block` escaped `safe.y1` — so the wrong reading LOOKED caught. It was caught incidentally, by the
+//    block being tall enough to breach a bound that had no derivation behind it. Widening that bound to
+//    its justified value (see `safe.y1` in banners.mjs) removes the incidental backstop entirely, and
+//    this check is what is left.
 //
 // 4. THE DIMENSIONS — asserted on the bytes actually written, not on the viewport asked for. A banner at
 //    the wrong size is the failure nobody notices until it has been uploaded and cropped.
@@ -38,10 +46,10 @@ import {
   SURFACE_IDS,
   bannerFile,
   centredBandPx,
+  compositionCentrePx,
   markSvg,
   pngSize,
   safeAreaPx,
-  visibleCentreXPx,
   withinSafeArea,
 } from './banners.mjs';
 
@@ -83,14 +91,28 @@ const bannerHtml = (id) => {
   // time. Sitting flush against the limit of what is visible is also the wrong composition — the safe
   // area is where a word MAY go, not where it should end. 4px at these canvas sizes is invisible.
   //
-  // HORIZONTALLY, a centred stack is centred on `visibleCentreXPx` and NOT on the middle of `safe` (#572).
-  // `safe` is one-sided — its left edge is inset to clear the avatar and nothing insets the right — so
-  // its midpoint is 0.55 of the X canvas while the visible band's is 0.50, and centring in it shipped a
-  // lockup 75px right of centre that satisfied every check this file makes. Vertically `safe` IS the
-  // frame (its top and bottom are both real limits), so the y term below still reads from it.
+  // A centred stack is centred on `compositionCentrePx` on BOTH axes, never on the middle of `safe`
+  // (#572). `safe` is one-sided on each: its left edge is inset to clear the avatar and nothing insets
+  // the right, and its bottom edge was inset for nothing at all. Its midpoint sat at 0.55 across and
+  // 0.34 down while the canvas centre is 0.50/0.50, so centring in it shipped a lockup 75px right and
+  // 80px high that satisfied every check this file makes. The `lockup-right` branch below still reads
+  // its `top` from `safe`, and must: that surface's safe area is symmetric on both axes, so the two
+  // agree there, and it is anchored to an edge horizontally by deliberate design.
   const INSET = 4;
+  const centre = compositionCentrePx(s);
+  // ── THE 6px THE NEW REFUSAL FOUND ON ITS FIRST RUN, and it is not a fudge factor ──
+  //
+  // `body` carries the hairline rules as a real `border-top`/`border-bottom`, and it is
+  // `position:relative`. An absolutely-positioned child is placed against its containing block's
+  // PADDING box, which starts below that border — while `getBoundingClientRect`, which the refusal
+  // below measures with, is in VIEWPORT space, which includes it. So `top:250px` renders its centre at
+  // 256px and the two coordinate spaces disagree by exactly the rule's thickness.
+  //
+  // Subtracted rather than absorbed into the centre, because the centre is a fact about the CANVAS and
+  // this is a fact about one stylesheet. Named once and used in both places so the two cannot drift.
+  const RULE_PX = 6;
   const place = stack
-    ? `left:${visibleCentreXPx(s)}px; top:${(safe.y0 + safe.y1) / 2}px; transform:translate(-50%,-50%);
+    ? `left:${centre.x}px; top:${centre.y - RULE_PX}px; transform:translate(-50%,-50%);
        align-items:center; text-align:center;`
     : `right:${s.width - safe.x1 + INSET}px; top:${(safe.y0 + safe.y1) / 2}px; transform:translateY(-50%);
        align-items:flex-end; text-align:right;`;
@@ -100,7 +122,7 @@ const bannerHtml = (id) => {
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:${s.width}px; height:${s.height}px; }
   body { background:${PALETTE.canvas}; color:${PALETTE.type}; overflow:hidden; position:relative;
-    border-top:6px solid ${PALETTE.rule}; border-bottom:6px solid ${PALETTE.rule}; }
+    border-top:${RULE_PX}px solid ${PALETTE.rule}; border-bottom:${RULE_PX}px solid ${PALETTE.rule}; }
   #block { position:absolute; display:flex; flex-direction:column; gap:${t.rowGap}px; ${place} }
   .wm { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:${t.wordmark}px;
     letter-spacing:0.02em; line-height:1; display:flex; ${stack ? 'flex-direction:column;' : ''}
@@ -170,18 +192,39 @@ for (const id of SURFACE_IDS) {
   // Only for `stack-centre`. `lockup-right` is anchored to an edge deliberately, and asserting a centre
   // there would collapse the two compositions into one — which banners.test.mjs separately reddens on.
   if (s.layout === 'stack-centre') {
-    const centre = visibleCentreXPx(s);
+    const centre = compositionCentrePx(s);
+    // Half a pixel. A browser lays out in 1/64px units, so exact equality would be flaky; the defect
+    // this catches is tens of pixels wide, so the tolerance costs nothing real.
+    const TOLERANCE = 0.5;
+    const driftOf = (lo, hi, target) => (lo + hi) / 2 - target;
+
     for (const box of boxes) {
-      const drift = (box.x0 + box.x1) / 2 - centre;
-      // Half a pixel. A browser lays out in 1/64px units, so an exact-equality check would be flaky;
-      // the defect this catches is tens of pixels wide, so the tolerance costs nothing real.
-      if (Math.abs(drift) > 0.5) {
+      // HORIZONTALLY every row is centred — the stack sets `align-items:center`, so the block and each
+      // of its children share one axis.
+      const drift = driftOf(box.x0, box.x1, centre.x);
+      if (Math.abs(drift) > TOLERANCE) {
         throw new Error(
-          `banner-${id}: \`${box.sel}\` is not centred on what a reader sees — it sits ${drift.toFixed(0)}px ` +
-            `${drift > 0 ? 'right' : 'left'} of the visible centre (${centre.toFixed(0)}px). Inside the safe ` +
-            'area is not the same property as centred: the safe area is one-sided.',
+          `banner-${id}: \`${box.sel}\` is not centred horizontally — it sits ${Math.abs(drift).toFixed(0)}px ` +
+            `${drift > 0 ? 'right' : 'left'} of the composition centre (x=${centre.x.toFixed(0)}px). Inside ` +
+            'the safe area is not the same property as centred: the safe area is one-sided.',
         );
       }
+    }
+
+    // VERTICALLY only the block is centred, and checking the rows here would be a real defect rather
+    // than extra rigour: `.wm` sits above `.cta` BY DESIGN, so a per-row y check would demand that a
+    // stack not be a stack. This is the one place the two axes are genuinely not symmetric.
+    const block = boxes.find((b) => b.sel === '#block');
+    // Same reasoning as the STYLE guard above: dropping '#block' from the selector list would otherwise
+    // fail as `undefined is not an object` inside a centring check, which names the wrong problem.
+    if (!block) throw new Error("gen-banners: the measured boxes carry no '#block' — the centring check cannot run");
+    const vDrift = driftOf(block.y0, block.y1, centre.y);
+    if (Math.abs(vDrift) > TOLERANCE) {
+      throw new Error(
+        `banner-${id}: the composition is not centred vertically — it sits ${Math.abs(vDrift).toFixed(0)}px ` +
+          `${vDrift > 0 ? 'below' : 'above'} the composition centre (y=${centre.y.toFixed(0)}px). The safe ` +
+          'area is one-sided on this axis too; its midpoint is not the middle of the canvas.',
+      );
     }
   }
 
