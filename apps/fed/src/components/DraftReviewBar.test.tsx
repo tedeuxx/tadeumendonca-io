@@ -25,6 +25,13 @@ const OPEN_ISSUE_EN = 'Open the issue for this article on GitHub';
 const COPY_PT = 'Copiar o texto do artigo';
 const COPY_EN = 'Copy the article text';
 
+// WHAT THIS FILE CANNOT SEE, measured rather than assumed (round 3, quality-assurance): it passes
+// contentIssue DIRECTLY, so it is blind to the WIRING. Mutating ArticlePage to pass a constant instead
+// of the article's own number leaves this entire file GREEN and reddens ArticlePage.test.tsx. So the pin
+// for "the article's own number reaches the link" is that file's "carries the article's own Issue
+// number", plus the E2E — not this suite. Nothing is uncovered; the note exists so the next reader does
+// not take this file as the pin it is not.
+
 const BODY = 'Um parágrafo.\n\nE um link para a [Biblioteca](/library).';
 
 const renderBar = (

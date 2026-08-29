@@ -330,9 +330,9 @@ were made inside the ratified spec that a later reader would otherwise have to r
 **1 · The gate is the PARAMETER ALONE, not `draft && parameter`.** The owner's refinement, verbatim:
 *"esse argumento de query string pode permitir esses dois botoes visualizados tbm"*. So a **published**
 article reached with `?preview` renders the review bar as well. Three reasons, in the order they weighed:
-it is what he asked for; it is what makes promotion **rebuild nothing** — the bar stops appearing because
-nobody arrives with the parameter, not because a flag flipped, which is this record's *"the same page in
-two modes"* property applied to the affordances; and a second review round on an already-published piece
+it is what he asked for; it is what makes promotion **rebuild nothing** — the date moves, the article
+enters the index, and this page is not rebuilt, because the mode was never in the build, which is this
+record's *"the same page in two modes"* property applied to the affordances; and a second review round on an already-published piece
 is a real case that a `draft` gate would take the affordance away from. **What it costs, stated rather
 than hidden, and stated LARGER than the first draft of this paragraph did:** a visitor who arrives at a
 published URL **carrying** the parameter meets two controls not addressed to them — a copy button that
