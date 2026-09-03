@@ -221,6 +221,12 @@ There is one thing I already know about September: **no structural change to a l
 
 And when you do change a loop, be very narrow about it, and then watch what the loop's behaviour does with all of your attention and focus on it.
 
+https://www.youtube.com/watch?v=S-sYlFiGFv8
+
+One of the engineers in there says he had wanted to know how to program so he could make a video game, and that now every idea he has, he can put into practice.
+
+That is how I feel making this site.
+
 Go and look at what your loops actually did last month — not the output, the *rounds*. Count how many of them found the same thing twice.
 
 A hug, and see you next time.

@@ -331,3 +331,84 @@ four plays.** Reading an API's `embeddable` field would not close it either, sin
 that field; the check has to be against the rendered player.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 5 — 2026-09-03 — the article's new ending
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main`.
+
+**Round 4 is not in this file yet** — it is in PR #585, blocked — so this section follows round 3 on
+disk and the two will collide in this file's tail when both land. Sequencing is the orchestrator's.
+
+### The source was NOT on the Issue when this was written — third consecutive round
+
+**Round 4's own comment recorded this defect and called itself the second instance. This is the third.**
+Searched before drafting:
+
+```
+gh issue view 577 --repo tedeuxx/tadeumendonca-io --json comments \
+  --jq '[.comments[] | select(.body | test("S-sYlFiGFv8"))] | .[].body'   -> (empty)
+```
+
+**The verbatim quote reached this round through the dispatch brief, not through the artifact.** So the
+diff that publishes the claim is again the only thing vouching for it — the exact condition
+`quality-assurance` blocked PR #585 on. **Written up rather than smoothed over, and it is this round's
+ask: one comment on #577 carrying his words closes it.**
+
+### What was added, and where
+
+**The ceiling passage stays untouched.** It is where the work is; this is why the work happens. The new
+beat sits after the September paragraph and before the closing instruction, so **the last substantive
+thing a reader meets is his recognition rather than a limitation** — and the corpus close (instruct,
+then wish) stays intact around it.
+
+**Three sentences: the link, the engineer's beat, his sentence.** No summary of the video, no name for
+the engineer — the source gives neither — and **no gloss on the parallel.** *"That is how I feel making
+this site"* does the work; explaining it is the edit that kills it, exactly as with the three un-glossed
+*"my decision"* instances.
+
+**Tested against the register rather than assumed:** nothing here exists in order to encourage. It is
+one person's reported experience and one sentence of recognition — **it states, it does not uplift**,
+which is what keeps it off a motivational carousel.
+
+### The embeddability check — run with a CONTROL, and it corrects round 3
+
+**Round 3 said an API field could not settle this and the check had to be against the rendered player.
+That was over-strict, and here is the measurement:**
+
+```
+curl -s -o /dev/null -w "%{http_code}" ".../oembed?url=...v=S-sYlFiGFv8&format=json"  -> 200
+curl -s -o /dev/null -w "%{http_code}" ".../oembed?url=...v=pqlWNihgdjI&format=json"  -> 401
+```
+
+**The control is the point.** Clare's video — the one known to fail in the live player — returns **401**
+where the new one returns **200**. So oEmbed **discriminates on the case this repository actually got
+wrong**, which makes it a usable pre-flight rather than an assumption.
+
+**Bounded honestly: one true positive and one true negative is a control, not a validation suite**, and
+the endpoint tests YouTube's embed permission rather than this site's player. **It is a cheap falsifier
+the repo did not have, and it does not replace the component fix in flight with `developer`.**
+
+**So this ending does not ship a second dead player**, and Clare's remains dead by the same instrument.
+
+### The caption has a citable source, which the previous row did not
+
+Round 3 stopped `vJEy3nP2_C8`'s caption at the speaker because no source here gave a title. **The same
+oEmbed call returns both fields**, so this row is filled from YouTube's own response rather than guessed:
+`"channel": "Claude"` is the returned `author_name` and matches the file's existing convention
+(`fl1DSmwQKKY` already carries it). **The open advisory on the other rows is untouched** — one row
+resolved from a source, not a sweep.
+
+**Poster art regenerated:** exactly one new file, `apps/fed/public/video/S-sYlFiGFv8.png`, the existing
+eleven **byte-identical** (none shows as modified in `git status`).
+
+### The tally
+
+**Six pieces of source have now arrived from the owner after the pair closed at `CLEAR`** — a false
+attribution, missing context, a flattened distinction, an authorship fact, the platform's context and
+thesis, and the article's ending. **All six are things only he knows.**
+
+**And three of the six reached the draft before reaching the Issue.** That is no longer a property of one
+round; it is the shape in which this piece is being finished, and the record says so rather than treating
+each instance as isolated.
+
+CONTENT-REVIEW-FINDINGS
