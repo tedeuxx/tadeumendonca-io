@@ -7,21 +7,27 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 577
-excerpt: "Três projetos agênticos em paralelo, em cima de uma agenda de projeto cheia, e uma conta de USD 4.207. O dinheiro é o número menos interessante disso: o que agosto custou de verdade foi decidir a mesma coisa várias vezes sem perceber."
+excerpt: "Três projetos agênticos em paralelo, em cima de uma agenda de projeto cheia, e uma conta de USD 4.207 cobrindo dois deles. O dinheiro é o número menos interessante disso: o que agosto custou de verdade foi decidir a mesma coisa várias vezes sem perceber."
 takeaway: 'como perceber que você está queimando horas e dinheiro na coisa errada — três sinais que não dependem de nenhuma ferramenta minha — e o que fazer no minuto em que você percebe.'
 ---
 
 Três projetos agênticos, rodando ao mesmo tempo, agosto inteiro, em cima de uma agenda de projeto cheia que não ficou mais leve para abrir espaço.
 
-Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles era um projeto de cliente, e ele chega aqui sem cliente, sem domínio e sem stack, o que é um buraco deliberado e não um esquecimento. O terceiro rodava junto com os dois e eu também não vou caracterizar.
+Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo, que pelo menos eu consigo nomear — e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
+
+Três loops, três quantidades diferentes de coisa que eu posso te contar.
+
+Teve um motivo para ser agosto. Dentro da AWS era o **Agentic August** — um programa promovendo uso e experimentação de IA, com algumas metas de treinamento e um hackathon com as suas próprias regras.
+
+Eu preferi fazer diferente, do meu jeito. É daí que vieram os três loops.
 
 Na segunda semana eu já estava trabalhando bem além do horário. Na terceira eu estava deixando loop rodando de madrugada. No fim do mês eu estava dormindo com o laptop na cama e acompanhando os agentes pelo celular, às três da manhã, do jeito que a gente acompanha uma coisa no fogo.
 
-A conta de agosto foi de **USD 4.207,13**.
+A conta de agosto foi de **USD 4.207,13** — e ela cobre dois daqueles três loops. O desta plataforma não está nela.
 
-Quero ser cuidadoso com esse número, porque é a única coisa aqui que alguém vai printar. São **créditos**, não tokens — a unidade em que o meu plano cobra. O plano cobre 10.000. Eu passei **105.178,21 créditos** disso, a quatro centavos o crédito, que é de onde saem os 4.207,13; a conta fecha no centavo. Total consumido no mês, plano incluído, uns **115.000 créditos**.
+Quero ser cuidadoso com esse número, porque é a única coisa aqui que alguém vai printar. São **créditos**, não tokens — a unidade em que o meu plano cobra. O plano cobre 10.000. Eu passei **105.178,21 créditos** disso, a quatro centavos o crédito, que é de onde saem os 4.207,13; a conta fecha no centavo. Total naquela conta no mês, plano incluído, uns **115.000 créditos**.
 
-E aqui vem a parte que eu preferia não escrever. **Eu não consigo te dizer qual dos três projetos gastou mais.** Uma conta, três loops, nenhuma atribuição.
+E aqui vem a parte que eu preferia não escrever. **Eu não consigo te dizer qual dos dois que estão nela gastou mais.** Uma conta, dois loops, nenhuma divisão.
 
 Eu sei o que você vai perguntar, porque é a pergunta que eu faria, então deixa eu responder antes de qualquer outra coisa: **eu gastei. Foi decisão minha.** Cada um daqueles créditos foi consumido por uma escolha que eu fiz — qual loop começar, quando deixar rodar, quando aceitar uma resposta e quando devolver. De quem era o dinheiro não é a parte interessante dessa história. As escolhas são.
 
@@ -63,11 +69,19 @@ Estou colocando ele aqui, antes do custo, de propósito — por causa do que ele
 
 Se você nunca teve essa experiência aprendendo alguma coisa sem mapa, não sei se consigo transmitir o quanto ela vale. Não é "alguém concorda comigo". É a primeira evidência de que o chão embaixo de você é real.
 
-## O que estava queimando o dinheiro de verdade
+E não foi só reconhecimento. Eu peguei quatro coisas com ele e as quatro estão nos repositórios hoje. **A UX de invocar um comando** — o que a pessoa digita, o que a dica diz enquanto ela digita, o que uma invocação vazia faz quando ela erra. **O fluxo de um documento de intenção para itens rastreados** antes de qualquer coisa ser construída; o meu cai numa issue com a descrição fechada em vez de num PRD, mas o movimento é dele. **A prática de escrever registros de decisão** como MADRs, com a opção rejeitada e o trade-off dela na página, e não só a escolha. E **como gerenciar contextos**, que é a segunda das quatro decisões de design mais para baixo.
+
+## O que tornou decidir tão caro
 
 Então: para onde foi?
 
-Eu não consigo te dar a divisão — já falei isso, e não melhora numa segunda olhada. O que eu consigo apontar é o que ficou sendo torrado e jogado fora, porque eu vi acontecer: **decidir, de novo e de novo, sobre a mesma coisa.**
+**Eu não consigo te mostrar a divisão**, e uma fatura não teria me contado de qualquer jeito — ela não sabe quais decisões dentro de um mês foram as desperdiçadas.
+
+O que eu consigo te contar é o desenho que fez decidir custar tanto, porque esse eu aprendi a duras penas. **Eu coloquei atores demais no mesmo nível, todos tendo que concordar.** Parecia rigor. O que aquilo produziu foi nada sendo entregue — o loop ágil que eu estava tentando implementar parou de entregar, e não porque alguém ali estivesse errado. É que todo mundo tinha que convergir antes de qualquer coisa andar.
+
+Conflito não é bom de forma uniforme, e essa é a parte que eu tinha invertido. **Algumas camadas querem conflito. Algumas camadas não podem ter.** Pares no mesmo nível que precisam todos concordar não é mais escrutínio; é um loop que não consegue fechar.
+
+Essa é a causa. O que vem abaixo é como aquilo parecia por dentro, no único loop cujas rodadas são todas públicas — este, que nem sequer está naquela fatura. Mesmo mês, mesma pessoa, mesmo hábito. O que muda é que este aqui você consegue abrir.
 
 O exemplo mais claro que eu tenho é público, datado, e aconteceu no último dia do mês — que é como eu sei que não estou reconstruindo isso com carinho. Um pull request no repositório do meu loop passou por **oito rodadas de revisão e nove commits de correção**, e cada uma das rodadas encontrou *mais uma instância da mesma classe de defeito*.
 
@@ -88,7 +102,7 @@ Mais duas coisas do mesmo mês, as duas baratas de descrever e as duas caras de 
 
 **Uma verificação que falhava aberta.** Eu publiquei um comando de verificação com um erro de escape dentro. Ele devolvia zero linhas. Zero linhas *se lê como limpo*. Sobreviveu quatro rodadas parecendo prova.
 
-**Um instrumento que mentia.** O loop mantém o próprio registro do que cada agente custa para ser despachado. Quando eu finalmente auditei, ele estava **errado sobre cinco dos sete perfis** — inflado para uns, deflacionado para outros. A coisa que deveria me dizer quanto esse mês custou não conseguia me dizer.
+**Um instrumento que mentia.** O loop mantém o próprio registro do que cada agente custa para ser despachado. Quando eu finalmente auditei, ele estava **errado sobre cinco dos sete perfis** — inflado para uns, deflacionado para outros. A coisa que deveria me dizer quanto o meu próprio loop estava me custando não conseguia me dizer.
 
 ## Então — como você percebe?
 
@@ -185,7 +199,7 @@ Vou terminar onde o mês terminou, que é num limite e não numa conclusão.
 
 https://www.youtube.com/watch?v=vJEy3nP2_C8
 
-O do Greg é sobre escalar trabalho de agentes para máquinas na nuvem — sair dos limites do seu ambiente local. Eu não fui atrás daquele vídeo. **Eu bati no teto que ele descreve fazendo trabalho comum, e aí assisti.**
+O Ryan Carson, no canal do Greg, fala sobre escalar trabalho de agentes para máquinas na nuvem — sair dos limites do seu ambiente local. Eu não fui atrás daquele vídeo. **Eu bati no teto que ele descreve fazendo trabalho comum, e aí assisti.**
 
 O teto, concretamente. A minha última retrospectiva consultou sete perfis **um depois do outro**, e o único motivo é que existe uma árvore de trabalho e um índice do git, e dois agentes commitando na mesma árvore corrompem o estado um do outro. Eu dividi um pedaço de trabalho num segundo checkout para rodar duas coisas de uma vez, e um dos checkouts que o próprio harness criou para mim **não era gravável por nenhum perfil do harness**, por causa de onde ele coloca esses checkouts.
 

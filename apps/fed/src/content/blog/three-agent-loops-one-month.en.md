@@ -7,21 +7,27 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 577
-excerpt: "Three agentic projects in parallel, on top of a full project calendar, and a bill of USD 4,207. The money is the least interesting number in it: what August actually cost was deciding the same thing over and over without noticing."
+excerpt: "Three agentic projects in parallel, on top of a full project calendar, and a bill of USD 4,207 covering two of them. The money is the least interesting number in it: what August actually cost was deciding the same thing over and over without noticing."
 takeaway: 'how to notice you are burning hours and money on the wrong thing — three signals that need none of my tools — and what to do in the minute you notice.'
 ---
 
 Three agentic projects, running at the same time, all of August, on top of a full project calendar that did not get any lighter to make room.
 
-One of them is this platform — you can read every line of it, the repository, the loop that builds it, the decision records where I changed my mind. One of them was a client engagement, and it arrives here with no client, no domain and no stack, which is a deliberate hole and not an oversight. The third ran alongside both and I am not going to characterise it either.
+One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building, which I can at least name — and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
+
+Three loops, three different amounts I am allowed to tell you.
+
+There was a reason it was August. Inside AWS it was **Agentic August** — a programme promoting the use of AI and experimentation with it, with some training goals and a hackathon that had its own rules.
+
+I preferred to do it differently, my own way. That is where the three loops came from.
 
 By the second week I was working well past office hours. By the third I was leaving loops running overnight. By the end of the month I was sleeping with the laptop in the bed and checking on agents from my phone, at three in the morning, the way you check on something that is cooking.
 
-The bill for August was **USD 4,207.13**.
+The bill for August was **USD 4,207.13** — and it covers two of those three loops. This platform's is not on it.
 
-I want to be careful with that number, because it is the one thing in this piece somebody will screenshot. It is **credits**, not tokens — the unit my plan bills in. The plan covers 10,000. I went **105,178.21 credits** past it, at four cents a credit, which is where the 4,207.13 comes from; the arithmetic closes to the cent. Total consumed for the month, plan included, around **115,000 credits**.
+I want to be careful with that number, because it is the one thing in this piece somebody will screenshot. It is **credits**, not tokens — the unit my plan bills in. The plan covers 10,000. I went **105,178.21 credits** past it, at four cents a credit, which is where the 4,207.13 comes from; the arithmetic closes to the cent. Total on that bill for the month, plan included, around **115,000 credits**.
 
-And here is the part I would rather not write. **I cannot tell you which of the three projects spent the most.** One bill, three loops, no attribution.
+And here is the part I would rather not write. **I cannot tell you which of the two on it spent more.** One bill, two loops, no split.
 
 I know what you are about to ask, because it is the question I would ask, so let me answer it before anything else: **I spent it. It was my decision.** Every one of those credits was consumed by a choice I made — which loop to start, when to let it run, when to accept an answer and when to send it back. Whoever the money belonged to is not the interesting part of this story. The choices are.
 
@@ -63,11 +69,19 @@ I am putting it here, before the cost, on purpose — because of what it did for
 
 If you have never had that experience while learning something with no map, I am not sure I can convey how much it is worth. It is not "someone agrees with me." It is the first evidence that the ground under you is real.
 
-## What was actually burning the money
+And it was not only recognition. I took four things from him and all four are in the repositories now. **The UX of invoking a command** — what a human types, what the hint says while they are typing it, what a bare invocation does when they get it wrong. **The flow from a document of intent to tracked items** before anything gets built; mine lands on an issue with a closed description rather than on a PRD, but the movement is his. **The practice of writing decision records** as MADRs, with the rejected option and its trade-off on the page instead of only the choice. And **how to manage contexts**, which is the second of the four design decisions further down.
+
+## What made deciding expensive
 
 So: where did it go?
 
-I cannot give you the split — I said that already, and it does not get better on a second look. What I can point at is what kept getting burned and thrown away, because I watched it happen: **deciding, over and over, about the same thing.**
+**I cannot show you the split**, and an invoice would not have told me anyway — it does not know which decisions inside a month were the wasteful ones.
+
+What I can tell you is the design that made deciding cost so much, because I learned that one the hard way. **I put too many actors at the same level, all of them having to agree.** It felt like rigour. What it produced was that nothing got delivered — the agile loop I was trying to run stopped shipping, and not because anyone in it was wrong. Everyone had to converge before anything could move.
+
+Conflict is not uniformly good, and that is the part I had backwards. **Some layers want it. Some layers must not have it.** Peers at one level who all have to agree is not more scrutiny; it is a loop that cannot close.
+
+That is the cause. What follows is what it looked like from the inside, in the one loop whose every round is public — this one, which is not even on that invoice. Same month, same person, same habit. What is different is that this one you can open.
 
 The clearest example I have is public, dated, and happened on the last day of the month, which is how I know I am not reconstructing it kindly. One pull request in my loop repository went through **eight review rounds and nine repair commits**, and every single round found *one more instance of the same class of defect*.
 
@@ -88,7 +102,7 @@ Two other things from the same month, both cheap to describe and both expensive 
 
 **A check that failed open.** I published a verification command with a quoting mistake in it. It returned zero lines. Zero lines *reads as clean*. It survived four rounds looking like proof.
 
-**An instrument that lied.** The loop keeps its own record of what each agent costs to dispatch. When I finally audited it, it was **wrong about five of the seven profiles** — inflated for some, deflated for others. The thing that was supposed to tell me what this month cost could not tell me.
+**An instrument that lied.** The loop keeps its own record of what each agent costs to dispatch. When I finally audited it, it was **wrong about five of the seven profiles** — inflated for some, deflated for others. The thing that was supposed to tell me what my own loop cost me could not tell me.
 
 ## So — how do you notice?
 
@@ -185,7 +199,7 @@ I will end where the month ended, which is at a limit rather than a conclusion.
 
 https://www.youtube.com/watch?v=vJEy3nP2_C8
 
-Greg's is about scaling agent work onto cloud machines — getting out of the limits of your local environment. I did not go looking for that video. **I hit the ceiling it describes while doing ordinary work, and then watched it.**
+Ryan Carson, on Greg's channel, is talking about scaling agent work onto cloud machines — getting out of the limits of your local environment. I did not go looking for that video. **I hit the ceiling it describes while doing ordinary work, and then watched it.**
 
 Here is the ceiling, concretely. My last retrospective consulted seven profiles **one after another**, and the only reason was that there is one working tree and one git index, and two agents committing into the same tree corrupt each other. I split a piece of work across a second checkout to run two things at once, and one of the checkouts the harness created for me **was unwritable by every profile in the harness**, because of where it puts them.
 
