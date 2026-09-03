@@ -64,7 +64,7 @@ describe('VideoEmbed', () => {
   });
 });
 
-// #591 — THE TEST THAT WOULD HAVE CAUGHT THE DEFECT.
+// THE TEST THAT WOULD HAVE CAUGHT THE DEFECT.
 //
 // The defect is a video whose owner has disabled embedding: the facade renders a play button, the
 // reader clicks, an iframe mounts and YouTube renders "Video unavailable" inside it. Every assertion

@@ -133,7 +133,7 @@ describe('cardLines', () => {
   });
 });
 
-describe('the `embeddable` vocabulary (#591)', () => {
+describe('the `embeddable` vocabulary', () => {
   // AGAINST THE REAL MANIFEST. The schema is one value wide — absent, or exactly `false` — and this is
   // what makes the missing `true` a rule rather than a convention someone remembers.
   //

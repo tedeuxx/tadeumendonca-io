@@ -75,7 +75,7 @@ describe('ArchitecturePage', () => {
   // Both editions cite the same id, so a drop on one side would leave the two files unequal in prose
   // rather than in links: not caught here, and named rather than papered over.
   //
-  // THE QUALIFIER IS NEW AND IS NOT PEDANTRY (#591). A video declared `"embeddable": false` renders a
+  // THE QUALIFIER IS NEW AND IS NOT PEDANTRY. A video declared `"embeddable": false` renders a
   // link preview instead of a player, and that form DOES carry an anchor. This page's video is not
   // declared, so the sentence above still holds here — but it stopped being a property of the component
   // and became a property of this page's data, and the two read identically until someone flags it.

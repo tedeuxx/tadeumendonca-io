@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 // and this is the one that is strict.
 import videos from '../src/content/videos.json' with { type: 'json' };
 
-// #591 — the link-preview form, against the SERVED artifact.
+// The link-preview form, against the SERVED artifact.
 //
 // WHY THIS EXISTS ALONGSIDE VideoEmbed.test.tsx, which already asserts the branch in jsdom. The defect
 // this slice fixes lives on the far side of a CLICK: a video whose owner disabled embedding renders a

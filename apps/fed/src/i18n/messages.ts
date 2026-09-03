@@ -874,7 +874,7 @@ const strings = {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
     defaultTitle: { pt: 'Vídeo', en: 'Video' },
-    // The link-preview form, for a video whose owner disabled embedding (#591). The GLYPH is the
+    // The link-preview form, for a video whose owner disabled embedding. The GLYPH is the
     // load-bearing difference from `watch` above and is not decoration: `▶` is the play affordance, and
     // reusing it on a control that navigates away is precisely the pretence the preview exists to stop.
     // `↗` is the outbound mark, and the destination is NAMED — a reader deciding whether to click needs

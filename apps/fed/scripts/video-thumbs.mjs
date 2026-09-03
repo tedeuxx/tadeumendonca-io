@@ -145,7 +145,7 @@ export function diffManifest(ids, manifest) {
 }
 
 /**
- * Every id whose `embeddable` value is outside the one-value vocabulary (#591).
+ * Every id whose `embeddable` value is outside the one-value vocabulary.
  *
  * THE VOCABULARY IS: the key is absent, or it is exactly `false`. There is deliberately no `true`, and
  * `src/components/VideoEmbed.tsx`'s `embeddingDisabled()` carries the full argument — the short version

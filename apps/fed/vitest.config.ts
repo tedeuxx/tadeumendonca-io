@@ -82,7 +82,7 @@ export default defineConfig({
         // gen-video-thumbs.mjs: it is a browser harness with no unit-testable surface left once the
         // decisions moved into this module.
         'scripts/banners.mjs',
-        // #591. The decision half of the embeddability check: what an HTTP status from YouTube's oembed
+        // The decision half of the embeddability check: what an HTTP status from YouTube's oembed
         // endpoint MEANS, how that compares to what `src/content/videos.json` claims, and what the run
         // should exit with. On this list for the reason the entries above spell out — the list is an
         // ALLOWLIST, so a tested file left off it reads as 0% on new code to SonarCloud while the local
