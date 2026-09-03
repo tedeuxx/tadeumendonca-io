@@ -69,11 +69,19 @@ Estou colocando ele aqui, antes do custo, de propósito — por causa do que ele
 
 Se você nunca teve essa experiência aprendendo alguma coisa sem mapa, não sei se consigo transmitir o quanto ela vale. Não é "alguém concorda comigo". É a primeira evidência de que o chão embaixo de você é real.
 
-## O que estava queimando o dinheiro de verdade
+E não foi só reconhecimento. Eu peguei quatro coisas com ele e as quatro estão nos repositórios hoje. **A UX de invocar um comando** — o que a pessoa digita, o que a dica diz enquanto ela digita, o que uma invocação vazia faz quando ela erra. **O fluxo de um documento de intenção para itens rastreados** antes de qualquer coisa ser construída; o meu cai numa issue com a descrição fechada em vez de num PRD, mas o movimento é dele. **A prática de escrever registros de decisão** como MADRs, com a opção rejeitada e o trade-off dela na página, e não só a escolha. E **como gerenciar contextos**, que é a segunda das quatro decisões de design mais para baixo.
+
+## O que tornou decidir tão caro
 
 Então: para onde foi?
 
-Eu não consigo te dar a divisão — já falei isso, e não melhora numa segunda olhada. O que eu consigo apontar é o que ficou sendo torrado e jogado fora, porque eu vi acontecer: **decidir, de novo e de novo, sobre a mesma coisa.**
+**Eu não consigo te mostrar a divisão**, e uma fatura não teria me contado de qualquer jeito — ela não sabe quais decisões dentro de um mês foram as desperdiçadas.
+
+O que eu consigo te contar é o desenho que fez decidir custar tanto, porque esse eu aprendi a duras penas. **Eu coloquei atores demais no mesmo nível, todos tendo que concordar.** Parecia rigor. O que aquilo produziu foi nada sendo entregue — o loop ágil que eu estava tentando implementar parou de entregar, e não porque alguém ali estivesse errado. É que todo mundo tinha que convergir antes de qualquer coisa andar.
+
+Conflito não é bom de forma uniforme, e essa é a parte que eu tinha invertido. **Algumas camadas querem conflito. Algumas camadas não podem ter.** Pares no mesmo nível que precisam todos concordar não é mais escrutínio; é um loop que não consegue fechar.
+
+Essa é a causa. O que vem abaixo é como aquilo parecia por dentro, no único loop cujas rodadas são todas públicas — este, que nem sequer está naquela fatura. Mesmo mês, mesma pessoa, mesmo hábito. O que muda é que este aqui você consegue abrir.
 
 O exemplo mais claro que eu tenho é público, datado, e aconteceu no último dia do mês — que é como eu sei que não estou reconstruindo isso com carinho. Um pull request no repositório do meu loop passou por **oito rodadas de revisão e nove commits de correção**, e cada uma das rodadas encontrou *mais uma instância da mesma classe de defeito*.
 
@@ -94,7 +102,7 @@ Mais duas coisas do mesmo mês, as duas baratas de descrever e as duas caras de 
 
 **Uma verificação que falhava aberta.** Eu publiquei um comando de verificação com um erro de escape dentro. Ele devolvia zero linhas. Zero linhas *se lê como limpo*. Sobreviveu quatro rodadas parecendo prova.
 
-**Um instrumento que mentia.** O loop mantém o próprio registro do que cada agente custa para ser despachado. Quando eu finalmente auditei, ele estava **errado sobre cinco dos sete perfis** — inflado para uns, deflacionado para outros. A coisa que deveria me dizer quanto esse mês custou não conseguia me dizer.
+**Um instrumento que mentia.** O loop mantém o próprio registro do que cada agente custa para ser despachado. Quando eu finalmente auditei, ele estava **errado sobre cinco dos sete perfis** — inflado para uns, deflacionado para outros. A coisa que deveria me dizer quanto o meu próprio loop estava me custando não conseguia me dizer.
 
 ## Então — como você percebe?
 
@@ -191,7 +199,7 @@ Vou terminar onde o mês terminou, que é num limite e não numa conclusão.
 
 https://www.youtube.com/watch?v=vJEy3nP2_C8
 
-O do Greg é sobre escalar trabalho de agentes para máquinas na nuvem — sair dos limites do seu ambiente local. Eu não fui atrás daquele vídeo. **Eu bati no teto que ele descreve fazendo trabalho comum, e aí assisti.**
+O Ryan Carson, no canal do Greg, fala sobre escalar trabalho de agentes para máquinas na nuvem — sair dos limites do seu ambiente local. Eu não fui atrás daquele vídeo. **Eu bati no teto que ele descreve fazendo trabalho comum, e aí assisti.**
 
 O teto, concretamente. A minha última retrospectiva consultou sete perfis **um depois do outro**, e o único motivo é que existe uma árvore de trabalho e um índice do git, e dois agentes commitando na mesma árvore corrompem o estado um do outro. Eu dividi um pedaço de trabalho num segundo checkout para rodar duas coisas de uma vez, e um dos checkouts que o próprio harness criou para mim **não era gravável por nenhum perfil do harness**, por causa de onde ele coloca esses checkouts.
 

@@ -254,4 +254,80 @@ that every claim is *traceable to the recorded source*. They cannot establish th
 *complete*. On this piece the gap between those two was four corrections wide, and every one of them
 arrived after the terminal literal.
 
+### The bill correction BROKE a downstream section, and that is the finding worth keeping
+
+**It made *"what was actually burning the money"* false by structure, and nobody caught it until the
+owner read the page.** The section asked where the money went and answered **entirely with the loop that
+is not on the bill**: PR #387 is named in #577 as being in `tadeumendonca-skills`, the dispatch-cost
+record is #382 in that same workspace, and the failed-open falsifier is from the same day's work there.
+**All four examples are this platform's own loop — the one the corrected paragraph four sections earlier
+now explicitly excludes.**
+
+**This is the class this session has paid for repeatedly:** a correction lands where a claim is STATED
+and leaves untouched everything that RESTS on it. The bill sentence was scoped without re-reading what
+the article did with the bill further down.
+
+### What replaced it — the owner's war story, which answers the money question better
+
+> «eh melhor falar sobre a parte de muitos conflitos, menos conflitos, como modelar subagents de forma
+> intencional. isso aprendi a dura pena onde quando coloquei muitos atores num mesmo nivel para
+> concordarem nada mais era entregue no loop scrum agil que estava tentando implementar.»
+
+The section is now **the cause rather than the ledger**: he cannot show the split, and what he can give
+is the design that made deciding expensive — too many actors at one level, all having to agree, nothing
+shipping. **Conflict is not uniformly good**; some layers want it and some must not have it, which the
+piece already says of ideation versus the gate and now carries the failure mode on the other side.
+
+**Three constraints held.** No number invented — he said *"many actors"*. **The nineteen-to-six collapse
+was NOT joined to it:** #577 diagnoses that one as *handoffs, profiles generating no disagreement, which
+is why they never ran* — the opposite mechanism to *peers who all had to converge*. Nothing in the source
+says they are one event. And no coined term, no named pattern, no numbered rule.
+
+### The examples STAYED, and a wholesale delete would have broken the payoff
+
+**Verified before deciding rather than assumed:** the *"how do you notice"* section's three signals cite
+the three examples by content — members-versus-set, the empty check, the instrument against memory — and
+the `takeaway` frontmatter promises *"three signals"*. **Deleting them would have orphaned the reader's
+payoff and left a dangling promise in the metadata**, the same defect class one layer up. So the war
+story replaced the **framing**, which was the false part, and the evidence stayed under a claim it can
+carry. One further leak fixed in the same pass: *"what this month cost"* → *"what my own loop cost me"*,
+since that instrument measures the unbilled loop.
+
+### Matt Pocock — four learnings, three checked against the tree
+
+The section carried only *"it made me see I was on the right track"* — a feeling where this piece's
+register wants an artifact. **Three of his four were verified before being asserted:** six typed commands
+all carrying `argument-hint`, a MADR template whose shape demands the rejected option and its trade-off,
+and eight profiles each with a `skills:` preload list. **The fourth was deliberately weakened** — this
+loop has no PRD, so the draft says the movement is his and names where it lands here instead of claiming
+a practice the harness does not run.
+
+### Both reference defects are ONE class
+
+**A reference described by what it was near rather than by what it contained.** Matt's was treated as
+corroboration when it was four things he took and applied. The closing video was credited to **Greg**,
+who hosts it, when the reflection is **Ryan Carson's** — his correction. Both editions now name Carson
+with Greg as the channel, and `videos.json` gains `"caption": "Ryan Carson"`.
+
+**The caption stops at the speaker on purpose.** The existing rows read *speaker, then title*, and no
+citable source here gives that video's title — the owner's own framing is a description, not a title, and
+`"channel": "Greg"` remains under the open advisory and was left untouched rather than upgraded. **A
+guess must not become a caption.** Regenerated with `npm run gen-video-thumbs`: exactly one PNG changed,
+the other ten byte-identical.
+
+### A rendering defect this reviewer cannot fix — reported, not repaired
+
+**Clare's video (`pqlWNihgdjI`) has embedding disabled by its owner and the site has no preview mode.**
+Established by reading: `VideoEmbed` renders a local poster and swaps in an `<iframe>` **on click**, and
+`videos.json` carries only `channel` and `caption` — **no per-video flag, no link-preview form**. That is
+a component change and it is `developer`'s.
+
+**The failure shape is the bad one:** the facade looks correct and fails only *after* the reader clicks,
+which is how it reached publication.
+
+**The other three are UNVERIFIED, not fine.** The site consults no embeddability signal anywhere — a fact
+about the schema, not an inference — so **nothing in this repository has ever checked whether any of the
+four plays.** Reading an API's `embeddable` field would not close it either, since the site never reads
+that field; the check has to be against the rendered player.
+
 CONTENT-REVIEW-FINDINGS
