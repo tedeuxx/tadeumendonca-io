@@ -92,5 +92,37 @@ test.describe('a video whose owner disabled embedding is served as a link previe
       // This article embeds four videos and only one is flagged, so the other three must still play.
       await expect(page.getByRole('button', { name: play }).first()).toBeVisible();
     });
+
+    // A REGRESSION FOUND BY LOOKING AT THE PAGE, and one no assertion in this repository could have
+    // reached before: the preview sits inside `.markdown`, whose `a:hover` rule repaints the anchor
+    // near-black, and the note that tells the reader the video opens elsewhere INHERITED that and
+    // disappeared on hover — black on black, in the one state where the reader is deciding.
+    //
+    // Asserted as CONTRAST rather than as an exact colour, so it survives a palette change and still
+    // reds on the defect. Not reachable in jsdom, which computes no cascade: this is the class of
+    // failure that only exists in a browser, which is what puts it in the E2E suite rather than beside
+    // the component.
+    test(`${path}: the note stays legible while the reader is hovering it`, async ({ page }) => {
+      await page.goto(`${path}?preview`);
+      await page.waitForLoadState('networkidle');
+      const preview = page.locator('[data-testid="video-preview"]');
+      await expect(preview).toHaveCount(1);
+
+      const note = preview.locator('span').last();
+      await preview.hover();
+
+      const contrast = await note.evaluate((el) => {
+        const parse = (v: string) => (v.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+        const lum = ([r, g, b]: number[]) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+        const style = getComputedStyle(el);
+        // The note paints its own opaque plate, so its own background is the right comparison — the
+        // poster behind it never shows through.
+        return Math.abs(lum(parse(style.color)) - lum(parse(style.backgroundColor)));
+      });
+
+      // 0.25 is a floor chosen to sit far from both outcomes rather than at a threshold: the defect
+      // measured ~0.00 (identical) and the fix measures well above this.
+      expect(contrast, 'the disabled-playback note is unreadable against its own plate').toBeGreaterThan(0.25);
+    });
   }
 });

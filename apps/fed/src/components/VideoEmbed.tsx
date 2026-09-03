@@ -103,7 +103,14 @@ export function VideoEmbed({ id, title }: { id: string; title?: string }) {
         <span className="relative z-10 border-2 border-border-strong bg-background px-5 py-2.5 font-mono text-sm uppercase tracking-wider group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
           {t('video.openOnYoutube')}
         </span>
-        <span className="relative z-10 max-w-[85%] bg-background/90 px-3 py-1 text-center font-mono text-xs uppercase tracking-wider">
+        {/* `text-foreground/80` IS LOAD-BEARING, and it was found by LOOKING rather than by reading.
+            This anchor sits inside `.markdown`, whose `a:hover` rule repaints the anchor with
+            `color: hsl(var(--primary-foreground))` — near-black. With no colour of its own this span
+            INHERITED that and went black-on-black: the one sentence telling the reader the video opens
+            elsewhere disappeared at the exact moment they pointed at it. A colour set on the span
+            itself beats an inherited one whatever the selector's specificity, which is the same reason
+            the chip above survives the same rule. */}
+        <span className="relative z-10 max-w-[85%] bg-background/90 px-3 py-1 text-center font-mono text-xs uppercase tracking-wider text-foreground/80">
           {t('video.embeddingDisabled')}
         </span>
       </a>
