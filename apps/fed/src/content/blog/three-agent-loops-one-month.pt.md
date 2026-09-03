@@ -13,7 +13,7 @@ takeaway: 'como perceber que você está queimando horas e dinheiro na coisa err
 
 Três projetos agênticos, rodando ao mesmo tempo, agosto inteiro, em cima de uma agenda de projeto cheia que não ficou mais leve para abrir espaço.
 
-Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo, que pelo menos eu consigo nomear — e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
+Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo para a prática de modernização dentro da AWS Professional Services na LATAM, para acelerar a troca de conhecimento de IA entre os colegas — a minha tese, e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
 
 Três loops, três quantidades diferentes de coisa que eu posso te contar.
 
@@ -23,7 +23,7 @@ Eu preferi fazer diferente, do meu jeito. É daí que vieram os três loops.
 
 Na segunda semana eu já estava trabalhando bem além do horário. Na terceira eu estava deixando loop rodando de madrugada. No fim do mês eu estava dormindo com o laptop na cama e acompanhando os agentes pelo celular, às três da manhã, do jeito que a gente acompanha uma coisa no fogo.
 
-A conta de agosto foi de **USD 4.207,13** — e ela cobre dois daqueles três loops. O desta plataforma não está nela.
+A conta de agosto foi de **USD 4.207,13** — e ela cobre dois daqueles três loops. O desta plataforma roda na minha assinatura Claude Max 10x: dois loops medidos em créditos, um fixo.
 
 Quero ser cuidadoso com esse número, porque é a única coisa aqui que alguém vai printar. São **créditos**, não tokens — a unidade em que o meu plano cobra. O plano cobre 10.000. Eu passei **105.178,21 créditos** disso, a quatro centavos o crédito, que é de onde saem os 4.207,13; a conta fecha no centavo. Total naquela conta no mês, plano incluído, uns **115.000 créditos**.
 
@@ -220,6 +220,12 @@ Se você está mais ou menos no mesmo ponto — experiência suficiente para sab
 Tem uma coisa que eu já sei sobre setembro: **não fazer mudança estrutural de loop ao mesmo tempo em mais de um projeto.** É isso que mais causa a sensação de desânimo, quando as coisas começam a dar errado ao mesmo tempo.
 
 E ao fazer uma mudança de loop, seja muito pontual, e observe com toda a atenção e foco a mudança de comportamento do loop.
+
+https://www.youtube.com/watch?v=S-sYlFiGFv8
+
+Um dos engenheiros ali fala que queria saber programar para fazer um videogame, e que hoje cada ideia que ele tem, ele consegue colocar em prática.
+
+É assim que eu me sinto fazendo este site.
 
 Vá olhar o que os seus loops fizeram no mês passado — não a saída, as *rodadas*. Conte quantas delas acharam a mesma coisa duas vezes.
 
