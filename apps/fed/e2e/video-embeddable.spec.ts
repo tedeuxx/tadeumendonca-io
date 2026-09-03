@@ -124,5 +124,33 @@ test.describe('a video whose owner disabled embedding is served as a link previe
       // measured ~0.00 (identical) and the fix measures well above this.
       expect(contrast, 'the disabled-playback note is unreadable against its own plate').toBeGreaterThan(0.25);
     });
+
+    // THIS ROUTE IS SWEPT BY NOTHING ELSE, and that was published twice as the opposite.
+    //
+    // The claim was that responsive-overflow.spec.ts covers it once the article is published. It is
+    // false on two independent counts, both read rather than reasoned: the article carries
+    // `draft: true`, so it is absent from the sitemap and from dist/ entirely; and that suite's ROUTES
+    // is six hardcoded SECTION routes with no blog article in it at all, so publishing would not have
+    // put this route in the sweep either.
+    //
+    // The preview is the widest new box on the page - `aspect-video w-full` with a `max-w-[85%]` plate
+    // inside it - and a plate that refuses to shrink is exactly how this repository's 320px overflows
+    // have happened before (a grid item never shrinks below min-content). A hand measurement caught it
+    // once; this is that measurement as a mechanism, so it does not depend on someone remembering.
+    for (const width of [320, 390, 768, 1280]) {
+      test(`${path}: the preview does not push the page sideways at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${path}?preview`);
+        await page.waitForLoadState('networkidle');
+
+        // The ruler: the preview must actually be on the page, or a not-found shell trivially fits.
+        await expect(page.locator('[data-testid="video-preview"]')).toHaveCount(1);
+
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        expect(overflow, `overflows by ${overflow}px at ${width}px wide`).toBeLessThanOrEqual(0);
+      });
+    }
   }
 });
