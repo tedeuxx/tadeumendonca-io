@@ -105,24 +105,46 @@ test.describe('a video whose owner disabled embedding is served as a link previe
     test(`${path}: the note stays legible while the reader is hovering it`, async ({ page }) => {
       await page.goto(`${path}?preview`);
       await page.waitForLoadState('networkidle');
+
+      // EVERY TEXT LINE IN THE CARD, not the one that failed first.
+      //
+      // The first version of this assertion targeted the disabled-playback note alone, and a SECOND
+      // line went invisible on hover anyway — the call to action was `text-primary` on a background
+      // `.markdown a:hover` paints `primary`. A per-element assertion only ever proves the element it
+      // names, so this walks the card's own text nodes and requires each to separate from whatever is
+      // actually behind it.
       const preview = page.locator('[data-testid="video-preview"]');
       await expect(preview).toHaveCount(1);
-
-      const note = preview.locator('span').last();
       await preview.hover();
 
-      const contrast = await note.evaluate((el) => {
+      const worst = await preview.evaluate((card) => {
         const parse = (v: string) => (v.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
         const lum = ([r, g, b]: number[]) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        const style = getComputedStyle(el);
-        // The note paints its own opaque plate, so its own background is the right comparison — the
-        // poster behind it never shows through.
-        return Math.abs(lum(parse(style.color)) - lum(parse(style.backgroundColor)));
+        // The nearest ancestor that actually paints — a transparent span sits on whatever is behind it,
+        // so comparing against its own `backgroundColor` would compare against nothing.
+        const painted = (el: Element): number[] => {
+          for (let n: Element | null = el; n; n = n.parentElement) {
+            const bg = getComputedStyle(n).backgroundColor;
+            const parts = (bg.match(/[\d.]+/g) ?? []).map(Number);
+            if (parts.length < 4 || parts[3] > 0) return parts.slice(0, 3);
+          }
+          return [0, 0, 0];
+        };
+        const lines = [...card.querySelectorAll('span')].filter(
+          (el) => (el.textContent ?? '').trim().length > 0 && el.children.length === 0,
+        );
+        return {
+          count: lines.length,
+          min: Math.min(
+            ...lines.map((el) => Math.abs(lum(parse(getComputedStyle(el).color)) - lum(painted(el)))),
+          ),
+        };
       });
 
-      // 0.25 is a floor chosen to sit far from both outcomes rather than at a threshold: the defect
-      // measured ~0.00 (identical) and the fix measures well above this.
-      expect(contrast, 'the disabled-playback note is unreadable against its own plate').toBeGreaterThan(0.25);
+      // The ruler: a card with no text lines would make the minimum vacuous.
+      expect(worst.count, 'no text lines found in the card').toBeGreaterThan(2);
+      // 0.25 sits far from both outcomes rather than at a threshold: a vanished line measures ~0.00.
+      expect(worst.min, 'a line in the card is unreadable while hovered').toBeGreaterThan(0.25);
     });
 
     // THIS ROUTE IS SWEPT BY NOTHING ELSE, and that was published twice as the opposite.

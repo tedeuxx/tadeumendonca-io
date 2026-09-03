@@ -36,7 +36,16 @@ export const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
  */
 interface VideoEntry {
   channel: string;
+  /** The poster ART's caption — short, sized for a 1280x720 card by scripts/gen-video-thumbs.mjs. */
   caption?: string;
+  /**
+   * The video's OWN NAME, for the link card. Separate from `caption` on purpose, and the separation
+   * was found by looking at the rendered page: with one field driving both, the poster art and the
+   * card title said the same words twice, side by side. They are different objects — one is art text
+   * sized to a fixed canvas, the other is prose a reader reads — and a field serving both makes the
+   * shorter constraint govern the longer one.
+   */
+  title?: string;
   embeddable?: boolean;
 }
 
@@ -70,48 +79,90 @@ export function embeddingDisabled(id: string): boolean {
   return manifest[id]?.embeddable === false;
 }
 
+/** The manifest row for a video, or undefined. The card reads its title and source from here. */
+export const videoEntry = (id: string): VideoEntry | undefined => manifest[id];
+
 export function VideoEmbed({ id, title }: { id: string; title?: string }) {
   const t = useT();
   const label = title ?? t('video.defaultTitle');
   const [playing, setPlaying] = useState(false);
 
-  // THE PREVIEW MUST NOT PRETEND TO BE A PLAYER, and that is a requirement about what the reader can
-  // tell BEFORE clicking, not about what happens after. Three things carry it and none is decorative:
-  // the control is an <a> rather than a <button>, so the browser's status bar, its context menu and a
-  // screen reader all announce a link to youtube.com; the play glyph is gone, replaced by the outbound
-  // arrow; and a second line states in words that the channel disabled embedded playback. The poster is
-  // the SAME committed local asset the player uses — self-authored, for the licensing reason
-  // scripts/video-thumbs.mjs's header records — so this form fetches nothing new either.
+  // A LINK CARD, NOT A PLAYER — and the shape is the whole point of this branch.
+  //
+  // The first version of this kept the player's 16:9 box and centred a button in it with a disclaimer
+  // underneath. The owner's reading of that: «igual a um player com disclaimer». He was right — a
+  // centred control in a wide box IS a player, whatever the button says, and adding an explanation to
+  // something shaped like a player just makes a player with an excuse.
+  //
+  // So this is horizontal: a thumbnail beside a title and a source line, which is what a link preview
+  // looks like. Nothing is centred and nothing is button-shaped.
+  //
+  // WHY THE IMAGE IS STILL OURS. He asked for the link's native OG preview. That is technically
+  // available — the watch page serves `og:image`, and this site sets no CSP — and it is not taken,
+  // because it is a request to a Google host on render. Two sentences published on /architecture, in
+  // both locales, say the only third party at runtime is analytics and that it is consent-gated; and
+  // this exact host was removed once already for making them false (see the header above). The card
+  // shape and the image source are separable, and only the image costs anything, so the shape is taken
+  // and the image is not. The title is the video's real name, which is what makes a card read as a
+  // preview rather than a decorated link — and it is authored in `videos.json`, not fetched.
   if (embeddingDisabled(id)) {
+    const entry = videoEntry(id);
+    // The video's own name where the manifest states one, then the poster caption, then the caller's
+    // title, then the generic label. Never a bare id — a card titled with a hash reads as broken
+    // rather than as a link, which is the failure this whole branch exists to avoid.
+    const cardTitle = entry?.title || entry?.caption || label;
     return (
       <a
         href={watchUrl(id)}
         target="_blank"
         rel="noreferrer"
         data-testid="video-preview"
-        aria-label={`${t('video.openOnYoutube')}: ${label}`}
-        className="group relative my-6 flex aspect-video w-full flex-col items-center justify-center gap-2 border border-border bg-muted no-underline"
+        className="group my-6 flex w-full flex-col border border-border no-underline sm:flex-row"
       >
-        {/* Decorative, exactly as in the player branch below. */}
+        {/* The poster, at THUMBNAIL scale rather than full-bleed. Decorative: the card states the
+            video's name in text right beside it, so an alt would be a duplicate label. */}
         <img
           src={`/video/${id}.png`}
           alt=""
           aria-hidden="true"
           loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover opacity-70 transition-opacity group-hover:opacity-90"
+          className="aspect-video w-full shrink-0 object-cover sm:w-[42%]"
         />
-        <span className="relative z-10 border-2 border-border-strong bg-background px-5 py-2.5 font-mono text-sm uppercase tracking-wider group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-          {t('video.openOnYoutube')}
-        </span>
-        {/* `text-foreground/80` IS LOAD-BEARING, and it was found by LOOKING rather than by reading.
-            This anchor sits inside `.markdown`, whose `a:hover` rule repaints the anchor with
-            `color: hsl(var(--primary-foreground))` — near-black. With no colour of its own this span
-            INHERITED that and went black-on-black: the one sentence telling the reader the video opens
-            elsewhere disappeared at the exact moment they pointed at it. A colour set on the span
-            itself beats an inherited one whatever the selector's specificity, which is the same reason
-            the chip above survives the same rule. */}
-        <span className="relative z-10 max-w-[85%] bg-background/90 px-3 py-1 text-center font-mono text-xs uppercase tracking-wider text-foreground/80">
-          {t('video.embeddingDisabled')}
+        {/* `min-w-0` is load-bearing at 320px: a flex item defaults to `min-width: auto` and refuses to
+            shrink below its content, and this title is long. The same trap PortfolioSection.tsx
+            records for an unbreakable repo name — see RepoCard's comment on the 64px overflow. */}
+        <span className="flex min-w-0 flex-col justify-center gap-2 p-5">
+          <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-foreground/70">
+            youtube.com{entry?.channel ? ` · ${entry.channel}` : ''}
+          </span>
+          <span className="break-words text-[1.05rem] font-bold leading-tight tracking-[-0.01em] text-foreground">
+            {cardTitle}
+          </span>
+          {/* THE TWO CUES THAT SURVIVE FROM THE PREVIOUS FORM, and they are the requirement rather
+              than decoration: a reader must be able to tell BEFORE clicking that this opens elsewhere
+              and will not play here. `text-foreground/…` on the span itself is load-bearing — this
+              anchor sits inside `.markdown`, whose `a:hover` repaints the anchor near-black, and a span
+              with no colour of its own INHERITS that and vanishes on hover. Found by looking at the
+              rendered page, not by reading; a colour set on the element beats an inherited one
+              whatever the ancestor selector's specificity. */}
+          <span
+            data-testid="video-preview-note"
+            className="font-mono text-xs uppercase tracking-wider text-foreground/80"
+          >
+            {t('video.embeddingDisabled')}
+          </span>
+          {/* `group-hover:text-primary-foreground` is the SECOND instance of the same defect and was
+              found the same way — by looking at the hovered card. `.markdown a:hover` paints this
+              anchor's background with `primary`, and this line is `text-primary`: orange on orange,
+              gone at the exact moment the reader is pointing at it. Every text line in this card now
+              carries its own hover colour, and the contrast assertion sweeps ALL of them rather than
+              the one line that failed first. */}
+          <span
+            data-testid="video-preview-cta"
+            className="font-mono text-xs uppercase tracking-wider text-primary group-hover:text-primary-foreground group-hover:underline"
+          >
+            {t('video.openOnYoutube')}
+          </span>
         </span>
       </a>
     );
