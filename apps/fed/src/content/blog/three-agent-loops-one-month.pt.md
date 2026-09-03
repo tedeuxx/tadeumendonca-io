@@ -13,11 +13,11 @@ takeaway: 'como perceber que você está queimando horas e dinheiro na coisa err
 
 Três projetos agênticos, rodando ao mesmo tempo, agosto inteiro, em cima de uma agenda de projeto cheia que não ficou mais leve para abrir espaço.
 
-Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo para a prática de modernização dentro da AWS Professional Services na LATAM, para acelerar a troca de conhecimento de IA entre os colegas — a minha tese, e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
+Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo para a prática de modernização dentro da AWS Professional Services - LATAM, para acelerar a troca de conhecimento de IA entre os colegas — a minha tese, e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
 
 Três loops, três quantidades diferentes de coisa que eu posso te contar.
 
-Teve um motivo para ser agosto. Dentro da AWS era o **Agentic August** — um programa promovendo uso e experimentação de IA, com algumas metas de treinamento e um hackathon com as suas próprias regras.
+Dentro da AWS era o **Agentic August** — um programa promovendo uso e experimentação de IA, com algumas metas de treinamento e um hackathon com as suas próprias regras.
 
 Eu preferi fazer diferente, do meu jeito. É daí que vieram os três loops.
 
