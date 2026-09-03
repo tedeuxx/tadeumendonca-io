@@ -13,11 +13,11 @@ takeaway: 'how to notice you are burning hours and money on the wrong thing — 
 
 Three agentic projects, running at the same time, all of August, on top of a full project calendar that did not get any lighter to make room.
 
-One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building for the modernization practice inside AWS Professional Services in LATAM, to speed up how AI knowledge moves between colleagues — my thesis, and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
+One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building for the modernization practice inside AWS Professional Services - LATAM, to speed up how AI knowledge moves between colleagues — my thesis, and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
 
 Three loops, three different amounts I am allowed to tell you.
 
-There was a reason it was August. Inside AWS it was **Agentic August** — a programme promoting the use of AI and experimentation with it, with some training goals and a hackathon that had its own rules.
+Inside AWS it was **Agentic August** — a programme promoting the use of AI and experimentation with it, with some training goals and a hackathon that had its own rules.
 
 I preferred to do it differently, my own way. That is where the three loops came from.
 
