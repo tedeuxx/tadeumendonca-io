@@ -506,6 +506,56 @@ each instance as isolated.
 
 CONTENT-REVIEW-FINDINGS
 
+## Round 6 — 2026-09-03 — a name and a cut, both craft
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main`.
+
+**The source was on #577 before this diff existed** (comment `createdAt` 2026-09-03T19:44:40Z), which
+is the sequence rounds 3, 4 and 5 each failed. It is recorded here as the one that held.
+
+### 1 · The organisation's name
+
+> «AWS Professional Services - LATAM»
+
+Both editions rendered it as a prose phrase — *"inside AWS Professional Services **in** LATAM"* and
+*"dentro da AWS Professional Services **na** LATAM"*. **`in LATAM` is a location; `- LATAM` is part of
+the name**, and an organisational unit's name is not translated, so the Portuguese takes the same
+string.
+
+**The grammar was checked rather than assumed**, because the sentence was built around a preposition
+that is now gone. In both editions the preposition doing the structural work is the *first* one —
+*inside* / *dentro da* — and only the second was removed, so both clauses read as before.
+
+### 2 · The announcing opener, cut
+
+> «"Teve um motivo para ser agosto. " remover»
+
+**The English equivalent was found rather than assumed to be a literal translation:** *"There was a
+reason it was August."* Both are gone, and **neither was replaced** — the instruction was *remover*, and
+a softer opener doing the same job is the same defect. Each paragraph now opens on the programme
+itself (*"Inside AWS it was **Agentic August** —"* / *"Dentro da AWS era o **Agentic August** —"*),
+which is what already carried the reason.
+
+**Nothing else moved.** The round-4 grant is exactly what it was: the practice was not renamed, the
+clause was not reordered, and the description was not expanded.
+
+### What round 6 is, and why it is a different kind of arrival
+
+**The sixth piece of source after the pair closed at `CLEAR`** — and **the first two that are craft
+rather than substance.** The other five changed what the piece claims; these two change how it says
+something it already claimed correctly.
+
+**The naming one carries a limit worth separating from the rest.** The other five are things only he
+knows *because he lived them* — what he spent, what he decided, what he felt. **This one is something
+only he knows because he works there**, and no amount of reading the artifact, the interview or the
+repositories would have produced it. A reviewer outside that organisation cannot catch a unit's name
+being written as a location.
+
+**The tally is six, and the honest reading of it is unchanged:** two rounds can establish that every
+claim traces to the recorded source; they cannot establish that the source is complete.
+
+CONTENT-REVIEW-FINDINGS
+
 ## Round 7 — 2026-09-03 — a reframe, not a correction
 
 draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main`.
