@@ -22,6 +22,16 @@ export default tseslint.config(
   },
   {
     files: ['**/*.{js,mjs,cjs}'],
-    languageOptions: { globals: { console: 'readonly', process: 'readonly', Buffer: 'readonly' } },
+    // `fetch`/`AbortSignal` are Node 22 globals (this app's `engines` floor) and arrive with
+    // scripts/check-video-embeddable.mjs, the only script here that talks to the network.
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+      },
+    },
   },
 );

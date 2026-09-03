@@ -874,6 +874,19 @@ const strings = {
     play: { pt: 'Reproduzir vídeo', en: 'Play video' },
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
     defaultTitle: { pt: 'Vídeo', en: 'Video' },
+    // The link-preview form, for a video whose owner disabled embedding (#591). The GLYPH is the
+    // load-bearing difference from `watch` above and is not decoration: `▶` is the play affordance, and
+    // reusing it on a control that navigates away is precisely the pretence the preview exists to stop.
+    // `↗` is the outbound mark, and the destination is NAMED — a reader deciding whether to click needs
+    // to know they are leaving, and "Watch" alone does not say so on either control.
+    openOnYoutube: { pt: 'Assistir no YouTube ↗', en: 'Watch on YouTube ↗' },
+    // States the FACT, not our inference from it. The channel disabled embedded playback; that is what
+    // YouTube reports and all this repository knows. It deliberately does not say "unavailable" (it is
+    // available, elsewhere) and does not apologise for a third party's setting.
+    embeddingDisabled: {
+      pt: 'Reprodução incorporada desativada pelo canal',
+      en: 'Embedded playback disabled by the channel',
+    },
   },
   consent: {
     notice: { pt: 'Aviso de cookies', en: 'Cookie notice' },
