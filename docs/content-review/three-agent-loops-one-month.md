@@ -505,3 +505,107 @@ round; it is the shape in which this piece is being finished, and the record say
 each instance as isolated.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 7 — 2026-09-03 — a reframe, not a correction
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main`.
+
+**The source was on #577 before this diff existed** (comment `createdAt` 2026-09-03T19:48:06Z), the
+second consecutive round where that held.
+
+### What he said, and what it changes
+
+> «essa parte na verdade voce percebe como voce perceberia numa equipe humana, algo nessa linha»
+
+**The section's opening promised something smaller and true:** that the three signals need none of his
+setup, tools or repository. **His claim is stronger — you read them the way you would read a human
+team, and the team being agents changes nothing about the reading.**
+
+**It answers a question the piece raises and leaves open.** The premise is frontier territory with no
+expectation anchor and no benchmark — *"cavemen discovering the world for the first time"* — and then
+the piece produces three signals needing none of that. The frame says why: they transfer, because they
+were never about the machine. **That is a claim an experienced reader can check against their own
+history rather than take on his authority.**
+
+### The promise was NOT removed, and that was checked rather than assumed
+
+**The brief allowed the frame to replace the opening promise. It does not, because the promise is
+load-bearing two places away:**
+
+- the frontmatter `takeaway`, which literally describes the signals — *"three signals that need none of
+  my tools"* / *"três sinais que não dependem de nenhuma ferramenta minha"*;
+- the closing takeaways, *"none of them needs my setup"*, a different list carrying the same shape.
+
+**Dropping it from the section would have left the metadata asserting something the section no longer
+said** — a removed premise with a reader still leaning on it, which is the defect class this piece has
+paid for repeatedly. **So both clauses now sit in one sentence: the frame first, the independence as
+its consequence.** One changed line per edition, nothing else touched.
+
+### Three constraints, held
+
+- **The parallel is stated, not argued.** No list mapping agent behaviour to human behaviour, no
+  *"just like a team where…"*, no second paragraph developing it. One clause of orientation.
+- **The signals were not weakened to fit the frame.** All three are byte-identical — a widened search,
+  an empty check, an instrument against memory — and each is still concrete and mechanical. Had any
+  read less sharp afterwards, the reframe would have been wrong, not the signal.
+- **The closing instruction is untouched.** *Stop the round and change the ruler*, and the note that
+  his different reader was literal. That sentence is already the parallel's payoff and it still does
+  that work without being told to.
+
+### The signature — a CONVENTION adopted, and #271 does not close
+
+> «assina o artigo tbm com aquele jargao "Isso é o que eu penso" que tinha notado em algum issue para
+> tornarmos uma marca dos artigos»
+
+**Applied: piece 1 of #271 only.** *"Isso é o que eu penso."* / *"This is what I think."* — **present
+tense in English**, per that Issue's own argument that `penso` is present.
+
+**«para tornarmos uma marca dos artigos» is the operative half**, so the placement had to be a slot
+every article has rather than one this article happens to offer.
+
+**Where it went, worked from the corpus rather than instinct.** The corpus close is *instruct, then
+wish*, and this piece already follows it — *"Go and look at what your loops actually did last month"*,
+then *"A hug, and see you next time."* **The signature is neither**, so three placements were
+available and two of them break something:
+
+- **after the sign-off** — displaces the corpus terminator and reads as a postscript appended after
+  goodbye;
+- **between the instruction and the wish** — splits the one pair the corpus keeps intact across
+  roughly seventeen of twenty-two pieces;
+- **before the instruction** — chosen. It closes his own account and hands the piece to the reader,
+  and the instruct-then-wish pair survives untouched behind it.
+
+**It is repeatable because the slot is structural, not local:** *after the piece's own material ends,
+before the closing instruction.* That exists in every article he writes in this form — it does not
+depend on this one ending on a video.
+
+**It does not read as a hedge, and the placement is why.** *"This is what I think"* sitting after a
+specific claim would soften that claim; sitting at the pivot from his account to the reader's action,
+it marks the whole piece as his take and hands over. **It is not a disclaimer on the artifacts — it is
+what makes the handover reciprocal.**
+
+**Plain sentence, own paragraph, no emphasis.** The corpus does not mark its sign-off either, and a
+signature set in bold is a flourish rather than a convention.
+
+### What was deliberately NOT applied
+
+**Piece 2 of #271 — the reader-take loop — and #271 stays open on it.** The conflict that Issue exists
+to settle is unruled: **how much of the sharer's post may the site write?** His own pitch was a
+composer pre-populated with an opinion scaffold; what shipped sends title and canonical URL only, on
+the ground that putting his framing into a reader's post borrows their account.
+
+**Nothing in this diff implies that loop exists** — no invitation to reply, no prompt, no call to
+share. **A signature with no loop is half the mechanism**, and that is the honest state rather than
+something to paper over with a call to action nobody has ruled on.
+
+### What round 7 is
+
+**The seventh arrival after the pair closed at `CLEAR`, and the first that REFRAMES rather than
+corrects.** The other six changed what the piece claims or how it says it. **This changes what the
+reader is being invited to check the piece against** — their own history with human teams, rather than
+his account of agents.
+
+**The tally is seven, and the reading is unchanged:** two rounds can establish that every claim traces
+to the recorded source; they cannot establish that the source is complete.
+
+CONTENT-REVIEW-FINDINGS
