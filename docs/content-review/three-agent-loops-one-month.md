@@ -173,3 +173,161 @@ that now exists. The three findings round 1 applied are unchanged and were not r
 **The draft is clean.** No citable finding remains against `published-voice`.
 
 CONTENT-REVIEW-CLEAR
+
+## Round 3 — 2026-09-03 — a truth repair after the pair had closed
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.en.md` ·
+`apps/fed/src/content/blog/three-agent-loops-one-month.pt.md`, at `main` after the article merged and
+deployed.
+
+### What this round is, and it is not a third drafting round
+
+**The two-round bound was spent and terminal.** Round 2 closed at `CONTENT-REVIEW-CLEAR` and nothing
+here reopens it. This section exists because the **owner** read the live article and found a false
+claim, and because he ruled the same day that `content-reviewer` holds truth-of-published-claims on the
+content stream and **repairs in place** rather than blocking. The repair is applied under that mandate's
+ground 2 — *the claim is false against the source* — not under `published-voice`.
+
+### The defect he reported, verbatim
+
+> «a conta "A conta de agosto foi de USD 4.207,13." foi somente os dois loops (cliente e interno) nao
+> conta o loop do site pessoal, isso nao ficou claro.»
+
+**The figure covers two of the three loops.** The article never said so, and its structure implied the
+opposite: it opens on three projects in parallel and then states the bill as August's with nothing
+separating them.
+
+### Swept by content, not by the sentence he quoted — four sites per edition, and one of them he did not name
+
+1. **The bill sentence** (EN:20 / PT:20) — the one he quoted. Now scoped: *"it covers two of those
+   three loops. This platform's is not on it."*
+2. **The attribution sentence** (EN:24 / PT:24) — **its denominator was wrong too, and he did not name
+   it.** It read *"I cannot tell you which of the three projects spent the most. One bill, three loops,
+   no attribution."* If the bill covers two, the sentence is false as written. Now: *"which of the two
+   on it spent more. One bill, two loops, no split."*
+3. **The excerpt** (EN:10 / PT:10) — juxtaposed three projects and the bill in one breath, so the index
+   row and every card carried the same implication. Now *"a bill of USD 4,207 covering two of them."*
+4. **The arithmetic paragraph** (EN:22 / PT:22) — *"Total consumed for the month"* became *"Total on
+   that bill for the month"*. The credits block is otherwise untouched and still closes:
+   105,178.21 × $0.04 = $4,207.128 → **$4,207.13**, plan 10,000, total ≈ 115,000. **Credits, not
+   tokens.**
+
+**No figure was invented.** He has not said what the personal-site loop cost or on what meter, so the
+repair scopes the claim to what he did say and stops there. **The reader is not told the real total is
+higher** — that would require assuming the third loop consumed something billable, which is not in the
+source.
+
+### Three further pieces of source arrived in the same round, and all three are in the same commit
+
+- **«Agentic August»** — an internal AWS programme promoting AI use and experimentation, with training
+  goals and a hackathon with rules, *«eu preferi fazer diferente, do meu jeito. dai os 3 loops»*. Placed
+  early, as two short paragraphs, because it is the **cause** of the three loops and the piece never
+  said why three or why then. **The programme and his deviation are the whole claim** — nothing
+  characterises the employer, evaluates the programme, or says what it achieved.
+- **The three loops are not equally protected**, *«a ferramenta interna … nao é um segredo, diferentemente
+  do que to faznedo pro cliente»*. The opening now runs open → nameable → sealed, and closes on *"three
+  different amounts I am allowed to tell you."* **The sealed one is last on purpose**, so nothing
+  follows it to make it legible by contrast — a comparison that narrows the client engagement by
+  negation is the same leak with better manners. **Only the object is named**: a knowledge platform he
+  is building. Not its architecture, users, stage or purpose.
+- **Building it was his decision too**, *«pois foi minha decisao construi-la tbm»*. One clause, and it is
+  left un-glossed: it echoes *"I spent it. It was my decision."* later in the same piece, and that
+  repetition is the spine rather than something to trim. **No lesson is drawn from it.**
+
+**One link is deliberately NOT drawn.** The bill covers the two work loops and the programme was
+internal; whether the split falls on that boundary is his to confirm, not this reviewer's to assert. The
+two facts sit side by side.
+
+### What the four arrivals measure, and it is the point of recording them here
+
+**The pair closed at `CLEAR`. The owner then supplied four corrections:** a false attribution (the
+September close, round 1/2), missing context (the programme), a flattened distinction (the three
+disclosure levels), and an authorship fact (the internal platform was his call).
+
+**None of the four was reachable from the artifact.** All four are things only he knows — not omissions
+in the draft, not oversights in the rounds, and not findings any amount of re-reading would have
+produced. **That is not a failure of the review; it is the boundary of what a reviewer holding the piece
+and no access to the author can reach.**
+
+**What it does say about the pair's reach, plainly:** two rounds against `published-voice` can establish
+that every claim is *traceable to the recorded source*. They cannot establish that the recorded source is
+*complete*. On this piece the gap between those two was four corrections wide, and every one of them
+arrived after the terminal literal.
+
+### The bill correction BROKE a downstream section, and that is the finding worth keeping
+
+**It made *"what was actually burning the money"* false by structure, and nobody caught it until the
+owner read the page.** The section asked where the money went and answered **entirely with the loop that
+is not on the bill**: PR #387 is named in #577 as being in `tadeumendonca-skills`, the dispatch-cost
+record is #382 in that same workspace, and the failed-open falsifier is from the same day's work there.
+**All four examples are this platform's own loop — the one the corrected paragraph four sections earlier
+now explicitly excludes.**
+
+**This is the class this session has paid for repeatedly:** a correction lands where a claim is STATED
+and leaves untouched everything that RESTS on it. The bill sentence was scoped without re-reading what
+the article did with the bill further down.
+
+### What replaced it — the owner's war story, which answers the money question better
+
+> «eh melhor falar sobre a parte de muitos conflitos, menos conflitos, como modelar subagents de forma
+> intencional. isso aprendi a dura pena onde quando coloquei muitos atores num mesmo nivel para
+> concordarem nada mais era entregue no loop scrum agil que estava tentando implementar.»
+
+The section is now **the cause rather than the ledger**: he cannot show the split, and what he can give
+is the design that made deciding expensive — too many actors at one level, all having to agree, nothing
+shipping. **Conflict is not uniformly good**; some layers want it and some must not have it, which the
+piece already says of ideation versus the gate and now carries the failure mode on the other side.
+
+**Three constraints held.** No number invented — he said *"many actors"*. **The nineteen-to-six collapse
+was NOT joined to it:** #577 diagnoses that one as *handoffs, profiles generating no disagreement, which
+is why they never ran* — the opposite mechanism to *peers who all had to converge*. Nothing in the source
+says they are one event. And no coined term, no named pattern, no numbered rule.
+
+### The examples STAYED, and a wholesale delete would have broken the payoff
+
+**Verified before deciding rather than assumed:** the *"how do you notice"* section's three signals cite
+the three examples by content — members-versus-set, the empty check, the instrument against memory — and
+the `takeaway` frontmatter promises *"three signals"*. **Deleting them would have orphaned the reader's
+payoff and left a dangling promise in the metadata**, the same defect class one layer up. So the war
+story replaced the **framing**, which was the false part, and the evidence stayed under a claim it can
+carry. One further leak fixed in the same pass: *"what this month cost"* → *"what my own loop cost me"*,
+since that instrument measures the unbilled loop.
+
+### Matt Pocock — four learnings, three checked against the tree
+
+The section carried only *"it made me see I was on the right track"* — a feeling where this piece's
+register wants an artifact. **Three of his four were verified before being asserted:** six typed commands
+all carrying `argument-hint`, a MADR template whose shape demands the rejected option and its trade-off,
+and eight profiles each with a `skills:` preload list. **The fourth was deliberately weakened** — this
+loop has no PRD, so the draft says the movement is his and names where it lands here instead of claiming
+a practice the harness does not run.
+
+### Both reference defects are ONE class
+
+**A reference described by what it was near rather than by what it contained.** Matt's was treated as
+corroboration when it was four things he took and applied. The closing video was credited to **Greg**,
+who hosts it, when the reflection is **Ryan Carson's** — his correction. Both editions now name Carson
+with Greg as the channel, and `videos.json` gains `"caption": "Ryan Carson"`.
+
+**The caption stops at the speaker on purpose.** The existing rows read *speaker, then title*, and no
+citable source here gives that video's title — the owner's own framing is a description, not a title, and
+`"channel": "Greg"` remains under the open advisory and was left untouched rather than upgraded. **A
+guess must not become a caption.** Regenerated with `npm run gen-video-thumbs`: exactly one PNG changed,
+the other ten byte-identical.
+
+### A rendering defect this reviewer cannot fix — reported, not repaired
+
+**Clare's video (`pqlWNihgdjI`) has embedding disabled by its owner and the site has no preview mode.**
+Established by reading: `VideoEmbed` renders a local poster and swaps in an `<iframe>` **on click**, and
+`videos.json` carries only `channel` and `caption` — **no per-video flag, no link-preview form**. That is
+a component change and it is `developer`'s.
+
+**The failure shape is the bad one:** the facade looks correct and fails only *after* the reader clicks,
+which is how it reached publication.
+
+**The other three are UNVERIFIED, not fine.** The site consults no embeddability signal anywhere — a fact
+about the schema, not an inference — so **nothing in this repository has ever checked whether any of the
+four plays.** Reading an API's `embeddable` field would not close it either, since the site never reads
+that field; the check has to be against the rendered player.
+
+CONTENT-REVIEW-FINDINGS
