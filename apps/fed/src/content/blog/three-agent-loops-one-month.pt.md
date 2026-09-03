@@ -7,21 +7,27 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 577
-excerpt: "Três projetos agênticos em paralelo, em cima de uma agenda de projeto cheia, e uma conta de USD 4.207. O dinheiro é o número menos interessante disso: o que agosto custou de verdade foi decidir a mesma coisa várias vezes sem perceber."
+excerpt: "Três projetos agênticos em paralelo, em cima de uma agenda de projeto cheia, e uma conta de USD 4.207 cobrindo dois deles. O dinheiro é o número menos interessante disso: o que agosto custou de verdade foi decidir a mesma coisa várias vezes sem perceber."
 takeaway: 'como perceber que você está queimando horas e dinheiro na coisa errada — três sinais que não dependem de nenhuma ferramenta minha — e o que fazer no minuto em que você percebe.'
 ---
 
 Três projetos agênticos, rodando ao mesmo tempo, agosto inteiro, em cima de uma agenda de projeto cheia que não ficou mais leve para abrir espaço.
 
-Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles era um projeto de cliente, e ele chega aqui sem cliente, sem domínio e sem stack, o que é um buraco deliberado e não um esquecimento. O terceiro rodava junto com os dois e eu também não vou caracterizar.
+Um deles é esta plataforma — você consegue ler cada linha dela: o repositório, o loop que a constrói, os registros de decisão onde eu mudei de ideia. Um deles é uma plataforma interna de conhecimento que eu estou construindo, que pelo menos eu consigo nomear — e construí-la também foi decisão minha. E um deles era um projeto de cliente, que chega aqui sem cliente, sem domínio e sem stack — um buraco deliberado, não um esquecimento.
+
+Três loops, três quantidades diferentes de coisa que eu posso te contar.
+
+Teve um motivo para ser agosto. Dentro da AWS era o **Agentic August** — um programa promovendo uso e experimentação de IA, com algumas metas de treinamento e um hackathon com as suas próprias regras.
+
+Eu preferi fazer diferente, do meu jeito. É daí que vieram os três loops.
 
 Na segunda semana eu já estava trabalhando bem além do horário. Na terceira eu estava deixando loop rodando de madrugada. No fim do mês eu estava dormindo com o laptop na cama e acompanhando os agentes pelo celular, às três da manhã, do jeito que a gente acompanha uma coisa no fogo.
 
-A conta de agosto foi de **USD 4.207,13**.
+A conta de agosto foi de **USD 4.207,13** — e ela cobre dois daqueles três loops. O desta plataforma não está nela.
 
-Quero ser cuidadoso com esse número, porque é a única coisa aqui que alguém vai printar. São **créditos**, não tokens — a unidade em que o meu plano cobra. O plano cobre 10.000. Eu passei **105.178,21 créditos** disso, a quatro centavos o crédito, que é de onde saem os 4.207,13; a conta fecha no centavo. Total consumido no mês, plano incluído, uns **115.000 créditos**.
+Quero ser cuidadoso com esse número, porque é a única coisa aqui que alguém vai printar. São **créditos**, não tokens — a unidade em que o meu plano cobra. O plano cobre 10.000. Eu passei **105.178,21 créditos** disso, a quatro centavos o crédito, que é de onde saem os 4.207,13; a conta fecha no centavo. Total naquela conta no mês, plano incluído, uns **115.000 créditos**.
 
-E aqui vem a parte que eu preferia não escrever. **Eu não consigo te dizer qual dos três projetos gastou mais.** Uma conta, três loops, nenhuma atribuição.
+E aqui vem a parte que eu preferia não escrever. **Eu não consigo te dizer qual dos dois que estão nela gastou mais.** Uma conta, dois loops, nenhuma divisão.
 
 Eu sei o que você vai perguntar, porque é a pergunta que eu faria, então deixa eu responder antes de qualquer outra coisa: **eu gastei. Foi decisão minha.** Cada um daqueles créditos foi consumido por uma escolha que eu fiz — qual loop começar, quando deixar rodar, quando aceitar uma resposta e quando devolver. De quem era o dinheiro não é a parte interessante dessa história. As escolhas são.
 

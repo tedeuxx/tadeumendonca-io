@@ -173,3 +173,85 @@ that now exists. The three findings round 1 applied are unchanged and were not r
 **The draft is clean.** No citable finding remains against `published-voice`.
 
 CONTENT-REVIEW-CLEAR
+
+## Round 3 — 2026-09-03 — a truth repair after the pair had closed
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.en.md` ·
+`apps/fed/src/content/blog/three-agent-loops-one-month.pt.md`, at `main` after the article merged and
+deployed.
+
+### What this round is, and it is not a third drafting round
+
+**The two-round bound was spent and terminal.** Round 2 closed at `CONTENT-REVIEW-CLEAR` and nothing
+here reopens it. This section exists because the **owner** read the live article and found a false
+claim, and because he ruled the same day that `content-reviewer` holds truth-of-published-claims on the
+content stream and **repairs in place** rather than blocking. The repair is applied under that mandate's
+ground 2 — *the claim is false against the source* — not under `published-voice`.
+
+### The defect he reported, verbatim
+
+> «a conta "A conta de agosto foi de USD 4.207,13." foi somente os dois loops (cliente e interno) nao
+> conta o loop do site pessoal, isso nao ficou claro.»
+
+**The figure covers two of the three loops.** The article never said so, and its structure implied the
+opposite: it opens on three projects in parallel and then states the bill as August's with nothing
+separating them.
+
+### Swept by content, not by the sentence he quoted — four sites per edition, and one of them he did not name
+
+1. **The bill sentence** (EN:20 / PT:20) — the one he quoted. Now scoped: *"it covers two of those
+   three loops. This platform's is not on it."*
+2. **The attribution sentence** (EN:24 / PT:24) — **its denominator was wrong too, and he did not name
+   it.** It read *"I cannot tell you which of the three projects spent the most. One bill, three loops,
+   no attribution."* If the bill covers two, the sentence is false as written. Now: *"which of the two
+   on it spent more. One bill, two loops, no split."*
+3. **The excerpt** (EN:10 / PT:10) — juxtaposed three projects and the bill in one breath, so the index
+   row and every card carried the same implication. Now *"a bill of USD 4,207 covering two of them."*
+4. **The arithmetic paragraph** (EN:22 / PT:22) — *"Total consumed for the month"* became *"Total on
+   that bill for the month"*. The credits block is otherwise untouched and still closes:
+   105,178.21 × $0.04 = $4,207.128 → **$4,207.13**, plan 10,000, total ≈ 115,000. **Credits, not
+   tokens.**
+
+**No figure was invented.** He has not said what the personal-site loop cost or on what meter, so the
+repair scopes the claim to what he did say and stops there. **The reader is not told the real total is
+higher** — that would require assuming the third loop consumed something billable, which is not in the
+source.
+
+### Three further pieces of source arrived in the same round, and all three are in the same commit
+
+- **«Agentic August»** — an internal AWS programme promoting AI use and experimentation, with training
+  goals and a hackathon with rules, *«eu preferi fazer diferente, do meu jeito. dai os 3 loops»*. Placed
+  early, as two short paragraphs, because it is the **cause** of the three loops and the piece never
+  said why three or why then. **The programme and his deviation are the whole claim** — nothing
+  characterises the employer, evaluates the programme, or says what it achieved.
+- **The three loops are not equally protected**, *«a ferramenta interna … nao é um segredo, diferentemente
+  do que to faznedo pro cliente»*. The opening now runs open → nameable → sealed, and closes on *"three
+  different amounts I am allowed to tell you."* **The sealed one is last on purpose**, so nothing
+  follows it to make it legible by contrast — a comparison that narrows the client engagement by
+  negation is the same leak with better manners. **Only the object is named**: a knowledge platform he
+  is building. Not its architecture, users, stage or purpose.
+- **Building it was his decision too**, *«pois foi minha decisao construi-la tbm»*. One clause, and it is
+  left un-glossed: it echoes *"I spent it. It was my decision."* later in the same piece, and that
+  repetition is the spine rather than something to trim. **No lesson is drawn from it.**
+
+**One link is deliberately NOT drawn.** The bill covers the two work loops and the programme was
+internal; whether the split falls on that boundary is his to confirm, not this reviewer's to assert. The
+two facts sit side by side.
+
+### What the four arrivals measure, and it is the point of recording them here
+
+**The pair closed at `CLEAR`. The owner then supplied four corrections:** a false attribution (the
+September close, round 1/2), missing context (the programme), a flattened distinction (the three
+disclosure levels), and an authorship fact (the internal platform was his call).
+
+**None of the four was reachable from the artifact.** All four are things only he knows — not omissions
+in the draft, not oversights in the rounds, and not findings any amount of re-reading would have
+produced. **That is not a failure of the review; it is the boundary of what a reviewer holding the piece
+and no access to the author can reach.**
+
+**What it does say about the pair's reach, plainly:** two rounds against `published-voice` can establish
+that every claim is *traceable to the recorded source*. They cannot establish that the recorded source is
+*complete*. On this piece the gap between those two was four corrections wide, and every one of them
+arrived after the terminal literal.
+
+CONTENT-REVIEW-FINDINGS

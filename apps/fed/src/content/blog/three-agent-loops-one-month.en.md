@@ -7,21 +7,27 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 577
-excerpt: "Three agentic projects in parallel, on top of a full project calendar, and a bill of USD 4,207. The money is the least interesting number in it: what August actually cost was deciding the same thing over and over without noticing."
+excerpt: "Three agentic projects in parallel, on top of a full project calendar, and a bill of USD 4,207 covering two of them. The money is the least interesting number in it: what August actually cost was deciding the same thing over and over without noticing."
 takeaway: 'how to notice you are burning hours and money on the wrong thing — three signals that need none of my tools — and what to do in the minute you notice.'
 ---
 
 Three agentic projects, running at the same time, all of August, on top of a full project calendar that did not get any lighter to make room.
 
-One of them is this platform — you can read every line of it, the repository, the loop that builds it, the decision records where I changed my mind. One of them was a client engagement, and it arrives here with no client, no domain and no stack, which is a deliberate hole and not an oversight. The third ran alongside both and I am not going to characterise it either.
+One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building, which I can at least name — and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
+
+Three loops, three different amounts I am allowed to tell you.
+
+There was a reason it was August. Inside AWS it was **Agentic August** — a programme promoting the use of AI and experimentation with it, with some training goals and a hackathon that had its own rules.
+
+I preferred to do it differently, my own way. That is where the three loops came from.
 
 By the second week I was working well past office hours. By the third I was leaving loops running overnight. By the end of the month I was sleeping with the laptop in the bed and checking on agents from my phone, at three in the morning, the way you check on something that is cooking.
 
-The bill for August was **USD 4,207.13**.
+The bill for August was **USD 4,207.13** — and it covers two of those three loops. This platform's is not on it.
 
-I want to be careful with that number, because it is the one thing in this piece somebody will screenshot. It is **credits**, not tokens — the unit my plan bills in. The plan covers 10,000. I went **105,178.21 credits** past it, at four cents a credit, which is where the 4,207.13 comes from; the arithmetic closes to the cent. Total consumed for the month, plan included, around **115,000 credits**.
+I want to be careful with that number, because it is the one thing in this piece somebody will screenshot. It is **credits**, not tokens — the unit my plan bills in. The plan covers 10,000. I went **105,178.21 credits** past it, at four cents a credit, which is where the 4,207.13 comes from; the arithmetic closes to the cent. Total on that bill for the month, plan included, around **115,000 credits**.
 
-And here is the part I would rather not write. **I cannot tell you which of the three projects spent the most.** One bill, three loops, no attribution.
+And here is the part I would rather not write. **I cannot tell you which of the two on it spent more.** One bill, two loops, no split.
 
 I know what you are about to ask, because it is the question I would ask, so let me answer it before anything else: **I spent it. It was my decision.** Every one of those credits was consumed by a choice I made — which loop to start, when to let it run, when to accept an answer and when to send it back. Whoever the money belonged to is not the interesting part of this story. The choices are.
 
