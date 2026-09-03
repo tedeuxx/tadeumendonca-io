@@ -221,6 +221,12 @@ Tem uma coisa que eu já sei sobre setembro: **não fazer mudança estrutural de
 
 E ao fazer uma mudança de loop, seja muito pontual, e observe com toda a atenção e foco a mudança de comportamento do loop.
 
+https://www.youtube.com/watch?v=S-sYlFiGFv8
+
+Um dos engenheiros ali fala que queria saber programar para fazer um videogame, e que hoje cada ideia que ele tem, ele consegue colocar em prática.
+
+É assim que eu me sinto fazendo este site.
+
 Vá olhar o que os seus loops fizeram no mês passado — não a saída, as *rodadas*. Conte quantas delas acharam a mesma coisa duas vezes.
 
 Grande abraço, e até a próxima.
