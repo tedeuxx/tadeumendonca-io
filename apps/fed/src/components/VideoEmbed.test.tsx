@@ -128,6 +128,10 @@ describe('VideoEmbed when the owner has disabled embedding', () => {
   it('reuses the committed local poster rather than fetching one', () => {
     for (const id of FLAGGED) {
       const { container, unmount } = renderWithLocale(<VideoEmbed id={id} />);
+      // The ruler first. Both branches render a local poster, so without pinning WHICH branch is on
+      // screen this whole assertion stays green when the preview is never reached — measured: it did,
+      // under the mutation that makes `embeddingDisabled` always false.
+      expect(screen.getByTestId('video-preview'), id).toBeInTheDocument();
       expect(container.querySelector('img'), id).toHaveAttribute('src', `/video/${id}.png`);
 
       // The same claim the player branch makes, re-asserted for this branch rather than assumed to
