@@ -65,9 +65,9 @@ If you have never had that experience while learning something with no map, I am
 
 ## What was actually burning the money
 
-So: what did the four thousand dollars go on?
+So: where did it go?
 
-Not on building. **It went on deciding, over and over, about the same thing.**
+I cannot give you the split — I said that already, and it does not get better on a second look. What I can point at is what kept getting burned and thrown away, because I watched it happen: **deciding, over and over, about the same thing.**
 
 The clearest example I have is public, dated, and happened on the last day of the month, which is how I know I am not reconstructing it kindly. One pull request in my loop repository went through **eight review rounds and nine repair commits**, and every single round found *one more instance of the same class of defect*.
 
@@ -140,7 +140,7 @@ Downstream — review, QA, the merge — I want the opposite. Objective, against
 
 The asymmetry is the whole design, and it comes down to what being wrong costs at each end. **Being wrong at ideation costs a described item nobody builds. Being wrong at the merge costs a deploy** — on this platform, merging *is* deploying. So: argue where correction is cheap, be boring where it is not.
 
-I learned this by getting it wrong first. I built a roster like an org chart — nineteen profiles, one per concern — and it collapsed to seven. **Everything that generated no disagreement turned out to be a handoff, and the handoff was why it never ran.** Three specialists existed and not one of them was ever called.
+I learned this by getting it wrong first. I built a roster like an org chart — nineteen profiles, one per concern — and it collapsed to six. **Everything that generated no disagreement turned out to be a handoff, and the handoff was why it never ran.** Three specialists existed and not one of them was ever called.
 
 If you take one testable thing from this whole piece, take that one: **a profile with no counterpart is a handoff. A mandate with no trigger is a document.**
 
@@ -162,7 +162,7 @@ Reading the month back, every one of those corrections was pushing in the same d
 
 **The loop had been turning into the Scrum I always wanted to see implemented in a real company and never once saw work that well.** Iterations with a real start and a real exhaustion condition. Ceremonies that actually run — the retrospective happened, in full, and nobody skipped it for being busy. Estimation with no anchoring, because the estimators never hear each other. A retrospective with no politics, because there is nobody in the room protecting a relationship. And a Definition of Done that genuinely gates, because a machine refuses the merge.
 
-**What agents removed is exactly the part that made Scrum fail in practice**, and it was never the framework's fault. It was that people are busy, people anchor, people are diplomatic, and people let the gate slide at 6pm on a Friday.
+**What the agents removed is exactly what I had never managed to hold in place with people** — the ceremony that gets skipped because everyone is busy, the estimate that anchors because somebody said a number first, the retrospective that goes quiet because there is a relationship in the room.
 
 There is a second convergence in here that I find harder to dismiss than the first. I run another harness, on a different runtime, for different work. When I finally exported one and compared it against the other, **24 of about 36 mechanisms were already present in both, and five of the agent profiles matched almost exactly** — arrived at separately, months apart, by me, without either one looking at the other.
 
@@ -203,9 +203,9 @@ If you are somewhere near the same point — enough experience to know what good
 
 **Write down what you did and why, even though nobody is asking.** Not for the record. So that the day somebody on the other side of the world describes your cave and calls it a frontier, you can check whether they mean the same thing you do.
 
-There is one thing I already know about September: **no structural change to the loop in more than one project at the same time.** One change, and a narrow one — and then you watch what the loop's behaviour actually does, with all of your attention on it.
+There is one thing I already know about September: **no structural change to a loop in more than one project at the same time.** That is what most produces the feeling of discouragement — things starting to go wrong at once.
 
-That is what most produces the feeling of discouragement: things starting to go wrong at the same time.
+And when you do change a loop, be very narrow about it, and then watch what the loop's behaviour does with all of your attention and focus on it.
 
 Go and look at what your loops actually did last month — not the output, the *rounds*. Count how many of them found the same thing twice.
 
