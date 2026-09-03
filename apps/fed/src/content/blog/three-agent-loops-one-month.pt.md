@@ -106,7 +106,7 @@ Mais duas coisas do mesmo mês, as duas baratas de descrever e as duas caras de 
 
 ## Então — como você percebe?
 
-Essa é a parte que eu ia querer se eu fosse você, então aqui está do jeito mais direto que eu consigo colocar. Três sinais, e nenhum deles exige a minha configuração, as minhas ferramentas ou um repositório:
+Essa é a parte que eu ia querer se eu fosse você, então aqui está do jeito mais direto que eu consigo colocar. **Três sinais — e você lê eles do mesmo jeito que leria um time humano.** Nenhum deles exige a minha configuração, as minhas ferramentas ou um repositório:
 
 **1. A mesma classe de achado continua voltando depois que você já alargou a busca.** Isso não é minúcia. É você verificando membros em vez de verificar o conjunto. Alargar o mesmo método pela quarta vez não vai achar — o método é o que está errado.
 
@@ -226,6 +226,8 @@ https://www.youtube.com/watch?v=S-sYlFiGFv8
 Um dos engenheiros ali fala que queria saber programar para fazer um videogame, e que hoje cada ideia que ele tem, ele consegue colocar em prática.
 
 É assim que eu me sinto fazendo este site.
+
+Isso é o que eu penso.
 
 Vá olhar o que os seus loops fizeram no mês passado — não a saída, as *rodadas*. Conte quantas delas acharam a mesma coisa duas vezes.
 

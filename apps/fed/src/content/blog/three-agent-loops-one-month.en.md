@@ -106,7 +106,7 @@ Two other things from the same month, both cheap to describe and both expensive 
 
 ## So — how do you notice?
 
-This is the part I would want if I were you, so here it is as plainly as I can put it. Three signals, none of which requires my setup, my tools, or a repository:
+This is the part I would want if I were you, so here it is as plainly as I can put it. **Three signals — and you read them the way you would read a human team.** None of them needs my setup, my tools or a repository:
 
 **1. The same class of finding keeps coming back after you widened the search.** That is not thoroughness. That is you verifying members instead of verifying the set. Widening the same method a fourth time will not find it — the method is what is wrong.
 
@@ -226,6 +226,8 @@ https://www.youtube.com/watch?v=S-sYlFiGFv8
 One of the engineers in there says he had wanted to know how to program so he could make a video game, and that now every idea he has, he can put into practice.
 
 That is how I feel making this site.
+
+This is what I think.
 
 Go and look at what your loops actually did last month — not the output, the *rounds*. Count how many of them found the same thing twice.
 
