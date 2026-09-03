@@ -65,9 +65,9 @@ Se você nunca teve essa experiência aprendendo alguma coisa sem mapa, não sei
 
 ## O que estava queimando o dinheiro de verdade
 
-Então: em que foram os quatro mil dólares?
+Então: para onde foi?
 
-Não em construir. **Foram em decidir, de novo e de novo, sobre a mesma coisa.**
+Eu não consigo te dar a divisão — já falei isso, e não melhora numa segunda olhada. O que eu consigo apontar é o que ficou sendo torrado e jogado fora, porque eu vi acontecer: **decidir, de novo e de novo, sobre a mesma coisa.**
 
 O exemplo mais claro que eu tenho é público, datado, e aconteceu no último dia do mês — que é como eu sei que não estou reconstruindo isso com carinho. Um pull request no repositório do meu loop passou por **oito rodadas de revisão e nove commits de correção**, e cada uma das rodadas encontrou *mais uma instância da mesma classe de defeito*.
 
@@ -140,7 +140,7 @@ Lá embaixo — revisão, QA, o merge — eu quero o oposto. Objetivo, contra um
 
 A assimetria é o design inteiro, e ela se resume a quanto custa estar errado em cada ponta. **Errar na ideação custa um item descrito que ninguém constrói. Errar no merge custa um deploy** — nesta plataforma, mergear *é* deployar. Então: discuta onde a correção é barata, seja chato onde ela não é.
 
-Eu aprendi isso errando primeiro. Montei um roster como organograma — dezenove perfis, um por preocupação — e ele desabou para sete. **Tudo o que não gerava discordância era um handoff, e o handoff era o motivo de nunca rodar.** Três especialistas existiam e nenhum deles foi despachado uma vez sequer.
+Eu aprendi isso errando primeiro. Montei um roster como organograma — dezenove perfis, um por preocupação — e ele desabou para seis. **Tudo o que não gerava discordância era um handoff, e o handoff era o motivo de nunca rodar.** Três especialistas existiam e nenhum deles foi despachado uma vez sequer.
 
 Se você levar uma coisa testável deste texto inteiro, leve essa: **um perfil sem contraparte é um handoff. Um mandato sem gatilho é um documento.**
 
@@ -162,7 +162,7 @@ Relendo o mês, cada uma daquelas correções estava empurrando na mesma direç�
 
 **O loop tinha ido virando o Scrum que eu sempre quis ver implementado numa empresa de verdade e nunca vi funcionar tão bem.** Iterações com começo real e condição de esgotamento real. Ritos que acontecem de fato — a retrospectiva aconteceu, inteira, e ninguém pulou por estar ocupado. Estimativa sem ancoragem, porque os estimadores nunca se ouvem. Retrospectiva sem política, porque não tem ninguém na sala protegendo uma relação. E uma Definition of Done que realmente barra, porque quem recusa o merge é uma máquina.
 
-**O que os agentes tiraram é exatamente a parte que fazia o Scrum falhar na prática**, e nunca foi culpa do framework. Era que gente está ocupada, gente ancora, gente é diplomática, e gente deixa o portão passar às 18h de uma sexta.
+**O que os agentes tiraram é exatamente o que eu nunca tinha conseguido segurar de pé com gente** — o rito que é pulado porque todo mundo está ocupado, a estimativa que ancora porque alguém falou um número primeiro, a retrospectiva que emudece porque tem uma relação na sala.
 
 Tem uma segunda convergência aqui que eu acho mais difícil de descartar que a primeira. Eu rodo um outro harness, em outro runtime, para outro tipo de trabalho. Quando finalmente exportei um e comparei com o outro, **24 de uns 36 mecanismos já estavam presentes nos dois, e cinco dos perfis de agente batiam quase exatamente** — construídos separado, com meses de diferença, por mim, sem nenhum dos dois olhar para o outro.
 
@@ -203,9 +203,9 @@ Se você está mais ou menos no mesmo ponto — experiência suficiente para sab
 
 **Escreva o que você fez e por quê, mesmo que ninguém esteja pedindo.** Não pelo registro. Para que, no dia em que alguém do outro lado do mundo descrever a sua caverna e chamar aquilo de fronteira, você consiga conferir se essa pessoa está falando da mesma coisa que você.
 
-Tem uma coisa que eu já sei sobre setembro: **nenhuma mudança estrutural de loop em mais de um projeto ao mesmo tempo.** Uma mudança, e bem pontual — e aí você observa o que o comportamento do loop faz de verdade, com toda a sua atenção nele.
+Tem uma coisa que eu já sei sobre setembro: **não fazer mudança estrutural de loop ao mesmo tempo em mais de um projeto.** É isso que mais causa a sensação de desânimo, quando as coisas começam a dar errado ao mesmo tempo.
 
-É isso que mais produz a sensação de desânimo: as coisas começarem a dar errado ao mesmo tempo.
+E ao fazer uma mudança de loop, seja muito pontual, e observe com toda a atenção e foco a mudança de comportamento do loop.
 
 Vá olhar o que os seus loops fizeram no mês passado — não a saída, as *rodadas*. Conte quantas delas acharam a mesma coisa duas vezes.
 
