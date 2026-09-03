@@ -13,7 +13,7 @@ takeaway: 'how to notice you are burning hours and money on the wrong thing — 
 
 Three agentic projects, running at the same time, all of August, on top of a full project calendar that did not get any lighter to make room.
 
-One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building, which I can at least name — and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
+One of them is this platform — you can read every line of it: the repository, the loop that builds it, the decision records where I changed my mind. One of them is an internal knowledge platform I am building for the modernization practice inside AWS Professional Services in LATAM, to speed up how AI knowledge moves between colleagues — my thesis, and building it was my decision too. And one of them was a client engagement, which arrives here with no client, no domain and no stack — a deliberate hole, not an oversight.
 
 Three loops, three different amounts I am allowed to tell you.
 
@@ -23,7 +23,7 @@ I preferred to do it differently, my own way. That is where the three loops came
 
 By the second week I was working well past office hours. By the third I was leaving loops running overnight. By the end of the month I was sleeping with the laptop in the bed and checking on agents from my phone, at three in the morning, the way you check on something that is cooking.
 
-The bill for August was **USD 4,207.13** — and it covers two of those three loops. This platform's is not on it.
+The bill for August was **USD 4,207.13** — and it covers two of those three loops. This platform's runs on my Claude Max 10x subscription instead: two loops metered in credits, one flat.
 
 I want to be careful with that number, because it is the one thing in this piece somebody will screenshot. It is **credits**, not tokens — the unit my plan bills in. The plan covers 10,000. I went **105,178.21 credits** past it, at four cents a credit, which is where the 4,207.13 comes from; the arithmetic closes to the cent. Total on that bill for the month, plan included, around **115,000 credits**.
 

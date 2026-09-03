@@ -332,6 +332,99 @@ that field; the check has to be against the rendered player.
 
 CONTENT-REVIEW-FINDINGS
 
+## Round 4 — 2026-09-03 — the fifth arrival, and one widening of the boundary
+
+draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main` after the article
+merged and deployed.
+
+### What the owner granted, as one thought rather than two
+
+> «fala que a plataforma de conhecimento interna é da pratica de modernizacao dentro de aws
+> professional services em latam para acelerar troca de conhecimento de IA entre os colaboradores»
+> «(minha tese)»
+
+**The middle rung now carries its context and its authorship in one clause**, because it arrived as one
+thought: the practice, the organisation, the region, the purpose — **and that the platform is his
+thesis.**
+
+**«Agentic August» set training goals and a hackathon with rules; he opted out and argued a thesis
+instead.** That is materially stronger than *"he built something different"*, and it is what he actually
+said.
+
+### The clause is un-glossed on purpose, and that is a rule rather than a preference
+
+**This is the third instance of one shape in the article** — *"I spent it. It was my decision."* ·
+*"building it was my decision too."* · *"my thesis."* **None of the three is explained**, and the piece
+works because **the reader assembles them**. Naming the pattern would be the edit that kills it, which
+is the same rule the register already applies to habits: state the instance, never the habit.
+
+### What "thesis" is NOT allowed to imply, checked in the wording
+
+**It is his argument for accelerating AI knowledge exchange in that practice — nothing more.** The
+source contains no claim that it was **accepted, adopted, funded, validated or proven**, and *thesis* is
+precisely the word that slides into *"and it worked"* without anyone deciding to say so.
+
+**The wording holds the line grammatically:** the purpose is written as an infinitive — *"to speed up how
+AI knowledge moves between colleagues"* — which states an aim. **A relative clause (*"which speeds up
+…"*) would have asserted an outcome**, and that is the one-word difference between a purpose and a
+result.
+
+### The sealed rung — checked AFTER writing, and the finding is a narrowing rather than a leak
+
+**The client engagement is still last, still sealed, and still carries no client, no domain, no stack, no
+sector and no dates.** Nothing was added to it.
+
+**But the contrast did move, and pretending otherwise would be the wrong answer.** Naming *AWS
+Professional Services* and *LATAM* on the middle rung means a reader can now infer the client engagement
+was an AWS Professional Services client, plausibly in that region. **That is a real narrowing of the
+population the sealed rung is drawn from.**
+
+**Judged as holding**, and the reason is stated rather than assumed: the employer was already public and
+already in this piece (the «Agentic August» passage names AWS), the narrowed population is large, and
+**no attribute of the engagement itself was added** — the reader learns more about where he works and
+nothing more about whom he worked for. **The order still does the protective work**: the sealed rung is
+last, so nothing follows it to define it by contrast.
+
+**This is the edit class that erodes that boundary**, and the check is recorded here so the next widening
+is measured against a stated position rather than re-derived.
+
+### The tally, which is the finding this round exists to keep
+
+**Five pieces of source have now arrived from the owner after the pair closed at `CLEAR`:** a false
+attribution, missing context (the programme), a flattened distinction (the three disclosure levels), an
+authorship fact, and now the platform's context and thesis.
+
+**All five are things only he knows.** Not omissions in the draft, not oversights in the rounds, and not
+findings any amount of re-reading the artifact would have produced. **Two rounds can establish that every
+claim is traceable to the recorded source; they cannot establish that the recorded source is complete** —
+and on this piece the gap between those two is now five corrections wide.
+
+### The third loop's cost — the hole the bill correction left, closed by him
+
+> «voce pode considerar o custo desse loop no mes minha assinatura claude max 10x»
+
+**The round-3 repair was true and incomplete.** It said this platform's loop *"is not on that invoice"*
+and stopped, which left the reader with an absence. The real shape is **two cost models in one month**:
+two loops metered in credits, one on a flat subscription.
+
+**And it is what makes the two-versus-three distinction mean something.** It stops being an accounting
+caveat and becomes the fact underneath the no-attribution beat: **they are not the same kind of number.**
+
+**Three things deliberately NOT done.** No price is attached — he named the tier, not a figure, and none
+was looked up or inferred from public pricing. **Nothing is totalled**: a sum across a credit meter and a
+subscription is not in the source and would be the exact defect this round exists to fix. And it is not
+written as *"so the real cost was higher"* — **a different meter, not a hidden line item.** The credits
+block is untouched and still closes to the cent.
+
+**Two checks run after writing rather than assumed.** The attribution sentence — *"I cannot tell you
+which of the two on it spent more"* — is **still exactly true** (the bill covers two, with no split
+between them) and **still necessary**: two later passages call back to it, the *"I cannot give you the
+split"* line and the third of the three signals. It was re-read and left unchanged rather than presumed
+to survive. And the disclosure passage and the bill paragraph were compared for drift: one is about
+**what he may say**, the other about **which meter paid**. Different axes, neither restating the other.
+
+CONTENT-REVIEW-FINDINGS
+
 ## Round 5 — 2026-09-03 — the article's new ending
 
 draft: `apps/fed/src/content/blog/three-agent-loops-one-month.{en,pt}.md`, at `main`.
