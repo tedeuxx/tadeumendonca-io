@@ -145,6 +145,33 @@ export function diffManifest(ids, manifest) {
 }
 
 /**
+ * Every id whose `embeddable` value is outside the one-value vocabulary.
+ *
+ * THE VOCABULARY IS: the key is absent, or it is exactly `false`. There is deliberately no `true`, and
+ * `src/components/VideoEmbed.tsx`'s `embeddingDisabled()` carries the full argument — the short version
+ * is that a wrong `false` is a visible downgrade and a wrong `true` is a player that dies after a click,
+ * so the direction nobody can see is removed from the schema rather than trusted to a reviewer.
+ *
+ * This is a SCHEMA check and it is the only thing here that runs in a gate. It cannot tell whether a
+ * declared `false` is TRUE — that needs YouTube, and `check-video-embeddable.mjs` is the separate,
+ * deliberately ungated script that asks. Read a green here as "nobody typed a value the renderer would
+ * misread", never as "the flags are right".
+ */
+export function invalidEmbeddable(manifest) {
+  return Object.entries(manifest)
+    .filter(([, entry]) => 'embeddable' in entry && entry.embeddable !== false)
+    .map(([id, entry]) => ({ id, value: entry.embeddable }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** Every id the manifest declares non-embeddable, sorted. */
+export function nonEmbeddableIds(manifest) {
+  return Object.keys(manifest)
+    .filter((id) => manifest[id]?.embeddable === false)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+/**
  * The two lines a card renders: a channel (always) and a caption (only where the repository already
  * states the video's own name — see the header on why nothing here is invented or fetched).
  */

@@ -8,7 +8,7 @@
   "P5AjSVwZ9H0": { "channel": "Oasis", "caption": "Oasis: Champagne Supernova" },
   "9YMYVb1ASCg": { "channel": "Ethan Mollick" },
   "-QFHIoCo-Ko": { "channel": "David Ondrej", "caption": "Matt Pocock's Agentic Engineering Workflow" },
-  "pqlWNihgdjI": { "channel": "AWS", "caption": "Frontier Development" },
+  "pqlWNihgdjI": { "channel": "AWS", "caption": "Frontier Development", "embeddable": false },
   "vJEy3nP2_C8": { "channel": "Greg", "caption": "Ryan Carson" },
   "S-sYlFiGFv8": { "channel": "Claude", "caption": "How the Claude Code team uses Claude Code" }
 }

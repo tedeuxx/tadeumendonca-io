@@ -12,7 +12,7 @@
 import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
-import { videoIdsIn, readManifest, diffManifest, cardLines } from './video-thumbs.mjs';
+import { videoIdsIn, readManifest, diffManifest, cardLines, invalidEmbeddable } from './video-thumbs.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content');
@@ -94,6 +94,18 @@ if (unlabelled.length > 0) {
   );
 }
 if (unused.length > 0) console.log(`::notice::videos.json has unused entries: ${unused.join(', ')}`);
+
+// The `embeddable` vocabulary, checked here as well as in video-thumbs.test.mjs — the generator is the
+// one thing that always reads this file, and a schema violation caught only by a test is a schema
+// violation that survives every path that skips tests. There is no `true`: see `invalidEmbeddable()`.
+const badEmbeddable = invalidEmbeddable(readManifest(manifestPath));
+if (badEmbeddable.length > 0) {
+  throw new Error(
+    `src/content/videos.json: \`embeddable\` accepts only \`false\` — got ${badEmbeddable
+      .map((o) => `${o.id}: ${JSON.stringify(o.value)}`)
+      .join(', ')}. Omit the key to mean UNKNOWN; there is deliberately no \`true\`.`,
+  );
+}
 
 const manifest = readManifest(manifestPath);
 mkdirSync(outDir, { recursive: true });

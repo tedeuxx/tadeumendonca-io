@@ -69,11 +69,17 @@ describe('ArchitecturePage', () => {
   // structurally identical bad translation passes, and that limit is recorded in ADR-0032.
   //
   // THE PAGE NOW HAS A VIDEO EMBED (pillar 3), which the sentence here used to say it did not. A
-  // `<VideoEmbed>` renders no anchor, so it is invisible to the `links` comparison — the parity of the
-  // embed itself is carried by `video-thumbs.test.mjs`, which scans the whole content tree for YouTube
-  // ids and reds on one that has no poster or no `videos.json` caption. Both editions cite the same id,
-  // so a drop on one side would leave the two files unequal in prose rather than in links: not caught
-  // here, and named rather than papered over.
+  // `<VideoEmbed>` renders no anchor FOR THE VIDEO THIS PAGE EMBEDS, so it is invisible to the `links`
+  // comparison — the parity of the embed itself is carried by `video-thumbs.test.mjs`, which scans the
+  // whole content tree for YouTube ids and reds on one that has no poster or no `videos.json` caption.
+  // Both editions cite the same id, so a drop on one side would leave the two files unequal in prose
+  // rather than in links: not caught here, and named rather than papered over.
+  //
+  // THE QUALIFIER IS NEW AND IS NOT PEDANTRY. A video declared `"embeddable": false` renders a
+  // link preview instead of a player, and that form DOES carry an anchor. This page's video is not
+  // declared, so the sentence above still holds here — but it stopped being a property of the component
+  // and became a property of this page's data, and the two read identically until someone flags it.
+  // (The comparison would still pass: both editions embed the same id and so would emit the same href.)
   it('keeps the two editions in sync on every source they cite', () => {
     // Read everything BEFORE unmounting — unmount empties the container, so a later query silently
     // returns zero and the comparison passes for the wrong reason.

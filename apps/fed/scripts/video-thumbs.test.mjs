@@ -11,6 +11,8 @@ import {
   cardLines,
   thumbPath,
   facadeIdOnLine,
+  invalidEmbeddable,
+  nonEmbeddableIds,
 } from './video-thumbs.mjs';
 import { youtubeId } from '../src/components/VideoEmbed';
 
@@ -128,6 +130,48 @@ describe('cardLines', () => {
 
   it('refuses an entry with no channel instead of drawing a blank rectangle', () => {
     expect(() => cardLines('x', { x: {} })).toThrow(/no `channel` for x/);
+  });
+});
+
+describe('the `embeddable` vocabulary', () => {
+  // AGAINST THE REAL MANIFEST. The schema is one value wide — absent, or exactly `false` — and this is
+  // what makes the missing `true` a rule rather than a convention someone remembers.
+  //
+  // What it CANNOT do is stated so a green is not over-read: it proves nobody typed a value the renderer
+  // would misread. It does not prove a declared `false` is correct, and it says nothing at all about the
+  // ten videos that declare nothing — those are UNKNOWN, and unknown is the honest default, not a pass.
+  it('accepts no value other than false in src/content/videos.json', () => {
+    const offenders = invalidEmbeddable(readManifest(manifestPath));
+    expect(
+      offenders,
+      'the only permitted `embeddable` value is `false` — absent means UNKNOWN and renders the player',
+    ).toEqual([]);
+  });
+
+  // Guards the green above from being vacuous: with no flag anywhere, `invalidEmbeddable` returns []
+  // and passes having examined nothing, which is indistinguishable from a healthy manifest.
+  it('has at least one video actually declared non-embeddable', () => {
+    expect(nonEmbeddableIds(readManifest(manifestPath)).length).toBeGreaterThan(0);
+  });
+
+  // A flag for a video the content no longer embeds is dead weight that reads as knowledge. `unused`
+  // above already covers it for the whole entry; this pins it for the flag specifically, because a flag
+  // is the part someone would keep "just in case" while dropping the rest.
+  it('flags only videos the content still embeds', () => {
+    const ids = videoIdsIn(contentDir);
+    for (const id of nonEmbeddableIds(readManifest(manifestPath))) expect(ids).toContain(id);
+  });
+
+  it('reports true, a string and a null alike — every non-false value', () => {
+    const manifest = {
+      ok: { channel: 'c' },
+      no: { channel: 'c', embeddable: false },
+      yes: { channel: 'c', embeddable: true },
+      str: { channel: 'c', embeddable: 'false' },
+      nul: { channel: 'c', embeddable: null },
+    };
+    expect(invalidEmbeddable(manifest).map((o) => o.id)).toEqual(['nul', 'str', 'yes']);
+    expect(nonEmbeddableIds(manifest)).toEqual(['no']);
   });
 });
 
