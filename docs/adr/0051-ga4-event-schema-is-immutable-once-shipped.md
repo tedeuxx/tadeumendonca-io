@@ -605,10 +605,28 @@ collected:
 once, among consenting readers. It is not a count of GA4 sessions.** Read the series as sessions
 carrying a bounded over-count in the multi-tab case and a bounded under-count in the long-lived-tab
 case — never as an exact session count, and never as a per-reader count. **Neither error is measurable
-from here or from GA4**: nothing in this repository can observe a reader's tab count and GA4 exposes no
-tab dimension, so the size of the gap is unknown rather than small-and-known. What can be said about
-its size is only structural — both cases require one reader to do something unusual with tabs, and
-neither can be corrected retroactively.
+from HERE**: nothing in this repository can observe a reader's tab count, and GA4 exposes no tab
+dimension, so neither gap can be closed from the client at all.
+
+**The two halves are NOT symmetric on the GA4 side, though, and saying they were would foreclose a route
+that works.** State them apart:
+
+- **The under-count is unobservable from either side, structurally.** A suppressed event leaves no row,
+  so there is nothing for any report to count. This half is genuinely unknown.
+- **The over-count on `contact_reach` is plausibly bounded from GA4's own reporting, and this is a route
+  to check rather than a measurement anyone has run.** The guard's key for this event carries **no
+  discriminator** — `useContactReach.ts` says so in as many words, *"there is exactly one `contact_reach`
+  per session to record"* — so a session may legitimately produce **at most one** row. GA4 reports
+  `eventCount` and `sessions` per event name, which makes **`eventCount − sessions` the excess rows
+  beyond one-per-session**, i.e. the multi-tab excess. **Nobody has run it**; it is written here so the
+  next analyst tries it instead of reading *"unmeasurable"* and stopping.
+- **That route does NOT transfer to `article_progress` or `article_end_reached`.** Their keys are
+  discriminated by article — and, for progress, by threshold (`onceKey('article_progress', articleKey,
+  percent)`) — so more than one row per session is correct behaviour there and the subtraction measures
+  reading breadth, not tabs.
+
+What can still be said about the gap's size in general is only structural — both cases require one
+reader to do something unusual with tabs, and neither can be corrected retroactively.
 
 **This applies to every event guarded by `lib/sessionOnce`, not only `contact_reach`** — from v1.1.82
 that is `contact_reach`, `article_progress` and `article_end_reached`. §5's *cost, stated* paragraph
@@ -666,20 +684,49 @@ count carrying the wrong file list, and slice B's commit message attributing a b
 the wrong file — **and all three have one shape: the number came from the run and the sentence around
 it came from memory.** The verdict that produced this amendment contains a fourth of the same shape:
 its ask described the two article events as carrying *weeks* of rows, where the window measured above
-is **1 h 43 min**. Right in direction, wrong in magnitude by three orders, and it does not change the
-ask — a seam is a seam at any width — which is exactly why a plausible number survives review. **A
-figure in this record is stated as a command or it is not stated.**
+is **1 h 43 min 04 s = 6,184 s**. Right in direction, wrong in magnitude by **about two orders**, and it
+does not change the ask — a seam is a seam at any width — which is exactly why a plausible number
+survives review. **A figure in this record is stated as a command or it is not stated**, so this one is
+too, and *"weeks"* is bracketed rather than pinned because the word was vague at the source:
 
-**What this section deliberately does NOT absorb: slice B's coverage attribution.** The commit message
-and PR body of `863a3b5`/#602 credit the 94.5 → 94.42 branch dip to `sessionOnce.ts`'s two fail-open
-`catch` arms; the gate measured that file at 100 % branches and showed that *removing* it lowers the
-aggregate, the real cause being two defensively-unreachable fallback arms elsewhere. **That correction
-does not belong in this record.** It is a fact about a test suite, not about a GA4 schema, and a
-decision record that accumulates corrections to whatever was wrong in the MR that carried it stops
-being a record of decisions — which is the failure the significance gate in
-`documentation-standard` exists to prevent. Its home is the artifact that carries the false
-sentence, and the correction already exists durably and publicly in the round-2 verdict linked at the
-top of this amendment.
+```
+python3 -c "import math; w=6184; [print(k,'wk:',round(k*604800/w,1),'x ->',round(math.log10(k*604800/w),2),'orders') for k in (1,2,4)]"
+  -> 1 wk: 97.8 x  -> 1.99 orders
+  -> 2 wk: 195.6 x -> 2.29 orders
+  -> 4 wk: 391.2 x -> 2.59 orders
+```
+
+**This paragraph said *three orders* until the gate reviewed it, and that is another instance of its own
+subject** — a figure asserted, in the section mandating commands, without running the arithmetic that
+would have returned 2.0–2.6. **No running total is published here**, deliberately: a count is a claim
+about a set, and this one has moved every round.
+
+**What this section deliberately does NOT absorb: slice B's coverage attribution.** During slice B the
+94.5 → 94.42 branch dip was attributed to `sessionOnce.ts`'s two fail-open `catch` arms; the gate
+measured that file at 100 % branches and showed that *removing* it lowers the aggregate, the real cause
+being two defensively-unreachable fallback arms elsewhere. **That correction does not belong in this
+record.** It is a fact about a test suite, not about a GA4 schema, and a decision record that
+accumulates corrections to whatever was wrong in the MR that carried it stops being a record of
+decisions — which is the failure the significance gate in `documentation-standard` exists to prevent.
+
+**Where the false attribution actually lived, stated precisely because this record got it wrong once.**
+It lived in **slice B's builder report to the gate**, which is a message in a dispatch and not a durable
+artifact — so **it cannot be corrected, and there is nothing to strike.** It was **not** in the commit
+messages and **not** in PR #602's body, and that is measured rather than assumed:
+
+```
+git log --format='%B' 0df5481..863a3b5 | grep -niE 'coverage|94|branch dip'
+  -> (no output — 8 commits, 291 lines, not one mention)
+gh pr view 602 --repo tedeuxx/tadeumendonca-io --json body --jq '.body' \
+  | grep -niE '94\.5|94\.42|fail-open|sessionOnce'
+  -> 162:All files          |   99.21 |     94.5 |   97.95 |   99.21 |   (a bare gate row, no attribution)
+```
+
+**The correction is already durable and public in the round-2 verdict linked at the top of this
+amendment, and that is the only home it ever needed.** This paragraph first named the commit message and
+the PR body as the carriers — an artifact claim never checked against the artifact, which is the same
+shape as the figures above, committed inside the section that documents the shape. It is corrected
+here rather than quietly deleted because the ask it produced was a false premise heading for the owner.
 
 ## Links
 - **Implements** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) slice A, in
