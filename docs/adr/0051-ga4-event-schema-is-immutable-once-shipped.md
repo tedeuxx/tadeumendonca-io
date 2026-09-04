@@ -363,9 +363,14 @@ as a general caveat, because a caveat with no direction cannot be reasoned about
 - Code-only: no `iac/`, no edge, no cache behaviour, no new DOM node (`ref=` and `onClick=` on elements
   that already existed; React serialises neither).
 
-## 2026-09-04 amendment — slice B shipped, and the other half of the schema is now immutable too
+## Amendment (2026-09-04) — slice B shipped, and the other half of the schema is now immutable too
 
-**This amendment RECORDS names that have shipped; it decides nothing new.** The four events were fixed
+**This amendment RECORDS names that have shipped, and it carries THREE decisions that were not
+pre-authorised by this record** — §2's share-deeplink exclusion, §4's once-per-session emission rule,
+and §5's repair of the same rule in slice A's live article events. It decides nothing about a NAME,
+which is the class this record governs; it is not decision-free, and an earlier draft of this sentence
+claimed it was while §2 called itself *"a decision this record did not pre-authorise"* four paragraphs
+below. The four events were fixed
 by the intake that produced this record — which named `share_open`, `contact_reach` and
 `outbound_click` outright and left `nav_click` open — and `nav_click` was settled by
 **the owner's ruling on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597#issuecomment-5546459523)
@@ -379,11 +384,11 @@ chosen one, because nothing tells the next reader it is fixed. Implemented in
 | event | parameters (beyond `locale`) | what it observes — and what it does not |
 |---|---|---|
 | `share_open` | `slug` | a share affordance was OPENED. Emitted by `ShareButton` — the modal trigger — and by nothing else, because nothing else on this site opens |
-| `contact_reach` | — | the landing's `#contato` section INTERSECTED the viewport, once per visit. **Never that it was read** — there is no dwell floor, deliberately |
+| `contact_reach` | — | the landing's `#contato` section INTERSECTED the viewport, **once per SESSION** (§4). **Never that it was read** — there is no dwell floor, deliberately |
 | `outbound_click` | `href` (`hostname + pathname`) | a link took the reader off the site, by a route that is neither a contact channel nor a share destination |
-| `nav_click` | `from`, `to` (both `NavArea`) | a nav control was clicked, with the ORIGIN captured at the click |
+| `nav_click` | `from`, `to` (both `NavArea`) | a nav control was clicked, with the ORIGIN captured at the click. **`from === to` is EMITTED, not suppressed** — it is a truthful row meaning *clicked a nav control pointing at the page I am already on*, which is real re-anchoring behaviour. Read the diagonal as expected, never as a defect; a transition analysis filters it in one clause, and suppression would have destroyed rows nothing could reconstruct |
 
-### The three decisions inside the implementation, and each one is a trade
+### The five decisions inside the implementation, and each one is a trade
 
 **1 · `from`/`to` are a CLOSED UNION, and it is the mechanism rather than a convention.** `NavArea` has
 ten members — `home · articles · contact · portfolio · ramp-up · architecture · library · me · article
@@ -410,6 +415,14 @@ to prevent.** *The counter-argument, recorded rather than dismissed:* a reader w
 deeplink DID leave the site, and that departure is now invisible to the outbound series. Accepted; it
 is visible in `share_complete`.
 
+**`href` HAS UNBOUNDED CARDINALITY, and that is accepted rather than unnoticed.** The set of outbound
+destinations is open by construction, so the dimension has no ceiling — GA4 buckets the tail into
+`(other)` once the daily-distinct limit is reached. It **degrades and does not corrupt**: the top
+values keep resolving, and a narrower dimension can be added later without renaming anything, so
+nothing about it is irreversible and this record's immutability thesis does not reach it. Written here
+rather than left in a pull request, because a degradation axis documented where nobody re-reads it is
+documented nowhere in six months.
+
 **Both exclusions are a LOOKUP, not an ordering.** `useContactClicks` and `useOutboundClicks` are two
 delegated listeners on the same shell node, so both see every click and the order they run in is a fact
 about React effect registration — not something a measurement may depend on. The sets are derived from
@@ -430,6 +443,60 @@ parameter on an old one.
 `share_open` also **reuses the `slug` dimension** rather than registering a second one, so `slug` now
 holds `architecture` and `ramp-up` alongside real article slugs. They stay separable because the EVENT
 distinguishes them — no `article_progress` is ever emitted for a markdown page.
+
+**4 · A ONE-SHOT EVENT IS ONE PER SESSION, and the code was moved to the record's promise rather than
+the record retreated to the code.** Owner's ruling, 2026-09-04: *«Uma vez por sessão»*, with
+`sessionStorage`.
+
+*What was actually shipped first, and it is why this decision exists at all.* The one-shot lived in
+`observer.disconnect()` **inside** the effect, so it was scoped to the OBSERVER. Any dependency change
+tore the effect down and built a new `IntersectionObserver`, which delivers an initial callback for
+whatever is already on screen — the shot was re-armed. Measured in a browser on the built site: a PT/EN
+toggle with the section on screen produced two rows (`locale: en`, then `locale: pt`, `scrollY`
+unchanged at 2967), and a consent re-grant produced **two identical rows with no dimension separating
+them.** The published claim was *once per visit*; the behaviour was *once per observer*.
+
+*Why the session and not the page view.* A funnel's numerator must have the denominator its stages are
+counted against. `contact_reach` answers *how many sessions reached contact*, so a per-page-view guard
+would answer a different question under a name that can never be changed. The rejected option was a
+`useRef`: cheaper, fixes both measured paths, re-counts on navigate-away-and-back — and it would still
+have required amending this table, which is paying an amendment to a public immutable schema to buy a
+weaker guarantee.
+
+*The cost, stated:* a reader who returns to the section later in the same session is not re-counted.
+That is the correct direction for a funnel stage and the wrong one for a volume metric — **the guard is
+not for an event that is meant to count occurrences.**
+
+*The mechanism:* `lib/sessionOnce`, `sessionStorage`, one namespaced marker per event. It **fails
+OPEN** — private mode makes the storage throw, and the chosen answer there is *emit* rather than
+*suppress*, because a dropped funnel stage is invisible in the data while a duplicate row is not. And
+the marker is written **only when the hit actually shipped**, so a reader who withdrew consent between
+an observer's creation and its callback has not spent the session's shot.
+
+**5 · THE SAME RULE IS APPLIED TO SLICE A's `article_progress` AND `article_end_reached`, WHICH HAVE
+BEEN LIVE SINCE v1.1.81.** Not this branch's defect; repaired in this branch anyway. Shipping the fix
+for the new event while knowingly leaving the identical root cause running would have made this
+branch's own commits the record that the bug was known and left. **Both events carry it — checked, not
+inferred from symmetry:** the milestones re-emit immediately on a rebuild; the terminal event needs a
+second full dwell floor to elapse first, so it is slower and no less real, and the regression waits it
+out rather than passing early against it.
+
+*The one place the repair is NOT a copy of `contact_reach`'s: the marker is keyed on the article's
+locale-independent KEY, never on its slug.* Slugs are per-locale (ADR-0037), so the toggle that
+produces the duplicate also moves `my-commitment` to `meu-compromisso` — a slug-keyed guard would not
+match, and the duplicate would hide under a second slug instead of being visible under one. **That is
+strictly worse than the bug**, because the two rows stop looking like duplicates in any report. The key
+is used for the marker only and is **never emitted**; `slug` remains exactly what GA4 receives.
+
+*The cost, stated:* a reader who genuinely re-reads a piece — or reads both editions — in one session
+is counted once. Same trade as §4, on the funnel that has the same shape, and it is the conservative
+direction for a proxy that already errs toward over-counting.
+
+*And a second-order effect worth writing down, because the repair could have introduced it:* the
+milestone set is **seeded** from the session markers rather than merely consulted, since that set is
+also the precondition the terminal event tests. A naive guard would have suppressed the duplicate and
+made `article_end_reached` permanently ineligible after any rebuild — a silent loss, which is the worse
+of the two errors.
 
 ### What the consent notice did NOT need, and why that was checked rather than assumed
 
