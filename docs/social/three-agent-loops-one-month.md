@@ -85,7 +85,7 @@ X, the link once, `/en/` on both networks.
 
 ## LinkedIn — DIGEST — bilingual, Portuguese first
 
-Coloquei atores demais no mesmo nível, todos tendo que concordar. Parecia rigor. O loop parou de entregar.
+Coloquei agentes demais no mesmo nível, todos tendo que concordar. Parecia rigor. O loop parou de entregar.
 
 Isso foi agosto: três loops de agentes rodando ao mesmo tempo, o mês inteiro, em cima de uma agenda de projeto cheia que não ficou mais leve para abrir espaço. Dentro da AWS era o Agentic August — um programa com metas de treinamento e um hackathon com as suas próprias regras. Eu preferi fazer do meu jeito. É daí que vieram os três loops, e os três rodaram: um deles é esta plataforma, e você consegue ler cada rodada dela.
 
@@ -99,7 +99,7 @@ Quantos atores no seu loop precisam concordar antes de qualquer coisa andar? Vá
 
 — — —
 
-I put too many actors at the same level, all of them having to agree. It felt like rigour. Nothing shipped.
+I put too many agents at the same level, all of them having to agree. It felt like rigour. Nothing shipped.
 
 That was August: three agent loops running at the same time, all month, on top of a full project calendar that did not get any lighter to make room. Inside AWS it was Agentic August — a programme with training goals and a hackathon that had its own rules. I preferred to do it my own way. That is where the three loops came from, and all three ran: one of them is this platform, and you can read every round of it.
 
@@ -119,7 +119,7 @@ https://tadeumendonca.io/en/blog/three-agent-loops-one-month
 
 ## X — DIGEST — English, single post
 
-I put too many actors at the same level, all of them having to agree. It felt like rigour. Nothing shipped.
+I put too many agents at the same level, all of them having to agree. It felt like rigour. Nothing shipped.
 
 That was August: three agent loops in parallel, USD 4,207.13 across two of them. I spent it, my decision.
 
