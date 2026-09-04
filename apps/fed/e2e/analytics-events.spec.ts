@@ -242,6 +242,31 @@ test.describe('slice B — contact_reach', () => {
     ]);
   });
 
+  // THE JOURNEY THE OWNER'S RULING IS ABOUT, END TO END, and it is here because reviewing this slice
+  // surfaced an ordering nothing else exercised: `/architecture` → the `#contato` nav anchor is a FULL
+  // DOCUMENT LOAD, the browser jumps to the fragment during that load, and the observer is created by
+  // a `ConsentProvider` that initialises to `granted` from storage. Whether the fragment scroll and the
+  // observer's first callback land in an order that produces the event is a browser question, not a
+  // design one — so it is asserted rather than reasoned about.
+  //
+  // It also shows the two events doing together what neither does alone: `contact_reach` says the
+  // section was reached and carries no origin (it cannot — the section only exists on the landing),
+  // while the `nav_click` captured on the previous document says where the reader came from.
+  test('fires when the nav anchor lands the reader on the section through a full document load', async ({ page }) => {
+    await page.goto('/en/architecture');
+    await accept(page);
+
+    await page.getByRole('link', { name: 'Contact', exact: true }).click();
+    await expect(page).toHaveURL(/\/en\/#contato$/);
+
+    await expect.poll(() => named(page, 'contact_reach')).toEqual([
+      { name: 'contact_reach', params: { locale: 'en' } },
+    ]);
+    // The queue really was discarded by the load, which is the fact that makes the click-time emission
+    // of `nav_click` necessary rather than merely tidier.
+    expect(await named(page, 'nav_click')).toEqual([]);
+  });
+
   // One per visit. The section stays on screen and is scrolled away from and back; the observer
   // disconnected on the first hit, so nothing else comes out.
   test('fires once however often the section re-enters the viewport', async ({ page }) => {
