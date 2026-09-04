@@ -218,14 +218,14 @@ describe('the practice is named consistently across every surface', () => {
     expect('a loop built on (Context &) Harness Engineering').toMatch(BARE_UNPREFIXED);
   });
 
-  it.each(CLAIM_CLAUSE)('%s claims the term unqualified in the sentence that claims it', (_name, src, clause) => {
+  it.each(CLAIM_CLAUSE)('%s renders the term in the sentence that claims it', (_name, src, clause) => {
     // The anchor first, and exactly once. If #448's restructuring reworded or duplicated the clause,
     // this fails as "the anchor moved" instead of quietly guarding nothing or guarding the wrong one.
     expect(src.match(new RegExp(clause.source, 'g')) ?? []).toHaveLength(1);
 
     // Then the rendering immediately before it. Emphasis markers are stripped rather than matched, so
-    // the assertion survives the term losing its bold and still fails on the parenthesised form —
-    // `(Agent) Harness Engineering` does not end with `Agent Harness Engineering`.
+    // the assertion survives the term losing its bold, and any other rendering fails — a bracketed
+    // qualifier does not END with the current form, and neither does a superseded name.
     const preceding = src.slice(0, src.search(clause)).replace(/\*/g, '').trimEnd();
     expect(preceding.endsWith(CURRENT)).toBe(true);
   });

@@ -430,10 +430,23 @@ strict form and the bare tag is an **exception the owner chose**, not an applica
 down.
 
 **Two things measured rather than assumed.** The guard **cannot see hashtags at all** — its pattern
-requires a space between the two words (`/(?<!Agent )Harness Engineering/`), and `#HarnessEngineering` has
-none — so **nothing reddens either way**, and a reader must not take the green suite as agreement. And
-**this library has no vocabulary record**: no ADR in `docs/adr/` decides the practice's rendering; the rule
-lives only in that test file's own comments, which is why an exception to it has nowhere obvious to land.
+requires a space between the two words, and `#HarnessEngineering` has none — so **nothing reddens either
+way**, and a reader must not take the green suite as agreement. And **this library has no vocabulary
+record**: no ADR in `docs/adr/` decides the practice's rendering; the rule lives only in that test file's
+own comments, which is why an exception to it has nowhere obvious to land.
+
+> **Both quoted claims went stale on 2026-09-04 (#593), and the substance of neither did.** The pattern
+> was quoted here as `/(?<!Agent )Harness Engineering/`; at head it reads `/(?<!Context & )Harness
+> Engineering/`, because the practice was renamed to **Context & Harness Engineering**. It still requires
+> a space, so the hashtag is still invisible to it and the measurement above still holds. ~~*the
+> parenthesised form where the term is **argued**, the strict form where it is a **keyword***~~ — **the
+> parenthesised affordance was retired in the same slice**, since the word it bracketed left the name;
+> there is ONE rendering now, on every surface, so the rule this paragraph reasons from points at the
+> strict form for a simpler reason than it did. **The literal is struck rather than silently corrected
+> because a record that quotes a code literal is making a checkable claim, and this one was checked.**
+> The `#HarnessEngineering` exception §D records was itself superseded on 2026-09-03 by the owner's
+> two-tag instruction (`#ContextEngineering` + `#HarnessEngineering`, separate) — recorded where it was
+> given, not re-decided here.
 
 **That gap is named, not filled here.** Whether the term's rendering deserves its own record — and if so
 whether the bare hashtag form is an exception inside it or a widening of it — is a decision for the owner
