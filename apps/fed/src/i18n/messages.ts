@@ -890,9 +890,28 @@ const strings = {
   },
   consent: {
     notice: { pt: 'Aviso de cookies', en: 'Cookie notice' },
+    // WIDENED WITH THE MEASUREMENT, in the same slice that widened it (#597). The sentence said only
+    // "what gets read here", and that was exactly true while the site emitted `page_view` and nothing
+    // else. This slice adds sharing and contact clicks, so shipping the events without the sentence
+    // would have left a PRIVACY CLAIM narrower than the collection behind it — the one kind of stale
+    // copy that is not merely out of date.
+    //
+    // It names the three verbs and stops there rather than reaching for a category word: "behaviour" or
+    // "interactions" would cover the additions and would also cover everything a future slice might add,
+    // which is how a promise stops constraining anything. A fourth kind of event means a fourth verb, or
+    // it means this sentence is wrong again — deliberately.
+    //
+    // AND IT IS AS SHORT AS IT IS FOR A MEASURED REASON, not for register. The first draft spelled the
+    // third clause out ("…and when someone clicks through to contact me") and grew the banner by one
+    // line. The banner is `fixed bottom-0` and shares that stack with the locale suggestion, so a taller
+    // bar covers more of the page — and it covered the article's own footer share trigger, reddening
+    // `content.spec.ts`'s `/en` case. Verified in both directions: the long form fails that test on a
+    // built site, the original passes, and this form passes. THE BOTTOM STACK HAS NO HEADROOM at 1280px
+    // with both notices up; treat that as a constraint on this string, not as slack to spend.
+
     message: {
-      pt: 'Uso o Google Analytics pra entender o que é lido por aqui. Ele só carrega se você aceitar — nada de terceiros roda antes disso.',
-      en: 'I use Google Analytics to understand what gets read here. It only loads if you accept — nothing third-party runs before that.',
+      pt: 'Uso o Google Analytics pra entender o que é lido, compartilhado e clicado por aqui. Ele só carrega se você aceitar — nada de terceiros roda antes disso.',
+      en: 'I use Google Analytics to understand what gets read, shared and clicked here. It only loads if you accept — nothing third-party runs before that.',
     },
     accept: { pt: 'Aceitar', en: 'Accept' },
     reject: { pt: 'Recusar', en: 'Decline' },
