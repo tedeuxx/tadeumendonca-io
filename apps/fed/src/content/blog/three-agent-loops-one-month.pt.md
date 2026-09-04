@@ -227,8 +227,8 @@ Um dos engenheiros ali fala que queria saber programar para fazer um videogame, 
 
 É assim que eu me sinto fazendo este site.
 
-Isso é o que eu penso.
-
 Vá olhar o que os seus loops fizeram no mês passado — não a saída, as *rodadas*. Conte quantas delas acharam a mesma coisa duas vezes.
 
 Grande abraço, e até a próxima.
+
+Isso é o que eu penso.
