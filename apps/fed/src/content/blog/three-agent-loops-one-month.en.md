@@ -227,8 +227,8 @@ One of the engineers in there says he had wanted to know how to program so he co
 
 That is how I feel making this site.
 
-This is what I think.
-
 Go and look at what your loops actually did last month — not the output, the *rounds*. Count how many of them found the same thing twice.
 
 A hug, and see you next time.
+
+This is what I think.
