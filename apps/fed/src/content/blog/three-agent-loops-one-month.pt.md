@@ -1,7 +1,7 @@
 ---
 title: "Rodei três loops de agentes por um mês. O caro foi decidir."
 slug: tres-loops-de-agentes-um-mes
-date: '2026-09-02T12:00:00.000Z'
+date: '2026-09-04T01:36:00.000Z'
 tag: harness
 track: engenharia
 hasVideo: true
