@@ -214,6 +214,42 @@ export type ShareCompleteTarget = ShareSource | 'copy-markdown';
 export type ContactTarget = 'github' | 'linkedin' | 'x' | 'whatsapp' | 'email';
 
 /**
+ * The `from` and `to` vocabulary of `nav_click` (slice B, #597) — ONE closed union serving BOTH
+ * dimensions, and it is the mechanism that discharges the intake's bound-the-value rule rather than a
+ * convenience.
+ *
+ * `from`/`to` are PATH-SHAPED VALUES FROM A BOUNDED SET, never a URL and never free text. Both are typed
+ * as this union, so a query string cannot be emitted here by any spelling — not because a caller is
+ * careful, but because there is no member of the type that could carry one. `to` is read from a literal
+ * written into the nav table itself (`AppShell`'s `NAV`), never derived from an href at runtime; `from`
+ * is produced by `navArea()` (`lib/navArea.ts`), a TOTAL function whose residual is `other`. That is the
+ * same argument ADR-0051 records for `contact_click`'s closed `target` — the type forecloses the query
+ * string rather than a convention discouraging it — and it is why `path` staying off the spine is not
+ * quietly reintroduced here under two new names.
+ *
+ * TWO MEMBERS ARE DESTINATION-ONLY AND ONE IS ORIGIN-ONLY, which is a property of the site rather than a
+ * gap. `articles` and `contact` are the landing's `#artigos` / `#contato` anchors: reachable as a nav
+ * destination, never distinguishable as an origin (a reader sitting on either is on `home`). `article` is
+ * the reverse — every `/blog/<slug>` is an origin and the nav has no entry pointing at one. A value that
+ * only ever appears in one of the two dimensions is not a bug to be reported later.
+ *
+ * NO SLUG, DELIBERATELY. `article` collapses every piece into one value; which article the reader left is
+ * already in that page's own `page_view`, and spending a registered dimension's cardinality on a value
+ * GA4 can already join is the trade ADR-0051 refused for `path`.
+ */
+export type NavArea =
+  | 'home'
+  | 'articles'
+  | 'contact'
+  | 'portfolio'
+  | 'ramp-up'
+  | 'architecture'
+  | 'library'
+  | 'me'
+  | 'article'
+  | 'other';
+
+/**
  * The reader reached the end of an article's prose. The CONTENT funnel's denominator — without it
  * `share_complete` is a count with nothing to divide by.
  */
@@ -244,6 +280,106 @@ export function trackShareComplete(params: EventParams & { target: ShareComplete
  */
 export function trackContactClick(params: EventParams & { target: ContactTarget }): void {
   trackEvent('contact_click', params);
+}
+
+// ---------------------------------------------------------------------------------------------------
+// SLICE B (#597) — the four events that measure the MIDDLE of both funnels. Same spine, same gate, same
+// immutability rule: every name below is fixed from the moment it collects, and the reasoning that
+// produced each one is written beside it rather than in a pull request nobody will open again.
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * The reader OPENED the share affordance — the denominator `share_complete` never had.
+ *
+ * `share_open`, not `share_intent`: what the page observes is a dialog opening, and "intent" is a claim
+ * about a mind. The same rule that refused `read` refuses it here, and this one is cheaper to get right
+ * because the observation is unambiguous — a control was pressed and a dialog mounted.
+ *
+ * WHAT THE RATIO IT ENABLES CAN AND CANNOT SAY, and this is the sharpest limit in slice B rather than a
+ * caveat. It is emitted by `ShareButton` — the trigger that opens `ShareModal` — and by nothing else,
+ * because nothing else on this site OPENS. The article footer's `ShareLinks` block is always visible, so
+ * a reader can reach `share_complete` from it having opened nothing, and slice A shipped
+ * `share_complete` WITHOUT a parameter naming which entry point it came from. That name is immutable, so
+ * it cannot be added retroactively and the historical rows would not carry it anyway.
+ *
+ * Therefore: `share_open → share_complete` is an EXACT funnel for the modal and an OVER-COUNTED
+ * numerator at the site level, because footer shares land in `share_complete` with no `share_open` ahead
+ * of them. The ratio can exceed 1 and a ratio above 1 is not a defect. Read it as a floor on modal
+ * abandonment, never as a completion rate for the site.
+ */
+export function trackShareOpen(params: EventParams & { slug: string }): void {
+  trackEvent('share_open', params);
+}
+
+/**
+ * The landing's contact section entered the viewport. The CAREER funnel's middle — the stage between
+ * "arrived" and `contact_click`, which is exactly where the funnel leaks and where nothing looked.
+ *
+ * `contact_reach`, and the observation is narrow on purpose: the section INTERSECTED the viewport. Not
+ * that it was read, not that it was dwelt on. There is no dwell floor here, unlike
+ * `article_end_reached`, and that is a decision rather than an omission — the floor there exists to
+ * separate a scroll-past from a read of PROSE, and this section is a heading and five chips whose whole
+ * content is legible at a glance. A time condition would have measured hesitation, which is a different
+ * event.
+ *
+ * ONE-SHOT PER MOUNT, and gated UPSTREAM of this emitter by the observer's own creation (see
+ * `useContactReach`). Slice A's first defect was an observer started before consent that silently
+ * consumed a one-shot milestone; the same shape is available here and is closed the same way.
+ *
+ * CARRIES ONLY `locale`. Which page the reader was on is not a question this event can answer — the
+ * section exists on the landing alone — and that is precisely why `nav_click` carries `from`.
+ */
+export function trackContactReach(params: EventParams): void {
+  trackEvent('contact_reach', params);
+}
+
+/**
+ * A link took the reader OFF this site, by a route that is neither a contact channel nor a share
+ * destination.
+ *
+ * `href` IS BOUNDED TO `hostname + pathname` AND CAN CARRY NOTHING ELSE — no scheme, no query, no
+ * fragment, no credentials, no port. That is ADR-0051's rule, which `contact_click` satisfied by using a
+ * closed union and explicitly deferred to this event, which cannot: the set of outbound destinations is
+ * open by construction (an article links wherever its author linked). So the bound is enforced in the
+ * ONE function that builds the value (`outboundHref`, `lib/outboundLinks.ts`) by reconstructing the
+ * string from a parsed `URL`'s two fields rather than by stripping characters off the original. A
+ * blocklist of things to remove is a list someone has to keep complete; reading two fields is a list
+ * that cannot be incomplete.
+ *
+ * A query string is where PII eventually appears, and on this site it would appear by accident rather
+ * than by design — a reader clicking a link an article quoted verbatim, complete with whatever tracking
+ * parameters its author had attached.
+ *
+ * TWO CLASSES ARE EXCLUDED BEFORE THIS IS EVER CALLED, and both exclusions exist for the same reason:
+ * one act must not land in two series that a reader of either would take as complete. The five contact
+ * channels are `contact_click`'s, the three share deeplinks are `share_complete`'s. See
+ * `lib/outboundLinks.ts` for how each set is derived — from the same single sources those events
+ * classify against, never restated.
+ */
+export function trackOutboundClick(params: EventParams & { href: string }): void {
+  trackEvent('outbound_click', params);
+}
+
+/**
+ * A nav control was clicked. EMITTED AT THE CLICK, while the origin page is still known — and that is
+ * the whole event, not an implementation preference.
+ *
+ * `AppShell`'s `/#contato` and `/#artigos` entries are plain `<a href>` elements rather than `NavLink`s,
+ * so reaching contact from `/architecture` is a FULL DOCUMENT LOAD. By the time anything on the landing
+ * runs, the origin is gone and `window.dataLayer` has been discarded with it. An implementation that
+ * emitted after navigation would report `from: 'home'` for every one of those journeys — a wrong answer
+ * that reads as a right one, which is the class of defect ADR-0051 exists to prevent — and it would do
+ * it silently, because the event would still fire and still look well-formed.
+ *
+ * The owner ruled on this directly (#597, 2026-09-04) with the disputed fact measured rather than
+ * argued: `contact_reach` alone cannot say which page sent the reader, and the session-scoped path
+ * exploration that would reconstruct it needs traffic this site does not have. `from`/`to` answers the
+ * same question at n≈1.
+ *
+ * Both dimensions are `NavArea` — see that type for why a query string cannot be emitted here.
+ */
+export function trackNavClick(params: EventParams & { from: NavArea; to: NavArea }): void {
+  trackEvent('nav_click', params);
 }
 
 /** Test seam: reset the module's injected flag so a fresh test starts from a clean state. */

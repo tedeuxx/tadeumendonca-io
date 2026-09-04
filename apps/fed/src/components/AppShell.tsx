@@ -18,9 +18,11 @@ import { Menu, X } from 'lucide-react';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { usePageviews } from '../hooks/usePageviews';
 import { useContactClicks } from '../hooks/useContactClicks';
+import { useOutboundClicks } from '../hooks/useOutboundClicks';
 import { cn } from '../lib/cn';
 import { useConsent } from '../lib/consent';
-import { analyticsConfigured } from '../lib/analytics';
+import { analyticsConfigured, trackNavClick, type NavArea } from '../lib/analytics';
+import { navArea } from '../lib/navArea';
 import { ConsentBanner } from './ConsentBanner';
 import { LocaleSuggestion } from './LocaleSuggestion';
 import { LOCALES, useLocale, useLocalePath, type MessageKey } from '../i18n';
@@ -34,9 +36,24 @@ interface NavEntry {
   section?: string;
   /** Real route (react-router) vs. landing anchor (plain href). */
   route?: boolean;
+  /**
+   * `nav_click`'s `to` dimension (#597) — a LITERAL written here, never derived from `href` at runtime.
+   *
+   * That is the mechanism, not a style choice. `to` is typed `NavArea`, a closed union, so the value
+   * emitted for this entry is decided at compile time by this table; a query string, a locale prefix or
+   * an anchor fragment has no way to reach the event even if `href` grows one. Deriving `to` from
+   * `href` would have been shorter and would have made the emitted vocabulary a function of a string
+   * anyone may edit for a routing reason — and a GA4 dimension value cannot be renamed after it ships.
+   */
+  area: NavArea;
 }
-const NAV: NavEntry[] = [
-  { href: '/#artigos', labelKey: 'nav.articles', section: 'artigos' },
+// EXPORTED since #597's slice B, for one assertion and it is worth the export: `navArea.test.ts` walks
+// every route-typed entry here and checks that `navArea(<its own href>)` returns the SAME value as its
+// `area` literal. `to` and `from` are two spellings of one vocabulary produced by two mechanisms — a
+// literal in this table and a classifier over paths — and a GA4 dimension cannot be repaired after they
+// drift. Nothing else imports this.
+export const NAV: NavEntry[] = [
+  { href: '/#artigos', labelKey: 'nav.articles', section: 'artigos', area: 'articles' },
   // Position preserved deliberately, and it still is — reordering the reader's menu is not what #315
   // was, nor what #346 is. What changed is the reason it USED to look odd: routes were bordered and
   // anchors were not, so with the two anchors at positions 1 and 3 the border alternated and read as a
@@ -45,16 +62,16 @@ const NAV: NavEntry[] = [
   // The route/anchor difference is still expressed where it is actually load-bearing: `isActive` /
   // `aria-current="page"` for routes, scroll-spy `aria-current="true"` for anchors. A border announces
   // nothing to a screen reader, so it was never carrying that distinction for everyone.
-  { href: '/portfolio', labelKey: 'nav.portfolio', route: true },
-  { href: '/#contato', labelKey: 'nav.contact', section: 'contato' },
-  { href: '/ramp-up', labelKey: 'nav.rampup', route: true },
-  { href: '/architecture', labelKey: 'nav.architecture', route: true },
+  { href: '/portfolio', labelKey: 'nav.portfolio', route: true, area: 'portfolio' },
+  { href: '/#contato', labelKey: 'nav.contact', section: 'contato', area: 'contact' },
+  { href: '/ramp-up', labelKey: 'nav.rampup', route: true, area: 'ramp-up' },
+  { href: '/architecture', labelKey: 'nav.architecture', route: true, area: 'architecture' },
   // #166's second slice. The route shipped one slice earlier WITHOUT this entry, deliberately: linking
   // readers at an empty shelf is worse than not linking. It sits beside `/ramp-up` and `/architecture`
   // because it is the same kind of thing — a surface the reader goes to read — and ahead of `/me`, which
   // stays last as the destination the rest of the nav argues towards.
-  { href: '/library', labelKey: 'nav.library', route: true },
-  { href: '/me', labelKey: 'nav.profile', route: true },
+  { href: '/library', labelKey: 'nav.library', route: true, area: 'library' },
+  { href: '/me', labelKey: 'nav.profile', route: true, area: 'me' },
 ];
 const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => id !== undefined);
 
@@ -65,10 +82,37 @@ const SECTIONS = NAV.map((entry) => entry.section).filter((id): id is string => 
 const linkClass =
   'border border-border px-3.5 py-2 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground invert-hover';
 
+/**
+ * `nav_click`'s emission, in ONE place for every nav control (#597).
+ *
+ * SYNCHRONOUS, INSIDE THE CLICK HANDLER, AND THAT IS THE EVENT'S WHOLE POINT. `/#artigos` and
+ * `/#contato` are plain anchors, not `NavLink`s (see the file header — the landing owns the anchors), so
+ * reaching contact from `/architecture` is a FULL DOCUMENT LOAD: the origin path is gone and
+ * `window.dataLayer` is discarded with it before anything on the landing runs. An emission moved into an
+ * effect after navigation would report `from: 'home'` for exactly those journeys — the ones the owner
+ * ruled this event exists to attribute — and would look entirely healthy while doing it.
+ *
+ * `from` is read from the CURRENT pathname at the moment of the click, `to` from the entry's own
+ * compile-time literal. Both are `NavArea`; neither can carry a URL.
+ */
+function emitNavClick(from: string, to: NavArea, locale: string) {
+  trackNavClick({ locale, from: navArea(from), to });
+}
+
 function Brand() {
   const lp = useLocalePath();
+  const { locale } = useLocale();
+  const { pathname } = useLocation();
   return (
-    <NavLink to={lp('/')} className="flex items-center gap-2 font-mono text-[0.95rem] font-bold tracking-tight">
+    <NavLink
+      to={lp('/')}
+      // The brand IS a nav control — it is the only route to `home` in the header, so leaving it out
+      // would make `to: 'home'` unreachable and the vocabulary would carry a value nothing emits. The
+      // PT/EN toggle deliberately stays out: it changes edition, not page type, and this file already
+      // records that it is a state control rather than a destination.
+      onClick={() => emitNavClick(pathname, 'home', locale)}
+      className="flex items-center gap-2 font-mono text-[0.95rem] font-bold tracking-tight"
+    >
       <span className="h-5 w-1.5 shrink-0 bg-primary" />
       <span>
         tadeumendonca<span className="text-primary">.io</span>
@@ -78,17 +122,28 @@ function Brand() {
 }
 
 function NavItems({ activeSection, onNavigate }: { activeSection: string | null; onNavigate?: () => void }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   // Links stay within the active locale (ADR-0036): the logical href is prefixed with the current locale.
   const lp = useLocalePath();
+  // The ORIGIN for `nav_click`, read from the router rather than from `window.location`: on the anchor
+  // branch the click is about to trigger a full document load, and this value has to be the page being
+  // LEFT. Both branches read the same one, so a route link and an anchor cannot report differently.
+  const { pathname } = useLocation();
+  // BOTH branches emit, and the composition order is deliberate: the event first, then `onNavigate`,
+  // which closes the mobile menu. Closing first unmounts this subtree, and an emission scheduled after
+  // that would be racing a state update to reach a global.
+  const onItemClick = (to: NavArea) => () => {
+    emitNavClick(pathname, to, locale);
+    onNavigate?.();
+  };
   return (
     <>
-      {NAV.map(({ href, labelKey, route, section }) =>
+      {NAV.map(({ href, labelKey, route, section, area }) =>
         route ? (
           <NavLink
             key={href}
             to={lp(href)}
-            onClick={onNavigate}
+            onClick={onItemClick(area)}
             className={({ isActive }) => cn(linkClass, isActive && 'text-foreground')}
           >
             {t(labelKey)}
@@ -97,7 +152,7 @@ function NavItems({ activeSection, onNavigate }: { activeSection: string | null;
           <a
             key={href}
             href={lp(href)}
-            onClick={onNavigate}
+            onClick={onItemClick(area)}
             aria-current={section && section === activeSection ? 'true' : undefined}
             className={cn(linkClass, section === activeSection && 'text-foreground')}
           >
@@ -152,6 +207,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   // a share destination, so a hostname rule would report shares as contact clicks.
   const shell = useRef<HTMLDivElement>(null);
   useContactClicks(shell);
+  // `outbound_click` (#597) — a SECOND delegated listener on the same node. Both see every click; the
+  // mutual exclusion is a lookup inside `outboundHref`, not the order these two lines happen to run in.
+  // Read `useOutboundClicks` for why two listeners rather than one classifier, and for the test that
+  // mounts both together and asserts a contact click produces exactly one event.
+  useOutboundClicks(shell);
   // Only the landing carries the anchored regions — the locale landing `/pt`|`/en` (ADR-0036).
   const onLanding = useLocation().pathname === lp('/');
   const activeSection = useActiveSection(SECTIONS, onLanding);

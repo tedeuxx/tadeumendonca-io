@@ -49,10 +49,13 @@ import { ShareModal } from './ShareModal';
 import { copyLinkUrl } from './shareTargets';
 import { markdownPayload } from './shareMarkdown';
 import { ADR_INDEX_URL } from '../content/adrs';
+import { useLocale } from '../i18n';
+import { trackShareOpen } from '../lib/analytics';
 
 export function ShareButton({
   title,
   url,
+  slug,
   body,
   size = 'md',
   labelKey = 'share.share',
@@ -60,6 +63,23 @@ export function ShareButton({
 }: {
   title: string;
   url: string;
+  /**
+   * What is being shared, for `share_open` (#597) — an article slug, or the page's own logical slug on
+   * the two markdown surfaces (`ramp-up`, `architecture`).
+   *
+   * REQUIRED, AND RESOLVED BY THE CALLER rather than sliced off `url` here. `url` is a locale-prefixed
+   * path and the article slug is per-locale (ADR-0037), so deriving one from the other is a guess this
+   * component is in the worst position to make — the same rule `ShareLinks.path` states about the
+   * article path, applied to the same class of value. A required prop also means a future surface that
+   * adds this affordance cannot emit an unlabelled `share_open` by forgetting a prop; it fails to
+   * compile.
+   *
+   * IT REUSES THE `slug` DIMENSION slice A registered for the article events, and the reuse is priced:
+   * `slug` will hold `architecture` and `ramp-up` alongside real article slugs. They stay separable
+   * because the EVENT is what distinguishes them — no `article_progress` is ever emitted for a markdown
+   * page — and the alternative was a second registration slot for the same kind of value.
+   */
+  slug: string;
   /**
    * The page's markdown body, for the copy-as-markdown option (#387) — the string the page RENDERS, not
    * the raw import: `RampUpPage` resolves `{{years}}` before its body reaches the shell, and reading the
@@ -94,6 +114,7 @@ export function ShareButton({
 }) {
   const t = useT();
   const lp = useLocalePath();
+  const { locale } = useLocale();
   const [open, setOpen] = useState(false);
   // ONE HOOK CALL PER CONTROL — the two states stay independent, which is the property the suite asserts
   // ("the state is per control, and both were silent before"). See `useCopyToClipboard` for the whole
@@ -126,7 +147,20 @@ export function ShareButton({
       <button
         ref={trigger}
         type="button"
-        onClick={() => setOpen(true)}
+        // `share_open` (#597) — the denominator `share_complete` never had, and THE ONLY PLACE ON THIS
+        // SITE WHERE A SHARE AFFORDANCE IS OPENED. The article footer's `ShareLinks` block is always
+        // visible: a reader reaches `share_complete` from it having opened nothing, and slice A shipped
+        // `share_complete` with no parameter naming its entry point. That name is immutable, so the
+        // ratio this enables is exact for the modal and over-counted at the site level. The limit is
+        // written out on `trackShareOpen`; it is a property of the shipped schema, not of this line.
+        //
+        // Emitted on the OPEN, not in an effect on `open` — the two are equivalent today and would stop
+        // being so the moment anything else set that state, and the event is about the reader pressing
+        // the control.
+        onClick={() => {
+          trackShareOpen({ locale, slug });
+          setOpen(true);
+        }}
         aria-label={t(labelNameKey)}
         aria-haspopup="dialog"
         aria-expanded={open}

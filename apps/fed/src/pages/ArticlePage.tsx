@@ -128,7 +128,15 @@ export function ArticlePage() {
               {/* `article.body` is the frontmatter-stripped remainder `content.ts` already returns — the
                   raw glob is module-private and never exported, so no `slug`/`date`/`track` can reach the
                   clipboard (#387). It is also the exact string rendered below. */}
-              <ShareButton title={article.title} url={lp(articleShareUrl(article))} body={article.body} size="sm" />
+              <ShareButton
+                title={article.title}
+                url={lp(articleShareUrl(article))}
+                // The edition's OWN slug (ADR-0037 makes it per-locale), so `share_open` and the article
+                // events name the same piece and can be joined. The page holds it; nothing derives it.
+                slug={article.slug}
+                body={article.body}
+                size="sm"
+              />
             </div>
             {/* Same heading shape, same fix, same reasoning as `MarkdownPage.tsx` (#392) — read the long
                 comment there for WHY `text-balance` is the bigger half of the cause and why `text-pretty`
@@ -201,6 +209,7 @@ export function ArticlePage() {
             <ShareButton
               title={article.title}
               url={lp(articleShareUrl(article))}
+              slug={article.slug}
               body={article.body}
               size="sm"
               labelKey="share.moreOptions"
