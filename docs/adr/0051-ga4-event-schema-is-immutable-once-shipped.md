@@ -456,10 +456,17 @@ toggle with the section on screen produced two rows (`locale: en`, then `locale:
 unchanged at 2967), and a consent re-grant produced **two identical rows with no dimension separating
 them.** The published claim was *once per visit*; the behaviour was *once per observer*.
 
-*Why the session and not the page view.* A funnel's numerator must have the denominator its stages are
-counted against. `contact_reach` answers *how many sessions reached contact*, so a per-page-view guard
-would answer a different question under a name that can never be changed. The rejected option was a
-`useRef`: cheaper, fixes both measured paths, re-counts on navigate-away-and-back — and it would still
+*Why the session and not the page view.* A funnel's numerator should be counted against the
+denominator its stages are read against, so a per-page-view guard would answer a different question
+under a name that can never be changed. ~~`contact_reach` answers *how many sessions reached
+contact*~~ — **STRUCK by the second amendment below (2026-09-04): it does not, and `sessionStorage` is
+why.** The guard is per-TAB and a GA4 session spans every tab, so the numerator and the denominator are
+two different objects and the error runs in **both** directions. Read *What `sessionStorage` scopes to,
+and what these events therefore count* before reading this series as sessions. The clause is struck
+rather than deleted because it is the sentence that justified this mechanism over the two rejected
+ones, and **that choice is unchanged** — what was wrong is only the claim about what it achieved.
+
+The rejected option was a `useRef`: cheaper, fixes both measured paths, re-counts on navigate-away-and-back — and it would still
 have required amending this table, which is paying an amendment to a public immutable schema to buy a
 weaker guarantee.
 
@@ -474,8 +481,13 @@ the marker is written **only when the hit actually shipped**, so a reader who wi
 an observer's creation and its callback has not spent the session's shot.
 
 **5 · THE SAME RULE IS APPLIED TO SLICE A's `article_progress` AND `article_end_reached`, WHICH HAVE
-BEEN LIVE SINCE v1.1.81.** Not this branch's defect; repaired in this branch anyway. Shipping the fix
-for the new event while knowingly leaving the identical root cause running would have made this
+BEEN LIVE SINCE v1.1.81.** Not this branch's defect; repaired in this branch anyway. **Which means
+both series have a SEAM: the same two names mean something different before and after 2026-09-04, and
+readings that span that date are not comparable** — see *The seam of 2026-09-04, and why it is a whole
+day rather than a minute* below for the window, the direction of the break, and what it does to a
+chart.
+
+Shipping the fix for the new event while knowingly leaving the identical root cause running would have made this
 branch's own commits the record that the bug was known and left. **Both events carry it — checked, not
 inferred from symmetry:** the milestones re-emit immediately on a rebuild; the terminal event needs a
 second full dwell floor to elapse first, so it is slower and no less real, and the regression waits it
@@ -521,6 +533,153 @@ identifier. Registering it costs nothing and protects a future slice; **its abse
 four.** Said explicitly because the list above is the one a console action will be taken from, and a
 dimension listed as owed for an event that does not emit it is how a registration list stops being
 trustworthy.
+
+## Amendment (2026-09-04, second) — two limits that already existed, one stated wrongly and one not stated at all
+
+**This amendment decides NOTHING. It changes no name, no parameter, no emission rule and no line of
+code.** The behaviour the first amendment describes is correct and shipped; what was wrong is what §4
+and §5 claim *about* it. Both were found by `quality-assurance` on
+[PR #602](https://github.com/tedeuxx/tadeumendonca-io/pull/602#issuecomment-5547215872) (round 2) and
+**handed up rather than blocked**, on the explicit ground that the residual belongs to the mechanism
+the owner named (*«Uma vez por sessão»*, `sessionStorage`) and that a gate blocking on the consequence
+of a fresh ruling is re-opening it. That reading is correct and this record does not re-open it either:
+**nothing below proposes changing the mechanism.**
+
+Written by `tech-lead`, who holds this record. It is an amendment rather than a new record because it
+adds no decision — the ADR practice's convention is that **a live record is amended by APPENDING and
+struck in place, never rewritten**, and both §4's clause and this section are exactly that. *(That
+convention is methodology, so it lives in the plugin's own library and is deliberately NOT cited here
+by number: `0020` in **this** library is the SonarCloud quality gate, and a cross-library number is a
+citation that resolves to the wrong record. This parenthesis exists because the first draft of this
+paragraph did exactly that.)*
+
+**Why it is in the record at all, rather than in a comment.** This record's own thesis is that a GA4
+event schema cannot be repaired once it collects, so **the record is the mitigation**. A number whose
+*meaning* changed on a known date, and a series that does not count what its own record says it counts,
+are the two cases that thesis exists for: no code change reaches the rows already collected, and the
+only thing that can protect the analyst who reads them is a sentence they can find.
+
+### What `sessionStorage` scopes to, and what these events therefore count
+
+**`sessionStorage` is scoped to an (origin, tab) pair — never to a GA4 session.** It survives a reload
+and same-tab navigation, dies when the tab closes, is copied into a duplicated tab by Chromium and
+Firefox, and is **never shared between two tabs**. A GA4 session is scoped to the *client* — one store
+per browser, shared by every tab — and ends after a period of inactivity, 30 minutes by default and
+configurable per property; **nothing in this repository can read what this property is set to**, so
+even the timeout is a documented default rather than a measured fact here.
+
+**Neither object contains the other, so the error runs in both directions:**
+
+| case | rows | GA4 sessions | direction |
+|---|---|---|---|
+| one reader, **two tabs**, one session | 2 | 1 | **over-count** |
+| one reader, **one tab left open** across a >30-minute gap, then scrolls back | 1 | 2 | **under-count** |
+
+The verdict that raised this named the first. **The second is its mirror and is at least as likely on
+this site** — a tab held open on an article overnight is ordinary reader behaviour, and the marker
+outlives the session boundary silently. Naming only the over-count would have left the record wrong in
+the *reassuring* direction, which is the half of a stale claim that misleads.
+
+**Why `sessionStorage` was still the right choice, and it was not chosen by default.** Four options
+were available and the other three are worse in ways that are not recoverable once a name has
+collected:
+
+- **`useRef`** — per page view. Re-counts on every full document load, so a reader who navigates away
+  and back is counted twice. Fixes both paths that were measured and none of the ones that were not,
+  and it would have required amending this table anyway — paying an amendment to an immutable schema
+  to buy a weaker guarantee.
+- **`localStorage`** — once per **browser, forever**. A funnel stage that can fire once in a reader's
+  lifetime is not a funnel stage, and it is durable client state that would outlive a consent
+  withdrawal — the one property a site whose stated posture is *nothing third-party until asked*
+  cannot afford, however non-identifying the value.
+- **Reading GA4's own session boundary client-side** — its cookie, or re-implementing the inactivity
+  timeout. This is the only option that would make the numerator and the denominator the same object,
+  and it is refused: it makes the client a second source of truth for session identity, it re-derives
+  a vendor's internals that can change under us without a deploy, and it reads a cookie this record's
+  consent gate is built to keep out of the decision path.
+- **`sessionStorage`** — the closest available approximation to a *visit*, with no identifier, no PII,
+  no new consent surface, and state that dies with the tab. **Chosen**, and still the right call
+  against the three above.
+
+**So, precisely: the number is a count of TAB-VISITS in which the event's condition was met at least
+once, among consenting readers. It is not a count of GA4 sessions.** Read the series as sessions
+carrying a bounded over-count in the multi-tab case and a bounded under-count in the long-lived-tab
+case — never as an exact session count, and never as a per-reader count. **Neither error is measurable
+from here or from GA4**: nothing in this repository can observe a reader's tab count and GA4 exposes no
+tab dimension, so the size of the gap is unknown rather than small-and-known. What can be said about
+its size is only structural — both cases require one reader to do something unusual with tabs, and
+neither can be corrected retroactively.
+
+**This applies to every event guarded by `lib/sessionOnce`, not only `contact_reach`** — from v1.1.82
+that is `contact_reach`, `article_progress` and `article_end_reached`. §5's *cost, stated* paragraph
+should be read with this section beside it.
+
+### The seam of 2026-09-04, and why it is a whole day rather than a minute
+
+**`article_progress` and `article_end_reached` were already collecting when §5 changed what they
+count.** They shipped under the OLD per-observer behaviour and ran that way in production before the
+guard reached them:
+
+```
+git log -1 --format='%cI %s' 0df5481   # slice A merged, old behaviour live
+  -> 2026-09-04T17:52:07-03:00  Merge pull request #601 …slice-a-597
+git log -1 --format='%cI %s' c50fef8   # slice B merged, guard live
+  -> 2026-09-04T19:35:11-03:00  Merge pull request #602 …slice-b-597
+git tag --contains 44c5d86             # earliest release carrying the two events
+  -> v1.1.81
+  -> v1.1.82
+```
+
+**One hour and forty-three minutes on 2026-09-04, and the two names mean different things on either
+side of it.** Before: **once per observer** — every effect rebuild (a locale toggle, a consent
+re-grant) constructed a new `IntersectionObserver`, which delivers an initial callback for whatever is
+already on screen, and the shot was re-armed. After: **once per session per article**, per the guard.
+
+**The direction of the break, which is the part a chart hides.** The old behaviour **over-counts**
+relative to the new one, so across the seam the series can only fall for readers who triggered a
+rebuild. **A drop on 2026-09-04 is an artifact of a deploy, not a change in reader behaviour.** The
+magnitude is bounded below by zero and above by the number of effect rebuilds in that window, and
+**nothing recorded that number** — no dimension separated a re-armed row from a first one, which is the
+whole reason the defect was invisible in the data.
+
+**The boundary is a DAY, not a timestamp, and treating it as a timestamp is the second way to get this
+wrong.** Merge is deploy here, the deploy takes minutes to reach the edge, and a reader already holding
+the old bundle in an open tab keeps emitting the old behaviour until they load again. Both edges are
+therefore soft in the direction of *more contamination*, not less.
+
+> **The rule: any reading of `article_progress` or `article_end_reached` that spans 2026-09-04 is not
+> comparable.** Compare whole days strictly before against whole days strictly after, discard the seam
+> day, and say so in the chart's own caption — or do not draw the chart.
+
+**`contact_reach` has NO seam, and that is worth stating so nobody carries this caveat across.** It
+shipped in v1.1.82 with the guard already in place (`git tag --contains e29252a` → `v1.1.82` alone), so
+it never collected a row under the old behaviour. Its limit is the one in the section above and only
+that one.
+
+### Why every figure in this amendment carries its command
+
+The two windows above are this amendment's only numbers, and each ships with a command that produced
+it, runnable at any head. That is not house style here; it is a response to a measured failure rate.
+
+**This workstream published three wrong figures on 2026-09-04** — a stale mutation count, a corrected
+count carrying the wrong file list, and slice B's commit message attributing a branch-coverage dip to
+the wrong file — **and all three have one shape: the number came from the run and the sentence around
+it came from memory.** The verdict that produced this amendment contains a fourth of the same shape:
+its ask described the two article events as carrying *weeks* of rows, where the window measured above
+is **1 h 43 min**. Right in direction, wrong in magnitude by three orders, and it does not change the
+ask — a seam is a seam at any width — which is exactly why a plausible number survives review. **A
+figure in this record is stated as a command or it is not stated.**
+
+**What this section deliberately does NOT absorb: slice B's coverage attribution.** The commit message
+and PR body of `863a3b5`/#602 credit the 94.5 → 94.42 branch dip to `sessionOnce.ts`'s two fail-open
+`catch` arms; the gate measured that file at 100 % branches and showed that *removing* it lowers the
+aggregate, the real cause being two defensively-unreachable fallback arms elsewhere. **That correction
+does not belong in this record.** It is a fact about a test suite, not about a GA4 schema, and a
+decision record that accumulates corrections to whatever was wrong in the MR that carried it stops
+being a record of decisions — which is the failure the significance gate in
+`documentation-standard` exists to prevent. Its home is the artifact that carries the false
+sentence, and the correction already exists durably and publicly in the round-2 verdict linked at the
+top of this amendment.
 
 ## Links
 - **Implements** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) slice A, in
