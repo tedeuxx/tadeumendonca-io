@@ -106,11 +106,11 @@ test.describe('the architecture diagrams are centred in their frame', () => {
           // re-point this at a different one — a coupling `architecture-diagrams.test.mjs` already
           // records having paid for once.
           const box = els.find((el) =>
-            [...el.querySelectorAll('text')].some((t) => t.textContent === '(Agent) Harness'),
+            [...el.querySelectorAll('text')].some((t) => t.textContent === 'Context & Harness'),
           );
           if (!box) return null;
           const label = [...box.querySelectorAll('text')].find(
-            (t) => t.textContent === '(Agent) Harness',
+            (t) => t.textContent === 'Context & Harness',
           )!;
           const b = box.getBoundingClientRect();
           const l = label.getBoundingClientRect();
@@ -149,10 +149,10 @@ test.describe('the architecture diagrams are centred in their frame', () => {
 
     const seen = await page.locator('.diagram-canvas').evaluateAll((els) => {
       const box = els.find((el) =>
-        [...el.querySelectorAll('text')].some((t) => t.textContent === '(Agent) Harness'),
+        [...el.querySelectorAll('text')].some((t) => t.textContent === 'Context & Harness'),
       );
       if (!box) return null;
-      const label = [...box.querySelectorAll('text')].find((t) => t.textContent === '(Agent) Harness')!;
+      const label = [...box.querySelectorAll('text')].find((t) => t.textContent === 'Context & Harness')!;
       const b = box.getBoundingClientRect();
       const l = label.getBoundingClientRect();
       return {

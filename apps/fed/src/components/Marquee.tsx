@@ -40,16 +40,24 @@ import { useT } from '../i18n';
 // `TypeScript` and `AWS` rather than beside `Agentic AI`, and the seam back to the top reads
 // `Distributed Systems → Agentic AI`, which is the repositioning's own argument in one join.
 //
-// `Agent Harness Engineering` sits beside `AI-DLC`, not beside `Context Engineering`. Two coined
+// `Context & Harness Engineering` sits beside `AI-DLC`, not beside `Context Engineering`. Two coined
 // tokens both ending in `Engineering`, adjacent, in uppercase mono at glance speed, read as one hedged
 // concept stated twice — and the part-whole relation between them (context engineering is INSIDE the
-// harness) is invisible at that granularity. Beside `AI-DLC` it reads as identity, which is how the
+// practice) is invisible at that granularity. Beside `AI-DLC` it reads as identity, which is how the
 // vocabulary hierarchy already binds the two.
 //
-// The `Agent` prefix arrived 2026-08-02 (#328) and makes the adjacency argument stronger rather than
-// weaker: three words to `Context Engineering`'s two, and the first of them names what the harness is
-// FOR, so the two tokens no longer rhyme at glance speed. It also costs the strip its longest entry —
-// worth knowing, since this list is unlevelled and every item is weighted equally.
+// THE 2026-09-04 RENAME (#593) MAKES THAT SEPARATION LOAD-BEARING RATHER THAN TIDY, and it is the one
+// thing about this list the rename actually moved. The `Agent` prefix (2026-08-02, #328) argued the
+// adjacency from RHYME — three words to `Context Engineering`'s two, so the two tokens stopped sounding
+// alike at glance speed. The current name does not rhyme with `Context Engineering`; it CONTAINS it.
+// Two entries on this strip now share a word, and side by side they would read as one term the author
+// could not settle on rather than as two.
+//
+// WHAT THIS SLICE DID NOT DECIDE, written down so the silence is not read as a judgment: whether
+// `Context Engineering` should stay a separate entry at all, now that the practice's own name spells it.
+// That is a positioning call and it is the owner's. The rename moved a term; it did not thin the list,
+// and `vocabulary.test.ts` pins the practice's NAME on this surface, never the strip's membership — so
+// nothing here reddens whichever way that call goes.
 // Exported for `data/vocabulary.test.ts`, which pins the practice's name on every surface that
 // carries it. Exporting data purely to assert it is usually a smell; here the alternative is reading
 // this file as text and regexing an array literal, which asserts the SOURCE rather than what a reader
@@ -59,7 +67,7 @@ export const STACK = [
   'MCP',
   'Context Engineering',
   'AI-DLC',
-  'Agent Harness Engineering',
+  'Context & Harness Engineering',
   'Claude Code',
   'Python',
   'Node.js',
