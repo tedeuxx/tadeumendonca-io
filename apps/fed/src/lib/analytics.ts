@@ -156,10 +156,18 @@ export interface EventParams {
  * Exported for the named emitters below and for tests. Prefer a named emitter at a call site: a free
  * string argument is how one event comes to be spelled two ways, and GA4 cannot merge two names after
  * the fact.
+ *
+ * RETURNS WHETHER THE HIT WAS ACTUALLY SENT, and that is load-bearing rather than informational. The
+ * once-per-session guards (`lib/sessionOnce`) must mark ONLY what shipped: a reader who withdrew
+ * consent between the observer's creation and its first callback gets a silent no-op here, and marking
+ * that as "fired" would spend the session's one shot on an event GA4 never received — so re-granting
+ * consent could never produce it. The suppressed case and the emitted case are indistinguishable from
+ * the caller without this return value.
  */
-export function trackEvent(name: string, params: EventParams): void {
-  if (!mayEmit()) return;
+export function trackEvent(name: string, params: EventParams): boolean {
+  if (!mayEmit()) return false;
   window.gtag!('event', name, params);
+  return true;
 }
 
 /** Send a page_view for an SPA route change. No-op before consent, and silent after a withdrawal. */
@@ -253,14 +261,14 @@ export type NavArea =
  * The reader reached the end of an article's prose. The CONTENT funnel's denominator — without it
  * `share_complete` is a count with nothing to divide by.
  */
-export function trackArticleEndReached(params: EventParams & { slug: string }): void {
-  trackEvent('article_end_reached', params);
+export function trackArticleEndReached(params: EventParams & { slug: string }): boolean {
+  return trackEvent('article_end_reached', params);
 }
 
 /** An intermediate scroll milestone inside an article. Its own value is modest; its real job is to be
  *  the precondition that separates a scroll-through from a leap to the bottom. */
-export function trackArticleProgress(params: EventParams & { slug: string; percent: number }): void {
-  trackEvent('article_progress', params);
+export function trackArticleProgress(params: EventParams & { slug: string; percent: number }): boolean {
+  return trackEvent('article_progress', params);
 }
 
 /** The reader chose a share destination. The CONTENT funnel's terminal event — mark it as a key event
@@ -322,15 +330,21 @@ export function trackShareOpen(params: EventParams & { slug: string }): void {
  * content is legible at a glance. A time condition would have measured hesitation, which is a different
  * event.
  *
- * ONE-SHOT PER MOUNT, and gated UPSTREAM of this emitter by the observer's own creation (see
- * `useContactReach`). Slice A's first defect was an observer started before consent that silently
- * consumed a one-shot milestone; the same shape is available here and is closed the same way.
+ * ONE-SHOT PER SESSION, not per mount, and the guard is UPSTREAM of this emitter in `useContactReach`
+ * (`lib/sessionOnce`). ~~ONE-SHOT PER MOUNT~~ — struck, and struck rather than reworded because that
+ * was the shipped behaviour and it is what ADR-0051's amendment described as *once per visit*: a
+ * dependency change rebuilt the observer and re-armed the shot, so a PT/EN toggle or a consent
+ * re-grant emitted a second, indistinguishable row. Owner's ruling, 2026-09-04: «Uma vez por sessão».
+ *
+ * The consent half is unchanged and is a different guard: slice A's first defect was an observer
+ * started before consent that silently consumed a one-shot milestone, and that is closed by creating
+ * the observer at the grant.
  *
  * CARRIES ONLY `locale`. Which page the reader was on is not a question this event can answer — the
  * section exists on the landing alone — and that is precisely why `nav_click` carries `from`.
  */
-export function trackContactReach(params: EventParams): void {
-  trackEvent('contact_reach', params);
+export function trackContactReach(params: EventParams): boolean {
+  return trackEvent('contact_reach', params);
 }
 
 /**

@@ -87,6 +87,9 @@ beforeEach(() => {
   observers = [];
   pushed = [];
   window.localStorage.clear();
+  // The once-per-session marker for `contact_reach` lives in `sessionStorage`. Without this every case
+  // after the first would find the session's shot already spent and would pass by emitting nothing.
+  window.sessionStorage.clear();
   delete window.gtag;
   delete window.dataLayer;
   resetAnalyticsForTest();
@@ -173,6 +176,45 @@ describe('useContactReach — what it does with intersections', () => {
     const view = granted();
     view.unmount();
     expect(observers[0].disconnected).toBe(true);
+  });
+
+  // ============================================================================================
+  // ONE PER SESSION, NOT ONE PER OBSERVER (PR #602 round 2). The three cases above all drive ONE
+  // observer, which is why the suite could report a one-shot while the built site emitted twice: the
+  // effect rebuilds on any change of `locale` or `status`, and a fresh `IntersectionObserver` fires an
+  // initial callback for whatever is on screen. Remounting is the same rebuild, reachable here; the
+  // locale toggle and the consent re-grant are asserted in `e2e/analytics-events.spec.ts`, where a real
+  // browser can drive them.
+  it('does not emit again after the effect is rebuilt with the section already reached', () => {
+    const first = granted();
+    intersect(true);
+    expect(reachEvents()).toHaveLength(1);
+    first.unmount();
+
+    granted();
+    // The rebuild does not even build an observer: the session already has its row, so there is nothing
+    // left to watch. Asserted as the count of observers, not only as the count of events — a hook that
+    // observed and then filtered would pass the event assertion and would still be wrong.
+    const observersAfter = observers.length;
+    intersect(true);
+    expect(reachEvents()).toHaveLength(1);
+    expect(observers).toHaveLength(observersAfter);
+    expect(observers[observers.length - 1].observed.size).toBe(0);
+  });
+
+  // THE MARK RECORDS WHAT SHIPPED, NOT WHAT WAS ATTEMPTED. A reader who withdrew consent between the
+  // observer's creation and its first callback gets a no-op; marking there would spend the session's one
+  // shot on a hit GA4 never received, and no later grant could produce it.
+  it('does not spend the session shot on an emission consent suppressed', () => {
+    const view = granted();
+    window.localStorage.clear();
+    intersect(true);
+    expect(reachEvents()).toEqual([]);
+    view.unmount();
+
+    granted();
+    intersect(true);
+    expect(reachEvents()).toHaveLength(1);
   });
 
   it('emits nothing when the reader has not consented, even if the observer is driven by hand', () => {

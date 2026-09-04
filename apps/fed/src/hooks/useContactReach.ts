@@ -27,6 +27,23 @@
 // which is on screen from the first pixel and would make every visit a reach. Slice A shipped exactly
 // that defect on a different element and it was invisible until the assertion existed.
 //
+// ONE PER SESSION, AND THE GUARD CANNOT LIVE IN THIS EFFECT — the repair of the defect PR #602's gate
+// measured, and the reason it is a module rather than a boolean here.
+//
+// ~~ONE PER MOUNT~~ was the shipped behaviour and it is not what ADR-0051 published (*once per visit*).
+// `observer.disconnect()` scopes the one-shot to the OBSERVER, and this effect rebuilds its observer on
+// every change of `locale` or `status`. A fresh `IntersectionObserver` delivers an initial callback for
+// whatever is already on screen, so the shot was re-armed and fired again. Measured in a real browser
+// on the built site: a PT/EN toggle with `#contato` on screen emitted twice (`locale: en`, then
+// `locale: pt`, `scrollY` unchanged at 2967), and a consent re-grant emitted twice with IDENTICAL
+// parameters — no dimension separating the duplicate from a genuine second reach.
+//
+// Owner's ruling, 2026-09-04: «Uma vez por sessão», with `sessionStorage`. The code moves to the
+// record's promise rather than the record retreating to the code, because a funnel terminal's numerator
+// must be sessions when its denominator is. Cost, stated: a reader who returns later in the same
+// session does not re-count. See `lib/sessionOnce` for why the marker is not a module-level `Set` — one
+// of this event's own journeys crosses a full document load.
+//
 // IT INTRODUCES NO DOM NODE — the ref goes on the `<footer id="contato">` `ContactFooter` already
 // renders, which is also the element the nav anchors at, so the thing observed and the thing linked are
 // the same object by construction.
@@ -34,6 +51,11 @@ import { useEffect, type RefObject } from 'react';
 import { useLocale } from '../i18n';
 import { useConsent } from '../lib/consent';
 import { trackContactReach } from '../lib/analytics';
+import { firedThisSession, markFiredThisSession, onceKey } from '../lib/sessionOnce';
+
+/** The event carries no `slug` and the section exists on the landing alone, so the marker needs no
+ *  discriminator — there is exactly one `contact_reach` per session to record. */
+const REACH_KEY = onceKey('contact_reach');
 
 export function useContactReach(section: RefObject<HTMLElement>): void {
   const { locale } = useLocale();
@@ -45,13 +67,20 @@ export function useContactReach(section: RefObject<HTMLElement>): void {
     // snapshot pass in any way this module should depend on.
     if (!node || typeof IntersectionObserver === 'undefined') return;
     if (status !== 'granted') return;
+    // Checked BEFORE the observer is built, not inside its callback: once the session has its row there
+    // is nothing left for an observer to do, and not creating it is the difference between a guard and a
+    // filter.
+    if (firedThisSession(REACH_KEY)) return;
 
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
-      trackContactReach({ locale });
-      // ONE PER MOUNT. Disconnecting rather than keeping a boolean is what makes that true even if the
-      // callback is invoked again in the same batch, and it costs nothing — there is nothing else to
-      // observe.
+      // MARKED ONLY IF IT SHIPPED. `trackContactReach` returns false when consent was withdrawn between
+      // this observer's creation and this callback — marking there would spend the session's one shot on
+      // a hit GA4 never received, and a later re-grant could never produce it.
+      if (trackContactReach({ locale })) markFiredThisSession(REACH_KEY);
+      // Disconnecting rather than keeping a boolean is what makes the shot single even if the callback
+      // is invoked again in the same batch, and it costs nothing — there is nothing else to observe. It
+      // bounds THIS observer; the session marker above is what bounds the visit.
       observer.disconnect();
     });
     observer.observe(node);
