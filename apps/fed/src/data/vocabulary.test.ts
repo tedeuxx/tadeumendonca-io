@@ -25,10 +25,16 @@ import type { Profile } from '../types/profile';
 // THE PRACTICE'S NAME, PINNED ON EVERY SURFACE THAT CARRIES IT — not just the OG card.
 //
 // This file exists because of an asymmetry that was the MECHANISM of a real miss rather than a
-// symptom of one. The term has been renamed twice in three days, and both times the only assertion
-// guarding it in this repo was on `META_LINE` — so `profile.ts`, the landing strip and both editions
-// of `/architecture` carried the term with nothing watching. An edit reverting the CV to a superseded
-// name would ship with a fully green build.
+// symptom of one. The term had been renamed twice in three days when this was written, and both times
+// the only assertion guarding it in this repo was on `META_LINE` — so `profile.ts`, the landing strip
+// and both editions of `/architecture` carried the term with nothing watching. An edit reverting the CV
+// to a superseded name would ship with a fully green build.
+//
+// IT HAS NOW BEEN RENAMED A THIRD TIME (`Agent Harness Engineering` → `Context & Harness Engineering`,
+// 2026-09-04, #593), AND THIS FILE IS WHY THAT ONE WAS NOT A MISS: the rename reddened the build before
+// a line of copy had been reviewed, on the surfaces `META_LINE` alone would have said nothing about.
+// The count is kept current rather than left at "twice", because the sentence is evidence for the
+// guard and evidence that stopped being true is evidence for nothing.
 //
 // The sibling repo learned this first: `-skills` was left on a retired term for a day in July because
 // it was outside the batch, and its answer was a suite looping the same both-directions check over
@@ -44,84 +50,66 @@ import type { Profile } from '../types/profile';
 //   · the term also INFLECTED (`Loop Engineering` → the role noun `Loop Engineer`), so a fixed-string
 //     check for the retired term missed a heading that still named its practitioner.
 // A fixed-string comparison guarding a NAME breaks the day the name changes shape. Both are patterns.
-const CURRENT = 'Agent Harness Engineering';
-const BARE_UNPREFIXED = /(?<!Agent )Harness Engineering/;
+const CURRENT = 'Context & Harness Engineering';
+
+// THE PATTERN NAMES WHICHEVER QUALIFIER IS CURRENT, AND #593 REPOINTED IT RATHER THAN WIDENING IT.
+// This read `(?<!Agent )` until 2026-09-04. The distinction is the whole of the review question, so it
+// is stated in the terms that settle it: the old pattern admitted EXACTLY ONE rendering
+// (`Agent Harness Engineering`) and this one admits EXACTLY ONE (`Context & Harness Engineering`).
+// Same width. And strictly more discrimination in one direction — the superseded term is now caught by
+// this pattern on every surface, which the old pattern could not express at all, since the thing it was
+// built to permit is the thing that was retired.
+//
+// WHY THERE IS NO SURFACE-SCOPED EXCEPTION, since #593 asked for one and this is the deviation. A
+// scoped exception is the right shape when ONE surface earns a rendering the others must not have —
+// which is exactly what the retired affordance below was. It is the wrong shape here, because the new
+// name is carried by EVERY guarded surface: an exception scoped to the CV would have left the other
+// three red against a name they correctly carry, and the only way to make them green would have been
+// to grant the same exception four times, which is a shared pattern spelled four times. The per-surface
+// tuple is untouched AS A MECHANISM (see `SURFACES`); what moved is the qualifier the pattern spells.
+const BARE_UNPREFIXED = /(?<!Context & )Harness Engineering/;
 const RETIRED_STEM = /Loop Engineer/;
 
-// THE PARENTHESISED FORM IS A PROSE AFFORDANCE, AND IT IS SCOPED TO THE SURFACES THAT EARNED IT.
-// `/architecture` opens by naming the practice as `(Agent) Harness Engineering` — the parentheses are
-// doing work there: the essay is about what the word `Agent` adds, so the sentence has to be able to
-// show the term with and without it. That is an argument about the essay, not about the vocabulary.
+// THE PARENTHESISED PROSE AFFORDANCE IS RETIRED (#593), AND WHY IT EXISTED IS KEPT RATHER THAN DELETED.
+// Until 2026-09-04 `/architecture` alone was allowed a second rendering — `(Agent) Harness Engineering`
+// — because the essay's subject was what the word `Agent` ADDED to the term, so its sentences had to be
+// able to show the term with the word and without it. The rename deleted that word from the name: there
+// is no qualifier left to make optional, and `(Context &) Harness Engineering` would put brackets round
+// an ampersand. So the affordance went with the word rather than being re-pointed at a new one.
 //
-// WHY THIS IS NOT A RELAXATION OF `BARE_UNPREFIXED`. Widening the shared pattern would silently permit
-// `(Agent) Harness Engineering` in the CV headline (`profile.ts`) and on the landing strip — the very
-// surfaces #328 paid to pin to exactly ONE rendering, because a recruiter reading the headline meets
-// the term once and a parenthetical there reads as hedging. An allowlist that covers every surface
-// stops guarding the string it was built to guard. So the exception is DATA on the surface that gets
-// it, and a surface not listed with it keeps the strict form by construction.
-const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
-
-// THE TWO GLOBAL OPTIONS THAT WERE WEIGHED AND REJECTED — recorded here, beside the table, because a
-// rejected option nobody can find comes back as a tidy-up. The rule the table encodes: the
-// parenthesised form where the term is ARGUED (today exactly `/architecture`'s prose), the strict form
-// where it is a KEYWORD — scanned, matched, or rendered in a slot measured in characters.
+// READ THIS AS A TIGHTENING, NOT A THINNING. The allowlist that used to cover two files now covers
+// none, and all four surfaces carry the strict pattern. What was LOST is the ability of the essay to
+// render the term two ways, and nothing on the page needs it any more — the page's own bracket-
+// justifying clause ("`Agent` is in brackets on purpose…") was removed in the same slice, because a
+// justification for a rendering that no longer exists is a paragraph arguing for nothing.
 //
-// 1. BRACKETS EVERYWHERE. Rejected on what it costs the keyword surfaces, where the term can least
-//    defend itself: `og-copy.mjs`'s META_LINE renders ~320px wide and is where a pt reader meets the
-//    term first (og-copy.mjs:20-22); the CV headline (`profile.ts` :32/:35) is SCANNED rather than
-//    read, so a bracket on the one line a recruiter meets the term in reads as a hedge; and a bracket
-//    on `profile.ts`'s levelled skills entry (`{ name: 'Agent Harness Engineering', level: 2 }` — cited
-//    by its literal rather than by a line, because the line moved twice while this comment said `:347`)
-//    reads as an optional qualifier on a levelled competence claim. LinkedIn's
-//    220-character headline limit is real but is NOT one of those reasons, and the margin is recorded
-//    here so the external fact stays checkable: the en headline with `{{years}}` → 18 is 164
-//    characters, and `(Agent) ` over `Agent ` adds 2 — the parenthesised form would fit at 166.
-//    THE FIGURE MOVED, and the reason is the point: the 202/204 pair published here until #451 (PR
-//    #457) was correct only for the longer headline that PR deleted. A measured number
-//    that outlives the string it measured is exactly what this block exists to prevent, so it now
-//    ships with the command that re-derives it from the source — run from the repo root, and it
-//    prints both figures:
-//      node -e "const s=require('fs').readFileSync('apps/fed/src/data/profile.ts','utf8');const b=s.split('headline: {')[1].split('},')[0].split('pt:')[0];const en=[...b.matchAll(/'([^']*)'/g)].map(m=>m[1]).join('').replace('{{years}}','18');console.log(en.length, en.length+2)"
-//    Nothing pins these two numbers — the command is the falsifier, not a test. The constraint binds
-//    even LESS at 164 than it did at 202, so this rejection is strengthened rather than weakened; the
-//    two reasons above are still what carry it, and never the limit. Brackets
-//    everywhere would also have forced a republication of all four OG cards (og-copy.mjs:29 — every
-//    edit to that line republishes them), which scrapers have pinned, for no gain to any reader.
+// THE TWO GLOBAL OPTIONS WEIGHED WHEN THE AFFORDANCE WAS GRANTED ARE MOOT WITH IT, and neither was
+// re-argued in #593: brackets on every surface (rejected on what it cost the surfaces where the term is
+// SCANNED rather than read), and strict everywhere (`product-lead`'s position, overruled at the time).
+// The tree now does the second for an unrelated reason — the word they argued about is gone.
 //
-// 2. STRICT EVERYWHERE — drop the brackets from the figure too. This was `product-lead`'s position and
-//    it is OVERRULED, not absent. Its case was strong: it converges every surface at zero test cost,
-//    and in its sharpest form — a term that changes shape a fourth time inside two weeks reads as a
-//    term that has not settled. The owner chose to propagate instead; the figure's brackets predate the
-//    decision and are already glossed on the page.
+// THE HEADLINE FIGURE SURVIVES THE AFFORDANCE, because it was never about brackets: it is about
+// LinkedIn's 220-character headline limit, which is an external fact the CV surface still lives under.
+// IT WAS WRONG WHEN THIS RENAME FOUND IT — the published value was 164 and the command beside it
+// returned 180, because PR #457 shortened a different part of the same string and the figure was not
+// re-run. That is the exact defect the "publish the number with its command" rule exists to make
+// visible, arriving through the number rather than through the command. Re-derived at head, the
+// headline is 175 characters: the rename cut five, and `Node.js / TypeScript` → `Node.js · TypeScript`
+// cut none. Run from the repo root:
+//   node -e "const s=require('fs').readFileSync('apps/fed/src/data/profile.ts','utf8');const b=s.split('headline: {')[1].split('},')[0].split('pt:')[0];const en=[...b.matchAll(/'([^']*)'/g)].map(m=>m[1]).join('').replace('{{years}}','18');console.log(en.length)"
+// Nothing pins it — the command is the falsifier, not a test — so re-run it on any edit that touches
+// the headline. A figure beside its own refuting command is worse than no figure: it reads as checked.
 //
-// `:402` STAYS UNQUALIFIED, and `CLAIM_CLAUSE` below is why that is a rule rather than a wish: it is
-// the sentence declaring the term to be his, and a parenthesis makes optional the very word the claim
-// asserts.
-//
-// ONE ARGUMENT FOR THE BRACKETS WAS DROPPED RATHER THAN SOFTENED, and no test refuses its return
-// because it was never about the rendering rule. `architecture.*.md:43`'s gloss argued the brackets from
-// MARKET USAGE — that `harness engineering` is commonly said today for the practice alone. There is
-// no source for that in this repo or in the owner's private positioning source, and none was
-// invented, so the clause was removed from the published page rather than hedged. What remains is the
-// page's own use of the two forms, which a reader can check on the page itself. Restoring the market
-// premise needs the owner's own grounding and is a SEPARATE change — restoring it as a tidy-up, on the
-// grounds that the sentence reads thin without it, is exactly the failure this block exists to prevent.
-//
-// ONE ROUTE USED TO CARRY THE PARENTHESISED FORM OUT OF `/architecture` — an ADR title naming its own
-// subject, rendered on `/library`. That record was removed on the owner's decision (a typesetting rule
-// a test refuses is not re-decided, so it was never an ADR — tadeumendonca-io#456), so THE ROUTE NO
-// LONGER EXISTS. Stated so nobody re-derives the exception from a record that is gone.
-//
-// TWO THINGS ABOUT THE FIGURE THAT LIVE NOWHERE ELSE:
-//   · `architecture.*.md:23`, the `accDescr`, carries the STRICT form and describes the brackets in
-//     words, because parentheses are ambiguous when spoken. So a non-sighted reader meets the strict
-//     form exactly where a sighted reader meets the bracketed one. Deliberate, and a real asymmetry —
-//     and, like `:24` below, NOTHING PINS IT: bracketing the `accDescr` tomorrow stays green, so the
-//     choice is disclosed here on the same terms rather than presented as if it were guarded.
-//   · `architecture.*.md:24`, the figure's `centre:`, is pinned by NOTHING. It reads
-//     `centre: (Agent) Harness | Engineering`, and the pipe means no bare-form pattern here can ever
-//     match that line in either rendering — so stripping its brackets tomorrow stays green. An honest
-//     gap, stated rather than implied.
+// TWO THINGS ABOUT THE FIGURE THAT LIVE NOWHERE ELSE. The first CHANGED with the rename and the second
+// did not:
+//   · the `accDescr` used to carry the strict form and describe the brackets in words, because
+//     parentheses are ambiguous when spoken — a deliberate asymmetry between what a non-sighted reader
+//     met and what a sighted one did. With one rendering there is nothing left to describe, and the two
+//     readers now meet the same words. Nothing pins that beyond the file-level check below.
+//   · the figure's `centre:` line is pinned by NOTHING, and the pipe is why. It reads
+//     `centre: Context & Harness | Engineering`, and that line break means no bare-form pattern here can
+//     ever match it, in any rendering — so stripping the qualifier tomorrow stays green. An honest gap,
+//     stated rather than implied, and one this rename did not close.
 
 // Surfaces are read as SOURCE rather than imported as values, because what is asserted is the
 // authored TEXT — including the comments around it, which is where a superseded term most often
@@ -130,25 +118,32 @@ const BARE_ALLOWING_PARENTHESISED = /(?<!Agent |\(Agent\) )Harness Engineering/;
 //
 // The third element is the surface's OWN bare-form pattern. It is a tuple rather than a flag so that
 // reading the list answers "which rendering is legal here" per row, with no default to look up.
+//
+// EVERY ROW CARRIES THE SAME PATTERN TODAY, and the tuple is kept anyway. That is a fact about the
+// current copy — one rendering, everywhere, since #593 retired the prose affordance — and not about the
+// mechanism. Collapsing the column to a shared constant would be the tidy-up that has to be undone the
+// next time one surface earns a rendering the CV must not have, which has already happened once.
 const SURFACES: ReadonlyArray<[string, string, RegExp]> = [
   ['profile.ts', profileSrc, BARE_UNPREFIXED],
-  ['architecture.en.md', architectureEn, BARE_ALLOWING_PARENTHESISED],
-  ['architecture.pt.md', architecturePt, BARE_ALLOWING_PARENTHESISED],
-  // STRICT, like `profile.ts` and unlike the two prose pages: nothing on this surface ARGUES about the
-  // term, so nothing here earns the parenthesised affordance. The banner copy itself carries no form of
-  // the practice name at all — the LinkedIn headline sitting beside the cover already does, and the same
-  // words twice on one screen is one sentence stuttering. What this row guards is the edit a month from
-  // now that decides the banner should say it after all.
+  ['architecture.en.md', architectureEn, BARE_UNPREFIXED],
+  ['architecture.pt.md', architecturePt, BARE_UNPREFIXED],
+  // The banner copy itself carries no form of the practice name at all — the LinkedIn headline sitting
+  // beside the cover already does, and the same words twice on one screen is one sentence stuttering.
+  // What this row guards is the edit a month from now that decides the banner should say it after all.
   ['banners.mjs', bannersSrc, BARE_UNPREFIXED],
 ];
 
 // THE ONE SENTENCE ON THOSE TWO SURFACES THAT STILL MAY NOT PARENTHESISE, AND WHY IT IS PINNED APART.
 // The affordance above is granted per FILE, so it necessarily covers the closing paragraph too — and
-// that paragraph is where the essay stops describing the term and CLAIMS it: "Agent Harness
-// Engineering is the claim I am making". A parenthesis there makes optional the very word the sentence
-// is claiming, so the unqualified rendering is not a stylistic leftover; it is the point of the
-// sentence. The `toContain(CURRENT)` assertion does not cover this — `accDescr` further up carries a
-// plain occurrence, so a drift confined to the claim sentence would ship green.
+// that paragraph is where the essay stops describing the term and CLAIMS it: "Context & Harness
+// Engineering is the claim I am making". The `toContain(CURRENT)` assertion does not cover this —
+// `accDescr` further up carries a plain occurrence, so a drift confined to the claim sentence would
+// ship green.
+//
+// THE AFFORDANCE IT WAS PINNED APART FROM IS GONE (#593), AND THIS ARM STAYS. Its original argument was
+// that a per-FILE allowance necessarily reached the one sentence that must not parenthesise. With the
+// allowance retired that argument is spent — and the arm's actual work never depended on it: it pins
+// that THIS sentence, specifically, renders the term, which no file-level check can say.
 //
 // ANCHORED ON THE CLAUSE, NOT ON A LINE NUMBER: this page is being restructured (#448), and a
 // positional anchor would silently start guarding a different sentence. The clause is distinctive per
@@ -159,24 +154,31 @@ const CLAIM_CLAUSE: ReadonlyArray<[string, string, RegExp]> = [
   ['architecture.pt.md', architecturePt, /é a afirmação que eu faço/],
 ];
 
-// AND THE SENTENCE THAT MUST PARENTHESISE — the same defect class as `CLAIM_CLAUSE`, from the other side.
-// `SURFACES` only forbids a BARE form on these two files, and `toContain(CURRENT)` is satisfied by the
-// `accDescr` further down, so the opening sentence — the one occurrence this page's whole rendering rule
-// is ABOUT — was guarded by nothing: reverting it to the strict form, or deleting the term from it, or
-// changing it in one edition only, all shipped green. The third is the one that matters most, since a
-// suite whose purpose is cross-surface consistency was reporting consistency while the editions diverged.
+// AND THE SENTENCE THAT INTRODUCES THE TERM — the same defect class as `CLAIM_CLAUSE`, from the other
+// side. `SURFACES` only forbids a BARE form on these two files, and `toContain(CURRENT)` is satisfied by
+// the `accDescr` further down, so the opening sentence — the one occurrence a reader of this page meets
+// FIRST — was guarded by nothing: deleting the term from it, or changing it in one edition only, both
+// shipped green. The second is the one that matters most, since a suite whose purpose is cross-surface
+// consistency was reporting consistency while the two editions diverged.
 //
-// SAME ANCHOR DISCIPLINE AS ABOVE, for the same #448 reason, and stated once here rather than twice:
+// UNTIL #593 THIS ARM PINNED THE PARENTHESISED RENDERING HERE AND THE STRICT ONE AT THE CLAIM SENTENCE,
+// and the pair was the whole point: two sentences on one page, deliberately rendered differently, each
+// pinned so neither drifted into the other. The affordance is retired, so both arms now pin the same
+// rendering. The arm is KEPT rather than folded into the file-level check because that check is
+// satisfied by any one occurrence anywhere on the page; what this says is that this sentence is one.
+//
+// SAME ANCHOR DISCIPLINE AS ABOVE, for the same #448 reason, and stated once there rather than twice:
 // the anchor's presence and uniqueness are asserted FIRST, so a reworded opening fails as a moved anchor
 // rather than passing as a satisfied one; emphasis markers are stripped rather than matched; and the
 // assertion is on the text ADJACENT to the anchor, not on a line number.
 //
 // THE ANCHOR IS PER EDITION, not a shared phrase. The two editions are written, not translated — they
-// share no clause — and assuming they did has already cost this page one round.
-const PARENTHESISED = '(Agent) Harness Engineering';
+// share no clause — and assuming they did has already cost this page one round. It SHORTENED in #593:
+// it read `a loop built on AI-DLC & ` until the opening sentence stopped joining the two terms with an
+// ampersand, which the practice's own name now contains.
 const OPENING_CLAUSE: ReadonlyArray<[string, string, RegExp]> = [
-  ['architecture.en.md', architectureEn, /a loop built on AI-DLC & /],
-  ['architecture.pt.md', architecturePt, /um loop construído sobre AI-DLC & /],
+  ['architecture.en.md', architectureEn, /a loop built on /],
+  ['architecture.pt.md', architecturePt, /um loop construído sobre /],
 ];
 
 describe('the practice is named consistently across every surface', () => {
@@ -196,18 +198,24 @@ describe('the practice is named consistently across every surface', () => {
     expect(src).not.toMatch(RETIRED_STEM);
   });
 
-  // THE EXCEPTION HAS TO STILL DISCRIMINATE, and reading it never proves that. A pattern that accepted
+  // THE PATTERN HAS TO STILL DISCRIMINATE, and reading it never proves that. A pattern that accepted
   // every rendering would make the assertion above a tautology and stay green on the day the term is
-  // reverted — the exact failure this file was written to stop, arriving through the allowlist instead
-  // of through the term. So both patterns are exercised against literals here, in both directions.
-  it('the parenthesised affordance is scoped, not a blanket allowance', () => {
-    // The prose pattern still catches a genuinely bare occurrence…
-    expect('a loop built on Harness Engineering').toMatch(BARE_ALLOWING_PARENTHESISED);
-    // …and accepts only the two renderings the essay is allowed to use.
-    expect('a loop built on Agent Harness Engineering').not.toMatch(BARE_ALLOWING_PARENTHESISED);
-    expect('a loop built on (Agent) Harness Engineering').not.toMatch(BARE_ALLOWING_PARENTHESISED);
-    // The strict pattern is unchanged: the parenthesised form is still a failure on a CV surface.
+  // reverted — the exact failure this file was written to stop, arriving through the pattern instead of
+  // through the term. So it is exercised against literals here, in both directions. This arm carried
+  // the retired affordance until #593 and it is REPOINTED rather than deleted: it is the only thing in
+  // the file that would catch a lookbehind widened until it permits everything.
+  it('the strict pattern accepts exactly one rendering', () => {
+    // It still catches a genuinely bare occurrence…
+    expect('a loop built on Harness Engineering').toMatch(BARE_UNPREFIXED);
+    // …and accepts the current rendering, which is the one it was repointed at.
+    expect('a loop built on Context & Harness Engineering').not.toMatch(BARE_UNPREFIXED);
+    // THE SUPERSEDED TERM IS NOW A FAILURE ON EVERY SURFACE, and this is what the repoint bought that
+    // no surface-scoped exception could have: a revert to the 2026-08-02 name reddens here rather than
+    // passing as a legal prefix.
+    expect('a loop built on Agent Harness Engineering').toMatch(BARE_UNPREFIXED);
+    // And so is a bracketed qualifier, in either the retired spelling or a new one.
     expect('AI-DLC & (Agent) Harness Engineering').toMatch(BARE_UNPREFIXED);
+    expect('a loop built on (Context &) Harness Engineering').toMatch(BARE_UNPREFIXED);
   });
 
   it.each(CLAIM_CLAUSE)('%s claims the term unqualified in the sentence that claims it', (_name, src, clause) => {
@@ -222,22 +230,22 @@ describe('the practice is named consistently across every surface', () => {
     expect(preceding.endsWith(CURRENT)).toBe(true);
   });
 
-  it.each(OPENING_CLAUSE)('%s parenthesises the term in the sentence that introduces it', (_name, src, clause) => {
+  it.each(OPENING_CLAUSE)('%s renders the term in the sentence that introduces it', (_name, src, clause) => {
     // The anchor first, and exactly once — a reworded or duplicated opening reddens here, as an anchor
     // that moved, before anything is asserted about the term itself.
     const hits = src.match(new RegExp(clause.source, 'g')) ?? [];
     expect(hits).toHaveLength(1);
 
-    // Then the rendering immediately after it. `Agent Harness Engineering` and a deleted term both fail:
-    // neither STARTS with the parenthesised form. Asterisks are stripped so the assertion survives the
-    // term gaining or losing its bold, exactly as `CLAIM_CLAUSE` does on the other side of its anchor.
+    // Then the rendering immediately after it. A superseded term and a deleted one both fail: neither
+    // STARTS with the current form. Asterisks are stripped so the assertion survives the term gaining or
+    // losing its bold, exactly as `CLAIM_CLAUSE` does on the other side of its anchor.
     // The `?? ''` is unreachable: the length assertion above aborts the test when the anchor is
     // missing. It is written rather than a `!` because this app's tsconfig checks indexed access, and
     // the first version of this line typechecked-failed while the suite passed — the exact asymmetry
     // the header of this file was written about.
     const start = src.search(clause) + (hits[0] ?? '').length;
     const following = src.slice(start, start + 80).replace(/\*/g, '').trimStart();
-    expect(following.startsWith(PARENTHESISED)).toBe(true);
+    expect(following.startsWith(CURRENT)).toBe(true);
   });
 
   // The strip is asserted through the exported list rather than the file, because here the DATA is
