@@ -4,7 +4,6 @@ slug: three-agent-loops-one-month
 date: '2026-09-02T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
 hasVideo: true
 contentIssue: 577
 excerpt: "Three agentic projects in parallel, on top of a full project calendar, and a bill of USD 4,207 covering two of them. The money is the least interesting number in it: what August actually cost was deciding the same thing over and over without noticing."
