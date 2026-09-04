@@ -1,7 +1,7 @@
 ---
 title: "I ran three agent loops for a month. The expensive part was deciding."
 slug: three-agent-loops-one-month
-date: '2026-09-04T01:36:00.000Z'
+date: '2026-09-03T12:00:00.000Z'
 tag: harness
 track: engenharia
 hasVideo: true
