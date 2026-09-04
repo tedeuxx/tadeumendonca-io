@@ -7,7 +7,12 @@ import {
   readConsent,
   resetAnalyticsForTest,
   storeConsent,
+  trackArticleEndReached,
+  trackArticleProgress,
+  trackContactClick,
+  trackEvent,
   trackPageview,
+  trackShareComplete,
 } from './analytics';
 
 const ID = 'G-TEST12345';
@@ -155,6 +160,22 @@ describe('loadAnalytics', () => {
   });
 });
 
+/**
+ * Put the module in the state a consenting reader is in — loaded AND granted — and return the array
+ * every subsequent emission lands in.
+ *
+ * The gtag stub is installed AFTER `loadAnalytics`, deliberately: the loader's own `js`/`config`
+ * commands go to the real queue, so what this array holds is exactly the events under test.
+ */
+function consentingReader(): unknown[][] {
+  vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
+  storeConsent('granted');
+  loadAnalytics();
+  const pushed: unknown[][] = [];
+  window.gtag = ((...args: unknown[]) => pushed.push(args)) as typeof window.gtag;
+  return pushed;
+}
+
 describe('trackPageview', () => {
   it('is a no-op before analytics has loaded', () => {
     const events: unknown[][] = [];
@@ -165,11 +186,78 @@ describe('trackPageview', () => {
   });
 
   it('sends a page_view event after load', () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', ID);
-    loadAnalytics();
-    const pushed: unknown[][] = [];
-    window.gtag = ((...args: unknown[]) => pushed.push(args)) as typeof window.gtag;
+    const pushed = consentingReader();
     trackPageview('/blog/x');
     expect(pushed).toContainEqual(['event', 'page_view', { page_path: '/blog/x' }]);
+  });
+
+  // #597. THE DEFECT THIS SLICE REPAIRS, at the page_view it was already costing. `reopen()` clears the
+  // stored choice and cannot un-inject gtag, so a guard keyed on `injected` alone kept reporting a
+  // reader who had just withdrawn. MUTATION-CHECKED against the source, not read: dropping
+  // `readConsent() === 'granted'` back out of `mayEmit` reddens exactly four assertions across the
+  // whole suite — this one, the two below it, and the withdrawal journey in `usePageviews.test.tsx` —
+  // and leaves the other 1,212 green. Before this slice, all four passed with no consent recorded.
+  it('is SILENT after the reader withdraws consent, with gtag still injected', () => {
+    const pushed = consentingReader();
+    clearConsent();
+    trackPageview('/blog/x');
+    expect(typeof window.gtag).toBe('function');
+    expect(pushed).toHaveLength(0);
+  });
+
+  it('is SILENT when the reader declined but analytics was loaded earlier in the session', () => {
+    const pushed = consentingReader();
+    storeConsent('denied');
+    trackPageview('/blog/x');
+    expect(pushed).toHaveLength(0);
+  });
+});
+
+describe('trackEvent and the named emitters', () => {
+  it('is a no-op before analytics has loaded', () => {
+    const events: unknown[][] = [];
+    window.gtag = ((...args: unknown[]) => events.push(args)) as typeof window.gtag;
+    storeConsent('granted');
+    trackEvent('share_complete', { locale: 'pt', target: 'linkedin' });
+    expect(events).toHaveLength(0);
+  });
+
+  it('emits with the reader consenting', () => {
+    const pushed = consentingReader();
+    trackEvent('share_complete', { locale: 'pt', target: 'linkedin' });
+    expect(pushed).toContainEqual(['event', 'share_complete', { locale: 'pt', target: 'linkedin' }]);
+  });
+
+  it('is SILENT after a withdrawal, in the same session', () => {
+    const pushed = consentingReader();
+    clearConsent();
+    trackEvent('share_complete', { locale: 'pt', target: 'linkedin' });
+    expect(pushed).toHaveLength(0);
+  });
+
+  // The schema, asserted as the shape it will be REGISTERED under in the GA4 property. A dimension is
+  // not retroactive: anything emitted before its registration exists is unqueryable for that period,
+  // permanently — so a parameter silently renamed here is not a reporting inconvenience, it is a hole
+  // in the series with no way to backfill it.
+  it('carries the declared parameter spine on each event, and no `path`', () => {
+    const pushed = consentingReader();
+    trackArticleProgress({ locale: 'en', slug: 'my-commitment', percent: 50 });
+    trackArticleEndReached({ locale: 'en', slug: 'my-commitment' });
+    trackShareComplete({ locale: 'pt', target: 'copy-markdown' });
+    trackContactClick({ locale: 'pt', target: 'email' });
+
+    expect(pushed).toEqual([
+      ['event', 'article_progress', { locale: 'en', slug: 'my-commitment', percent: 50 }],
+      ['event', 'article_end_reached', { locale: 'en', slug: 'my-commitment' }],
+      ['event', 'share_complete', { locale: 'pt', target: 'copy-markdown' }],
+      ['event', 'contact_click', { locale: 'pt', target: 'email' }],
+    ]);
+
+    // `page_path`/`page_location` are GA4's own, attached to every hit; a custom `path` would duplicate
+    // a free dimension and spend a registration slot on the duplicate (ADR-0039's `utm_content` call).
+    for (const [, , params] of pushed) {
+      expect(params).not.toHaveProperty('path');
+      expect(params).toHaveProperty('locale');
+    }
   });
 });
