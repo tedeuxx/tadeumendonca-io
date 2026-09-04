@@ -467,6 +467,111 @@ a file nobody looking for the vocabulary would open.
   the cadence and the campaign tag.
 - **Automated posting stays rejected.** Option 4 stands in full.
 
+## Amendment (2026-09-04) — the post is a DIGEST, not a teaser: the owner narrows a rule he ratified himself
+
+**This record's word for the artifact has been *teaser* since it was written, and the owner retired that
+form after measuring what it produced.** The amendment is his, stated across one conversation in five
+increments that converge rather than wander:
+
+> *«migalhas do que encontrar no conteudo … antes de ler o artigo»*
+> *«vestigios do que o cara encontraria ao clicar no link»*
+> *«drops/digest do conteudo que a pessoa encontraria ao entrar no artigo do site»*
+> *«assim as pessoas ja devem reagir e comentar logo de cara mesmo nao lendo o artigo»*
+> *«para sermos impulsionados pelo linkedin nao basta somente alcance, precisamos de reacoes e comentarios»*
+
+### What changes
+
+> **The post is a DIGEST of the content, not bait for a click.** It carries pieces of the material the
+> reader would meet — facts, findings, numbers, observations — enough that they have something to answer
+> **without clicking**. **What stays withheld is the TURN, not the CONTENT.**
+
+**The prior rule survives, scoped.** *Never a compressed retelling of the ARGUMENT* is still right;
+*give nothing* never was. **Content is what happened; the argument is what it meant and how it
+resolved.** The first goes in the post. The second is what the click buys.
+
+**That prior rule was itself the owner's**, recorded after a draft carried the article's whole
+tension→resolution arc. **It was correct about its case and over-general in its form** — and the form is
+what shipped into every post since.
+
+### Why — and the evidence is a corpus, not a sample
+
+**No post since the launch has earned a reaction that was not personal network.** The owner's own
+observation, direct: *«eu so tive reacoes no meu primeiro post em geral (meu compromisso), os demais
+voce via somente dados de entrega de conteudo mas nenhuma reacao fora a amanda»*. The launch is a
+special case — an announcement, where a network reacts to the launch rather than to the argument.
+
+**And the mechanism is the platform's, which is what makes this a distribution decision rather than a
+craft preference:** *«para sermos impulsionados pelo linkedin nao basta somente alcance»*. **Impressions
+are fuel, not score** — engagement is what earns the next distribution. A post nobody answers is not
+merely failing to convert; it is teaching the ranking system to show the next one to fewer people.
+
+**One figure this record must not repeat.** An earlier framing compared raw impressions across posts of
+different ages and concluded the newest had the least reach. **False:** 439 impressions in 10 hours is
+~44/hour against 604 in a week at ~3.6/hour. **Reach was never the failure**, which strengthens the
+diagnosis and falsifies the sentence that carried it.
+
+### TWO objectives, complementary — and this is the half that is easy to collapse
+
+> *«o objetivo é fazer sim o cara passar a ir ao site e ver todo conteudo, mas nao abandonando os
+> mecanismos atuais da rede social. sao complementares»*
+
+**Engagement buys distribution on the network; the click brings the reader to the site.** Neither at the
+other's expense — and the failure modes are symmetric, so a drafter given one objective produces the
+other's defect:
+
+- **optimised only for the click** → the pure teaser that asserts nothing. **This was the shipped
+  state**, and since it earns no response it also buys no distribution.
+- **optimised only for the reaction** → a standalone opinion that never needs the site.
+
+**The digest is the form that serves both**: enough content to be worth answering alone, with the turn
+withheld so the article is still where the resolution lives.
+
+### Four conditions, and only these four are checkable
+
+Recorded because the split decides who may edit the owner's prose — the drafting pair's reviewer repairs
+in place on any clause it can quote, so anything written as a rule becomes an edit licence.
+
+1. **Traceable** — the claim can be pointed at, by quotation, in the article.
+2. **The reader's vocabulary** — traceable does not mean quotable word-for-word. *«em vez de atores usar
+   agentes. senao ninguem entende o que ta falanado»*. **Faithful and unreadable is still unreadable**,
+   and the sharpest case is a term the article itself uses **once** — the post inherits a word its own
+   source barely explains.
+3. **The first line of EACH language block.** A bilingual post's second half appears in no truncated
+   view, so it is governed by nothing unless this is said.
+4. **The first line finishes inside the fold** (~140 chars, unverified). The post that earned nothing is
+   the only one whose opener was **cut mid-word**.
+
+**Everything about *how much* or *which* content stays advisory, deliberately.** Those tests are
+judgement; written as rules they hand the reviewing half a pen over the whole post body.
+
+### What this does not decide, and what it costs
+
+- **It is not measurable from this site.** The reaction happens **before the click**, where GA4 has no
+  visibility by construction. The funnel instrumentation tracked at issue #597 cannot tell whether this
+  worked; the evaluation surface is the networks' own reaction and comment counts. **The two are not
+  each other's evidence in either direction.**
+- **It is the cheapest lever, not a proven cause.** A corpus-wide zero is consistent with the teaser
+  being miscalibrated; the owner has ruled that it is, and one post shipped under the rule is what
+  settles it.
+- **A digest and the article are now the same object at different lengths**, separated only by the turn
+  — which is the one condition with no checkable test. The rule/advisory split bounds a **reviewer**;
+  **nothing bounds a drafter who compresses one beat too far**, and nothing observes it.
+- **Automated posting stays rejected. Option 4 stands in full.** Nothing here reopens it.
+
+### One factual correction to this record's own working assumptions
+
+**X allows editing a published post.** The `…` menu carries *Editar post*, the editor loads with the text
+and card intact, and the edit is bounded to original posts. The session that produced this amendment
+asserted the opposite repeatedly and **deleted a post on that assumption** before checking. **Fixing the
+TEXT of a live post is cheap on both networks; what is irreversible is the OG card** (ADR-0005), never
+the words.
+
+### Where the operative rule lives
+
+`published-voice`'s teaser section, in the harness plugin — the ruler both content personas draft and
+review against. **This record holds the decision; that skill holds the wording**, and the two must not
+drift.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
