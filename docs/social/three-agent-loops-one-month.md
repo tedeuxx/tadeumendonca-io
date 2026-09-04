@@ -3,7 +3,16 @@
 Article: https://tadeumendonca.io/en/blog/three-agent-loops-one-month
 Content Issue: #577
 
-**Draft, pending the owner's review.** Nothing here is final and nothing is published.
+**LIVE on both networks since 2026-09-04**, in the DIGEST form at the bottom of this file. LinkedIn was
+edited **in place** (the post kept its age, its reaction and its card); X was reposted and later edited
+in place too. **The teaser version immediately below is the record of what was up first, and is not what
+a reader sees now.**
+
+~~Draft, pending the owner's review. Nothing here is final and nothing is published.~~ — **struck: true
+when written at 17:28Z, false within the hour, and it survived a commit that touched three lines of this
+file without carrying the status forward.** A record asserting *"nothing is published"* about two live
+posts is worse than no record, and it is struck rather than deleted because the failure is the point:
+**status prose ages faster than the content it labels, and nothing here observes that.**
 
 ## Three conventions settled on this pair
 
@@ -65,11 +74,12 @@ https://tadeumendonca.io/en/blog/three-agent-loops-one-month
 
 ---
 
-# DIGEST REWRITE (`-skills#400`) — draft, pending the owner's review
+# DIGEST REWRITE (`-skills#400`) — **LIVE on both networks**
 
-**These two sections REPLACE the live pair above. The live text is kept unedited as the record of what
-is up now.** Written against the calibration recorded in the comments on `-skills#400`, which is not
-yet in `published-voice`: *«drops/digest do conteudo que a pessoa encontraria ao entrar no artigo»* ·
+**These two sections are what is published.** The pair above is the teaser version they replaced, kept
+unedited as the record of what was up first. Written against the calibration recorded in the comments
+on `-skills#400` and **now merged into `published-voice`** (`-skills#402`), which is where the rule
+lives from here: *«drops/digest do conteudo que a pessoa encontraria ao entrar no artigo»* ·
 *«assim as pessoas ja devem reagir e comentar logo de cara mesmo nao lendo o artigo»* · *«para sermos
 impulsionados pelo linkedin nao basta somente alcance, precisamos de reacoes e comentarios»* · *«o
 objetivo é fazer sim o cara passar a ir ao site e ver todo conteudo, mas nao abandonando os mecanismos
@@ -95,7 +105,7 @@ E o erro de modelagem não foi caro por causa do dinheiro. Ninguém ali estava e
 
 O dinheiro, aliás, é a parte menos interessante do mês. Tem uma outra coisa que agosto me custou, e eu levei quase o mês inteiro para enxergar o que era.
 
-Quantos atores no seu loop precisam concordar antes de qualquer coisa andar? Vá olhar o que os seus loops fizeram no mês passado — não a saída, as rodadas.
+Quantos agentes no seu loop precisam concordar antes de qualquer coisa andar? Vá olhar o que os seus loops fizeram no mês passado — não a saída, as rodadas.
 
 — — —
 
@@ -109,7 +119,7 @@ And the modelling mistake was not expensive because of the money. Nobody in that
 
 The money, by the way, is the least interesting part of the month. There is something else August cost me, and it took me most of the month to see what it was.
 
-How many actors in your loop have to agree before anything can move? Go and look at what your loops actually did last month — not the output, the *rounds*.
+How many agents in your loop have to agree before anything can move? Go and look at what your loops actually did last month — not the output, the *rounds*.
 
 https://tadeumendonca.io/en/blog/three-agent-loops-one-month
 
