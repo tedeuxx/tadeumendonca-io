@@ -46,7 +46,10 @@ class FakeIntersectionObserver {
  *  which is what makes `unobserve` after a milestone a behaviour the suite can see rather than a
  *  detail it trusts. */
 function intersect(entries: FakeEntry[]) {
-  const observer = observers[0];
+  // The LAST observer, not the first. Every case but the remount ones below builds exactly one, so this
+  // is `observers[0]` for them; after a rebuild the first one is disconnected and delivering to it would
+  // assert nothing about the observer the hook is actually using.
+  const observer = observers[observers.length - 1];
   act(() => {
     observer.callback(entries.filter((entry) => observer.observed.has(entry.target)));
   });
@@ -54,7 +57,11 @@ function intersect(entries: FakeEntry[]) {
 
 function Prose({ slug, body, blocks }: { slug: string; body: string; blocks: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  useArticleProgress({ container: ref, slug, body });
+  // `articleKey` is the article's locale-independent identity and `slug` its localized form; in this
+  // harness there is one edition, so they coincide. The case where they DIVERGE — a PT/EN toggle moving
+  // `my-commitment` to `meu-compromisso` — is a browser property and is asserted in
+  // `e2e/analytics-events.spec.ts`, where a real locale toggle exists to drive it.
+  useArticleProgress({ container: ref, slug, articleKey: slug, body });
   return (
     <div ref={ref}>
       {Array.from({ length: blocks }, (_, i) => (
@@ -67,7 +74,7 @@ function Prose({ slug, body, blocks }: { slug: string; body: string; blocks: num
 /** The same wiring `ArticlePage` uses — the real `Markdown`, the ref handed to its own wrapper. */
 function RealProse() {
   const ref = useRef<HTMLDivElement>(null);
-  useArticleProgress({ container: ref, slug: 'x', body: MARKDOWN_BODY });
+  useArticleProgress({ container: ref, slug: 'x', articleKey: 'x', body: MARKDOWN_BODY });
   return (
     <div className="max-w-none">
       <Markdown blockRef={ref}>{MARKDOWN_BODY}</Markdown>
@@ -77,20 +84,22 @@ function RealProse() {
 
 const MARKDOWN_BODY = ['One.', 'Two.', 'Three.', 'Four.', 'Five.'].join('\n\n');
 
-function mountProse({ body, blocks = 9 }: { body: string; blocks?: number }) {
+function mountProse({ body, blocks = 9, slug = 'x' }: { body: string; blocks?: number; slug?: string }) {
   const pushed: unknown[][] = [];
   const view = render(
-    <MemoryRouter initialEntries={['/pt/blog/x']}>
+    <MemoryRouter initialEntries={[`/pt/blog/${slug}`]}>
       <LocaleProvider>
         <ConsentProvider>
-          <Prose slug="x" body={body} blocks={blocks} />
+          <Prose slug={slug} body={body} blocks={blocks} />
         </ConsentProvider>
       </LocaleProvider>
     </MemoryRouter>,
   );
   // Installed after mount so the loader's own js/config commands stay out of the array.
   window.gtag = ((...args: unknown[]) => pushed.push(args)) as typeof window.gtag;
-  return { pushed, paragraphs: Array.from(view.container.querySelectorAll('p')) };
+  // `view` is returned so a case can unmount and mount again — the rebuild that re-arms a one-shot
+  // scoped to the observer rather than to the session.
+  return { pushed, view, paragraphs: Array.from(view.container.querySelectorAll('p')) };
 }
 
 const names = (pushed: unknown[][]) => pushed.map((entry) => entry[1]);
@@ -100,6 +109,10 @@ beforeEach(() => {
   vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
   vi.useFakeTimers({ shouldAdvanceTime: true });
   window.localStorage.clear();
+  // The once-per-session markers live in `sessionStorage` and every case in this file uses the same
+  // slug, so without this each test after the first would start with its milestones already spent —
+  // and would pass by emitting nothing, which is the shape of a green that proves nothing.
+  window.sessionStorage.clear();
   delete window.gtag;
   delete window.dataLayer;
   resetAnalyticsForTest();
@@ -286,6 +299,81 @@ describe('useArticleProgress', () => {
 
     intersect([...observer.observed].map((target) => ({ target, isIntersecting: true })));
     expect(names(pushed).filter((name) => name === 'article_progress')).toHaveLength(3);
+  });
+
+  // ================================================================================================
+  // ONE PER SESSION, PER ARTICLE — the slice A defect repaired in PR #602 round 2. `sent`, `endSent`
+  // and the dwell clock lived in the effect closure, so ANY dependency change rebuilt the observer and
+  // a fresh `IntersectionObserver` re-fired every milestone already on screen. Measured on the built
+  // site with a PT/EN toggle; a remount is the same rebuild and is reachable here.
+  //
+  // The cases below use `mountProse` twice WITHOUT clearing `sessionStorage` between them, which is the
+  // whole point — the `beforeEach` clear is what keeps every other case in this file independent.
+  it('does not re-emit a milestone after the effect is rebuilt', () => {
+    const first = mountProse({ body: 'word '.repeat(500) });
+    intersect([{ target: first.paragraphs[2], isIntersecting: true }]);
+    expect(names(first.pushed)).toEqual(['article_progress']);
+    first.view.unmount();
+
+    const second = mountProse({ body: 'word '.repeat(500) });
+    // The spent milestone is not even observed — an observer with nothing left to report should not be
+    // watching that element. Nine blocks → 3 milestones + the last block = 4, minus the spent one.
+    expect(observers[observers.length - 1].observed.size).toBe(3);
+    intersect([{ target: second.paragraphs[2], isIntersecting: true }]);
+    expect(second.pushed).toEqual([]);
+  });
+
+  // THE REGRESSION THE REPAIR ITSELF COULD HAVE INTRODUCED, and it is the reason `sent` is SEEDED from
+  // the session rather than merely consulted. `sent` is two things at once: the do-not-repeat set AND
+  // the precondition `maybeEnd` tests. A reader who passed the deepest milestone, then toggled the
+  // locale, would — under a naive guard — have an empty `sent`, so the terminal event would be
+  // permanently ineligible for the rest of the visit. A silent loss, strictly worse than the duplicate.
+  it('stays eligible for article_end_reached when the milestones were spent before the rebuild', () => {
+    const first = mountProse({ body: 'word '.repeat(500) });
+    intersect([{ target: first.paragraphs[2], isIntersecting: true }]);
+    intersect([{ target: first.paragraphs[4], isIntersecting: true }]);
+    intersect([{ target: first.paragraphs[6], isIntersecting: true }]);
+    expect(names(first.pushed)).toEqual(['article_progress', 'article_progress', 'article_progress']);
+    first.view.unmount();
+
+    const second = mountProse({ body: 'word '.repeat(500) });
+    intersect([{ target: second.paragraphs[8], isIntersecting: true }]);
+    act(() => void vi.advanceTimersByTime(31_000));
+
+    expect(second.pushed).toEqual([['event', 'article_end_reached', { locale: 'pt', slug: 'x' }]]);
+  });
+
+  it('does not re-emit article_end_reached after the effect is rebuilt', () => {
+    const first = mountProse({ body: 'word '.repeat(500) });
+    intersect([{ target: first.paragraphs[2], isIntersecting: true }]);
+    intersect([{ target: first.paragraphs[4], isIntersecting: true }]);
+    intersect([{ target: first.paragraphs[6], isIntersecting: true }]);
+    intersect([{ target: first.paragraphs[8], isIntersecting: true }]);
+    act(() => void vi.advanceTimersByTime(31_000));
+    expect(names(first.pushed)).toContain('article_end_reached');
+    first.view.unmount();
+
+    const second = mountProse({ body: 'word '.repeat(500) });
+    // Nothing at all is left to observe on this article, so the rebuilt observer watches no elements.
+    expect(observers[observers.length - 1].observed.size).toBe(0);
+    intersect([{ target: second.paragraphs[8], isIntersecting: true }]);
+    act(() => void vi.advanceTimersByTime(600_000));
+    expect(second.pushed).toEqual([]);
+  });
+
+  // THE KEY IS THE ARTICLE, NOT THE SLUG — asserted from the other side. A different article shares no
+  // marker, so the guard cannot be satisfied by a reader having read something else. (The converse —
+  // two SLUGS of one article, which is what a PT/EN toggle produces — needs a real locale toggle and is
+  // asserted in `e2e/analytics-events.spec.ts`.)
+  it('does not carry a marker across to a different article', () => {
+    const first = mountProse({ body: 'word '.repeat(500) });
+    intersect([{ target: first.paragraphs[2], isIntersecting: true }]);
+    expect(names(first.pushed)).toEqual(['article_progress']);
+    first.view.unmount();
+
+    const second = mountProse({ body: 'word '.repeat(500), slug: 'y' });
+    intersect([{ target: second.paragraphs[2], isIntersecting: true }]);
+    expect(second.pushed).toEqual([['event', 'article_progress', { locale: 'pt', slug: 'y', percent: 25 }]]);
   });
 
   it('disconnects on unmount so a navigation away leaves no live observer', () => {

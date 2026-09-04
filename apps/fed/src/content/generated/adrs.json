@@ -354,6 +354,6 @@
     "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
     "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   }
 ]

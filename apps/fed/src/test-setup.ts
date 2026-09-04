@@ -28,3 +28,12 @@ class MemoryStorage implements Storage {
 const memoryStorage = new MemoryStorage();
 Object.defineProperty(window, 'localStorage', { value: memoryStorage, configurable: true });
 Object.defineProperty(globalThis, 'localStorage', { value: memoryStorage, configurable: true });
+
+// `sessionStorage` is a SEPARATE instance, not an alias, and the separation is what the tests need to
+// be able to say anything: `lib/sessionOnce` writes the once-per-session analytics markers here, while
+// consent and locale live in `localStorage`, and dozens of specs call `window.localStorage.clear()` in
+// a `beforeEach`. Aliasing the two would make every one of those silently clear the analytics guard as
+// well, so a hook that had lost the guard entirely would still pass.
+const sessionMemoryStorage = new MemoryStorage();
+Object.defineProperty(window, 'sessionStorage', { value: sessionMemoryStorage, configurable: true });
+Object.defineProperty(globalThis, 'sessionStorage', { value: sessionMemoryStorage, configurable: true });

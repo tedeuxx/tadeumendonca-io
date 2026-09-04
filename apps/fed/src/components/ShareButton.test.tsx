@@ -36,7 +36,7 @@ describe('ShareButton', () => {
   // four-option shape (no body) has its own test below — it is a real configuration, not the default.
   const open = (locale: 'pt' | 'en' = 'pt') => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" body="Corpo." />, { locale });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" slug="probe-slug" body="Corpo." />, { locale });
     fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
     return screen.getByRole('dialog');
   };
@@ -50,7 +50,7 @@ describe('ShareButton', () => {
 
   it('advertises the dialog on the trigger, so a screen reader knows what the button does', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" slug="probe-slug" />, { locale: 'pt' });
     const trigger = screen.getByRole('button', { name: 'Compartilhar' });
     expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -117,7 +117,7 @@ describe('ShareButton', () => {
   it('copies the tagged link and confirms in the active locale', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal('navigator', { clipboard: { writeText } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" slug="probe-slug" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     fireEvent.click(screen.getByRole('button', { name: COPY_LINK_PT }));
     await waitFor(() => expect(writeText).toHaveBeenCalled());
@@ -146,7 +146,7 @@ describe('copy as markdown', () => {
   const openWith = (props: { body?: string }, locale: 'pt' | 'en' = 'pt') => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal('navigator', { clipboard: { writeText } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" {...props} />, { locale });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" slug="probe-slug" {...props} />, { locale });
     fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
     return writeText;
   };
@@ -195,7 +195,7 @@ describe('copy as markdown', () => {
   it('says so, visibly, when the clipboard write is rejected', async () => {
     const writeText = vi.fn().mockRejectedValue(new DOMException('denied', 'NotAllowedError'));
     vi.stubGlobal('navigator', { clipboard: { writeText } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" slug="probe-slug" body="Corpo." />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
     expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
@@ -207,7 +207,7 @@ describe('copy as markdown', () => {
   // `catch` that only handles the async form leaves this one as an unhandled throw in the click handler.
   it('survives a browser with no clipboard API at all, and still says so', async () => {
     vi.stubGlobal('navigator', {});
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" slug="probe-slug" body="Corpo." />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     fireEvent.click(screen.getByRole('button', { name: COPY_MD_PT }));
     expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe('copy as markdown', () => {
   it('reports a failed LINK copy too — the state is per control, and both were silent before', async () => {
     const writeText = vi.fn().mockRejectedValue(new Error('blocked'));
     vi.stubGlobal('navigator', { clipboard: { writeText } });
-    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" body="Corpo." />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" slug="probe-slug" body="Corpo." />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     fireEvent.click(screen.getByRole('button', { name: COPY_LINK_PT }));
     expect(await screen.findByText('Não foi possível copiar')).toBeInTheDocument();
@@ -307,7 +307,7 @@ describe('the two share entry points', () => {
   it('offer the same destinations', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
 
-    const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" />, { locale: 'pt' });
+    const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/meu-compromisso" slug="probe-slug" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     const fromModal = hrefsFrom(screen.getByRole('dialog'));
     modal.unmount();
@@ -346,7 +346,7 @@ describe('the two share entry points', () => {
 
   it('both offer the copy-link destination — the modal naming the clipboard, the footer not', () => {
     vi.stubGlobal('navigator', { clipboard: { writeText: vi.fn() } });
-    const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" />, { locale: 'pt' });
+    const modal = renderWithLocale(<ShareButton title="Hello" url="/pt/blog/x" slug="probe-slug" />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     const dialog = within(screen.getByRole('dialog'));
     expect(dialog.getByRole('button', { name: COPY_LINK_PT })).toBeInTheDocument();

@@ -85,7 +85,13 @@ export function MarkdownPage({
                 (#387) free and correct on /ramp-up: the caller resolved `{{years}}` before handing it
                 here, so the clipboard gets the same text the reader is looking at. Passing the import
                 instead would put a literal `{{years}}` in someone's notes. */}
-            <ShareButton title={title} url={localizedPath} body={body} size="sm" />
+            {/* `slug` for `share_open` (#597) is the UNPREFIXED canonical path with its leading slash
+                dropped — `ramp-up`, `architecture`. Derived here rather than added as a fourth prop
+                because, unlike an article slug, it is NOT per-locale: ADR-0036 prefixes one English
+                path twice, so there is no edition to resolve and nothing for a caller to know that this
+                component does not. `localizedPath` is deliberately not the source — it carries the
+                locale, which is already its own dimension on the same event. */}
+            <ShareButton title={title} url={localizedPath} slug={canonicalPath.replace(/^\//, '')} body={body} size="sm" />
           </div>
           {/* THE HEADING RUNS THE FULL MEASURE OF THE RULE BENEATH IT (#392) — and `text-balance` was
               the bigger half of the cause, not `max-w-[22ch]`. Deleting the cap alone is the obvious

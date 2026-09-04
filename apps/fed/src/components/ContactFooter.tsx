@@ -2,7 +2,9 @@
 // content helped, not for work. It renders the shared contact channels (see contactChannels) as button
 // chips, so it stays in sync with the "Where to find me" directory; the colophon states how the site is
 // built. The mailto stays in the same tab; the outbound links open in a new one.
+import { useRef } from 'react';
 import { CONTACT_CHANNELS } from './contactChannels';
+import { useContactReach } from '../hooks/useContactReach';
 import { useT } from '../i18n';
 
 // Re-exported for callers/tests that reference the site's own contact address.
@@ -10,8 +12,13 @@ export { CONTACT_EMAIL } from './contactChannels';
 
 export function ContactFooter() {
   const t = useT();
+  // `contact_reach` (#597) — the CAREER funnel's middle stage. Observed on THIS element, which is both
+  // the nav's `#contato` target and the section itself, so what is measured and what is linked cannot
+  // drift apart. No node is added: the ref goes on the footer that was already here.
+  const section = useRef<HTMLElement>(null);
+  useContactReach(section);
   return (
-    <footer id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] pb-[clamp(2rem,4vw,3rem)] pt-[clamp(3rem,7vw,6rem)]">
+    <footer ref={section} id="contato" className="scroll-mt-[--header-h] border-t-2 border-border-strong px-[--gutter] pb-[clamp(2rem,4vw,3rem)] pt-[clamp(3rem,7vw,6rem)]">
       <h2 className="mb-[clamp(1.5rem,4vw,2.5rem)] text-balance text-[clamp(2.1rem,8vw,7rem)] font-bold uppercase leading-[0.92] tracking-[-0.045em]">
         {t('contact.heading')}
         <span className="text-primary">.</span>

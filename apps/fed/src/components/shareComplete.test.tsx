@@ -51,7 +51,7 @@ afterEach(() => {
 
 describe('share_complete — the modal', () => {
   const open = () => {
-    renderWithLocale(<ShareButton title="Hello" url={PT_PATH} body="Corpo." />, { locale: 'pt' });
+    renderWithLocale(<ShareButton title="Hello" url={PT_PATH} slug="probe-slug" body="Corpo." />, { locale: 'pt' });
     fireEvent.click(screen.getByRole('button', { name: 'Compartilhar' }));
     return screen.getByRole('dialog');
   };

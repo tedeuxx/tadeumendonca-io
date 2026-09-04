@@ -30,10 +30,38 @@
 // paragraph early. The first is over-counted, the second is lost. The event is a proxy with a stated
 // direction of error, and it is a counter with provenance rather than a rate — at this site's volume,
 // the per-article cut is noise for at least a year.
+// ONE PER SESSION, PER ARTICLE — the repair of a defect this hook shipped in slice A and ran with in
+// production from v1.1.81 (PR #602, round 2). It is the SAME root cause `useContactReach` had, found by
+// that hook's gate and measured here rather than assumed by symmetry:
+//
+//   scroll /en/blog/my-commitment to the end   -> 25, 50, 75 then article_end_reached   (correct)
+//   toggle PT with the article still on screen -> 50, 75 again, and, ~23s later, a SECOND
+//                                                 article_end_reached
+//
+// `sent`, `endSent` and the dwell clock all live in the effect closure, and the effect depends on
+// `locale`, `status`, `slug` and `floor`. A dependency change rebuilds the observer, a fresh
+// `IntersectionObserver` delivers an initial callback for whatever is already on screen, and every
+// milestone visible at that moment is re-emitted having been re-armed. **Both events carry it**, which
+// was checked rather than inferred — the terminal one needs a second full dwell floor to elapse first,
+// so it is slower and no less real, and the E2E waits it out rather than passing early against it.
+//
+// THE GUARD IS KEYED ON THE ARTICLE'S IDENTITY, NOT ON ITS SLUG, and this is the one place the repair
+// is not a copy of `useContactReach`'s. Slugs are PER-LOCALE (ADR-0037): the toggle above moved
+// `my-commitment` to `meu-compromisso`, so a slug-keyed guard would not have matched and the duplicate
+// would simply have hidden under a second slug — a worse failure than the visible one, because the two
+// rows no longer look like duplicates in any report. The identity is the article's KEY, which is stable
+// across editions. It is used for the marker ONLY and is never emitted; `slug` remains what GA4
+// receives, unchanged and immutable per ADR-0051.
+//
+// WHAT IT COSTS: a reader who genuinely re-reads the same piece — or reads both editions — in one
+// session is counted once. That is the owner's own trade for `contact_reach` («Uma vez por sessão»)
+// applied to the funnel that has the same shape, and it is the conservative direction for a proxy that
+// already errs toward over-counting.
 import { useEffect, useMemo, type RefObject } from 'react';
 import { useLocale } from '../i18n';
 import { useConsent } from '../lib/consent';
 import { trackArticleEndReached, trackArticleProgress } from '../lib/analytics';
+import { firedThisSession, markFiredThisSession, onceKey } from '../lib/sessionOnce';
 
 /**
  * The reading speed above which a human cannot have read the words, in words per minute.
@@ -71,12 +99,20 @@ const MILESTONE_PERCENTS = [25, 50, 75] as const;
 export function useArticleProgress({
   container,
   slug,
+  articleKey,
   body,
 }: {
   /** The element whose CHILDREN are the rendered markdown blocks — `ArticlePage`'s existing prose
    *  wrapper. Its last child is the article's last block; the document continues past it. */
   container: RefObject<HTMLElement>;
+  /** The LOCALIZED slug. This is the value GA4 receives and it is immutable (ADR-0051). */
   slug: string;
+  /**
+   * The article's LOCALE-INDEPENDENT identity, used only to key the once-per-session markers and
+   * never emitted. Pass the EN edition's slug — by ADR-0037's convention that is the article's KEY.
+   * Falling back to `slug` is safe but weaker: the guard then stops matching across a locale toggle.
+   */
+  articleKey: string;
   body: string;
 }): void {
   const { locale } = useLocale();
@@ -152,10 +188,18 @@ export function useArticleProgress({
     // there is no leap to detect when the reader can see everything from two positions.
     const required = milestones.size === 0 ? null : Math.max(...milestones.values());
 
+    const progressKey = (percent: number) => onceKey('article_progress', articleKey, percent);
+    const endReachedKey = onceKey('article_end_reached', articleKey);
+
     const openedAt = Date.now();
-    const sent = new Set<number>();
+    // SEEDED FROM THE SESSION, not empty, and the seeding is what keeps the repair from breaking the
+    // discriminator it sits next to. `sent` is two things at once: the "do not emit again" set AND the
+    // precondition `maybeEnd` tests (`sent.has(required)`). Starting it empty after a rebuild would
+    // suppress the re-emission and ALSO make the terminal event permanently ineligible for a reader who
+    // had already passed the deepest milestone — a silent loss, which is the worse of the two errors.
+    const sent = new Set<number>(MILESTONE_PERCENTS.filter((percent) => firedThisSession(progressKey(percent))));
     let lastVisible = false;
-    let endSent = false;
+    let endSent = firedThisSession(endReachedKey);
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const maybeEnd = () => {
@@ -174,7 +218,11 @@ export function useArticleProgress({
         return;
       }
       endSent = true;
-      trackArticleEndReached({ locale, slug });
+      // MARKED ONLY IF IT SHIPPED — see `lib/analytics`'s `trackEvent` for why the return value exists.
+      // `endSent` is set either way, because that flag bounds THIS observer; the session marker is what
+      // bounds the visit, and spending it on a hit a withdrawn reader never sent would lose the event
+      // for good on a later re-grant.
+      if (trackArticleEndReached({ locale, slug })) markFiredThisSession(endReachedKey);
       observer.unobserve(last);
     };
 
@@ -188,7 +236,7 @@ export function useArticleProgress({
         const percent = milestones.get(entry.target);
         if (percent === undefined || sent.has(percent)) continue;
         sent.add(percent);
-        trackArticleProgress({ locale, slug, percent });
+        if (trackArticleProgress({ locale, slug, percent })) markFiredThisSession(progressKey(percent));
         observer.unobserve(entry.target);
       }
       for (const entry of entries) {
@@ -198,8 +246,10 @@ export function useArticleProgress({
       maybeEnd();
     });
 
-    for (const el of milestones.keys()) observer.observe(el);
-    observer.observe(last);
+    // Already-spent milestones are not observed at all. Filtering inside the callback would work too and
+    // would be a filter rather than a guard — an observer with nothing left to report should not exist.
+    for (const [el, percent] of milestones) if (!sent.has(percent)) observer.observe(el);
+    if (!endSent) observer.observe(last);
 
     return () => {
       if (timer !== undefined) clearTimeout(timer);
@@ -207,5 +257,7 @@ export function useArticleProgress({
     };
     // `slug` is in the deps because navigating between two articles remounts nothing above this hook:
     // the counters, the clock and the observed nodes all have to start again for the new piece.
-  }, [container, slug, floor, locale, status]);
+    // `articleKey` is in them for the same reason and changes with `slug` in every case but the locale
+    // toggle — which is exactly the case the session markers, seeded above, now carry across.
+  }, [container, slug, articleKey, floor, locale, status]);
 }

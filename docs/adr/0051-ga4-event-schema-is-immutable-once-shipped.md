@@ -363,6 +363,165 @@ as a general caveat, because a caveat with no direction cannot be reasoned about
 - Code-only: no `iac/`, no edge, no cache behaviour, no new DOM node (`ref=` and `onClick=` on elements
   that already existed; React serialises neither).
 
+## Amendment (2026-09-04) — slice B shipped, and the other half of the schema is now immutable too
+
+**This amendment RECORDS names that have shipped, and it carries THREE decisions that were not
+pre-authorised by this record** — §2's share-deeplink exclusion, §4's once-per-session emission rule,
+and §5's repair of the same rule in slice A's live article events. It decides nothing about a NAME,
+which is the class this record governs; it is not decision-free, and an earlier draft of this sentence
+claimed it was while §2 called itself *"a decision this record did not pre-authorise"* four paragraphs
+below. The four events were fixed
+by the intake that produced this record — which named `share_open`, `contact_reach` and
+`outbound_click` outright and left `nav_click` open — and `nav_click` was settled by
+**the owner's ruling on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597#issuecomment-5546459523)
+(2026-09-04)**: *«Enviar nav_click»*, with `from`/`to`, **emitted at the click**. It is written here for
+the reason the whole record exists — a shipped-but-unrecorded name is the one thing worse than a badly
+chosen one, because nothing tells the next reader it is fixed. Implemented in
+`product/instrument-funnel-slice-b-597`.
+
+### The schema, as shipped
+
+| event | parameters (beyond `locale`) | what it observes — and what it does not |
+|---|---|---|
+| `share_open` | `slug` | a share affordance was OPENED. Emitted by `ShareButton` — the modal trigger — and by nothing else, because nothing else on this site opens |
+| `contact_reach` | — | the landing's `#contato` section INTERSECTED the viewport, **once per SESSION** (§4). **Never that it was read** — there is no dwell floor, deliberately |
+| `outbound_click` | `href` (`hostname + pathname`) | a link took the reader off the site, by a route that is neither a contact channel nor a share destination |
+| `nav_click` | `from`, `to` (both `NavArea`) | a nav control was clicked, with the ORIGIN captured at the click. **`from === to` is EMITTED, not suppressed** — it is a truthful row meaning *clicked a nav control pointing at the page I am already on*, which is real re-anchoring behaviour. Read the diagonal as expected, never as a defect; a transition analysis filters it in one clause, and suppression would have destroyed rows nothing could reconstruct |
+
+### The five decisions inside the implementation, and each one is a trade
+
+**1 · `from`/`to` are a CLOSED UNION, and it is the mechanism rather than a convention.** `NavArea` has
+ten members — `home · articles · contact · portfolio · ramp-up · architecture · library · me · article
+· other`. `to` is read from a literal in `AppShell`'s own nav table; `from` from `navArea()`, a total
+function over a pathname whose residual is `other`. **A query string has no member of the type to
+arrive as**, which is the same argument this record already made for `contact_click`'s closed `target`,
+and it is why `path` staying off the spine is not quietly reintroduced under two new names.
+
+*Two members are destination-only (`articles`, `contact` — the landing's anchors, indistinguishable as
+an origin) and one is origin-only (`article` — the nav points at no article).* That is a property of
+the site, not a gap. *Cost:* **a public route added without a row in `navArea.ts` reports as `other`
+and nothing reddens.** The safe direction — under-attributed, never mis-attributed — and
+`navArea.test.ts` cross-checks every route-typed nav entry's `area` literal against the classifier, so
+the two mechanisms producing one vocabulary cannot drift silently.
+
+**2 · `outbound_click` refuses two whole classes, and the second one is a decision this record did not
+pre-authorise.** The five contact channels are refused because `contact_click` owns them — the intake
+asked for that. **The three share deeplinks are refused too, and that was not asked for:** a share to
+LinkedIn genuinely leaves the site, so an unconstrained rule would claim it. It is refused because
+`share_complete` already measures that act with a better vocabulary, and because an `outbound_click`
+series that is mostly share clicks cannot answer *where do readers leave to*, which is the only
+question it exists for — **two populations under one name, which is the failure this record was written
+to prevent.** *The counter-argument, recorded rather than dismissed:* a reader who clicks a share
+deeplink DID leave the site, and that departure is now invisible to the outbound series. Accepted; it
+is visible in `share_complete`.
+
+**`href` HAS UNBOUNDED CARDINALITY, and that is accepted rather than unnoticed.** The set of outbound
+destinations is open by construction, so the dimension has no ceiling — GA4 buckets the tail into
+`(other)` once the daily-distinct limit is reached. It **degrades and does not corrupt**: the top
+values keep resolving, and a narrower dimension can be added later without renaming anything, so
+nothing about it is irreversible and this record's immutability thesis does not reach it. Written here
+rather than left in a pull request, because a degradation axis documented where nobody re-reads it is
+documented nowhere in six months.
+
+**Both exclusions are a LOOKUP, not an ordering.** `useContactClicks` and `useOutboundClicks` are two
+delegated listeners on the same shell node, so both see every click and the order they run in is a fact
+about React effect registration — not something a measurement may depend on. The sets are derived from
+`CONTACT_CHANNELS` and `SHARE_TARGETS` themselves, so a sixth channel or a fourth share target is
+covered the day it is added. *One consequence, in the direction this record already chose:* the
+contact exclusion is by **bounded form**, which is WIDER than `contact_click`'s own exact-href rule — so
+a contact link written with a differently-spelled href is silent in **both** series rather than silent
+in one and misreported in the other.
+
+**3 · `share_open` is a denominator for the MODAL, not for the site.** The article footer's
+`ShareLinks` block is always visible, so a reader reaches `share_complete` from it having opened
+nothing — and slice A shipped `share_complete` with **no parameter naming its entry point**, a name that
+is now immutable. **So the ratio can exceed 1, and a ratio above 1 is not a defect.** Read it as a floor
+on modal abandonment, never as a completion rate. This is the sharpest limit slice B carries and it is
+inherited from slice A rather than introduced here; closing it would mean a new event name, not a new
+parameter on an old one.
+
+`share_open` also **reuses the `slug` dimension** rather than registering a second one, so `slug` now
+holds `architecture` and `ramp-up` alongside real article slugs. They stay separable because the EVENT
+distinguishes them — no `article_progress` is ever emitted for a markdown page.
+
+**4 · A ONE-SHOT EVENT IS ONE PER SESSION, and the code was moved to the record's promise rather than
+the record retreated to the code.** Owner's ruling, 2026-09-04: *«Uma vez por sessão»*, with
+`sessionStorage`.
+
+*What was actually shipped first, and it is why this decision exists at all.* The one-shot lived in
+`observer.disconnect()` **inside** the effect, so it was scoped to the OBSERVER. Any dependency change
+tore the effect down and built a new `IntersectionObserver`, which delivers an initial callback for
+whatever is already on screen — the shot was re-armed. Measured in a browser on the built site: a PT/EN
+toggle with the section on screen produced two rows (`locale: en`, then `locale: pt`, `scrollY`
+unchanged at 2967), and a consent re-grant produced **two identical rows with no dimension separating
+them.** The published claim was *once per visit*; the behaviour was *once per observer*.
+
+*Why the session and not the page view.* A funnel's numerator must have the denominator its stages are
+counted against. `contact_reach` answers *how many sessions reached contact*, so a per-page-view guard
+would answer a different question under a name that can never be changed. The rejected option was a
+`useRef`: cheaper, fixes both measured paths, re-counts on navigate-away-and-back — and it would still
+have required amending this table, which is paying an amendment to a public immutable schema to buy a
+weaker guarantee.
+
+*The cost, stated:* a reader who returns to the section later in the same session is not re-counted.
+That is the correct direction for a funnel stage and the wrong one for a volume metric — **the guard is
+not for an event that is meant to count occurrences.**
+
+*The mechanism:* `lib/sessionOnce`, `sessionStorage`, one namespaced marker per event. It **fails
+OPEN** — private mode makes the storage throw, and the chosen answer there is *emit* rather than
+*suppress*, because a dropped funnel stage is invisible in the data while a duplicate row is not. And
+the marker is written **only when the hit actually shipped**, so a reader who withdrew consent between
+an observer's creation and its callback has not spent the session's shot.
+
+**5 · THE SAME RULE IS APPLIED TO SLICE A's `article_progress` AND `article_end_reached`, WHICH HAVE
+BEEN LIVE SINCE v1.1.81.** Not this branch's defect; repaired in this branch anyway. Shipping the fix
+for the new event while knowingly leaving the identical root cause running would have made this
+branch's own commits the record that the bug was known and left. **Both events carry it — checked, not
+inferred from symmetry:** the milestones re-emit immediately on a rebuild; the terminal event needs a
+second full dwell floor to elapse first, so it is slower and no less real, and the regression waits it
+out rather than passing early against it.
+
+*The one place the repair is NOT a copy of `contact_reach`'s: the marker is keyed on the article's
+locale-independent KEY, never on its slug.* Slugs are per-locale (ADR-0037), so the toggle that
+produces the duplicate also moves `my-commitment` to `meu-compromisso` — a slug-keyed guard would not
+match, and the duplicate would hide under a second slug instead of being visible under one. **That is
+strictly worse than the bug**, because the two rows stop looking like duplicates in any report. The key
+is used for the marker only and is **never emitted**; `slug` remains exactly what GA4 receives.
+
+*The cost, stated:* a reader who genuinely re-reads a piece — or reads both editions — in one session
+is counted once. Same trade as §4, on the funnel that has the same shape, and it is the conservative
+direction for a proxy that already errs toward over-counting.
+
+*And a second-order effect worth writing down, because the repair could have introduced it:* the
+milestone set is **seeded** from the session markers rather than merely consulted, since that set is
+also the precondition the terminal event tests. A naive guard would have suppressed the duplicate and
+made `article_end_reached` permanently ineligible after any rebuild — a silent loss, which is the worse
+of the two errors.
+
+### What the consent notice did NOT need, and why that was checked rather than assumed
+
+**No copy changed.** All four events land under the three verbs the notice already names —
+*read / shared / clicked* — and the notice is at its layout ceiling: `messages.ts` records that the
+first draft of the slice-A wording grew the bar by one line and covered the article's own footer share
+trigger, reddening `content.spec.ts`. **The bottom stack has no headroom at 1280px with both notices
+open**, so that string is a constraint rather than slack. `contact_reach` is the only one where the
+mapping is worth stating: reaching a section is *what gets read here*, which is the verb it falls under.
+
+### The registration obligation, again, and it is still non-retroactive
+
+**`href`, `from` and `to` must be registered as event-scoped custom dimensions BEFORE these events
+collect.** `slug` and `locale` already exist from slice A. **Anything emitted before its dimension
+exists is permanently unqueryable for that period** — registration does not backfill, and nothing in
+this repository can observe whether it was done. That gap is unchanged by this amendment and unclosable
+from here.
+
+**`source_section` is named in this record's slice-A registration list and is emitted by NOTHING in
+slice B.** The four events carry `slug`, `href`, `from` and `to`, and no event carries a section
+identifier. Registering it costs nothing and protects a future slice; **its absence blocks none of the
+four.** Said explicitly because the list above is the one a console action will be taken from, and a
+dimension listed as owed for an event that does not emit it is how a registration list stops being
+trustworthy.
+
 ## Links
 - **Implements** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) slice A, in
   [PR #601](https://github.com/tedeuxx/tadeumendonca-io/pull/601).

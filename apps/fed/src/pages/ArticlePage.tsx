@@ -60,7 +60,17 @@ export function ArticlePage() {
   // prerendered page. Called unconditionally (the not-found arm renders no prose, so the ref is null and
   // the hook returns), because a hook may not sit behind `article &&`.
   const prose = useRef<HTMLDivElement>(null);
-  useArticleProgress({ container: prose, slug: article?.slug ?? '', body: article?.body ?? '' });
+  // `articleKey` is the EN edition's slug — the article's locale-independent KEY (ADR-0037) — and it is
+  // read off `eds`, which this page already resolved for hreflang. It keys the once-per-session guards
+  // and is never emitted: without it a PT/EN toggle re-emits every milestone under the OTHER locale's
+  // slug, which is the same duplicate the guard exists to stop, hidden across two slug values instead of
+  // one. Read `useArticleProgress` for the measurement.
+  useArticleProgress({
+    container: prose,
+    slug: article?.slug ?? '',
+    articleKey: eds?.en.slug ?? article?.slug ?? '',
+    body: article?.body ?? '',
+  });
 
   // DELIBERATE EXCEPTION to ADR-0045. An article is a document, not a section: its own name IS the
   // address a reader bookmarks, searches for and shares, and prefixing it with a section label would
@@ -128,7 +138,15 @@ export function ArticlePage() {
               {/* `article.body` is the frontmatter-stripped remainder `content.ts` already returns — the
                   raw glob is module-private and never exported, so no `slug`/`date`/`track` can reach the
                   clipboard (#387). It is also the exact string rendered below. */}
-              <ShareButton title={article.title} url={lp(articleShareUrl(article))} body={article.body} size="sm" />
+              <ShareButton
+                title={article.title}
+                url={lp(articleShareUrl(article))}
+                // The edition's OWN slug (ADR-0037 makes it per-locale), so `share_open` and the article
+                // events name the same piece and can be joined. The page holds it; nothing derives it.
+                slug={article.slug}
+                body={article.body}
+                size="sm"
+              />
             </div>
             {/* Same heading shape, same fix, same reasoning as `MarkdownPage.tsx` (#392) — read the long
                 comment there for WHY `text-balance` is the bigger half of the cause and why `text-pretty`
@@ -201,6 +219,7 @@ export function ArticlePage() {
             <ShareButton
               title={article.title}
               url={lp(articleShareUrl(article))}
+              slug={article.slug}
               body={article.body}
               size="sm"
               labelKey="share.moreOptions"
