@@ -29,12 +29,12 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
-      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      'AI Engineer — Context & Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js · TypeScript · AWS · Terraform | ' +
       '{{years}} years across Software Development & Distributed Systems',
     pt:
-      'AI Engineer — AI-DLC & Agent Harness Engineering | ' +
-      'Claude Code · Kiro · Python · Node.js / TypeScript · AWS · Terraform | ' +
+      'AI Engineer — Context & Harness Engineering | ' +
+      'Claude Code · Kiro · Python · Node.js · TypeScript · AWS · Terraform | ' +
       '{{years}} anos em Desenvolvimento de Software & Sistemas Distribuídos',
   },
   // THE `applied GenAI` PHRASE IN THIS PARAGRAPH IS THE ONLY STRUCTURED SITE HOME THAT EXACT PHRASE HAS,
@@ -49,7 +49,7 @@ const sourceTemplate: ProfileSource = {
   // trimming this long paragraph, and that editor is standing HERE, not in the archive of PR #457.
   //
   // WHY NOTHING PINS IT, precisely. `vocabulary.test.ts` guards the PRACTICE NAME
-  // (`Agent Harness Engineering`) and does not know this phrase exists — `GenAI` appears in no test file
+  // (`Context & Harness Engineering`) and does not know this phrase exists — `GenAI` appears in no test file
   // under `apps/fed/src`, so deleting the clause from this paragraph ships GREEN. Verified rather than
   // assumed: `grep -rln GenAI apps/fed/src apps/fed/e2e` returns exactly three files, all of them
   // content/data (this one and `content/rampup.{en,pt}.md`), and no test. A mechanical guard — an
@@ -70,7 +70,7 @@ const sourceTemplate: ProfileSource = {
   // the PDF a recruiter's parser reads — not only on `/me`.
   summary: {
     en:
-      'AI Engineering applied to agile software development — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
+      'AI Engineering applied to agile software development — Claude Code, Kiro, AI-DLC and Context & Harness Engineering — ' +
       "to design, build and ship production-ready systems. That's the newest layer on {{years}} years of software " +
       'engineering, not a fresh start: I began in enterprise integration and packaged software, moved into ' +
       'modern product engineering shipping web and native-mobile apps, and have spent the last years ' +
@@ -81,7 +81,7 @@ const sourceTemplate: ProfileSource = {
       'MCP — and bring the SDLC rigor that turns AI work into production software. Python for AI, agents and ' +
       'backend; Node.js and TypeScript for the full-stack and web layer; Spring Boot for microservices.',
     pt:
-      'AI Engineering aplicada ao desenvolvimento de software ágil — Claude Code, Kiro, AI-DLC & Agent Harness Engineering — ' +
+      'AI Engineering aplicada ao desenvolvimento de software ágil — Claude Code, Kiro, AI-DLC e Context & Harness Engineering — ' +
       'para projetar, construir e entregar sistemas prontos para produção. Essa é a camada mais recente sobre ' +
       '{{years}} anos de engenharia de software, não um recomeço: comecei em integração de sistemas corporativos ' +
       'e software empacotado, passei para engenharia de produto moderna entregando apps web e mobile nativo, e ' +
@@ -110,7 +110,7 @@ const sourceTemplate: ProfileSource = {
           "& gas operator's AWS landing zone. " +
           'Embedded in enterprise engineering teams delivering cloud-native, distributed systems end-to-end — ' +
           'from application code to infrastructure as code — while moving delivery into an AI-native loop with ' +
-          'Claude Code, Kiro and AI-DLC & Agent Harness Engineering practices.',
+          'Claude Code, Kiro, AI-DLC and Context & Harness Engineering practices.',
         pt:
           'Programas de modernização de aplicações e launch de novas plataformas digitais — microserviços, ' +
           'web full-stack, smart TVs e mobile nativo. Liderando a ' +
@@ -120,11 +120,11 @@ const sourceTemplate: ProfileSource = {
           'operacional na landing zone AWS de uma operadora de óleo & gás. ' +
           'Alocado dentro de times de engenharia corporativos entregando sistemas distribuídos cloud-native de ' +
           'ponta a ponta — do código da aplicação à infraestrutura como código — enquanto movia a entrega para um ' +
-          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC & Agent Harness Engineering.',
+          'loop AI-native com Claude Code, Kiro e práticas de AI-DLC e Context & Harness Engineering.',
       },
       highlights: {
         en: [
-          'Adopted AI-native development (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) in 2026 to design, ' +
+          'Adopted AI-native development (Claude Code, Kiro, AI-DLC and Context & Harness Engineering) in 2026 to design, ' +
             'build and ship production-ready systems, and am structuring the practice for team-scale adoption.',
           'Architected the internalization of a third-party SaaS streaming platform and the modernization of that ' +
             'workload on AWS — native apps across five ' +
@@ -146,7 +146,7 @@ const sourceTemplate: ProfileSource = {
             'presenting them to C-level and technical stakeholders in English, Spanish and Portuguese.',
         ],
         pt: [
-          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC & Agent Harness Engineering) em 2026 para ' +
+          'Adotei desenvolvimento AI-native (Claude Code, Kiro, AI-DLC e Context & Harness Engineering) em 2026 para ' +
             'projetar, construir e entregar sistemas prontos para produção, e estou estruturando a prática ' +
             'para adoção em escala de time.',
           'Arquitetei a internalização de uma plataforma de streaming SaaS de terceiro e a modernização desse ' +
@@ -492,7 +492,7 @@ const sourceTemplate: ProfileSource = {
       label: { en: 'AI-native Engineering', pt: 'Engenharia AI-native' },
       items: [
         { name: 'AI-DLC', level: 2 },
-        { name: 'Agent Harness Engineering', level: 2 },
+        { name: 'Context & Harness Engineering', level: 2 },
         { name: 'Claude Code', level: 3 },
         { name: 'Kiro', level: 3 },
         { name: 'Context Engineering', level: 3 },
