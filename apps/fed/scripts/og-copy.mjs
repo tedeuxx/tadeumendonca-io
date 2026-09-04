@@ -18,15 +18,18 @@ export const LOCALES = ['pt', 'en'];
  * The line under the mark on every card, both locales, both generators.
  *
  * NOT TRANSLATED, and that is a positioning decision rather than an omission: `agentic`, `AI-native`,
- * `AI-DLC` and `Agent Harness Engineering` stay English in both editions, because the card is where a pt
+ * `AI-DLC` and `Context & Harness Engineering` stay English in both editions, because the card is where a pt
  * reader meets the term FIRST and a rectangle that renders ~320px wide has no room to teach one.
  *
  * It says `Agentic development`, not `Agentic dev` — the abbreviation was drift on the single surface
  * the vocabulary decision names explicitly.
  *
- * THIS LINE HAS NOW BEEN CHANGED TWICE IN THREE DAYS, and the cost is worth stating precisely because
- * it did not stop either change. `Loop Engineering` → `Harness Engineering` on 2026-07-31, then
- * → `Agent Harness Engineering` on 2026-08-02 (both owner). Each edit REPUBLISHES all four cards, and
+ * THIS LINE HAS NOW BEEN CHANGED THREE TIMES, and the cost is worth stating precisely because it did
+ * not stop any of them. `Loop Engineering` → `Harness Engineering` on 2026-07-31, then
+ * → `Agent Harness Engineering` on 2026-08-02, then → `Context & Harness Engineering` on 2026-09-04
+ * (all three the owner's; the third is #593). The first two fell inside three days and the third came a
+ * month later — so the pattern is not "this line is unstable", it is "this line moves whenever the
+ * positioning does", which is what it is FOR. Each edit REPUBLISHES all four cards, and
  * under ADR-0041 every regeneration republishes an artifact scrapers have pinned: a post that unfurled
  * before an edit keeps the old card forever, and is right on every post made after.
  *
@@ -35,7 +38,13 @@ export const LOCALES = ['pt', 'en'];
  * rename across merges would multiply the windows in which someone pins a card carrying one name while
  * the CV reads another, at no saving.
  */
-export const META_LINE = 'Agentic development · AI-DLC & Agent Harness Engineering · Open source';
+/*
+ * THE JOIN IS `·` RATHER THAN `&` SINCE #593, and it is forced rather than chosen: the practice's own
+ * name now contains an ampersand, so `AI-DLC & Context & Harness Engineering` would put two of them in
+ * one line with nothing telling a reader which binds tighter. The card's own separator already exists
+ * for exactly this, and using it costs four characters of a line that had ~88px of slack at 20px mono.
+ */
+export const META_LINE = 'Agentic development · AI-DLC · Context & Harness Engineering · Open source';
 
 /**
  * The default card's hook and subline, per locale.

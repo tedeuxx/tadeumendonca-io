@@ -23,7 +23,7 @@
 // mark, the wordmark, and one line that INVITES rather than asserts (the owner's own reframing: it is a
 // call to action, not a claim).
 //
-// The practice is named `Agent Harness Engineering` wherever this platform names it, and this file is
+// The practice is named `Context & Harness Engineering` wherever this platform names it, and this file is
 // registered in `src/data/vocabulary.test.ts`'s surface list so that stays true here too. It is named in
 // this comment and DELIBERATELY NOWHERE IN THE COPY: the LinkedIn headline beside the banner already
 // carries it, and the divergence between what LinkedIn says and what the site says is a recorded
