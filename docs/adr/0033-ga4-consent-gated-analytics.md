@@ -1,6 +1,9 @@
 # 0033. GA4, consent-gated — a hard opt-in gate, not Consent Mode v2
 
-- **Status:** accepted
+- **Status:** accepted · **amended 2026-09-04** (the implementation grows an event schema —
+  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — and the withdrawal consequence
+  below is **discharged**: emission is now gated on the reader's current choice, so `gtag` staying
+  injected no longer means the reader keeps being reported)
 - **Date:** 2026-07-24
 - **Deciders:** the owner
 - **Driven by:** [ADR-0023](./0023-observability-static-site.md) (which chose "GA" as the analytics tool in
@@ -67,7 +70,11 @@ Accept/Decline of equal weight and a footer withdrawal control.** Consent Mode v
 used. Analytics is fully **inert when `VITE_GA_MEASUREMENT_ID` is unset**, so `vite preview`, the build-time
 prerender and the E2E run never emit a hit; production sets the id in the deploy workflow.
 
-Implementation: `apps/fed/src/lib/analytics.ts` (the inert-until-Accept loader + `page_view` tracking),
+Implementation: `apps/fed/src/lib/analytics.ts` (the inert-until-Accept loader, the consent gate every
+emission passes, and the custom event schema — *this read "the inert-until-Accept loader + `page_view`
+tracking" until 2026-09-04, when the schema of
+[ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) landed in the same module; corrected
+rather than struck, per this library's rule for a reference whose only job is to point*),
 `apps/fed/src/lib/consent.tsx` (the shared grant/withdraw provider), and
 `apps/fed/src/components/ConsentBanner.tsx` (the equal-weight, geo-neutral banner).
 
@@ -88,8 +95,13 @@ Implementation: `apps/fed/src/lib/analytics.ts` (the inert-until-Accept loader +
 - **The positioning tension is a standing cost, not a one-time one** — every visitor meets a Google cookie
   banner on the proof-of-engineering site. The hard gate mitigates the tension but does not remove it; it is
   the price of the richer data, accepted with eyes open.
-- A returning reader who withdraws consent keeps `gtag` loaded for the remainder of that session (it cannot
-  be un-injected); their new choice governs the next full load.
+- ~~A returning reader who withdraws consent keeps `gtag` loaded for the remainder of that session (it
+  cannot be un-injected); their new choice governs the next full load.~~ **→ discharged 2026-09-04 by
+  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md).** The sentence was true of the
+  **injection** and was silently read as true of the **emission**: `gtag` still cannot be un-injected,
+  but every emission now re-reads the stored choice, so a reader who withdraws goes **silent
+  immediately** rather than at the next full load. See the amendment below for what that cost while it
+  stood.
 
 ## Links
 - Refines [ADR-0023](./0023-observability-static-site.md) (GA as the observability tool) · shares the
@@ -98,3 +110,47 @@ Implementation: `apps/fed/src/lib/analytics.ts` (the inert-until-Accept loader +
 - Implemented on branch `feat/ga4-consent-banner`
   (`apps/fed/src/lib/analytics.ts`, `apps/fed/src/lib/consent.tsx`,
   `apps/fed/src/components/ConsentBanner.tsx`).
+- **Refined 2026-09-04 by [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)** — the event
+  schema this gate now governs, and the repair recorded in the amendment below.
+
+## Amendment (2026-09-04) — the gate becomes real at the emission, and the implementation grows a schema
+
+**Nothing decided here is reversed.** The tracker is still GA4, the model is still a hard opt-in gate,
+Consent Mode v2 is still refused, and the banner is still shown to everyone with equal-weight choices.
+What changed is that **this record's own guarantee was weaker in the code than on the page**, and
+[#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) made the gap expensive enough to close.
+
+**The defect, in one line.** The guard was `injected` — a question about the **script** — where the
+question that matters is about the **reader**. `reopen()` clears the stored choice and returns the status
+to undecided **while `injected` stays true**, so a reader who withdrew consent kept being reported for
+the remainder of the session. This record's *"it cannot be un-injected"* consequence is exactly that
+belief written down: true of the injection, and read as true of the emission by everyone including the
+code. **It was live in production from this record's own deploy until 2026-09-04.**
+
+**What it cost while it stood, and what it was about to cost.** Page_views from a withdrawn reader —
+a real breach of the consent posture, and a small one in substance. With the event schema of
+[ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) it would have cost `contact_click`: **a
+reader who withdrew consent and then clicked through to LinkedIn would still have been reported**, which
+is the one thing the site's consent copy promises does not happen. Repairing the gate *while* widening
+what is collected is the order of operations this amendment wants on the record.
+
+**The repair.** Every emission passes one gate that is deliberately two conditions — the script is
+loaded **and** `readConsent() === 'granted'`, read per call rather than cached, because the withdrawal
+happens in another component in the same session with no event the analytics module subscribes to.
+**Mutation-checked against the source rather than read:** removing the consent condition from `mayEmit`
+reddens six assertions across four files, covering the granted / never-granted / withdrawn-after-granted
+set. **The property moves from *cannot be un-injected* to *loaded but silent*** — which is what this
+record's hard gate always implied.
+
+**One consequence of this record is strengthened rather than weakened by that.** *"Thinner data than an
+unconsented tracker … usage numbers were already a floor, and the consent gate lowers that floor
+further"* — the floor is now genuinely lower, because a withdrawn reader disappears at the moment of
+withdrawal instead of at the end of their session. That is the correct direction, and a drop in the
+numbers after this deploy should not be read as a regression.
+
+**What this amendment does NOT do.** It does not record the event schema — that is
+[ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)'s, one decision per record, and this one
+would otherwise acquire a second subject it never decided. It does not touch the banner, the geo-neutral
+posture or the withdrawal control. And it adds **no** claim about the reader: the consent surface's own
+wording was widened in the same MR to match what is now measured, because scroll depth is reading and
+contact clicks are not, and a privacy claim that undersells what is collected is still a false one.

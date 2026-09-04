@@ -228,7 +228,7 @@
     "title": "GA4, consent-gated — a hard opt-in gate, not Consent Mode v2",
     "file": "0033-ga4-consent-gated-analytics.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0034",
@@ -346,6 +346,13 @@
     "id": "0050",
     "title": "A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`",
     "file": "0050-journey-attribution-joins-profile-on-company-and-start-date.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0051",
+    "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
+    "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
     "status": "accepted",
     "amended": false
   }
