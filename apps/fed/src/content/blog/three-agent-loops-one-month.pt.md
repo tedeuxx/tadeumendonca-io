@@ -1,10 +1,9 @@
 ---
 title: "Rodei três loops de agentes por um mês. O caro foi decidir."
 slug: tres-loops-de-agentes-um-mes
-date: '2026-09-02T12:00:00.000Z'
+date: '2026-09-03T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
 hasVideo: true
 contentIssue: 577
 excerpt: "Três projetos agênticos em paralelo, em cima de uma agenda de projeto cheia, e uma conta de USD 4.207 cobrindo dois deles. O dinheiro é o número menos interessante disso: o que agosto custou de verdade foi decidir a mesma coisa várias vezes sem perceber."

@@ -113,7 +113,19 @@ test.describe('copying the page as markdown', () => {
     // `content.ts` strips the frontmatter before anything sees the body, and the raw glob is never
     // exported — so no `slug:`/`date:`/`track:` can reach the clipboard. Asserted rather than assumed:
     // it is the one class of leak that would be invisible on the page itself.
-    expect(text).not.toMatch(/^---$/m);
+    //
+    // THE FENCE CHECK MATCHES A FENCE *FOLLOWED BY A KEY*, which is what frontmatter is and what a
+    // horizontal rule can never be. The old form was a bare `/^---$/m`, and it could not tell the two
+    // apart — it went red the first time a published article carried an `<hr>`. Measured rather than
+    // hypothetical: this test picks `.first()` deliberately unpinned and the landing sorts newest-first,
+    // so publishing `three-agent-loops-one-month` moved the subject onto the first article whose body
+    // has a real rule (line 209, both editions). The DETECTING assertion is the one below and it passed
+    // throughout — no key leaked at any point. Fixing that failure by editing the prose would have
+    // deleted an authored element to satisfy a check that was never about it.
+    //
+    // Both assertions are kept because they fail on different things: this one on the BLOCK arriving
+    // intact, the next on a key arriving loose. Neither subsumes the other.
+    expect(text).not.toMatch(/^---\r?\n[A-Za-z_]+:/m);
     expect(text).not.toMatch(/^(slug|date|track|hasVideo|og_image):/m);
   });
 });
