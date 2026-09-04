@@ -60,7 +60,17 @@ export function ArticlePage() {
   // prerendered page. Called unconditionally (the not-found arm renders no prose, so the ref is null and
   // the hook returns), because a hook may not sit behind `article &&`.
   const prose = useRef<HTMLDivElement>(null);
-  useArticleProgress({ container: prose, slug: article?.slug ?? '', body: article?.body ?? '' });
+  // `articleKey` is the EN edition's slug — the article's locale-independent KEY (ADR-0037) — and it is
+  // read off `eds`, which this page already resolved for hreflang. It keys the once-per-session guards
+  // and is never emitted: without it a PT/EN toggle re-emits every milestone under the OTHER locale's
+  // slug, which is the same duplicate the guard exists to stop, hidden across two slug values instead of
+  // one. Read `useArticleProgress` for the measurement.
+  useArticleProgress({
+    container: prose,
+    slug: article?.slug ?? '',
+    articleKey: eds?.en.slug ?? article?.slug ?? '',
+    body: article?.body ?? '',
+  });
 
   // DELIBERATE EXCEPTION to ADR-0045. An article is a document, not a section: its own name IS the
   // address a reader bookmarks, searches for and shares, and prefixing it with a section label would

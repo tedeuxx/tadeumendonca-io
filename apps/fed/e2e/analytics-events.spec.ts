@@ -282,6 +282,113 @@ test.describe('slice B — contact_reach', () => {
 
     expect(await named(page, 'contact_reach')).toHaveLength(1);
   });
+
+  // ===============================================================================================
+  // THE AXIS NOBODY ENUMERATED: A DEPENDENCY CHANGING WHILE THE OBSERVER IS LIVE (PR #602, round 2).
+  //
+  // The case immediately above scrolls away and back, which changes NO dependency — so it asserted
+  // one-shot-per-OBSERVER while reading as if it asserted one-shot-per-visit. Both cases below tear
+  // the effect down and rebuild it, which is the only way a fresh `IntersectionObserver` (and its
+  // initial callback for whatever is on screen) can be produced without the reader leaving the page.
+  //
+  // NEITHER OF THEM PASSES AGAINST THE CODE THIS PR OPENED WITH, and that is the point of writing
+  // them: they were run red first, both returning length 2.
+  //
+  // They fail INDEPENDENTLY — the locale path is separable in the data (`en` then `pt`) and the
+  // consent path is not (two identical rows) — so one is not a proxy for the other.
+  test('does not fire again when the locale is toggled with the section on screen', async ({ page }) => {
+    await page.goto('/en');
+    await accept(page);
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect.poll(() => named(page, 'contact_reach')).toHaveLength(1);
+
+    await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await page.waitForTimeout(1_500);
+
+    // Asserted as the WHOLE list rather than a length, so the failure message names the duplicate's
+    // locale instead of a number.
+    expect(await named(page, 'contact_reach')).toEqual([
+      { name: 'contact_reach', params: { locale: 'en' } },
+    ]);
+    // The section really did stay on screen — otherwise a passing assertion would only mean the
+    // toggle scrolled the page, and the rebuild would never have been exercised at all.
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  });
+
+  test('does not fire again when consent is withdrawn and re-granted on the section', async ({ page }) => {
+    await page.goto('/en');
+    await accept(page);
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect.poll(() => named(page, 'contact_reach')).toHaveLength(1);
+
+    await page.getByRole('button', { name: 'Cookie preferences' }).click();
+    await accept(page);
+    await page.waitForTimeout(1_500);
+
+    expect(await named(page, 'contact_reach')).toEqual([
+      { name: 'contact_reach', params: { locale: 'en' } },
+    ]);
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  });
+});
+
+// ===================================================================================================
+// THE SAME ROOT CAUSE IN SLICE A's ARTICLE EVENTS — live at v1.1.81, measured by this PR's gate as an
+// advisory and repaired here anyway. One cause, one repair: shipping the fix for `contact_reach` while
+// knowingly leaving the identical bug running would make this branch's own commits the record that it
+// was known and left.
+//
+// `useArticleProgress` holds `sent`, `endSent` and the dwell clock in the effect closure, and the
+// effect depends on `locale` and `status` for the same reasons `useContactReach` did. The milestone
+// re-emission is immediate; the terminal event needs a SECOND full dwell floor to elapse after the
+// rebuild, which is why the second case below is slow and why its absence would have made the first
+// one look like the whole finding.
+test.describe('slice A repair — article events survive a dependency change', () => {
+  test('does not re-emit milestones when the locale is toggled mid-article', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto(ARTICLE);
+    await accept(page);
+
+    await scrollThrough(page);
+    const percents = async () => (await named(page, 'article_progress')).map((event) => event.params.percent);
+    await expect.poll(percents).toEqual([25, 50, 75]);
+
+    await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await page.waitForTimeout(2_000);
+
+    // NOT a length assertion: the duplicates arrive under `locale: pt`, so the list is what shows the
+    // reader was counted twice under two different segments of the same dimension.
+    expect(await named(page, 'article_progress')).toEqual([
+      { name: 'article_progress', params: { locale: 'en', slug: 'my-commitment', percent: 25 } },
+      { name: 'article_progress', params: { locale: 'en', slug: 'my-commitment', percent: 50 } },
+      { name: 'article_progress', params: { locale: 'en', slug: 'my-commitment', percent: 75 } },
+    ]);
+  });
+
+  test('does not re-emit article_end_reached when the locale is toggled after the read is counted', async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    await page.goto(ARTICLE);
+    await accept(page);
+
+    await scrollThrough(page);
+    await expect
+      .poll(() => named(page, 'article_end_reached'), { timeout: 90_000, intervals: [2_000] })
+      .toHaveLength(1);
+
+    // The toggle restarts the dwell clock as well as the milestones, so the duplicate cannot arrive
+    // before a second floor elapses (~23s for this piece). Waiting it out is the only honest form —
+    // a shorter wait would pass against the defect.
+    await page.getByRole('button', { name: 'PT', exact: true }).click();
+    await page.waitForTimeout(45_000);
+
+    expect(await named(page, 'article_end_reached')).toEqual([
+      { name: 'article_end_reached', params: { locale: 'en', slug: 'my-commitment' } },
+    ]);
+  });
 });
 
 test.describe('slice B — outbound_click does not collide with contact_click', () => {
