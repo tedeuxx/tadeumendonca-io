@@ -394,7 +394,7 @@ test.describe('routes', () => {
     // violation instead of the property being asked about.
     await expect(figure.locator('svg circle')).toHaveCount(3);
     const labels = await figure.locator('svg text').allTextContents();
-    expect(labels, 'the intersection must be labelled').toContain('(Agent) Harness');
+    expect(labels, 'the intersection must be labelled').toContain('Context & Harness');
     expect(labels).toContain('Engineering');
 
     // Real <text>, no HTML labels — the same pair the mermaid loop asserts, for the same reason.
@@ -414,8 +414,16 @@ test.describe('routes', () => {
 
     // And a reader with no JavaScript gets it. `page.goto` runs the app and would pass whether or not the
     // figure was ever prerendered — the trap #170 already recorded for the compiled diagrams.
+    //
+    // THE NEEDLE IS THE ENTITY FORM, and that is a property of what is being read rather than a
+    // workaround. Every assertion above reads `textContent`, which is decoded; this one reads the
+    // SERIALIZED BYTES, where `&` is `&amp;`. The two needles differing is the distinction this
+    // assertion exists to draw — a single shared literal would have to be the decoded one, and would
+    // then be checking the DOM twice while claiming to check the prerender. Introduced when the practice
+    // was renamed to `Context & Harness Engineering` (#593); the label carried no `&` before that, so
+    // nothing here had to say it.
     const html = await (await request.get('/pt/architecture/')).text();
-    expect(html, 'the figure must be in the prerendered bytes').toContain('(Agent) Harness');
+    expect(html, 'the figure must be in the prerendered bytes').toContain('Context &amp; Harness');
   });
 
   test('reaches the architecture page from the nav', async ({ page }) => {

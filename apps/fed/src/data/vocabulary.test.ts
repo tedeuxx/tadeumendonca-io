@@ -187,10 +187,17 @@ describe('the practice is named consistently across every surface', () => {
   });
 
   it.each(SURFACES)('%s carries no un-prefixed form of it', (_name, src, bare) => {
-    // Historical notes are allowed to NAME the supersession — what is forbidden is the bare form
-    // standing as the practice's name. The lookbehind draws exactly that line: `Agent Harness
-    // Engineering` passes, a lone `Harness Engineering` does not, wherever it sits. The pattern comes
-    // from the surface's own row, so a prose surface's parenthesised affordance never reaches the CV.
+    // What is forbidden is any rendering other than the current one standing as the practice's name.
+    // The lookbehind draws exactly that line: `Context & Harness Engineering` passes, and a lone
+    // `Harness Engineering` does not, wherever it sits. The pattern comes from the surface's own row,
+    // so a rendering one surface earns never reaches the CV by default.
+    //
+    // NOTE WHAT THIS COSTS SINCE #593, because the earlier form of this comment promised the opposite:
+    // a historical note NAMING the supersession — writing `Agent Harness Engineering` in prose to say
+    // it was retired — now reddens on these four surfaces, since the superseded name is no longer a
+    // legal prefix. That is deliberate and it is the price of the repoint. Nothing on the four surfaces
+    // needs to name the old term, and the places that legitimately do (this file, `og-copy.mjs`'s
+    // rename history, the ADR library) are not surfaces here.
     expect(src).not.toMatch(bare);
   });
 

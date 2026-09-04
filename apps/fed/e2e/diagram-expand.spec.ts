@@ -223,7 +223,7 @@ test.describe('a figure can be read at the size it was drawn', () => {
 
     const before = await page.locator('.diagram-canvas').evaluateAll((els) => {
       const box = els.find((el) =>
-        [...el.querySelectorAll('text')].some((t) => t.textContent === '(Agent) Harness'),
+        [...el.querySelectorAll('text')].some((t) => t.textContent === 'Context & Harness'),
       )!;
       return { pannable: box.hasAttribute('data-pannable'), scrollLeft: Math.round(box.scrollLeft) };
     });
@@ -232,7 +232,7 @@ test.describe('a figure can be read at the size it was drawn', () => {
 
     const venn = page
       .locator('figure.diagram')
-      .filter({ has: page.locator('svg text', { hasText: '(Agent) Harness' }) });
+      .filter({ has: page.locator('svg text', { hasText: 'Context & Harness' }) });
     await venn.getByRole('button', { name: EXPAND }).click();
     await expect(page.getByRole('dialog')).toHaveCount(1);
     await page.getByRole('button', { name: COLLAPSE }).click();
@@ -242,10 +242,10 @@ test.describe('a figure can be read at the size it was drawn', () => {
 
     const after = await page.locator('.diagram-canvas').evaluateAll((els) => {
       const box = els.find((el) =>
-        [...el.querySelectorAll('text')].some((t) => t.textContent === '(Agent) Harness'),
+        [...el.querySelectorAll('text')].some((t) => t.textContent === 'Context & Harness'),
       )!;
       const label = [...box.querySelectorAll('text')].find(
-        (t) => t.textContent === '(Agent) Harness',
+        (t) => t.textContent === 'Context & Harness',
       )!;
       const b = box.getBoundingClientRect();
       const l = label.getBoundingClientRect();
