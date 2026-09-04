@@ -363,6 +363,98 @@ as a general caveat, because a caveat with no direction cannot be reasoned about
 - Code-only: no `iac/`, no edge, no cache behaviour, no new DOM node (`ref=` and `onClick=` on elements
   that already existed; React serialises neither).
 
+## 2026-09-04 amendment — slice B shipped, and the other half of the schema is now immutable too
+
+**This amendment RECORDS names that have shipped; it decides nothing new.** The four events were fixed
+by the intake that produced this record — which named `share_open`, `contact_reach` and
+`outbound_click` outright and left `nav_click` open — and `nav_click` was settled by
+**the owner's ruling on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597#issuecomment-5546459523)
+(2026-09-04)**: *«Enviar nav_click»*, with `from`/`to`, **emitted at the click**. It is written here for
+the reason the whole record exists — a shipped-but-unrecorded name is the one thing worse than a badly
+chosen one, because nothing tells the next reader it is fixed. Implemented in
+`product/instrument-funnel-slice-b-597`.
+
+### The schema, as shipped
+
+| event | parameters (beyond `locale`) | what it observes — and what it does not |
+|---|---|---|
+| `share_open` | `slug` | a share affordance was OPENED. Emitted by `ShareButton` — the modal trigger — and by nothing else, because nothing else on this site opens |
+| `contact_reach` | — | the landing's `#contato` section INTERSECTED the viewport, once per visit. **Never that it was read** — there is no dwell floor, deliberately |
+| `outbound_click` | `href` (`hostname + pathname`) | a link took the reader off the site, by a route that is neither a contact channel nor a share destination |
+| `nav_click` | `from`, `to` (both `NavArea`) | a nav control was clicked, with the ORIGIN captured at the click |
+
+### The three decisions inside the implementation, and each one is a trade
+
+**1 · `from`/`to` are a CLOSED UNION, and it is the mechanism rather than a convention.** `NavArea` has
+ten members — `home · articles · contact · portfolio · ramp-up · architecture · library · me · article
+· other`. `to` is read from a literal in `AppShell`'s own nav table; `from` from `navArea()`, a total
+function over a pathname whose residual is `other`. **A query string has no member of the type to
+arrive as**, which is the same argument this record already made for `contact_click`'s closed `target`,
+and it is why `path` staying off the spine is not quietly reintroduced under two new names.
+
+*Two members are destination-only (`articles`, `contact` — the landing's anchors, indistinguishable as
+an origin) and one is origin-only (`article` — the nav points at no article).* That is a property of
+the site, not a gap. *Cost:* **a public route added without a row in `navArea.ts` reports as `other`
+and nothing reddens.** The safe direction — under-attributed, never mis-attributed — and
+`navArea.test.ts` cross-checks every route-typed nav entry's `area` literal against the classifier, so
+the two mechanisms producing one vocabulary cannot drift silently.
+
+**2 · `outbound_click` refuses two whole classes, and the second one is a decision this record did not
+pre-authorise.** The five contact channels are refused because `contact_click` owns them — the intake
+asked for that. **The three share deeplinks are refused too, and that was not asked for:** a share to
+LinkedIn genuinely leaves the site, so an unconstrained rule would claim it. It is refused because
+`share_complete` already measures that act with a better vocabulary, and because an `outbound_click`
+series that is mostly share clicks cannot answer *where do readers leave to*, which is the only
+question it exists for — **two populations under one name, which is the failure this record was written
+to prevent.** *The counter-argument, recorded rather than dismissed:* a reader who clicks a share
+deeplink DID leave the site, and that departure is now invisible to the outbound series. Accepted; it
+is visible in `share_complete`.
+
+**Both exclusions are a LOOKUP, not an ordering.** `useContactClicks` and `useOutboundClicks` are two
+delegated listeners on the same shell node, so both see every click and the order they run in is a fact
+about React effect registration — not something a measurement may depend on. The sets are derived from
+`CONTACT_CHANNELS` and `SHARE_TARGETS` themselves, so a sixth channel or a fourth share target is
+covered the day it is added. *One consequence, in the direction this record already chose:* the
+contact exclusion is by **bounded form**, which is WIDER than `contact_click`'s own exact-href rule — so
+a contact link written with a differently-spelled href is silent in **both** series rather than silent
+in one and misreported in the other.
+
+**3 · `share_open` is a denominator for the MODAL, not for the site.** The article footer's
+`ShareLinks` block is always visible, so a reader reaches `share_complete` from it having opened
+nothing — and slice A shipped `share_complete` with **no parameter naming its entry point**, a name that
+is now immutable. **So the ratio can exceed 1, and a ratio above 1 is not a defect.** Read it as a floor
+on modal abandonment, never as a completion rate. This is the sharpest limit slice B carries and it is
+inherited from slice A rather than introduced here; closing it would mean a new event name, not a new
+parameter on an old one.
+
+`share_open` also **reuses the `slug` dimension** rather than registering a second one, so `slug` now
+holds `architecture` and `ramp-up` alongside real article slugs. They stay separable because the EVENT
+distinguishes them — no `article_progress` is ever emitted for a markdown page.
+
+### What the consent notice did NOT need, and why that was checked rather than assumed
+
+**No copy changed.** All four events land under the three verbs the notice already names —
+*read / shared / clicked* — and the notice is at its layout ceiling: `messages.ts` records that the
+first draft of the slice-A wording grew the bar by one line and covered the article's own footer share
+trigger, reddening `content.spec.ts`. **The bottom stack has no headroom at 1280px with both notices
+open**, so that string is a constraint rather than slack. `contact_reach` is the only one where the
+mapping is worth stating: reaching a section is *what gets read here*, which is the verb it falls under.
+
+### The registration obligation, again, and it is still non-retroactive
+
+**`href`, `from` and `to` must be registered as event-scoped custom dimensions BEFORE these events
+collect.** `slug` and `locale` already exist from slice A. **Anything emitted before its dimension
+exists is permanently unqueryable for that period** — registration does not backfill, and nothing in
+this repository can observe whether it was done. That gap is unchanged by this amendment and unclosable
+from here.
+
+**`source_section` is named in this record's slice-A registration list and is emitted by NOTHING in
+slice B.** The four events carry `slug`, `href`, `from` and `to`, and no event carries a section
+identifier. Registering it costs nothing and protects a future slice; **its absence blocks none of the
+four.** Said explicitly because the list above is the one a console action will be taken from, and a
+dimension listed as owed for an event that does not emit it is how a registration list stops being
+trustworthy.
+
 ## Links
 - **Implements** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) slice A, in
   [PR #601](https://github.com/tedeuxx/tadeumendonca-io/pull/601).
