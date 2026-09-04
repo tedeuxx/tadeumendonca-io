@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { useLocale, useT } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
 import { SHARE_TARGETS, shareHref, copyLinkUrl } from './shareTargets';
+import { trackShareComplete } from '../lib/analytics';
 
 /**
  * `path` is the LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`). The slug is per-locale
@@ -52,7 +53,13 @@ export function ShareLinks({
   const { locale } = useLocale();
   const [copied, setCopied] = useState(false);
 
+  // `share_complete` (#597). THIS ENTRY POINT EMITS TOO, and that is the point rather than symmetry for
+  // its own sake: #314 made the modal and this block offer the same destinations, so instrumenting only
+  // one would have turned the funnel into a measurement of which affordance the reader happened to be
+  // nearer. The ceiling and the "emitted at the choice, not at a confirmed outcome" reasoning are
+  // written once, on the modal.
   const copy = async () => {
+    trackShareComplete({ locale, target: 'copy-link' });
     try {
       await navigator.clipboard.writeText(copyLinkUrl(path));
       setCopied(true);
@@ -98,6 +105,7 @@ export function ShareLinks({
           // The accessible name says WHAT is being shared and WHERE. "LinkedIn" alone, repeated on every
           // article, is three identical links to a screen reader moving by link list.
           aria-label={`${t(target.nameKey)}: ${title}`}
+          onClick={() => trackShareComplete({ locale, target: target.key })}
           className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-primary hover:underline"
           data-locale={locale}
         >

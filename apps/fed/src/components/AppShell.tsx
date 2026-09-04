@@ -12,11 +12,12 @@
 // instead of on the shortlist of it. Until then this file asserted both halves in consecutive
 // sentences — "the landing owns #portfolio" and "/portfolio is a real route" — without noticing they
 // disagreed for that one entry, which is why the wrong link read as designed.
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { usePageviews } from '../hooks/usePageviews';
+import { useContactClicks } from '../hooks/useContactClicks';
 import { cn } from '../lib/cn';
 import { useConsent } from '../lib/consent';
 import { analyticsConfigured } from '../lib/analytics';
@@ -145,12 +146,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { reopen } = useConsent();
   // Send a GA4 page_view on route changes (no-op until the reader has consented).
   usePageviews();
+  // `contact_click` (#597) — ONE delegated listener for every contact surface in the tree, attached to
+  // the shell root that was already here. Read `useContactClicks` for why the classification is by exact
+  // href rather than by hostname; the short version is that three contact channels share a hostname with
+  // a share destination, so a hostname rule would report shares as contact clicks.
+  const shell = useRef<HTMLDivElement>(null);
+  useContactClicks(shell);
   // Only the landing carries the anchored regions — the locale landing `/pt`|`/en` (ADR-0036).
   const onLanding = useLocation().pathname === lp('/');
   const activeSection = useActiveSection(SECTIONS, onLanding);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-screen flex-col border-x-2 border-border-strong">
+    <div ref={shell} className="mx-auto flex min-h-screen w-full max-w-screen flex-col border-x-2 border-border-strong">
       {/* Bottom stack — FIRST in the DOM, last on the screen (#230).
 
           Both notices are independently present or absent, so they share ONE fixed container and sit in

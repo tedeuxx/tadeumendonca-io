@@ -24,9 +24,10 @@
 // it could have had.
 import { useRef, type RefObject } from 'react';
 import { X as CloseIcon, Link2, FileText, AlertTriangle, type LucideIcon } from 'lucide-react';
-import { useT } from '../i18n';
+import { useLocale, useT } from '../i18n';
 import { useDialogFocus } from '../hooks/useDialogFocus';
 import { SHARE_TARGETS, shareHref } from './shareTargets';
+import { trackShareComplete } from '../lib/analytics';
 // `CopyStatus` MOVED to the hook that owns the state machine (#506) — it is the mechanism's type, not
 // this dialog's, and the draft review bar renders the same three states with no dialog at all. Not
 // re-exported from here: the one importer that read it from this module now reads the hook instead, and
@@ -124,7 +125,23 @@ export function ShareModal({
   returnFocusTo: RefObject<HTMLElement>;
 }) {
   const t = useT();
+  const { locale } = useLocale();
   const panel = useRef<HTMLDivElement>(null);
+
+  // `share_complete` — the CONTENT funnel's terminal event (#597).
+  //
+  // EMITTED AT THE READER'S CHOICE, not at a confirmed outcome, and the name says more than the page
+  // can see: the three deeplinks open in a new tab, so nothing here ever learns whether anything was
+  // posted. The two clipboard rows CAN fail (`useCopyToClipboard` has a `failed` state) and are counted
+  // anyway, which over-counts in the same direction as the deeplinks rather than introducing a second,
+  // differently-shaped population under one name. The only evidence a share actually happened remains
+  // an inbound `reader-share` session (`lib/utm.ts`).
+  //
+  // BOTH ENTRY POINTS EMIT — this dialog and the footer's `ShareLinks` — because #314 made them offer
+  // the same destinations and a reader meets whichever they reach. Instrumenting one would have made
+  // the funnel a measurement of which affordance was nearer.
+  const shared = (target: Parameters<typeof trackShareComplete>[0]['target']) =>
+    trackShareComplete({ locale, target });
 
   // THE KEYBOARD CONTRACT MOVED TO A HOOK (#473) AND DID NOT CHANGE. It was thirty lines here — focus
   // in on open, Tab trapped and wrapped, `Escape` closes, focus back to the trigger on any unmount —
@@ -214,13 +231,24 @@ export function ShareModal({
         <ul>
           {/* `copyLinkToClipboard`, not `copyLink` — the destination is named HERE because a second copy
               row sits beside it. The footer keeps the short label; the argument is in `messages.ts`. */}
-          <CopyRow status={linkStatus} label={t('share.copyLinkToClipboard')} Icon={Link2} onClick={onCopyLink} />
+          <CopyRow
+            status={linkStatus}
+            label={t('share.copyLinkToClipboard')}
+            Icon={Link2}
+            onClick={() => {
+              shared('copy-link');
+              onCopyLink();
+            }}
+          />
           {onCopyMarkdown && (
             <CopyRow
               status={markdownStatus}
               label={t('share.copyMarkdown')}
               Icon={FileText}
-              onClick={onCopyMarkdown}
+              onClick={() => {
+                shared('copy-markdown');
+                onCopyMarkdown();
+              }}
             />
           )}
           {SHARE_TARGETS.map(({ key, label, nameKey, Icon, ...rest }) => (
@@ -232,7 +260,10 @@ export function ShareModal({
                 // The accessible name says WHAT is being shared and WHERE. "LinkedIn" alone, repeated on
                 // every article, is three identical links to a screen reader moving by link list.
                 aria-label={`${t(nameKey)}: ${title}`}
-                onClick={onClose}
+                onClick={() => {
+                  shared(key);
+                  onClose();
+                }}
                 className="flex items-center gap-3 border-t border-border py-3 font-mono text-sm uppercase tracking-wider transition-[padding] duration-150 hover:pl-2"
               >
                 <Icon className="shrink-0 text-primary" />
