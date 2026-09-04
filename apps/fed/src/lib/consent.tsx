@@ -48,8 +48,11 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Forget the stored choice and show the banner again. Analytics already loaded this session stays
-  // loaded until the next full load (gtag cannot be un-injected); the reader's NEW choice is what
-  // persists and governs the next visit.
+  // LOADED until the next full load — gtag cannot be un-injected — but since #597 it is also SILENT:
+  // every emission in `lib/analytics` re-reads the stored choice, so clearing it here stops page_views
+  // and every interaction event immediately, in this same session. Until then the sentence stopped at
+  // "cannot be un-injected", which was true of the injection and was read as true of the emission, and
+  // a reader who withdrew consent kept being reported.
   const reopen = useCallback(() => {
     clearConsent();
     setStatus('undecided');

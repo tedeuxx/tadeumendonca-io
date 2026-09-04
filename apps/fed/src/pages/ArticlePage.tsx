@@ -1,8 +1,10 @@
 // Article detail (/frontend/markdown). Public; /blog/:slug is what OG deep-links point at. Reads the
 // post from markdown-in-repo (../lib/content) and renders its markdown body — fully static, no backend.
+import { useRef } from 'react';
 import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
 import { getEditions, getPostBySlug } from '../lib/content';
 import { useDocumentHead } from '../hooks/useDocumentHead';
+import { useArticleProgress } from '../hooks/useArticleProgress';
 import { absoluteUrl } from '../lib/site';
 import { isPreviewRequested } from '../lib/preview';
 import { Markdown } from '../components/Markdown';
@@ -52,6 +54,13 @@ export function ArticlePage() {
   // The edition GROUP (both locales) so hreflang can advertise each locale's OWN slug — the canonical /
   // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
   const eds = slug ? getEditions(slug, locale) : undefined;
+
+  // #597. The progress observer watches `Markdown`'s own wrapper — an element that was ALREADY HERE.
+  // Read `useArticleProgress` for why introducing a sentinel node would have been the wrong shape on a
+  // prerendered page. Called unconditionally (the not-found arm renders no prose, so the ref is null and
+  // the hook returns), because a hook may not sit behind `article &&`.
+  const prose = useRef<HTMLDivElement>(null);
+  useArticleProgress({ container: prose, slug: article?.slug ?? '', body: article?.body ?? '' });
 
   // DELIBERATE EXCEPTION to ADR-0045. An article is a document, not a section: its own name IS the
   // address a reader bookmarks, searches for and shares, and prefixing it with a section label would
@@ -159,7 +168,11 @@ export function ArticlePage() {
           </header>
 
           <div className="max-w-none text-[17px] leading-relaxed text-foreground/90">
-            <Markdown>{article.body}</Markdown>
+            {/* The ref goes to `Markdown`'s OWN wrapper, not to this one (#597). This div has exactly
+                one child — that wrapper — so an observer built from it would treat the entire article as
+                a single block and never report a milestone. Found by the E2E, not by the unit suite,
+                which is recorded on the `blockRef` prop. */}
+            <Markdown blockRef={prose}>{article.body}</Markdown>
           </div>
 
           {/* The deeplinks sit at the END of the article, not in the header (#183). A reader who has

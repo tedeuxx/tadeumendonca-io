@@ -12,7 +12,7 @@
 // Photographs: the SAME lone-paragraph facade, for a registered content photograph (#415) — a paragraph
 // that is only `![alt](/photos/x.jpg "caption")` becomes a <PhotoFigure> with the committed file's
 // intrinsic size. Opt-in by src (data/photos.ts); an unregistered image target stays a plain <img>.
-import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode } from 'react';
+import { Children, isValidElement, type AnchorHTMLAttributes, type ReactNode, type RefObject } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -279,9 +279,29 @@ const components: Components = {
   },
 };
 
-export function Markdown({ children }: { children: string }) {
+export function Markdown({
+  children,
+  blockRef,
+}: {
+  children: string;
+  /**
+   * A ref onto THIS component's own wrapper — the element whose children are the rendered blocks
+   * (#597). `ArticlePage`'s reading-progress observer needs the last PARAGRAPH of the prose, and the
+   * only way to reach it from outside is to be handed the element that parents the blocks.
+   *
+   * Passed rather than resolved by the caller, because every way of resolving it from the outside is a
+   * guess that fails silently: a ref on the caller's own wrapper sees exactly one child (this div), and
+   * an observer built from that watches the whole prose as a single block — which is a defect the unit
+   * suite could not see, since a test harness rendering paragraphs directly has the shape the caller
+   * only APPEARS to have. It cost a red E2E to find, which is the cheapest place it could have been
+   * found and is why the coupling is explicit here instead.
+   *
+   * NO NODE IS ADDED. The div already existed; this only names it.
+   */
+  blockRef?: RefObject<HTMLDivElement>;
+}) {
   return (
-    <div className="markdown">
+    <div ref={blockRef} className="markdown">
       {/* `mermaid` is declared plain text, not highlighted. It is not a registered language, and
           highlighting rewrites the source into <span>s — which the diagram handler then reads back as
           its lookup key, so every diagram would silently miss. */}
