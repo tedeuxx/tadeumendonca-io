@@ -15,6 +15,33 @@ at build time, in both locales, for OG/SEO.
 > was the last one (it served Portuguese on `/en/portfolio` until #235) and now carries the same
 > leaf-bilingual type as everything else, so a missing translation is a compile error.
 
+## `AGENTS.md` is a SECOND root brief, it is AUTHORED, and it is not this file (`-skills` #411)
+**`AGENTS.md` at this repo's root is the whole brief for any harness that reads that filename — and one
+of them reads THIS file never.** Measured against Kiro `1.0.337`'s shipped bundle:
+`grep -c 'CLAUDE\.md'` over its agent extension returns **0** while `grep -c 'AGENTS\.md'` returns 28,
+and `AGENTS.md` is resolved at the workspace root with `inclusion:"always"`. It is not a compatibility
+copy of this file; for that reader it is the only brief there is.
+
+**It is authored beside this file, never generated from it.** The previous `AGENTS.md` here *was* a
+substitution of this one, and a substitution renames the token while leaving the mechanism — which is
+how it came to point at `apps/fed/AGENTS.md`, a file that does not exist, at a path that harness
+actually scans, while the real per-directory guide sits in a filename it cannot read at any depth.
+**That pointer is removed rather than satisfied** (`-skills` #411): a nested brief would be a second
+artifact to keep honest, and the duplicated pair in this workspace was measured drifting 118 lines in
+three weeks. The `apps/fed/` paragraph now lives in the root brief itself.
+
+**Three rules.** The brief states the floor as **obligations addressed to the agent, never as
+descriptions of the enforcement** (*would this sentence still be true on a harness with no hooks?*); it
+names **no Claude-Code-shaped token**; and it is **tracked**, which is the precondition for the other
+two being reviewable at all — it was untracked and referenced by nothing until now, so no PR ever
+contained it. Keep it under **50,000 characters**, which is **one consumer's measured floor, not a
+standard** — every other harness's budget is unmeasured.
+
+`scripts/agents-md.test.sh` (a verbatim copy of `-skills`'s `hooks/scripts/agents-md.test.sh`; nothing
+makes the two move together, so edit both in one batch) gates four mechanical properties and is wired
+into `.github/workflows/brief.yml`. **It cannot assert that the brief is true, or that it is neutral
+rather than merely token-free.** That half is held by review.
+
 ## Engineering principles (always-on floor — non-negotiable)
 This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;
 its `PreToolUse` permission-guard hook activates automatically). The spine is **agent-led verification,
