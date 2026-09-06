@@ -159,6 +159,29 @@ const ENFORCEMENT_BY_SHAPE = {
   // on every error path deliberately, so a detector cannot wedge the loop it protects. It reports
   // state; that is `documents`, by the same definition the `SessionStart` rows use.
   'hook:Stop': 'documents',
+  // `UserPromptSubmit` (#342, `-skills` preflight.sh, registered 2026-08-29 in `e1fe5c74`) — `denies`,
+  // and read out of the script rather than off the event name, per this map's own rule.
+  //
+  // What the script does: it checks that the harness's own guards can run — the bootstrap binaries, the
+  // dependencies each registered hook needs, the executable bit on every registered script, and whether
+  // a headless session is running with the static deny layer off. On `UserPromptSubmit`, if any blocking
+  // class is unmet it writes the finding to stderr and `exit 2`. That is a refusal of the turn before it
+  // is processed, which is exactly this map's `denies` definition ("blocks a tool call, or blocks the
+  // turn"). Its own header states the split in one line: "UserPromptSubmit BLOCKS. Nothing is processed
+  // while a blocking class is unmet."
+  //
+  // THE ROW THAT IS NOT ADDED, AND WHY THAT IS NOT AN OMISSION: `preflight.sh` is registered TWICE, on
+  // two events, and the two registrations have DIFFERENT classes. On `SessionStart` the same script
+  // emits a notice and exits 0 — it cannot block there, which its header records as a measurement
+  // against the shipped bundle rather than a reading of the docs. So `hook:SessionStart` above already
+  // covers that half and stays `documents`. This is the first script in the manifest to occupy two
+  // shapes at once; do not "reconcile" the two rows, and do not infer either one's class from the other.
+  //
+  // WHY THIS REPO WENT RED WITHOUT A CHANGE HERE: the row was owed from 2026-08-29 and the map is closed
+  // on purpose, so the debt sat unpaid until the next PR whose path filter started this job — which is
+  // the coupling the block comment below already names and accepts. It is not evidence that the closed
+  // map is wrong; it is the closed map doing what it was built to do, late, because nothing here polls.
+  'hook:UserPromptSubmit': 'denies',
   persona: 'advises',
   'skill-library': 'documents',
   'command-family': 'documents',
@@ -954,6 +977,26 @@ export function collectComponents(pluginDir) {
 /** A component's identity across the two sides of the comparison. `id` alone collides: a persona and a
  *  command family could share a name, and today `architecture` is a family while nothing stops a persona
  *  taking that name tomorrow. */
+/**
+ * KNOWN DEFECT, MEASURED AND DELIBERATELY NOT FIXED HERE (see the `hook:UserPromptSubmit` row above).
+ *
+ * This key cannot represent a script registered on MORE THAN ONE EVENT, and the plugin now ships one:
+ * `preflight.sh` is registered twice in `hooks.json`, on `UserPromptSubmit` and on `SessionStart`, with
+ * a DIFFERENT enforcement class on each. Both registrations collapse onto the single key `hook:preflight.sh`,
+ * so `new Map(...)` in `diffAgainstManifest` silently keeps the last and then compares the first against
+ * it forever. The symptom is `~ hook preflight.sh changed shape` on every run, IMMUNE TO REGENERATION —
+ * measured by regenerating the manifest and re-running the check, which reproduced it unchanged.
+ *
+ * WHY IT WAS NEVER SEEN: the double registration landed 2026-08-29 and `enforcementFor` threw on the
+ * unknown shape before any comparison ran. The throw masked it; classing the shape is what exposes it.
+ *
+ * WHY THE ONE-LINE FIX IS NOT TAKEN HERE: appending the event to the key clears the collision in one
+ * character, and it TRADES the semantics the block below documents — a hook re-pointed from one event to
+ * another would stop surfacing as `~ changed` and start surfacing as `- orphaned` plus `+ missing`. That
+ * is arguably better and it is still a decision, not a typo fix; measured, it also turns 4 tests red that
+ * pin the current key format. It needs its own slice with the diff in front of a reviewer, not a drive-by
+ * inside an unrelated one.
+ */
 export const componentKey = (c) => `${c.kind}:${c.id}`;
 
 /**

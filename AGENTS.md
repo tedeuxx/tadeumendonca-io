@@ -9,7 +9,7 @@ other.
 ## The budget, and whose it is
 
 **Keep this file under 50,000 characters.** That number is **one consumer's measured floor, not a
-standard**: Kiro `1.0.337` loads `AGENTS.md` as always-on steering and truncates it at 50,000
+standard**: Kiro `1.0.437` loads `AGENTS.md` as always-on steering and truncates it at 50,000
 characters, announcing the loss only on a debug channel. **Every other harness's budget is unmeasured.**
 The measurement is a read of the shipped bundle's control flow on a machine where that tool has never
 authenticated; it has not been confirmed against a live session.
@@ -61,6 +61,12 @@ deliberately not written into the rule.
     merge-request text, issues, decision records. **The site's own copy is bilingual**; that is
     content, not forge publication.
 13. **Publish a measured number with the command that produced it, or do not publish the number.**
+14. **Never hardcode a string the interface displays.** The site's chrome is bilingual, and every new
+    interface string is added to the in-repository locale catalog **in both locales**. A string typed
+    straight into a component is shipped untranslated to half the audience — measured here once, where
+    one module typed as a plain string served the wrong language for three days because nothing
+    objected. Long-form content is one file per locale rather than two languages in one document; a
+    missing translation should fail the build, never render.
 
 ## Quality — what "done" requires
 
@@ -135,6 +141,14 @@ Rules that follow, and they are absolute:
 - **Static site, no backend.** Content is in the repository and prerendered.
 - **The application owns its styling system directly**; no component-library dependency; a single
   theme; no progressive-web-app shell.
+- **The visual identity is a set of deliberate constraints, not defaults — confirm before changing any
+  of them.** One fixed theme and **no light/dark toggle**; a near-black, warm off-white and exactly
+  **one** accent colour; a display face and a monospace face for labels, data and metadata,
+  self-hosted rather than fetched; and **zero border-radius, no shadow, no gradient**, enforced in the
+  styling scale itself so a leftover rounded or shadowed utility renders square and flat. There is one
+  carved exception, a round portrait, reachable only through its own named utility and deliberately not
+  through the general scale. Read these as decisions someone made and had reasons for: they are the
+  reason the surface looks like one thing, and each is individually easy to erode by accident.
 - **Pipeline identity is pinned to the repository's immutable subject**, never to its name — a rename
   silently breaks every trust relationship otherwise.
 - **The vocabulary for the practice is fixed and lives in the private positioning source.** Read it

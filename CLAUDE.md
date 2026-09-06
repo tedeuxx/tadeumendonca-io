@@ -17,7 +17,7 @@ at build time, in both locales, for OG/SEO.
 
 ## `AGENTS.md` is a SECOND root brief, it is AUTHORED, and it is not this file (`-skills` #411)
 **`AGENTS.md` at this repo's root is the whole brief for any harness that reads that filename — and one
-of them reads THIS file never.** Measured against Kiro `1.0.337`'s shipped bundle:
+of them reads THIS file never.** Measured against Kiro `1.0.437`'s shipped bundle:
 `grep -c 'CLAUDE\.md'` over its agent extension returns **0** while `grep -c 'AGENTS\.md'` returns 28,
 and `AGENTS.md` is resolved at the workspace root with `inclusion:"always"`. It is not a compatibility
 copy of this file; for that reader it is the only brief there is.
@@ -80,6 +80,7 @@ so the history further down this file is not in its scope.
 - **`content-reviewer`** — reads that draft against *published-voice*, the same skill it was written against, for at most two rounds; blocks only where it can quote a clause. Contained the same way (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
 - **`agents-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
+- **`scrum-master`** — whether the PROCESS ran: a rite skipped, a state that did not move, a pool ranked against the order of record. It holds **no tools at all** (`tools: []`, an explicit empty grant — omitting the key would inherit every tool the dispatching context holds), so it cannot act on anything it finds: it returns a selection record naming one profile and one stage, and the dispatching context executes it or does not. Nothing reads that record.
 <!-- /roster:dispatch -->
 
 ~~**`security`** for the permission floor and supply chain~~ — **struck 2026-08-05.** That persona was
@@ -100,6 +101,16 @@ absorbed by either: the rename moved a name only, and the pair splits drafting f
 **What did move is `product-lead`'s craft opinion**, which left the drafting rounds on the owner's
 decision — its blocking veto on the truth of published copy and its `content` intake did **not**, so the
 row above is unchanged on both counts.
+**`scrum-master`** is an **eighth**, added in `-skills` #375 on reason #2 of the roster's four — *a fresh
+context is wanted*. It absorbed nothing, and it partially reverses amendment #7, which had folded an
+earlier persona of that name into `product-lead` for producing no disagreement; that finding still stands
+for what it measured, because what returns is not ceremony facilitation or an ordering opinion — both
+still `product-lead`'s — but a written record naming who acts next, which nothing else produced. It is
+listed here because this fence is the dispatch list, and a persona missing from it is one an agent will
+never reach for. **It is the only profile in the roster that holds nothing**, so dispatching it can
+enlarge no capability; the cost is the mirror of that — it is an influence mechanism, not a control, and
+nothing dispatches it or reads what it returns.
+
 (`plan-reviewer` and `principles-guide` are both retired; invoking either name simply fails.)
 
 **Trunk-based** (merge to `main` → deploy to the single environment); **IaC is pipeline-only**; local dev is
