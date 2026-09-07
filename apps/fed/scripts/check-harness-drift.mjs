@@ -11,6 +11,11 @@
 // secret, and nothing anywhere near the deploy gate whose outputs decide whether an OIDC-credentialed job
 // runs.
 //
+// THIS FILE AND `harness-source.mjs` ARE IN THAT JOB'S PATH FILTER (#615). Until then they matched only
+// `code` and `test` via `apps/**`, so editing the comparison ran eslint, tsc, vitest, build and Playwright
+// and did not run the comparison. It buys nothing about the blind window the job's own comment documents —
+// the falsifying event is still a merge in the plugin repo, which no trigger here can match.
+//
 // WHERE THE PLUGIN IS ABSENT THIS REPORTS SKIPPED, NEVER PASSED. Same rule as e2e/edge-rewrite.spec.ts
 // (#216): a check that could not run must not read like one that did. In CI the checkout is
 // unconditional, so the skip path is for local runs only — and it exits 0, because a missing sibling is
