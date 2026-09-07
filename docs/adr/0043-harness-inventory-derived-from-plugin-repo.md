@@ -1500,13 +1500,17 @@ It is rejected on two counts:
    # and for the `main` side, the same awk over each file's `main` blob:
    #   git show origin/main:apps/fed/src/content/architecture.en.md | awk '/accDescr:/{print FNR, NF}'
    #
-   # It emits four fences per locale, in document order; the two this slice touched are the THIRD
-   # (the tier flow) and the FOURTH (the components grid) — read the `accTitle:` line above each to
-   # confirm, since the line numbers move between `main` and this branch and the order does not.
+   # It emits four fences per locale, in document order. This slice touched THREE of the four: the
+   # FIRST (the three pillars), the THIRD (the tier flow) and the FOURTH (the components grid). The
+   # SECOND (lanes and tiers) is the only one untouched, and all four are listed below so the member
+   # set is readable rather than asserted — read the `accTitle:` line above each to confirm, since
+   # the line numbers move between `main` and this branch and the order does not.
    #
    #                    main -> this branch (en / pt)
-   #   components grid :  850 -> 327  /  884 -> 339
+   #   three pillars   :  180 -> 193  /  180 -> 195
+   #   lanes and tiers :  316 -> 316  /  336 -> 336
    #   tier flow       :  678 -> 740  /  709 -> 763
+   #   components grid :  850 -> 327  /  884 -> 339
    ```
 
    **Those are `accDescr` counts and nothing else.** The figures this record carried until the copy
@@ -1518,6 +1522,21 @@ It is rejected on two counts:
    is a transformation of the manifest; both are authorship. A generator emitting the same rows would produce a correct list and
    destroy the argument, on the one surface where a screen-reader user gets the argument and nothing
    else.
+
+   **The FIRST fence's movement is disclosed here because nothing checks it.** The three-pillars
+   description grew 180 → 193 (en) and 180 → 195 (pt), and the growth is **two** substitutions of
+   hand-typed proper nouns rather than one — the typed commands went from three names to the six
+   that exist, and the runtime's hook events from two named to all six. *(Attributing the whole
+   movement to the hook events alone would have been a fourth members claim in this block, whose own
+   subject is that the criterion selecting the members is part of the claim. The word-level diff is
+   what settles it, not the total.)* It is the `venn` fence, and
+   `apps/fed/scripts/architecture-diagrams.test.mjs` says in its own words that *"this file no longer
+   looks at the venn figure at all"*. **So that description is knowingly unpinned.** Every other
+   fence on the page is compared against the manifest; this one carries authored proper nouns with
+   no falsifier behind them. That is true at this head and costs nothing today, and **it promotes to
+   a live defect the day a hook event or a typed command is renamed** — the rename reddens the three
+   pinned fences and leaves this one silently stale, which is the failure shape this whole record
+   exists to remove. Deriving it is the alternative and it is **not** taken here; stating the gap is.
 
 2. **It would make a local exception to [ADR-0040](./0040-build-time-mermaid-diagrams.md)**, whose
    *"Decision outcome"* section states in as many words that **"The accessible name is authored on the
