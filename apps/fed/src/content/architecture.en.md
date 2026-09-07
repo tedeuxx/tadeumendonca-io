@@ -200,7 +200,7 @@ flowchart LR
   end
   subgraph COLD["DENIES"]
     direction TB
-    HKD["3 hooks · two events, two shapes<br/>2 hooks · PreToolUse — refuse a tool call<br/>matcher Bash · permission-guard<br/>matcher mcp · mcp-guard<br/>1 hook · UserPromptSubmit — refuses the prompt<br/>preflight"]
+    HKD["3 hooks · two events, two shapes<br/>2 hooks · PreToolUse — refuse a tool call<br/>matcher Bash · permission-guard<br/>matcher mcp__.* · mcp-guard<br/>1 hook · UserPromptSubmit — refuses the prompt<br/>preflight"]
     PSD["— no persona"]
     SKD["— no skill"]
     CMD["— no command"]
@@ -216,7 +216,7 @@ flowchart LR
   end
   subgraph COLO["DOCUMENTS"]
     direction TB
-    HKR["10 hooks · none refuses on this event<br/>3 hooks · SessionStart<br/>preflight · session-wip · session-plugin-version<br/>2 hooks · SubagentStart and SubagentStop<br/>dispatch-metrics-start · dispatch-metrics-stop<br/>5 hooks · Stop<br/>zombie-loop-detect · orchestrator-tool-census<br/>premature-pr-link-detect · owed-pr-link-detect<br/>closure-artifact-guard<br/>Stop and SubagentStop could block — none of the six does"]
+    HKR["10 hooks · none refuses where it sits<br/>3 hooks · SessionStart<br/>preflight · session-wip · session-plugin-version<br/>2 hooks · SubagentStart and SubagentStop<br/>dispatch-metrics-start · dispatch-metrics-stop<br/>5 hooks · Stop<br/>zombie-loop-detect · orchestrator-tool-census<br/>premature-pr-link-detect · owed-pr-link-detect<br/>closure-artifact-guard<br/>Stop and SubagentStop could block — none of the six does"]
     PSO["— no persona"]
     SK["15 skills · skills/<br/>what the model reaches for"]
     CM["6 commands · commands/<br/>what you type<br/>autonomy · blueprint · new-issue<br/>sprint-planning · sprint-review<br/>sprint-retrospective"]
