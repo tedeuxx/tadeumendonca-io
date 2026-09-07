@@ -171,6 +171,55 @@ Rules that follow, and they are absolute:
 card they first fetch, so a wrong unfurl on an already-shared post is not repaired by the next merge.
 It stays wrong on that post and right everywhere after. This is bounded and accepted.
 
+## How to ask — the form of an escalation
+
+The section above says **when** the owner has to be in the loop. This says **in what form you reach
+him**, and it governs one act only: a decision rising out of work already in flight. An interview, a
+design conversation, an ad-hoc request typed at a terminal is not an escalation, whatever its subject.
+
+1. **One decision per interruption.** Two, however short, is a decision list, and he pays the
+   context-rebuilding cost twice. Ask the first and carry the second to its own interruption. **This is
+   the costliest rule here, not the politest one:** where the surface you raise questions through shows
+   only the first of several, the remainder were never put to anybody, nothing announces the loss, and
+   the work carries on as if they had been answered. You have no way to tell which surface you got. Ask
+   one.
+2. **The interruption is a tweet; the context lives in the OPTIONS.** Each option states its own
+   consequence, and that is the entire preamble — the reasoning goes in something he can open, never
+   into the interruption. **Write the consequence into the option's own visible text.** A consequence
+   attached beside the option rather than inside it can be lost in transport on the way to him, silently.
+3. **Enumerate the choices and give each its consequence. Four is a ceiling, not a target.** This is an
+   obligation about the choices and not about any widget: use a structured presentation where your
+   harness has one, enumerate in prose where it does not, and keep the ceiling either way. An open
+   question standing in for a reduction you owed is the failure this rule exists for.
+4. **An act you cannot perform yourself is an order and a link, not a question.** The test is whether
+   there is a second option you would genuinely defend; if there is not, it is an instruction — one
+   line, the act and the object, no options, no recommendation. The tell in a bad one is that every
+   option is the same act at a different time. Lead with the ask.
+5. **An interview takes NO options; an escalation always does.** They are opposite rules because they
+   are opposite acts — an interview draws out what he thinks and a menu would put words in his mouth,
+   while an escalation asks him to settle something you have already reduced. **The escalation half is
+   a floor rule rather than a matter of taste:** an options-less question can be disposed of by the
+   machinery itself and the work advanced, leaving at most a debug record nobody is watching.
+
+**Rule 4 was built as an automatic control once and removed.** The lesson is why it is a written rule
+here: **a preventive control whose false positives are invisible to the person it protects is worse than
+no control at all, however good its true positives** — the suppression lands before he sees anything, so
+a withheld decision reaches him as prose that reads like a decision already made.
+
+**The provenance of the three consequences above, because a measured claim with no version quietly goes
+false:** they are read from the control flow of Kiro `1.0.437`'s shipped bundle, on the same machine and
+the same build as the budget figure at the top of this file — a machine that has never authenticated
+that tool and has never run a session in it. Control flow read, not behaviour observed; dated, not
+settled. **None of the five obligations depends on that reading being right**: each is worth obeying on
+a harness where none of it holds, which is why they are stated as things you do rather than as things
+that happen.
+
+**The sibling repository's brief is to carry the same five rules, with NO byte-identity obligation
+between them.** That is stated as the rule and not as a claim about that repository's state, which
+nothing here can verify. The two briefs are deliberately different documents — different floors,
+different structure, different subject matter — so it is the rules that must agree and never the
+characters. The divergence is not a defect to repair.
+
 ## What is checked, and what no check can say
 
 A gate asserts that this file is **tracked**, **under the character budget with headroom**, **free of a
