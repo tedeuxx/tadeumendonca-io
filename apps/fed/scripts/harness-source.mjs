@@ -989,6 +989,15 @@ const componentIdentity = (c) => `${c.kind}:${c.id}`;
  * downstream — a re-point can be RECONSTRUCTED from the orphaned and missing sets, because both rows are
  * still sitting there waiting to be paired. A collision can be reconstructed from nothing: the second
  * registration was never in the map to begin with.
+ *
+ * THE RESIDUAL, NAMED RATHER THAN LEFT TO BE REDISCOVERED. This key represents one registration per
+ * SCRIPT AND EVENT, so a script registered TWICE ON ONE EVENT — two matcher groups on `PreToolUse`, say
+ * — collides exactly as `preflight.sh` did, one level down and just as silently. Measured against the
+ * plugin tree at the time of writing: no script is registered twice on the same event, so this is a
+ * shape the harness does not currently have. It is deliberately not pre-empted, because the fix is to
+ * put `matcher` in the key, and that would make a hook whose matcher merely CHANGED into a vanished row
+ * plus an arrival — trading a real, live comparison for a hypothetical one. If that shape ever ships,
+ * the pairing pass below is where it belongs too: `componentIdentity` plus the event, paired on matcher.
  */
 export const componentKey = (c) => (c.event ? `${componentIdentity(c)}:${c.event}` : componentIdentity(c));
 
