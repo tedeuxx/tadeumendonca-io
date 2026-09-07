@@ -17,8 +17,8 @@ authenticated; it has not been confirmed against a live session.
 ## What this repository is
 
 **The owner's proof-of-engineering site — a fully static single-page application served from object
-storage behind a CDN. There is no backend**: no API, no database, no authentication, no serverless
-compute. It was a backend-bearing monorepo once; that half was retired.
+storage behind a CDN. There is no backend**: no API, no database, no authentication, no Lambda. It
+was a backend-bearing monorepo once; that half was retired.
 
 It is the public presence for the apex domain: an interactive CV, a portfolio linking to a curated
 catalog of public repositories, a reading shelf, and long-form writing. **Content ships in the
