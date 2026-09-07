@@ -37,10 +37,26 @@ two being reviewable at all — it was untracked and referenced by nothing until
 contained it. Keep it under **50,000 characters**, which is **one consumer's measured floor, not a
 standard** — every other harness's budget is unmeasured.
 
-`scripts/agents-md.test.sh` (a verbatim copy of `-skills`'s `hooks/scripts/agents-md.test.sh`; nothing
-makes the two move together, so edit both in one batch) gates four mechanical properties and is wired
-into `.github/workflows/brief.yml`. **It cannot assert that the brief is true, or that it is neutral
-rather than merely token-free.** That half is held by review.
+`scripts/agents-md.test.sh` gates four mechanical properties and is wired into
+`.github/workflows/brief.yml`. **It cannot assert that the brief is true, or that it is neutral rather
+than merely token-free.** That half is held by review.
+
+**What it shares with `-skills`'s `hooks/scripts/agents-md.test.sh` is the executable BODY, not the
+file.** The invariant a sync maintains is that everything below the first column-zero `set -uo` line
+is byte-for-byte identical — an obligation, not a claim about either copy's current state, which
+nothing here can check. The headers deliberately differ, because the duplication cost is a fact about
+each copy and has no subject in the other. So a sync copies the body, never the file — copying the
+whole file destroys the sibling's header, which is the artifact that records that cost and carries its
+own falsifier. From a workspace holding both checkouts:
+
+```
+diff <(sed -n '/^set -uo/,$p' scripts/agents-md.test.sh) \
+     <(sed -n '/^set -uo/,$p' ../tadeumendonca-skills/hooks/scripts/agents-md.test.sh)
+```
+
+Nothing makes the two copies move together — a pipeline is independent per repository — so a change to
+the token list, the fixtures or the budget is a two-repository batch, and a body diff between them is
+a defect in whichever side merged second.
 
 ## Engineering principles (always-on floor — non-negotiable)
 This repo consumes the **`tadeumendonca-skills`** plugin's principles layer (enabled in `.claude/settings.json`;
