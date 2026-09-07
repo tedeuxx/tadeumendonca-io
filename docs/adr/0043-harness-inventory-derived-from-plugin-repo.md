@@ -1490,7 +1490,8 @@ It is rejected on two counts:
 1. **The `accDescr` is not a list, and no generator produces it.** It is a reasoned description — it
    states the claim the grid exists to make, says which cells are empty and argues that the emptiness
    *is* the argument. Re-derived at this head against `main`, both locales, with the counts taken from
-   the fence bodies rather than from the diff:
+   the `accDescr` lines themselves rather than from the diff — the phrase *"from the fence bodies"*
+   stood here until the copy lens read it, and it is the trace of how the figures below went wrong:
 
    ```
    # `accDescr` word counts, per fence. This branch:
@@ -1513,8 +1514,8 @@ It is rejected on two counts:
    under a label that named the `accDescr`; the criterion that selects the members is part of the
    claim, and it did not match the name. **The direction is unchanged, which is why this is a relabel
    rather than a rewrite:** the grid's description did not merely shrink — it was **rewritten to lead
-   with the claim** — and the tier-flow's **grew** to carry content the page owed. Neither movement is a transformation of the
-   manifest; both are authorship. A generator emitting the same rows would produce a correct list and
+   with the claim** — and the tier-flow's **grew** to carry content the page owed. Neither movement
+   is a transformation of the manifest; both are authorship. A generator emitting the same rows would produce a correct list and
    destroy the argument, on the one surface where a screen-reader user gets the argument and nothing
    else.
 
