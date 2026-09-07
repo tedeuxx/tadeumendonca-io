@@ -1556,12 +1556,32 @@ the comparison is always against `tedeuxx/tadeumendonca-skills`'s `main`, which 
 here. Measured on this branch's regeneration:
 
 ```
-# rows in the committed manifest, `main` vs this branch, compared as whole records
-# main: 20 rows | head: 28 rows | 5 rows only in main, 13 only in head  -> 18 row-level changes
+# rows in the committed manifest, `main` vs this branch, keyed on the REGISTRATION
+# (kind, id, event) — the same keying #611 item 1 established for `componentKey`
+# main: 20 rows | head: 28 rows
+#   4 registrations gone : autonomy-on, autonomy-off, wip-guard.sh@PreToolUse,
+#                          orchestrator-write-guard.sh@PreToolUse
+#  12 registrations new  : autonomy, blueprint, sprint-{planning,review,retrospective},
+#                          scrum-master, mcp-guard.sh@PreToolUse, closure-artifact-guard.sh@Stop,
+#                          owed-pr-link-detect.sh@Stop, premature-pr-link-detect.sh@Stop,
+#                          preflight.sh@UserPromptSubmit, preflight.sh@SessionStart
+#   1 same key, changed  : skill-library `skills` 14 -> 15
+#  -> 17 row-level changes
 ```
 
-**`-skills` `main` moved eighteen rows without this job running once.** That is the eight-day gap, and it
+**`-skills` `main` moved seventeen rows without this job running once.** That is the eight-day gap, and it
 is why a red landed on `#610` — an author who did not cause it and could not have.
+
+**The keying is not a presentational choice and the first count made here got it wrong**, which is worth
+one sentence because it is the defect this record's own subject exists to prevent. Compared as **whole
+JSON records** the same diff reads *5 out, 13 in* — 18 — because the `skill-library` row, whose only
+change is a count moving 14 → 15, is counted once as a departure and once as an arrival. **Keyed on the
+registration it is one changed row, and the total is 17.** A number is a claim about a *set*, and the
+criterion that selects the members is part of it.
+
+**All seventeen are attributable to the plugin tree**, and none to this repository's own
+`ENFORCEMENT_BY_SHAPE` change: the `preflight.sh@UserPromptSubmit` row arrives because the plugin
+registered it, and the map row is what lets it be *classified* instead of throwing.
 
 **Its remedy is a `schedule:` trigger on a job that already exists.** It needs no path filter, no token
 and no new mechanism: the job already checks the plugin out tokenlessly, and it compares two trees that
