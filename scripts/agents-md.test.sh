@@ -29,13 +29,14 @@
 #     on a machine where that tool has never authenticated. Every other harness's budget is unmeasured,
 #     and this arm is not evidence that any of them is larger.
 #
-# THIS FILE'S EXECUTABLE BODY IS A VERBATIM COPY; THIS HEADER IS NOT, and the distinction is stated
-# precisely because the looser claim was false — `diff` against the origin returned the whole of this
-# block. Its origin is `hooks/scripts/agents-md.test.sh` in `tadeumendonca-skills`, which carries the
-# same artifact under the same rule and needs the same four arms. Everything below the first
-# column-zero `set -uo` line is byte-identical to the origin; this header differs deliberately, because
-# the duplication cost named below is a fact about THIS copy and has no subject in the origin.
-# Falsifiable in one command from a workspace holding both checkouts:
+# WHAT IS SHARED IS THE BODY, NEVER THE FILE. Its origin is `hooks/scripts/agents-md.test.sh` in
+# `tadeumendonca-skills`, which carries the same artifact under the same rule and needs the same four
+# arms. The invariant a sync maintains is that everything below the first column-zero `set -uo` line is
+# byte-for-byte identical — AN OBLIGATION, NOT AN ASSERTION ABOUT EITHER COPY RIGHT NOW, which is a
+# claim this file cannot check and must not make. The headers deliberately differ, because the
+# duplication cost named below is a fact about THIS copy and has no subject in the origin — so copying
+# the whole file is the wrong move twice over: it destroys the sibling's header and it overwrites the
+# only place that cost is recorded. Falsifiable in one command from a workspace holding both checkouts:
 #
 #   diff <(sed -n '/^set -uo/,$p' scripts/agents-md.test.sh) \
 #        <(sed -n '/^set -uo/,$p' ../tadeumendonca-skills/hooks/scripts/agents-md.test.sh)
@@ -48,6 +49,14 @@
 # pipelines are independent per repository — so the choice was a duplicated literal or no gate here at
 # all. If the token list or the budget changes on one side, the other side is silently a revision
 # behind, with both suites green. Edit both in the same batch.
+#
+# AND A MERGE HAZARD ONE LAYER UP, WHICH IS NOT ABOUT THIS FILE AND IS RECORDED HERE BECAUSE THIS IS
+# THE BRANCH THAT PAID FOR IT. Merging `main` into this branch produced a DUPLICATE KEY in a map
+# literal — both sides had added the same key with the same value at different offsets, and a
+# three-way TEXT merge kept both with no conflict marker. It cost nothing only because the two values
+# agreed. THE RULE: after any merge that touches a map or object literal, grep the keys for duplicates
+# rather than trusting the absence of a conflict — a same-key insertion at two offsets is invisible to
+# the merge, to the type checker and to every test that reads the map through a lookup.
 
 set -uo pipefail
 
