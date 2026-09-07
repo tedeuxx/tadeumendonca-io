@@ -51,6 +51,12 @@ export const WORKSPACE_ROOT = realpathSync(
  * plugin tree is either checked out INSIDE this repo (`.skills-checkout`, which is what the CI job does)
  * or sits BESIDE it (the workspace layout the two repos are developed in). Both are strictly under
  * `WORKSPACE_ROOT`, so one prefix covers them. A path anywhere else is refused rather than read.
+ *
+ * THE ONE PLACE THIS CONTRADICTS A HARNESS RULE, written down because the next person pays the same
+ * round otherwise: the session scratchpad a harness hands an agent for throwaway files is NOT under
+ * `WORKSPACE_ROOT`, so "check the drift against a detached worktree" is unsatisfiable from there — this
+ * guard refuses the path before any read. Put the throwaway worktree beside this repo or inside it; that
+ * is a location change, not a widening of this check, and widening it is the wrong fix.
  */
 export function resolvePluginDir(raw) {
   const resolved = resolve(String(raw ?? ''));

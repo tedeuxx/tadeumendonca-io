@@ -1,0 +1,79 @@
+name: brief
+
+# PR gate for the harness-neutral root brief, `AGENTS.md`.
+#
+# WHY IT EXISTS. `AGENTS.md` is read as always-on steering by at least one agent harness that never
+# reads this repository's other root brief. For that reader it is not a compatibility copy — it is the
+# entire brief. Until skills#411 the file was UNTRACKED here and in the sibling repository: absent from
+# every PR, so no reviewer and no gate could see it drift, while it was a month stale and pointed at a
+# per-directory guide that does not exist. Tracking it is what makes a check possible at all; this
+# workflow is the check.
+#
+# ITS OWN FILE, not a step in `app`. `app` is filtered to `apps/**` and this file is at the repository
+# root, so a change that edits only the brief would match nothing there. That is the exact shape of
+# issue #79 — a green check that verified nothing, indistinguishable from one that verified everything.
+#
+# TRIGGERING: runs on EVERY PR, with the path filter applied INSIDE the job — the same shape as `app`,
+# `iac` and `github`, and for the same reason. A workflow-level `paths:` filter can never be a required
+# status check: on a PR that does not match, the check never reports and sits pending forever.
+#
+# IT IS NOT A REQUIRED CHECK YET. Promoting it is a branch-protection change, which is the owner's.
+# Until then it is advisory, and this comment is the honest statement of that rather than an omission.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - "AGENTS.md"
+      - "scripts/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brief-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  agents-md:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # `scripts/**` as well as the brief itself: the checker is the other half of the subject, and an
+      # edit that weakens it must start the gate it weakens.
+      - name: Detect brief changes
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: changes
+        with:
+          filters: |
+            brief:
+              - 'AGENTS.md'
+              - 'scripts/**'
+
+      # Four MECHANICAL properties: tracked, under the character budget with headroom, free of tokens
+      # specific to one harness, and every repository-relative path it names resolves. It asserts
+      # NEITHER that the brief is true NOR that it is neutral rather than merely free of the tokens on
+      # a declared list — the script's own header says so at greater length, and the notice below
+      # repeats it rather than letting a green stand for more than it is.
+      - name: Assert the harness-neutral root brief holds its properties
+        if: steps.changes.outputs.brief == 'true'
+        run: bash scripts/agents-md.test.sh
+
+      # A check that matched nothing must not read like a check that passed. Three cases, always
+      # distinguished — the convention this repository's other gates already follow.
+      - name: Report what was checked
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.changes.outputs.brief }}" != "true" ]; then
+            echo "::notice::AGENTS.md and scripts/ unchanged — the brief gate did not run (nothing was verified)"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::the brief gate did NOT complete — read the failing step, not this line."
+            exit 0
+          fi
+          echo "::notice::AGENTS.md is tracked, under budget, free of the declared harness-specific tokens, and every repository-relative path it names exists. This says NOTHING about whether the brief is true, or neutral rather than merely token-free."
