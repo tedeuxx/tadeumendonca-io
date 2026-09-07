@@ -175,10 +175,12 @@ jobs:
               # THE CHECKER'S INPUTS ARE THE FIFTH, SIXTH AND SEVENTH ENTRIES, and they were missing
               # until #618. #615 put the checker's own CODE here and stopped there, so the filter covered
               # 2 of the 5 authored inputs this repo hands `check-harness-drift.mjs`.
-              # `check-harness-drift.mjs:191` reads BOTH architecture editions through
-              # `pluginLinkTargets`, and the line after it resolves every cross-repo link against the
-              # checked-out plugin tree; `:48` reads `plugin-release.json`, which is compared to the
-              # plugin's live VERSION. All three matched only `code`/`test` via `apps/**` — and neither of
+              # Cited by CLAUSE rather than by line, because a line number rots on the next edit to
+              # that file: the checker reads BOTH architecture editions through `pluginLinkTargets`,
+              # resolves every target against the checked-out plugin tree in `pluginLinkReport`, and
+              # reads `plugin-release.json` through `assertPluginVersion`, whose value `isAhead` then
+              # compares against the plugin's own VERSION as `readPluginVersion` reports it.
+              # All three matched only `code`/`test` via `apps/**` — and neither of
               # those gates opens the plugin tree at all, which is the comparison that was absent.
               #
               # Without these lines the guard is correct and NEVER RUNS ON ITS OWN TRIGGER — the same
