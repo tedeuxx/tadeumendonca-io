@@ -69,9 +69,16 @@ irreversible/architectural judgment and the production go/no-go. The floor never
   through the `quality-assurance`. Asking on in-pattern work is not caution, it is the loop failing to
   flow — the boundary is what the human's attention is *for*, and spending it elsewhere devalues it.
 - **Thin vertical slices, WIP = 1** — each increment end-to-end and reviewable; **finish it through
-  merge** before opening the next. A green PR left sitting is the queue forming. (Mechanical since
+  merge** before opening the next. A green PR left sitting is the queue forming. (~~Mechanical since
   skills#61: the plugin's `wip-guard` denies opening a second PR in a repo that already has one of
-  yours; `session-wip` lists the open queue at session start.)
+  yours~~ — **struck 2026-09-07: the hook is DELETED and WIP = 1 is held by this sentence and nothing
+  else.** `hooks/scripts/wip-guard.sh` was removed at `-skills` #383 and is registered on no event —
+  `hooks/hooks.json` at head carries `permission-guard` and `mcp-guard` on `PreToolUse` and no third
+  entry. **A second PR does not fall through to a prompt: `gh pr create` is allowlisted in both settings
+  layers, so it opens SILENTLY.** Struck rather than deleted because the clause stood since skills#61
+  and a reader took a mechanism from it. `session-wip` lists the open queue at session start — **that
+  half is TRUE and unchanged**, registered on `SessionStart` in the plugin's `hooks/hooks.json` at head,
+  and it reports rather than refuses.)
 - **Quality is a gate** — lint/typecheck + tests (coverage ≥ 85%) + a green build + SonarCloud + the
   `quality-assurance`, and **functional E2E** (Playwright) as the proof nothing already working broke.
   The reviewer is a **distinct** gate from CI, not a summary of it.
@@ -93,7 +100,7 @@ so the history further down this file is not in its scope.
 - **`product-lead`** — what to build next, and whether published copy is true.
 - **`developer`** — builds a slice end to end against an approved spec.
 - **`content-writer`** — drafts articles, site copy and social-post language in the owner's voice; contained the same as the product lead (never posts directly). Named *writer* until `-skills` #317 — a rename, nothing absorbed.
-- **`content-reviewer`** — reads that draft against *published-voice*, the same skill it was written against, for at most two rounds; blocks only where it can quote a clause. Contained the same way (never posts directly).
+- **`content-reviewer`** — reads that draft against *published-voice*, the same skill it was written against, for at most two rounds; ~~blocks only where it can quote a clause~~ — **struck 2026-09-07: it REPAIRS the draft in place, on two grounds — it can quote a clause of that skill, or the claim is false against the source — and there is NO copy block on the content lane at all** (owner ruling 2026-09-03, the plugin's ADR-0002 thirty-second amendment; agents/content-reviewer.md heads that section *"you REPAIR, you do not block"*). Contained the same way (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
 - **`agents-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
 - **`scrum-master`** — which profile acts next, and whether the rites ran in order. It holds `tools: []` — an explicit empty grant, not an omission — so it returns a selection record and executes nothing.
