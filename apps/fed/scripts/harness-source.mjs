@@ -123,6 +123,22 @@ const ENFORCEMENT = ['denies', 'advises', 'documents'];
  */
 const ENFORCEMENT_BY_SHAPE = {
   'hook:PreToolUse': 'denies',
+  // `UserPromptSubmit` (#580, `-skills` preflight.sh) — `denies`, and it is the row that proves this map
+  // is keyed on the REGISTRATION rather than on the script. `preflight.sh` is registered TWICE, on this
+  // event and on `SessionStart`, and its own header states why in one line each: "UserPromptSubmit
+  // BLOCKS. Nothing is processed while a blocking class is unmet. SessionStart REPORTS. It cannot
+  // block." The script backs it — the `UserPromptSubmit)` arm ends in `exit 2` on an unmet blocking
+  // class, and the `SessionStart)` arm exits 0 on every path and emits `additionalContext`.
+  //
+  // So the same script sits in `denies` on one row and `documents` on another, and that is CORRECT
+  // rather than a duplicate to collapse. It is also the one thing on /architecture that no hand author
+  // would have drawn: a script appearing in two columns of the same grid.
+  //
+  // THIS ROW IS WHAT #611 ITEM 1 WAS ANTICIPATING, and it is why that slice moved the `documents` cell's
+  // total off `event !== 'PreToolUse'` and onto `enforcement === 'documents'`. That proxy was about to
+  // become false the moment a non-`PreToolUse` event was classed `denies`, which is what this row does —
+  // see `architecture-diagrams.test.mjs`'s `refusesNothing` derivation and its header.
+  'hook:UserPromptSubmit': 'denies',
   'hook:SessionStart': 'documents',
   // `SubagentStart`/`SubagentStop` (#209, `-skills` dispatch-metrics-{start,stop}.sh): same shape as
   // `SessionStart` above, not `PreToolUse` — read both scripts in full before assuming otherwise. Start
