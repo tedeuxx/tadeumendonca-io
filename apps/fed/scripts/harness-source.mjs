@@ -1024,7 +1024,12 @@ export function diffAgainstManifest(components, manifest) {
   // union exists to prevent, one layer up in the message.
   const movedFieldsBetween = (a, b) => {
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-    return [...keys].filter((k) => a[k] !== b[k]).sort();
+    // Explicit comparator, matching `og-cards.mjs` and `pluginLinkReport` below: a bare `.sort()`
+    // coerces to string and orders by UTF-16 code unit, which is correct for these lowercase field
+    // names and is still flagged CRITICAL (javascript:S2871) because the element type is not inferred
+    // through the Set. Stating the comparison rather than suppressing the rule — the intent is
+    // alphabetical and now says so.
+    return [...keys].filter((k) => a[k] !== b[k]).sort((x, y) => x.localeCompare(y));
   };
 
   const missing = components.filter((c) => !committed.has(componentKey(c)));
