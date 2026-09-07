@@ -101,9 +101,12 @@ snapshot is taken from an already-hydrated page.
 - **`apps/fed/`** — the single-page application: the components, the typed data under
   `apps/fed/src/data/` (the CV, the portfolio catalog and the reading shelf are typed source, not
   markdown), the route generator in `apps/fed/scripts/`, and the end-to-end suite in `apps/fed/e2e/`.
-  **This directory carries no separate brief of its own, deliberately.** A second authored brief is a
-  second thing to keep honest, and a duplicated brief in this workspace was measured drifting 118
-  lines in three weeks. Read this file, then read the source.
+  **This directory carries no nested `AGENTS.md`, deliberately, and that absence is the whole of the
+  claim.** A per-directory guide for it *does* exist — under the other root-brief filename, which the
+  harness reading this file does not resolve at any depth — and its material is absorbed into this
+  file rather than pointed at. A second brief under *this* filename would be a second thing to keep
+  honest, and the duplicated pair in this workspace was measured drifting 118 lines in three weeks.
+  Read this file, then read the source.
 - **`iac/`** — the infrastructure as code: object storage, the CDN and its edge rewrite function,
   custom email records, the pipeline's identity roles, and an account-level cost budget scoped
   deliberately wider than this project so it catches spend this repository did not create. State lives
