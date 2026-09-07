@@ -65,8 +65,8 @@ irreversible/architectural judgment and the production go/no-go. The floor never
   minimal static attack surface (no server, no auth).
 - **Rigor calibrated to blast-radius** — heavy where irreversible/public, product-speed where cheap to revert.
 
-Depth lives in the plugin's `/principles/*` skills (`harness-engineering`, `verification-and-gates`);
-for deliberate validation of a non-trivial decision, invoke the subagent that **owns** it. **The seven
+Depth lives in the plugin's skill library (`agents-configuration`, `engineering-standards`, `quality-gates`);
+for deliberate validation of a non-trivial decision, invoke the subagent that **owns** it. **The eight
 below are the whole live roster** — this list is checked against the plugin's `agents/` by the
 `harness-drift` job in the `app` workflow, so a persona retired over there turns this paragraph red here
 rather than leaving a dispatch that fails when followed. The check reads only between the two markers,
@@ -80,7 +80,7 @@ so the history further down this file is not in its scope.
 - **`content-reviewer`** — reads that draft against *published-voice*, the same skill it was written against, for at most two rounds; blocks only where it can quote a clause. Contained the same way (never posts directly).
 - **`quality-assurance`** — THE merge gate, and it absorbed the permission-floor and supply-chain lens.
 - **`agents-lead`** — the machinery itself: hooks, settings, briefs, the plugin. Pre-implementation, and may implement the harness changes it reviews (never merging, never gating an MR).
-- **`scrum-master`** — whether the PROCESS ran: a rite skipped, a state that did not move, a pool ranked against the order of record. It holds **no tools at all** (`tools: []`, an explicit empty grant — omitting the key would inherit every tool the dispatching context holds), so it cannot act on anything it finds: it returns a selection record naming one profile and one stage, and the dispatching context executes it or does not. Nothing reads that record.
+- **`scrum-master`** — which profile acts next, and whether the rites ran in order. It holds `tools: []` — an explicit empty grant, not an omission — so it returns a selection record and executes nothing.
 <!-- /roster:dispatch -->
 
 ~~**`security`** for the permission floor and supply chain~~ — **struck 2026-08-05.** That persona was

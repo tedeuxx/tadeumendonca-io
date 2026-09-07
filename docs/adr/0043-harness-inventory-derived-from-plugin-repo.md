@@ -1434,6 +1434,241 @@ read them and took a design decision from them.
   window is now roughly a minute, rather than *"until somebody moves the pin by hand"*.
 
 
+## Amendment, 2026-09-07 — the components drawing is AUTHORED BY HAND and pinned component-by-component to the derived manifest, in two locales, and the accessible description is inside that pinning
+
+**Decides:** the components diagram is not generated. Its fence is authored prose — nodes, labels, column
+membership and the `accDescr` alike — and it is bound to `apps/fed/src/content/generated/harness.json`
+**per component** by `apps/fed/scripts/architecture-diagrams.test.mjs`, in **both** locales. A plugin
+change therefore reaches the published page as a **copy** change: the manifest regenerates mechanically,
+the drawing does not, and the suite is what refuses to let the two disagree. **The `accDescr` is inside
+that binding, not beside it** — the same counts and the same nouns are asserted against the manifest in
+the spoken text as in the node a sighted reader sees.
+
+**Nothing here changes a mechanism.** The manifest, its schema, `KIND_ORDER`, the closed `enforcement`
+set and the three-way drift comparison are all untouched. What changes is that a practice this record has
+been relying on since #318 is now **written down**.
+
+### Why this is recorded at all — one significance arm, and the other one deliberately does not apply
+
+It crosses the light gate on exactly one arm: **it sets a cross-cutting pattern others will follow.** It
+does **not** cross on *alters a previously-recorded decision* — **the pinning was never recorded, and that
+absence is the finding.**
+
+**The absence has a sharp shape, and it is worth naming rather than leaving as a gap.** The published page
+has been asserting the guarantee — *authored by hand, compared node by node, in both editions* — while
+this library, the place a fresh context reads to learn what was decided, carried the manifest and the
+drift check and never the authorship. So the strongest statement of the pattern was on the surface that
+cannot bind anyone, and absent from the one that can.
+
+Two occurrences inside a single day are what turned it from an anecdote about one page into a pattern
+worth a record:
+
+```
+gh issue view 610 --repo tedeuxx/tadeumendonca-io --json createdAt --jq .createdAt   # 2026-09-06T21:43:25Z
+gh issue view 611 --repo tedeuxx/tadeumendonca-io --json createdAt --jq .createdAt   # 2026-09-06T22:26:09Z
+```
+
+- **`#610`** — an author editing an unrelated authored input met a red `harness-drift` they had not
+  caused, produced by the plugin tree moving underneath the comparison.
+- **`#611`** — the components grid's published prose was found false against the manifest it is derived
+  from, having sat that way behind a throw since 2026-08-29.
+
+Forty-three minutes apart, from opposite directions: one person surprised by the artifact while changing
+the prose, one surprised by the prose while changing the artifact. **That symmetry is the pattern.** Any
+future page on this platform that draws a derived artifact by hand inherits it.
+
+### Considered options
+
+**Chosen — author the fence, pin it component-by-component, in both locales, `accDescr` included.**
+
+**Rejected — generate the components diagram from `harness.json`.** The obvious fix, and it is worth
+stating what it genuinely buys before saying why it loses: **a plugin change would stop being a copy
+change altogether.** The manifest regenerates, the drawing follows, and no human has to notice.
+
+It is rejected on two counts:
+
+1. **The `accDescr` is not a list, and no generator produces it.** It is a reasoned description — it
+   states the claim the grid exists to make, says which cells are empty and argues that the emptiness
+   *is* the argument. Re-derived at this head against `main`, both locales, with the counts taken from
+   the `accDescr` lines themselves rather than from the diff — the phrase *"from the fence bodies"*
+   stood here until the copy lens read it, and it is the trace of how the figures below went wrong:
+
+   ```
+   # `accDescr` word counts, per fence. This branch:
+   awk '/accDescr:/{printf "%s:%d %d words\n", FILENAME, FNR, NF}' \
+     apps/fed/src/content/architecture.en.md apps/fed/src/content/architecture.pt.md
+   # and for the `main` side, the same awk over each file's `main` blob:
+   #   git show origin/main:apps/fed/src/content/architecture.en.md | awk '/accDescr:/{print FNR, NF}'
+   #
+   # It emits four fences per locale, in document order. This slice touched THREE of the four: the
+   # FIRST (the three pillars), the THIRD (the tier flow) and the FOURTH (the components grid). The
+   # SECOND (lanes and tiers) is the only one untouched, and all four are listed below so the member
+   # set is readable rather than asserted — read the `accTitle:` line above each to confirm, since
+   # the line numbers move between `main` and this branch and the order does not.
+   #
+   #                    main -> this branch (en / pt)
+   #   three pillars   :  180 -> 193  /  180 -> 195
+   #   lanes and tiers :  316 -> 316  /  336 -> 336
+   #   tier flow       :  678 -> 740  /  709 -> 763
+   #   components grid :  850 -> 327  /  884 -> 339
+   ```
+
+   **Those are `accDescr` counts and nothing else.** The figures this record carried until the copy
+   lens read it counted each **whole fence body** — node labels, edges and class lines included —
+   under a label that named the `accDescr`; the criterion that selects the members is part of the
+   claim, and it did not match the name. **The direction is unchanged, which is why this is a relabel
+   rather than a rewrite:** the grid's description did not merely shrink — it was **rewritten to lead
+   with the claim** — and the tier-flow's **grew** to carry content the page owed. Neither movement
+   is a transformation of the manifest; both are authorship. A generator emitting the same rows would produce a correct list and
+   destroy the argument, on the one surface where a screen-reader user gets the argument and nothing
+   else.
+
+   **The FIRST fence's movement is disclosed here because nothing checks it.** The three-pillars
+   description grew 180 → 193 (en) and 180 → 195 (pt), and the growth is **two** substitutions of
+   hand-typed proper nouns rather than one — the typed commands went from three names to the six
+   that exist, and the runtime's hook events from two named to all six. *(Attributing the whole
+   movement to the hook events alone would have been a fourth members claim in this block, whose own
+   subject is that the criterion selecting the members is part of the claim. The word-level diff is
+   what settles it, not the total.)* It is the `venn` fence, and
+   `apps/fed/scripts/architecture-diagrams.test.mjs` says in its own words that *"this file no longer
+   looks at the venn figure at all"*. **So that description is knowingly unpinned.** Every other
+   fence on the page is compared against the manifest; this one carries authored proper nouns with
+   no falsifier behind them. That is true at this head and costs nothing today, and **it promotes to
+   a live defect the day a hook event or a typed command is renamed** — the rename reddens the three
+   pinned fences and leaves this one silently stale, which is the failure shape this whole record
+   exists to remove. Deriving it is the alternative and it is **not** taken here; stating the gap is.
+
+2. **It would make a local exception to [ADR-0040](./0040-build-time-mermaid-diagrams.md)**, whose
+   *"Decision outcome"* section states in as many words that **"The accessible name is authored on the
+   fence."** One diagram opting out of the authored-fence model, on the page whose whole subject is that
+   its claims are checkable, buys convenience and spends the model.
+
+**Also rejected — unpin, and let the drawing be prose nobody checks.** It would end the copy cost at a
+stroke. It loses on the page's own published words, which are worth quoting rather than paraphrasing
+because they are the guarantee this record is the decision behind:
+
+> *"Rename a persona in the plugin and this repository's build goes red. The drawing above is authored by
+> hand: a test compares it, node by node and count by count, against a committed manifest, in both
+> editions."*
+
+**The pinning IS that guarantee.** Unpinning would replace one false claim with another, in the very
+paragraph whose subject is that the page's claims are checkable — and it would do so on the surface
+where the whole thesis is that whoever makes the claim produces the evidence.
+
+### Consequences
+
+**Good**
+- A plugin change cannot silently republish a false statement about the plugin. The binding is per
+  component and per locale, so a one-sided fix fails as loudly as no fix.
+- The spoken description is held to the same standard as the drawing, which is the half that rots
+  unobserved because almost nobody reads it.
+
+**Bad — and this is the honest centre of the record: the coupling is the mechanism working; the LATENCY
+is the defect.**
+
+Regenerating the manifest reddens the authored drawing. That is not a cost to be engineered away — it is
+the guarantee firing, and **every red is a copy decision, not a test to relax.** The suite that carries
+it is a single file, and its whole span is in scope:
+
+```
+grep -c '^describe(' apps/fed/scripts/architecture-diagrams.test.mjs   # -> 6
+python3 -c "import re;print(len(re.findall(r'\n\s*it\(', open('apps/fed/scripts/architecture-diagrams.test.mjs').read())))"   # -> 18
+```
+
+**What IS the defect is when the red arrives.** The drift job's path filter (`.github/workflows/app.yml`,
+the `harness` category) matches two paths and both are **authored inputs**:
+
+```
+harness:
+  - 'CLAUDE.md'
+  - 'apps/fed/src/content/generated/harness.json'
+```
+
+So the job fires only when somebody edits one of the two things it compares — **never when the tree it
+compares against moves**, and never on the check's own code. The plugin is checked out with no `ref:`, so
+the comparison is always against `tedeuxx/tadeumendonca-skills`'s `main`, which moves without a commit
+here. Measured on this branch's regeneration:
+
+```
+# rows in the committed manifest, `main` vs this branch, keyed on the REGISTRATION
+# (kind, id, event) — the same keying #611 item 1 established for `componentKey`
+# main: 20 rows | head: 28 rows
+#   4 registrations gone : autonomy-on, autonomy-off, wip-guard.sh@PreToolUse,
+#                          orchestrator-write-guard.sh@PreToolUse
+#  12 registrations new  : autonomy, blueprint, sprint-{planning,review,retrospective},
+#                          scrum-master, mcp-guard.sh@PreToolUse, closure-artifact-guard.sh@Stop,
+#                          owed-pr-link-detect.sh@Stop, premature-pr-link-detect.sh@Stop,
+#                          preflight.sh@UserPromptSubmit, preflight.sh@SessionStart
+#   1 same key, changed  : skill-library `skills` 14 -> 15
+#  -> 17 row-level changes
+```
+
+**`-skills` `main` moved seventeen rows without this job running once.** That is the eight-day gap, and it
+is why a red landed on `#610` — an author who did not cause it and could not have.
+
+**The keying is not a presentational choice and the first count made here got it wrong**, which is worth
+one sentence because it is the defect this record's own subject exists to prevent. Compared as **whole
+JSON records** the same diff reads *5 out, 13 in* — 18 — because the `skill-library` row, whose only
+change is a count moving 14 → 15, is counted once as a departure and once as an arrival. **Keyed on the
+registration it is one changed row, and the total is 17.** A number is a claim about a *set*, and the
+criterion that selects the members is part of it.
+
+**All seventeen are attributable to the plugin tree**, and none to this repository's own
+`ENFORCEMENT_BY_SHAPE` change: the `preflight.sh@UserPromptSubmit` row arrives because the plugin
+registered it, and the map row is what lets it be *classified* instead of throwing.
+
+**Its remedy is a `schedule:` trigger on a job that already exists.** It needs no path filter, no token
+and no new mechanism: the job already checks the plugin out tokenlessly, and it compares two trees that
+both move without a commit here. **It is stated as the consequence and is NOT built in this slice.**
+What it buys is detection **one cadence late instead of one merge late**; what it cannot buy is a gate —
+a scheduled red has no PR attached, so it is a **notification to the owner, not a gate on anyone**, and
+it lands on whoever reads it rather than on whoever caused it. This discharges nothing about the coupling
+itself, which stays.
+
+**Neutral**
+- `iac/` untouched. No public contract, no schema, no new dependency.
+
+### Two things verified for this record rather than inherited, and one of them corrects my own intake
+
+**1 · The cross-repo link checker already exists, and my `#611` intake priced work that was not needed.**
+That intake prescribed adding a link check into the job that already checks the plugin out, at *"~20
+lines, no token"*. **It is already there** — `pluginLinkTargets` and `pluginLinkReport` in
+`apps/fed/scripts/harness-source.mjs`, imported and called by `apps/fed/scripts/check-harness-drift.mjs`,
+riding the checkout the drift job already pays for, and exercised by six tests in
+`harness-source.test.mjs`. The prescription was right about the design and wrong about the state of the
+tree, and it is corrected here rather than left standing.
+
+**What it does and does not prove, in its own words:** it resolves paths against a checkout of `main`, so
+it proves the path **exists** — *"not that a `#anchor` on such a URL resolves, and not that the file still
+says what the page claims."* Same limit this record already carries for the inventory. It also fails on
+**zero targets** rather than passing, which is the vacuous-green shape this repository keeps paying for.
+
+**2 · `ENFORCEMENT_BY_SHAPE` needed a `hook:UserPromptSubmit` row after all, and the class is confirmed
+from the script rather than from the event name.** `#610` cleared the collection guard's throw; it did
+not add the row. The row is `denies`, and the evidence is `hooks/scripts/preflight.sh` in the plugin, not
+the event's name: its `UserPromptSubmit)` arm ends in `exit 2` on an unmet blocking class, while its
+`SessionStart)` arm exits 0 on every path and emits `additionalContext`. **The same script therefore sits
+in `denies` on one registration and `documents` on another, and that is correct rather than a duplicate to
+collapse** — it is the one thing on this page no hand author would have drawn.
+
+**The map's refusal to default is untouched, and must not be read as weakened by the new row.** An
+unrecognised `kind:event` still throws, with the message naming the file to edit and the three classes to
+choose between. Both leads ruled that refusal correct at intake; adding a row is exercising the map's
+declared closure, not loosening it.
+
+### What this amendment does NOT decide
+
+- **The `schedule:` trigger.** Named as the remedy, priced, and deliberately not built. It is a `devops`
+  change and its own slice.
+- **Whether `harness-drift` should be a required check.** Unresolved and outside this record — branch
+  protection is not readable from inside the loop (`gh api` sits behind the permission floor), so the
+  question is the owner's to answer from the forge.
+- **Anything about the prose itself.** No assertion here says the page is *correct* about the plugin.
+  `harness-drift` proves manifest-versus-plugin and nothing else; **nothing checks the prose**, which is
+  precisely why the pinning recorded above is the only thing standing between a plugin change and a false
+  published claim.
+
+
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
   dev-loop **components** diagram, complementing the **flow** diagram shipped by

@@ -1,6 +1,14 @@
 [
   {
     "kind": "hook",
+    "id": "closure-artifact-guard.sh",
+    "file": "hooks/scripts/closure-artifact-guard.sh",
+    "event": "Stop",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
     "id": "dispatch-metrics-start.sh",
     "file": "hooks/scripts/dispatch-metrics-start.sh",
     "event": "SubagentStart",
@@ -17,6 +25,14 @@
   },
   {
     "kind": "hook",
+    "id": "mcp-guard.sh",
+    "file": "hooks/scripts/mcp-guard.sh",
+    "event": "PreToolUse",
+    "matcher": "mcp__.*",
+    "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
     "id": "orchestrator-tool-census.sh",
     "file": "hooks/scripts/orchestrator-tool-census.sh",
     "event": "Stop",
@@ -25,11 +41,11 @@
   },
   {
     "kind": "hook",
-    "id": "orchestrator-write-guard.sh",
-    "file": "hooks/scripts/orchestrator-write-guard.sh",
-    "event": "PreToolUse",
-    "matcher": "Edit|Write|MultiEdit|NotebookEdit",
-    "enforcement": "denies"
+    "id": "owed-pr-link-detect.sh",
+    "file": "hooks/scripts/owed-pr-link-detect.sh",
+    "event": "Stop",
+    "matcher": null,
+    "enforcement": "documents"
   },
   {
     "kind": "hook",
@@ -38,6 +54,30 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
+    "id": "preflight.sh",
+    "file": "hooks/scripts/preflight.sh",
+    "event": "UserPromptSubmit",
+    "matcher": null,
+    "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
+    "id": "preflight.sh",
+    "file": "hooks/scripts/preflight.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
+    "id": "premature-pr-link-detect.sh",
+    "file": "hooks/scripts/premature-pr-link-detect.sh",
+    "event": "Stop",
+    "matcher": null,
+    "enforcement": "documents"
   },
   {
     "kind": "hook",
@@ -54,14 +94,6 @@
     "event": "SessionStart",
     "matcher": null,
     "enforcement": "documents"
-  },
-  {
-    "kind": "hook",
-    "id": "wip-guard.sh",
-    "file": "hooks/scripts/wip-guard.sh",
-    "event": "PreToolUse",
-    "matcher": "Bash",
-    "enforcement": "denies"
   },
   {
     "kind": "hook",
@@ -109,6 +141,12 @@
   },
   {
     "kind": "persona",
+    "id": "scrum-master",
+    "file": "agents/scrum-master.md",
+    "enforcement": "advises"
+  },
+  {
+    "kind": "persona",
     "id": "tech-lead",
     "file": "agents/tech-lead.md",
     "enforcement": "advises"
@@ -117,25 +155,43 @@
     "kind": "skill-library",
     "id": "skills",
     "file": "skills",
-    "skills": 14,
+    "skills": 15,
     "enforcement": "documents"
   },
   {
     "kind": "command",
-    "id": "autonomy-off",
-    "file": "commands/autonomy-off.md",
+    "id": "autonomy",
+    "file": "commands/autonomy.md",
     "enforcement": "documents"
   },
   {
     "kind": "command",
-    "id": "autonomy-on",
-    "file": "commands/autonomy-on.md",
+    "id": "blueprint",
+    "file": "commands/blueprint.md",
     "enforcement": "documents"
   },
   {
     "kind": "command",
     "id": "new-issue",
     "file": "commands/new-issue.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "sprint-planning",
+    "file": "commands/sprint-planning.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "sprint-retrospective",
+    "file": "commands/sprint-retrospective.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "sprint-review",
+    "file": "commands/sprint-review.md",
     "enforcement": "documents"
   }
 ]

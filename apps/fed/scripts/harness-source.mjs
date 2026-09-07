@@ -123,6 +123,22 @@ const ENFORCEMENT = ['denies', 'advises', 'documents'];
  */
 const ENFORCEMENT_BY_SHAPE = {
   'hook:PreToolUse': 'denies',
+  // `UserPromptSubmit` (#580, `-skills` preflight.sh) — `denies`, and it is the row that proves this map
+  // is keyed on the REGISTRATION rather than on the script. `preflight.sh` is registered TWICE, on this
+  // event and on `SessionStart`, and its own header states why in one line each: "UserPromptSubmit
+  // BLOCKS. Nothing is processed while a blocking class is unmet. SessionStart REPORTS. It cannot
+  // block." The script backs it — the `UserPromptSubmit)` arm ends in `exit 2` on an unmet blocking
+  // class, and the `SessionStart)` arm exits 0 on every path and emits `additionalContext`.
+  //
+  // So the same script sits in `denies` on one row and `documents` on another, and that is CORRECT
+  // rather than a duplicate to collapse. It is also the one thing on /architecture that no hand author
+  // would have drawn: a script appearing in two columns of the same grid.
+  //
+  // THIS ROW IS WHAT #611 ITEM 1 WAS ANTICIPATING, and it is why that slice moved the `documents` cell's
+  // total off `event !== 'PreToolUse'` and onto `enforcement === 'documents'`. That proxy was about to
+  // become false the moment a non-`PreToolUse` event was classed `denies`, which is what this row does —
+  // see `architecture-diagrams.test.mjs`'s `refusesNothing` derivation and its header.
+  'hook:UserPromptSubmit': 'denies',
   'hook:SessionStart': 'documents',
   // `SubagentStart`/`SubagentStop` (#209, `-skills` dispatch-metrics-{start,stop}.sh): same shape as
   // `SessionStart` above, not `PreToolUse` — read both scripts in full before assuming otherwise. Start
@@ -159,29 +175,6 @@ const ENFORCEMENT_BY_SHAPE = {
   // on every error path deliberately, so a detector cannot wedge the loop it protects. It reports
   // state; that is `documents`, by the same definition the `SessionStart` rows use.
   'hook:Stop': 'documents',
-  // `UserPromptSubmit` (#342, `-skills` preflight.sh, registered 2026-08-29 in `e1fe5c74`) — `denies`,
-  // and read out of the script rather than off the event name, per this map's own rule.
-  //
-  // What the script does: it checks that the harness's own guards can run — the bootstrap binaries, the
-  // dependencies each registered hook needs, the executable bit on every registered script, and whether
-  // a headless session is running with the static deny layer off. On `UserPromptSubmit`, if any blocking
-  // class is unmet it writes the finding to stderr and `exit 2`. That is a refusal of the turn before it
-  // is processed, which is exactly this map's `denies` definition ("blocks a tool call, or blocks the
-  // turn"). Its own header states the split in one line: "UserPromptSubmit BLOCKS. Nothing is processed
-  // while a blocking class is unmet."
-  //
-  // THE ROW THAT IS NOT ADDED, AND WHY THAT IS NOT AN OMISSION: `preflight.sh` is registered TWICE, on
-  // two events, and the two registrations have DIFFERENT classes. On `SessionStart` the same script
-  // emits a notice and exits 0 — it cannot block there, which its header records as a measurement
-  // against the shipped bundle rather than a reading of the docs. So `hook:SessionStart` above already
-  // covers that half and stays `documents`. This is the first script in the manifest to occupy two
-  // shapes at once; do not "reconcile" the two rows, and do not infer either one's class from the other.
-  //
-  // WHY THIS REPO WENT RED WITHOUT A CHANGE HERE: the row was owed from 2026-08-29 and the map is closed
-  // on purpose, so the debt sat unpaid until the next PR whose path filter started this job — which is
-  // the coupling the block comment below already names and accepts. It is not evidence that the closed
-  // map is wrong; it is the closed map doing what it was built to do, late, because nothing here polls.
-  'hook:UserPromptSubmit': 'denies',
   persona: 'advises',
   'skill-library': 'documents',
   'command-family': 'documents',
@@ -974,30 +967,55 @@ export function collectComponents(pluginDir) {
   );
 }
 
-/** A component's identity across the two sides of the comparison. `id` alone collides: a persona and a
- *  command family could share a name, and today `architecture` is a family while nothing stops a persona
- *  taking that name tomorrow. */
+/** A component's identity across the two sides of the comparison, WITHOUT the registration. `id` alone
+ *  collides: a persona and a command family could share a name, and today `architecture` is a family
+ *  while nothing stops a persona taking that name tomorrow.
+ *
+ *  This is the coarser of the two identities and it is deliberately NOT exported. It has exactly one job
+ *  — pairing an orphaned row with a missing one in the re-point pass below — and a caller reaching for it
+ *  to compare components would reintroduce the collision the key beneath it exists to remove. */
+const componentIdentity = (c) => `${c.kind}:${c.id}`;
+
 /**
- * KNOWN DEFECT, MEASURED AND DELIBERATELY NOT FIXED HERE (see the `hook:UserPromptSubmit` row above).
+ * THE KEY IDENTIFIES A REGISTRATION, NOT A FILE — and for a hook the event is part of that identity.
  *
- * This key cannot represent a script registered on MORE THAN ONE EVENT, and the plugin now ships one:
- * `preflight.sh` is registered twice in `hooks.json`, on `UserPromptSubmit` and on `SessionStart`, with
- * a DIFFERENT enforcement class on each. Both registrations collapse onto the single key `hook:preflight.sh`,
- * so `new Map(...)` in `diffAgainstManifest` silently keeps the last and then compares the first against
- * it forever. The symptom is `~ hook preflight.sh changed shape` on every run, IMMUNE TO REGENERATION —
- * measured by regenerating the manifest and re-running the check, which reproduced it unchanged.
+ * THE DEFECT THIS CLOSES (#611), stated first because its SHAPE is worth more than the fix. `preflight.sh`
+ * is registered TWICE in the plugin's `hooks.json`, on two events, with a different enforcement class on
+ * each. Under the previous `kind:id` key both registrations collapsed onto one `hook:preflight.sh`,
+ * `new Map(...)` below silently kept the LAST, and the FIRST then compared different from it on every run:
+ * `~ hook preflight.sh changed shape`, forever, and IMMUNE TO REGENERATION — `gen-harness` writes both
+ * rows faithfully and the reader collapses them again. Measured by regenerating and re-running, which
+ * reproduced it unchanged.
  *
- * WHY IT WAS NEVER SEEN: the double registration landed 2026-08-29 and `enforcementFor` threw on the
- * unknown shape before any comparison ran. The throw masked it; classing the shape is what exposes it.
+ * IT SURVIVED EIGHT DAYS BEHIND AN UNRELATED THROW, and none of the four key assertions in this module's
+ * suite could have caught it, because every one of them keyed a script registered exactly ONCE. A fifth
+ * assertion lands with this change and reddens on the collision itself rather than on its symptom.
  *
- * WHY THE ONE-LINE FIX IS NOT TAKEN HERE: appending the event to the key clears the collision in one
- * character, and it TRADES the semantics the block below documents — a hook re-pointed from one event to
- * another would stop surfacing as `~ changed` and start surfacing as `- orphaned` plus `+ missing`. That
- * is arguably better and it is still a decision, not a typo fix; measured, it also turns 4 tests red that
- * pin the current key format. It needs its own slice with the diff in front of a reviewer, not a drive-by
- * inside an unrelated one.
+ * WHAT THIS TRADES, said plainly because it is a real loss and not a free win. Under `kind:id` a hook
+ * RE-POINTED from one event to another surfaced as `~ changed` — one row, present on both sides, one field
+ * moved. Under this key it is a different key on each side, so the raw comparison sees a row that vanished
+ * and an unrelated row that arrived. Those semantics did not go away; they MOVED INTO THE REPORT, where
+ * the pass at the end of `diffAgainstManifest` pairs an orphaned row with a missing one sharing a
+ * `componentIdentity` and reports the pair as ONE `re-pointed` finding.
+ *
+ * WHY THE PAIRING BELONGS IN THE REPORT AND NOT IN THE KEY, which is the whole of the decision. A key can
+ * carry one of the two properties and not both: include the event and two registrations are distinct
+ * (correct) while a re-point is two rows (lossy); omit it and a re-point is one row (legible) while two
+ * registrations are one row (wrong, and SILENTLY wrong). Only one of those two failures is recoverable
+ * downstream — a re-point can be RECONSTRUCTED from the orphaned and missing sets, because both rows are
+ * still sitting there waiting to be paired. A collision can be reconstructed from nothing: the second
+ * registration was never in the map to begin with.
+ *
+ * THE RESIDUAL, NAMED RATHER THAN LEFT TO BE REDISCOVERED. This key represents one registration per
+ * SCRIPT AND EVENT, so a script registered TWICE ON ONE EVENT — two matcher groups on `PreToolUse`, say
+ * — collides exactly as `preflight.sh` did, one level down and just as silently. Measured against the
+ * plugin tree at the time of writing: no script is registered twice on the same event, so this is a
+ * shape the harness does not currently have. It is deliberately not pre-empted, because the fix is to
+ * put `matcher` in the key, and that would make a hook whose matcher merely CHANGED into a vanished row
+ * plus an arrival — trading a real, live comparison for a hypothetical one. If that shape ever ships,
+ * the pairing pass below is where it belongs too: `componentIdentity` plus the event, paired on matcher.
  */
-export const componentKey = (c) => `${c.kind}:${c.id}`;
+export const componentKey = (c) => (c.event ? `${componentIdentity(c)}:${c.event}` : componentIdentity(c));
 
 /**
  * Compare the plugin tree against the committed manifest, THREE ways.
@@ -1016,18 +1034,91 @@ export function diffAgainstManifest(components, manifest) {
   const committed = new Map(manifest.map((c) => [componentKey(c), c]));
   const live = new Set(components.map(componentKey));
 
-  const differs = (a, b) => {
+  // The union of keys, returned as a LIST rather than as a boolean, because the report names what moved.
+  // `~ changed shape (event, matcher, file or command count)` used to enumerate the fields it MIGHT have
+  // been, in prose, which is the shape that goes stale the moment a field is added — the same defect this
+  // union exists to prevent, one layer up in the message.
+  const movedFieldsBetween = (a, b) => {
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-    return [...keys].some((k) => a[k] !== b[k]);
+    // Explicit comparator, matching `og-cards.mjs` and `pluginLinkReport` below: a bare `.sort()`
+    // coerces to string and orders by UTF-16 code unit, which is correct for these lowercase field
+    // names and is still flagged CRITICAL (javascript:S2871) because the element type is not inferred
+    // through the Set. Stating the comparison rather than suppressing the rule — the intent is
+    // alphabetical and now says so.
+    return [...keys].filter((k) => a[k] !== b[k]).sort((x, y) => x.localeCompare(y));
   };
 
+  const missing = components.filter((c) => !committed.has(componentKey(c)));
+  const orphaned = manifest.filter((c) => !live.has(componentKey(c)));
+  const changed = components.filter((c) => {
+    const c2 = committed.get(componentKey(c));
+    return c2 && movedFieldsBetween(c, c2).length > 0;
+  });
+  const movedFields = new Map(
+    changed.map((c) => [componentKey(c), movedFieldsBetween(c, committed.get(componentKey(c)))]),
+  );
+
+  // ── THE RE-POINT PASS (#611) ──────────────────────────────────────────────────────────────────
+  //
+  // This is where the semantics the key gave up are re-established. `componentKey` carries the event, so a
+  // hook moved from one event to another is a row that vanished plus a row that arrived; a reader handed
+  // those two lines has to notice they name the same script and infer the move themselves. That inference
+  // is exactly what a report is for.
+  //
+  // The pairing is by `componentIdentity` — kind and id, without the event — and it is deliberately
+  // CONSERVATIVE: exactly one gone and exactly one arrived, or nothing is paired at all.
+  //
+  // WHY IT REFUSES THE AMBIGUOUS CASE RATHER THAN PICKING. A script registered on two events and
+  // re-pointed on both leaves two gone and two arrived, and NOTHING in either row says which arrival
+  // belongs to which departure — `event` is the only field that moved and it is the field being paired on.
+  // Any pairing there is a coin flip, and a coin flip printed as a finding is worse than the two raw rows:
+  // it reads as a measurement. So the rows stay in `missing` and `orphaned` exactly as they were, and
+  // `ambiguous` records that a pairing was DECLINED, so the report can say so out loud rather than leaving
+  // the reader to wonder why one script got a re-point line and another did not.
+  const byIdentity = (rows) => {
+    const m = new Map();
+    for (const c of rows) {
+      const k = componentIdentity(c);
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push(c);
+    }
+    return m;
+  };
+  const arrivedBy = byIdentity(missing);
+  const goneBy = byIdentity(orphaned);
+
+  const repointed = [];
+  const ambiguous = [];
+  const paired = new Set();
+  for (const [identity, arrived] of arrivedBy) {
+    const gone = goneBy.get(identity);
+    if (!gone) continue;
+    if (arrived.length !== 1 || gone.length !== 1) {
+      ambiguous.push({ kind: arrived[0].kind, id: arrived[0].id, gone: gone.length, arrived: arrived.length });
+      continue;
+    }
+    repointed.push({
+      kind: arrived[0].kind,
+      id: arrived[0].id,
+      from: gone[0].event ?? null,
+      to: arrived[0].event ?? null,
+      // Everything else that moved with it — derived, never listed. A hook that changes event usually
+      // changes `matcher` and `enforcement` too, and those are the fields a reader of /architecture cares
+      // about most, since `enforcement` is the published claim.
+      alsoMoved: movedFieldsBetween(arrived[0], gone[0]).filter((f) => f !== 'event'),
+    });
+    paired.add(identity);
+  }
+
   return {
-    missing: components.filter((c) => !committed.has(componentKey(c))),
-    orphaned: manifest.filter((c) => !live.has(componentKey(c))),
-    changed: components.filter((c) => {
-      const c2 = committed.get(componentKey(c));
-      return c2 && differs(c, c2);
-    }),
+    // A paired row is reported ONCE, as the re-point. Leaving it in `missing`/`orphaned` as well would
+    // print the same fact three times and make a two-hook re-point look like a six-component drift.
+    missing: missing.filter((c) => !paired.has(componentIdentity(c))),
+    orphaned: orphaned.filter((c) => !paired.has(componentIdentity(c))),
+    changed,
+    movedFields,
+    repointed,
+    ambiguous,
   };
 }
 
@@ -1042,10 +1133,37 @@ export function diffAgainstManifest(components, manifest) {
  */
 export function driftReport(diff) {
   const lines = [];
-  const name = (c) => `${c.kind} ${c.id}`;
+  // THE REGISTRATION, NOT JUST THE SCRIPT (#611). A hook is identified by its event now, and a report
+  // that drops it prints two identical lines for a script registered twice — measured against the live
+  // plugin tree, where `preflight.sh` produced exactly that: two `+ hook preflight.sh` lines with
+  // nothing to tell them apart, which reads as the report double-printing rather than as two real
+  // registrations. The re-point and ambiguity lines below carry no `event` field and are unaffected:
+  // they name their endpoints themselves.
+  const name = (c) => (c.event ? `${c.kind} ${c.id} (${c.event})` : `${c.kind} ${c.id}`);
   for (const c of diff.missing) lines.push(`  + ${name(c)} exists in the plugin and is NOT in the manifest`);
   for (const c of diff.orphaned) lines.push(`  - ${name(c)} is in the manifest and NO LONGER in the plugin`);
-  for (const c of diff.changed) lines.push(`  ~ ${name(c)} changed shape (event, matcher, file or command count)`);
+  // The re-point, as ONE finding rather than as the vanished/arrived pair it decomposes into. See the
+  // pairing pass in `diffAgainstManifest` for why this lives here and not in `componentKey`.
+  for (const r of diff.repointed ?? []) {
+    const also = r.alsoMoved.length > 0 ? ` (${r.alsoMoved.join(', ')} moved with it)` : '';
+    lines.push(`  > ${name(r)} was RE-POINTED from ${r.from} to ${r.to}${also}`);
+  }
+  // DEGRADE LOUDLY. The rows are already printed above, untouched; this says why they were not collapsed
+  // into a re-point, so a reader does not read the inconsistency as a bug in the report.
+  for (const a of diff.ambiguous ?? []) {
+    lines.push(
+      `  ? ${name(a)} has ${a.gone} registration(s) gone and ${a.arrived} arrived — there is no unique`,
+      '    pairing between them, so they are reported above as-is rather than guessed at as re-points.',
+    );
+  }
+  // Naming the fields that moved, derived from the union of keys rather than from a prose list. The line
+  // this replaces said `changed shape (event, matcher, file or command count)` on every component of every
+  // kind, which told a reader the categories of thing that can move and never which one did.
+  for (const c of diff.changed) {
+    const moved = diff.movedFields?.get(componentKey(c)) ?? [];
+    const what = moved.length > 0 ? moved.join(', ') : 'an unreported field';
+    lines.push(`  ~ ${name(c)} changed shape: ${what}`);
+  }
   if (lines.length === 0) return '';
   return [
     'The /architecture harness inventory no longer matches tedeuxx/tadeumendonca-skills:',
