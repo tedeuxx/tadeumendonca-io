@@ -1103,7 +1103,13 @@ export function diffAgainstManifest(components, manifest) {
  */
 export function driftReport(diff) {
   const lines = [];
-  const name = (c) => `${c.kind} ${c.id}`;
+  // THE REGISTRATION, NOT JUST THE SCRIPT (#611). A hook is identified by its event now, and a report
+  // that drops it prints two identical lines for a script registered twice — measured against the live
+  // plugin tree, where `preflight.sh` produced exactly that: two `+ hook preflight.sh` lines with
+  // nothing to tell them apart, which reads as the report double-printing rather than as two real
+  // registrations. The re-point and ambiguity lines below carry no `event` field and are unaffected:
+  // they name their endpoints themselves.
+  const name = (c) => (c.event ? `${c.kind} ${c.id} (${c.event})` : `${c.kind} ${c.id}`);
   for (const c of diff.missing) lines.push(`  + ${name(c)} exists in the plugin and is NOT in the manifest`);
   for (const c of diff.orphaned) lines.push(`  - ${name(c)} is in the manifest and NO LONGER in the plugin`);
   // The re-point, as ONE finding rather than as the vanished/arrived pair it decomposes into. See the

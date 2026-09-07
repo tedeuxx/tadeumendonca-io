@@ -682,6 +682,24 @@ describe('a script registered on two events is two registrations, not one collid
     const committed = JSON.parse(JSON.stringify(live));
     expect(driftReport(diffAgainstManifest(live, committed))).toBe('');
   });
+
+  // FOUND BY RUNNING THE REPORT AGAINST THE REAL PLUGIN TREE, and it is a defect this slice introduced
+  // rather than one it inherited. Once both registrations survive the key, both reach the report — and
+  // the report named a component `hook preflight.sh`, so the live run printed the same line twice with
+  // nothing to tell the two apart. That reads as the report double-printing, not as two registrations,
+  // which is the same "reads like a bug in the report" failure the ambiguity branch exists to avoid.
+  //
+  // Asserted on `+` specifically because the `~` line is asserted elsewhere and the `+`/`-` lines are
+  // where a component is named without any other field beside it to disambiguate.
+  it('tells two registrations of one script apart in the report', () => {
+    const lines = driftReport(diffAgainstManifest(live, []))
+      .split('\n')
+      .filter((l) => l.includes('preflight.sh'));
+    expect(lines).toHaveLength(2);
+    expect(new Set(lines).size, 'two registrations printed as two identical lines').toBe(2);
+    expect(lines.join('\n')).toContain('hook preflight.sh (PreToolUse)');
+    expect(lines.join('\n')).toContain('hook preflight.sh (SessionStart)');
+  });
 });
 
 describe('diffAgainstManifest — three ways, because two would miss the likeliest one', () => {
@@ -763,7 +781,7 @@ describe('diffAgainstManifest — three ways, because two would miss the likelie
     expect(diff.orphaned).toEqual([]);
     expect(diff.repointed).toEqual([]);
     // The report names the field that moved rather than the categories a field COULD belong to.
-    expect(driftReport(diff)).toContain('~ hook g.sh changed shape: matcher');
+    expect(driftReport(diff)).toContain('~ hook g.sh (PreToolUse) changed shape: matcher');
   });
 
   it('reports a family whose command count moved', () => {
