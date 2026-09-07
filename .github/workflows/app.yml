@@ -152,9 +152,25 @@ jobs:
             # matches EITHER authored input to that job: the roster fence in CLAUDE.md, and the committed
             # manifest itself. (It ships a served byte, so it is in `code`/`test` too — but those gates
             # never compare it to the plugin, which is the check that was absent.)
+            #
+            # THE CHECKER'S OWN CODE IS THE THIRD AND FOURTH ENTRIES, and it was missing until #615.
+            # `check-harness-drift.mjs` and the `harness-source.mjs` it imports match `code` and `test`
+            # via `apps/**` but matched nothing here — so a checker-only PR ran eslint, tsc, vitest,
+            # build and Playwright, and did NOT run the guard it was editing. Without these lines the
+            # guard is correct and NEVER RUNS ON ITS OWN TRIGGER, which is the same argument this file
+            # already accepted twice in the `test` filter above, for `docs/adr/**` and for
+            # `.github/workflows/deploy.yml`.
+            #
+            # WHAT THIS DOES NOT BUY, stated because the job's own comment below is about a different
+            # gap: nothing about the blind window. The event that falsifies the manifest is still a
+            # merge in the other repository, no trigger here can match it, and that cost stands
+            # unchanged (measured at fourteen days on #615). This closes the narrower gap only — an
+            # edit to the comparison logic now runs the comparison.
             harness:
               - 'CLAUDE.md'
               - 'apps/fed/src/content/generated/harness.json'
+              - 'apps/fed/scripts/check-harness-drift.mjs'
+              - 'apps/fed/scripts/harness-source.mjs'
 
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
