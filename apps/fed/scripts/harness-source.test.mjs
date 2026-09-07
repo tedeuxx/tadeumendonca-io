@@ -97,16 +97,41 @@ describe('the committed manifest is a manifest at all', () => {
     expect([...new Set(preToolUse.map((c) => c.enforcement))]).toEqual(['denies']);
   });
 
-  // The orphans, asserted as a POSITIVE. A generator that walks only the directories drops
-  // `commands/autonomy-on.md` and `commands/new-issue.md` without a word; the plugin's own suite asserts
-  // `root_cmds -eq 2` for exactly this reason. This is the assertion that fails if an orphan is ever
-  // filtered away again — and it is an exact list rather than a count, so a SUBSTITUTED orphan (one
-  // dropped, another added) cannot pass it.
+  // The orphans, asserted as a POSITIVE. A generator that walks only the directories drops the files
+  // sitting at the root of `commands/` without a word; the plugin's own suite asserts that root count for
+  // exactly this reason. This is the assertion that fails if an orphan is ever filtered away again — and
+  // it is an exact list rather than a count, so a SUBSTITUTED orphan (one dropped, another added) cannot
+  // pass it.
+  //
+  // `autonomy-off` and `autonomy-on` stood in this list until #580 and were never FILES: they are typed
+  // modes of one `commands/autonomy.md`, and the manifest has only ever been able to carry the file. The
+  // page published the mode names as though they were commands for the same reason — worth knowing before
+  // reading this list as a list of things a person types, which it is not quite.
   it('carries the un-namespaced commands instead of silently dropping them', () => {
     expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
-      'autonomy-off',
-      'autonomy-on',
+      'autonomy',
+      'blueprint',
       'new-issue',
+      'sprint-planning',
+      'sprint-retrospective',
+      'sprint-review',
+    ]);
+  });
+
+  // THE ROW #580 ADDED, pinned on the manifest rather than only on the map: one SCRIPT is registered on
+  // two events and carries a different class on each. It is the grid's sharpest cell — `preflight.sh`
+  // appears in both the DENIES and the DOCUMENTS column of /architecture — and it is only true because
+  // the manifest's unit of identity is the REGISTRATION (#611 item 1), not the script.
+  //
+  // Asserted as the PAIR rather than as one row: a single-row assertion passes on a manifest that lost
+  // the other registration, which is exactly the collapse this claim would not survive.
+  it('carries a script registered twice, with a different class on each event', () => {
+    const preflight = manifest.filter((c) => c.kind === 'hook' && c.id === 'preflight.sh');
+    expect(
+      preflight.map((c) => [c.event, c.enforcement]).sort((a, b) => a[0].localeCompare(b[0])),
+    ).toEqual([
+      ['SessionStart', 'documents'],
+      ['UserPromptSubmit', 'denies'],
     ]);
   });
 });
@@ -115,6 +140,10 @@ describe('enforcementFor — a closed set that refuses what it does not know', (
   it('classes by kind, and a hook by its EVENT rather than by being a hook', () => {
     expect(enforcementFor('persona')).toBe('advises');
     expect(enforcementFor('hook', 'PreToolUse')).toBe('denies');
+    // `UserPromptSubmit` (#580) — the row that breaks "denies means PreToolUse". `preflight.sh` exits 2
+    // on this event and refuses the PROMPT, before any tool call exists, so the class follows the script
+    // here exactly as it does on `Stop` below.
+    expect(enforcementFor('hook', 'UserPromptSubmit')).toBe('denies');
     // The half of "hooks deny" that is false: a SessionStart hook prints context and has no tool call to
     // refuse. Collapsing the four into one class would publish the stronger claim about two scripts that
     // cannot make it.
