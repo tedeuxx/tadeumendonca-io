@@ -1493,13 +1493,27 @@ It is rejected on two counts:
    the fence bodies rather than from the diff:
 
    ```
-   # per-fence accDescr word counts, `main` vs this branch (en / pt)
-   #   components grid : 1103 -> 622  /  1138 -> 637
-   #   tier flow       :  963 -> 1056 /  997 -> 1084
+   # `accDescr` word counts, per fence. This branch:
+   awk '/accDescr:/{printf "%s:%d %d words\n", FILENAME, FNR, NF}' \
+     apps/fed/src/content/architecture.en.md apps/fed/src/content/architecture.pt.md
+   # and for the `main` side, the same awk over each file's `main` blob:
+   #   git show origin/main:apps/fed/src/content/architecture.en.md | awk '/accDescr:/{print FNR, NF}'
+   #
+   # It emits four fences per locale, in document order; the two this slice touched are the THIRD
+   # (the tier flow) and the FOURTH (the components grid) — read the `accTitle:` line above each to
+   # confirm, since the line numbers move between `main` and this branch and the order does not.
+   #
+   #                    main -> this branch (en / pt)
+   #   components grid :  850 -> 327  /  884 -> 339
+   #   tier flow       :  678 -> 740  /  709 -> 763
    ```
 
-   The grid's description did not merely shrink — it was **rewritten to lead with the claim**, and the
-   tier-flow's **grew** to carry content the page owed. Neither movement is a transformation of the
+   **Those are `accDescr` counts and nothing else.** The figures this record carried until the copy
+   lens read it counted each **whole fence body** — node labels, edges and class lines included —
+   under a label that named the `accDescr`; the criterion that selects the members is part of the
+   claim, and it did not match the name. **The direction is unchanged, which is why this is a relabel
+   rather than a rewrite:** the grid's description did not merely shrink — it was **rewritten to lead
+   with the claim** — and the tier-flow's **grew** to carry content the page owed. Neither movement is a transformation of the
    manifest; both are authorship. A generator emitting the same rows would produce a correct list and
    destroy the argument, on the one surface where a screen-reader user gets the argument and nothing
    else.
