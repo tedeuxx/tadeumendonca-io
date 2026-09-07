@@ -171,6 +171,39 @@ jobs:
               - 'apps/fed/src/content/generated/harness.json'
               - 'apps/fed/scripts/check-harness-drift.mjs'
               - 'apps/fed/scripts/harness-source.mjs'
+              #
+              # THE CHECKER'S INPUTS ARE THE FIFTH, SIXTH AND SEVENTH ENTRIES, and they were missing
+              # until #618. #615 put the checker's own CODE here and stopped there, so the filter covered
+              # 2 of the 5 authored inputs this repo hands `check-harness-drift.mjs`.
+              # `check-harness-drift.mjs:191` reads BOTH architecture editions through
+              # `pluginLinkTargets`, and the line after it resolves every cross-repo link against the
+              # checked-out plugin tree; `:48` reads `plugin-release.json`, which is compared to the
+              # plugin's live VERSION. All three matched only `code`/`test` via `apps/**` — and neither of
+              # those gates opens the plugin tree at all, which is the comparison that was absent.
+              #
+              # Without these lines the guard is correct and NEVER RUNS ON ITS OWN TRIGGER — the same
+              # argument this file already accepted for `docs/adr/**`, for `.github/workflows/deploy.yml`
+              # and, one entry above, for the checker's own code. Concretely: add a link to a plugin file
+              # that does not exist in `architecture.en.md` and eslint, tsc, vitest, build and Playwright
+              # all run while `harness-drift` does not. #580 existed because three dead cross-repo links
+              # were live on /architecture; this is the mechanism that let them get there.
+              #
+              # WHAT THIS COSTS, on the owner's 2026-09-07 ruling («Alarga, os três entram») with the cost
+              # stated in the option he answered: a PR that only edits the architecture page becomes
+              # eligible to absorb a `harness-drift` red CAUSED BY A MERGE IN THE PLUGIN REPO, not by that
+              # PR. That is the innocent-author cost the job's own comment below already documents,
+              # widened to a third surface. It is the same trade #615 declined for `app.yml` — taken here
+              # and not there because these three inputs carry a demonstrated failure and `app.yml` a
+              # hypothetical one. `app.yml` is STILL not in the filter it defines; that is a separate
+              # worth call and it is the owner's.
+              #
+              # NOTHING GATES THIS LIST. No test in either repo asserts the `harness` filter's contents,
+              # so deleting any entry above reddens nothing and this fix is hand-maintained: it drifts the
+              # day the checker gains a sixth input. A generated-or-asserted list would close the class
+              # permanently rather than instance by instance, and is deliberately not built here.
+              - 'apps/fed/src/content/architecture.en.md'
+              - 'apps/fed/src/content/architecture.pt.md'
+              - 'apps/fed/src/content/generated/plugin-release.json'
 
             # Split out because VERSION is a BUILD INPUT and nothing else: apps/fed/src/lib/version.ts
             # imports the root VERSION with `?raw` and the footer renders it. A VERSION-only change
