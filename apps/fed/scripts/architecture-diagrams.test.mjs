@@ -889,17 +889,33 @@ describe('the components diagram carries the inventory it was generated from', (
   });
 
   // The documents cell splits the hooks by EVENT, and both halves are derived. The leading total is the
-  // count of hooks with no tool call in front of them — which is "every hook that is not PreToolUse",
-  // stated that way so registering a hook on a fourth event moves the number here rather than leaving
-  // the cell quietly under-counting.
+  // count of hooks in THIS CELL — hooks the manifest classes `documents`.
+  //
+  // THE DERIVATION IS WHAT CHANGED HERE (#611), NOT THE NUMBER, and the distinction is the finding.
+  // It read `event !== 'PreToolUse'`, glossed in this comment as "the count of hooks with no tool call
+  // in front of them". That gloss was the reasoning, and the reasoning went false: `UserPromptSubmit`
+  // has no tool call in front of it and DENIES anyway — the plugin registered exactly that hook on
+  // 2026-08-29 — so "no tool call in front of it" stopped implying "refuses nothing". A hook of that
+  // shape belongs in HKD, and this cell's total would have counted it while the cell above drew it.
+  //
+  // So the COMMENT was not the thing to fix. A comment can only ever describe what the line does, and
+  // this line was computing a proxy that happened to agree with the cell for as long as PreToolUse was
+  // the only denying event. Correcting the prose to match the proxy would have written the wrong claim
+  // down more carefully. The cell has its own definition — `enforcement === 'documents'`, the same
+  // field CELLS is keyed on above — and reading it directly is both true today and true of whatever
+  // event the plugin adopts next, which is precisely what the old line promised and did not deliver.
+  //
+  // The number does not move on this change: against the committed manifest both derivations return 6,
+  // because every non-PreToolUse hook in it is `documents`. That is why no published byte moves here —
+  // and it is also why nothing would have reddened when the claim went false.
   it.each([
     ['en', () => enFence],
     ['pt', () => ptFence],
   ])('states the per-event hook counts in the %s edition', (_locale, fence) => {
     const subagent = of('hook').filter((c) => c.event.startsWith('Subagent')).length;
-    const noCallToRefuse = of('hook').filter((c) => c.event !== 'PreToolUse').length;
+    const refusesNothing = of('hook').filter((c) => c.enforcement === 'documents').length;
     const label = nodeLabel(fence().source, 'HKR');
-    expect(label.startsWith(`${noCallToRefuse} hooks · `), 'the cell must open with its own total').toBe(
+    expect(label.startsWith(`${refusesNothing} hooks · `), 'the cell must open with its own total').toBe(
       true,
     );
     expect(label).toContain(`${subagent} hooks · Subagent`);

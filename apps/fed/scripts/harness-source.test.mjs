@@ -292,8 +292,8 @@ describe('reading a plugin tree', () => {
 
   it('orders components by kind for a readable diff', () => {
     expect(collectComponents(fixture('plugin')).map(componentKey)).toEqual([
-      'hook:greet.sh',
-      'hook:guard.sh',
+      'hook:greet.sh:SessionStart',
+      'hook:guard.sh:PreToolUse',
       'persona:builder',
       'persona:reviewer',
       'command-family:alpha',
@@ -562,7 +562,7 @@ describe('collectSkills — one library with a count, not sixty-nine rows', () =
 
   it('places the library between the personas and the commands in the manifest order', () => {
     expect(collectComponents(fixture('plugin-flat-skills')).map(componentKey)).toEqual([
-      'hook:guard.sh',
+      'hook:guard.sh:PreToolUse',
       'persona:builder',
       'skill-library:skills',
       'command:autonomy-on',
@@ -642,6 +642,66 @@ describe('readPluginVersion — the tag the card publishes', () => {
   });
 });
 
+// ── THE COLLISION ITSELF (#611) ──────────────────────────────────────────────────────────────────
+//
+// THE DEFECT THIS BLOCK EXISTS FOR, AND WHY IT NEEDED A NEW BLOCK RATHER THAN A LINE IN AN OLD ONE.
+//
+// `preflight.sh` is registered on TWO events in the plugin's `hooks.json`. Under the previous
+// `kind:id` key both registrations collapsed onto one string, `new Map(...)` in `diffAgainstManifest`
+// silently kept the LAST, and the FIRST compared different from it on every run — `~ changed shape`,
+// forever, immune to regeneration, because `gen-harness` writes both rows faithfully and the reader
+// collapses them again on the way back in.
+//
+// NOT ONE of the four assertions that pinned the key format could have reddened on it, and that is the
+// finding rather than an aside: every one of them keyed a script registered exactly ONCE, so the format
+// they pinned was correct for every input they were ever given. A format assertion cannot fail on a
+// collision it never constructs. So the INPUT is what this block adds — a tree that carries the shape —
+// and the two assertions below are about the CONSEQUENCE, not about the string.
+//
+// The fixture uses PreToolUse + SessionStart rather than the live pair, deliberately: the defect is the
+// double registration and not the events, and both events here are already classed in
+// ENFORCEMENT_BY_SHAPE — so this block cannot go red for a reason that belongs to that map.
+describe('a script registered on two events is two registrations, not one collided row', () => {
+  const live = collectComponents(fixture('plugin-double-registration'));
+
+  it('keys each registration separately, so neither is silently dropped', () => {
+    const keys = live.map(componentKey);
+    expect(keys).toContain('hook:preflight.sh:PreToolUse');
+    expect(keys).toContain('hook:preflight.sh:SessionStart');
+    expect(new Set(keys).size, 'two registrations collapsed onto one key').toBe(keys.length);
+  });
+
+  // THE ASSERTION THAT REDDENS ON THE DEFECT, end to end and in the form a reader met it: a manifest
+  // generated from a tree, compared against that same tree, reporting drift that no regeneration clears.
+  // Under `kind:id` the map keeps the SessionStart row, the PreToolUse row compares different from it,
+  // and this is a non-empty report against a tree that has not changed at all.
+  //
+  // Asserted on the REPORT rather than on `diff.changed`, because the report is what a person is handed
+  // and because it is the surface that stayed wrong for eight days while every unit assertion was green.
+  it('reports no drift at all against a manifest generated from itself', () => {
+    const committed = JSON.parse(JSON.stringify(live));
+    expect(driftReport(diffAgainstManifest(live, committed))).toBe('');
+  });
+
+  // FOUND BY RUNNING THE REPORT AGAINST THE REAL PLUGIN TREE, and it is a defect this slice introduced
+  // rather than one it inherited. Once both registrations survive the key, both reach the report — and
+  // the report named a component `hook preflight.sh`, so the live run printed the same line twice with
+  // nothing to tell the two apart. That reads as the report double-printing, not as two registrations,
+  // which is the same "reads like a bug in the report" failure the ambiguity branch exists to avoid.
+  //
+  // Asserted on `+` specifically because the `~` line is asserted elsewhere and the `+`/`-` lines are
+  // where a component is named without any other field beside it to disambiguate.
+  it('tells two registrations of one script apart in the report', () => {
+    const lines = driftReport(diffAgainstManifest(live, []))
+      .split('\n')
+      .filter((l) => l.includes('preflight.sh'));
+    expect(lines).toHaveLength(2);
+    expect(new Set(lines).size, 'two registrations printed as two identical lines').toBe(2);
+    expect(lines.join('\n')).toContain('hook preflight.sh (PreToolUse)');
+    expect(lines.join('\n')).toContain('hook preflight.sh (SessionStart)');
+  });
+});
+
 describe('diffAgainstManifest — three ways, because two would miss the likeliest one', () => {
   const base = [
     { kind: 'persona', id: 'builder', file: 'agents/builder.md', enforcement: 'advises' },
@@ -655,21 +715,73 @@ describe('diffAgainstManifest — three ways, because two would miss the likelie
     expect(diffAgainstManifest([], base).orphaned.map(componentKey)).toEqual(['persona:builder']);
   });
 
-  // The case a set comparison cannot see, and the likeliest drift here: a persona RENAMED shows up as a
-  // pair of missing/orphaned, but a hook RE-POINTED to another event is the same key with a moved field.
-  it('reports a hook re-pointed to a different event, under the same key', () => {
+  // THE SAME CONTRACT AS BEFORE #611, THROUGH A DIFFERENT CARRIER, and the difference is worth stating
+  // because the assertion below no longer looks like the one it replaces.
+  //
+  // The requirement has not moved: a hook RE-POINTED to another event is the drift a set comparison
+  // cannot see, and it must reach the reader as ONE finding rather than as a vanished row and an
+  // unrelated arrival. What moved is WHERE that is held. `componentKey` now carries the event — it has
+  // to, or two registrations of one script collide — so the pair is no longer one key with a moved
+  // field, and `changed` cannot be the carrier. The re-point pass in `diffAgainstManifest` is.
+  //
+  // So this asserts the finding, not the mechanism: the move is named, its endpoints are named, and the
+  // raw pair is NOT also printed underneath, which is what would make one re-point read as two drifts.
+  it('reports a hook re-pointed to a different event as one finding, not as a vanished pair', () => {
     const before = [{ kind: 'hook', id: 'g.sh', file: 'hooks/scripts/g.sh', event: 'PreToolUse', matcher: 'Bash', enforcement: 'denies' }];
-    const after = [{ ...before[0], event: 'SessionStart', enforcement: 'documents' }];
+    const after = [{ ...before[0], event: 'SessionStart', matcher: null, enforcement: 'documents' }];
     const diff = diffAgainstManifest(after, before);
-    expect(diff.changed.map(componentKey)).toEqual(['hook:g.sh']);
+    expect(diff.repointed).toEqual([
+      { kind: 'hook', id: 'g.sh', from: 'PreToolUse', to: 'SessionStart', alsoMoved: ['enforcement', 'matcher'] },
+    ]);
     expect(diff.missing).toEqual([]);
     expect(diff.orphaned).toEqual([]);
+    expect(diff.changed).toEqual([]);
+    const report = driftReport(diff);
+    expect(report).toContain('> hook g.sh was RE-POINTED from PreToolUse to SessionStart');
+    // `enforcement` is the published claim — /architecture draws it — so a re-point that silently
+    // reclassifies a hook must say so in the same line, not leave it to the next `gen-harness`.
+    expect(report).toContain('(enforcement, matcher moved with it)');
   });
 
+  // DEGRADE LOUDLY, NEVER GUESS. Two registrations of one script, both re-pointed, is the case with no
+  // unique pairing: `event` is the only field that moved and it is the field the pairing keys on, so any
+  // answer here is a coin flip. A coin flip printed as a finding is worse than the raw rows, because it
+  // reads as a measurement. The rows must survive untouched AND the report must say why they were not
+  // collapsed — an unexplained inconsistency between two scripts reads as a bug in the report.
+  it('refuses to pair an ambiguous re-point, and says so instead of guessing', () => {
+    const before = [
+      { kind: 'hook', id: 'p.sh', file: 'hooks/scripts/p.sh', event: 'PreToolUse', matcher: 'Bash', enforcement: 'denies' },
+      { kind: 'hook', id: 'p.sh', file: 'hooks/scripts/p.sh', event: 'SessionStart', matcher: null, enforcement: 'documents' },
+    ];
+    const after = [
+      { ...before[0], event: 'Stop', matcher: null, enforcement: 'documents' },
+      { ...before[1], event: 'SubagentStop', enforcement: 'documents' },
+    ];
+    const diff = diffAgainstManifest(after, before);
+    expect(diff.repointed).toEqual([]);
+    expect(diff.ambiguous).toEqual([{ kind: 'hook', id: 'p.sh', gone: 2, arrived: 2 }]);
+    expect(diff.missing.map(componentKey)).toEqual(['hook:p.sh:Stop', 'hook:p.sh:SubagentStop']);
+    expect(diff.orphaned.map(componentKey)).toEqual(['hook:p.sh:PreToolUse', 'hook:p.sh:SessionStart']);
+    const report = driftReport(diff);
+    expect(report).toContain('? hook p.sh has 2 registration(s) gone and 2 arrived');
+    expect(report).toContain('no unique');
+    expect(report).not.toContain('RE-POINTED');
+  });
+
+  // Unchanged in SUBSTANCE by #611: the event did not move, so both sides carry the same registration
+  // key and this is still the `changed` case. The expected string grew the event, which is the whole of
+  // the edit — and that is the point of asserting it here rather than only in the re-point block: a
+  // component whose event held still must NOT be dragged into the missing/orphaned pair.
   it('reports a matcher that was removed, not only one that was changed', () => {
     const before = [{ kind: 'hook', id: 'g.sh', file: 'hooks/scripts/g.sh', event: 'PreToolUse', matcher: 'Bash', enforcement: 'denies' }];
     const after = [{ ...before[0], matcher: null }];
-    expect(diffAgainstManifest(after, before).changed.map(componentKey)).toEqual(['hook:g.sh']);
+    const diff = diffAgainstManifest(after, before);
+    expect(diff.changed.map(componentKey)).toEqual(['hook:g.sh:PreToolUse']);
+    expect(diff.missing).toEqual([]);
+    expect(diff.orphaned).toEqual([]);
+    expect(diff.repointed).toEqual([]);
+    // The report names the field that moved rather than the categories a field COULD belong to.
+    expect(driftReport(diff)).toContain('~ hook g.sh (PreToolUse) changed shape: matcher');
   });
 
   it('reports a family whose command count moved', () => {
