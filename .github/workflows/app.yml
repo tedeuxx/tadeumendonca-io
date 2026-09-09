@@ -633,11 +633,23 @@ jobs:
       # that ambiguity is the second half of issue #79.
       #
       # `npm-audit` is NOT keyed on any of these booleans — it runs whenever npm-ci ran, i.e. on
-      # `test || version || citations`. That is why three of the branches below name it while the
-      # `harness`-only and no-match branches do not: on those two npm-ci is skipped, so npm-audit is too.
-      # These strings are hand-maintained against the `if:` conditions above and NOTHING ASSERTS THEY
-      # AGREE — a condition changed without its message is a check that ran reading like one that did not,
-      # which is the defect this step exists to prevent, produced by the step.
+      # `test || version || citations`. FOUR of the five branches below therefore name it, and only
+      # `no gated changes` does not: that is the one shape where every category is false, so npm-ci is
+      # skipped and npm-audit with it.
+      #
+      # THE CLAUDE.md-ONLY BRANCH IS THE TRAP, and it shipped saying the opposite for one review round.
+      # `CLAUDE.md` is matched by the `citations` pattern `*.md` (picomatch, root-level only), and it is
+      # the ONLY `harness` path not also covered by `test` — every other one sits under `apps/**`. So
+      # this branch's entire domain is "CLAUDE.md and nothing else", and on that shape `citations` is
+      # ALWAYS true: npm-ci starts, npm-audit runs, and so does vitest, which is the citation gate. A
+      # CLAUDE.md-only PR is not the light-touch run this sentence used to describe. Measured on three
+      # real pre-fix runs (34261407171, 34160893755, 34144393858): npm-ci success, three for three.
+      #
+      # These strings no longer rest on that reading being right. `app-workflow.test.mjs` DERIVES, from
+      # these filter patterns through picomatch, which jobs run for a representative diff of each shape,
+      # and asserts each notice agrees — so a filter edit that changes what runs reddens the notice that
+      # describes it. It also asserts this ladder carries exactly the branches it knows about, so a new
+      # one cannot escape unnoticed.
       #
       # Every combination below is distinguished, not just
       # a fixed count of cases — `code`/`test`/`harness`/`version` are independent booleans since the
@@ -673,7 +685,7 @@ jobs:
             exit 0
           fi
           if [ "$HARNESS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::CLAUDE.md-only change — harness-drift ran; lint, typecheck, tests, build, E2E and Sonar had nothing to look at and did NOT run"
+            echo "::notice::CLAUDE.md-only change — npm-audit, vitest and harness-drift ran (CLAUDE.md is also in the citations filter, so npm-ci and the citation gate start); lint, typecheck, build, E2E and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$TEST" = "true" ] && [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
