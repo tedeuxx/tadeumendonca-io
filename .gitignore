@@ -36,3 +36,12 @@ crash.log
 
 # Claude Code — personal/local overrides (e.g. autoMemoryDirectory). Never committed.
 .claude/settings.local.json
+
+# Codex — the project-local config is machine-specific (it names absolute interpreter paths outside
+# this workspace entirely) and is NOT the permission layer. `.codex/rules/*.rules` IS the permission
+# layer and IS tracked, deliberately, from skills#419 on. The exclusion is written here rather than in
+# `.git/info/exclude`, which is where both of those files sat until that Issue: that file is per-clone
+# and unversioned, so `git status` hid them, no PR ever contained them, and nothing anywhere recorded
+# that hiding them had been decided. A rule about what this repository does not track belongs in a
+# tracked file.
+.codex/config.toml

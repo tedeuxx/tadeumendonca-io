@@ -1,0 +1,85 @@
+name: codex
+
+# PR gate for `.codex/` — named after the top-level directory it guards, the same convention as
+# `github` (.github/), `app` (apps/), `iac` (iac/) and `brief` (AGENTS.md).
+#
+# WHY IT EXISTS. `.codex/rules/claude-command-policy.rules` is a THIRD agent harness's permission
+# layer, ported from this repository's Claude permissions. It was agent-authored on 2026-09-07, listed
+# in `.git/info/exclude` — so `git status` never showed it — and no PR, no gate and no reviewer had
+# ever seen it. That is the skills#411 condition one harness over, and it is worse in one respect: a
+# brief that drifts misinforms, a permission layer that drifts fails PERMISSIVE, because whoever finds
+# it reads it as the floor.
+#
+# ITS OWN FILE, not a step in `brief`. `brief` is filtered to `AGENTS.md` and `scripts/**`; the port is
+# neither, and a change touching only `.codex/**` would match nothing there — the exact shape of issue
+# #79, a green check that verified nothing and was indistinguishable from one that verified everything.
+#
+# WHAT IT DOES NOT CLAIM. The suite asserts deny-COVERAGE of a list and portability of the file. It
+# cannot see the allow side, five denies that live only at user level in no repository, the semantics
+# of literal-argv-prefix matching, or whether the tracked file is the one that harness actually loads.
+# The suite's own header states each at length; the notice at the end of this job repeats the shape so
+# a green is not spent on more than it bought.
+#
+# TRIGGERING: runs on EVERY PR, with the path filter applied INSIDE the job — the same shape as `app`,
+# `iac`, `github` and `brief`, and for the same reason. A workflow-level `paths:` filter can never be a
+# required status check: on a PR that does not match, the check never reports and sits pending forever.
+#
+# IT IS NOT A REQUIRED CHECK YET. Promoting it is a branch-protection change, which is the owner's.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - ".codex/**"
+      - ".claude/settings.json"
+      - "scripts/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codex-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  execpolicy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # THE UNION OF WHAT THE SUITE READS, not where its subject lives. It compares `.codex/**`
+      # against `.claude/settings.json`, so EITHER side falsifies it: add a `Bash()` deny to the
+      # settings and the port no longer covers the floor; edit the port and it stops matching the
+      # floor it claims to carry. `scripts/**` is the checker itself — an edit that weakens it must
+      # start the gate it weakens.
+      - name: Detect exec-policy changes
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: changes
+        with:
+          filters: |
+            execpolicy:
+              - '.codex/**'
+              - '.claude/settings.json'
+              - 'scripts/**'
+
+      - name: Assert the Codex exec-policy port holds its properties
+        if: steps.changes.outputs.execpolicy == 'true'
+        run: bash scripts/codex-rules.test.sh
+
+      # A check that matched nothing must not read like a check that passed. Three cases, always
+      # distinguished — the convention this repository's other gates already follow.
+      - name: Report what was checked
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.changes.outputs.execpolicy }}" != "true" ]; then
+            echo "::notice::.codex/, .claude/settings.json and scripts/ unchanged — the exec-policy gate did not run (nothing was verified)"
+            exit 0
+          fi
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "::notice::the exec-policy gate did NOT complete — read the failing step, not this line."
+            exit 0
+          fi
+          echo "::notice::every Bash() deny in .claude/settings.json appears verbatim as a forbidden prefix_rule, the port carries no absolute path, and every script path it names resolves. This says NOTHING about the allow side, about denies that live only in the untracked user-level settings, about whether a literal argv prefix stops the ACT rather than the spelling, or about whether the tracked file is the one that harness loads."
