@@ -103,7 +103,21 @@ describe('adr citations — the gate', () => {
     // else. Still exact CONTENTS, so a genuinely new excuse still has to be looked at by a person.
     const excused = (list) => list.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '));
     expect(excused(audit.crossRepo)).toEqual([]);
-    expect(excused(audit.quoted)).toEqual([]);
+    expect(excused(audit.quoted)).toEqual([
+      // A citation to the SIBLING repository's methodology library, carried into this tree by the
+      // byte-identical `<!-- loop-mode-contract -->` block in `CLAUDE.md`. That block is shared
+      // verbatim with tedeuxx/tadeumendonca-skills by an obligation stated in the block itself, so
+      // the filename it names is a record in THAT library. `docs/adr/0002` here is
+      // `0002-fully-static-spa-no-backend.md` — a different record entirely — so this citation
+      // cannot resolve in this tree by construction, and no edit on this side can make it.
+      //
+      // It is excused rather than repaired, and NOT because it is harmless: `isCrossRepo` only
+      // classifies `ADR-nnnn` TOKENS, so a bare PATH into the sibling library can never reach the
+      // cross-repo bucket. This one lands in `quoted` solely because the block happens to wrap it
+      // in backticks. Written without them it would land in `dangling`, which is fatal, and the
+      // shared block would be unlandable here without breaking the byte-identity rule.
+      'CLAUDE.md cites 0002-roster-and-dev-loop.md',
+    ]);
     expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own
       // struck text says the target "was never written". Not a defect; not silently ignored either.
