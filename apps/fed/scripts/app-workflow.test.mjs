@@ -308,16 +308,30 @@ const ARCHITECTURE = {
   },
 };
 
+// BOTH SIDES ARE NORMALIZED, and the needle as well as the haystack. The PT claim carries two
+// combining accents, and an NFD-normalized save of that edition — which macOS tooling produces
+// without being asked — makes a raw comparison fail while the sentence sits plainly in the diff.
+// The red that produces says "the page stopped making the claim", which is the one message this
+// arm must never send falsely: it would send a reader to restore a sentence that was never
+// removed. The needle is normalized too because THIS file can be saved NFD as easily as the
+// content can, and a fix that only normalized one side would swap which save breaks it.
+//
+// It does NOT weaken the deletion check: normalization maps both encodings onto one form, so a
+// genuinely removed sentence is still absent from the normalized haystack. Calibrated in both
+// directions (#611) — the arm still reddens when the claim is deleted, and stays green against an
+// NFD copy of the same sentence.
+const readNfc = (path) => readFileSync(path, 'utf8').normalize('NFC');
+
 describe('app.yml — the triggers still match what /architecture publishes about them', () => {
   it('is reading real editions, not two empty strings', () => {
     for (const { path } of Object.values(ARCHITECTURE)) {
-      expect(readFileSync(path, 'utf8').length).toBeGreaterThan(5000);
+      expect(readNfc(path).length).toBeGreaterThan(5000);
     }
   });
 
   it('has both editions still making the no-trigger-of-its-own claim', () => {
     for (const [locale, { path, claim }] of Object.entries(ARCHITECTURE)) {
-      expect(readFileSync(path, 'utf8'), locale).toContain(claim);
+      expect(readNfc(path), locale).toContain(claim.normalize('NFC'));
     }
   });
 
