@@ -284,9 +284,36 @@ jobs:
   # (audit-ci.jsonc: skip-dev + high/critical); devDep advisories surface via Dependabot but never block
   # a static-site deploy. It queries a live advisory DB, so a new advisory can start blocking an
   # otherwise-unrelated PR — the checked-in allowlist (justification + expiry) is the relief valve.
+  #
+  # NO `if:`, DELIBERATELY, and it is the one job in this file for which a path filter is a CATEGORY
+  # ERROR. Every other `code` job reads the diff: eslint, tsc, build-static and playwright all
+  # open files the PR changed, so gating them on the paths that changed is exactly right. This job's
+  # subject is `apps/fed/package-lock.json` CROSSED WITH A LIVE ADVISORY DATABASE, and the second half
+  # moves with no commit at all — the comment directly above has said so since the job was written. So
+  # "nothing under apps/** changed" is not evidence that there is nothing to find; it is evidence about
+  # the wrong input.
+  #
+  # It ran on NONE of the five most recent `main` runs, including the merge base of #625, because every
+  # one of them was a VERSION-only bump commit: `version` starts npm-ci and build-static but not `code`.
+  # A path-filtered gate that was skipping is not a gate that was passing, and five greens on this axis
+  # measured nothing. #625 tripped it only by accident, by touching apps/**.
+  #
+  # Dropping the `if:` rather than widening it to `test || version || citations` is not a shortcut: a
+  # SKIPPED dependency skips the dependent (the npm-ci comment above relies on the same rule), so
+  # `needs: npm-ci` alone already means "run whenever this tree is installed at all" — which is the
+  # honest condition — and expresses it once instead of keeping a second copy of npm-ci's boolean in
+  # sync by hand. `changes` leaves `needs:` along with the `if:` that was its only reader; the ordering
+  # survives through npm-ci, which needs it.
+  #
+  # Provenance: measured on PR #625, whose npm-audit red was the FIRST reading this axis had produced in
+  # five `main` runs. See that PR's gate verdict for the measurement as it was found.
+  #
+  # RESIDUAL, named because this does not close it: nothing here is SCHEDULED. A new advisory published
+  # against a lockfile nobody touches is still invisible until the next PR opens, whatever it changes.
+  # Closing that needs a `schedule:` trigger, a decision about which workflow owns it and who reads a
+  # failure nobody caused — its own slice, and Dependabot alerts cover part of it today.
   npm-audit:
-    needs: [changes, npm-ci]
-    if: needs.changes.outputs.code == 'true'
+    needs: npm-ci
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -603,7 +630,28 @@ jobs:
           exit 1
 
       # A path-filtered gate that matched nothing reports PASS exactly like one that ran every check, and
-      # that ambiguity is the second half of issue #79. Every combination below is distinguished, not just
+      # that ambiguity is the second half of issue #79.
+      #
+      # `npm-audit` is NOT keyed on any of these booleans — it runs whenever npm-ci ran, i.e. on
+      # `test || version || citations`. FOUR of the five branches below therefore name it, and only
+      # `no gated changes` does not: that is the one shape where every category is false, so npm-ci is
+      # skipped and npm-audit with it.
+      #
+      # THE CLAUDE.md-ONLY BRANCH IS THE TRAP, and it shipped saying the opposite for one review round.
+      # `CLAUDE.md` is matched by the `citations` pattern `*.md` (picomatch, root-level only), and it is
+      # the ONLY `harness` path not also covered by `test` — every other one sits under `apps/**`. So
+      # this branch's entire domain is "CLAUDE.md and nothing else", and on that shape `citations` is
+      # ALWAYS true: npm-ci starts, npm-audit runs, and so does vitest, which is the citation gate. A
+      # CLAUDE.md-only PR is not the light-touch run this sentence used to describe. Measured on three
+      # real pre-fix runs (34261407171, 34160893755, 34144393858): npm-ci success, three for three.
+      #
+      # These strings no longer rest on that reading being right. `app-workflow.test.mjs` DERIVES, from
+      # these filter patterns through picomatch, which jobs run for a representative diff of each shape,
+      # and asserts each notice agrees — so a filter edit that changes what runs reddens the notice that
+      # describes it. It also asserts this ladder carries exactly the branches it knows about, so a new
+      # one cannot escape unnoticed.
+      #
+      # Every combination below is distinguished, not just
       # a fixed count of cases — `code`/`test`/`harness`/`version` are independent booleans since the
       # `code`/`test`/`harness` filter split, so listing "N cases" here would just be one more count to
       # keep in sync by hand.
@@ -633,19 +681,19 @@ jobs:
           # Ordered AFTER the job.status check, like every other case below it: a branch that reports
           # what ran must not fire on a run where something failed.
           if [ "$CITATIONS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::citation-surface-only change (iac/**, .github/**, docs outside adr, root *.md) — vitest ran, which is the ADR citation gate; lint, typecheck, build, Playwright and Sonar had nothing to look at and did NOT run"
+            echo "::notice::citation-surface-only change (iac/**, .github/**, docs outside adr, root *.md) — npm-audit and vitest ran, the latter being the ADR citation gate; lint, typecheck, build, Playwright and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$HARNESS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::CLAUDE.md-only change — harness-drift ran; lint, typecheck, tests, build, E2E and Sonar had nothing to look at and did NOT run"
+            echo "::notice::CLAUDE.md-only change — npm-audit, vitest and harness-drift ran (CLAUDE.md is also in the citations filter, so npm-ci and the citation gate start); lint, typecheck, build, E2E and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$TEST" = "true" ] && [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::docs/adr or deploy.yml-only change — vitest and sonarqube-scan ran; lint, typecheck, build and Playwright had nothing to look at and did NOT run"
+            echo "::notice::docs/adr or deploy.yml-only change — npm-audit, vitest and sonarqube-scan ran; lint, typecheck, build and Playwright had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$CODE" != "true" ] && [ "$VERSION_ONLY" = "true" ]; then
-            echo "::notice::VERSION-only change — build-static and Playwright ran; lint, typecheck, tests and Sonar had nothing to look at and did NOT run"
+            echo "::notice::VERSION-only change — npm-audit, build-static and Playwright ran; lint, typecheck, tests and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$HARNESS" = "true" ]; then
