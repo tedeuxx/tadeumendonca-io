@@ -255,7 +255,7 @@ jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json \
 ```
 
 **Run in `tedeuxx/tadeumendonca-skills` the same command also produces no stdout and exits 1 — and there
-it means the opposite.** There it means *thirteen hook registrations were scanned and none of them
+it means the opposite.** There it means *fourteen hook registrations were scanned and none of them
 selects a milestone or a label*; here it means *nothing was scanned*. **The two cases are identical on
 stdout and identical on exit code**, which is this repository's own named worst failure shape: a
 falsifier that fails open reads to whoever runs it as *nothing to worry about*.
@@ -263,15 +263,15 @@ falsifier that fails open reads to whoever runs it as *nothing to worry about*.
 **The claim the block makes is nonetheless TRUE in this repository, and the reason is that its subject is
 the plugin rather than the containing repo.** The enforcement layer governing a session rooted here is
 `tedeuxx/tadeumendonca-skills`'s `hooks/`, installed through `.claude/settings.json` and running against
-this tree — the same thirteen registrations, the same twenty-two vocabulary matches, all of them comments
+this tree — the same fourteen registrations, the same twenty-five vocabulary matches, all of them comments
 or deny strings. Re-derived at that repository's head on 2026-09-09, from this repository's session:
 
 ```
 # run with the -skills checkout as cwd:
-jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json | wc -l          # -> 13
+jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json | wc -l          # -> 14
 jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json \
   | sed 's|.*/hooks/scripts/|hooks/scripts/|; s|"$||' | sort -u \
-  | xargs grep -hcE 'milestone|iteration|sprint' | paste -sd+ - | bc                     # -> 22
+  | xargs grep -hcE 'milestone|iteration|sprint' | paste -sd+ - | bc                     # -> 25
 ```
 
 **And the three commands are the sharp case of a wider one: EVERY repo-relative path in that shared block
