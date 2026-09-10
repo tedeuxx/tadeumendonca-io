@@ -13,8 +13,19 @@
 # deny is carried in four spellings (bare, `-C .`, `-C ../<sibling>` for each repo), so the ACT stays
 # forbidden -- but an invocation that types a machine-absolute path matches none of them. The Claude
 # guard reads the whole string and does not have that gap. Do not close it by pasting a path back in.
-# No hook-script allows: the scripts live in the sibling repository, so every such rule was a
-# machine path no gate in THIS repository could resolve. Their loss is friction, never a hole.
+# ~~No hook-script allows: the scripts live in the sibling repository, so every such rule was a
+# machine path no gate in THIS repository could resolve. Their loss is friction, never a hole.~~
+# STRUCK 2026-09-10 -- true of the 28 rules the porting run DROPPED and false as a description of
+# this repository, which has carried two shell scripts of its own since `scripts/agents-md.test.sh`
+# and `scripts/codex-rules.test.sh` landed. Both were unpreauthorized here while this sentence
+# explained why there was nothing to preauthorize. Struck rather than rewritten because it is a
+# sentence about a control, in the control's own file, and it read as a reason rather than as an
+# omission. The dropped-sibling half stands: a rule naming a path in a tree this repository never
+# checks out is unresolvable by any arm here, and its loss is a permission prompt, never a hole.
+# The two `bash scripts/...` allows below are this repository's own scripts, repo-relative, and
+# `arm 4b` of `scripts/codex-rules.test.sh` is what reddens if a tracked `*.sh` under `scripts/`
+# stops being named -- in BOTH directions, which is what the sibling's identical sentence did not
+# do until the same day this one was struck.
 # More restrictive matching rules win. Commands remain subject to AGENTS.md.
 prefix_rule(pattern=["actionlint"], decision="allow")
 prefix_rule(pattern=["awk"], decision="allow")
@@ -49,6 +60,8 @@ prefix_rule(pattern=["aws", "ssm", "get-parameters"], decision="allow")
 prefix_rule(pattern=["aws", "ssm", "get-parameters-by-path"], decision="allow")
 prefix_rule(pattern=["aws", "sts", "get-caller-identity"], decision="allow")
 prefix_rule(pattern=["basename"], decision="allow")
+prefix_rule(pattern=["bash", "scripts/agents-md.test.sh"], decision="allow")
+prefix_rule(pattern=["bash", "scripts/codex-rules.test.sh"], decision="allow")
 prefix_rule(pattern=["bump-my-version"], decision="allow")
 prefix_rule(pattern=["cat"], decision="allow")
 prefix_rule(pattern=["checkov"], decision="allow")
