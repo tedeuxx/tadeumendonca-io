@@ -1,6 +1,14 @@
 [
   {
     "kind": "hook",
+    "id": "cadence-notice.sh",
+    "file": "hooks/scripts/cadence-notice.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
     "id": "closure-artifact-guard.sh",
     "file": "hooks/scripts/closure-artifact-guard.sh",
     "event": "Stop",
