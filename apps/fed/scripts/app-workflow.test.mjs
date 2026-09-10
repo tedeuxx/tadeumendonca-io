@@ -275,3 +275,67 @@ describe('app.yml — the report never claims npm-audit ran where it did not, or
     expect(noticeFor('no gated changes')).not.toContain('npm-audit');
   });
 });
+
+// ─── the published claim about this workflow's TRIGGERS ───────────────────────────────────────────────
+// /architecture publishes, in both editions, that the manifest-to-plugin leg of `harness-drift` has NO
+// TRIGGER OF ITS OWN. That sentence is not a description of intent — it is true only while this file
+// declares no `schedule:`, and it becomes false the moment one is added, in the direction that is hardest
+// to notice: the page would be UNDERSTATING the guarantee, which reads as modesty rather than as an error.
+//
+// The claim replaced "the check arrives late" (#611), which overstated in the other direction. Six days
+// passed between the eighth persona landing in the plugin and this job first running, on an unrelated PR
+// that happened to touch CLAUDE.md. "Late" implies arrival; nothing here arrives on its own.
+//
+// WHY BOTH ARMS. An absence assertion whose subject has been deleted goes on passing while guarding
+// nothing — the exact shape this repo's own standards name. So the first arm pins that the page still
+// MAKES the claim, and only then does the second arm pin the fact the claim rests on. Delete the sentence
+// and the first arm reddens; add a schedule and the second does.
+//
+// The phrase pinned is short and distinctive rather than a whole paragraph, so ordinary copy editing
+// around it does not redden this by accident — the same reason the components guard matches by name
+// instead of widening what counts as drawn.
+//
+// WHAT THIS STILL CANNOT ASSERT: nothing here proves the page's claim is TRUE of any other leg, and
+// nothing proves the job was ever dispatched. It pins one coupling between one sentence and one trigger.
+const ARCHITECTURE = {
+  en: {
+    path: resolve(import.meta.dirname, '../src/content/architecture.en.md'),
+    claim: 'no trigger of its own',
+  },
+  pt: {
+    path: resolve(import.meta.dirname, '../src/content/architecture.pt.md'),
+    claim: 'não tem gatilho próprio',
+  },
+};
+
+// BOTH SIDES ARE NORMALIZED, and the needle as well as the haystack. The PT claim carries two
+// combining accents, and an NFD-normalized save of that edition — which macOS tooling produces
+// without being asked — makes a raw comparison fail while the sentence sits plainly in the diff.
+// The red that produces says "the page stopped making the claim", which is the one message this
+// arm must never send falsely: it would send a reader to restore a sentence that was never
+// removed. The needle is normalized too because THIS file can be saved NFD as easily as the
+// content can, and a fix that only normalized one side would swap which save breaks it.
+//
+// It does NOT weaken the deletion check: normalization maps both encodings onto one form, so a
+// genuinely removed sentence is still absent from the normalized haystack. Calibrated in both
+// directions (#611) — the arm still reddens when the claim is deleted, and stays green against an
+// NFD copy of the same sentence.
+const readNfc = (path) => readFileSync(path, 'utf8').normalize('NFC');
+
+describe('app.yml — the triggers still match what /architecture publishes about them', () => {
+  it('is reading real editions, not two empty strings', () => {
+    for (const { path } of Object.values(ARCHITECTURE)) {
+      expect(readNfc(path).length).toBeGreaterThan(5000);
+    }
+  });
+
+  it('has both editions still making the no-trigger-of-its-own claim', () => {
+    for (const [locale, { path, claim }] of Object.entries(ARCHITECTURE)) {
+      expect(readNfc(path), locale).toContain(claim.normalize('NFC'));
+    }
+  });
+
+  it('declares no `schedule:` trigger, which is the fact that claim rests on', () => {
+    expect(Object.keys(workflow.on)).not.toContain('schedule');
+  });
+});
