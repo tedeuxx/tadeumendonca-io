@@ -105,6 +105,14 @@
   },
   {
     "kind": "hook",
+    "id": "worktree-notice.sh",
+    "file": "hooks/scripts/worktree-notice.sh",
+    "event": "SessionStart",
+    "matcher": null,
+    "enforcement": "documents"
+  },
+  {
+    "kind": "hook",
     "id": "zombie-loop-detect.sh",
     "file": "hooks/scripts/zombie-loop-detect.sh",
     "event": "Stop",

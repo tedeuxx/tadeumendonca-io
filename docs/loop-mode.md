@@ -18,7 +18,8 @@ by nothing but the drain (see *The two repositories* below).
 
 ## The declaration
 
-Four lines, each at column 0, each a parsing contract read literally — the same positional shape
+~~Four lines~~ **FIVE lines since 2026-09-11 (#385)**, each at column 0, each a parsing contract read
+literally — the same positional shape
 `invocable:` already uses across this loop's Issues, chosen for the same reason: a declaration a reader
 can find with an anchored `grep` rather than by reading prose around it.
 
@@ -26,6 +27,7 @@ loop-mode: kanban
 loop-mode-since: 2026-08-29
 loop-mode-enum: scrum kanban
 loop-mode-repos: tedeuxx/tadeumendonca-skills tedeuxx/tadeumendonca-io
+wip: 2
 
 **`loop-mode-enum` is closed at two, and an unrecognised value is refused BY NAME rather than defaulted.**
 A mode selects a pool predicate and a ceremony set; a session that cannot resolve the value has no
@@ -290,6 +292,117 @@ qualify the plugin-relative paths and re-scope the three commands to name the pl
 rather than resolving them against whatever `cwd` happens to be — and it is its own slice, in both
 repositories, not a unilateral edit here.** Recorded rather than absorbed.
 
+
+---
+
+## `wip: 2` — the value, and why this copy carries a basis measured in the SIBLING (#385)
+
+**`#406` declared the SLOT and deliberately decided no value. `#385` decides the value, and it is `2`.**
+
+**This file's own rule is that the two records are not byte-identical and that each carries its own
+repository's measurements — with the `wip` VALUE as the one thing that must agree.** That rule is
+honoured here rather than worked around, and the honest consequence is stated instead of hidden: **the
+basis for `2` was measured entirely in `tedeuxx/tadeumendonca-skills`, because the instrument that
+produces it has never written a record in this repository.**
+
+~~```
+# Re-derived 2026-09-11 over fourteen recent -skills Issues:
+#   #406 -> 33 records      #437 -> 3 records      the other twelve -> 0
+# aggregated over #406's 33: developer 1.72 h = 11.1%
+```~~
+
+**STRUCK 2026-09-11 — FALSE, and the defect was the CORPUS, not the selector.** The window above was
+**hand-typed**, and what I typed was dominated by Issues too recent to have been worked — so the
+selector was right and it was pointed at the wrong fourteen. The gate falsified it: over the fourteen
+most recent **closed** Issues, **nine** carry dispatch records, not two. That reproduces exactly here
+(`#438` 8 · `#437` 3 · `#434` 3 · `#426` 1 · `#423` 1 · `#421` 5 · `#419` 3 · `#416` 6 · `#413` 12 =
+**42 records**).
+
+**The transferable half: a corpus you typed is a claim you did not measure.** Deriving the window with
+the same command that reads it is what closes this class, which is why the replacement below enumerates
+rather than lists.
+
+**The corrected basis, with the command that produced it:**
+
+```
+python3 -c '
+import subprocess, json, re, collections
+R = "tedeuxx/tadeumendonca-skills"
+g = lambda *a: subprocess.check_output(["gh"] + list(a), text=True)
+nums = json.loads(g("issue","list","--repo",R,"--state","all","--limit","40",
+                    "--json","number","--jq","[.[].number]"))
+agg, cnt, carry = collections.Counter(), collections.Counter(), 0
+for n in nums:
+    bodies = json.loads(g("issue","view",str(n),"--repo",R,"--json","comments","--jq",
+        "[.comments[]|select(.body|contains(\"dispatch-metrics:\"))|.body]"))
+    if bodies: carry += 1
+    for b in bodies:
+        for a, d in zip(re.findall(r"agent_type:\s*([^\n]+)", b),
+                        re.findall(r"duration_seconds:\s*([0-9.]+)", b)):
+            k = a.strip().strip("`"); agg[k] += float(d); cnt[k] += 1
+t = sum(agg.values())
+print("issues=%d carrying=%d records=%d total=%.2fh" % (len(nums), carry, sum(cnt.values()), t/3600))
+for k in sorted(agg, key=lambda x: -agg[x]):
+    print("  %-40s n=%-4d %7.2fh %5.1f%%" % (k, cnt[k], agg[k]/3600, 100*agg[k]/t))
+'
+# issues=40 carrying=23 records=286 total=198.16h
+#   agents-lead        n=154  129.78h  65.5%
+#   quality-assurance  n=84    59.67h  30.1%
+#   developer          n=18     4.88h   2.5%   <- the only share parallel DEVELOPMENT touches
+#   product-lead       n=20     2.95h   1.5%
+#   tech-lead          n=6      0.82h   0.4%
+```
+
+**The builder is 2.5% over that corpus — LOWER than the 11.07% first published, so the conclusion
+survives its own correction: parallelising the builder pays less, and `wip: 2` is conservative.**
+
+**The conclusion does not depend on the window, which is worth more than any one figure.** Every corpus
+constructible here puts the builder at or below 11.07%:
+
+| corpus | issues carrying records | records | builder share |
+|---|---|---|---|
+| `#406` alone | 1 | 33 | **11.07%** |
+| 14 most recent **all-state** | 7 | 24 | **0.0%** |
+| 14 most recent **closed** | 9 | 42 | **4.4%** |
+| 40 most recent **all-state** | 23 | 286 | **2.5%** |
+
+**One disagreement recorded rather than absorbed.** The gate is right on the half that blocks — *nine of
+fourteen, not two* — and I reproduce that exactly. Its **replacement aggregate does not reproduce**: it
+published *"across all nine … 89 records, 30.48 h … 9.6%"*, while the nine Issues it lists sum to **42**
+records and **12.61 h** → **4.4%**. No window I could construct returns 89. **The direction is identical
+and every window agrees**, so nothing downstream moves; the figures here are mine, with the command.
+
+**`#406`'s own 11.07% is sound and is kept scoped to the one Issue where it was measured.**
+
+**The review gate is serial by owner ruling 1 and the lens is serial too, so `wip` parallelises that
+2.5% while the rest stays serial — Amdahl's law with a measured fraction, and `2` is where it stops
+paying.**
+
+**Why a `-skills` measurement governs here anyway, stated rather than assumed:** there is one
+development effort and two places where files live — the owner, 2026-08-29: *«nao existe separacao no
+desenvolvimento do skills e do io»* — and `wip` is a property of that one effort. **A per-repository
+`wip` was rejected in `#385` as premature**: it adds an axis to the mode contract, and `#406`'s own
+rulings 2 and 3 each *removed* an axis on the argument that a mode config gets better by shrinking.
+
+**What that costs, and it is a real bound on the number rather than a caveat:** the corpus is
+`-skills`-only and skews `loop`-typed, while this repository's work is overwhelmingly `product` and
+`content`, where the builder's share is **larger** — a `product` Issue runs one lens pass and a
+`content` Issue runs no `agents-lead` at all. **So `2` is conservative for this repository's lanes
+rather than tuned to them**, and the number cannot be improved until the instrument writes records
+here. Fixing that is not `#385`.
+
+### What `wip: 2` does NOT bound
+
+- **It does not bound merge requests.** Nothing enforces it — `gh pr create` is allowlisted in both
+  settings layers and no registered hook reads this file, so an (N+1)th concurrent PR executes with no
+  prompt, no denial and no record.
+- **It does not relax the GATE.** Review stays serial at any value of `wip` (owner ruling 1, in
+  `CLAUDE.md`'s `loop-mode-contract` block). `wip` is a ceiling on **development**, never on review.
+- **It is not a target.** A composed set smaller than `wip` is a correct answer, and on items that
+  converge on the same files it is the right one.
+- **`absent` was not the safe default it looks like.** A missing `wip` meant **unbounded**, not one —
+  ADR-0004's *"absent is not a state"*, on the field where the absent reading was the most permissive
+  available.
 ---
 
 ## The two repositories, and the residual this inherits
