@@ -23,8 +23,8 @@ literally — the same positional shape
 `invocable:` already uses across this loop's Issues, chosen for the same reason: a declaration a reader
 can find with an anchored `grep` rather than by reading prose around it.
 
-loop-mode: kanban
-loop-mode-since: 2026-08-29
+loop-mode: scrum
+loop-mode-since: 2026-09-11
 loop-mode-enum: scrum kanban
 loop-mode-repos: tedeuxx/tadeumendonca-skills tedeuxx/tadeumendonca-io
 wip: 2
@@ -35,7 +35,31 @@ predicate, and guessing one is strictly worse than stopping — it drains a queu
 
 ---
 
-## Why the date is `2026-08-29`, and why it is NOT the sibling's `2026-08-30`
+## Why the date is what it is — and an ACT dates differently from an OMISSION
+
+**Read this before the strike below it.** `loop-mode-since` has carried two values for two different
+reasons, and the rule that produced the first **does not apply** to the second. The strike is not the
+back-dating rule being waived; it is the rule meeting a case it was never about.
+
+| the switch | how it is dated | why |
+|---|---|---|
+| `scrum` → `kanban` | **back-dated**, per repository — `2026-08-29` here, `2026-08-30` in the sibling | an **OMISSION**. Nobody decided it; the container stopped carrying anything, and an omission has no timestamp, so the only honest date is derived from an artifact as a lower bound — which is why the two trees derived two different days |
+| `kanban` → `scrum` (2026-09-11) | **dated to the day it lands**, `2026-09-11`, **identically in both trees** | an **ACT**. The owner ruled it and a composition landed with it (`sprint-02`). An act has a timestamp, so deriving one would invent a lower bound for a moment already known |
+
+**The one sentence to carry: back-dating exists because an omission cannot be dated, not because records
+prefer older dates.** Applying it to an act would publish a mode as having started before the decision
+that started it — the same class of false claim the rule was written to prevent, pointing the other way.
+
+**And it dissolves the per-repository divergence rather than papering over it.** The two dates below
+differed **because each was derived**, and a derivation is per-tree. A ruled switch is not derived, so
+there is one date and both copies carry it. **The divergence was a property of back-dating, not a
+standing feature of this record.**
+
+~~## Why the date is `2026-08-29`, and why it is NOT the sibling's `2026-08-30`~~ — **struck 2026-09-11
+with the switch to `scrum`.** Struck rather than deleted: the derivation below is a real measurement of
+the period it measured, and a reader meeting `loop-mode-since: 2026-09-11` under a heading naming
+`2026-08-29` would conclude the file was merely stale. **What follows is the `kanban` period's
+derivation, kept as history and no longer describing the value above.**
 
 **It is DERIVED from this repository's own artifact, and it is a lower bound on the switch rather than
 the switch itself.** Nothing recorded a mode change, because until this file there was nothing in this
@@ -54,12 +78,20 @@ same query without `|sort_by(.c)|last` returns a five-element array whose `.m` v
 five times. So the last item of the last iteration closed on **2026-08-29**, and every item since was
 worked with no container, no ranking and no rite.
 
-**The record is back-dated to that day rather than to the day this file lands**, because a record written
-as though today were the first day of the mode it names is a false claim on a surface whose whole thesis
-is rigor. **What it cannot say is the hour or the intent** — the switch was an omission, not an act, and
-an omission has no timestamp.
+~~**The record is back-dated to that day rather than to the day this file lands**~~ — **true of the
+`kanban` value and NOT of the current one; see the table above** — because a record written as though
+today were the first day of the mode it names is a false claim on a surface whose whole thesis is rigor.
+**What it cannot say is the hour or the intent** — that switch was an omission, not an act, and an
+omission has no timestamp. **The 2026-09-11 switch back to `scrum` is the opposite case in both halves:
+it has an hour and it has an intent.**
 
-### The sibling says `2026-08-30`, and that is not a drift to repair
+### The sibling says `2026-08-30`, and that is not a drift to repair — **SPENT 2026-09-11, see the table above**
+
+**This whole subsection is about the `kanban` value and no longer describes the record.** Both copies now
+read `2026-09-11`, because a ruled switch is dated rather than derived, so the two-dates question it
+settles has no live instance. **Kept rather than deleted for one reason: it is the argument that a
+per-repository derivation SHOULD produce different days, and the next omission-shaped lapse will need it
+again.** Read it as the standing rule for a derived date, not as a description of the line above.
 
 `tedeuxx/tadeumendonca-skills` derives its own `loop-mode-since` from its own last milestoned close
 (`#355`, 2026-08-30). **Both numbers are correct and they are answers to a per-REPOSITORY question**:
@@ -456,9 +488,39 @@ their only trigger is a drain reaching exhaustion of its entry snapshot, which i
 than a mechanism, and no layer here observes a snapshot going empty. So *"`kanban` does not run the
 rites"* costs nothing that was being collected, which is the honest comparison — **clock versus nothing,
 never clock versus boundary** — and it is why the cadence carrier the owner authorised (`-skills#406`
-slice C) is worth building rather than merely worth naming. **That carrier is not built, and nothing in
-this slice builds one.**
+slice C) is worth building rather than merely worth naming. ~~**That carrier is not built, and nothing in
+this slice builds one.**~~ **STRUCK 2026-09-11 — it IS built**, as `hooks/scripts/cadence-notice.sh`
+against `docs/loop-cadence.md`, in `tedeuxx/tadeumendonca-skills` on 2026-09-09. **It changes nothing in
+this file** — it reads no mode, so both values above select the same cadence behaviour — and **it does not
+fire a rite**: a hook cannot dispatch, so *"the three rites have never fired in either mode"* above is
+unchanged. What changed is that elapsed time is now **said out loud** instead of known by nobody.
 
-**What it does change is measured above and is not small:** under `scrum` this repository's pool is empty
-at head, and under `kanban` it is three items. **A mode nobody had recorded was already selecting which
-of those two answers the loop got, in this tree as much as in the other one.**
+**Flagged as OUT OF SCOPE for the value change that carried this edit, and struck anyway.** Nothing about
+the mode falsified it; it went stale on its own when the sibling built the carrier two days later. It is
+corrected here because it is one sentence, it was measured false in the same pass, and leaving a
+known-false absolute in a file under edit is the failure this record exists to make visible. **The reader
+this protects is the one who takes *"not built"* as a reason not to look for it.**
+
+~~**What it does change is measured above and is not small:** under `scrum` this repository's pool is empty
+at head, and under `kanban` it is three items.~~ **STRUCK 2026-09-11 — both halves are false at head, and
+the sentence says "at head" rather than naming a date, so it cannot be read as a dated measurement the
+way the block above it can.** It described the tracker state on 2026-09-09, when no open Issue here
+carried a milestone. `sprint-02` was composed on 2026-09-11 and this repository now carries two milestoned
+items, so the `scrum` derivation resolves and the `kanban` partition has moved with it. Re-derived at head
+with this file's own two published predicates:
+
+```
+# the scrum derivation -> the active milestone NUMBER
+tedeuxx/tadeumendonca-io -> 2
+# the kanban predicate -> the ordered partition
+tedeuxx/tadeumendonca-io -> product #636
+```
+
+**The lesson that survives its own numbers: a measurement written as "at head" expires silently, while
+the same measurement written with its date expires loudly.** The dated block above survived this switch
+intact for exactly that reason; this one did not.
+
+**What the comparison still shows is the point it was making:** one tracker state, read under two modes,
+returns two different pools — and **a mode nobody had recorded was already selecting which of them the
+loop got, in this tree as much as in the other one.** That claim never depended on the pools being empty
+and three; it depends on them differing, which they still do.
