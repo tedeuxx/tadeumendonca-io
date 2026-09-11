@@ -18,7 +18,8 @@ by nothing but the drain (see *The two repositories* below).
 
 ## The declaration
 
-Four lines, each at column 0, each a parsing contract read literally — the same positional shape
+~~Four lines~~ **FIVE lines since 2026-09-11 (#385)**, each at column 0, each a parsing contract read
+literally — the same positional shape
 `invocable:` already uses across this loop's Issues, chosen for the same reason: a declaration a reader
 can find with an anchored `grep` rather than by reading prose around it.
 
@@ -26,6 +27,7 @@ loop-mode: kanban
 loop-mode-since: 2026-08-29
 loop-mode-enum: scrum kanban
 loop-mode-repos: tedeuxx/tadeumendonca-skills tedeuxx/tadeumendonca-io
+wip: 2
 
 **`loop-mode-enum` is closed at two, and an unrecognised value is refused BY NAME rather than defaulted.**
 A mode selects a pool predicate and a ceremony set; a session that cannot resolve the value has no
@@ -290,6 +292,57 @@ qualify the plugin-relative paths and re-scope the three commands to name the pl
 rather than resolving them against whatever `cwd` happens to be — and it is its own slice, in both
 repositories, not a unilateral edit here.** Recorded rather than absorbed.
 
+
+---
+
+## `wip: 2` — the value, and why this copy carries a basis measured in the SIBLING (#385)
+
+**`#406` declared the SLOT and deliberately decided no value. `#385` decides the value, and it is `2`.**
+
+**This file's own rule is that the two records are not byte-identical and that each carries its own
+repository's measurements — with the `wip` VALUE as the one thing that must agree.** That rule is
+honoured here rather than worked around, and the honest consequence is stated instead of hidden: **the
+basis for `2` was measured entirely in `tedeuxx/tadeumendonca-skills`, because the instrument that
+produces it has never written a record in this repository.**
+
+```
+# the instrument is hooks/scripts/dispatch-metrics-stop.sh, and it writes onto the Issue it worked.
+# Re-derived 2026-09-11 over fourteen recent -skills Issues:
+#   #406 -> 33 records      #437 -> 3 records      the other twelve -> 0
+# aggregated over #406's 33:
+#   agents-lead        8.67 h   55.8%
+#   quality-assurance  5.15 h   33.1%
+#   developer          1.72 h   11.1%   <- the only share parallel DEVELOPMENT touches
+```
+
+**The builder is 11% of dispatch time.** The review gate is serial by owner ruling 1 and the lens is
+serial too, so `wip` parallelises that 11% while 89% stays serial — **Amdahl's law with a measured
+fraction, and `2` is where it stops paying.**
+
+**Why a `-skills` measurement governs here anyway, stated rather than assumed:** there is one
+development effort and two places where files live — the owner, 2026-08-29: *«nao existe separacao no
+desenvolvimento do skills e do io»* — and `wip` is a property of that one effort. **A per-repository
+`wip` was rejected in `#385` as premature**: it adds an axis to the mode contract, and `#406`'s own
+rulings 2 and 3 each *removed* an axis on the argument that a mode config gets better by shrinking.
+
+**What that costs, and it is a real bound on the number rather than a caveat:** both traced Issues are
+`loop`-typed, and this repository's work is overwhelmingly `product` and `content`, where the builder's
+share is **larger** — a `product` Issue runs one lens pass and a `content` Issue runs no `agents-lead`
+at all. **So `2` is conservative for this repository's lanes rather than tuned to them**, and the
+number cannot be improved until the instrument writes records here. Fixing that is not `#385`.
+
+### What `wip: 2` does NOT bound
+
+- **It does not bound merge requests.** Nothing enforces it — `gh pr create` is allowlisted in both
+  settings layers and no registered hook reads this file, so an (N+1)th concurrent PR executes with no
+  prompt, no denial and no record.
+- **It does not relax the GATE.** Review stays serial at any value of `wip` (owner ruling 1, in
+  `CLAUDE.md`'s `loop-mode-contract` block). `wip` is a ceiling on **development**, never on review.
+- **It is not a target.** A composed set smaller than `wip` is a correct answer, and on items that
+  converge on the same files it is the right one.
+- **`absent` was not the safe default it looks like.** A missing `wip` meant **unbounded**, not one —
+  ADR-0004's *"absent is not a state"*, on the field where the absent reading was the most permissive
+  available.
 ---
 
 ## The two repositories, and the residual this inherits
