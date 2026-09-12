@@ -1,8 +1,14 @@
-# Content review — `what-my-agents-dont-do`
+# Content review — `what-my-agents-do`
 
 Rounds against `published-voice`, at most two. A finding is **citable** only where the clause it
 violates is quoted verbatim in it; everything else is **advisory and droppable** and carries no claim
 on the writer's time.
+
+**This file was `what-my-agents-dont-do.md` until 2026-09-12** and was renamed with the draft it
+records, when `-io#259` was split. **The two rounds below are untouched** — they read the blobs they
+name, under the filenames those blobs actually had, and re-labelling them would falsify a record of
+what was reviewed. **The round count is the terminal condition and it is spent:**
+`grep -c '^## Round'` → **2**, closing `CONTENT-REVIEW-CLEAR`. Nothing below adds a third.
 
 ## Round 1 — 2026-08-24
 
@@ -253,3 +259,132 @@ staleness, evidence proximity, the machine read and durability are uncovered by 
 construction.
 
 CONTENT-REVIEW-CLEAR
+
+---
+
+## Truth fix — 2026-09-12 (`-io#259`), and it is deliberately NOT a round
+
+**This is not `## Round 3` and must not be counted as one.** The pair's bound is two rounds and it is
+spent; the heading is spelled differently on purpose so `grep -c '^## Round'` still returns **2**.
+
+**Why the two clear rounds did not catch any of this.** Both returned `CONTENT-REVIEW-CLEAR` over six
+false numbers, and that is the pair working as specified rather than failing: `published-voice` carries
+a **provenance** gate — *is this claim sourced* — and no verification against the code. Round 2's own
+closing section says so in its own words (*"external correctness is not"*). **So the finding here is
+about the ruler's coverage, not the reviewer's attention**, and it is the residual `content-publishing`
+already records for this lane: since the copy veto left it on 2026-09-03, nothing here checks a claim
+against the world except the owner at the held preview.
+
+### The split — the ruling, not a craft call
+
+Rule 9's ceiling is **1,500**; the draft ran **1,809** (EN) and **1,946** (PT), and rule 10 forbids the
+repair that first suggests itself: *"A piece over the ceiling becomes a SERIES. It is not trimmed to
+fit."* The owner ruled SPLIT. This file now records the **first** piece — *what the agents do*. The
+second — what none of it can check, the two retrieval failures, the declared-incomplete coverage — is
+**`-io#638`** and is out of scope here.
+
+**The slug and the title stopped disagreeing, because the disagreement WAS the seam.** The slug named
+the second piece and the title named the first. Resolved in the title's favour, since the title is what
+the retained argument proves:
+
+| | before | after |
+|---|---|---|
+| EN slug | `what-my-agents-dont-do` | `what-my-agents-do` |
+| PT slug | `o-que-os-meus-agentes-nao-fazem` | `o-que-os-meus-agentes-fazem` |
+| filename key | `what-my-agents-dont-do` | `what-my-agents-do` |
+
+**Both retired strings are left free for `-io#638`**, which is the piece they were always describing.
+Nothing was published under either, so no URL breaks — round 2 recorded that changing the slug is cheap
+now and expensive later, and this is the *now*.
+
+### Post-split measurements, each with the command that produced it
+
+```
+for f in apps/fed/src/content/blog/what-my-agents-do.en.md apps/fed/src/content/blog/what-my-agents-do.pt.md; do
+  printf '%s\t%s\n' "$f" "$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2' "$f" | wc -w)"; done
+#   .en.md  1388
+#   .pt.md  1479      ceiling 1500 — both under
+```
+
+**Calibrated against the figures the ruling published**, so the instrument is the ruling's own rather
+than a second one: the same command over `HEAD`'s pre-split blobs returns **1809** and **1946**,
+reproducing the Issue exactly.
+
+**Recorded rather than smoothed over: the PT margin is 21 words**, and **neither edition is inside rule
+9's 900–1,300 band** — both are under the ceiling, which is the acceptance criterion, and no more.
+Portuguese runs long here because the article declares a gloss device — original *and* translation for
+every quoted English source — which is PT-only surplus with no EN counterpart. Any later edit to the PT
+edition has to re-measure rather than assume headroom.
+
+**Section count: 4 H2 sections in each edition** (`grep -c '^## '`), against rule 11's ceiling of six.
+
+### The six false claims — re-derived at head, not inherited
+
+Every figure below was re-measured in `tadeumendonca-skills` at `cb6e605b`. **One came back different
+from the ruling's own table**, which is why the dispatch required re-derivation.
+
+| # | site | published | ruling said | at head | command |
+|---|---|---|---|---|---|
+| 1 | `:45` | Seven personas / Sete personas | 8 | **8** | `ls agents/*.md \| wc -l` |
+| 2 | `:69` | Nineteen personas became seven | 8 | **8** | same, plus `docs/adr/0002-*.md:594` for the 19→6 cut |
+| 3 | `:69` | Sixty-nine skills became fourteen | 15 | **15** | `jq -r '.skills[]' .claude-plugin/plugin.json \| wc -l` |
+| 4 | `:47` | 34 entries / 34 entradas | 54 | **55** | `grep -cE '^### [0-9]{4} ' docs/blueprint-registry.md` |
+| 5 | `:9` excerpt | 34 behaviours | 54 | **55** | same as #4 |
+| 6 | `:87` | Six skills still have no entry | five | **five** | set difference, below |
+
+**#4 and #5 moved under the ruling.** The registry held 54 entries when `content-reviewer` measured it
+and holds **55** now — `### 0055` landed in `9114ef83` (*wire the fourth rite into every surface that
+enumerates the set*, `-skills#401`), after that measurement and before this slice. Ids run **0001–0055
+with no gaps**, and the five `tipo` values sum to the same total (14 + 13 + 12 + 4 + 12 = 55), so the
+count is cross-checked rather than resting on one grep.
+
+**#6 left this piece with the section that carried it.** The coverage paragraph is `-io#638`'s
+material, so the claim no longer appears in this edition at all. It is **not corrected here and must
+not be read as fixed** — it is `-io#638`'s to carry. The re-derivation is recorded so that piece does
+not start from the ruling's figure:
+
+```
+comm -23 <(jq -r '.skills[]' .claude-plugin/plugin.json | sed 's|^\./||' | sort) \
+         <(grep -A2 '^- \*\*tipo:\*\* knowledge' docs/blueprint-registry.md \
+           | grep -oE 'skills/[a-z-]+' | sort -u)
+# -> skills/backend, skills/cloud-infrastructure, skills/definition-of-done,
+#    skills/frontend, skills/planning-poker        = FIVE
+```
+
+**`:69` was rewritten rather than re-digited, as the ruling required.** *"Sixty-nine skills became
+fourteen"* is a consolidation narrative and the library grew back to fifteen, so a substituted digit
+would have produced a true sentence making a false point. The replacement states both numbers and turns
+the growth into the argument — a count that falls and then climbs is the shape that stops being
+readable when nobody wrote the reason, which is this piece's own thesis arriving on its own evidence.
+
+### What was checked and deliberately NOT swept
+
+- **`:47` "one of five types from a closed list"** — still true. `docs/blueprint-registry.md:24` names
+  exactly five and the arm reddens on a sixth.
+- **`:65` "twenty-one numbers, seven live, fourteen gone"** — re-derives.
+  `ls docs/adr/[0-9]*.md | wc -l` → **7**; the `## History` rows count **14**; 7 + 14 = 21.
+- **The bidirectional disposition test** — still exists, both directions, in
+  `hooks/scripts/inventory-counts.test.sh` (a retired number with no file and no row, ~`:3820`; a
+  History row for a live record, ~`:3857`).
+- **All four verbatim quotations still match their sources exactly.** Checked against
+  emphasis-stripped, whitespace-collapsed sources, because two of the four are wrapped or bolded in the
+  original and a naive line grep returns a false negative on them. Three are retained here; the fourth
+  (*"No instrument in this repository can tell a true purpose from a plausible one…"*) leaves with
+  `-io#638`'s section and was verified anyway, so that piece inherits a checked quotation.
+
+### One claim NOT on the ruling's list, reported rather than fixed silently
+
+**`:45` read "Seven personas that argue with each other".** The count was on the list; **the verb was
+not**, and at eight it is no longer true of the whole set — `scrum-master` holds `tools: []` and argues
+with nobody, and `content-writer` exists because a lane had no builder rather than because anyone
+wanted a disagreement. Corrected to *"several of them there specifically to disagree with another one"*,
+which is what `agents-configuration`'s four-reason rule actually licenses.
+
+### What this pass did not do
+
+**It did not re-run the ruler over the rewritten prose.** The bound is spent, so the tightening the
+split required — roughly 420 EN words cut to land under the ceiling — was read against
+`published-voice` by the writer and by nobody else. **The register, the arc, the *it worked* beat, the
+warm close and the three habits are the reviewed draft's**, and the cuts were compression rather than
+re-argument — but that is the writer's own account of his own edit, which is exactly the bias the pair
+exists to absorb. The owner reads the held preview.
