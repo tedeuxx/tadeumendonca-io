@@ -107,10 +107,17 @@ describe('the committed manifest is a manifest at all', () => {
   // modes of one `commands/autonomy.md`, and the manifest has only ever been able to carry the file. The
   // page published the mode names as though they were commands for the same reason — worth knowing before
   // reading this list as a list of things a person types, which it is not quite.
+  // `funnel-review` joined on 2026-09-11, from the plugin's own #401 — and this assertion going red is
+  // the mechanism working rather than a cost of it. The exact-list form is what made the arrival visible
+  // at all: a count would have gone from 6 to 7 in the manifest and stayed green here, leaving the page
+  // to publish six commands and name none of the seven. Extending the list is the whole remedy; the
+  // page's own nodes and accDescr were corrected in the same commit, which is what the drift check's
+  // error message prescribes.
   it('carries the un-namespaced commands instead of silently dropping them', () => {
     expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
       'autonomy',
       'blueprint',
+      'funnel-review',
       'new-issue',
       'sprint-planning',
       'sprint-retrospective',

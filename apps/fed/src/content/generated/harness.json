@@ -188,6 +188,12 @@
   },
   {
     "kind": "command",
+    "id": "funnel-review",
+    "file": "commands/funnel-review.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
     "id": "new-issue",
     "file": "commands/new-issue.md",
     "enforcement": "documents"

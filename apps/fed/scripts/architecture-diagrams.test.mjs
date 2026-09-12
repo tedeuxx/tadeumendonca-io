@@ -780,13 +780,21 @@ describe('the components diagram carries the inventory it was generated from', (
   });
 
   // The totals, per kind and per hook event. The locale nouns are authored — the NUMBERS are not.
+  //
+  // SCOPED TO THE NODE LABELS (#636), and the widening it replaces is the defect this slice closes.
+  // These three read `fence.source` — the WHOLE fence — so each was satisfied by EITHER surface: a node
+  // gone stale passed as long as the accDescr still carried the figure, and vice versa. That is exactly
+  // the conflation the block comment at the top of this describe already named for the skills and
+  // command totals, left standing here because nothing had gone wrong on these three yet. The `accDescr`
+  // half of the hook figures is asserted separately below; this half is now the node and only the node,
+  // so neither can cover for the other.
   it('states the totals the manifest holds, in each edition’s own words', () => {
     const pre = of('hook').filter((c) => c.event === 'PreToolUse').length;
     const session = of('hook').filter((c) => c.event === 'SessionStart').length;
     for (const source of [enFence.source, ptFence.source]) {
-      expect(source).toContain(`${of('persona').length} personas`);
-      expect(source).toContain(`${pre} hooks · PreToolUse`);
-      expect(source).toContain(`${session} hooks · SessionStart`);
+      expect(nodeLabel(source, 'PS')).toContain(`${of('persona').length} personas`);
+      expect(nodeLabel(source, 'HKD')).toContain(`${pre} hooks · PreToolUse`);
+      expect(nodeLabel(source, 'HKR')).toContain(`${session} hooks · SessionStart`);
     }
     // The two library totals, in each edition's own noun. `skills` is a loanword the pt edition already
     // uses in its prose, so it is the same token in both — the COMMAND total is where the nouns diverge,
@@ -919,6 +927,126 @@ describe('the components diagram carries the inventory it was generated from', (
       true,
     );
     expect(label).toContain(`${subagent} hooks · Subagent`);
+  });
+
+  // THE SAME FIGURES ON THE OTHER SURFACE — the accDescr, which for a screen-reader user IS the drawing
+  // (#636). Every assertion above this one reads a NODE label; nothing read the accDescr's hook figures
+  // at all, and on 2026-09-11 the page published two different inventories to two different readers:
+  // the nodes said 15 registrations written by 14 scripts, the accDescr said 14 and 13, and this suite
+  // was green over it in both editions. It arrived in a catch-up commit that updated the nodes and the
+  // prose and walked past the accDescr — so the assertion, not the correction, is what closes the route.
+  //
+  // WHY A PHRASE TABLE AND NOT A REGEX OVER THE SENTENCE. The blocks above generalise because the token
+  // they pin is byte-identical in both editions — `15 skills` is the same string in pt, which is why
+  // their accDescr halves need no per-locale noun. NO hook figure is: every one sits inside an authored
+  // sentence with a locale-specific preposition (`5 on SessionStart` / `5 no SessionStart`). A regex
+  // loose enough to span both goes QUIET when the sentence is reworded, which is this defect one layer
+  // up. So each figure is a literal per locale, and `hookPhrase` THROWS on a missing entry rather than
+  // skipping — the same contract `NUMERALS`/`word` above uses, for the same reason.
+  //
+  // WHAT THIS DOES NOT COVER, because AC5 of #636 asks for it by name rather than leaving it implied.
+  // It pins the hook TOTALS in the accDescr and nothing else on that surface. Still unchecked there,
+  // each a live instance of this same class: the deny cell's `3 registrations`; the `two of the six
+  // events` pair, which is spelled in words and would need NUMERALS extended; the persona count, which
+  // the block above now pins on the PS node only; and the two matcher names. A green here means the
+  // accDescr's hook totals agree with the manifest — never that the accDescr is checked.
+  const GRID_FENCE = { en: enFence, pt: ptFence };
+
+  // Each figure derived from the manifest, never typed. `scripts` is the one that is not a row count:
+  // a script registered on two events is two rows and one file, which is the whole reason the sentence
+  // says "written by N scripts because preflight is registered twice".
+  const HOOK_FIGURE = {
+    registrations: (hooks) => hooks.length,
+    scripts: (hooks) => new Set(hooks.map((c) => c.id)).size,
+    documents: (hooks) => hooks.filter((c) => c.enforcement === 'documents').length,
+    sessionStart: (hooks) => hooks.filter((c) => c.event === 'SessionStart').length,
+    subagent: (hooks) => hooks.filter((c) => c.event.startsWith('Subagent')).length,
+    stop: (hooks) => hooks.filter((c) => c.event === 'Stop').length,
+  };
+
+  // `subagent` is an AUTHORED AGGREGATION over two `event` values, not a manifest field, and it is
+  // pinned deliberately rather than by accident: the block above already derives exactly this sum for
+  // the HKR node (`startsWith('Subagent')`), so pinning the accDescr with the same derivation is what
+  // makes the two surfaces symmetric — which is the point of this whole block. What it therefore does
+  // NOT catch, said here rather than discovered later: the phrase asserts the SUM, so a manifest that
+  // moved a registration from SubagentStart to SubagentStop would leave it true while the grouping the
+  // sentence implies became misleading. The sum is pinned; the split is not.
+  const HOOK_PHRASE = {
+    registrations: {
+      en: (n) => `the ${n} hook registrations in hooks.json`,
+      pt: (n) => `os ${n} registros de hook no hooks.json`,
+    },
+    scripts: {
+      en: (n) => `written by ${n} scripts`,
+      pt: (n) => `escritos por ${n} scripts`,
+    },
+    documents: {
+      en: (n) => `the other ${n} hook registrations`,
+      pt: (n) => `os outros ${n} registros de hook`,
+    },
+    sessionStart: {
+      en: (n) => `${n} on SessionStart`,
+      pt: (n) => `${n} no SessionStart`,
+    },
+    subagent: {
+      en: (n) => `${n} on SubagentStart and SubagentStop`,
+      pt: (n) => `${n} no SubagentStart e no SubagentStop`,
+    },
+    stop: {
+      en: (n) => `${n} on Stop`,
+      pt: (n) => `${n} no Stop`,
+    },
+  };
+
+  const hookPhrase = (key, locale, n) => {
+    const byLocale = HOOK_PHRASE[key];
+    if (!byLocale) throw new Error(`no phrasing registered for \`${key}\` — extend HOOK_PHRASE`);
+    const build = byLocale[locale];
+    if (!build) throw new Error(`no ${locale} phrasing for \`${key}\` — extend HOOK_PHRASE`);
+    return build(n);
+  };
+
+  // THE TWO TABLES MUST DESCRIBE THE SAME FIGURES, and the asymmetry is why this is a test rather than a
+  // comment. A figure in `HOOK_FIGURE` with no phrasing throws by name from `hookPhrase` — loud, and it
+  // cannot be missed. A phrasing with no figure is SILENT: the cases below iterate `HOOK_FIGURE`, so the
+  // extra entry is never read, and whoever added it has every reason to believe that figure is pinned.
+  // That is the same shape as `guards every kind this file filters for` above, which exists because
+  // `command` was left out of the anti-vacuity list and a whole test looped over an empty set. Same rule,
+  // one table over: an entry either side belongs on both.
+  it('phrases exactly the hook figures it derives, and derives exactly the ones it phrases', () => {
+    const derived = Object.keys(HOOK_FIGURE).sort();
+    expect(derived.length, 'no figures at all — every case below would be vacuous').toBeGreaterThan(0);
+    expect(Object.keys(HOOK_PHRASE).sort()).toEqual(derived);
+    // And every phrased figure in BOTH editions, or one locale rides along on the other's coverage.
+    for (const key of derived) {
+      expect(Object.keys(HOOK_PHRASE[key]).sort(), `\`${key}\` is not phrased in both editions`).toEqual([
+        'en',
+        'pt',
+      ]);
+    }
+  });
+
+  // One case per FIGURE per LOCALE, rather than one test looping over both. A loop stops at the first
+  // failing expect, so a single run could only ever prove one selector live — and #636's estimate names
+  // that as the calibration trap: twelve selectors, two mutations, ten of them never exercised and green
+  // forever on a typo in a pt preposition. Twelve named cases means a mutation reddens a test whose NAME
+  // is the figure and the locale, which is what "name which assertion failed" has to mean to be checkable.
+  it.each(
+    ['en', 'pt'].flatMap((locale) => Object.keys(HOOK_FIGURE).map((key) => [locale, key])),
+  )('pins the %s accDescr hook total `%s` against the manifest', (locale, key) => {
+    const descr = accDescrOf(GRID_FENCE[locale].source);
+    // Same anti-vacuity precondition the accessible-wording block below uses. Without it an accDescr
+    // trimmed to nothing would satisfy no `toContain` and fail loudly — but a phrase table that lost its
+    // interpolation would satisfy every one of them, which is the failure the next two guards close.
+    expect(descr.length, 'the accessible description must exist and say something').toBeGreaterThan(200);
+    const n = HOOK_FIGURE[key](of('hook'));
+    expect(
+      n,
+      `the manifest holds no hook for \`${key}\` — the comparison below would be about zero`,
+    ).toBeGreaterThan(0);
+    const literal = hookPhrase(key, locale, n);
+    expect(literal, 'a phrase that drops its own number would match vacuously').toContain(String(n));
+    expect(descr, `the ${locale} accDescr must carry the manifest's \`${key}\` total`).toContain(literal);
   });
 });
 
