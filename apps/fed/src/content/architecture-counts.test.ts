@@ -8,9 +8,30 @@
 // of why it went unchecked.
 //
 // WHAT WENT WRONG, because the page predicted it in its own prose and that is the whole argument. The ADR
-// section used to say that the count was typed by hand and held up by nothing but the link below — and it
-// was written on 2026-08-25, went false on 2026-09-04 when records 0050 and 0051 landed, and published
-// `49` against a library of 51 for a week. Predicting a failure in prose is not a control.
+// section used to say that the count was typed by hand and held up by nothing but the link below. It was
+// written on the morning of 2026-08-25 (fe5ceed, 10:25) with 49 records on disk, so it was true — and
+// ADR-0050 landed THE SAME EVENING (07046b8, 21:09), so it was false before the day was out. ADR-0051
+// landed 2026-09-04 (394cb63, 17:38). The page published `49` against a library of 50 and then of 51
+// until this file landed. Predicting a failure in prose is not a control.
+//
+// AND THE FIRST VERSION OF THIS COMMENT GOT THOSE DATES WRONG, in the permissive direction, which is
+// worth more to the next reader than the dates are. It said the count "went false on 2026-09-04 when
+// records 0050 and 0051 landed" — dating ADR-0050 ten days late and making the page look as though it
+// rotted slowly, when it rotted in under eleven hours. TWO defects in one published falsifier,
+// `git log -1 … -- docs/adr/0050-*.md docs/adr/0051-*.md`:
+//
+//   1. `-1` over a MULTI-PATH set returns the most recent commit touching EITHER path and says nothing
+//      about the other. The earlier landing is CONCEALED rather than reported — it emits one plausible
+//      line, which is worse than emitting nothing.
+//   2. `-1` answers "last TOUCHED", not "LANDED", so it is the wrong question even per path: that form
+//      dates ADR-0050 to 2026-08-28 (cf4583c), a later edit, not to its arrival.
+//
+// The instrument that does answer it is `--diff-filter=A` per path, cross-checked against a walk over
+// every commit touching `docs/adr/` reading the record count at each. The walk is not belt-and-braces:
+// the count is NOT MONOTONIC (44 -> 43 at c3fb697, 47 -> 45 at 53bf751, both reverts), so "when did the
+// library reach N" has more than one answer and no single `git log` on a glob can date a crossing at all.
+//
+// So: per path, with `--diff-filter=A`, or walk the history. Never `-1` over a set.
 //
 // WHAT IT CANNOT DO, so a green is not read as more than it is: it compares a NUMBER against a generated
 // artifact. It says nothing about whether the sentence around that number is true, and nothing about any
