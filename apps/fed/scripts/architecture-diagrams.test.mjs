@@ -1006,6 +1006,26 @@ describe('the components diagram carries the inventory it was generated from', (
     return build(n);
   };
 
+  // THE TWO TABLES MUST DESCRIBE THE SAME FIGURES, and the asymmetry is why this is a test rather than a
+  // comment. A figure in `HOOK_FIGURE` with no phrasing throws by name from `hookPhrase` — loud, and it
+  // cannot be missed. A phrasing with no figure is SILENT: the cases below iterate `HOOK_FIGURE`, so the
+  // extra entry is never read, and whoever added it has every reason to believe that figure is pinned.
+  // That is the same shape as `guards every kind this file filters for` above, which exists because
+  // `command` was left out of the anti-vacuity list and a whole test looped over an empty set. Same rule,
+  // one table over: an entry either side belongs on both.
+  it('phrases exactly the hook figures it derives, and derives exactly the ones it phrases', () => {
+    const derived = Object.keys(HOOK_FIGURE).sort();
+    expect(derived.length, 'no figures at all — every case below would be vacuous').toBeGreaterThan(0);
+    expect(Object.keys(HOOK_PHRASE).sort()).toEqual(derived);
+    // And every phrased figure in BOTH editions, or one locale rides along on the other's coverage.
+    for (const key of derived) {
+      expect(Object.keys(HOOK_PHRASE[key]).sort(), `\`${key}\` is not phrased in both editions`).toEqual([
+        'en',
+        'pt',
+      ]);
+    }
+  });
+
   // One case per FIGURE per LOCALE, rather than one test looping over both. A loop stops at the first
   // failing expect, so a single run could only ever prove one selector live — and #636's estimate names
   // that as the calibration trap: twelve selectors, two mutations, ten of them never exercised and green
