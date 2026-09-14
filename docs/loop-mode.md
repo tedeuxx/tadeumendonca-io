@@ -289,24 +289,36 @@ jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json \
 ```
 
 **Run in `tedeuxx/tadeumendonca-skills` the same command also produces no stdout and exits 1 — and there
-it means the opposite.** There it means *fourteen hook registrations were scanned and none of them
-selects a milestone or a label*; here it means *nothing was scanned*. **The two cases are identical on
+it means the opposite.** There it means *the registrations were scanned and none of them selects a
+milestone or a label*; here it means *nothing was scanned*. **The two cases are identical on
 stdout and identical on exit code**, which is this repository's own named worst failure shape: a
 falsifier that fails open reads to whoever runs it as *nothing to worry about*.
 
 **The claim the block makes is nonetheless TRUE in this repository, and the reason is that its subject is
 the plugin rather than the containing repo.** The enforcement layer governing a session rooted here is
 `tedeuxx/tadeumendonca-skills`'s `hooks/`, installed through `.claude/settings.json` and running against
-this tree — the same fourteen registrations, the same twenty-five vocabulary matches, all of them comments
-or deny strings. Re-derived at that repository's head on 2026-09-09, from this repository's session:
+this tree — the same **15 registrations**, resolving to **14 distinct scripts**, and the same **28**
+vocabulary matches, all of them comments or deny strings. **Re-derived 2026-09-14 (#463), and the
+figures moved while the property did not:**
 
 ```
 # run with the -skills checkout as cwd:
-jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json | wc -l          # -> 14
+jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json | wc -l          # -> 15
+jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json \
+  | sed 's|.*/hooks/scripts/|hooks/scripts/|; s|"$||' | sort -u | wc -l                  # -> 14
 jq -r '.hooks|to_entries[]|.value[]|.hooks[]|.command' hooks/hooks.json \
   | sed 's|.*/hooks/scripts/|hooks/scripts/|; s|"$||' | sort -u \
-  | xargs grep -hcE 'milestone|iteration|sprint' | paste -sd+ - | bc                     # -> 25
+  | xargs grep -hcE 'milestone|iteration|sprint' | paste -sd+ - | bc                     # -> 28
 ```
+
+~~the same fourteen registrations, the same twenty-five vocabulary matches~~ — **struck 2026-09-14
+(#463).** `worktree-notice.sh` was registered on 2026-09-11 (14 → 15 registrations, 13 → 14 scripts)
+and the vocabulary total moved 25 → 28, two of those from that same new script and one from a comment
+line added to `permission-guard.sh`. **The SECOND command is new rather than re-derived**, and it is
+the half this passage was missing: the first ends in `wc -l` over every registration while the
+selector beneath it ends in `sort -u`, so the two operate on different objects and the passage stated
+only one of them. That is the same conflation `#463` repaired in the shared block itself, present here
+in the artifact that quotes it.
 
 **And the three commands are the sharp case of a wider one: EVERY repo-relative path in that shared block
 names the PLUGIN's tree, not this one.** Checked one by one, 2026-09-09: `hooks/scripts/permission-guard.sh`,
