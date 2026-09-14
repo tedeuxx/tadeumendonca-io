@@ -118,6 +118,57 @@ jobs:
   # `if: always()` rather than a bare `needs:`, for the same two reasons as app.yml's `build-test`:
   # a skipped required check satisfies branch protection, and this job must produce a definite status
   # both when its dependencies were skipped (a non-iac PR) and when one of them failed.
+  #
+  # DEPENDABOT (#639): GitHub gives a Dependabot-triggered run its OWN secret store, and this repository
+  # has nothing in it — `gh secret list --repo tedeuxx/tadeumendonca-io --app dependabot` returns empty, while the
+  # same command with `--app actions` returns 4. So `secrets.AWS_INFRA_OIDC_ROLE_ARN` (an environment
+  # secret under `staging`), `secrets.TFC_API_TOKEN` and `secrets.BUDGET_ALERT_EMAIL` are all blank on
+  # such a run, and the credentials step fails with "Could not load credentials from any providers"
+  # before any STS call is ever made — so this is NOT an OIDC trust or IAM problem. The runner says so
+  # itself, in one line of its own log: `Secret source: Dependabot`, against `Secret source: Actions` on
+  # a run triggered by anyone else. Three dependency PRs died on this — #414 (re-authored by hand as
+  # 76f3910), #534 (silently superseded, its evidence disposed of), #587 (blocked 11 days). The remedy
+  # is the owner's ruling of 2026-09-11: SKIP the steps that need those secrets. Adding the secrets to
+  # the Dependabot store was refused on the record — it widens where an OIDC role ARN is readable —
+  # and `pull_request_target` is the same security class and is refused with it.
+  #
+  # THE CONDITION SITS ON THE STEPS, AND THAT PLACEMENT IS THE WHOLE DESIGN:
+  #   * NOT on the job — `terraform-plan` is the required check, and the line directly above says why
+  #     that is fatal: a SKIPPED required check satisfies branch protection. A job-level actor test
+  #     would conclude the check SKIPPED and unblock the merge with nothing having reported, which is
+  #     the defect, delivered by the fix.
+  #   * NOT on the `changes` filter — that filter answers *what changed*; the actor is *who*. Flipping
+  #     `changes.outputs.iac` to false would also corrupt the three-case report step below and diverge
+  #     from deploy.yml's parallel filter, the coupling lines 67-71 exist to protect.
+  #   * The literal is repeated at six sites rather than hoisted into a second `changes` output. The
+  #     hoist does not pay here: `outputs.iac` must still exist for the report step, and the two steps
+  #     that do NOT simply skip — `Comment plan on PR` and `Report what was verified` — need the raw
+  #     actor expression anyway to choose a BRANCH rather than to skip. A `plannable` output would
+  #     therefore be a third similar name beside the literal it failed to remove. Repeating it matches
+  #     app.yml:570, which carries the same predicate on `sonarqube-scan` for the same reason.
+  #
+  # WHAT IS DELIBERATELY LEFT RUNNING on a Dependabot PR: the `checkov` and `terraform-fmt` jobs (no
+  # credentials — both PASSED on #587), plus `Inherit the credential-free gates` and `Checkout`. A
+  # dependency PR still gets a real partial gate; it does not get a plan.
+  #
+  # WHAT THAT COSTS, and it is narrower and sharper than "an unreviewed IaC change could merge": that
+  # class is EMPTY. Dependabot cannot open a PR touching `iac/` under the current config — it declares
+  # npm on /apps/fed and github-actions on /, and `iac/` holds no package*.json, no workflow and no
+  # action.y*ml. What is actually lost is this repository's ONLY PR-time exercise of the OIDC credential
+  # chain: `deploy.yml`'s two `configure-aws-credentials` call sites run on push to main, i.e. after the
+  # merge, so `terraform-plan` is the de-facto canary for the production deploy path — and the grouped
+  # `actions` bump moves all three call sites together. Skip the plan and an action bump that breaks
+  # assume-role merges green and first fails on the trunk. That is #101's recorded failure arriving one
+  # stage later. See ADR-0014's 2026-09-14 amendment for the record and the residual nothing enforces.
+  #
+  # THE ROUTE TO A REAL PLAN when one is wanted: a maintainer pushes a commit to the Dependabot branch.
+  # That fires `pull_request: synchronize` with a human actor and `Secret source: Actions`, so every
+  # gated step runs. Cost, and it is permanent: pushing to a Dependabot branch makes Dependabot stop
+  # managing that PR. The re-run button is NOT the route and this was MEASURED, not read — re-running
+  # run 34519358480 as a maintainer produced attempt 2 with `Secret source: Dependabot` (2026-09-14).
+  # `workflow_dispatch` is not an option either: this workflow is `on: pull_request` only, and a
+  # dispatch carries no `github.event.pull_request`, so `changes`, the comment step and the required-
+  # check identity all break.
   # ---------------------------------------------------------------------------------------------
   terraform-plan:
     needs: [changes, checkov, terraform-fmt]
@@ -151,7 +202,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configure AWS credentials (OIDC)
-        if: needs.changes.outputs.iac == 'true'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
         # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
         # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action
         # and breaks its runtime. That flag is gone everywhere now, so v6 runs clean (#89).
@@ -161,17 +212,17 @@ jobs:
           aws-region: us-east-1
 
       - name: Setup Terraform
-        if: needs.changes.outputs.iac == 'true'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
         uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Init
-        if: needs.changes.outputs.iac == 'true'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
         run: terraform init -input=false
 
       - name: Validate
-        if: needs.changes.outputs.iac == 'true'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
         run: terraform validate -no-color
 
       # tee to a file (pipefail preserves terraform's exit code → steps.plan.outcome). The comment step
@@ -180,7 +231,7 @@ jobs:
       # long" BEFORE it can truncate. Reading from a file keeps the value out of the process environment.
       - name: Plan
         id: plan
-        if: needs.changes.outputs.iac == 'true'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
         shell: bash
         # Same value as apply, so the plan preview matches what apply will do. The variable is
         # `sensitive`, so terraform renders it as "(sensitive value)" in plan.txt — which is posted as a
@@ -191,30 +242,67 @@ jobs:
           set -o pipefail
           terraform plan -input=false -no-color -var-file="$VAR_FILE" 2>&1 | tee plan.txt
 
+      # NOT gated on the actor: on a Dependabot run this step is REPURPOSED rather than skipped, and it
+      # posts under the SAME marker the update logic already keys on, so it replaces rather than
+      # accumulates. Its permission to post was measured rather than assumed — the failing run on #587
+      # reports `Secret source: Dependabot` AND `PullRequests: write`, so the `permissions:` block above
+      # is honoured on a Dependabot run and github-script can comment. Cost: one comment per Dependabot
+      # PR that reaches this job, which is 5 of the 18 Dependabot PRs ever opened here.
+      #
+      # This is AC1's load-bearing half, because NO CHECK STATE CAN CARRY IT: a skipped job concludes
+      # SKIPPED and a skipped STEP concludes SUCCESS, and both render as fine beside the other checks.
+      # There is no check state meaning "ran and verified nothing". So the signal has to live in an
+      # artifact a human actually reads — this comment, and the ::warning:: in the report step below.
       - name: Comment plan on PR
         if: always() && needs.changes.outputs.iac == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           WORKSPACE: ${{ env.TF_WORKSPACE }}
           PLAN_OUTCOME: ${{ steps.plan.outcome }}
+          DEPENDABOT: ${{ github.actor == 'dependabot[bot]' }}
         with:
           script: |
             const fs = require("fs");
             const max = 60000;
             const planPath = "iac/plan.txt";
-            let plan = fs.existsSync(planPath) ? fs.readFileSync(planPath, "utf8") : "(no plan output)";
-            if (plan.length > max) plan = plan.slice(0, max) + "\n...(truncated — see the Actions log)";
-            const body = [
-              `### Terraform Plan — \`${process.env.WORKSPACE}\``,
-              `Status: \`${process.env.PLAN_OUTCOME}\``,
-              "```hcl",
-              plan,
-              "```",
-            ].join("\n");
+            const marker = "### Terraform Plan — `" + process.env.WORKSPACE + "`";
+            let body;
+            if (process.env.DEPENDABOT === "true") {
+              // No plan exists and none could have: this run's secrets come from the Dependabot store,
+              // which is empty here, so the OIDC role ARN and the TFC token are both blank. Say so
+              // plainly rather than posting an empty plan block that reads like a clean diff.
+              body = [
+                marker,
+                "Status: `not run — Dependabot-isolated secrets`",
+                "",
+                "**No plan was produced, and none could be.** A Dependabot-triggered run reads its secrets",
+                "from a separate store (`Secret source: Dependabot`) which this repository has not populated,",
+                "so `AWS_INFRA_OIDC_ROLE_ARN`, `TFC_API_TOKEN` and `BUDGET_ALERT_EMAIL` are all empty.",
+                "`terraform init`, `validate` and `plan` were skipped deliberately (#639); `checkov` and",
+                "`terraform fmt` DID run and their verdicts are real.",
+                "",
+                "**So this PR has had no Terraform plan reviewed.** If it changes an action on the OIDC path,",
+                "that credential chain is unexercised until this merges and `deploy.yml` runs it on the trunk.",
+                "",
+                "To obtain a real plan, a maintainer pushes a commit to this branch — that fires",
+                "`synchronize` with a human actor and every step runs, at the permanent cost of Dependabot no",
+                "longer managing this PR. Re-running this workflow does NOT work: a re-run keeps the original",
+                "actor, so the secret store stays `Dependabot` (measured 2026-09-14, run 34519358480 attempt 2).",
+              ].join("\n");
+            } else {
+              let plan = fs.existsSync(planPath) ? fs.readFileSync(planPath, "utf8") : "(no plan output)";
+              if (plan.length > max) plan = plan.slice(0, max) + "\n...(truncated — see the Actions log)";
+              body = [
+                marker,
+                `Status: \`${process.env.PLAN_OUTCOME}\``,
+                "```hcl",
+                plan,
+                "```",
+              ].join("\n");
+            }
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
             });
-            const marker = "### Terraform Plan — `" + process.env.WORKSPACE + "`";
             const existing = comments.find((c) => c.body && c.body.startsWith(marker));
             if (existing) {
               await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body });
@@ -223,16 +311,32 @@ jobs:
             }
 
       - name: Fail if plan failed
-        if: needs.changes.outputs.iac == 'true' && steps.plan.outcome == 'failure'
+        if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]' && steps.plan.outcome == 'failure'
         run: exit 1
 
-      # Say which of the three greens this is (issue #79). On a PR that touches no iac/ this job passes
-      # in seconds having run neither checkov nor terraform — a green indistinguishable from a full infra
-      # verification.
+      # Say which of the FOUR greens this is (issue #79 — three of them until #639). On a PR that
+      # touches no iac/ this job passes in seconds having run neither checkov nor terraform — a green
+      # indistinguishable from a full infra verification.
+      #
+      # The fourth case (#639) is the one that would otherwise LIE, which is worse than either of the
+      # other two: on a Dependabot PR touching a filtered path, IAC is 'true' and job.status is 'success'
+      # (skipped steps conclude SUCCESS), so without the branch below this step emitted
+      # "the iac gate ran — checkov, terraform fmt, validate, plan" over a run in which validate and
+      # plan never executed. A green check ASSERTING a verification that did not happen is worse than
+      # a silent pass, which is why this branch ships in the same edit as the skip itself.
+      #
+      # ::warning:: rather than this file's usual ::notice::, deliberately: a notice is the register
+      # this step uses for "here is which green this is", and this case needs the register above it.
+      # It is still not a failure — the check must stay green or the PR cannot merge at all, which is
+      # the whole point of the change.
+      #
+      # ORDER MATTERS: this branch sits BELOW the job.status test, so a Dependabot run whose checkov or
+      # fmt failed still reports the failure rather than this warning.
       - name: Report what was verified
         if: always()
         env:
           IAC: ${{ needs.changes.outputs.iac }}
+          DEPENDABOT: ${{ github.actor == 'dependabot[bot]' }}
         run: |
           set -euo pipefail
           if [ "$IAC" != "true" ]; then
@@ -241,6 +345,10 @@ jobs:
           fi
           if [ "${{ job.status }}" != "success" ]; then
             echo "::notice::the iac gate did NOT complete — a job or step failed, so the checks after it never ran. Read the failing one, not this line."
+            exit 0
+          fi
+          if [ "$DEPENDABOT" = "true" ]; then
+            echo "::warning::PARTIAL GATE — this is a Dependabot run. RAN: checkov, terraform fmt. DID NOT RUN: terraform init, validate, plan (Dependabot-isolated secrets — no AWS role ARN, no TFC token). NO PLAN WAS REVIEWED for this PR. A maintainer pushing a commit to this branch runs them; re-running this workflow does not. See the PR comment and ADR-0014's 2026-09-14 amendment."
             exit 0
           fi
           echo "::notice::the iac gate ran — checkov, terraform fmt, validate, plan"

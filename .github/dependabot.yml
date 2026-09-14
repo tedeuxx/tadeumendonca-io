@@ -34,10 +34,33 @@ updates:
   # the version text does not, and the pin comment starts lying (this bit us on PR #101). So pin comments
   # are kept as a bare `# vX.Y.Z`; node-runtime rationale lives in the workflow header, not per-line.
   # Majors are auto-proposed here (unlike npm): an action major is usually a small, isolated change, not
-  # a coordinated peer bump, and it is CI-gated — including on the OIDC deploy path. #101 proved this:
-  # configure-aws-credentials v6 broke our assume-role and infra-plan caught it RED on the PR, before any
-  # merge. (The real culprit was FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 re-forcing node24 onto v6's native
-  # node24, fixed in #89 — not v6 itself.) So majors flow uniformly; no per-action exceptions.
+  # a coordinated peer bump, and it is CI-gated.
+  #
+  # ~~including on the OIDC deploy path. #101 proved this: configure-aws-credentials v6 broke our
+  # assume-role and infra-plan caught it RED on the PR, before any merge.~~ STRUCK 2026-09-14 (#639) —
+  # FALSE FOR DEPENDABOT'S OWN PRs, WHICH IS EVERY PR THIS BLOCK GOVERNS. It is struck rather than
+  # deleted because it is the stated reason majors are admitted here at all, so a reader who takes the
+  # justification at face value is taking it from this sentence.
+  #
+  # What changed: a Dependabot-triggered run reads its secrets from a SEPARATE store, and this
+  # repository has not populated it, so iac.yml's terraform-plan could never assume the role on such a
+  # PR (it failed client-side with "Could not load credentials from any providers" — the runner's own
+  # log line reads `Secret source: Dependabot`). As of #639 iac.yml SKIPS those steps deliberately
+  # instead of failing on them. Either way the OIDC deploy path is NOT exercised on a Dependabot PR —
+  # before #639 the gate was red and blocking, after it the gate is green and silent about the plan.
+  #
+  # #101 itself is still true and still the reason to care: configure-aws-credentials v6 DID break
+  # assume-role and infra-plan DID catch it red on the PR. But #101 was a HUMAN PR. (The real culprit
+  # was FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 re-forcing node24 onto v6's native node24, fixed in #89 —
+  # not v6 itself.)
+  #
+  # So the honest justification for admitting majors here is now narrower: an action major is small and
+  # isolated, and it is gated by actionlint, checkov, terraform fmt and the app suite — but a grouped
+  # `actions` bump moves configure-aws-credentials at all THREE call sites at once, and the two in
+  # deploy.yml only ever execute on push to main. A break in that chain now first surfaces on the
+  # TRUNK. That cost is accepted, recorded in ADR-0014's 2026-09-14 amendment, and enforced by nothing:
+  # whether such a PR is merged on a skipped plan or re-authored by hand (as #414 was, as 76f3910) is a
+  # judgement the owner makes per PR. So majors still flow uniformly; no per-action exceptions.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
