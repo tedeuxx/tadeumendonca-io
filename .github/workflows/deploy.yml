@@ -498,9 +498,29 @@ jobs:
           ref: ${{ needs.gate.outputs.sha }}
 
       - name: Configure AWS credentials (OIDC)
-        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
+        # node24-native since v6. ~~#101 saw v6 fail OIDC ("Could not load credentials") — but only with
         # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action
-        # and breaks its runtime. That flag is gone everywhere now, so v6 runs clean (#89).
+        # and breaks its runtime.~~ — the CITATION is struck 2026-09-14, not the conclusion. #101 is a
+        # DEPENDABOT PR whose run read an EMPTY Dependabot secret store, and its failing step shows
+        # `role-to-assume` absent from the `with:` block — a cause that alone reproduces the identical
+        # failure, proved by #414/#534/#587, which carry no such flag. The evidence is CONFOUNDED and
+        # #101 cannot establish the attribution. ADR-0014's 2026-09-14 amendment is the record of
+        # authority for that history; do not restate it here. THIS SITE WAS MISSED BY #639/#645, which
+        # corrected the identical sentence in iac.yml and dependabot.yml in the same slice and left this
+        # file — the one carrying the apply — stating the other cause, so the repository asserted two
+        # different causes for one event in two workflow files, the surviving one on the deploy path.
+        #
+        # The conclusion stands on better evidence anyway, and it is evidence from THIS file: the flag
+        # is gone everywhere (#89's own closing commit adopted v6 and deleted it here — `git show
+        # 237df83 -- .github/workflows/deploy.yml`), and this exact pin assumed a role cleanly in this
+        # workflow's own `deploy-app` job on run 34636689611 (2026-09-11), whose `Resolve config from
+        # SSM` and `Publish to S3` steps then succeeded — so the credentials were real, not merely a
+        # step that exited 0. BOUND IT HONESTLY: that is the SAME action at the SAME SHA in THIS file,
+        # but the FED role, not this step's INFRA role — `terraform-apply` is skipped on every recent
+        # run because no recent slice has touched `iac/`, so THIS step has no v6.2.3 success of its own
+        # to point at. The action is exonerated; this call site is untested at this pin, and a reader
+        # deciding whether to trust it should know which of the two they are being shown. Running it is
+        # the next `iac/` merge's business, not a comment's. v6 runs clean (#89).
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
