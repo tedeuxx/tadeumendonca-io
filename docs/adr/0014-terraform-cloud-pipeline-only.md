@@ -57,7 +57,215 @@ the bootstrap credentials — in **[ADR-0042](./0042-trust-root-bootstrapped-out
 0014 alone would take "pipeline-only" as total; it is total *for Terraform*, and that is a narrower
 statement than it looks.
 
+## Amendment (2026-09-14) — the plan does not run on a Dependabot PR, and that is a SECOND exception
+
+The decision above is unchanged: `apply`/`destroy` still run in CI only. The 2026-08-03 amendment
+narrowed a Consequences → **Good** claim. This one narrows a Consequences → **Bad** claim, which is the
+one that reads as a safeguard:
+
+> *"A merge touching `iac/` applies real infrastructure — the plan on the PR must be read, not
+> rubber-stamped."*
+
+**On a Dependabot-triggered PR there is no plan to read.** GitHub gives such a run its own secret store,
+and this repository has not populated it, so `AWS_INFRA_OIDC_ROLE_ARN` (an environment secret under
+`staging`), `TFC_API_TOKEN` and `BUDGET_ALERT_EMAIL` are all empty and `configure-aws-credentials` fails
+client-side with *"Could not load credentials from any providers"* **before any `AssumeRoleWithWebIdentity`
+call is ever made** — so this was never an OIDC-trust or IAM defect. The runner declares the store itself,
+in one line of its own log, and that is the falsifier to use rather than inferring it from two secrets
+being empty together:
+
+```
+gh run view --repo tedeuxx/tadeumendonca-io --job 104129798792 --log | grep -m1 'Secret source'
+# -> Secret source: Dependabot        (#587's terraform-plan)
+
+# the CALIBRATION, as a whole second command rather than as an instruction to mutate the first —
+# a selector that could only ever print "Dependabot" would prove nothing:
+gh run view --repo tedeuxx/tadeumendonca-io --job 104116717340 --log | grep -m1 'Secret source'
+# -> Secret source: Actions           (a push run's `gate` job, same repo, same selector)
+```
+
+**A caveat on job ids in this record, learned by breaking it:** `gh run view --job <id> --log` serves the
+run's **latest attempt**, not the attempt that produced the id. Re-running #587 on 2026-09-14 to settle
+the question below silently re-pointed job `103012869416`'s log at attempt 2. The *answer* did not move —
+both attempts read `Dependabot` — but a job id is not a stable citation for a log line, and the two ids
+above are used because nothing will re-run them.
+
+**`.github/workflows/iac.yml` now skips the five credential-dependent steps when
+`github.actor == 'dependabot[bot]'`** — the owner's ruling of 2026-09-11. The alternative, adding the
+secrets to the Dependabot store, was **refused on the record**: it widens where an OIDC role ARN is
+readable, which is a security decision rather than a mechanical fix. `pull_request_target` is the same
+security class and is refused with it.
+
+### Why the condition is on the STEPS and not on the job
+
+`terraform-plan` is the required check, and **a skipped required check satisfies branch protection** —
+`iac.yml`'s own job header has said so since #79. A job-level actor test would conclude the check
+`SKIPPED`, satisfy protection, and unblock the merge with nothing having reported: the defect, delivered
+by the fix. It is not on the `changes` path filter either — that filter answers *what changed* and the
+actor is *who* — and flipping its output would corrupt the report step and diverge from `deploy.yml`'s
+parallel filter.
+
+### The blast radius, BOUNDED — and it is not the obvious one
+
+The intuitive cost — *an unreviewed Terraform diff could merge* — describes an **empty class**.
+Dependabot cannot open a PR touching `iac/` under the current configuration: `.github/dependabot.yml`
+declares npm on `/apps/fed` and github-actions on `/`, and `iac/` holds no `package*.json`, no workflow
+and no `action.y*ml` (only `.checkov.yaml`, which no ecosystem scans). Over every Dependabot PR ever
+opened here:
+
+```
+gh pr list --repo tedeuxx/tadeumendonca-io --state all --limit 200 --author app/dependabot \
+  --json number,files --jq '[.[]|{n:.number,paths:[.files[].path]}]
+   | {prs:length,
+      touching_iac_dir:[.[]|select(.paths|map(startswith("iac/"))|any)]|length,
+      touching_filtered_workflows:[.[]|select(.paths|map(.==".github/workflows/iac.yml"
+                                   or .==".github/workflows/deploy.yml")|any)]|length}'
+# -> {"prs":18,"touching_iac_dir":0,"touching_filtered_workflows":5}
+```
+
+The `0` is calibrated by the `5` beside it: the selector distinguishes, so the zero is a real zero.
+
+### What is surrendered is NOT a verification — THE PLAN HAS NEVER RUN ON THIS CLASS
+
+**The OIDC credential chain has never once been exercised on a Dependabot PR in this repository's
+history.** That is the sharp statement, and it is stronger than the one this amendment carried in its
+first draft (*"this repository's only PR-time proof that the OIDC chain still works"*), which framed the
+change as trading a safeguard away. **There is no safeguard here to trade.** Every confirmed attempt
+failed in the credential provider, client-side, before any `AssumeRoleWithWebIdentity` call — so the
+chain was never reached, let alone proved.
+
+**What IS surrendered is an ACCIDENTAL BLOCK, and the distinction is the whole of this section.** Before
+this change the structural red stopped every Dependabot PR touching a filtered workflow — *including*
+one that would genuinely have broken assume-role — for a reason having nothing to do with the bump.
+After it, that class merges green. The effect on such a PR is the same; the KIND is different, and the
+difference matters because **a reader who believes a safeguard is being given up will look for a
+replacement safeguard. There is nothing to replace.**
+
+**The narrower loss that IS real, and it is unchanged by this diff:** `configure-aws-credentials` has
+three call sites — one in `iac.yml`'s `terraform-plan`, two in `deploy.yml` (`terraform-apply`'s infra
+role, and the fed deploy role) — and the `deploy.yml` pair only executes on push to `main`, i.e. after
+the merge, by construction. So `terraform-plan` remains the sole PR-time exercise of that action **on a
+human PR**, and the grouped `actions` bump moves all three together. That property is why the plan is
+worth having; it is simply not a property this class has ever had.
+
+### The history — published as a CRITERION, not as an enumeration
+
+**An enumeration verifies its members and never the set, and that is exactly how #101 was missed for
+seven weeks.** The first draft of this amendment listed three PRs and three job ids and called the
+diagnosis *"paid for three times"*. It was four. So the criterion ships instead, with the command that
+evaluates it:
+
+> **A Dependabot PR whose `terraform-plan` failed in the credential provider — *"Could not load
+> credentials from any providers"* — because the run read an empty Dependabot secret store.**
+
+**It takes TWO commands, and collapsing them into one is how this goes wrong again.** The first
+enumerates the **candidate set** — the file half of the criterion, which is a property of the PR and is
+cheap and total:
+
+```
+gh pr list --repo tedeuxx/tadeumendonca-io --state all --limit 200 --author app/dependabot \
+  --json number,files --jq '[.[]|select(.files|map(.path==".github/workflows/iac.yml"
+       or .path==".github/workflows/deploy.yml")|any)|.number]'
+# -> [587, 534, 414, 361, 101]
+```
+
+The second **confirms the failure half per candidate**, which is a property of a RUN and cannot be read
+off the PR at all:
+
+```
+gh run view --repo tedeuxx/tadeumendonca-io --job <that PR's terraform-plan job> --log \
+  | grep -m1 'Secret source'
+```
+
+**The candidate set is what a later reader re-derives; the table below is that command's answer on
+2026-09-14, row by row.** Neither command alone establishes the set, and the first one alone is exactly
+what would have produced another enumeration.
+
+| PR | opened | fate | `terraform-plan` | `Secret source` |
+|---|---|---|---|---|
+| **#101** | 2026-07-24 | closed unmerged **59 minutes later** | fail | `Dependabot` (job `89483349402`) |
+| **#361** | 2026-08-06 | closed unmerged 2026-08-09 | **unknown** | **unknown** — see below |
+| **#414** | 2026-08-09 | closed 2026-08-21, **re-authored by hand as `76f3910`** | fail | `Dependabot` (job `96551321721`) |
+| **#534** | 2026-08-27 | closed 2026-09-03 when #587 superseded it | fail | `Dependabot` (job `98642556992`) |
+| **#587** | 2026-09-03 | open, blocked 11 days | fail | `Dependabot` (job `103012869416`, **now serving attempt 2** — see the caveat above; attempt 2's own job is `104129798792` and reads the same) |
+
+**#361 is UNKNOWN and is deliberately not rounded up to a fifth confirmed casualty.**
+`gh pr checks 361 --repo tedeuxx/tadeumendonca-io` returns *"no checks reported on the
+'dependabot/github_actions/actions-60040f6dca' branch"* — so it matches the file criterion and its
+verdict cannot be recovered. **Four confirmed, one unknown.** A row that says *unknown* is worth more
+than a row that guesses, because the next reader can tell which rows carry evidence.
+
+### #101 IS CASUALTY ZERO, and the misreading of it became a written justification
+
+**This is the most transferable thing in this record.** `#101` is a Dependabot PR
+(`gh pr view 101 --repo tedeuxx/tadeumendonca-io --json author --jq .author.login` → `app/dependabot`),
+opened 2026-07-24T12:40:04Z and closed unmerged 59 minutes later. Its failing step's inputs are
+signature-identical to #587's — `role-to-assume` **absent from the `with:` block**, `TF_TOKEN_app_terraform_io`
+empty, the same twelve `Could not load credentials` retries. **It never exercised the OIDC chain at all.**
+
+It was read at the time as *"configure-aws-credentials v6 broke our assume-role and infra-plan caught it
+RED on the PR"*, and **that reading became the written justification in `.github/dependabot.yml` for
+admitting action MAJORS** — the load-bearing reason an entire update class is auto-proposed here. A
+secret-store failure was recorded as a successful supply-chain gate.
+
+**The lesson is not that the conclusion was wrong. It is that a true-sounding, satisfying explanation
+closed the inquiry**, and the mechanism underneath — an empty secret store — went unexamined through
+four more PRs and seven weeks. The corrected justification in `dependabot.yml` no longer rests on #101
+at all.
+
+`76f3910`'s commit body already contains this entire diagnosis, including that
+`gh secret list --app dependabot` returns nothing. **So the failure was correctly diagnosed on
+2026-08-21, paid for by hand, and recorded nowhere anybody would meet it again.** #534 then hit it and
+nobody read the red — Dependabot's own supersede behaviour closed the PR and disposed of the evidence.
+**That is the failure this amendment exists to prevent, more than the stuck check is.**
+
+
+### What a maintainer does when a real plan IS wanted — measured, not read
+
+**Push a commit to the Dependabot branch.** That fires `pull_request: synchronize` with a human actor and
+`Secret source: Actions`, so every gated step runs. *Permanent cost:* pushing to a Dependabot branch makes
+Dependabot stop managing that PR — no further rebases.
+
+**The re-run button is NOT the route, and this was measured rather than reasoned from documentation.**
+Re-running run `34519358480` as a maintainer produced attempt 2 with `Secret source: Dependabot`
+(2026-09-14) — `github.actor` stays the actor of the initial run; `github.triggering_actor` is the
+re-runner. Independently, a re-run replays the workflow file from the original run, so even after this
+lands a re-run of a pre-fix run uses the pre-fix `iac.yml`. **`workflow_dispatch` is not an option
+either:** `iac.yml` is `on: pull_request` only, and a dispatch carries no `github.event.pull_request`, so
+the `changes` job, the comment step and the required-check identity all break.
+
+### The residual — nothing enforces any of this
+
+**The skip is invisible in the check state, and no check state can carry it.** A skipped job concludes
+`SKIPPED`; a skipped *step* concludes `SUCCESS`. Neither means *"ran and verified nothing"*, and both
+render as fine beside the other checks. So the signal lives in two artifacts a human reads — a
+`::warning::` annotation from `Report what was verified`, and a PR comment under the plan's own marker
+saying no plan was produced — **and a human reading them is the whole of the control.**
+
+`tadeumendonca-io` has no `hooks/` directory and registers no `PreToolUse`/`Stop` hook. No CI arm observes
+a Dependabot PR merging without a plan, and none can: the merge is a human act on a green required check.
+`actionlint` proves the new `if:` expression *parses*; nothing proves it is *right*. **By this loop's own
+test — would something stop me, or only my memory? — every part of this is an instruction.**
+
+**And one direction of the change cannot be proven at review time.** The implementing PR edits
+`.github/workflows/iac.yml`, which the filter includes, and its author is human — so it proves the
+POSITIVE direction for free (all five steps must run and a plan comment must appear on its own PR). The
+negative direction is provable only after merge, on #587's next run, with the `Secret source` grep above.
+**A green review does not mean it was checked.**
+
+### One decision deliberately NOT taken here
+
+**May a Dependabot PR bumping an action on the OIDC path merge on a skipped plan, or is it re-authored by
+hand as #414 was?** #587 is exactly that case. The `#414 -> 76f3910` precedent says by hand, and what that
+cost is in that commit's body: every SHA re-resolved from upstream tags, every `# vX.Y.Z` pin comment
+re-verified (that pass found one already lying), and the loss of Dependabot's automatic pin-comment
+rewrite. **Do not pay it by default.** The question is the owner's and is recorded here so it does not
+die with a dispatch.
+
 ## Links
 - Driven by ADR-0001, ADR-0003 · relies on ADR-0015 (OIDC, no stored keys) · IaC is pipeline-only, part
-  of the permission floor · **its one exception is [ADR-0042](./0042-trust-root-bootstrapped-out-of-band.md)**
-  (the trust root is bootstrapped out of band).
+  of the permission floor · **the one exception to the APPLY floor is [ADR-0042](./0042-trust-root-bootstrapped-out-of-band.md)**
+  (the trust root is bootstrapped out of band). **The one exception to the PLAN-IS-READ claim is the
+  2026-09-14 amendment above** — a Dependabot-triggered PR produces no plan at all. Two different
+  claims, two different exceptions; before 2026-09-14 this line said *"its one exception"* and
+  there genuinely was only one.
