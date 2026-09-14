@@ -49,16 +49,23 @@ updates:
   # instead of failing on them. Either way the OIDC deploy path is NOT exercised on a Dependabot PR —
   # before #639 the gate was red and blocking, after it the gate is green and silent about the plan.
   #
-  # #101 itself is still true and still the reason to care: configure-aws-credentials v6 DID break
-  # assume-role and infra-plan DID catch it red on the PR. But #101 was a HUMAN PR. (The real culprit
-  # was FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 re-forcing node24 onto v6's native node24, fixed in #89 —
-  # not v6 itself.)
+  # AND #101 IS NOT A NARROWER TRUTH — IT IS CASUALTY ZERO. It is a DEPENDABOT PR (`gh pr view 101
+  # --json author --jq .author.login` -> app/dependabot), opened 2026-07-24 and closed unmerged 59
+  # minutes later, and its failing step carries the same signature as #587: role-to-assume absent from
+  # the `with:` block, TF_TOKEN_app_terraform_io empty, twelve "Could not load credentials" retries,
+  # `Secret source: Dependabot`. It never exercised assume-role at all. So the struck sentence was not
+  # a claim that later went stale — it was a SECRET-STORE FAILURE MISREAD AS A SUCCESSFUL SUPPLY-CHAIN
+  # GATE, and that misreading is what has been justifying an entire update class here since day one.
+  # The full history, the criterion that finds these PRs, and the four-confirmed-one-unknown table are
+  # in ADR-0014's 2026-09-14 amendment; this file carries the rule, not the record.
   #
-  # So the honest justification for admitting majors here is now narrower: an action major is small and
-  # isolated, and it is gated by actionlint, checkov, terraform fmt and the app suite — but a grouped
+  # So the honest justification for admitting majors here never rested on what #101 was thought to
+  # prove, and is narrower than this block claimed: an action major is small and isolated, and it is
+  # gated by actionlint, checkov, terraform fmt and the app suite — but a grouped
   # `actions` bump moves configure-aws-credentials at all THREE call sites at once, and the two in
-  # deploy.yml only ever execute on push to main. A break in that chain now first surfaces on the
-  # TRUNK. That cost is accepted, recorded in ADR-0014's 2026-09-14 amendment, and enforced by nothing:
+  # deploy.yml only ever execute on push to main. A break in that chain surfaces on the TRUNK now,
+  # where before it surfaced NOWHERE AT ALL — the PR was red for the secret-store reason and never
+  # merged, so the block was accidental rather than protective. That cost is accepted, recorded in ADR-0014's 2026-09-14 amendment, and enforced by nothing:
   # whether such a PR is merged on a skipped plan or re-authored by hand (as #414 was, as 76f3910) is a
   # judgement the owner makes per PR. So majors still flow uniformly; no per-action exceptions.
   - package-ecosystem: "github-actions"

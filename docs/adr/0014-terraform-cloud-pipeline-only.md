@@ -75,10 +75,20 @@ in one line of its own log, and that is the falsifier to use rather than inferri
 being empty together:
 
 ```
-gh run view --repo tedeuxx/tadeumendonca-io --job <job-id> --log | grep -m1 'Secret source'
-# on a Dependabot-triggered run -> Secret source: Dependabot
-# on any other run              -> Secret source: Actions
+gh run view --repo tedeuxx/tadeumendonca-io --job 104129798792 --log | grep -m1 'Secret source'
+# -> Secret source: Dependabot        (#587's terraform-plan)
+
+# the CALIBRATION, as a whole second command rather than as an instruction to mutate the first —
+# a selector that could only ever print "Dependabot" would prove nothing:
+gh run view --repo tedeuxx/tadeumendonca-io --job 104116717340 --log | grep -m1 'Secret source'
+# -> Secret source: Actions           (a push run's `gate` job, same repo, same selector)
 ```
+
+**A caveat on job ids in this record, learned by breaking it:** `gh run view --job <id> --log` serves the
+run's **latest attempt**, not the attempt that produced the id. Re-running #587 on 2026-09-14 to settle
+the question below silently re-pointed job `103012869416`'s log at attempt 2. The *answer* did not move —
+both attempts read `Dependabot` — but a job id is not a stable citation for a log line, and the two ids
+above are used because nothing will re-run them.
 
 **`.github/workflows/iac.yml` now skips the five credential-dependent steps when
 `github.actor == 'dependabot[bot]'`** — the owner's ruling of 2026-09-11. The alternative, adding the
@@ -115,30 +125,100 @@ gh pr list --repo tedeuxx/tadeumendonca-io --state all --limit 200 --author app/
 
 The `0` is calibrated by the `5` beside it: the selector distinguishes, so the zero is a real zero.
 
-**What is ACTUALLY lost is narrower and sharper: this repository's only PR-time proof that the OIDC
-credential chain still works.** `configure-aws-credentials` has three call sites — one in `iac.yml`'s
-`terraform-plan`, and two in `deploy.yml` (`terraform-apply`'s infra role, and the fed deploy role).
-**The `deploy.yml` pair only executes on push to `main`, i.e. after the merge, by construction.** So
-`terraform-plan` is the sole PR-time exercise of that action, and because the `actions` Dependabot group
-bumps all three together it is the de-facto canary for the production deploy path.
+### What is surrendered is NOT a verification — THE PLAN HAS NEVER RUN ON THIS CLASS
 
-**Skip the plan and an action bump that breaks assume-role merges green and first fails on the trunk.**
-That is #101's recorded failure — `configure-aws-credentials` v6 breaking assume-role, caught RED on the
-PR before any merge — arriving one stage later, and on `main`.
+**The OIDC credential chain has never once been exercised on a Dependabot PR in this repository's
+history.** That is the sharp statement, and it is stronger than the one this amendment carried in its
+first draft (*"this repository's only PR-time proof that the OIDC chain still works"*), which framed the
+change as trading a safeguard away. **There is no safeguard here to trade.** Every confirmed attempt
+failed in the credential provider, client-side, before any `AssumeRoleWithWebIdentity` call — so the
+chain was never reached, let alone proved.
 
-### The history, because the diagnosis was paid for three times
+**What IS surrendered is an ACCIDENTAL BLOCK, and the distinction is the whole of this section.** Before
+this change the structural red stopped every Dependabot PR touching a filtered workflow — *including*
+one that would genuinely have broken assume-role — for a reason having nothing to do with the bump.
+After it, that class merges green. The effect on such a PR is the same; the KIND is different, and the
+difference matters because **a reader who believes a safeguard is being given up will look for a
+replacement safeguard. There is nothing to replace.**
 
-| PR | opened | fate | `terraform-plan` |
-|---|---|---|---|
-| **#414** | 2026-08-09 | closed 2026-08-21, **re-authored by hand as `76f3910`** | fail |
-| **#534** | 2026-08-27 | closed 2026-09-03 when #587 superseded it | fail |
-| **#587** | 2026-09-03 | open, blocked 11 days | fail |
+**The narrower loss that IS real, and it is unchanged by this diff:** `configure-aws-credentials` has
+three call sites — one in `iac.yml`'s `terraform-plan`, two in `deploy.yml` (`terraform-apply`'s infra
+role, and the fed deploy role) — and the `deploy.yml` pair only executes on push to `main`, i.e. after
+the merge, by construction. So `terraform-plan` remains the sole PR-time exercise of that action **on a
+human PR**, and the grouped `actions` bump moves all three together. That property is why the plan is
+worth having; it is simply not a property this class has ever had.
+
+### The history — published as a CRITERION, not as an enumeration
+
+**An enumeration verifies its members and never the set, and that is exactly how #101 was missed for
+seven weeks.** The first draft of this amendment listed three PRs and three job ids and called the
+diagnosis *"paid for three times"*. It was four. So the criterion ships instead, with the command that
+evaluates it:
+
+> **A Dependabot PR whose `terraform-plan` failed in the credential provider — *"Could not load
+> credentials from any providers"* — because the run read an empty Dependabot secret store.**
+
+**It takes TWO commands, and collapsing them into one is how this goes wrong again.** The first
+enumerates the **candidate set** — the file half of the criterion, which is a property of the PR and is
+cheap and total:
+
+```
+gh pr list --repo tedeuxx/tadeumendonca-io --state all --limit 200 --author app/dependabot \
+  --json number,files --jq '[.[]|select(.files|map(.path==".github/workflows/iac.yml"
+       or .path==".github/workflows/deploy.yml")|any)|.number]'
+# -> [587, 534, 414, 361, 101]
+```
+
+The second **confirms the failure half per candidate**, which is a property of a RUN and cannot be read
+off the PR at all:
+
+```
+gh run view --repo tedeuxx/tadeumendonca-io --job <that PR's terraform-plan job> --log \
+  | grep -m1 'Secret source'
+```
+
+**The candidate set is what a later reader re-derives; the table below is that command's answer on
+2026-09-14, row by row.** Neither command alone establishes the set, and the first one alone is exactly
+what would have produced another enumeration.
+
+| PR | opened | fate | `terraform-plan` | `Secret source` |
+|---|---|---|---|---|
+| **#101** | 2026-07-24 | closed unmerged **59 minutes later** | fail | `Dependabot` (job `89483349402`) |
+| **#361** | 2026-08-06 | closed unmerged 2026-08-09 | **unknown** | **unknown** — see below |
+| **#414** | 2026-08-09 | closed 2026-08-21, **re-authored by hand as `76f3910`** | fail | `Dependabot` (job `96551321721`) |
+| **#534** | 2026-08-27 | closed 2026-09-03 when #587 superseded it | fail | `Dependabot` (job `98642556992`) |
+| **#587** | 2026-09-03 | open, blocked 11 days | fail | `Dependabot` (job `103012869416`, **now serving attempt 2** — see the caveat above; attempt 2's own job is `104129798792` and reads the same) |
+
+**#361 is UNKNOWN and is deliberately not rounded up to a fifth confirmed casualty.**
+`gh pr checks 361 --repo tedeuxx/tadeumendonca-io` returns *"no checks reported on the
+'dependabot/github_actions/actions-60040f6dca' branch"* — so it matches the file criterion and its
+verdict cannot be recovered. **Four confirmed, one unknown.** A row that says *unknown* is worth more
+than a row that guesses, because the next reader can tell which rows carry evidence.
+
+### #101 IS CASUALTY ZERO, and the misreading of it became a written justification
+
+**This is the most transferable thing in this record.** `#101` is a Dependabot PR
+(`gh pr view 101 --repo tedeuxx/tadeumendonca-io --json author --jq .author.login` → `app/dependabot`),
+opened 2026-07-24T12:40:04Z and closed unmerged 59 minutes later. Its failing step's inputs are
+signature-identical to #587's — `role-to-assume` **absent from the `with:` block**, `TF_TOKEN_app_terraform_io`
+empty, the same twelve `Could not load credentials` retries. **It never exercised the OIDC chain at all.**
+
+It was read at the time as *"configure-aws-credentials v6 broke our assume-role and infra-plan caught it
+RED on the PR"*, and **that reading became the written justification in `.github/dependabot.yml` for
+admitting action MAJORS** — the load-bearing reason an entire update class is auto-proposed here. A
+secret-store failure was recorded as a successful supply-chain gate.
+
+**The lesson is not that the conclusion was wrong. It is that a true-sounding, satisfying explanation
+closed the inquiry**, and the mechanism underneath — an empty secret store — went unexamined through
+four more PRs and seven weeks. The corrected justification in `dependabot.yml` no longer rests on #101
+at all.
 
 `76f3910`'s commit body already contains this entire diagnosis, including that
 `gh secret list --app dependabot` returns nothing. **So the failure was correctly diagnosed on
 2026-08-21, paid for by hand, and recorded nowhere anybody would meet it again.** #534 then hit it and
 nobody read the red — Dependabot's own supersede behaviour closed the PR and disposed of the evidence.
 **That is the failure this amendment exists to prevent, more than the stuck check is.**
+
 
 ### What a maintainer does when a real plan IS wanted — measured, not read
 

@@ -126,9 +126,13 @@ jobs:
   # such a run, and the credentials step fails with "Could not load credentials from any providers"
   # before any STS call is ever made — so this is NOT an OIDC trust or IAM problem. The runner says so
   # itself, in one line of its own log: `Secret source: Dependabot`, against `Secret source: Actions` on
-  # a run triggered by anyone else. Three dependency PRs died on this — #414 (re-authored by hand as
-  # 76f3910), #534 (silently superseded, its evidence disposed of), #587 (blocked 11 days). The remedy
-  # is the owner's ruling of 2026-09-11: SKIP the steps that need those secrets. Adding the secrets to
+  # a run triggered by anyone else. FOUR dependency PRs are confirmed dead on this and a fifth is
+  # unknown, the earliest being #101 on 2026-07-24 — but THE HISTORY IS NOT MAINTAINED HERE. ADR-0014's
+  # 2026-09-14 amendment is its record of authority: it carries the criterion that finds these PRs, the
+  # command that evaluates it, and the per-PR evidence. This header carries the OPERATIVE RULE only,
+  # because the same facts already live on three surfaces and a history maintained in three places is a
+  # history that disagrees with itself. The remedy is the owner's ruling of 2026-09-11: SKIP the steps
+  # that need those secrets. Adding the secrets to
   # the Dependabot store was refused on the record — it widens where an OIDC role ARN is readable —
   # and `pull_request_target` is the same security class and is refused with it.
   #
@@ -147,6 +151,22 @@ jobs:
   #     therefore be a third similar name beside the literal it failed to remove. Repeating it matches
   #     app.yml:570, which carries the same predicate on `sonarqube-scan` for the same reason.
   #
+  # THE RESIDUAL OF REPEATING A STRING SIX TIMES, measured rather than asserted: `actionlint` does NOT
+  # catch a typo in the actor LITERAL. Mutating one site to `'dependabot'` (dropping `[bot]`) leaves the
+  # pinned 1.7.12 at exit 0, while mutating `github.actor` to `github.actorr` reddens it immediately
+  # with *"property not defined in object type"*. So five of six sites could silently stop matching and
+  # every check would stay green — the steps would simply run and fail as they do today, which is at
+  # least loud; the inverse (a site that stops SKIPPING) is the one to watch for. Nothing gates this.
+  #
+  # `github.secret_source` IS a real property of the `github` context — the pinned actionlint knows it,
+  # which is how this residual was found — and `github.secret_source != 'Dependabot'` would name the
+  # thing that is actually broken rather than a proxy for it, AND would be typo-checked by the gate.
+  # It is NOT used here, on one ground and one only: `app.yml:570` already carries the actor predicate,
+  # which makes it the live in-repo precedent and the calibration this change's own review rests on.
+  # (An earlier draft gave a second ground — *"undocumented, so it could change with every check
+  # green"* — which is FALSE, and is corrected here rather than left standing: actionlint is precisely
+  # the gate that would catch a rename of that property.) Recorded as a finding for the owner.
+  #
   # WHAT IS DELIBERATELY LEFT RUNNING on a Dependabot PR: the `checkov` and `terraform-fmt` jobs (no
   # credentials — both PASSED on #587), plus `Inherit the credential-free gates` and `Checkout`. A
   # dependency PR still gets a real partial gate; it does not get a plan.
@@ -156,10 +176,16 @@ jobs:
   # npm on /apps/fed and github-actions on /, and `iac/` holds no package*.json, no workflow and no
   # action.y*ml. What is actually lost is this repository's ONLY PR-time exercise of the OIDC credential
   # chain: `deploy.yml`'s two `configure-aws-credentials` call sites run on push to main, i.e. after the
-  # merge, so `terraform-plan` is the de-facto canary for the production deploy path — and the grouped
-  # `actions` bump moves all three call sites together. Skip the plan and an action bump that breaks
-  # assume-role merges green and first fails on the trunk. That is #101's recorded failure arriving one
-  # stage later. See ADR-0014's 2026-09-14 amendment for the record and the residual nothing enforces.
+  # merge, so `terraform-plan` is the de-facto canary for the production deploy path ON A HUMAN PR —
+  # and the grouped `actions` bump moves all three call sites together. Skip the plan and an action bump
+  # that breaks assume-role merges green and first fails on the trunk.
+  #
+  # BUT SAY WHAT IS BEING GIVEN UP EXACTLY, BECAUSE IT IS NOT A VERIFICATION: the plan has NEVER run on
+  # a Dependabot PR here — every confirmed attempt died in the credential provider before any
+  # AssumeRoleWithWebIdentity call. What this change surrenders is an ACCIDENTAL BLOCK (a structural red
+  # that stopped the whole class, including a PR that would genuinely have broken assume-role) and not a
+  # gate that was ever proving anything. Nothing is owed a replacement safeguard. ADR-0014's 2026-09-14
+  # amendment carries that reasoning, the evidence and the residual nothing enforces.
   #
   # THE ROUTE TO A REAL PLAN when one is wanted: a maintainer pushes a commit to the Dependabot branch.
   # That fires `pull_request: synchronize` with a human actor and `Secret source: Actions`, so every
@@ -203,9 +229,15 @@ jobs:
 
       - name: Configure AWS credentials (OIDC)
         if: needs.changes.outputs.iac == 'true' && github.actor != 'dependabot[bot]'
-        # node24-native since v6. #101 saw v6 fail OIDC ("Could not load credentials") — but only with
-        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set, which re-forces node24 onto an already-node24 action
-        # and breaks its runtime. That flag is gone everywhere now, so v6 runs clean (#89).
+        # node24-native since v6. ~~#101 saw v6 fail OIDC ("Could not load credentials") — but only with
+        # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 set~~ — the CITATION is struck 2026-09-14 (#639), not the
+        # conclusion. #101's run carried that flag AND read an empty Dependabot secret store, and its
+        # step shows `role-to-assume` absent from the `with:` block — a cause that alone reproduces the
+        # identical failure, proved by #414/#534/#587, which carry no such flag. So the evidence is
+        # CONFOUNDED and #101 cannot establish the attribution; it is the same misreading ADR-0014's
+        # 2026-09-14 amendment records at two other sites. The conclusion stands on better evidence
+        # anyway: the flag is gone everywhere, and v6.2.3 assumed the role cleanly on this very PR's own
+        # terraform-plan run (`Secret source: Actions`, plan completed). v6 runs clean (#89).
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
