@@ -521,7 +521,7 @@ jobs:
         # to point at. The action is exonerated; this call site is untested at this pin, and a reader
         # deciding whether to trust it should know which of the two they are being shown. Running it is
         # the next `iac/` merge's business, not a comment's. v6 runs clean (#89).
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -743,7 +743,7 @@ jobs:
           echo "::notice::plugin version $version — resolved from the DEPLOY-TIME checkout of tedeuxx/tadeumendonca-skills (overrides the committed default)"
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ secrets.AWS_FED_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
