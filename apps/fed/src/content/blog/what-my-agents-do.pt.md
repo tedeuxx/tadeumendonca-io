@@ -11,9 +11,9 @@ excerpt: "A palestra do Garry Tan me mandou de volta para um arquivo do meu pró
 takeaway: 'o inventário é a metade que o modelo completa sozinho; o que precisa estar escrito é a ideia central — o propósito, o limite e o motivo de alguma coisa ter sido removida.'
 ---
 
-O Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando.
-
 https://www.youtube.com/watch?v=eBUyTS7SzV4
+
+O Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando.
 
 Este texto gira em torno da diferença entre um recibo e uma lembrança, então: tudo o que eu atribuo a ele está relatado com as minhas palavras, sem transcrição. Toda passagem que eu cito literalmente é arquivo meu, e dessas eu aponto a linha.
 

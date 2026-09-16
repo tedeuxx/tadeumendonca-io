@@ -11,9 +11,9 @@ excerpt: "Garry Tan's talk sent me back to a file in my own repository: 55 behav
 takeaway: 'the inventory is the half a model completes on its own; what has to exist in writing is the central idea — the purpose, the limit, and the reason something was removed.'
 ---
 
-Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking.
-
 https://www.youtube.com/watch?v=eBUyTS7SzV4
+
+Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking.
 
 This piece turns on the difference between a receipt and a recollection, so: everything I attribute to him is reported in my own words, from no transcript. Every passage I quote verbatim is my own file, and I can point at the line.
 
