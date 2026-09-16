@@ -1,5 +1,5 @@
 ---
-title: "I wrote down what my agents do. The half worth writing is the why."
+title: "I am an AI-native company of one. And I do not remember how it works — I read it."
 slug: what-my-agents-do
 date: '2026-08-25T12:00:00.000Z'
 tag: harness
@@ -7,72 +7,58 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan's talk sent me back to a file in my own repository: 55 behaviours, each with a line saying why it exists. That is the column I would keep if I had to throw the rest away, and the reason is that a model can fill in the rest."
-takeaway: 'the inventory is the half a model completes on its own; what has to exist in writing is the central idea — the purpose, the limit, and the reason something was removed.'
+excerpt: "Garry Tan's talk is about AI-native companies — the ones running on Claude, on Codex, on harnesses. I am one person with two repositories and weekends, and I run the same architecture. What holds it up is not any of those products: it is a written model of my own loop, and the discipline to delete the parts of it that stopped being true."
+takeaway: 'the products are the part you can swap; what has to be written down is the model of your own loop — why each piece exists, what it refuses to do, and where a decision went when you threw it out.'
 ---
 
 https://www.youtube.com/watch?v=eBUyTS7SzV4
 
-Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking.
+Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking. It is about AI-native companies — the ones already running on Claude, on Codex, on harnesses built around them — and about what those companies have to keep in writing for any of it to pay off.
 
 This piece turns on the difference between a receipt and a recollection, so: everything I attribute to him is reported in my own words, from no transcript. Every passage I quote verbatim is my own file, and I can point at the line.
 
-It is a pitch — he says so himself, halfway through, and stops to stress-test it on the grounds that the room would do it for him anyway. I want to be precise about that word, because it usually arrives as an accusation and I do not mean it as one. **It describes the shape. It says nothing about whether the thing is right.**
+It is a pitch — he says so himself, halfway through, and stops to stress-test it because the room would do it for him anyway. I mean the word descriptively. **It describes the shape. It says nothing about whether the thing is right.**
 
-One idea in it sent me back to my own repositories. This is how I have carried it since — his argument, my sentence:
+He is describing companies. I am one person with two repositories and weekends — and one idea in that talk still sent me to look at what I had actually built, and at which part of it would still be standing if you took the products away.
 
-> Retrieval is easy. Being worth retrieving from is the product.
+## How this runs, and the decisions underneath it
 
-The obvious objection is that most of the people watching do not have a company. I do not have one either. I have two repositories and weekends. He closes on exactly that, with a story: a friend whose son has a rare form of epilepsy, who built a repository of eighty thousand markdown files and pushed himself to the edge of what is known about that child's condition. A father, a laptop, and a library. Then he lands what makes it a claim instead of an anecdote — that is the same architecture he had spent the whole talk describing. Not a comparable one. The same one.
+The loop that publishes this site is a plugin I built and operate. Eight personas, several of them there specifically to disagree with another one before anything gets written; hooks that refuse certain commands outright; a skill library; a set of decision records. Work enters as an issue, one lead argues with another about what it is worth, something builds it, and a gate that did not write it decides whether it ships. All of it running, all of it in the open.
 
-So it is claimed to hold at a scale of one, and I am a scale of one. So I went to look at what I had actually built, and at which part of it would survive being read by somebody who will never run any of it.
+None of that answers the question I had just asked myself. The products are what the loop runs on, and they are also the part I can swap. What took the work was the decisions underneath, and two of them carry most of the weight.
 
-## The word for it
+The first is who gets to exist at all. A persona here is not a job title — it earns its place by producing a disagreement somebody needs to hear. A mandate with no trigger is a document, and an agent with no counterpart is a handoff. I did not start there, and arriving at it cost me most of what I had built.
 
-The vocabulary in the talk is a library: books, a librarian, three books open on a desk at once, a retrieval layer whose whole job is choosing which three. The word that has started to appear in AI for the same idea — organising a company's knowledge so that something can work from it — is **ontology**. It is not his word; he does not use it once and does not need it.
+The second I trust least and use most: **the loop is a machine for grinding work down, not for generating it.** A review that comes back with twenty-two findings has quietly turned one slice into fifteen. So anything a gate notices that is not the slice in front of it gets named out loud and left alone.
 
-I am naming it anyway, because naming something you already have is what lets you go looking for other people who have built one, instead of quietly assuming you invented a filing habit.
+What those two decisions eventually produced is a file — the model of my own loop, written down instead of carried around in my head. One entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three. Each entry has to say what the behaviour is *for*, and what it does *not* do. The rest of the row is inventory, and the inventory is the part I would hand to a machine to draft. Which is how I read his argument now: it is not about how much is in there. It is whether what is in there is the part that could not have been derived.
 
-## What I already had, and had not called anything
+That is the story of it. The architecture itself — the tiers, the gates, the diagrams, the parts I am still arguing with — is written up in full on [the architecture page](/architecture), and that is where I would go next.
 
-The loop that publishes this site is a plugin I built and operate. Eight personas, several of them there specifically to disagree with another one before anything gets written, hooks that refuse certain commands outright, a skill library, a set of decision records. All of it running, all of it in the open.
+## Reassess it, and be willing to throw the thing out
 
-What I did not have until recently was one place saying what all of it *is*. So I wrote one — a registry, one entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three files. There are **55 entries** in it today. Each carries an id assigned once and never reused, one of five types from a closed list, a purpose, what it does — and a column for **what it does not do**.
+There were nineteen personas once. Most of them never ran.
 
-**The column I care most about is the one that says what each behaviour is for**, and the reason is mechanical rather than sentimental. A model is good at completing the text once the central idea is captured. If somebody reads that file and understands what a piece of my harness is *for*, most of the rest reconstructs itself with the tool already open in front of them. What cannot be reconstructed is a decision nobody made. That has to exist in writing, because there is nowhere else for it to come from.
+They were an org chart: one role per concern, a specialist for every noun I could think of. An org chart made of agents mostly produces handoffs, and a handoff is a thing that does not happen. I cut them to six. There are eight today, and the ones that came back had to come back against a written rule about what a persona is for — not because the chart had a hole in it. The skill library went the same way and did not stay put either: sixty-nine skills consolidated into fourteen, and there are fifteen now.
 
-My own file defines the field drily, and the last three words are the rule: *"why the behaviour is wanted — the obligation, stated so a reader on a harness nobody here has measured can decide whether it matters to them. Never a content list."*
+A count that only falls tells a story by itself. A count that falls and then climbs back tells none at all — and that is exactly the shape that stops being readable the moment nobody wrote down why.
 
-Never a content list. The list is the part I do not have to be careful about.
+So the throwing-out is the part that gets tracked hardest. Decisions here are MADRs, and the rule that library runs on is its own title: *"An ADR earns its place by explaining the **current** codebase."* A record that stopped explaining the current codebase does not get a banner across the top saying it is out of date. It gets deleted — and the deletion is the tracked event. Twenty-one numbers have been issued. Seven are live. The fourteen that are gone each have a row saying what they decided and where that decision lives now, under a clause I can point at: *"A record leaves this library only as a disposition, never as an absence."* A test reads it in both directions — a number with no file and no row turns the suite red, and so does a row for a number that is still alive.
 
-The last column belongs to the same family, and the file says why better than I could paraphrase it: *"The most transferable cell in the row: a limit is a property of the strategy, so it ports even where the mechanism does not."* Somebody running a completely different setup cannot use my hook. They can absolutely use the sentence saying what my hook fails to catch.
-
-Purpose and limit are both reasons. Only the middle column is inventory, and it is the only one I would hand to a machine to draft — which is how I read his argument now. Being worth retrieving from is not about how much is in there. It is whether what is in there is the part that could not have been derived.
-
-## Removal is the part nobody writes down
-
-Here is the second thing.
-
-My decision records have issued twenty-one numbers. **Seven are live. Fourteen are gone** — folded into other records when the decision they carried stopped being a decision of its own. And not one of those fourteen is simply missing. Each has a row in a table saying what it decided and where that decision lives now. The rule, written at the top of that table: *"A record leaves this library only as a disposition, never as an absence."* A test reads it in both directions: a number with no file and no row turns the suite red, and so does a row for a number that is still alive.
-
-The same discipline shows up in the shape of the loop itself — and the numbers do not only go down. Nineteen personas were cut to six, and there are eight now. Sixty-nine skills were consolidated into fourteen, and there are fifteen. A count that only falls tells a story by itself; a count that falls and then climbs back tells none at all, and that is exactly the shape that stops being readable when nobody wrote down why. I am not working from my memory of why. I am reading the why.
-
-**Tan names this failure mode, and he names it as the thing that kills a brain:** a brain nobody curates becomes a garbage dump with excellent search. The fix he offers is a role rather than a feature — a librarian, human plus agent, whose actual job is pruning.
+**Tan names this as the thing that kills a brain:** one that nobody tends becomes a landfill with excellent search. The fix he offers is a role rather than a feature — a librarian, human plus agent, whose actual job is pruning.
 
 That is the claim I have a receipt for. Pruning is not the part that feels like progress. It is the part that made the rest usable.
 
-One thing I am leaving out, deliberately. Everything above is the part that worked. What none of it can check, and the two occasions where something was written down and then simply not read, is the next article — the one with the receipts I like least. Naming that costs a sentence; letting this one look finished would have cost more.
+One thing I am leaving out, deliberately. Everything above is the part that worked. What none of it can check, and the two occasions where something was written down and then simply not read, is the next article — the one with the receipts I like least. Saying that costs me a sentence; letting this one look finished would have cost more.
 
-## If you want to start one
+## The word for it
 
-You do not need my tools or his. Three habits carried everything above, and none needs a repository:
+His vocabulary for all of this is a library: books, a librarian, three books open on a desk at once, a retrieval layer whose whole job is choosing which three. The word that has started to appear in AI for the same idea — organising what somebody knows so that something else can work from it — is **ontology**. It is not his word; he does not use it once and does not need it.
 
-**Write the reason, not the inventory.** Why the thing exists, and what it refuses to do. The list of what it does is the part you can afford to be lazy about — something will fill that in for you.
+I did not set out to build one, and what makes that file an ontology rather than notes is the dull part. The ids are assigned once and never reused. The types are *"one of five, closed and gated"* — my own file's words, and the clause after them is the one that counts: *"A name outside the set reddens the suite."* A vocabulary that is only a convention is not a vocabulary. Something has to be willing to fail over it.
 
-**When you remove something, leave a disposition, not a hole.** Where did that decision go. One line.
+Which is also why it matters once a model is the one reading. Elsewhere in the same file I had already written down what a loose vocabulary does: a value *"re-decided on every invocation would look exactly like a derived one and be neither."* That is the failure, and it is not a wrong answer. It is an answer regenerated every time, indistinguishable from one somebody decided once.
 
-**Declare what is incomplete instead of letting it look finished.** A knowledge base that quietly under-claims and one that quietly over-claims fail the same way, and both fail silently.
+Both of those files sit in the other repository — the plugin, the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
-So — go and look at whatever you have been writing down for the last three months. Not to admire it. Ask it one question: if somebody read only this, what would they have to guess? That is the line that should have been in there.
-
-Good luck, and I hope you find yours in better shape than I found mine.
+So I am naming it late, and naming it anyway. Putting a word on something you already have is what lets you go looking for the other people who built one, instead of assuming you invented a filing habit. Good luck, and I hope you find yours in better shape than I found mine.
