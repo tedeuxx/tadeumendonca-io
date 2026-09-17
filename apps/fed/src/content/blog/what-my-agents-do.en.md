@@ -1,5 +1,5 @@
 ---
-title: "I am an AI-native company of one. And I do not remember how it works — I read it."
+title: "How to run your Claude Code like an AI-native company"
 slug: what-my-agents-do
 date: '2026-08-25T12:00:00.000Z'
 tag: harness
@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan's talk is about AI-native companies — the ones running on Claude, on Codex, on harnesses. I am one person with two repositories and weekends, and I run the same architecture. What holds it up is not any of those products: it is a written model of my own loop, and the discipline to delete the parts of it that stopped being true."
+excerpt: "Garry Tan's talk is about AI-native companies — the ones running on Claude, on Codex, on harnesses. I run the same architecture on two repositories and weekends. What holds it up is not any of those products: it is a written model of your own loop, and the discipline to delete the parts of it that stopped being true."
 takeaway: 'the products are the part you can swap; what has to be written down is the model of your own loop — why each piece exists, what it refuses to do, and where a decision went when you threw it out.'
 ---
 

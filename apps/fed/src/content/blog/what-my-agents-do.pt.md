@@ -1,5 +1,5 @@
 ---
-title: "Sou uma empresa AI-native de uma pessoa só. E eu não lembro como ela funciona — eu leio."
+title: "Como rodar o seu Claude Code como uma empresa AI-native"
 slug: o-que-os-meus-agentes-fazem
 date: '2026-08-25T12:00:00.000Z'
 tag: harness
@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "A palestra do Garry Tan é sobre empresas AI-native — as que rodam em cima de Claude, de Codex, de harnesses. Eu sou uma pessoa com dois repositórios e fins de semana, e rodo a mesma arquitetura. O que sustenta ela não é nenhum desses produtos: é uma modelagem escrita do meu próprio loop, e a disciplina de apagar dela o que deixou de ser verdade."
+excerpt: "A palestra do Garry Tan é sobre empresas AI-native — as que rodam em cima de Claude, de Codex, de harnesses. Eu rodo a mesma arquitetura em dois repositórios e fins de semana. O que sustenta ela não é nenhum desses produtos: é uma modelagem escrita do seu próprio loop, e a disciplina de apagar dela o que deixou de ser verdade."
 takeaway: 'os produtos são a parte que dá para trocar; o que precisa estar escrito é a modelagem do seu próprio loop — por que cada peça existe, o que ela se recusa a fazer, e para onde foi a decisão que você jogou fora.'
 ---
 
