@@ -117,6 +117,13 @@ describe('adr citations — the gate', () => {
       // in backticks. Written without them it would land in `dangling`, which is fatal, and the
       // shared block would be unlandable here without breaking the byte-identity rule.
       'CLAUDE.md cites 0002-roster-and-dev-loop.md',
+      // The round-3 repair notes in the content review cite the SIBLING library by path, because the
+      // repair they justify was derived from those two records. `docs/adr/0002` here is
+      // `0002-fully-static-spa-no-backend.md` and `0020` is `0020-sonarcloud-quality-gate.md` - both
+      // different records - so neither citation can resolve in this tree. They land in `quoted` rather
+      // than `dangling` only because the review record wraps them in backticks.
+      'docs/content-review/what-my-agents-do.md cites 0020-an-adr-earns-its-place-by-explaining-the-current-codebase.md',
+      'docs/content-review/what-my-agents-do.md cites 0002-roster-and-dev-loop.md',
     ]);
     expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own

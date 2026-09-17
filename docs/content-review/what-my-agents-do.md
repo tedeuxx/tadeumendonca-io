@@ -7,8 +7,15 @@ on the writer's time.
 **This file was `what-my-agents-dont-do.md` until 2026-09-12** and was renamed with the draft it
 records, when `-io#259` was split. **The two rounds below are untouched** — they read the blobs they
 name, under the filenames those blobs actually had, and re-labelling them would falsify a record of
-what was reviewed. **The round count is the terminal condition and it is spent:**
-`grep -c '^## Round'` → **2**, closing `CONTENT-REVIEW-CLEAR`. Nothing below adds a third.
+what was reviewed. ~~**The round count is the terminal condition and it is spent:**
+`grep -c '^## Round'` → **2**, closing `CONTENT-REVIEW-CLEAR`. Nothing below adds a third.~~
+
+**STRUCK 2026-09-16 — the count is THREE and the third round is real.** Struck rather than edited
+because this sentence is what told every reader the pair was closed, and a reader who trusts it would
+skip the only round written against the re-spined article. **The bound was not lifted; the counter was
+RESET by the orchestrator's ruling**, on the ground that rounds 1 and 2 read a draft five of the
+owner's 2026-09-16 rulings replaced — spine, title, all three body sections and close. Round 3 states
+the ruling and its reason in its own opening; read it there rather than here.
 
 ## Round 1 — 2026-08-24
 
@@ -388,3 +395,181 @@ split required — roughly 420 EN words cut to land under the ceiling — was re
 warm close and the three habits are the reviewed draft's**, and the cuts were compression rather than
 re-argument — but that is the writer's own account of his own edit, which is exactly the bias the pair
 exists to absorb. The owner reads the held preview.
+
+---
+
+## Round 3 — 2026-09-16
+
+draft: `apps/fed/src/content/blog/what-my-agents-do.en.md` @ `4238b55` (read), repaired in the
+working tree, blob `7d87bee`
+draft: `apps/fed/src/content/blog/what-my-agents-do.pt.md` @ `4238b55` (read), repaired in the
+working tree, blob `052e629`
+ruler: `published-voice` · sources re-derived in `tadeumendonca-skills` at `d240d6f7` ·
+`-io#259` body and all six comments read at head
+
+**THE COUNTER WAS RESET BY THE ORCHESTRATOR'S RULING, AND THIS ROUND EXISTS BECAUSE OF IT.** The two
+rounds above are spent and remain spent *against the draft they read*. Five of the owner's rulings on
+2026-09-16 replaced the spine, the title, all three body sections and the close — the piece at
+`4238b55` is closer to a new article than an edited one, and `content-writer`'s own report says so.
+**Carrying a bound across a substantially different artifact caps scrutiny rather than raising it**,
+which inverts what the bound is for: it exists to stop a pair grinding ONE draft forever, not to ship
+a rewrite unread. The ruling is recorded here rather than left in a dispatch so the next reader of
+this file finds the decision instead of an unexplained third section.
+
+**I agree with the reset and say so as the persona whose bound it is** — with one boundary stated, so
+it is not read as the bound dissolving: the reset is keyed on *the artifact changed under the
+rounds*, never on *more scrutiny would be useful*. The second reading is unbounded and is the thing
+the cap protects against. `grep -c '^## Round'` now returns **3**, and this pair is terminal here.
+
+### Repaired — ground 2, false against the source
+
+1. **`:46`, both editions — the ADR rule is attributed to the LIBRARY's title.** source: the library's
+   index is `docs/adr/README.md`, titled `# Methodology ADRs`; the quoted rule is the title of one
+   record, `docs/adr/0020-an-adr-earns-its-place-by-explaining-the-current-codebase.md:1`
+   (`# 0020. An ADR earns its place by explaining the **current** codebase`).
+
+   What it claimed · EN *"the rule that library runs on is **its own title**"* · PT *"a regra em que
+   aquela biblioteca funciona é **o próprio título dela**"*. **In PT the false reading is the only
+   reading** — `dela` is feminine and resolves to `biblioteca` with nothing else available — which is
+   what decides this rather than the EN ambiguity.
+
+   What it claims now · EN *"the rule that library runs on is the title of one of its own records"* ·
+   PT *"…é o título de um dos registros dela"*. Nine words changed in total; the quotation, the
+   rhythm and the PT gloss device are untouched.
+
+2. **`:62`, both editions — "both of those files" has no two files.** source: every fact and both
+   quotations in *The word for it* come from **one** file — `docs/blueprint-registry.md`, the `tipo`
+   row at `:24` (ids, *"one of five, closed and gated"*, *"A name outside the set reddens the
+   suite."*) and the enforcement-join paragraph at `:37` (*"re-decided on every invocation…"*). The
+   draft's own preceding sentence says so: *"Elsewhere in the **same file**"* / *"Em outro ponto do
+   **mesmo arquivo**"*.
+
+   What it claimed · EN *"Both of those files sit in the other repository"* · PT *"Os dois arquivos
+   moram no outro repositório"* — contradicting the sentence two lines above it, in both editions, at
+   the same line number.
+
+   What it claims now · EN *"Every file I have quoted here sits in the other repository"* · PT
+   *"Todos os arquivos que eu citei aqui moram no outro repositório"*. **This keeps the paragraph's
+   wider scope rather than narrowing to one file** — the section-2 quotations come from
+   `docs/adr/0020-*.md` and `docs/adr/README.md`, and all four source files sit in
+   `tadeumendonca-skills`, so the replacement is true of the set the next clause (*"I wrote the
+   reasons for myself"*) actually means.
+
+**Post-repair measurement, with the command:** EN **1391**, PT **1471**, both under rule 9's 1,500
+ceiling; **3** H2 sections each against rule 11's ceiling of six.
+
+```
+for f in apps/fed/src/content/blog/what-my-agents-do.en.md apps/fed/src/content/blog/what-my-agents-do.pt.md; do
+  printf '%s\t%s\t%s\n' "$f" "$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2' "$f" | wc -w)" "$(grep -c '^## ' "$f")"; done
+```
+
+### The five verbatim quotations — all five HOLD, re-derived at `-skills d240d6f7`
+
+Checked whitespace-collapsed against the source files, because two are bolded and one wraps, so a
+naive line grep returns a false negative. **The selector is calibrated**: a one-letter mutation
+(*"reddens the suites"*) returns 0 against the same source, so the hits are real hits.
+
+| quote | source | result |
+|---|---|---|
+| *"An ADR earns its place by explaining the **current** codebase"* | `docs/adr/0020-…md:1` | **exact** |
+| *"A record leaves this library only as a disposition, never as an absence."* | `docs/adr/README.md:331` | **exact** |
+| *"one of five, closed and gated"* | `docs/blueprint-registry.md:24` | **exact** |
+| *"A name outside the set reddens the suite."* | `docs/blueprint-registry.md:24` | **exact** |
+| *"re-decided on every invocation would look exactly like a derived one and be neither."* | `docs/blueprint-registry.md:37` | **exact** |
+
+**One editorial difference, recorded so nobody reads it as drift:** the draft closes quotation 1 with
+a terminal period the ADR's heading does not carry. The **words** are byte-identical; the period is
+the ordinary punctuation of a title quoted as a sentence, and no clause of this ruler speaks to it.
+
+**Every figure in the re-spined prose also re-derives at `d240d6f7`**, and none needed repair:
+8 personas (`ls agents/*.md | wc -l`) · 15 skills (`jq -r '.skills[]' .claude-plugin/plugin.json | wc -l`)
+· 21 issued / 7 live / 14 disposed (`ls docs/adr/[0-9]*.md | wc -l` → 7;
+`grep -cE '^\| 00[0-9][0-9] \|' docs/adr/README.md` → 14) · nineteen-to-six
+(`docs/adr/0002-roster-and-dev-loop.md:594`) · sixty-nine-to-fourteen and *twenty-two findings on a
+documentation PR* (`CLAUDE.md:464`) · the per-behaviour row rule and the `id`/`propósito`/`o que não
+faz` fields (`docs/blueprint-registry.md:9–29`). `/architecture` exists in the consuming repo,
+carries tiers, gates and diagrams, and publishes **8 personas** at `:192` — so the pointer at `:36`
+does not send a reader to a page that contradicts the piece.
+
+### The four things the dispatch asked for hardest — judged, and three needed no edit
+
+1. **The teaching posture holds, and `content-writer`'s account of it is FALSE.** Its report says the
+   only surviving second person is *"You cannot use my hook. You can absolutely use the sentence…"*,
+   kept as a contrast. **That sentence is in neither edition and appears nowhere in the branch's
+   history of this file.** What actually survives is three sites, and I judge all three clean:
+   `:11` the `takeaway`; `:22` an impersonal *"if you took the products away"*; `:64` the close, four
+   generic uses inside the corpus's own warm sign-off. **Ruling 9's cut is genuinely applied** — the
+   *"## If you want to start one"* section, its three imperative habits and its *"go and look at
+   whatever you have been writing down"* are all gone from both editions. The one drift is advisory
+   below; it is in the `takeaway` and it is not repairable on either ground.
+2. **Journey first, export second — CLEAN, and it is the strongest thing the re-spine did.** The
+   plugin is named once, at `:62`, in the last section, and the sentence that names it *demotes*
+   portability explicitly: *"That it can be is not why I wrote it: I wrote the reasons for myself, and
+   only afterwards found out the reasons were the part that could leave."* No sentence anywhere makes
+   portability the first claim — the excerpt leads on *"a written model of my own loop"*, the opening
+   on the talk and the scale collision, and `:28` says the products are *"the part I can swap"*.
+3. **The close CLOSES.** Corpus clause: *"The close is a warm sign-off that instructs or wishes; it
+   does not summarise."* `:64` names the act (*"naming it late, and naming it anyway"*), gives its
+   reason, and **wishes** — *"Good luck, and I hope you find yours in better shape than I found
+   mine."* Nothing in it restates the piece. **It does not merely stop**: the late-naming beat is the
+   section's own argument arriving at the reader, which is what the three habits were doing badly.
+4. **The two editions are one piece in two voices — CLEAN at the structural grain.** Identical H2 text
+   positions (`:24`, `:38`, `:54`), 26 paragraphs each, every repairable claim at the same line number
+   in both, and the PT gloss device declared at the first English quotation (`:46`, *"daqui em
+   diante"*), which takes round 1's advisory. Two PT-only rhythm defects are advisory below; neither
+   is a mirror break.
+
+### Advisory and droppable
+
+- **`:11`, the `takeaway`, both editions — the one place the teaching posture survives.** It reads
+  *"what has to be written down is the model of **your own** loop … when **you** threw it out"*, where
+  the excerpt one line above says the same thing in the first person (*"a written model of **my** own
+  loop"*). The pre-respine `takeaway` was impersonal (*"what has to exist in writing is the central
+  idea"*), so the second person arrived in the same commit that cut the teaching close. **Deliberately
+  not repaired**: the site's own published `takeaway` fields already include a second-person
+  prescriptive one, and the close rule explicitly permits a sign-off that *instructs* — so I cannot
+  quote a clause this violates, and editing it would be taste. Flagged because it is the exact thing
+  ruling 9 was about.
+- **`:34`, both — *"What those two decisions eventually produced is a file"*** asserts a causal origin
+  the source assigns elsewhere: ADR-0021 records the registry as occasioned by `/blueprint`'s
+  portable-export requirement (`#313`), not by the persona criterion or the grinding rule. **Left
+  alone** because the ruler's own carve-out covers it — a transition *"that carries no claim of its
+  own … is craft"* — and because the substance is sourced: the disagreement principle is a registry
+  `propósito` at `docs/blueprint-registry.md:691`. One clause (*"eventually led me to"*) would remove
+  the causal reading at no cost.
+- **`:20` PT — *"e para para testar o próprio pitch"*** reads as a doubled word on the page. *"e
+  interrompe para testar"* keeps the beat. PT-only; EN's *"stops to stress-test it"* is clean.
+- **`:62` EN — *"Every file I have quoted here"*, my own repair, is longer than what it replaced.**
+  Recorded so the next hand knows it is mine and is free to shorten it, provided the count stays true.
+- **`:10` excerpt EN/PT — *"I run the same architecture"* is a stronger claim than the body makes**;
+  the body says the products are swappable and the model is what holds it up, and `:22` is careful
+  that he is *"one person with two repositories and weekends"* against Tan's companies. It is
+  consistent with the working title's *"AI-native company of one"*, **so it must be re-read once the
+  title is picked** — if a candidate drops that identification, the excerpt asserts it alone on the
+  surface that travels without the body.
+- **`date: '2026-08-25'`** is three weeks behind today on a piece not yet released. The lane's release
+  step sets the real date; nothing in this ruler speaks to it.
+
+### Carried forward from rounds 1 and 2, unchanged and still not this ruler's to settle
+
+- **Every Tan attribution is reported speech against an ASR transcript nobody retained**, including
+  `:20`'s *"he says so himself, halfway through, and stops to stress-test it"* and `:48`'s landfill and
+  librarian. The draft declares this outright at `:18`, which is the structural remedy `5f2dfac`
+  landed, and both earlier rounds recorded it as a **publication risk for the owner**. I did not
+  repair it: the only Tan source in `-io#259` is the owner's own *«eh um pitch de ai-native company na
+  realidade»*, which supports the characterisation and not *"he says so himself"*, and the transcript
+  that would settle it existed in a session I cannot reach. **Cutting a sentence two rounds ratified,
+  on a source I cannot see, would be authorship rather than repair.**
+- **`:52` promises a second article** (*"is the next article"*). `-io#638` carries it; nothing
+  guarantees sequencing. Durability, not provenance.
+
+### What this round did not check — and on this lane NOBODY else does either
+
+Provenance is on this ruler and so is falsity against the source; **external correctness is not**.
+Since the copy veto left this lane on 2026-09-03, **four classes reach the owner unread**:
+cross-surface staleness, evidence proximity, the machine/ATS read, and durability. Nothing replaced
+that lens here. And **nobody re-reads the two repairs above** — they are mine, and the authorship
+bias the pair exists to absorb now sits on them. The owner reading the held preview and the merge
+gate reading the diff are what absorb it; neither is an instrument.
+
+CONTENT-REVIEW-FINDINGS
