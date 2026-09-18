@@ -23,17 +23,15 @@ Ele está falando de empresas. Eu sou uma pessoa com dois repositórios e fins d
 
 ## Como isso roda, e as decisões embaixo
 
-O loop que publica este site é um plugin que eu construí e opero. Oito personas, várias delas ali especificamente para discordar de outra antes de qualquer coisa ser escrita; hooks que recusam certos comandos sem discussão; uma biblioteca de skills; um conjunto de registros de decisão. O trabalho entra como uma issue, um lead discute com outro quanto aquilo vale, alguma coisa constrói, e um portão que não escreveu nada daquilo decide se aquilo sobe. Tudo rodando, tudo aberto.
+O loop que publica este site é um plugin que eu construí e opero. Oito personas; hooks que recusam certos comandos sem discussão; uma biblioteca de skills; um conjunto de registros de decisão. O trabalho entra como uma issue, um lead discute com outro quanto aquilo vale, alguma coisa constrói, e um portão que não escreveu nada daquilo decide se aquilo sobe. Tudo rodando, tudo aberto.
 
 Nada disso responde a pergunta que eu tinha acabado de me fazer. Os produtos são aquilo em cima de que o loop roda, e são também a parte que eu consigo trocar. O que deu trabalho foram as decisões embaixo, e duas delas carregam quase tudo.
 
-A primeira é quem tem direito de existir. Uma persona aqui não é um cargo — ela ganha o lugar dela produzindo uma discordância que alguém precisa ouvir. Um mandato sem gatilho é um documento, e um agente sem contraparte é um repasse. Eu não comecei por aí, e chegar nisso me custou quase tudo o que eu já tinha construído.
+A primeira é quem tem direito de existir. Eu comecei com um agente por assunto, cada um com o seu mandato, e a maior parte nunca rodou — um mandato sem gatilho é um documento, e um agente sem contraparte é um repasse. Hoje uma persona só entra se produzir uma discordância que alguém precisa ouvir. Chegar nisso me custou quase tudo o que eu já tinha construído.
 
-A segunda é a que eu menos confio e mais uso: **o loop é uma máquina de moer trabalho até o fim, não de gerar trabalho novo.** Uma revisão que volta com vinte e duas observações transformou, no silêncio, uma fatia em quinze. Então tudo o que um portão enxerga e não é a fatia da frente é dito em voz alta e deixado quieto.
+A segunda é a que eu menos confio e mais uso: **o loop é uma máquina de moer trabalho até o fim, não de gerar trabalho novo.** Antes, cada observação de uma revisão virava trabalho novo — uma delas voltou com vinte e duas e transformou, no silêncio, uma fatia em quinze. Hoje o que um portão enxerga e não é a fatia da frente é dito em voz alta e deixado quieto.
 
-O que essas duas decisões acabaram produzindo é um arquivo — a modelagem do meu próprio loop, escrita em vez de carregada na cabeça. Uma entrada por comportamento, e não por arquivo, porque um arquivo pode carregar dois comportamentos e um comportamento pode estar espalhado em três. Cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz. O resto da linha é inventário, e o inventário é a parte que eu entregaria para uma máquina rascunhar. Que é como eu leio o argumento dele agora: não é sobre quanta coisa tem ali dentro. É sobre o que está ali dentro ser a parte que não daria para derivar.
-
-O que este texto não carrega é o desenho. As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão na [página de arquitetura](/architecture) — o mesmo loop, montado para ser inspecionado, não lido.
+O que essas duas decisões acabaram produzindo são markdowns — a modelagem do meu próprio loop, escrita em vez de carregada na cabeça. Uma entrada por comportamento, e não por arquivo, porque um arquivo pode carregar dois comportamentos e um comportamento pode estar espalhado em três. Cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz. O resto da linha é inventário, e o inventário é a parte que eu entregaria para uma máquina rascunhar. Que é como eu leio o argumento dele agora: não é sobre quanta coisa tem ali dentro. É sobre o que está ali dentro ser a parte que não daria para derivar.
 
 ## Reavalie, e tenha estômago para jogar fora
 
@@ -61,4 +59,8 @@ Que é também o motivo de isso importar quando quem lê é um modelo. O mesmo a
 
 Todos os arquivos que eu citei aqui moram no outro repositório — o plugin, a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 
-Então eu nomeio tarde, e nomeio mesmo assim. Botar uma palavra em cima de algo que você já tem é o que te deixa ir procurar as outras pessoas que construíram um, em vez de achar que você inventou uma mania de arquivar. Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.
+Então eu nomeio tarde, e nomeio mesmo assim. Botar uma palavra em cima de algo que você já tem é o que te deixa ir procurar as outras pessoas que construíram um, em vez de achar que você inventou uma mania de arquivar.
+
+O que este texto não carrega é o desenho. As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão na [página de arquitetura](/architecture) — o mesmo loop, montado para ser inspecionado, não lido.
+
+Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.

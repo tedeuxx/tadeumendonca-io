@@ -23,17 +23,15 @@ He is describing companies. I am one person with two repositories and weekends �
 
 ## How this runs, and the decisions underneath it
 
-The loop that publishes this site is a plugin I built and operate. Eight personas, several of them there specifically to disagree with another one before anything gets written; hooks that refuse certain commands outright; a skill library; a set of decision records. Work enters as an issue, one lead argues with another about what it is worth, something builds it, and a gate that did not write it decides whether it ships. All of it running, all of it in the open.
+The loop that publishes this site is a plugin I built and operate. Eight personas; hooks that refuse certain commands outright; a skill library; a set of decision records. Work enters as an issue, one lead argues with another about what it is worth, something builds it, and a gate that did not write it decides whether it ships. All of it running, all of it in the open.
 
 None of that answers the question I had just asked myself. The products are what the loop runs on, and they are also the part I can swap. What took the work was the decisions underneath, and two of them carry most of the weight.
 
-The first is who gets to exist at all. A persona here is not a job title — it earns its place by producing a disagreement somebody needs to hear. A mandate with no trigger is a document, and an agent with no counterpart is a handoff. I did not start there, and arriving at it cost me most of what I had built.
+The first is who gets to exist at all. I started with one agent per subject, each with its own mandate, and most of them never ran — a mandate with no trigger is a document, and an agent with no counterpart is a handoff. Now a persona only gets in if it produces a disagreement somebody needs to hear. Arriving at that cost me most of what I had built.
 
-The second I trust least and use most: **the loop is a machine for grinding work down, not for generating it.** A review that comes back with twenty-two findings has quietly turned one slice into fifteen. So anything a gate notices that is not the slice in front of it gets named out loud and left alone.
+The second I trust least and use most: **the loop is a machine for grinding work down, not for generating it.** Before, every finding in a review became new work — one came back with twenty-two and quietly turned a single slice into fifteen. Now anything a gate notices that is not the slice in front of it gets named out loud and left alone.
 
-What those two decisions eventually produced is a file — the model of my own loop, written down instead of carried around in my head. One entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three. Each entry has to say what the behaviour is *for*, and what it does *not* do. The rest of the row is inventory, and the inventory is the part I would hand to a machine to draft. Which is how I read his argument now: it is not about how much is in there. It is whether what is in there is the part that could not have been derived.
-
-What this piece does not carry is the drawing. The tiers, what each one is *not* allowed to do, and how a change crosses them are on [the architecture page](/architecture) — the same loop, laid out to be inspected rather than read.
+What those two decisions eventually produced is markdown files — the model of my own loop, written down instead of carried around in my head. One entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three. Each entry has to say what the behaviour is *for*, and what it does *not* do. The rest of the row is inventory, and the inventory is the part I would hand to a machine to draft. Which is how I read his argument now: it is not about how much is in there. It is whether what is in there is the part that could not have been derived.
 
 ## Reassess it, and be willing to throw the thing out
 
@@ -61,4 +59,8 @@ Which is also why it matters once a model is the one reading. The same file alre
 
 Every file I have quoted here sits in the other repository — the plugin, the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
-So I am naming it late, and naming it anyway. Putting a word on something you already have is what lets you go looking for the other people who built one, instead of assuming you invented a filing habit. Good luck, and I hope you find yours in better shape than I found mine.
+So I am naming it late, and naming it anyway. Putting a word on something you already have is what lets you go looking for the other people who built one, instead of assuming you invented a filing habit.
+
+What this piece does not carry is the drawing. The tiers, what each one is *not* allowed to do, and how a change crosses them are on [the architecture page](/architecture) — the same loop, laid out to be inspected rather than read.
+
+Good luck, and I hope you find yours in better shape than I found mine.
