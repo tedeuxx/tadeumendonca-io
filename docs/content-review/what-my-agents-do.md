@@ -573,3 +573,338 @@ bias the pair exists to absorb now sits on them. The owner reading the held prev
 gate reading the diff are what absorb it; neither is an instrument.
 
 CONTENT-REVIEW-FINDINGS
+
+---
+
+## Round 4 — 2026-09-18
+
+draft: `apps/fed/src/content/blog/what-my-agents-do.en.md` @ `a50e7fb` (read), repaired in the
+working tree
+draft: `apps/fed/src/content/blog/what-my-agents-do.pt.md` @ `a50e7fb` (read), repaired in the
+working tree
+ruler: `published-voice` · Tan quotations re-derived against `https://ai.engineer/talks/eBUyTS7SzV4`
+(fetched 2026-09-18) · own-file quotations and every figure re-derived in `tadeumendonca-skills` at
+`origin/main` = `cb72abc2`
+
+**THE COUNTER WAS RESET A SECOND TIME, BY THE ORCHESTRATOR, ON THE SAME GROUND AS THE FIRST.** Round 3
+read blob `7d87bee`; between that blob and `a50e7fb` the piece gained **two H2 sections and 417
+words** (1391 → 1808, EN) when the transcript was found, and then had the timestamp apparatus stripped
+out of it — 16 inline minutes to 0, 17 quoted spans to 5. **I agree with the reset**, on exactly the
+key round 3 stated: *the artifact changed under the rounds*, never *more scrutiny would be useful*.
+
+**And I record a boundary, because this is the second reset on one Issue and the pattern is what the
+cap exists to stop.** Two resets keyed on *the artifact changed* are still two correct applications of
+the key; three would be indistinguishable from the unbounded reading. **The observable version of the
+key, so the next reader is not asked to take it on trust** — per commit, body words and H2 count:
+
+```
+git log --format='%h %ad' --date=short -8 -- apps/fed/src/content/blog/what-my-agents-do.en.md
+#   a50e7fb  1808  h2=5   <- this round
+#   8705571  1746  h2=5
+#   86fbc9e  1742  h2=5   <- the transcript commit: +307 words, +2 sections
+#   b204833  1435  h2=3
+#   25958f4  1387  h2=3   <- the neighbourhood round 3 read
+```
+
+**If a fifth round is ever proposed, derive those two columns first.** A reset is honest only where the
+numbers move like the two middle rows; where they do not, the bound is spent and the piece goes to the
+owner as it stands.
+
+### Repaired — ground 2, false against the source
+
+1. **`:10`, the `excerpt`, both editions — "four pieces that are all markdown" is contradicted by the
+   talk.** source: the transcript, in the run-up to the very quotation the piece uses at `:30` —
+   *"They're markdown files and other types of markdown files, **and maybe there's some TypeScript in
+   there too**."* The fourth piece is the one he hedges for: his own trigger-eval example is a test
+   (*"going in and actually having a test that says, 'When I need to alter a test file, does test.md
+   actually get loaded?'"*), and the conference's own summary of that beat reads *"A small TypeScript
+   example makes that contract explicit."*
+
+   What it claimed · EN *"four pieces that are all **markdown**"* · PT *"quatro peças que são todas
+   **markdown**"*.
+
+   What it claims now · EN *"four pieces that are all **files**"* · PT *"quatro peças que são todas
+   **arquivos**"*. **The replacement is the piece's own word, twice over** — the body at `:26` (*"each
+   one turns out to be a file"* / *"cada uma delas acaba sendo um arquivo"*) and the `takeaway` one
+   line below the excerpt (*"the four pieces of his company are **files**"*). So the repair also
+   removes a disagreement between two frontmatter fields of the same piece.
+
+   **Why a repair rather than an advisory:** the excerpt is a surface that travels alone.
+   `published-voice` says so about the title and the reason is identical here — *"the OG card and every
+   social post strip exactly that context"* — so a rhetorical shorthand the body earns at `:30` is read
+   as a literal enumeration wherever the excerpt appears without the body.
+
+2. **`:39`, both editions — "not on his list" puts Tan's own fifth piece outside Tan's list.** source:
+   the brain is the talk's title (*Every company should have a Brain*, the page's own `<title>`), its
+   closing beat, and one of the portable parts he enumerates at 18:15 — *"Use skill files as employees.
+   The library and the librarian. Never do one-off work. Those travel with you to any stack."* **The
+   piece reports that same list itself at `:89`**, and its own excerpt at `:10` attributes the fifth
+   piece to Tan outright (*"and a fifth one underneath: the brain"*).
+
+   What it claimed · EN *"a fifth piece underneath these four that is not on **his** list"* · PT
+   *"…que não está na lista **dele**"*.
+
+   What it claims now · EN *"…that is not on **that** list"* · PT *"…que não está **naquela** lista"*.
+   One word each; the sentence's beat, its dash and its second clause are untouched.
+
+   **In PT the false reading is again the only reading** — *"a lista dele"* resolves to Tan and to
+   nothing else — which is what decides this, exactly as it decided round 3's first repair. In EN a
+   charitable reading exists (*his list* = the four bullets ten lines above) and I would have left the
+   EN alone on its own; the two editions are one piece, and a repair landing in one and not the other
+   manufactures a divergence.
+
+### Cited and deliberately NOT acted on — rule 9's ceiling
+
+**I can quote the clause and I am not repairing it, and both halves of that need saying.** The clause:
+*"**the site piece**: **900–1,300 words; ceiling 1,500. At most 6 sections.**"* Post-repair, measured:
+
+```
+for f in apps/fed/src/content/blog/what-my-agents-do.en.md apps/fed/src/content/blog/what-my-agents-do.pt.md; do
+  printf '%s\t%s\t%s\n' "$f" "$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2' "$f" | wc -w)" "$(grep -c '^## ' "$f")"; done
+#   .en.md  1808  5      ceiling 1500 — 21% over
+#   .pt.md  1912  5      ceiling 1500 — 27% over
+```
+
+**Rule 11 is clean** (5 sections against a ceiling of six). **Rule 9's word ceiling is not, in either
+edition, and the draft round 3 cleared was inside it** — 1391 / 1471 then, 1808 / 1912 now. The overage
+arrived whole at `86fbc9e`, the commit that found the transcript.
+
+**Three reasons it is not repaired, and only the first is a ruling:**
+
+- **The owner ruled on 2026-09-18 that the count is a target and not a limit**, relayed in the
+  dispatch. `published-voice`'s own *Precedence* puts his live words above everything else in the file,
+  and rules 9–11 are carried there as *"a RATIFIED BENCHMARK, not a finding"* — his ratification, which
+  his later ruling supersedes.
+- **The ruler's own prescribed repair is not available to me.** Rule 10: *"A piece over the ceiling
+  becomes a SERIES. It is not trimmed to fit."* Splitting a piece is authorship, not repair.
+- **The dispatch forbids the cut outright**, and it is right to: trimming 300 words to reach a number is
+  the exact move rule 10 names.
+
+**What this leaves behind is drift in the RULER rather than in the draft, and it is not mine.**
+`published-voice` still publishes 900–1,300 / ceiling 1,500 as ratified, and the owner has now ruled the
+ceiling advisory. A reviewer arriving at that file next week will quote a number he has retired. That is
+`agents-lead`'s to reconcile in the skill; recorded here so it is not rediscovered as a finding against
+a fourth draft.
+
+### The five verbatim quotations — all five HOLD, and the selector is calibrated
+
+The three Tan quotations were checked against the published transcript, tag-stripped and
+whitespace-collapsed; the two own-file quotations against `tadeumendonca-skills` at `cb72abc2`, which
+**has moved since round 3** (`d240d6f7` → `cb72abc2`).
+
+| quote | source | result |
+|---|---|---|
+| *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."* | transcript, 5:52 | **exact** |
+| *"a brain nobody curates becomes a garbage dump with great search."* | transcript, 14:27 | **exact** |
+| *"if you have to ask for something twice, you failed."* | transcript, 16:05 | **exact** |
+| *"An ADR earns its place by explaining the **current** codebase"* | `docs/adr/0020-…md:1` | **exact** |
+| *"A record leaves this library only as a disposition, never as an absence."* | `docs/adr/README.md` | **exact** |
+
+**Calibration, because a search that only ever hits is not a search:** one-letter and one-word mutations
+of three of the five — *"a garbage dumps with great search"*, *"a brain nobody curates becomes a
+landfill"*, *"never an absence"* — return **zero** against the same sources. The hits are hits.
+
+### The reported speech — every Tan paraphrase checked, all supported
+
+Not a quotation check. The piece now carries in the owner's voice what it used to quote, so the
+paraphrases are where a false attribution would live now.
+
+- `:20` *"he says so on stage, in the room he expects to tear the numbers apart"* — *"So let me stress
+  test my own pitch because you would anyway."* ✓
+- `:20` the refusal of the revenue and headcount figures — the talk is indeed the only source for the
+  400×, the 95%-AI-generated batch and the 94 companies past $100M. ✓ The sourcing constraint working.
+- `:16` *"No slides, no deck, just him talking"* — he says *"no slides"* five times in one minute. ✓
+- `:45` *"The bugs, he says, are **usually** work sitting on the wrong side of that line"* — *"all of
+  the bugs … it's **usually** because something is happening in one side of the equation that should be
+  in the other."* ✓ **The softening the dispatch flagged is correct and it is load-bearing** — without
+  *usually* it is a stronger claim than he makes.
+- `:47` the eight hundred — *"seating 800 at a time"* out of a population of 6,000. ✓
+- `:53` *"retrieval is the easy half — being worth retrieving from is the product"* — *"Retrieval is
+  easy. Being worth retrieving from is the product."* ✓
+- `:55` *"provenance on every fact, a check for when a new one contradicts an old one, and a librarian
+  whose actual job is pruning"* — *"provenance on every fact, contradiction checks when new information
+  collides with the old, and a librarian, human plus agent, whose actual job is pruning."* ✓ (advisory
+  below).
+- `:65` rented / amnesia — *"Model quality is rented, but if you build your brain, you own that brain"*
+  and *"wakes up every morning with amnesia, no matter how good the model is."* ✓
+- `:89` the portable list — *"Use skill files as employees. The library and the librarian. Never do
+  one-off work. Those travel with you to any stack."* ✓
+- `:28` the four-row mapping — the conference publishes it as a table with the same four rows (*Skill
+  file / Resolver table / Filing rules / Trigger evaluation*). ✓ The talk says `tests.md` in the routing
+  example and `test.md` in the evaluation example; the piece uses `test.md` and does not reproduce the
+  inconsistency, which is a defensible pick and not a defect.
+
+### Every figure re-derived at `cb72abc2`, and none needed repair
+
+```
+git show origin/main:.claude-plugin/plugin.json | jq -r '.skills[]' | wc -l            # -> 15
+git ls-tree --name-only origin/main agents/ | grep -c '\.md$'                          # ->  8
+git ls-tree --name-only origin/main docs/adr/ | grep -cE 'docs/adr/[0-9]+.*\.md$'      # ->  7
+git show origin/main:docs/adr/README.md | grep -cE '^\| 00[0-9][0-9] \|'               # -> 14   (7+14 = 21)
+```
+
+`:75`'s *nineteen → six → eight* and *sixty-nine → fourteen → fifteen* both hold (`CLAUDE.md:440`,
+`CLAUDE.md:342`). `:37`'s bidirectional skill arm exists in both directions
+(`hooks/scripts/inventory-counts.test.sh`, `FORWARD` / `REVERSE`), and so does `:61`'s disposition arm —
+the reverse limb is there in its own words: *"a row for a number that is still live."* `:91`'s
+`/architecture` publishes **8 personas** and **15 skills**, so the pointer does not send a reader into a
+contradiction.
+
+### The four defect shapes — swept, two live instances, both advisory
+
+**Neither is repairable on either ground and I have left the prose alone.** They are the two places the
+piece still names a thing one beat away from delivering it.
+
+- **`:32` asserts a collision of vocabularies and shows one side of it.** *"The interesting part is not
+  that they matched — it is that I had chosen none of those names"* — and the four bullets that follow
+  are labelled in **Tan's** vocabulary on both sides of the equals sign (*Skill file = employee*). The
+  owner's own names arrive later and elsewhere: `loop`/`product`/`content` at `:35`, persona and hook
+  and verdict at `:49`. **Shape C — an equivalence asserted and never shown**, at the point of
+  assertion. Not repairable: the claim is true, and choosing which of his names to display is
+  authorship.
+- **`:75` ends the section on "each entry", and the piece never introduces an entry of anything.**
+  *"Which is why each entry has to say what that behaviour is for, and what it does not do"* has no
+  antecedent anywhere in either edition — the registry that carries those fields is named nowhere,
+  quoted nowhere and linked nowhere; it left with the section the split removed. **Shape A — a claim
+  named and never delivered**, and it is the payoff sentence of the one section the piece tells the
+  reader to act on (`:71`, *"take this one, and you can do it this week"*). **The claim is TRUE** — the
+  fields exist and are gated — **so ground 2 does not fire**, and no clause of this ruler speaks to a
+  dangling referent, so ground 1 does not either. **This is the single worst reading defect in the piece
+  and it costs one clause to fix**: name the file once, the way `:59` names the decision library before
+  quoting it. That edit is his or the writer's, not mine.
+
+The other two shapes are clean. Every distinction the piece announces is drawn (`:41`'s heading → `:45`;
+`:79` → `:81`; `:18`'s receipt-versus-recollection → the warranty sentence around it), and every
+principle it states is consequenced (`:83` → the limit at `:85`; `:63` on the evidence at `:61`; `:71` →
+the procedure at `:73`).
+
+### The close — judged against the dispatch's three tests, and it passes one of three
+
+- **Warm sign-off that wishes rather than summarises: CLEAN.** `:93` *"Good luck, and I hope you find
+  yours in better shape than I found mine."* The corpus clause is satisfied exactly, and the PT mirrors
+  it.
+- **Last among substantive beats: NO.** The final run is `:87` (the deliberate omission, pointing at the
+  next article) → `:89` (Tan's portable list, and his plugin) → `:91` (the architecture page) → `:93`
+  (sign-off). **`:91` is a navigational note, and it is the last thing the reader is asked to do before
+  goodbye** — the weakest beat in the run, in the strongest position but one.
+- **Exactly one act: NO — three destinations in five paragraphs.** The next article, the plugin in the
+  other repository, the architecture page. **Advisory and droppable**: no clause of this ruler caps the
+  number of pointers before a sign-off, and rule 9's *"the terminal event is contact, not
+  comprehension"* is about the ladder rather than about paragraph order, so I will not repair on it.
+  **If one moves, `:91` is the one** — `:87` and `:89` are arguments and `:91` is a signpost, and the
+  close reads stronger with `:89`'s last clause (*"the reasons were the part that could leave"*) landing
+  straight into the wish.
+
+### Advisory and droppable
+
+- **`:75`'s dangling "each entry"** — the item above, restated here because it is the one I would most
+  want him to see. One clause naming the file closes it.
+- **`:32`'s one-sided vocabulary collision** — the item above.
+- **`:91` as the last substantive beat** — the item above.
+- **PT `:59`'s gloss device is declared AFTER two glosses have already run.** The declaration reads
+  *"como o repositório é em inglês, vem o original e a tradução"* — scoped to that one quotation, in the
+  third place the device is used (`:30`, `:55`, then `:59`). Round 3 recorded the device as declared at
+  the first English quotation, which was true of the draft it read; the re-spine moved the declaration
+  without moving it back to first use. PT-only; EN has no device to declare.
+- **`:55`'s Tan paraphrase is near-verbatim and is not quoted.** *"a librarian whose actual job is
+  pruning"* is six of his own words in a row, reported as the owner's summary; so is `:89`'s *"travel
+  with you to any stack"*. Both are accurate, no clause speaks to paraphrase distance, and quoting them
+  would put two more quotation marks into a piece the owner has just had stripped of apparatus — which
+  is why this is flagged and not repaired.
+- **`:39`'s second clause, *"that is the one that did not match"*, is stated at full strength three
+  paragraphs before the piece shows the fifth piece matching.** `:57` says *"That is the claim I have a
+  receipt for"* and `:59`–`:63` show the mechanism matching in detail; what does not match arrives only
+  at `:67`, and it is the **scale**, not the piece. The reading survives — *did not match* means *the
+  analogy broke there* — but the reader carries a flat contradiction for three paragraphs before it
+  resolves. **Not repaired:** not false, and no clause caps how long a piece may hold a tension. One
+  word (*"the one that did not hold"*) would remove it at no cost to the beat.
+- **`:37` and `:61` state the same bidirectional-test move twice, in the same shape, 24 lines apart.**
+  *"a declared skill that does not exist turns it red, and one that exists and was never declared does
+  too"* and *"a number with no file and no row turns the suite red, and so does a row for a number that
+  is still alive."* Both are true and both earn their place; what repeats is the **construction**, and
+  it is the strongest remaining trace of the written-to-be-audited register. See the register read
+  below.
+- **`date: '2026-08-25'`** is 24 days behind today on an unreleased piece. The lane's release step sets
+  the real date; carried forward from round 3, unchanged, and nothing in this ruler speaks to it.
+
+### The register — the dispatch's first question, answered plainly
+
+**It reads as an article, and it is worth his time.** The apparatus is gone and what it left behind is
+mostly voice rather than report. The evidence, by his own constraints:
+
+- **Constraint 4 (short declarative after long technical) is working and it is the piece's spine** —
+  `:49` *"I got there by putting things on the wrong side of that line and paying for it."* · `:57`
+  *"That is the claim I have a receipt for."* · `:63` *"Pruning is not the part that feels like
+  progress."* Each lands directly after a paragraph of mechanism, which is exactly the rhythm.
+- **Constraint 3 (limits stated before the reader reaches them) is the best thing in the piece** —
+  `:18`'s warranty, `:22`'s *"one person, two repositories and weekends"*, `:67`'s scale honesty,
+  `:85`'s *"I do not have the measurement"*, `:87`'s *"Saying that costs me a sentence; letting this one
+  look finished would have cost more."* Five, unprompted, and not one of them is a hedge about his own
+  work — they are limits with a fact in each, which is the filter this ruler sets between an admission
+  and self-deprecation.
+- **The *sacana* is present and it is dry** — `:18`'s *"an awkward thing to learn in a piece about
+  memory"* is the register's own move: the gap between what was claimed and what was there, landing on
+  the writer, with no exclamation mark anywhere in either edition.
+
+**Where it still reads as a report, and it is one block rather than a tone:**
+
+> **`:32`–`:37`, the four bullets, are a conformance matrix in prose clothing.** Four labelled rows,
+> each closing on its verification. It is the one place the piece stops narrating and starts tabulating,
+> and it is the block a reader who disliked the audited version would recognise first. **It is also the
+> piece's load-bearing evidence**, so the finding is not *cut it* — it is that the four-for-four beat at
+> `:39` is doing the narrative work while the bullets are doing none of it.
+
+**`:37` and `:61`'s repeated verification construction is the second trace** — by the second occurrence
+the reader recognises the sentence shape before its content, which is what makes prose read as
+specification.
+
+**That is the whole of it: two report-shaped spots in a piece with five paragraphs of earned honesty and
+a close that lands. It is not the version he refused.**
+
+### The Kiro gap — judged, not repaired, and I agree with the builder with one narrowing
+
+**I agree: it is a gap and not a falsehood, and it must not be repaired by anyone but him.** No sentence
+in either body claims Kiro, claims multi-harness operation, or claims the loop runs anywhere but here —
+the vocabulary throughout is Claude Code's (`CLAUDE.md` at `:28`, hooks and personas and verdicts at
+`:49`), and the only harness names in the body are Tan's, inside his own quotation at `:30`.
+
+**The narrowing: the gap is not symmetric across the three names, and it is rule-1 shaped rather than
+rule-5 shaped.** Codex is at least *in a sentence* — the one quotation the piece leans on hardest.
+**Kiro appears in the title and in no sentence of either edition.** So the clause that bites is title
+rule 1 — *"The reader knows from the title what they will find"* — and it bites mildly: a reader who
+came for Kiro gets no contact with the word after the title. **Rule 5 does not fire**, and I checked it
+specifically: *"carrying that thesis is a false claim in the most quoted line of the piece"* would
+require the title to assert something the article does not prove, and *how to run yours* asserts nothing
+about how many he runs.
+
+**On the sentence the dispatch named — `:89`, *"Mine travels as a plugin … the one thing here built to
+be carried off by somebody else"* — I judge it TRUE as written and I have not touched it.** It claims
+that the plugin is the portable artifact; it does not claim the loop travels. **What carries the risk is
+one word's company rather than the word itself:** *travels* is also Tan's verb, in the same sentence,
+one clause earlier (*"Those, he says, travel with you to any stack"*). The piece therefore puts his
+plugin in the same grammatical slot as a claim about any stack, and that adjacency is what lets a Kiro
+reader take *travels* as *the whole loop travels* — which the measured record contradicts in its
+enforcement half.
+
+**If he wants it closed, it is one clause and it would be a repair rather than authorship**, because the
+true statement is in the record: what travels is the knowledge layer, and the enforcement layer does
+not. **I did not write it**, because the dispatch reserved the judgement to him and because the clause
+changes what the piece claims about its own portability, which is a positioning call.
+
+### What this round did not check — and on this lane NOBODY else does either
+
+Provenance is on this ruler and so is falsity against the source; **external correctness is not.** Since
+the copy veto left this lane on 2026-09-03, **four classes reach the owner unread**: cross-surface
+staleness, evidence proximity, the machine/ATS read, and durability. Nothing replaced that lens here.
+
+**And nobody re-reads the two repairs above** — they are mine, four words across two editions, and the
+authorship bias the pair exists to absorb now sits on them. The owner reading the held preview and the
+merge gate reading the diff are what absorb it; neither is an instrument.
+
+**One thing this round could check that earlier ones could not, and it is worth recording:** the Tan
+transcript was reachable from this session, so every attribution to him is now verified against a
+published page rather than against an ASR transcript nobody retained. **Rounds 1 and 2's standing
+carry-forward — *every Tan attribution is reported speech against a transcript nobody kept* — is
+DISCHARGED at this head.** That was the piece's largest publication risk for the owner and it is gone.
+
+CONTENT-REVIEW-FINDINGS
