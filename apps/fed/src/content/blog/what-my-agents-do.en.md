@@ -84,7 +84,16 @@ It took me a while to see that the two ideas are the same piece from two sides.
 
 You can only rearrange the profiles because what each one does is not inside a person. An org chart of people cannot be re-run in a different shape; an org chart of files can. And you only learn anything from the rearrangement if the record says what each piece was there for — otherwise you changed the shape, the result changed with it, and you have no idea why.
 
+And the shape worth changing it into is a disagreement. A profile here earns its place mostly by producing one somebody needs to hear — that is the first of four reasons one may exist, and the version of the rule that said it was the only reason got struck, because it could not explain two of the profiles that are actually there.
+
+What took me longer to see is that the useful disagreement is not the same at every stage. Two leads arguing about a piece of work before anything is built is one act; a gate whose whole job is to fight the builder after it is built is another; the drafting pair reading the same ruler is a third. And some stages want none at all — a change to the loop itself is closed by one reviewer alone, with no exception, because an exception there becomes the default case.
+
 So writing down what each piece is for is not tidiness. It is the only thing that lets you change the shape and learn from having changed it.
+
+**What to take out of this:**
+
+- **A profile earns its place by producing a disagreement somebody needs to hear** — not by filling a box on an org chart. If nobody would argue back, what you have is a handoff, and a handoff is the thing that never gets used.
+- **Match the conflict to the stage.** Before anything is built you want two opinions that genuinely differ; after it is built you want an adversary; while a draft is being written you want one ruler, read twice. Using the same conflict everywhere is how a review turns into a ceremony.
 
 And here is the limit, before you reach it on your own: I do not have the measurement. I have not run two arrangements side by side to compare which produces more. What I have is the record that makes the comparison possible, and the counts above are change over time, not an experiment.
 
@@ -95,3 +104,5 @@ What this piece does not carry is the drawing. The tiers, what each one is *not*
 He closes by listing what is portable: skill files as employees, the library and the librarian, never do one-off work. Those, he says, travel with you to any stack. Mine travels as a plugin, in the other repository — the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
 Good luck, and I hope you find yours in better shape than I found mine.
+
+This is what I think.

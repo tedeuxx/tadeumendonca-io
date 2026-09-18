@@ -88,7 +88,16 @@ Demorei para ver que as duas ideias são a mesma peça vista de dois lados.
 
 Você só consegue rearranjar os perfis porque o que cada um faz não está dentro de uma pessoa. Organograma de gente não dá para rodar de novo com outro formato; organograma de arquivo dá. E você só aprende alguma coisa com o rearranjo se o registro disser para que cada peça estava ali — senão você mudou o formato, o resultado mudou junto, e você não faz ideia do porquê.
 
+E o formato que vale a pena montar é um desacordo. Um perfil aqui ganha o lugar dele principalmente por produzir um que alguém precisa ouvir — essa é a primeira de quatro razões para existir um, e a versão da regra que dizia ser a única razão foi riscada, porque não explicava dois dos perfis que estão lá.
+
+O que demorou mais para eu enxergar é que o desacordo útil não é o mesmo em toda etapa. Dois leads discutindo um trabalho antes de qualquer coisa ser construída é um ato; um gate cuja função inteira é brigar com quem construiu, depois de construído, é outro; a dupla de redação lendo a mesma régua é um terceiro. E algumas etapas não querem nenhum — uma mudança no próprio loop é fechada por um revisor sozinho, sem exceção, porque exceção ali vira o caso padrão.
+
 Então escrever para que serve cada peça não é organização. É a única coisa que deixa você mudar o formato e aprender com a mudança.
+
+**O que levar daqui:**
+
+- **Um perfil ganha o lugar dele produzindo um desacordo que alguém precisa ouvir** — não preenchendo uma casinha de organograma. Se ninguém fosse discordar, o que você tem é um repasse, e repasse é justamente o que nunca é usado.
+- **Case o conflito com a etapa.** Antes de construir você quer duas opiniões que discordam de verdade; depois de construído você quer um adversário; enquanto um texto está sendo escrito você quer uma régua só, lida duas vezes. Usar o mesmo conflito em toda etapa é como uma revisão vira cerimônia.
 
 E aqui vai o limite, antes que você chegue nele sozinho: eu não tenho a medição. Não rodei dois arranjos lado a lado para comparar qual produz mais. O que eu tenho é o registro que torna a comparação possível, e as contagens aí em cima são mudança ao longo do tempo, não experimento.
 
@@ -99,3 +108,5 @@ O que este texto não carrega é o desenho. As camadas, o que cada uma **não** 
 Ele fecha listando o que é portátil: arquivos de skill como funcionários, a biblioteca e o bibliotecário, nunca fazer trabalho de uma vez só. Isso, ele diz, viaja com você para qualquer stack. O meu viaja num plugin, no outro repositório — a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 
 Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.
+
+Isso é o que eu penso.
