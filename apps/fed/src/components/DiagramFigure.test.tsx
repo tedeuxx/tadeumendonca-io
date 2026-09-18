@@ -195,6 +195,23 @@ describe('DiagramFigure — the keyboard path', () => {
     expect(document.activeElement).toBe(expandButton());
   });
 
+  // THE PLACEHOLDER HAD TWO CLOSE PATHS AND ONLY ONE OF THEM RELEASED IT (#655). The button cleared the
+  // held height; `Escape` went through `useDialogFocus`, which only cleared the open flag — so the
+  // wrapper kept holding the figure's measured height with the figure back inside it. Invisible on the
+  // screen it was written on, because the height it holds is the height it measured, and wrong from the
+  // next rotation onward. The two controls and the key call one function now.
+  it('releases the held height on Escape, not only on the button', () => {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ height: 321 } as DOMRect);
+    const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
+    const shell = container.firstElementChild as HTMLElement;
+
+    fireEvent.click(expandButton());
+    expect(shell.style.height).toBe('321px');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(shell.style.height).toBe('');
+  });
+
   it('traps Tab inside the promoted figure, scroller included', () => {
     const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
     fireEvent.click(expandButton());
@@ -208,6 +225,123 @@ describe('DiagramFigure — the keyboard path', () => {
 
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
     expect(document.activeElement).toBe(canvas);
+  });
+});
+
+// THE AFFORDANCE THE OWNER ACTUALLY REACHED FOR (#655).
+//
+// The overlay shipped with one way in — a bordered control in a row above the figure. Reading a held
+// article preview on a phone, he tapped the DRAWING and asked for exactly what he had just tried:
+// «uma miniatura/recorte que vc clica e maximiza». The mechanism existed; the gesture was not wired to
+// it. These assertions are about the wiring and about the three things it must not cost: the drawing
+// must not become a control, a text selection must not open it, and a tap inside the promoted scroller
+// (which is where panning happens) must not close it.
+describe('DiagramFigure — the drawing itself is the trigger (#655)', () => {
+  /** A compiled figure as mermaid really emits one: the accessible description lives in a <desc> INSIDE
+   *  the SVG and is reached by the SVG's own aria-describedby. It is the screen-reader reader's only
+   *  access to the figure, so anything wrapped around it has to leave that pair resolvable. */
+  const DESCRIBED =
+    '<svg id="d-1" width="100%" style="max-width: 1628px;" viewBox="0 0 1628 475"' +
+    ' role="graphics-document document" aria-labelledby="chart-title-d-1"' +
+    ' aria-describedby="chart-desc-d-1"><title id="chart-title-d-1">Drawing</title>' +
+    '<desc id="chart-desc-d-1">Four lanes, three tiers.</desc></svg>';
+
+  const canvasOf = (container: HTMLElement) =>
+    container.querySelector('.diagram-canvas') as HTMLElement;
+
+  it('maximises when the reader clicks the drawing, not only when they find the button', () => {
+    const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(canvasOf(container));
+
+    // The same promotion the button performs — one overlay, one drawing, the figure itself promoted.
+    expect(screen.getByRole('dialog', { name: 'A caption' })).toBeInTheDocument();
+    expect(container.querySelectorAll('.diagram-canvas svg')).toHaveLength(1);
+    // And the state the button owns moved with it, which is what says the two paths are ONE path: a
+    // click that set `open` without measuring the placeholder would leave the page jumping.
+    expect((container.firstElementChild as HTMLElement).style.height).not.toBe('');
+  });
+
+  // A MOUSE READER SELECTING A LABEL RELEASES THE POINTER ON THE CANVAS, and mermaid labels are real
+  // selectable text. Covering the page with the thing they were reading is worse than not having the
+  // gesture at all. Asserted by faking the selection rather than by dragging, because jsdom has no
+  // selection engine to drag with — the handler's read is what ships, and it is what is mutated here.
+  it('ignores a click that lands on a live text selection', () => {
+    vi.spyOn(window, 'getSelection').mockReturnValue({ isCollapsed: false } as Selection);
+    const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
+
+    fireEvent.click(canvasOf(container));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // Not "nothing visible happened" — the held height is the state that would have moved, and a
+    // version that opened and closed again would pass a dialog-only assertion on the next tick.
+    expect((container.firstElementChild as HTMLElement).style.height).toBe('');
+  });
+
+  // INSIDE THE OVERLAY THE CANVAS IS THE PANNING SURFACE, so the handler comes OFF while promoted.
+  //
+  // THE OBVIOUS ASSERTION HERE CANNOT FAIL, and it was written first: "the dialog is still open after a
+  // second click" passes on a handler left live, because that handler re-opens an already-open figure
+  // and the dialog never goes anywhere. Mutation-checked by leaving it live — still green, on a build
+  // that is genuinely wrong. What the live handler really breaks is the HELD HEIGHT: it re-measures a
+  // figure that is now `position: fixed` at viewport size, so the wrapper in the flow swells from the
+  // figure's height to the viewport's and the page underneath shifts — the exact defect the wrapper
+  // exists to prevent, appearing while the reader is panning over it.
+  //
+  // So the reading is the held height, and the mock returns a DIFFERENT height on the second call: the
+  // correct build never takes it, a live handler takes it immediately.
+  it('does not re-measure when the promoted scroller is clicked — panning is not re-opening', () => {
+    const heights = [321, 900];
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
+      () => ({ height: heights.shift() ?? 900 }) as DOMRect,
+    );
+    const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
+    const shell = container.firstElementChild as HTMLElement;
+
+    fireEvent.click(canvasOf(container));
+    expect(shell.style.height).toBe('321px');
+
+    fireEvent.click(canvasOf(container));
+
+    expect(screen.getByRole('dialog', { name: 'A caption' })).toBeInTheDocument();
+    expect(shell.style.height, 'the promoted figure was re-measured at viewport size').toBe('321px');
+  });
+
+  // THE DRAWING STAYS A DRAWING. `role="button"` here would be a LEAF role: assistive technology
+  // presents the subtree as one control and the <desc> below becomes unreachable — the same failure the
+  // component's wrapper already refuses for `role="img"`. And a second tab stop over an act the real
+  // button already offers announces nothing, so the pointer path adds neither.
+  it('leaves the drawing a drawing: no control role, and no second tab stop while collapsed', () => {
+    const { container } = render(<DiagramFigure caption="A caption" html={HTML} />);
+    const canvas = canvasOf(container);
+    expect(canvas.getAttribute('role')).toBeNull();
+    expect(canvas.hasAttribute('tabindex')).toBe(false);
+    // The keyboard path is the button, and it is unchanged by the pointer path existing.
+    expect(screen.getByRole('button', { name: /Enlarge/ })).toBeInTheDocument();
+  });
+
+  // THE accDescr MUST NOT BE ORPHANED, in either state, and this is the assertion that says so rather
+  // than the comment that promises it. The compiled description is a <desc> inside the SVG, reached by
+  // the SVG's own aria-describedby — so it survives exactly as long as nothing re-parents, duplicates or
+  // role-overrides the drawing. A portal copy would put a SECOND element on that id, which is why the
+  // count is asserted next to the resolution.
+  it('keeps the compiled accDescr reachable, collapsed and promoted', () => {
+    const { container } = render(<DiagramFigure caption="A caption" html={DESCRIBED} />);
+    const described = () => {
+      const svg = container.querySelector('.diagram-canvas svg')!;
+      const id = svg.getAttribute('aria-describedby')!;
+      return {
+        matches: container.ownerDocument.querySelectorAll('#' + id).length,
+        text: container.ownerDocument.getElementById(id)?.textContent,
+      };
+    };
+
+    expect(described()).toEqual({ matches: 1, text: 'Four lanes, three tiers.' });
+
+    fireEvent.click(canvasOf(container));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(described()).toEqual({ matches: 1, text: 'Four lanes, three tiers.' });
   });
 });
 

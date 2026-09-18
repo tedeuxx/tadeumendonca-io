@@ -210,6 +210,103 @@ test.describe('a figure can be read at the size it was drawn', () => {
     ).toMatch(EXPAND);
   });
 
+  // THE GESTURE THE OWNER ACTUALLY MADE (#655). He read a held article preview on a phone, tapped the
+  // DRAWING, and asked for what he had just tried. The overlay already existed; the tap was not wired to
+  // it, so the whole measured 2.6px → 15px was behind a control he had not read as a control.
+  //
+  // MEASURED, NOT MERELY OPENED. A test that only asserts a dialog appears would stay green on a handler
+  // wired to `setOpen` alone — the overlay would be on screen with the drawing still floored to the
+  // column, which is the state this page was in before #473. So this reads the same painted type the
+  // button path is read against, through the same reading, which is what makes the two paths comparable
+  // rather than two features.
+  for (const width of PHONE_WIDTHS) {
+    test(`/en/architecture: tapping the drawing maximises it, at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: HEIGHT });
+      await page.goto('/en/architecture');
+      await page.waitForLoadState('networkidle');
+
+      // The drawing, not the figure — a click on the figure would land on the control row or the
+      // caption and prove nothing about the canvas.
+      await page.locator('figure.diagram .diagram-canvas').first().click();
+
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toHaveCount(1);
+
+      const painted = await dialog.locator('.diagram-canvas').evaluate((el) => {
+        const svg = el.querySelector('svg')!;
+        const viewBox = svg.getAttribute('viewBox')!.split(/\s+/).map(Number);
+        const scale = svg.getBoundingClientRect().width / viewBox[2];
+        const sizes = [...svg.querySelectorAll('text')].map(
+          (t) => parseFloat(getComputedStyle(t).fontSize) * scale,
+        );
+        return { scale: Number(scale.toFixed(3)), smallest: Number(Math.min(...sizes).toFixed(2)) };
+      });
+      expect(painted.smallest, 'the tap opened the overlay without flooring the drawing').toBeGreaterThanOrEqual(10);
+      expect(painted.scale).toBeGreaterThanOrEqual(1);
+
+      // The page body must never scroll sideways, in the flow or promoted — asserted on this entry
+      // path too, because it is a different code path into the same state.
+      const bodyOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(bodyOverflow, 'the tapped-open figure pushed the page sideways').toBeLessThanOrEqual(0);
+
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+  }
+
+  // THE HELD HEIGHT HAD TWO RELEASE PATHS AND ONLY ONE WORKED (#655), and this is the browser half of
+  // that finding — the DOM fact is pinned in `DiagramFigure.test.tsx`, but "the wrapper has no inline
+  // height" and "the reader sees no gap" are different claims and only a layout engine settles the
+  // second.
+  //
+  // THE TRANSITION IS THE INSTRUMENT, AND THE FIRST ONE CHOSEN COULD NOT FAIL. This test was written
+  // against 430px → 320px on the reasoning that a narrower column reflows the figure shorter. Measured,
+  // it does not: below the 1024px breakout the first figure is 728px high at BOTH widths, so the stale
+  // wrapper and the live figure agree and the assertion passes on a build that is genuinely wrong. It
+  // was caught by mutating the source and watching it stay green.
+  //
+  // What moves the figure's height here is the DESKTOP BREAKOUT (`styles/index.css`), where the figure
+  // pulls out of the article column. Measured at head, open-then-Escape and then resize:
+  //     430 →  320   wrapper 728, figure  728   (no signal — the dead range this test used to use)
+  //    1200 →  390   wrapper 1000, figure 728   (a 272px gap under the reader)
+  //     390 → 1200   wrapper 728, figure 1000   (the figure overruns its wrapper into the prose)
+  // So the reading is taken across the breakout, and it is an ABSOLUTE difference because the defect
+  // shows up in both directions and only one of them is a gap.
+  test('/en/architecture: Escape releases the held height — no gap across a breakout change', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1200, height: HEIGHT });
+    await page.goto('/en/architecture');
+    await page.waitForLoadState('networkidle');
+
+    await page.locator('figure.diagram .diagram-canvas').first().click();
+    await expect(page.getByRole('dialog')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page.setViewportSize({ width: 390, height: HEIGHT });
+    // The reflow is not synchronous with the resize.
+    await page.waitForTimeout(300);
+
+    const seen = await page.locator('figure.diagram').first().evaluate((figure) => {
+      const wrapper = figure.parentElement as HTMLElement;
+      return {
+        inline: wrapper.style.height,
+        gap: Math.round(
+          wrapper.getBoundingClientRect().height - figure.getBoundingClientRect().height,
+        ),
+      };
+    });
+
+    // Asserted on the layout AND on the inline style, because they fail differently: a wrapper that
+    // never released the height is the defect, and a wrapper that happens to match after a reflow is a
+    // green that proves nothing. The tolerance is rounding, not slack — the measured defect is 272px.
+    expect(seen.inline, 'the wrapper is still holding the height it measured before Escape').toBe('');
+    expect(Math.abs(seen.gap), 'the figure and the box holding its place disagree').toBeLessThanOrEqual(4);
+  });
+
   // The Venn's two mechanisms are the ones #473 forbids breaking, and the overlay touches the very
   // element they act on: the same box is the promoted scroller, and the promotion is a resize its
   // ResizeObserver sees. Asserted AFTER a full open/close cycle rather than on a fresh load — a fresh
