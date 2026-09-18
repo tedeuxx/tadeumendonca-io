@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan breaks an AI-native company into four pieces that are all files, and a fifth one underneath: the brain. I took that breakdown and ran it against a loop I had already built without having seen the talk. Four of them matched. The one that did not is the one that matters."
+excerpt: "Garry Tan breaks an AI-native company into four pieces that are all files, and a fifth one underneath: the brain. I took that breakdown and ran it against a loop I had already built without having seen the talk. Three of the four matched. The fourth and the brain break differently."
 takeaway: 'the four pieces of his company are files, which is why you can rearrange them; the brain is what makes the rearrangement teach you anything — and the discipline holding both up is to never do one-off work.'
 ---
 

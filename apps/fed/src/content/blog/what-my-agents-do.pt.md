@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan decompõe uma empresa AI-native em quatro peças que são todas arquivos, e uma quinta embaixo: o cérebro. Eu peguei essa decomposição e rodei contra um loop que eu já tinha construído sem ter visto a palestra. Quatro bateram. A que não bateu é a que interessa."
+excerpt: "Garry Tan decompõe uma empresa AI-native em quatro peças que são todas arquivos, e uma quinta embaixo: o cérebro. Eu peguei essa decomposição e rodei contra um loop que eu já tinha construído sem ter visto a palestra. Três das quatro bateram. A quarta e o cérebro desmontam de formas diferentes."
 takeaway: 'as quatro peças da empresa dele são arquivos, e é por isso que dá para rearranjar; o cérebro é o que faz o rearranjo te ensinar alguma coisa — e a disciplina que sustenta os dois é nunca fazer trabalho de uma vez só.'
 ---
 
