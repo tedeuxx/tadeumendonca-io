@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan breaks an AI-native company into four pieces that are all markdown, and a fifth one underneath: the brain. I took that breakdown and ran it against a loop I had already built without having seen the talk. Four of them matched. The one that did not is the one that matters."
+excerpt: "Garry Tan breaks an AI-native company into four pieces that are all files, and a fifth one underneath: the brain. I took that breakdown and ran it against a loop I had already built without having seen the talk. Four of them matched. The one that did not is the one that matters."
 takeaway: 'the four pieces of his company are files, which is why you can rearrange them; the brain is what makes the rearrangement teach you anything — and the discipline holding both up is to never do one-off work.'
 ---
 
@@ -36,7 +36,7 @@ I went and checked those four against my own loop. The interesting part is not t
 - **Filing rules = internal process.** The rule my decision library runs on, which I quote in a minute.
 - **Trigger evaluation = performance review.** A suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too.
 
-Four for four, and not one of them built from theory — each of them is a thing that broke first. There is a fifth piece underneath these four that is not on his list, and that is the one that did not match.
+Four for four, and not one of them built from theory — each of them is a thing that broke first. There is a fifth piece underneath these four that is not on that list, and that is the one that did not match.
 
 ## Keep judgment in the model, and state in code
 
@@ -72,7 +72,7 @@ If you take one thing from here, take this one, and you can do it this week.
 
 Give the agent the task. Look at what comes back. Correct what is not good enough — and then, once it is good, turn that corrected workflow into a skill you can use again. The order is the whole trick: you capture **after** correcting, so the skill is born with the correction already inside it. The standard he holds it to is harsh, and I have not met it yet — *"if you have to ask for something twice, you failed."*
 
-I read that and went to look at what I actually did. Sixty-nine skills became fourteen, and there are fifteen now. Nineteen personas became six, and there are eight now. A count that only falls tells a story by itself; a count that falls and then climbs back tells none at all — and that is exactly the shape that stops being readable the moment nobody wrote down why. Which is why each entry has to say what that behaviour is *for*, and what it does *not* do.
+I read that and went to look at what I actually did. Sixty-nine skills became fourteen, and there are fifteen now. Nineteen personas became six, and there are eight now. A count that only falls tells a story by itself; a count that falls and then climbs back tells none at all — and that is exactly the shape that stops being readable the moment nobody wrote down why. Which is why the behaviours here are rows in a registry, and each entry has to say what that behaviour is *for*, and what it does *not* do.
 
 ## What one has to do with the other
 
@@ -86,8 +86,8 @@ And here is the limit, before you reach it on your own: I do not have the measur
 
 One thing I am leaving out, deliberately. Everything above is the part that worked. What none of it can check, and the two occasions where something was written down and then simply not read, is the next article — the one with the receipts I like least. Saying that costs me a sentence; letting this one look finished would have cost more.
 
-He closes by listing what is portable: skill files as employees, the library and the librarian, never do one-off work. Those, he says, travel with you to any stack. Mine travels as a plugin, in the other repository — the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
-
 What this piece does not carry is the drawing. The tiers, what each one is *not* allowed to do, and how a change crosses them are on [the architecture page](/architecture) — the same loop, laid out to be inspected rather than read.
+
+He closes by listing what is portable: skill files as employees, the library and the librarian, never do one-off work. Those, he says, travel with you to any stack. Mine travels as a plugin, in the other repository — the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
 Good luck, and I hope you find yours in better shape than I found mine.

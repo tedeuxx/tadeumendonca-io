@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 hasVideo: true
 contentIssue: 259
-excerpt: "Garry Tan decompõe uma empresa AI-native em quatro peças que são todas markdown, e uma quinta embaixo: o cérebro. Eu peguei essa decomposição e rodei contra um loop que eu já tinha construído sem ter visto a palestra. Quatro bateram. A que não bateu é a que interessa."
+excerpt: "Garry Tan decompõe uma empresa AI-native em quatro peças que são todas arquivos, e uma quinta embaixo: o cérebro. Eu peguei essa decomposição e rodei contra um loop que eu já tinha construído sem ter visto a palestra. Quatro bateram. A que não bateu é a que interessa."
 takeaway: 'as quatro peças da empresa dele são arquivos, e é por isso que dá para rearranjar; o cérebro é o que faz o rearranjo te ensinar alguma coisa — e a disciplina que sustenta os dois é nunca fazer trabalho de uma vez só.'
 ---
 
@@ -36,7 +36,7 @@ Eu fui conferir as quatro contra o meu loop. O interessante não é ter batido �
 - **Regras de arquivamento = processo interno.** A regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco.
 - **Avaliação de gatilho = avaliação de desempenho.** Uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também.
 
-Quatro de quatro, e nenhuma delas eu construí por teoria — cada uma é uma coisa que quebrou antes. Tem uma quinta peça embaixo dessas quatro que não está na lista dele — e é a que não bateu.
+Quatro de quatro, e nenhuma delas eu construí por teoria — cada uma é uma coisa que quebrou antes. Tem uma quinta peça embaixo dessas quatro que não está naquela lista — e é a que não bateu.
 
 ## Onde fica o julgamento, e onde fica o estado
 
@@ -72,7 +72,7 @@ Se você for levar uma coisa só daqui, é esta, e dá para fazer nesta semana.
 
 Dá a tarefa pro agente. Olha o que voltou. Corrige o que não ficou bom — e aí, quando ficou bom, transforma aquele fluxo corrigido numa skill que dá para reusar. A ordem é o truque inteiro: você captura **depois** de corrigir, para a skill já nascer com a correção dentro. O padrão que ele usa é ríspido, e eu ainda não cheguei nele: *"if you have to ask for something twice, you failed."* Se você teve que pedir duas vezes, você falhou.
 
-Eu li isso e fui olhar o que eu fazia. Sessenta e nove skills viraram quatorze, e hoje são quinze. Dezenove personas viraram seis, e hoje são oito. Uma contagem que só cai conta uma história sozinha; uma que cai e depois volta a subir não conta nenhuma — e é exatamente esse o formato que deixa de ser legível no instante em que ninguém escreveu o porquê. Por isso cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz.
+Eu li isso e fui olhar o que eu fazia. Sessenta e nove skills viraram quatorze, e hoje são quinze. Dezenove personas viraram seis, e hoje são oito. Uma contagem que só cai conta uma história sozinha; uma que cai e depois volta a subir não conta nenhuma — e é exatamente esse o formato que deixa de ser legível no instante em que ninguém escreveu o porquê. Por isso os comportamentos aqui são linhas num catálogo, e cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz.
 
 ## O que uma coisa tem a ver com a outra
 
@@ -86,8 +86,8 @@ E aqui vai o limite, antes que você chegue nele sozinho: eu não tenho a mediç
 
 Uma coisa eu estou deixando de fora, de propósito. Tudo aí em cima é a parte que deu certo. O que nada disso consegue conferir, e as duas vezes em que alguma coisa foi registrada e simplesmente não foi lida, é o próximo artigo — o dos recibos de que eu menos gosto. Falar isso me custa uma frase; deixar este aqui parecendo pronto teria custado mais.
 
-Ele fecha listando o que é portátil: arquivos de skill como funcionários, a biblioteca e o bibliotecário, nunca fazer trabalho de uma vez só. Isso, ele diz, viaja com você para qualquer stack. O meu viaja num plugin, no outro repositório — a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
-
 O que este texto não carrega é o desenho. As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão na [página de arquitetura](/architecture) — o mesmo loop, montado para ser inspecionado, não lido.
+
+Ele fecha listando o que é portátil: arquivos de skill como funcionários, a biblioteca e o bibliotecário, nunca fazer trabalho de uma vez só. Isso, ele diz, viaja com você para qualquer stack. O meu viaja num plugin, no outro repositório — a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 
 Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.
