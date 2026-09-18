@@ -15,11 +15,11 @@ https://www.youtube.com/watch?v=eBUyTS7SzV4
 
 Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking. It is about AI-native companies — the ones already running on Claude, on Codex, on harnesses built around them.
 
-The conference published a corrected transcript with timestamps. So from here on, what is his goes in quotes with the minute on it, and you can check me. What is mine goes in quotes too, and for those I point at the file. A receipt and a recollection are not the same thing — and until last week all I had of this talk was the recollection, which is an awkward thing to admit in a piece about memory.
+The conference published the [full timestamped transcript](https://ai.engineer/talks/eBUyTS7SzV4). So from here on, what is his goes in quotes with the minute on it, and you can check me. What is mine goes in quotes too, and for those I point at the file. A receipt and a recollection are not the same thing — and until last week all I had of this talk was the recollection, which is an awkward thing to admit in a piece about memory.
 
-The whole argument fits in one sentence, at 3:17: *"the leverage is not in the weights. It's in how you wire the work."* The people getting 2x and the people getting 100x are using the same Claude.
+The whole argument fits in one sentence, at 3:17: *"the leverage is not in the weights. It's in how you wire the work."* He contrasts the people getting 2x with the people getting 100x on exactly the same Claude.
 
-It is a pitch, and he treats it as one — he opens by saying this is the room that will stress-test his numbers. Not an accusation: it describes an approach, and there is more than one. His numbers I am not repeating here, because the only place I found them was the talk itself, and one source is not a source.
+It is a pitch, and he treats it as one — he opens by saying this is the room that will stress-test his numbers. Not an accusation: it describes an approach, and there is more than one. His revenue and headcount numbers I am not repeating here, because the only place I found them was the talk itself, and one source is not a source.
 
 He is describing companies with people in them. I am one person with two repositories and weekends. What I did was take his breakdown and run it against something I had already built without having seen the talk — piece by piece, to see what matched and what did not.
 

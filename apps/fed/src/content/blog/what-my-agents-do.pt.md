@@ -15,11 +15,11 @@ https://www.youtube.com/watch?v=eBUyTS7SzV4
 
 Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando. É sobre empresas AI-native — as que já rodam em cima de Claude, de Codex, de harnesses construídos em volta deles.
 
-A conferência publicou a transcrição corrigida, com minutagem. Então o que é dele daqui pra frente vai entre aspas e com o minuto, e você confere. O que é meu também vai entre aspas, e desses eu aponto o arquivo. Um recibo e uma lembrança não são a mesma coisa — e até semana passada eu só tinha a lembrança dessa palestra, o que é uma coisa meio constrangedora de admitir num texto que fala de memória.
+A conferência publicou a [transcrição completa, com minutagem](https://ai.engineer/talks/eBUyTS7SzV4). Então o que é dele daqui pra frente vai entre aspas e com o minuto, e você confere. O que é meu também vai entre aspas, e desses eu aponto o arquivo. Um recibo e uma lembrança não são a mesma coisa — e até semana passada eu só tinha a lembrança dessa palestra, o que é uma coisa meio constrangedora de admitir num texto que fala de memória.
 
-O argumento inteiro cabe numa frase, aos 3:17: *"the leverage is not in the weights. It's in how you wire the work."* A alavanca não está nos pesos do modelo. Está em como você liga o trabalho. As pessoas que tiram 2x e as que tiram 100x estão usando o mesmo Claude.
+O argumento inteiro cabe numa frase, aos 3:17: *"the leverage is not in the weights. It's in how you wire the work."* A alavanca não está nos pesos do modelo. Está em como você liga o trabalho. Ele contrasta quem tira 2x com quem tira 100x usando exatamente o mesmo Claude.
 
-É um pitch, e ele trata como pitch — sobe no palco dizendo que aquela é a sala que vai testar o número dele. Não é acusação: descreve uma abordagem, e não existe somente uma. Os números que ele cita eu não vou repetir aqui, porque só encontrei na própria palestra, e uma fonte só não é fonte.
+É um pitch, e ele trata como pitch — sobe no palco dizendo que aquela é a sala que vai testar o número dele. Não é acusação: descreve uma abordagem, e não existe somente uma. Os números de faturamento e de tamanho de equipe que ele cita eu não vou repetir aqui, porque só encontrei na própria palestra, e uma fonte só não é fonte.
 
 Ele está falando de empresas com gente dentro. Eu sou uma pessoa com dois repositórios e fins de semana. O que eu fiz foi pegar a decomposição dele e rodar contra uma coisa que eu já tinha construído sem ter visto a palestra — peça por peça, para ver o que batia e o que não batia.
 
