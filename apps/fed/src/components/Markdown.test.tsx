@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { Markdown } from './Markdown';
+import { diagramSources } from '../content/diagrams';
 import { renderWithLocale } from '../test-utils';
 
 describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
@@ -170,6 +171,38 @@ describe('Markdown — site-internal links are localized (#166)', () => {
 });
 
 // The photograph facade (#415). Hooked on `p` and NOT on `img`, for the reason `isAdrIndex` and
+
+// THE SCOPE SENTENCE OF #655, ASSERTED RATHER THAN PROMISED: the affordance belongs to the RENDERER, so
+// every compiled diagram in an article body carries it — not only the figures on /architecture, where
+// `DiagramFigure.test.tsx` and `e2e/diagram-expand.spec.ts` do their measuring.
+//
+// This is the only test in the repo that walks the whole article path — a fence in a markdown body,
+// through `mermaidBlock`, through `Diagram`, to the box a reader taps. It exists because the two ends
+// are covered and the seam between them was not: `DiagramFigure` could keep its handler while the
+// article path stopped reaching it (a changed fence handler, a second figure component) and every
+// existing assertion would stay green.
+//
+// THE SOURCE IS READ FROM THE COMPILED ARTIFACT, never typed here. `diagramSvg` throws on a source it
+// has no compilation for, so a hand-written fence would be a test that fails for its own reasons — and
+// a fence copied out of an article body would pin this suite to prose someone is free to edit. No
+// article file is read, and none is touched.
+describe('Markdown — a compiled diagram in an article body maximises on click (#655)', () => {
+  const fence = '```mermaid\n' + diagramSources()[0] + '\n```';
+
+  it('renders the fence as a figure whose drawing is itself the trigger', () => {
+    const { container } = renderWithLocale(<Markdown>{fence}</Markdown>, { locale: 'en' });
+    const canvas = container.querySelector('.diagram-canvas') as HTMLElement;
+    // The compiled SVG is really there — without this the click assertion below could pass over an
+    // empty box, which is the one way this test could be green about nothing.
+    expect(canvas.querySelector('svg')).not.toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(canvas);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});
+
 // `mermaidBlock` record: react-markdown delivers a lone image as <p><img></p>, so an `img` handler
 // returning a <figure> would nest a block element inside a paragraph — invalid HTML and a hydration
 // mismatch on a prerendered page. These assertions are on the ELEMENT and its ancestry rather than on the

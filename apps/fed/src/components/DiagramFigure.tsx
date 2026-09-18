@@ -40,6 +40,39 @@
 // the box that is really on screen, and gets the Venn's re-centring for free — the promotion IS a
 // resize, so its observer re-centres the intersection at the new width without knowing this exists.
 //
+// THE DRAWING ITSELF IS THE TRIGGER (#655), and the button stays.
+//
+// The overlay above shipped with exactly one way in: a bordered `ENLARGE` control in a row above the
+// figure. The owner met it on a phone, reading a held article preview, and asked for the affordance he
+// had already tried — «uma miniatura/recorte que vc clica e maximiza e ver fullscreen todos detalhes».
+// He tapped the drawing; nothing happened. The mechanism he was asking for existed and the gesture he
+// reached for was not wired to it, which is a discoverability defect rather than a missing feature —
+// so the fix is one handler rather than a second overlay.
+//
+// THE CANVAS IS NOT PROMOTED TO A CONTROL, and that restraint is the whole accessibility argument.
+// `role="button"` here would be a LEAF role over the drawing — the same failure the wrapper note below
+// already refuses for `role="img"`: assistive technology would flatten the subtree into one control
+// name, and the compiled `accDescr` (emitted as `<desc id="chart-desc-…">` and referenced by the SVG's
+// own `aria-describedby`) would stop being reachable. No `tabIndex` either — the real <button> is
+// already a tab stop for the same act, so a second one announces nothing, and the collapsed scroller's
+// absent `tabindex` is itself asserted (a stop that scrolls nowhere on three of the four figures).
+//
+// So this is a POINTER-ONLY enhancement layered over a keyboard-complete control. WCAG 2.1.1 is
+// satisfied by the button and not by this; the click exists because a reader's instinct on a phone is
+// to tap the picture.
+//
+// A SELECTION IS NOT A REQUEST. Mermaid labels are selectable text, so a reader dragging across one
+// releases the pointer over the canvas and fires a click. Covering the page with the thing they were
+// already reading is worse than not having the gesture, so a click landing on a live selection is
+// ignored.
+//
+// ONE CLOSE PATH, NOT TWO. `expand`/`collapse` are extracted because the placeholder height and the
+// open flag have to move together, and they did not: `Escape` went through `useDialogFocus`, which only
+// cleared the open flag, so the wrapper kept holding the figure's measured height after the figure had
+// returned to the flow. Invisible at that instant (the height it holds is the height it measured) and
+// wrong after a rotation — the class of defect that survives a review because it looks right on the
+// screen it was written on. Both controls and the key now call the same function.
+//
 // A WRAPPER DIV HOLDS THE PLACE. A fixed-position figure is out of flow, so the page below it would
 // jump up by the figure's height while the overlay is open and the browser would clamp the scroll
 // offset — the reader would close the overlay somewhere else on the page. The wrapper takes the
@@ -149,13 +182,41 @@ export function DiagramFigure({
     return floorToNaturalWidth(canvas.current?.querySelector('svg') ?? null);
   }, [open]);
 
-  const canvasProps = { ref: attachCanvas, className: CANVAS, tabIndex: open ? 0 : undefined };
+  const expand = useCallback(() => {
+    // Measured BEFORE the promotion, because a fixed element has no in-flow height to read afterwards.
+    // Read from the figure rather than remembered across opens — the column is a different width after
+    // a rotation, and a stale height is a visible gap in the page.
+    setPlaceholder(figure.current?.getBoundingClientRect().height ?? null);
+    setOpen(true);
+  }, []);
+
+  const collapse = useCallback(() => {
+    setPlaceholder(null);
+    setOpen(false);
+  }, []);
+
+  const canvasProps = {
+    ref: attachCanvas,
+    // `cursor-zoom-in` is the DESKTOP half of the signal and nothing more — a phone has no cursor,
+    // which is why it does not replace the bordered button below. Dropped while promoted: the canvas
+    // is a pannable scroller then, and a zoom-in cursor over it would promise a second magnification.
+    className: cn(CANVAS, !open && 'cursor-zoom-in'),
+    tabIndex: open ? 0 : undefined,
+    onClick: open
+      ? undefined
+      : () => {
+          // A reader who dragged across a label released the pointer here. That is a selection, not a
+          // request to maximise.
+          if (window.getSelection()?.isCollapsed === false) return;
+          expand();
+        },
+  };
 
   // The trigger and the close control are THE SAME BUTTON, which is not a shortcut — it is what makes
   // focus restoration trivially correct. `ShareModal` has to be handed its trigger because the trigger
   // lives in another component; here the control never unmounts, so "return focus to the trigger" and
   // "leave focus where it is" are the same act, and there is no captured node that can go stale.
-  useDialogFocus({ panel: figure, onClose: () => setOpen(false), returnFocusTo: toggle, active: open });
+  useDialogFocus({ panel: figure, onClose: collapse, returnFocusTo: toggle, active: open });
 
   return (
     <div className="my-8" style={placeholder !== null ? { height: placeholder } : undefined}>
@@ -184,13 +245,7 @@ export function DiagramFigure({
           <button
             ref={toggle}
             type="button"
-            onClick={() => {
-              // Measured BEFORE the promotion, because a fixed element has no in-flow height to read
-              // afterwards. Read from the figure rather than remembered across opens — the column is a
-              // different width after a rotation, and a stale height is a visible gap in the page.
-              setPlaceholder(open ? null : (figure.current?.getBoundingClientRect().height ?? null));
-              setOpen(!open);
-            }}
+            onClick={open ? collapse : expand}
             // The VISIBLE label is one word and the ACCESSIBLE name names the figure, because a page
             // with four of these otherwise offers a screen-reader user four controls called "Enlarge".
             // WCAG 2.5.3 (Label in Name) needs the visible label to be contained in the accessible one,
