@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
-import { collectFences, mermaidFences, normalise, hashOf, diffAgainstArtifact, spacingFor } from './diagram-source.mjs';
+import { collectFences, contentFiles, mermaidFences, normalise, hashOf, diffAgainstArtifact, spacingFor } from './diagram-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content');
@@ -29,6 +29,45 @@ const fences = collectFences(contentDir);
 const DEAD_SELECTORS = /[^{}]*(?:\[data-look=|\.katex)[^{}]*\{[^}]*\}/g;
 const rendered = (svg) =>
   svg.replace(/<style[\s\S]*?<\/style>/g, (block) => block.replace(DEAD_SELECTORS, '')).replace(/<defs[\s\S]*?<\/defs>/g, '');
+
+// THE COLLECTOR'S REACH. The defect this pins is an ASYMMETRY, not a missing feature: the renderer
+// reaches every content body — `ArticlePage` renders an article through the same `Markdown`, whose
+// `mermaidBlock()` calls the THROWING `diagramSvg()` — while the collector was a flat `readdirSync` and
+// opened no subdirectory. A fence in a blog body was therefore demanded by one half of the pipeline and
+// invisible to the other, and the failure named a regeneration that could not have fixed it.
+//
+// Both directions are asserted, and the first is the one that would rot quietly. Widening a collector is
+// the kind of change that silently drops a member of the old set — a walk that returns only nested paths
+// is a plausible bug and every diagram on /architecture would vanish from the artifact, which the
+// staleness gate further down would report as an ORPHAN pile rather than as a missing walk.
+describe('the collector reaches every content body, at any depth', () => {
+  const files = contentFiles(contentDir).map((f) => relative(contentDir, f));
+
+  it('still collects the four long-form bodies that sit at the top level', () => {
+    // Named literally rather than derived. Deriving the expectation from a directory read would make
+    // this assertion agree with whatever the function did, which is the shape of a test that cannot fail.
+    expect(files).toEqual(
+      expect.arrayContaining(['architecture.en.md', 'architecture.pt.md', 'rampup.en.md', 'rampup.pt.md']),
+    );
+  });
+
+  it('collects bodies inside a subdirectory, which the flat read never opened', () => {
+    const nested = files.filter((f) => f.includes('/'));
+    // Non-vacuous first: an empty `nested` would make every claim below true of nothing, and `blog/` is
+    // a real directory with real articles in it, so zero here means the walk stopped rather than that
+    // there was nothing to find.
+    expect(nested.length, 'no nested content body was collected — the walk is flat again').toBeGreaterThan(0);
+    expect(nested.some((f) => f.startsWith('blog/'))).toBe(true);
+    expect(nested.every((f) => f.endsWith('.md'))).toBe(true);
+  });
+
+  it('orders by relative path, so the committed artifact does not churn on filesystem order', () => {
+    // `collectFences` order reaches `diagrams.json`'s key order. An unsorted walk enumerates differently
+    // per platform, which would show up as an unreviewable diff on a machine rather than as a content
+    // change — so the sort is behaviour, not tidiness.
+    expect(files).toEqual([...files].sort());
+  });
+});
 
 describe('mermaid source extraction', () => {
   it('finds a fence and ignores an indented one inside another code block', () => {

@@ -8,9 +8,31 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Long-form bodies that may carry diagrams. One file per locale (ADR-0032), so both are scanned. */
-export function longFormFiles(contentDir) {
-  return readdirSync(contentDir)
+/**
+ * Every markdown body that may carry diagrams, at any depth under the content dir.
+ *
+ * WHY RECURSIVE, AND WHY THE NAME CHANGED. This was `longFormFiles` and it was a flat `readdirSync`,
+ * so it saw the four long-form bodies sitting directly in `src/content` and never opened `blog/`. The
+ * RENDERER had no such limit: `ArticlePage` renders an article body through the same `Markdown`, whose
+ * `mermaidBlock()` calls `diagramSvg()`, which THROWS on a source it has no compiled entry for. So a
+ * fence authored in a blog body was collected by nothing and demanded by the renderer — the build, the
+ * prerender and the tests all failed, correctly and unhelpfully, naming a regeneration that could not
+ * have helped because the generator was never going to look there.
+ *
+ * The fix is the general one rather than a second call for `blog/`: the collector's reach now matches
+ * the renderer's, which is every content body. A locale directory or a second article folder added
+ * later is picked up with no edit here — and an added folder that the collector did NOT see is exactly
+ * the failure this replaces.
+ *
+ * `.sort()` is load-bearing and sorts the RELATIVE paths, not basenames. Directory order from the
+ * filesystem is not guaranteed stable across platforms, and this order reaches `diagrams.json`'s key
+ * order through `collectFences` — an unsorted walk would churn the committed artifact's diff on a
+ * machine that happened to enumerate differently, which reads as a content change and is not one.
+ *
+ * One file per locale (ADR-0032), so both editions are scanned.
+ */
+export function contentFiles(contentDir) {
+  return readdirSync(contentDir, { recursive: true })
     .filter((f) => f.endsWith('.md'))
     .sort()
     .map((f) => join(contentDir, f));
@@ -60,9 +82,9 @@ export function mermaidFences(markdown) {
   return out;
 }
 
-/** Every fence across every long-form file, with the file it came from (for error messages that name it). */
+/** Every fence across every content file, with the file it came from (for error messages that name it). */
 export function collectFences(contentDir) {
-  return longFormFiles(contentDir).flatMap((file) =>
+  return contentFiles(contentDir).flatMap((file) =>
     mermaidFences(readFileSync(file, 'utf8')).map((fence) => ({ ...fence, file })),
   );
 }
