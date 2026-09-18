@@ -67,6 +67,51 @@ describe('the collector reaches every content body, at any depth', () => {
     // change — so the sort is behaviour, not tidiness.
     expect(files).toEqual([...files].sort());
   });
+
+  // THE GAP THE WIDENING OPENS, closed here rather than named and left.
+  //
+  // `architecture-diagrams.test.mjs` asserts fence-count parity across the two editions of /architecture,
+  // for a reason ADR-0040 records as a COST of this pipeline — a diagram is duplicated per locale, so the
+  // editions can drift, and a drifting diagram is worse than drifting prose because nobody re-reads a
+  // picture to check it. That assertion reads its two files BY NAME, so it has never covered anything
+  // else, and before this change nothing else could carry a fence at all.
+  //
+  // Now an article can. `content.test.ts` already pairs the editions of a blog article and compares their
+  // markdown LINKS for exactly this reason; nothing compared their figures. Without this, a fence added
+  // to the `.en.md` alone ships the figure to one edition and silently not to the other — and the pt
+  // reader meets a paragraph referring to a picture that is not there. Every gate stays green: the
+  // collector finds the one fence, the generator compiles it, the artifact matches.
+  //
+  // IT IS VACUOUS TODAY AND THAT IS STATED, NOT HIDDEN — no blog body carries a fence yet, so `pairs`
+  // below is empty of fence-bearing articles and this can only fail once one lands. The count guard is
+  // therefore on the PAIRING, which is not vacuous: sixteen files pair into eight articles today, so a
+  // walk that stopped returning both editions would redden here rather than pass by having nothing left
+  // to compare.
+  describe('both editions of one article carry the same number of figures', () => {
+    const pairs = new Map();
+    for (const f of files.filter((f) => f.startsWith('blog/'))) {
+      const key = f.replace(/\.(en|pt)\.md$/, '');
+      const locale = f.endsWith('.en.md') ? 'en' : 'pt';
+      pairs.set(key, { ...(pairs.get(key) ?? {}), [locale]: f });
+    }
+
+    it('paired both editions of every article, so the comparison below has subjects', () => {
+      expect(pairs.size).toBeGreaterThan(0);
+      for (const [key, sides] of pairs) {
+        expect(Object.keys(sides).sort(), `${key} is missing an edition`).toEqual(['en', 'pt']);
+      }
+    });
+
+    it('counts the same fences in the en and pt editions', () => {
+      const count = (rel) => mermaidFences(readFileSync(join(contentDir, rel), 'utf8')).length;
+      // Complete pairs only. An unpaired article is the arm ABOVE's finding, and letting it reach this
+      // loop turns a clean assertion failure into a TypeError on an undefined path — two failures where
+      // one is a diagnosis and the other is noise from the same cause.
+      for (const [key, sides] of [...pairs].filter(([, s]) => s.en && s.pt)) {
+        expect(count(sides.en), `${key}: the editions carry different numbers of figures`).toBe(count(sides.pt));
+      }
+    });
+  });
 });
 
 describe('mermaid source extraction', () => {
