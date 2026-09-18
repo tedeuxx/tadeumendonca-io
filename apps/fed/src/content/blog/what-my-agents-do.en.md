@@ -23,20 +23,17 @@ He is describing companies with people in them. I am one person, two repositorie
 
 The part that got me is that he never says "use AI". He describes the functions of a company, and each one turns out to be a file.
 
-A skill file is an employee: one capability, one job, written down clearly enough that someone else can execute it. The resolver table — the table you end up writing when your `CLAUDE.md` grows past what anybody wants to read, the one that says *when the work looks like this, load that* — is the org chart.
+He names four. A skill file, he says, is an employee: one capability, one job, written down clearly enough that someone else can execute it. The resolver table — the table you end up writing when your `CLAUDE.md` grows past what anybody wants to read, the one that says *when the work looks like this, load that* — is the org chart. Filing rules and trigger evals are the other two.
 
 Then the line that ties them together, and this one is worth his exact words:
 
 > *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
 
-I went and checked those four against my own loop. The interesting part is not that they matched — it is that I had chosen none of those names:
+I went looking for those four in my own loop, and three of them were already there, under names I had not borrowed from him. What decides which reviewers get involved is a table keyed on the kind of work — `loop`, `product`, `content`. The internal process is the one rule my decision library runs on, which I quote in a minute. And the performance review is a suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too. Not one of the three was built from theory. Each of them is a thing that broke first.
 
-- **Skill file = employee — the one that did not hold.** Here the employee is the agent declaration: eight of them, each carrying a mandate, a tool grant and the list of skills it loads. The fifteen skills are not employees, they are capabilities several employees carry — two of them are loaded by all eight.
-- **Resolver table = org chart.** Here it is a table that decides, per kind of work, which reviewers get involved: `loop`, `product`, `content`.
-- **Filing rules = internal process.** The rule my decision library runs on, which I quote in a minute.
-- **Trigger evaluation = performance review.** A suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too.
+The fourth did not hold, and it is the more interesting of the two places this comes apart. His model puts the employee and the capability in the same file. Mine keeps them apart. The employee here is the agent declaration — eight of them, each carrying a mandate, a tool grant and the list of skills it loads. The fifteen skills are not employees at all: they are capabilities, and several employees carry the same one. Two of them are loaded by all eight. One artifact on his side, two on mine, with a many-to-many relation between them that his mapping has nowhere to put.
 
-Four for four, and not one of them built from theory — each of them is a thing that broke first. There is a fifth piece underneath these four that is not on that list, and that is the one that did not match.
+And there is a fifth piece underneath the four, which he does not put on that list. That one comes apart for a different reason.
 
 ## Keep judgment in the model, and state in code
 
@@ -58,7 +55,7 @@ He is blunt about how it dies:
 
 And what he offers instead is a role rather than a feature — provenance on every fact, a check for when a new one contradicts an old one, and a librarian whose actual job is pruning.
 
-That is the claim I have a receipt for.
+That is the one claim here I can hand you a receipt for rather than a recollection.
 
 Decisions here are records in a library, and the library is the development journey: every decision taken along the way, why it was taken, and none of them closed for good — any record can be re-opened. Keeping that usable takes one rule, the title of one of the records: *"An ADR earns its place by explaining the **current** codebase."* A record that stops doing that does not get a banner saying it is out of date. Its file leaves the repository; the trace stays as a row elsewhere, under a clause I can point at: *"A record leaves this library only as a disposition, never as an absence."*
 

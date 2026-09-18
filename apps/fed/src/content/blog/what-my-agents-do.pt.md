@@ -23,7 +23,7 @@ Ele está falando de empresas com gente dentro. Eu sou uma pessoa com dois repos
 
 A parte que me pegou é que ele não fala em "usar IA". Ele descreve funções de uma empresa, e cada uma delas acaba sendo um arquivo.
 
-Um arquivo de skill é um funcionário: uma capacidade, um trabalho, escrito claro o bastante para outra pessoa executar. A tabela de resolução — aquela que você acaba escrevendo quando o `CLAUDE.md` fica maior do que qualquer um quer ler, a que diz *quando o trabalho for assim, carregue aquilo* — é o organograma.
+Ele nomeia quatro. Um arquivo de skill, diz ele, é um funcionário: uma capacidade, um trabalho, escrito claro o bastante para outra pessoa executar. A tabela de resolução — aquela que você acaba escrevendo quando o `CLAUDE.md` fica maior do que qualquer um quer ler, a que diz *quando o trabalho for assim, carregue aquilo* — é o organograma. Regras de arquivamento e avaliação de gatilho são as outras duas.
 
 E aí vem a frase que junta tudo, e essa vale nas palavras exatas dele:
 
@@ -31,14 +31,11 @@ E aí vem a frase que junta tudo, e essa vale nas palavras exatas dele:
 >
 > *(Quando você senta com o Claude Code ou o Codex, você não está escrevendo software: está contratando, treinando e gerindo uma equipe feita de markdown.)*
 
-Eu fui conferir as quatro contra o meu loop. O interessante não é ter batido — é que eu não tinha escolhido nenhum desses nomes:
+Fui procurar essas quatro no meu loop, e três já estavam lá, com nomes que eu não tinha pegado emprestado dele. O que decide quais revisores entram é uma tabela por tipo de trabalho — `loop`, `product`, `content`. O processo interno é a regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco. E a avaliação de desempenho é uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também. Nenhuma das três eu construí por teoria. Cada uma é uma coisa que quebrou antes.
 
-- **Arquivo de skill = funcionário — a que não bateu.** Aqui o funcionário é a declaração do agente: são oito, cada uma carregando um mandato, uma concessão de ferramentas e a lista de skills que ela carrega. As quinze skills não são funcionários, são capacidades que vários funcionários carregam — duas delas são carregadas pelos oito.
-- **Tabela de resolução = organograma.** Aqui é uma tabela que decide, por tipo de trabalho, quais revisores entram: `loop`, `product`, `content`.
-- **Regras de arquivamento = processo interno.** A regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco.
-- **Avaliação de gatilho = avaliação de desempenho.** Uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também.
+A quarta não bateu, e é o mais interessante dos dois lugares onde isso desmonta. O modelo dele põe o funcionário e a capacidade no mesmo arquivo. O meu mantém os dois separados. O funcionário aqui é a declaração do agente — são oito, cada uma carregando um mandato, uma concessão de ferramentas e a lista de skills que ela carrega. As quinze skills não são funcionários: são capacidades, e vários funcionários carregam a mesma. Duas delas são carregadas pelos oito. Um artefato do lado dele, dois do meu, com uma relação de muitos para muitos que o mapeamento dele não tem onde colocar.
 
-Quatro de quatro, e nenhuma delas eu construí por teoria — cada uma é uma coisa que quebrou antes. Tem uma quinta peça embaixo dessas quatro que não está naquela lista — e é a que não bateu.
+E tem uma quinta peça embaixo das quatro, que ele não põe naquela lista. Essa desmonta por um motivo diferente.
 
 ## Onde fica o julgamento, e onde fica o estado
 
@@ -62,7 +59,7 @@ Ele é direto sobre o que mata isso:
 
 E o que ele oferece no lugar é um papel, não uma funcionalidade — proveniência em cada fato, checagem para quando um fato novo contradiz um velho, e um bibliotecário cujo trabalho de verdade é podar.
 
-É dessa afirmação que eu tenho recibo.
+É dessa afirmação que eu consigo te dar recibo, e não lembrança.
 
 As decisões aqui são registros numa biblioteca, e a biblioteca é a jornada de desenvolvimento: cada decisão tomada no caminho, por que ela foi tomada, e nenhuma delas fechada para sempre — qualquer registro pode ser reaberto. Manter isso utilizável exige uma regra, que é o título de um dos registros — como o repositório é em inglês, vem o original e a tradução: *"An ADR earns its place by explaining the **current** codebase."* Um ADR ganha o lugar dele explicando o código **atual**. Um registro que para de fazer isso não ganha uma tarja em cima dizendo que está velho. O arquivo dele sai do repositório; o rastro fica numa linha em outro arquivo, debaixo de uma cláusula que eu aponto: *"A record leaves this library only as a disposition, never as an absence."* Um registro só sai desta biblioteca como disposição, nunca como ausência.
 
