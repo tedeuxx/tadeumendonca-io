@@ -15,9 +15,7 @@ https://www.youtube.com/watch?v=eBUyTS7SzV4
 
 Garry Tan, que toca a Y Combinator, deu uma palestra de vinte minutos chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando. É sobre empresas AI-native — as que já rodam em cima de Claude, de Codex, de harnesses construídos em volta deles.
 
-Eu tinha assistido fazia um tempo e andava carregando uma lembrança daquilo. Semana passada fui atrás da [transcrição completa](https://ai.engineer/talks/eBUyTS7SzV4) que a conferência publicou, e li o que ele falou de verdade em vez do que eu lembrava que ele tinha falado. Então: as poucas coisas aqui embaixo que estão entre aspas são dele, palavra por palavra, e é naquela página que você confere. O que eu afirmo sobre a minha própria configuração aponta para um arquivo em um dos meus repositórios. Um recibo e uma lembrança não são a mesma coisa — o que é uma coisa meio constrangedora de descobrir num texto que fala de memória.
-
-O argumento dele cabe numa frase: a alavanca não está no modelo, está em como você liga o trabalho. Duas pessoas com o mesmo Claude, os mesmos pesos, a mesma janela de contexto — uma tira um pouco mais, a outra tira muito mais, e a diferença inteira é a ligação. É um pitch, e ele sobe no palco dizendo que é pitch, na sala que ele espera que rasgue os números dele. Os números de faturamento e de tamanho de equipe que sustentam isso eu não vou repetir aqui, porque só encontrei na própria palestra, e uma fonte só não é fonte.
+O argumento dele cabe numa frase: a alavanca não está no modelo, está em como você liga o trabalho. Duas pessoas com o mesmo Claude, os mesmos pesos, a mesma janela de contexto — uma tira um pouco mais, a outra tira muito mais, e a diferença inteira é a ligação.
 
 Ele está falando de empresas com gente dentro. Eu sou uma pessoa com dois repositórios e fins de semana. O que eu fiz foi pegar a decomposição dele e rodar contra uma coisa que eu já tinha construído sem ter visto a palestra — peça por peça, para ver o que batia e o que não batia.
 
@@ -25,13 +23,17 @@ Ele está falando de empresas com gente dentro. Eu sou uma pessoa com dois repos
 
 A parte que me pegou é que ele não fala em "usar IA". Ele descreve funções de uma empresa, e cada uma delas acaba sendo um arquivo.
 
-Um arquivo de skill é um funcionário: uma capacidade, um trabalho, escrito claro o bastante para outra pessoa executar. A tabela de resolução — aquela que você acaba escrevendo quando o `CLAUDE.md` fica maior do que qualquer um quer ler, a que diz *quando o trabalho for assim, carregue aquilo* — é o organograma. As regras de arquivamento são o processo interno. E os testes que verificam se o roteamento realmente disparou, se o `test.md` é mesmo carregado quando alguém mexe num arquivo de teste, são as avaliações de desempenho.
+Um arquivo de skill é um funcionário: uma capacidade, um trabalho, escrito claro o bastante para outra pessoa executar. A tabela de resolução — aquela que você acaba escrevendo quando o `CLAUDE.md` fica maior do que qualquer um quer ler, a que diz *quando o trabalho for assim, carregue aquilo* — é o organograma.
 
-E aí vem a frase que junta as quatro, e essa vale nas palavras exatas dele: *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."* Quando você senta com o Claude Code ou o Codex, você não está escrevendo software: está contratando, treinando e gerindo uma equipe feita de markdown.
+E aí vem a frase que junta tudo, e essa vale nas palavras exatas dele:
+
+> *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
+>
+> *(Quando você senta com o Claude Code ou o Codex, você não está escrevendo software: está contratando, treinando e gerindo uma equipe feita de markdown.)*
 
 Eu fui conferir as quatro contra o meu loop. O interessante não é ter batido — é que eu não tinha escolhido nenhum desses nomes:
 
-- **Arquivo de skill = funcionário.** Quinze skills declaradas, uma por assunto.
+- **Arquivo de skill = funcionário — a que não bateu.** Aqui o funcionário é a declaração do agente: são oito, cada uma carregando um mandato, uma concessão de ferramentas e a lista de skills que ela carrega. As quinze skills não são funcionários, são capacidades que vários funcionários carregam — duas delas são carregadas pelos oito.
 - **Tabela de resolução = organograma.** Aqui é uma tabela que decide, por tipo de trabalho, quais revisores entram: `loop`, `product`, `content`.
 - **Regras de arquivamento = processo interno.** A regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco.
 - **Avaliação de gatilho = avaliação de desempenho.** Uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também.
@@ -52,11 +54,17 @@ Isso é a arquitetura do meu loop descrita por outra pessoa, e eu nunca tinha ti
 
 A quinta peça é a que fica embaixo das outras quatro: a memória da empresa. O nome que ele dá é a biblioteca mais o bibliotecário, e a frase mais afiada dele sobre isso é que buscar é a parte fácil — ser digno de ser buscado é o produto.
 
-Ele é direto sobre o que mata isso: *"a brain nobody curates becomes a garbage dump with great search."* Um cérebro que ninguém cuida vira um lixão com busca excelente. E o que ele oferece no lugar é um papel, não uma funcionalidade — proveniência em cada fato, checagem para quando um fato novo contradiz um velho, e um bibliotecário cujo trabalho de verdade é podar.
+Ele é direto sobre o que mata isso:
+
+> *"a brain nobody curates becomes a garbage dump with great search."*
+>
+> *(Um cérebro que ninguém cuida vira um lixão com busca excelente.)*
+
+E o que ele oferece no lugar é um papel, não uma funcionalidade — proveniência em cada fato, checagem para quando um fato novo contradiz um velho, e um bibliotecário cujo trabalho de verdade é podar.
 
 É dessa afirmação que eu tenho recibo.
 
-As decisões aqui são registros numa biblioteca, e a regra em que essa biblioteca funciona é o título de um dos registros dela — como o repositório é em inglês, vem o original e a tradução: *"An ADR earns its place by explaining the **current** codebase."* Um ADR ganha o lugar dele explicando o código **atual**. Um registro que parou de explicar o código atual não ganha uma tarja em cima dizendo que está velho. O arquivo dele sai do repositório, e o rastro fica numa linha em outro arquivo, debaixo de uma cláusula que eu aponto: *"A record leaves this library only as a disposition, never as an absence."* Um registro só sai desta biblioteca como disposição, nunca como ausência.
+As decisões aqui são registros numa biblioteca, e a biblioteca é a jornada de desenvolvimento: cada decisão tomada no caminho, por que ela foi tomada, e nenhuma delas fechada para sempre — qualquer registro pode ser reaberto. Manter isso utilizável exige uma regra, que é o título de um dos registros — como o repositório é em inglês, vem o original e a tradução: *"An ADR earns its place by explaining the **current** codebase."* Um ADR ganha o lugar dele explicando o código **atual**. Um registro que para de fazer isso não ganha uma tarja em cima dizendo que está velho. O arquivo dele sai do repositório; o rastro fica numa linha em outro arquivo, debaixo de uma cláusula que eu aponto: *"A record leaves this library only as a disposition, never as an absence."* Um registro só sai desta biblioteca como disposição, nunca como ausência.
 
 Vinte e um números já foram emitidos. Sete estão vivos. Os quatorze que sumiram têm, cada um, uma linha dizendo o que decidiram e onde aquela decisão mora agora. E um teste lê isso nos dois sentidos: um número sem arquivo e sem linha deixa a suíte vermelha, e uma linha para um número que ainda está vivo também.
 
@@ -70,7 +78,7 @@ Aqui eu preciso ser honesto sobre escala, porque é onde a analogia dele encosta
 
 Se você for levar uma coisa só daqui, é esta, e dá para fazer nesta semana.
 
-Dá a tarefa pro agente. Olha o que voltou. Corrige o que não ficou bom — e aí, quando ficou bom, transforma aquele fluxo corrigido numa skill que dá para reusar. A ordem é o truque inteiro: você captura **depois** de corrigir, para a skill já nascer com a correção dentro. O padrão que ele usa é ríspido, e eu ainda não cheguei nele: *"if you have to ask for something twice, you failed."* Se você teve que pedir duas vezes, você falhou.
+Dá a tarefa pro agente. Olha o que voltou. Corrige o que não ficou bom — e aí, quando ficou bom, transforma aquele fluxo corrigido numa skill que dá para reusar. A ordem é o truque inteiro: você captura **depois** de corrigir, para a skill já nascer com a correção dentro. O padrão que ele usa é ríspido, e eu ainda não cheguei nele: *"if you have to ask for something twice, you failed."* Se você teve que pedir duas vezes, você falhou. Por que isso está certo é meu, não dele. O objetivo de capturar é comportamento que se repete — o mesmo processo, rodado do mesmo jeito, porque a correção ficou escrita em vez de lembrada. Com gente, falhar nisso era suportável: muito gestor era ruim em dar feedback efetivo, e a organização absorvia. Com agentes custa mais caro, porque uma correção que ninguém capturou não fica só perdida — ela é paga de novo, toda vez.
 
 Eu li isso e fui olhar o que eu fazia. Sessenta e nove skills viraram quatorze, e hoje são quinze. Dezenove personas viraram seis, e hoje são oito. Uma contagem que só cai conta uma história sozinha; uma que cai e depois volta a subir não conta nenhuma — e é exatamente esse o formato que deixa de ser legível no instante em que ninguém escreveu o porquê. Por isso os comportamentos aqui são linhas num catálogo, e cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz.
 

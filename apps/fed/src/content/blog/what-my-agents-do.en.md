@@ -15,9 +15,7 @@ https://www.youtube.com/watch?v=eBUyTS7SzV4
 
 Garry Tan, who runs Y Combinator, gave a twenty-minute talk called *Every company should have a Brain*. No slides, no deck, just him talking. It is about AI-native companies — the ones already running on Claude, on Codex, on harnesses built around them.
 
-I had watched it a while back and had been carrying a recollection of it around ever since. Last week I went and found [the complete transcript](https://ai.engineer/talks/eBUyTS7SzV4) the conference published, and read what he actually said instead of what I remembered him saying. So: the few things below that are in quotes are his, word for word, and that page is where you check them. What I claim about my own setup points at a file in one of my repositories. A receipt and a recollection are not the same thing — which is an awkward thing to learn in a piece about memory.
-
-His argument fits in one sentence: the leverage is not in the model, it is in how you wire the work. Two people with the same Claude, the same weights, the same context window — one gets a bit more done, the other gets a lot more, and the whole difference is the wiring. He is pitching, and he says so on stage, in the room he expects to tear the numbers apart. The revenue and headcount figures he uses to back it I am not repeating here, because the only place I found them was the talk itself, and one source is not a source.
+His argument fits in one sentence: the leverage is not in the model, it is in how you wire the work. Two people with the same Claude, the same weights, the same context window — one gets a bit more done, the other gets a lot more, and the whole difference is the wiring.
 
 He is describing companies with people in them. I am one person, two repositories and weekends. What I did was take his breakdown and run it against something I had already built without having seen the talk — piece by piece, to see what matched and what did not.
 
@@ -25,13 +23,15 @@ He is describing companies with people in them. I am one person, two repositorie
 
 The part that got me is that he never says "use AI". He describes the functions of a company, and each one turns out to be a file.
 
-A skill file is an employee: one capability, one job, written down clearly enough that someone else can execute it. The resolver table — the table you end up writing when your `CLAUDE.md` grows past what anybody wants to read, the one that says *when the work looks like this, load that* — is the org chart. Filing rules are the internal process. And the tests that check whether the routing actually fired, whether `test.md` really does get loaded when a test file is touched, are the performance reviews.
+A skill file is an employee: one capability, one job, written down clearly enough that someone else can execute it. The resolver table — the table you end up writing when your `CLAUDE.md` grows past what anybody wants to read, the one that says *when the work looks like this, load that* — is the org chart.
 
-Then the line that ties the four together, and this one is worth his exact words: *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
+Then the line that ties them together, and this one is worth his exact words:
+
+> *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
 
 I went and checked those four against my own loop. The interesting part is not that they matched — it is that I had chosen none of those names:
 
-- **Skill file = employee.** Fifteen declared skills, one per subject.
+- **Skill file = employee — the one that did not hold.** Here the employee is the agent declaration: eight of them, each carrying a mandate, a tool grant and the list of skills it loads. The fifteen skills are not employees, they are capabilities several employees carry — two of them are loaded by all eight.
 - **Resolver table = org chart.** Here it is a table that decides, per kind of work, which reviewers get involved: `loop`, `product`, `content`.
 - **Filing rules = internal process.** The rule my decision library runs on, which I quote in a minute.
 - **Trigger evaluation = performance review.** A suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too.
@@ -52,11 +52,15 @@ That is my loop's architecture described by somebody else, and I had never had t
 
 The fifth piece is the one underneath the other four: the company's memory. His name for it is the library plus the librarian, and his sharpest line about it is that retrieval is the easy half — being worth retrieving from is the product.
 
-He is blunt about how it dies: *"a brain nobody curates becomes a garbage dump with great search."* And what he offers instead is a role rather than a feature — provenance on every fact, a check for when a new one contradicts an old one, and a librarian whose actual job is pruning.
+He is blunt about how it dies:
+
+> *"a brain nobody curates becomes a garbage dump with great search."*
+
+And what he offers instead is a role rather than a feature — provenance on every fact, a check for when a new one contradicts an old one, and a librarian whose actual job is pruning.
 
 That is the claim I have a receipt for.
 
-Decisions here are records in a library, and the rule that library runs on is the title of one of its own records: *"An ADR earns its place by explaining the **current** codebase."* A record that stopped explaining the current codebase does not get a banner across the top saying it is out of date. Its file leaves the repository, and the trace stays as a row in a different file, under a clause I can point at: *"A record leaves this library only as a disposition, never as an absence."*
+Decisions here are records in a library, and the library is the development journey: every decision taken along the way, why it was taken, and none of them closed for good — any record can be re-opened. Keeping that usable takes one rule, the title of one of the records: *"An ADR earns its place by explaining the **current** codebase."* A record that stops doing that does not get a banner saying it is out of date. Its file leaves the repository; the trace stays as a row elsewhere, under a clause I can point at: *"A record leaves this library only as a disposition, never as an absence."*
 
 Twenty-one numbers have been issued. Seven are live. The fourteen that are gone each have a row saying what they decided and where that decision lives now. And a test reads it in both directions: a number with no file and no row turns the suite red, and so does a row for a number that is still alive.
 
@@ -70,7 +74,7 @@ Here I have to be honest about scale, because this is where his analogy touches 
 
 If you take one thing from here, take this one, and you can do it this week.
 
-Give the agent the task. Look at what comes back. Correct what is not good enough — and then, once it is good, turn that corrected workflow into a skill you can use again. The order is the whole trick: you capture **after** correcting, so the skill is born with the correction already inside it. The standard he holds it to is harsh, and I have not met it yet — *"if you have to ask for something twice, you failed."*
+Give the agent the task. Look at what comes back. Correct what is not good enough — and then, once it is good, turn that corrected workflow into a skill you can use again. The order is the whole trick: you capture **after** correcting, so the skill is born with the correction already inside it. The standard he holds it to is harsh, and I have not met it yet — *"if you have to ask for something twice, you failed."* Why that is right is mine rather than his. The point of capturing is behaviour that repeats — the same process run the same way, because the correction is written down instead of remembered. With people, failing at that was survivable: plenty of managers were bad at giving effective feedback, and the organisation absorbed it. With agents it costs more, because a correction nobody captured is not just lost — it gets paid again, every time.
 
 I read that and went to look at what I actually did. Sixty-nine skills became fourteen, and there are fifteen now. Nineteen personas became six, and there are eight now. A count that only falls tells a story by itself; a count that falls and then climbs back tells none at all — and that is exactly the shape that stops being readable the moment nobody wrote down why. Which is why the behaviours here are rows in a registry, and each entry has to say what that behaviour is *for*, and what it does *not* do.
 
