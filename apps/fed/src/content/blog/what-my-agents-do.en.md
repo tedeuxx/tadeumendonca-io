@@ -15,9 +15,9 @@ https://www.youtube.com/watch?v=eBUyTS7SzV4
 
 Garry Tan, who runs Y Combinator, gave a short talk called *Every company should have a Brain*. No slides, no deck, just him talking. It is about AI-native companies — the ones already running on Claude, on Codex, on harnesses built around them — and about what those companies have to keep in writing for any of it to pay off.
 
-This piece turns on the difference between a receipt and a recollection, so: everything I attribute to him is reported in my own words, from no transcript. Every passage I quote verbatim is my own file, and I can point at the line.
+A receipt and a recollection are not the same thing, and the difference comes back at the end. Everything I attribute to him is recollection: my own words, from no transcript. Every passage I quote verbatim is my own file — those I have a receipt for, and I point at the line.
 
-It is a pitch — he says so himself, halfway through, and stops to stress-test it because the room would do it for him anyway. I mean the word descriptively. **It describes an approach. There is more than one.**
+What he argues: without a written model of how your own operation runs, none of these products pays off. It is a pitch — he says so himself, and stops to stress-test it. Not an accusation: **it describes an approach, and there is more than one.**
 
 He is describing companies. I am one person with two repositories and weekends — and one idea in that talk still sent me to look at what I had actually built, and at which part of it would still be standing if you took the products away.
 

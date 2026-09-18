@@ -13,11 +13,11 @@ takeaway: 'os produtos são a parte que dá para trocar; o que precisa estar esc
 
 https://www.youtube.com/watch?v=eBUyTS7SzV4
 
-O Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando. É sobre empresas AI-native — as que já rodam em cima de Claude, de Codex, de harnesses construídos em volta deles — e sobre o que essas empresas precisam manter escrito para que qualquer coisa daquilo compense.
+Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every company should have a Brain* ("toda empresa deveria ter um cérebro"). Sem slide nenhum, só ele falando. É sobre empresas AI-native — as que já rodam em cima de Claude, de Codex, de harnesses construídos em volta deles — e sobre o que essas empresas precisam manter escrito para que qualquer coisa daquilo compense.
 
-Este texto gira em torno da diferença entre um recibo e uma lembrança, então: tudo o que eu atribuo a ele está relatado com as minhas palavras, sem transcrição. Toda passagem que eu cito literalmente é arquivo meu, e dessas eu aponto a linha.
+Um recibo e uma lembrança não são a mesma coisa, e a diferença volta no fim. Tudo o que eu atribuo a ele é lembrança: minhas palavras, sem transcrição. Toda passagem que eu cito literalmente é arquivo meu — dessas eu tenho recibo e aponto a linha.
 
-É um pitch — ele mesmo diz isso no meio, e para para testar o próprio pitch pelo argumento de que a plateia faria isso de qualquer jeito. Eu uso essa palavra como descrição. **Ela descreve a abordagem. Não existe somente uma.**
+O que ele defende: sem o modelo do próprio funcionamento escrito, nenhum desses produtos compensa. É um pitch — ele mesmo diz isso, e para para testar o próprio pitch. Não é acusação: **descreve uma abordagem, e não existe somente uma.**
 
 Ele está falando de empresas. Eu sou uma pessoa com dois repositórios e fins de semana — e mesmo assim uma ideia daquela palestra me mandou olhar o que eu tinha construído de verdade, e qual parte daquilo continuaria de pé se você tirasse os produtos.
 
