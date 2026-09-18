@@ -384,3 +384,154 @@ things about *this* compile that a reader of this record would otherwise have to
   inter-rank gap, 35% of its width**. The key is not set in `THEME` today, so it sits at mermaid's default,
   and it would land beside the `fontSize: '15px'` it trades against. Named as a lever; **no decision has
   been taken on it.**
+
+## Amendment (2026-09-18) — the scope sentence WIDENS to every markdown body under `src/content`; the mechanism is unchanged
+
+**This is the record's first widening.** Both prior amendments (2026-08-08, 2026-08-09) narrowed a
+sentence that read as universal. This one admits a body class the record had never considered, which
+is the more consequential direction: a narrowing removes a claim the mechanism was not making, while
+a widening puts the mechanism in front of readers, constraints and costs nobody weighed when it was
+decided.
+
+**What moves.** **Decision outcome** reads *"a ` ```mermaid ` fence in a long-form markdown body is a
+diagram's source"*, and `long-form` was load-bearing: it named the four bodies sitting directly in
+`src/content`, as against `src/content/blog/**`. Composed with the 2026-08-08 narrowing, which is
+**not** reverted here, the sentence now reads:
+
+> **a ` ```mermaid ` fence in ANY markdown body under `src/content`, at any depth, is the source of a
+> diagram mermaid can draw.**
+
+**Nothing about the mechanism changes, and that is the whole of the delta.** The same generator, the
+same committed artifact, the same two build-time guards, the same `accTitle` rule, the same palette
+assertions. What changed is one collector: `longFormFiles()` was a non-recursive `readdirSync` over
+`src/content` and is now `contentFiles()`, recursive, renamed because the old name asserted a scope
+it no longer honours.
+
+**The defect this repairs is an ASYMMETRY, not a missing feature — and it is worth stating because it
+is the reason the record could be wrong without anything going red.** The *renderer* never had the
+collector's limit: `ArticlePage` renders an article body through the same `Markdown`, whose
+`mermaidBlock()` calls `diagramSvg()`, which **throws** on a source it has no compiled entry for — the
+deliberate no-fallback design recorded under **Considered options**. So a fence authored in a blog
+body was *demanded* by one half of the pipeline and *invisible* to the other: the build failed
+correctly and unhelpfully, naming a regeneration that could never have helped, because the generator
+was never going to look there. **A mermaid fence in a blog body could not be made to work by any
+authoring act.** The pipeline was narrower than its own record, and narrower than the page it serves.
+
+**Falsifiers, both pinned to the head this amendment ships against (`e17212c2`) rather than to the
+working tree, because this amendment is itself inside the diff that would move them:**
+
+```
+# the record had never considered this body class — 0 occurrences, and the calibration beside it
+# so the zero is read against a selector that can answer non-zero on the same file.
+# The path is DERIVED rather than spelled: this record's own filename written out inside a fenced
+# command reads to `adr-citations.test.mjs` as a self-citation, which is that gate's stated
+# inability to tell a citation from a discussion of one — found by running it, not by reading it.
+REC=$(git ls-tree --name-only e17212c2 docs/adr/ | grep '/0040-')
+git show "e17212c2:$REC" | grep -ci blog        # -> 0
+git show "e17212c2:$REC" | grep -ci 'long-form' # -> 4
+
+# the collector's reach at that head, from the function itself rather than from a directory listing:
+cd apps/fed && node --input-type=module -e "
+import { contentFiles } from './scripts/diagram-source.mjs';
+import { relative, resolve, join } from 'node:path';
+const d = join(resolve('.'), 'src', 'content');
+const f = contentFiles(d).map(x => relative(d, x));
+console.log('total=' + f.length, 'nested=' + f.filter(x => x.includes('/')).length,
+            'blog=' + f.filter(x => x.startsWith('blog/')).length);
+"                                                                # -> total=16 nested=12 blog=12
+```
+
+**Why the record moves in THIS merge request rather than a later one.** The merge request that
+carried this widening proposed deferring the amendment, citing the two prior amendments as precedent
+for a record catching up afterwards. The precedent argues the other way, and it was checked against
+the forge's own file lists rather than reconstructed from prose:
+
+```
+gh pr view 411 --repo tedeuxx/tadeumendonca-io --json files --jq '[.files[].path]'
+# -> carries apps/fed/src/components/VennDiagram.tsx AND docs/adr/0040-…md AND docs/adr/README.md
+gh pr view 419 --repo tedeuxx/tadeumendonca-io --json files --jq '[.files[].path]'
+# -> carries apps/fed/src/components/PhotoFigure.tsx AND docs/adr/0040-…md AND docs/adr/README.md
+```
+
+**Both prior amendments shipped in the same merge request as the code that moved the sentence's
+reach, and both carried the index entry with them.** So the precedent this record actually sets is
+the one this practice states anyway — *committed in the same MR as the change it justifies* — and it
+has held twice. **What would falsify this paragraph:** either PR above turning out not to carry both
+halves. The two commands are the whole of the evidence.
+
+### The per-locale pairing rule, promoted from a test to this record
+
+**The cost is already recorded here and it now reaches a new class.** Under **Consequences**:
+*"**It is duplicated per locale.** Long-form is one file per locale (ADR-0032), so the two editions
+carry two fences that can disagree."* [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s
+clause is *"prose gets **one markdown file per locale**"*, and it is not scoped to long-form — a blog
+article is `blog/<slug>.en.md` + `blog/<slug>.pt.md`. **So this is an existing rule reaching further,
+not new legislation**, and that is why one amendment closes both halves of this change.
+
+**The rule, stated so it is not held by a test comment alone:** a fence in a blog body exists in
+**both** editions of that article. A fence added to one edition only ships the figure to one reader
+and silently not to the other — and every gate stays green, because the collector finds the one
+fence, the generator compiles it, and the artifact matches. It is enforced by the pairing arm in
+`apps/fed/scripts/diagram-source.test.mjs`.
+
+**What does NOT transfer, said here rather than left to be discovered, because the record would
+otherwise imply the new class gets the mitigation the old one has.** The mitigation quoted above is
+**two** checks: *"a structural parity test (node ids + edge pairs, labels discarded) plus a
+fence-count check"*. Only the **count** half reaches the new class.
+`apps/fed/scripts/architecture-diagrams.test.mjs` reads `architecture.en.md` and `architecture.pt.md`
+**by name**, so its graph-shape parity has never covered anything else and does not cover a blog
+article now. **A blog article's two editions are therefore pinned to the same NUMBER of figures and
+not to the same figure.** Two editions carrying one fence each, drawing different graphs, pass
+everything. That is a real residual of this widening, it is accepted rather than fixed here, and the
+cheap repair if it ever matters is to derive that test's subjects from `contentFiles()` instead of
+from two literal names.
+
+### The word ceiling — an OPEN question this amendment records and does not answer
+
+**A blog body carries a constraint `/architecture` does not**, and the widening is what puts the two
+in contact for the first time. `published-voice` rule 9 caps a site piece at *"900–1,300 words;
+ceiling 1,500"*, and rule 10 forbids the repair that suggests itself: *"A piece over the ceiling
+becomes a SERIES. It is not trimmed to fit."* **Nothing mechanical enforces either.**
+
+A mermaid fence is authored text in that body. **So the question is whether an `accDescr` — which
+only a screen-reader user ever hears — counts against a ceiling about what a reader meets.** Rule 9
+does not answer it, because no fence had ever been in a blog body.
+
+**It is the owner's to settle. This record states it as open and does not settle it**, on the same
+reasoning the 2026-07-30 amendment gives for the layout question: writing an unverifiable
+ratification into the permanent record is worse than recording an open question, because the next
+reader cannot tell the two apart.
+
+**And the answer does not change today's outcome either way**, which is what makes it safe to leave
+open. Measured by hand and published in
+[PR #650](https://github.com/tedeuxx/tadeumendonca-io/pull/650)'s body — there is no word-count gate
+in the tree to derive it from — the fence intended for `what-my-agents-do` is 1,074 (en) / 1,103 (pt)
+words, of which the `accDescr` is 740 / 763. Counting the drawing, the title and the fence markers
+**alone**, the combined piece still lands at 1,751 / 1,837 — **+251 / +337 over the ceiling with the
+`accDescr` excluded entirely.** So the open question is about the rule, not about that fence.
+
+### Two residuals this widening opens, both named rather than fixed
+
+- **The walk now opens `src/content/generated/`.** The only thing keeping generated output out of the
+  authored-source set is the `.md` extension filter; that directory holds `.json` only and always
+  has. **Inert today, and latent rather than unknown** — a generator that ever emits markdown there
+  would put generated text into the authored set, where the staleness guard would read it as a fence
+  somebody wrote.
+- **`apps/fed/scripts/diagram-font-coverage.test.mjs` inherits the widened reach silently.** It
+  imports `collectFences`, so its subject set grew with this change without its own file being
+  touched. Correct today (no blog fence exists) and correct when one lands — a blog fence's glyphs
+  *should* be font-checked — but it is recorded here because nothing in that file says its scope is
+  decided elsewhere.
+
+**Links added by this amendment**
+- **Scope widened by this record itself** — no new record. The 2026-08-08 narrowing (*"the source of
+  a diagram mermaid can draw"*) is unchanged and composes with this widening.
+- **Rests on [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)** for the pairing rule — one
+  markdown file per locale is what makes two editions of one figure possible, and therefore what the
+  pairing arm exists to guard.
+- **Interacts with [ADR-0037](./0037-localized-article-slugs.md)** — the blog surface this widening
+  admits is the one that record scopes to `src/content/blog/**`.
+- Implementation moved by this slice: `apps/fed/scripts/diagram-source.mjs` (`longFormFiles` →
+  `contentFiles`, recursive), `apps/fed/scripts/diagram-source.test.mjs` (the reach arms and the
+  per-locale pairing arm). Reach inherited without an edit:
+  `apps/fed/scripts/diagram-font-coverage.test.mjs`.

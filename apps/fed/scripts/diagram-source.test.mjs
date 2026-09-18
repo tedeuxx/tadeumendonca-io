@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
-import { collectFences, mermaidFences, normalise, hashOf, diffAgainstArtifact, spacingFor } from './diagram-source.mjs';
+import { collectFences, contentFiles, mermaidFences, normalise, hashOf, diffAgainstArtifact, spacingFor } from './diagram-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentDir = join(root, 'src', 'content');
@@ -29,6 +29,90 @@ const fences = collectFences(contentDir);
 const DEAD_SELECTORS = /[^{}]*(?:\[data-look=|\.katex)[^{}]*\{[^}]*\}/g;
 const rendered = (svg) =>
   svg.replace(/<style[\s\S]*?<\/style>/g, (block) => block.replace(DEAD_SELECTORS, '')).replace(/<defs[\s\S]*?<\/defs>/g, '');
+
+// THE COLLECTOR'S REACH. The defect this pins is an ASYMMETRY, not a missing feature: the renderer
+// reaches every content body — `ArticlePage` renders an article through the same `Markdown`, whose
+// `mermaidBlock()` calls the THROWING `diagramSvg()` — while the collector was a flat `readdirSync` and
+// opened no subdirectory. A fence in a blog body was therefore demanded by one half of the pipeline and
+// invisible to the other, and the failure named a regeneration that could not have fixed it.
+//
+// Both directions are asserted, and the first is the one that would rot quietly. Widening a collector is
+// the kind of change that silently drops a member of the old set — a walk that returns only nested paths
+// is a plausible bug and every diagram on /architecture would vanish from the artifact, which the
+// staleness gate further down would report as an ORPHAN pile rather than as a missing walk.
+describe('the collector reaches every content body, at any depth', () => {
+  const files = contentFiles(contentDir).map((f) => relative(contentDir, f));
+
+  it('still collects the four long-form bodies that sit at the top level', () => {
+    // Named literally rather than derived. Deriving the expectation from a directory read would make
+    // this assertion agree with whatever the function did, which is the shape of a test that cannot fail.
+    expect(files).toEqual(
+      expect.arrayContaining(['architecture.en.md', 'architecture.pt.md', 'rampup.en.md', 'rampup.pt.md']),
+    );
+  });
+
+  it('collects bodies inside a subdirectory, which the flat read never opened', () => {
+    const nested = files.filter((f) => f.includes('/'));
+    // Non-vacuous first: an empty `nested` would make every claim below true of nothing, and `blog/` is
+    // a real directory with real articles in it, so zero here means the walk stopped rather than that
+    // there was nothing to find.
+    expect(nested.length, 'no nested content body was collected — the walk is flat again').toBeGreaterThan(0);
+    expect(nested.some((f) => f.startsWith('blog/'))).toBe(true);
+    expect(nested.every((f) => f.endsWith('.md'))).toBe(true);
+  });
+
+  it('orders by relative path, so the committed artifact does not churn on filesystem order', () => {
+    // `collectFences` order reaches `diagrams.json`'s key order. An unsorted walk enumerates differently
+    // per platform, which would show up as an unreviewable diff on a machine rather than as a content
+    // change — so the sort is behaviour, not tidiness.
+    expect(files).toEqual([...files].sort());
+  });
+
+  // THE GAP THE WIDENING OPENS, closed here rather than named and left.
+  //
+  // `architecture-diagrams.test.mjs` asserts fence-count parity across the two editions of /architecture,
+  // for a reason ADR-0040 records as a COST of this pipeline — a diagram is duplicated per locale, so the
+  // editions can drift, and a drifting diagram is worse than drifting prose because nobody re-reads a
+  // picture to check it. That assertion reads its two files BY NAME, so it has never covered anything
+  // else, and before this change nothing else could carry a fence at all.
+  //
+  // Now an article can. `content.test.ts` already pairs the editions of a blog article and compares their
+  // markdown LINKS for exactly this reason; nothing compared their figures. Without this, a fence added
+  // to the `.en.md` alone ships the figure to one edition and silently not to the other — and the pt
+  // reader meets a paragraph referring to a picture that is not there. Every gate stays green: the
+  // collector finds the one fence, the generator compiles it, the artifact matches.
+  //
+  // IT IS VACUOUS TODAY AND THAT IS STATED, NOT HIDDEN — no blog body carries a fence yet, so `pairs`
+  // below is empty of fence-bearing articles and this can only fail once one lands. The count guard is
+  // therefore on the PAIRING, which is not vacuous: sixteen files pair into eight articles today, so a
+  // walk that stopped returning both editions would redden here rather than pass by having nothing left
+  // to compare.
+  describe('both editions of one article carry the same number of figures', () => {
+    const pairs = new Map();
+    for (const f of files.filter((f) => f.startsWith('blog/'))) {
+      const key = f.replace(/\.(en|pt)\.md$/, '');
+      const locale = f.endsWith('.en.md') ? 'en' : 'pt';
+      pairs.set(key, { ...(pairs.get(key) ?? {}), [locale]: f });
+    }
+
+    it('paired both editions of every article, so the comparison below has subjects', () => {
+      expect(pairs.size).toBeGreaterThan(0);
+      for (const [key, sides] of pairs) {
+        expect(Object.keys(sides).sort(), `${key} is missing an edition`).toEqual(['en', 'pt']);
+      }
+    });
+
+    it('counts the same fences in the en and pt editions', () => {
+      const count = (rel) => mermaidFences(readFileSync(join(contentDir, rel), 'utf8')).length;
+      // Complete pairs only. An unpaired article is the arm ABOVE's finding, and letting it reach this
+      // loop turns a clean assertion failure into a TypeError on an undefined path — two failures where
+      // one is a diagnosis and the other is noise from the same cause.
+      for (const [key, sides] of [...pairs].filter(([, s]) => s.en && s.pt)) {
+        expect(count(sides.en), `${key}: the editions carry different numbers of figures`).toBe(count(sides.pt));
+      }
+    });
+  });
+});
 
 describe('mermaid source extraction', () => {
   it('finds a fence and ignores an indented one inside another code block', () => {
