@@ -33,7 +33,7 @@ A segunda é a que eu menos confio e mais uso: **o loop é uma máquina de moer 
 
 O que essas duas decisões acabaram produzindo é um arquivo — a modelagem do meu próprio loop, escrita em vez de carregada na cabeça. Uma entrada por comportamento, e não por arquivo, porque um arquivo pode carregar dois comportamentos e um comportamento pode estar espalhado em três. Cada entrada é obrigada a dizer para que aquele comportamento serve, e o que ele **não** faz. O resto da linha é inventário, e o inventário é a parte que eu entregaria para uma máquina rascunhar. Que é como eu leio o argumento dele agora: não é sobre quanta coisa tem ali dentro. É sobre o que está ali dentro ser a parte que não daria para derivar.
 
-Essa é a história. A arquitetura em si — as camadas, os portões, os diagramas, as partes com que eu ainda estou brigando — está escrita por inteiro na [página de arquitetura](/architecture), e é para lá que eu iria em seguida.
+O que este texto não carrega é o desenho. As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão na [página de arquitetura](/architecture) — o mesmo loop, montado para ser inspecionado, não lido.
 
 ## Reavalie, e tenha estômago para jogar fora
 
@@ -53,11 +53,11 @@ Uma coisa eu estou deixando de fora, de propósito. Tudo aí em cima é a parte 
 
 ## A palavra para isso
 
-O vocabulário dele para tudo isso é uma biblioteca: livros, um bibliotecário, três livros abertos na mesa ao mesmo tempo, uma camada de recuperação cujo trabalho inteiro é escolher quais três. A palavra que começou a aparecer em IA para essa mesma ideia — organizar o que alguém sabe para que outra coisa consiga trabalhar em cima — é **ontology** (ontologia). Não é a palavra dele; ele não usa nenhuma vez e nem precisa.
+O vocabulário dele para tudo isso é uma biblioteca: livros, um bibliotecário, três abertos na mesa ao mesmo tempo, uma camada de recuperação cujo trabalho inteiro é escolher quais três. O que ele propõe, do jeito que eu ouvi, é *skillify* tudo que a empresa faz: dar nome a cada coisa que ela sabe fazer e deixar aquilo como uma unidade que alguma coisa consegue buscar. Uma pilha de livros não é uma biblioteca enquanto as prateleiras não têm nome. A palavra que começou a aparecer em IA para isso é **ontology** (ontologia). Não é a palavra dele; ele não usa nenhuma vez e nem precisa.
 
 Eu não sentei para construir uma, e o que faz daquele arquivo uma ontologia em vez de anotação é a parte chata. Os ids são atribuídos uma vez e nunca reaproveitados. Os tipos são *"one of five, closed and gated"* — um de cinco, lista fechada e com portão —, e a frase seguinte, no meu próprio arquivo, é a que importa: *"A name outside the set reddens the suite."* Um nome fora do conjunto deixa a suíte vermelha. Um vocabulário que é só combinado não é vocabulário. Alguma coisa precisa estar disposta a quebrar por causa dele.
 
-Que é também o motivo de isso importar quando quem lê é um modelo. Em outro ponto do mesmo arquivo eu já tinha escrito o que um vocabulário frouxo faz: um valor *"re-decided on every invocation would look exactly like a derived one and be neither."* Re-decidido a cada invocação, ele pareceria exatamente um valor derivado sem ser nenhum dos dois. A falha não é uma resposta errada. É uma resposta regerada toda vez, indistinguível de uma que alguém decidiu uma vez só.
+Que é também o motivo de isso importar quando quem lê é um modelo. O mesmo arquivo já diz o que um vocabulário frouxo faz: um valor *"re-decided on every invocation would look exactly like a derived one and be neither."* Re-decidido a cada invocação, ele pareceria exatamente um valor derivado sem ser nenhum dos dois. A falha não é uma resposta errada. É uma resposta regerada toda vez, indistinguível de uma que alguém decidiu uma vez só.
 
 Todos os arquivos que eu citei aqui moram no outro repositório — o plugin, a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 

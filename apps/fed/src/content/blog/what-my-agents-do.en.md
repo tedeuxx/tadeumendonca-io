@@ -33,7 +33,7 @@ The second I trust least and use most: **the loop is a machine for grinding work
 
 What those two decisions eventually produced is a file — the model of my own loop, written down instead of carried around in my head. One entry per behaviour rather than per file, because one file can carry two behaviours and one behaviour can span three. Each entry has to say what the behaviour is *for*, and what it does *not* do. The rest of the row is inventory, and the inventory is the part I would hand to a machine to draft. Which is how I read his argument now: it is not about how much is in there. It is whether what is in there is the part that could not have been derived.
 
-That is the story of it. The architecture itself — the tiers, the gates, the diagrams, the parts I am still arguing with — is written up in full on [the architecture page](/architecture), and that is where I would go next.
+What this piece does not carry is the drawing. The tiers, what each one is *not* allowed to do, and how a change crosses them are on [the architecture page](/architecture) — the same loop, laid out to be inspected rather than read.
 
 ## Reassess it, and be willing to throw the thing out
 
@@ -53,11 +53,11 @@ One thing I am leaving out, deliberately. Everything above is the part that work
 
 ## The word for it
 
-His vocabulary for all of this is a library: books, a librarian, three books open on a desk at once, a retrieval layer whose whole job is choosing which three. The word that has started to appear in AI for the same idea — organising what somebody knows so that something else can work from it — is **ontology**. It is not his word; he does not use it once and does not need it.
+His vocabulary for all of this is a library: books, a librarian, three open on a desk at once, a retrieval layer whose whole job is choosing which three. What he actually proposes, as I heard it, is to *skillify* everything the company does: name each thing it knows how to do, and leave it as a unit something can fetch. A pile of books is not a library until the shelves have names. The word that has started to appear in AI for that is **ontology**. It is not his word; he does not use it once and does not need it.
 
 I did not set out to build one, and what makes that file an ontology rather than notes is the dull part. The ids are assigned once and never reused. The types are *"one of five, closed and gated"* — my own file's words, and the clause after them is the one that counts: *"A name outside the set reddens the suite."* A vocabulary that is only a convention is not a vocabulary. Something has to be willing to fail over it.
 
-Which is also why it matters once a model is the one reading. Elsewhere in the same file I had already written down what a loose vocabulary does: a value *"re-decided on every invocation would look exactly like a derived one and be neither."* That is the failure, and it is not a wrong answer. It is an answer regenerated every time, indistinguishable from one somebody decided once.
+Which is also why it matters once a model is the one reading. The same file already says what a loose vocabulary does: a value *"re-decided on every invocation would look exactly like a derived one and be neither."* That is the failure, and it is not a wrong answer. It is an answer regenerated every time, indistinguishable from one somebody decided once.
 
 Every file I have quoted here sits in the other repository — the plugin, the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
