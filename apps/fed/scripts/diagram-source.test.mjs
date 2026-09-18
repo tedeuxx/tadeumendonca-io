@@ -82,11 +82,16 @@ describe('the collector reaches every content body, at any depth', () => {
   // reader meets a paragraph referring to a picture that is not there. Every gate stays green: the
   // collector finds the one fence, the generator compiles it, the artifact matches.
   //
-  // IT IS VACUOUS TODAY AND THAT IS STATED, NOT HIDDEN — no blog body carries a fence yet, so `pairs`
-  // below is empty of fence-bearing articles and this can only fail once one lands. The count guard is
-  // therefore on the PAIRING, which is not vacuous: sixteen files pair into eight articles today, so a
-  // walk that stopped returning both editions would redden here rather than pass by having nothing left
-  // to compare.
+  // IT WAS VACUOUS WHEN WRITTEN AND IS NOT ANY MORE. The sentence is corrected rather than deleted,
+  // because it is what told a reader this arm could not fail: `what-my-agents-do` now carries one fence
+  // in each edition, so the comparison has a non-zero subject for the first time. Calibrated by planting
+  // a fence in `my-commitment.en.md` alone — RED, naming the article — then restored.
+  //
+  // The pairing guard above is the non-vacuous half regardless, and its figure was wrong on the day it
+  // was written. ~~sixteen files pair into eight articles~~ counted every content body, including the
+  // four long-form ones that are not blog articles and are never paired; `pairs` is built from
+  // `blog/` only. Re-derive rather than carry it:
+  //   ls src/content/blog/*.md | wc -l   ->  12, and pairs.size below is half of that
   describe('both editions of one article carry the same number of figures', () => {
     const pairs = new Map();
     for (const f of files.filter((f) => f.startsWith('blog/'))) {
@@ -182,7 +187,21 @@ describe('the committed artifact matches the authored sources', () => {
 
   it('compiled something at all — an empty artifact must not pass as "in sync"', () => {
     expect(fences.length).toBeGreaterThan(0);
-    expect(Object.keys(artifact).length).toBe(fences.length);
+    // The artifact is keyed on the NORMALISED FENCE SOURCE, so two byte-identical fences in different
+    // bodies compile to ONE entry. That is the content-addressing working, not a miss: the second
+    // occurrence renders from the same compiled SVG, and forcing it to hash apart would duplicate
+    // 310,489 bytes of identical markup into the bundle for no reader benefit.
+    //
+    // Comparing against `fences.length` therefore asserted something this arm was never for — that
+    // every fence source is UNIQUE. That was an incidental identity, true only while no diagram was
+    // reused, and it stopped holding the moment the collector's walk widened to `blog/` (#650) and a
+    // body could repeat a figure from /architecture. Nothing in that slice could have caught it: no
+    // blog body carried a fence yet, so the condition was unreachable.
+    //
+    // The DISTINCT count is what the vacuity guard was always reaching for, and it still reddens on
+    // the mutation this arm exists for — an emptied or truncated diagrams.json fails HERE, in this
+    // arm, without borrowing the staleness gate's reds.
+    expect(Object.keys(artifact).length).toBe(new Set(fences.map((f) => f.source)).size);
   });
 });
 

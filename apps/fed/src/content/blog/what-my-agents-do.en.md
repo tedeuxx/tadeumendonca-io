@@ -28,6 +28,8 @@ He names four. A skill file, he says, is an employee: one capability, one job, w
 Then the line that ties them together, and this one is worth his exact words:
 
 > *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
+>
+> — Garry Tan
 
 I went looking for those four in my own loop, and three of them were already there, under names I had not borrowed from him. What decides which reviewers get involved is a table keyed on the kind of work — `loop`, `product`, `content`. The internal process is the one rule my decision library runs on, which I quote in a minute. And the performance review is a suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too. Not one of the three was built from theory. Each of them is a thing that broke first.
 
@@ -52,6 +54,8 @@ The fifth piece is the one underneath the other four: the company's memory. His 
 He is blunt about how it dies:
 
 > *"a brain nobody curates becomes a garbage dump with great search."*
+>
+> — Garry Tan
 
 And what he offers instead is a role rather than a feature — provenance on every fact, a check for when a new one contradicts an old one, and a librarian whose actual job is pruning.
 
@@ -96,7 +100,61 @@ And here is the limit, before you reach it on your own: I do not have the measur
 
 One thing I am leaving out, deliberately. Everything above is the part that worked. What none of it can check, and the two occasions where something was written down and then simply not read, is the next article — the one with the receipts I like least. Saying that costs me a sentence; letting this one look finished would have cost more.
 
-What this piece does not carry is the drawing. The tiers, what each one is *not* allowed to do, and how a change crosses them are on [the architecture page](/architecture) — the same loop, laid out to be inspected rather than read.
+The tiers, what each one is *not* allowed to do, and how a change crosses them are in one drawing — the same loop, laid out to be inspected rather than read. It is not a second drawing: it is the one that sits on [the architecture page](/architecture), taken as it is. Drawing it twice is exactly the one-off work this piece is against.
+
+```mermaid
+flowchart TB
+  accTitle: How work crosses the agent tiers — and where I come in
+  accDescr: A top-to-bottom flow in three tiers, with the owner at both ends and one large box in the middle that runs without him. At the top is me: I am the only origin of demand, and I open the Issue. Tier 1 is intake, and it is not one box: it is three lanes, and the issue's type decides which one it enters. A product issue closes through the two leads that disagree by design, product-lead and tech-lead. A content issue closes through product-lead alone, judging whether the piece is worth writing at all — not how it will be written. A loop issue, which is the machinery itself, closes through agents-lead alone — never paired, and with no exception — because the machinery is that profile's object and nobody else's. The three lanes all reach the same ready label, which is the artifact saying the description was closed — and on a loop issue that label is mine alone to apply. From ready downwards the AFK stretch begins, the part that runs without asking once I tell it to drain the queue: everything inside passes through the orchestrator, which is the main session and the hub every lane goes through, which commits and pushes, and which never merges and never decides the irreversible — a hook refuses it both of those from the main session. On the repository edit there is no lock at all: the hook that used to refuse it was deleted, so what keeps an edit flowing through the persona that owns it is now a rule and not a mechanism. What stands beside that rule is scrum-master, drawn off the path here: a profile holding no tools whatsoever — it cannot dispatch, edit, run a command or apply a label — which ranks the eligible pool and names in a record who should act next. Three parts, and the third is the one to keep: nothing prevents the edit, the record names who should have acted, and the record is written by the party it constrains and read by nothing. That is detection, self-attested, rather than prevention. It dispatches tier 2, the build, split by type as well: developer on product, content-writer on content, agents-lead on loop, building what it has just stress-tested. On content the build is a pair rather than one profile, which is why that one box carries two names: content-reviewer reads the draft against the same ruler it was written against, at most two rounds, and what it blocks is a draft rather than a merge. The orchestrator dispatches both, like everything else in here — neither hands work to the other directly. Out of that comes one merge request per story, reaching tier 3 — fresh context, no authorship bias — where quality-assurance checks the Definition of Done and, separately, whether this can break production; it is the only one that may merge. The loop lane reaches that same box rather than going round it, and it answers for more there rather than less: on a change to the machinery itself, quality-assurance checks the same Definition of Done and the same question about production, and additionally requires that agents-lead left its verdict marker before it may merge at all — a reviewer that has to have been present, not a review that is skipped. Safe-class work it merges itself, and the merge is the deploy. Boundary-class work — infrastructure, the loop's own rules, publishing in my voice — leaves the AFK stretch and comes back to me, and only after my go does it ship. Once a merge request exists, refusal is a single channel: the gate asking for changes and my no-go land in the same sent-back box, and that box returns through the orchestrator, never straight to whoever built it. Nine persona boxes, eight names, for two different reasons: product-lead and agents-lead each appear twice, because the same profile is dispatched at different moments; and one box carries two names rather than one, because the content lane is a pair. And there is a dashed channel between me and the orchestrator for when something is stuck — it exists throughout and it is not on the path. That is the claim this drawing makes: between the ready label and the merge there is no human on the path, and I appear only at the two ends — what crosses that stretch alone is the safe class only.
+  H(["HITL · ME<br/>the only origin of demand<br/>I open the Issue"])
+  subgraph L3["TIER 1 · loop"]
+    LM["agents-lead<br/>alone — the machinery is its object"]
+  end
+  subgraph L1["TIER 1 · product"]
+    PL["product-lead"]
+    TL["tech-lead<br/>they disagree by design"]
+  end
+  subgraph L2["TIER 1 · content"]
+    PC["product-lead<br/>alone — whether it is worth writing at all"]
+  end
+  RQ{{"TIER 1 CLOSES HERE · the ready label<br/>the description closed — and on a loop issue,<br/>mine alone to apply"}}
+  subgraph AFK["AFK · from ready to merge, nothing on the path is human"]
+    ORCH["ORCHESTRATOR ·<br/>the main session<br/>dispatches every persona, commits, pushes<br/>a hook refuses it the merge and the trunk push<br/>on the repository edit nothing refuses it"]
+    SM["scrum-master · holds no tools at all<br/>ranks the pool, names who acts next<br/>a record it writes itself — nothing reads it"]
+    DEV["TIER 2 · BUILD<br/>developer — product"]
+    WRT["TIER 2 · BUILD<br/>content-writer with content-reviewer — content<br/>at most two rounds, against the same ruler"]
+    LB["TIER 2 · BUILD<br/>agents-lead — loop<br/>builds what it stress-tested"]
+    MR{{"MERGE REQUEST · one per story"}}
+    QA["TIER 3 · GATE<br/>— fresh context, no authorship bias<br/>quality-assurance · the only one that may merge<br/>every lane — the Definition of Done,<br/>and whether this breaks production<br/>loop — plus an agents-lead verdict marker"]
+    V["sent back — one return channel"]
+    M{{"merge to main = the deploy"}}
+  end
+  HO(["HITL · ME<br/>boundary class: irreversible, architectural<br/>go / no-go"])
+  H -- "product" --> PL
+  H -- "product" --> TL
+  H -- "content" --> PC
+  H -- "loop" --> LM
+  PL --> RQ
+  TL --> RQ
+  PC --> RQ
+  LM --> RQ
+  RQ --> ORCH
+  ORCH -- "product" --> DEV
+  ORCH -- "content" --> WRT
+  ORCH -- "loop" --> LB
+  DEV --> MR
+  WRT --> MR
+  LB --> MR
+  MR -- "dispatched by the orchestrator" --> QA
+  QA -- "safe class" --> M
+  QA -- "boundary class" --> HO
+  HO -- "go" --> M
+  QA -- "changes" --> V
+  HO -- "no-go" --> V
+  V --> ORCH
+  SM -.-> ORCH
+  H <-.-> ORCH
+```
 
 He closes by listing what is portable: skill files as employees, the library and the librarian, never do one-off work. Those, he says, travel with you to any stack. Mine travels as a plugin, in the other repository — the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 

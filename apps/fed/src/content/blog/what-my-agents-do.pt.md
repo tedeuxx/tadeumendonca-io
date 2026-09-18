@@ -29,6 +29,8 @@ E aí vem a frase que junta tudo, e essa vale nas palavras exatas dele:
 
 > *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
 >
+> — Garry Tan
+>
 > *(Quando você senta com o Claude Code ou o Codex, você não está escrevendo software: está contratando, treinando e gerindo uma equipe feita de markdown.)*
 
 Fui procurar essas quatro no meu loop, e três já estavam lá, com nomes que eu não tinha pegado emprestado dele. O que decide quais revisores entram é uma tabela por tipo de trabalho — `loop`, `product`, `content`. O processo interno é a regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco. E a avaliação de desempenho é uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também. Nenhuma das três eu construí por teoria. Cada uma é uma coisa que quebrou antes.
@@ -54,6 +56,8 @@ A quinta peça é a que fica embaixo das outras quatro: a memória da empresa. O
 Ele é direto sobre o que mata isso:
 
 > *"a brain nobody curates becomes a garbage dump with great search."*
+>
+> — Garry Tan
 >
 > *(Um cérebro que ninguém cuida vira um lixão com busca excelente.)*
 
@@ -100,7 +104,61 @@ E aqui vai o limite, antes que você chegue nele sozinho: eu não tenho a mediç
 
 Uma coisa eu estou deixando de fora, de propósito. Tudo aí em cima é a parte que deu certo. O que nada disso consegue conferir, e as duas vezes em que alguma coisa foi registrada e simplesmente não foi lida, é o próximo artigo — o dos recibos de que eu menos gosto. Falar isso me custa uma frase; deixar este aqui parecendo pronto teria custado mais.
 
-O que este texto não carrega é o desenho. As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão na [página de arquitetura](/architecture) — o mesmo loop, montado para ser inspecionado, não lido.
+As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão em um desenho só — o mesmo loop, montado para ser inspecionado, não lido. E não é um segundo desenho: é o que está na [página de arquitetura](/architecture), tal como está. Desenhar de novo seria exatamente o trabalho de uma vez só contra o qual este texto argumenta.
+
+```mermaid
+flowchart TB
+  accTitle: Como o trabalho atravessa os tiers de agente — e onde eu entro
+  accDescr: Um fluxo de cima para baixo em três tiers, com o dono nas duas pontas e uma caixa grande no meio que roda sem ele. No topo estou eu: sou o único que gera demanda, e abro a Issue. O tier 1 é a admissão, e não é uma caixa só: são três raias, e o tipo da issue decide em qual ela entra. Uma issue de produto fecha pelas duas lideranças que discordam por construção, product-lead e tech-lead. Uma de conteúdo fecha por product-lead sozinha, julgando se vale a pena escrever aquilo — não como será escrito. Uma de loop, que é a maquinaria em si, fecha por agents-lead sozinha — nunca em par, e sem exceção nenhuma —, porque a maquinaria é o objeto dela e de mais ninguém. As três raias desembocam no mesmo rótulo ready, que é o artefato que diz que a descrição foi fechada — e numa issue de loop esse rótulo é meu, só eu ponho. Do ready para baixo começa o trecho AFK, o que roda sem perguntar quando eu mando drenar a fila: tudo ali dentro passa pelo orquestrador, que é a sessão principal e o eixo por onde toda persona é acionada, que commita e empurra, e que nunca faz merge e nunca decide o irreversível — um hook recusa as duas coisas vindas da sessão principal. Na edição do repositório não há tranca nenhuma: o hook que recusava isso foi apagado, então o que mantém uma edição passando pela persona dona daquilo virou uma regra, e não um mecanismo. Ao lado dessa regra fica o scrum-master, desenhado fora do caminho: um profile que não tem ferramenta nenhuma — não aciona, não edita, não roda comando, não põe label — e que ordena a fila elegível e nomeia num registro quem deveria agir em seguida. São três partes, e a terceira é a que precisa ficar: nada impede a edição, o registro nomeia quem deveria ter agido, e o registro é escrito pela própria parte que ele restringe e não é lido por nada. Isso é detecção, autodeclarada, e não prevenção. Ele aciona o tier 2, o build, também dividido por tipo: developer no produto, content-writer no conteúdo, agents-lead no loop, construindo o que ele mesmo acabou de estressar. No conteúdo o build é um par, e não um perfil só — é por isso que aquela caixa carrega dois nomes: o content-reviewer lê o rascunho contra a mesma régua com que ele foi escrito, no máximo duas rodadas, e o que ele barra é um rascunho, nunca um merge. Quem aciona os dois é o orquestrador, como todo o resto aqui dentro — um não passa trabalho para o outro direto. Sai dali uma merge request por story, que chega ao tier 3 — contexto fresco, sem viés de autoria — onde quality-assurance verifica a Definition of Done e, à parte, se aquilo pode quebrar a produção; é o único que pode fazer merge. A raia de loop chega na mesma caixa em vez de passar por fora, e ali ela responde por mais, e não por menos: numa mudança na própria maquinaria, o quality-assurance confere a mesma Definition of Done e a mesma pergunta sobre produção, e ainda exige que o agents-lead tenha deixado o marcador de veredito dele antes de poder fazer merge — é um revisor a mais que precisa ter passado, não uma revisão que deixa de acontecer. O que é classe segura ele mesmo mergeia, e o merge é o deploy. O que é classe de fronteira — infraestrutura, as regras do próprio loop, publicar na minha voz — sai do trecho AFK e volta para mim, e só depois do meu go é que sobe. Depois que existe uma merge request, recusa é um canal só: o gate pedindo mudanças e o meu no-go caem na mesma caixa de devolvido, e ela volta pelo orquestrador, nunca direto para quem construiu. Nove caixas de persona, oito nomes, por dois motivos diferentes: product-lead e agents-lead aparecem duas vezes cada, porque o mesmo perfil é acionado em momentos diferentes; e uma caixa carrega dois nomes em vez de um porque a raia de conteúdo é um par. E há um canal tracejado meu com o orquestrador, para quando algo trava — existe o tempo todo e não fica no caminho. A afirmação do desenho é essa: entre o rótulo ready e o merge não há nenhum humano no caminho, e eu apareço só nas duas pontas — o que atravessa aquele trecho sozinho é apenas a classe segura.
+  H(["HITL · EU<br/>o único que gera demanda<br/>abro a Issue"])
+  subgraph L3["TIER 1 · loop"]
+    LM["agents-lead<br/>sozinha — a maquinaria é o objeto dela"]
+  end
+  subgraph L1["TIER 1 · produto"]
+    PL["product-lead"]
+    TL["tech-lead<br/>discordam por construção"]
+  end
+  subgraph L2["TIER 1 · conteúdo"]
+    PC["product-lead<br/>sozinha — se vale a pena escrever"]
+  end
+  RQ{{"O TIER 1 FECHA AQUI · o rótulo ready<br/>a descrição fechada — e numa issue de loop,<br/>só eu ponho"}}
+  subgraph AFK["AFK · do ready ao merge, nada no caminho é humano"]
+    ORCH["ORQUESTRADOR ·<br/>a sessão principal<br/>aciona toda persona, commita, empurra<br/>um hook recusa a ele o merge e o push na trunk<br/>na edição do repositório nada o recusa"]
+    SM["scrum-master · não tem ferramenta nenhuma<br/>ordena a fila e nomeia quem age em seguida<br/>um registro que ele mesmo escreve — ninguém lê"]
+    DEV["TIER 2 · BUILD<br/>developer — produto"]
+    WRT["TIER 2 · BUILD<br/>content-writer com content-reviewer — conteúdo<br/>no máximo duas rodadas, contra a mesma régua"]
+    LB["TIER 2 · BUILD<br/>agents-lead — loop<br/>constrói o que estressou"]
+    MR{{"MERGE REQUEST · uma por story"}}
+    QA["TIER 3 · GATE<br/>— contexto fresco, sem viés de autoria<br/>quality-assurance · o único que pode fazer merge<br/>toda raia — a Definition of Done,<br/>e se isso quebra a produção<br/>loop — e o marcador de veredito do agents-lead"]
+    V["devolvido — um canal de volta só"]
+    M{{"merge em main = o deploy"}}
+  end
+  HO(["HITL · EU<br/>classe de fronteira: irreversível, arquitetural<br/>go / no-go"])
+  H -- "produto" --> PL
+  H -- "produto" --> TL
+  H -- "conteúdo" --> PC
+  H -- "loop" --> LM
+  PL --> RQ
+  TL --> RQ
+  PC --> RQ
+  LM --> RQ
+  RQ --> ORCH
+  ORCH -- "produto" --> DEV
+  ORCH -- "conteúdo" --> WRT
+  ORCH -- "loop" --> LB
+  DEV --> MR
+  WRT --> MR
+  LB --> MR
+  MR -- "acionada pelo orquestrador" --> QA
+  QA -- "classe segura" --> M
+  QA -- "classe de fronteira" --> HO
+  HO -- "go" --> M
+  QA -- "mudanças" --> V
+  HO -- "no-go" --> V
+  V --> ORCH
+  SM -.-> ORCH
+  H <-.-> ORCH
+```
 
 Ele fecha listando o que é portátil: arquivos de skill como funcionários, a biblioteca e o bibliotecário, nunca fazer trabalho de uma vez só. Isso, ele diz, viaja com você para qualquer stack. O meu viaja num plugin, no outro repositório — a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 
