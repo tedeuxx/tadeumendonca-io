@@ -29,6 +29,8 @@ E aí vem a frase que junta tudo, e essa vale nas palavras exatas dele:
 
 > *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
 >
+> — Garry Tan
+>
 > *(Quando você senta com o Claude Code ou o Codex, você não está escrevendo software: está contratando, treinando e gerindo uma equipe feita de markdown.)*
 
 Fui procurar essas quatro no meu loop, e três já estavam lá, com nomes que eu não tinha pegado emprestado dele. O que decide quais revisores entram é uma tabela por tipo de trabalho — `loop`, `product`, `content`. O processo interno é a regra em que a minha biblioteca de decisões funciona, que eu cito daqui a pouco. E a avaliação de desempenho é uma suíte que lê a lista de skills nos dois sentidos: uma skill declarada que não existe deixa vermelho, e uma que existe e não foi declarada também. Nenhuma das três eu construí por teoria. Cada uma é uma coisa que quebrou antes.
@@ -54,6 +56,8 @@ A quinta peça é a que fica embaixo das outras quatro: a memória da empresa. O
 Ele é direto sobre o que mata isso:
 
 > *"a brain nobody curates becomes a garbage dump with great search."*
+>
+> — Garry Tan
 >
 > *(Um cérebro que ninguém cuida vira um lixão com busca excelente.)*
 

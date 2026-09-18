@@ -28,6 +28,8 @@ He names four. A skill file, he says, is an employee: one capability, one job, w
 Then the line that ties them together, and this one is worth his exact words:
 
 > *"When you sit down with Claude Code or Codex, you're not writing software, you're hiring, training, and managing a workforce made of markdown."*
+>
+> — Garry Tan
 
 I went looking for those four in my own loop, and three of them were already there, under names I had not borrowed from him. What decides which reviewers get involved is a table keyed on the kind of work — `loop`, `product`, `content`. The internal process is the one rule my decision library runs on, which I quote in a minute. And the performance review is a suite that reads the skill list in both directions: a declared skill that does not exist turns it red, and one that exists and was never declared does too. Not one of the three was built from theory. Each of them is a thing that broke first.
 
@@ -52,6 +54,8 @@ The fifth piece is the one underneath the other four: the company's memory. His 
 He is blunt about how it dies:
 
 > *"a brain nobody curates becomes a garbage dump with great search."*
+>
+> — Garry Tan
 
 And what he offers instead is a role rather than a feature — provenance on every fact, a check for when a new one contradicts an old one, and a librarian whose actual job is pruning.
 
