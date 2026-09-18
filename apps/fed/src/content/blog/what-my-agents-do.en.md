@@ -17,7 +17,7 @@ Garry Tan, who runs Y Combinator, gave a short talk called *Every company should
 
 This piece turns on the difference between a receipt and a recollection, so: everything I attribute to him is reported in my own words, from no transcript. Every passage I quote verbatim is my own file, and I can point at the line.
 
-It is a pitch — he says so himself, halfway through, and stops to stress-test it because the room would do it for him anyway. I mean the word descriptively. **It describes the shape. It says nothing about whether the thing is right.**
+It is a pitch — he says so himself, halfway through, and stops to stress-test it because the room would do it for him anyway. I mean the word descriptively. **It describes an approach. There is more than one.**
 
 He is describing companies. I am one person with two repositories and weekends — and one idea in that talk still sent me to look at what I had actually built, and at which part of it would still be standing if you took the products away.
 

@@ -17,7 +17,7 @@ O Garry Tan, que toca a Y Combinator, deu uma palestra curta chamada *Every comp
 
 Este texto gira em torno da diferença entre um recibo e uma lembrança, então: tudo o que eu atribuo a ele está relatado com as minhas palavras, sem transcrição. Toda passagem que eu cito literalmente é arquivo meu, e dessas eu aponto a linha.
 
-É um pitch — ele mesmo diz isso no meio, e para para testar o próprio pitch pelo argumento de que a plateia faria isso de qualquer jeito. Eu uso essa palavra como descrição. **Ela descreve o formato. Não diz nada sobre a coisa estar certa.**
+É um pitch — ele mesmo diz isso no meio, e para para testar o próprio pitch pelo argumento de que a plateia faria isso de qualquer jeito. Eu uso essa palavra como descrição. **Ela descreve a abordagem. Não existe somente uma.**
 
 Ele está falando de empresas. Eu sou uma pessoa com dois repositórios e fins de semana — e mesmo assim uma ideia daquela palestra me mandou olhar o que eu tinha construído de verdade, e qual parte daquilo continuaria de pé se você tirasse os produtos.
 
