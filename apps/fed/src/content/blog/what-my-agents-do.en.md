@@ -1,10 +1,10 @@
 ---
 title: "How to run your Claude Code/Codex/Kiro like an AI-native company"
 slug: what-my-agents-do
-date: '2026-08-25T12:00:00.000Z'
+date: '2026-09-18T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
+draft: false
 hasVideo: true
 contentIssue: 259
 excerpt: "Garry Tan breaks an AI-native company into four pieces that are all files, and a fifth one underneath: the brain. I took that breakdown and ran it against a loop I had already built without having seen the talk. Three of the four matched. The fourth and the brain break differently."
