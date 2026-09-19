@@ -1,10 +1,10 @@
 ---
 title: "Como rodar o seu Claude Code/Codex/Kiro como uma empresa AI-native"
 slug: o-que-os-meus-agentes-fazem
-date: '2026-08-25T12:00:00.000Z'
+date: '2026-09-18T12:00:00.000Z'
 tag: harness
 track: engenharia
-draft: true
+draft: false
 hasVideo: true
 contentIssue: 259
 excerpt: "Garry Tan decompõe uma empresa AI-native em quatro peças que são todas arquivos, e uma quinta embaixo: o cérebro. Eu peguei essa decomposição e rodei contra um loop que eu já tinha construído sem ter visto a palestra. Três das quatro bateram. A quarta e o cérebro desmontam de formas diferentes."
