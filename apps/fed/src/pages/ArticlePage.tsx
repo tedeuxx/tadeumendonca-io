@@ -19,7 +19,23 @@ const fmtDate = (iso: string, locale: Locale) =>
 
 const TRACK_KEY = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' } as const satisfies Record<string, MessageKey>;
 
-export function ArticlePage() {
+interface ArticlePageProps {
+  /**
+   * Render for the NEUTRAL share address `/blog/<en-slug>` (#660) rather than for a
+   * locale-prefixed edition. It changes exactly three things, all of them in the head: the canonical,
+   * `og:url` and the JSON-LD `url` name the unprefixed address instead of `/en/blog/<en-slug>`.
+   *
+   * It does NOT change which edition renders — that is the locale, and on this route `LocaleProvider`
+   * reads no prefix from the path and falls through to English, which is what the neutral URL is
+   * specified to serve to a scraper.
+   *
+   * Only `App.tsx`'s `NeutralArticleRoute` passes it, and only when `window.__PRERENDER__` is set: a
+   * human never renders this page, they are redirected into their own edition first.
+   */
+  neutral?: boolean;
+}
+
+export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   const { locale, t } = useLocale();
   const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
@@ -83,6 +99,10 @@ export function ArticlePage() {
           title: article.title,
           description: article.excerpt,
           canonicalPath: `/blog/${article.slug}`,
+          // The neutral address is SELF-canonical (#660, ADR-0052 — the owner's ruling, recorded there with its cost) — the head names the address
+          // that was requested, unprefixed, or the acceptance check for this whole route fails against
+          // the artifact the build just produced.
+          unprefixedCanonical: neutral,
           image: article.ogImage,
           // The card IS the title, set over the site's art (ADR-0041) — so the title is what the alt
           // says. Not the default card's alt: that describes a different picture, and a screen-reader
@@ -103,7 +123,10 @@ export function ArticlePage() {
             headline: article.title,
             datePublished: article.date,
             articleSection: article.tag,
-            url: absoluteUrl(lp(`/blog/${article.slug}`)),
+            // Same address the canonical names, by the same rule: JSON-LD claiming a different URL than
+            // `rel=canonical` on the same document is a contradiction a crawler has to resolve, and the
+            // neutral page is the one place those two could have diverged.
+            url: absoluteUrl(neutral ? `/blog/${article.slug}` : lp(`/blog/${article.slug}`)),
             author: { '@type': 'Person', name: 'Luiz Tadeu Mendonça' },
           },
         }

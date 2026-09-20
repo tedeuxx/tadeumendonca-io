@@ -63,10 +63,30 @@ export interface DocumentHead {
   /**
    * Per-locale LOGICAL paths for hreflang, when a route's path DIFFERS across locales (article slugs are
    * per-locale, ADR-0037 — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
-   * alternates prefix these localized paths and x-default is the PREFIXED English URL (#200). When absent (the
-   * shared-slug routes), the alternates re-prefix `canonicalPath` for both locales, as before.
+   * alternates prefix these localized paths and x-default is the NEUTRAL, UNPREFIXED English URL (#660, ADR-0052).
+   * When absent (the shared-slug routes), the alternates re-prefix `canonicalPath` for both locales and
+   * x-default stays the PREFIXED English URL (#200), which is what those routes still snapshot.
+   *
+   * ~~x-default is the PREFIXED English URL (#200)~~ in this branch too — struck: it was right while the
+   * bare article URL was a soft-404, and #660 made that URL a prerendered document. The field is only
+   * ever passed by an article, which is why the neutral rule can key off it.
    */
   alternates?: Record<Locale, string>;
+  /**
+   * Emit `canonical` and `og:url` WITHOUT the locale prefix — i.e. `canonicalPath` verbatim (#660).
+   * The ONE page class that needs it is the neutral share address `/blog/<en-slug>`: it is
+   * the advertised `x-default` and the owner ruled it SELF-canonical, so a document served there must
+   * name that address rather than the prefixed English edition.
+   *
+   * A boolean rather than a `canonicalUrl` escape hatch, deliberately: an arbitrary override would let
+   * any caller point the canonical anywhere, and the only thing this site's canonical rule has ever
+   * needed is "self, with or without the prefix". The cost, recorded rather than discovered: the same
+   * English text is now reachable at two self-canonical addresses, which is duplicate content by
+   * construction and is disambiguated only by hreflang reciprocity. The owner accepted that against the
+   * alternative — an x-default page canonicalising elsewhere, a self-contradicting signal whose losing
+   * resolution drops the one URL every future post carries.
+   */
+  unprefixedCanonical?: boolean;
   /**
    * `<meta name="robots">`, for the one page class that must not be indexed: a HELD article (#510),
    * which is reachable at its final URL and deliberately absent from the sitemap.
@@ -136,7 +156,7 @@ function setJsonLd(json: string | undefined) {
   if (!existing) document.head.appendChild(el);
 }
 
-export function useDocumentHead({ title, description, canonicalPath, image, imageAlt, type = 'website', publishedTime, jsonLd, alternates, robots }: DocumentHead) {
+export function useDocumentHead({ title, description, canonicalPath, image, imageAlt, type = 'website', publishedTime, jsonLd, alternates, robots, unprefixedCanonical = false }: DocumentHead) {
   const { locale } = useLocale();
   // Serialize JSON-LD so the effect depends on its value, not object identity.
   const jsonLdStr = jsonLd ? JSON.stringify(jsonLd) : undefined;
@@ -148,8 +168,12 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
   useEffect(() => {
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
     // Per-locale URLs (ADR-0036): the canonical is SELF — the current locale's prefixed URL — never
-    // cross-locale. The reciprocal editions are advertised via hreflang alternates below.
-    const url = canonicalPath ? absoluteUrl(localePath(locale, canonicalPath)) : undefined;
+    // cross-locale. The reciprocal editions are advertised via hreflang alternates below. On the neutral
+    // share address (#660) "self" is the UNPREFIXED path, which is what `unprefixedCanonical` selects;
+    // it is still self, so nothing here ever points at another page.
+    const url = canonicalPath
+      ? absoluteUrl(unprefixedCanonical ? canonicalPath : localePath(locale, canonicalPath))
+      : undefined;
     const img = image ? absoluteUrl(image) : defaultOgImage(locale);
 
     document.title = fullTitle;
@@ -163,17 +187,26 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
     // hreflang alternates (pt · en · x-default). Emitted for every real route so both editions point at
     // the same set — the reciprocity a crawler needs to pair them. When the route's path is per-locale
     // (article slugs, ADR-0037), `alternates` carries the two localized logical paths; otherwise the
-    // shared `canonicalPath` re-prefixes for both. x-default is the PREFIXED English URL in both branches
-    // (#200): the bare `/blog/<en-slug>` is never prerendered, and — because unprefixed paths redirect
-    // preserving the path while slugs are per-locale — it also dead-ends a pt-BR reader on
-    // `/pt/blog/<en-slug>`, a route that does not exist.
+    // shared `canonicalPath` re-prefixes for both.
+    //
+    // x-default DIFFERS between the two branches since #660, and the asymmetry is the decision rather
+    // than an oversight. Articles advertise the NEUTRAL unprefixed URL; every shared-slug route keeps
+    // the PREFIXED English one. #200's two reasons for taking the bare URL away are both discharged for
+    // articles and for nothing else: the neutral article URL is prerendered now, and the pt-BR dead end
+    // (`/pt/blog/<en-slug>`, a route that does not exist) was fixed at its source by #204. Neither is
+    // true of `/me` or `/library`, so neither moves.
     if (canonicalPath) {
       const alt =
         altPt !== undefined && altEn !== undefined
           ? {
               pt: absoluteUrl(localePath('pt', altPt)),
               en: absoluteUrl(localePath('en', altEn)),
-              'x-default': absoluteUrl(localePath('en', altEn)),
+              // ARTICLES ONLY (#660) — and `alternates` is only ever passed by an article, which
+              // is why the condition is this branch rather than a second flag. The x-default is the
+              // NEUTRAL, unprefixed English-slug URL: the address belonging to no edition, which is what
+              // x-default means and what the build now snapshots. All three addresses of an article emit
+              // this identical trio, so the served HTML and the sitemap describe one set.
+              'x-default': absoluteUrl(altEn),
             }
           : alternatesFor(canonicalPath);
       upsertAlternate('pt', alt.pt);
@@ -228,5 +261,9 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
     if (description) upsertMeta('name', 'twitter:description', description);
 
     setJsonLd(jsonLdStr);
-  }, [locale, title, description, canonicalPath, image, imageAlt, type, publishedTime, jsonLdStr, altPt, altEn, robots]);
+    // `unprefixedCanonical` is in the list for the reason `robots` is: this effect only ever WRITES the
+    // canonical, so a value left behind by a previous route survives a client-side navigation. It is
+    // constant per mount today — nothing toggles it — which is exactly why omitting it would have been
+    // invisible until the day something did.
+  }, [locale, title, description, canonicalPath, image, imageAlt, type, publishedTime, jsonLdStr, altPt, altEn, robots, unprefixedCanonical]);
 }

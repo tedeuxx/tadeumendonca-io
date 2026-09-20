@@ -335,17 +335,25 @@ test.describe('hreflang reciprocity + self-canonical', () => {
 // OWN slug and advertises the reciprocal hreflang pair. The old shared EN URL `/en/blog/meu-compromisso`
 // is a client-side not-found (never prerendered, never in the sitemap).
 //
-// x-default is the PREFIXED English article URL (#200). The bare `/blog/my-commitment` was worse than
+// ~~x-default is the PREFIXED English article URL (#200). The bare `/blog/my-commitment` was worse than
 // merely un-snapshotted: unprefixed paths redirect PRESERVING the path and slugs are per-locale, so a
 // pt-BR reader following it landed on `/pt/blog/my-commitment` — a route that does not exist — and fell
-// through to the blog listing. It never reached the article at all.
+// through to the blog listing. It never reached the article at all.~~
+//
+// STRUCK by #660. Both halves of that reason are discharged, and the struck text is what says which:
+// the bare URL IS snapshotted now (`neutralArticleRoutes()`), and the pt-BR dead end was fixed at its own
+// source by #204's `articlePathForLocale` — which the two "a bare article URL reaches the article"
+// journeys at the bottom of this block have pinned ever since. An article's x-default is therefore the
+// NEUTRAL, unprefixed English-slug URL. Non-article routes did not move: block 4 above still asserts
+// `/me`'s x-default is the prefixed English one.
 test.describe('per-locale article slugs', () => {
   const EN_ART = `${SITE}/en/blog/my-commitment`;
   const PT_ART = `${SITE}/pt/blog/meu-compromisso`;
+  const NEUTRAL_ART = `${SITE}/blog/my-commitment`;
   const ALT = {
     pt: `hreflang="pt" href="${PT_ART}"`,
     en: `hreflang="en" href="${EN_ART}"`,
-    xDefault: `hreflang="x-default" href="${EN_ART}"`,
+    xDefault: `hreflang="x-default" href="${NEUTRAL_ART}"`,
   };
 
   test('the en edition self-canonicals to its own slug and lists the reciprocal pair', async ({ request }) => {
@@ -420,6 +428,117 @@ test.describe('per-locale article slugs', () => {
   test('a bare article URL with an unknown slug still falls to the in-locale not-found', async ({ page }) => {
     await page.goto('/blog/no-such-article');
     await expect(page.getByText(/does not exist or is not published/i)).toBeVisible();
+  });
+});
+
+// 4c · THE NEUTRAL SHARE ADDRESS (#660, ADR-0052) — one URL, two consumers, served differently on purpose.
+//
+// THE ACCEPTANCE CHECK IS `canonical == the requested URL`, AND A STATUS CODE CANNOT BE IT. CloudFront
+// maps 404 → /index.html with a 200 and `vite preview` falls a missing path through to the SPA shell, so
+// a nonexistent article path answers 200 in BOTH targets. Anyone closing this with `%{http_code}` gets a
+// green that cannot go red. The discriminator is the canonical, and the nonsense-slug probe below is its
+// calibration — the same selector answers negatively there, which is what makes the positive mean
+// something.
+test.describe('the neutral share URL', () => {
+  const NEUTRAL_ART = `${SITE}/blog/my-commitment`;
+  const EN_ART = `${SITE}/en/blog/my-commitment`;
+  const PT_ART = `${SITE}/pt/blog/meu-compromisso`;
+
+  // The scraper's half. Raw HTTP, no JS — which is precisely the consumer this route exists for: an
+  // unfurler reads the served document and never runs the redirect, so it must find a complete English
+  // head here. Trailing slash for the reason block 3 states: it makes the SAME assertion prove the
+  // prerendered FILE under both `vite preview` and the CloudFront rewrite.
+  test('serves a prerendered, SELF-canonical English document — the acceptance check', async ({ request }) => {
+    const res = await request.get('/blog/my-commitment/');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    // THE criterion: the canonical names the address that was requested.
+    expect(body).toContain(`rel="canonical" href="${NEUTRAL_ART}"`);
+    expect(body).toContain(`property="og:url" content="${NEUTRAL_ART}"`);
+    // The ENGLISH preview, for the unfurler — one stable card per article whatever the reader's language.
+    expect(body).toMatch(/<html[^>]*lang="en"/);
+    expect(body).toContain('property="og:locale" content="en_US"');
+    expect(body).toContain('property="og:title" content="My Commitment');
+    // Anti-masquerade, and it is not decoration here: the x-default root shell is ALSO English and ALSO
+    // answers 200 at this path when the snapshot is missing. What separates them is the canonical above
+    // and the article's own card below — the shell carries `/og-default.png`.
+    expect(body).not.toContain(`rel="canonical" href="${SITE}/en"`);
+    expect(body).toContain('property="og:image" content="' + SITE + '/og/my-commitment');
+    // It IS the x-default it advertises, and the reciprocal pair is unmoved.
+    expect(body).toContain(`hreflang="x-default" href="${NEUTRAL_ART}"`);
+    expect(body).toContain(`hreflang="en" href="${EN_ART}"`);
+    expect(body).toContain(`hreflang="pt" href="${PT_ART}"`);
+  });
+
+  // THE CALIBRATION. Without it the assertion above is an observation of passing: a selector that can
+  // only ever match is not a check. This address answers 200 and must NOT self-canonicalise.
+  test('a nonsense slug still answers 200 and does NOT self-canonicalise', async ({ request }) => {
+    const res = await request.get('/blog/zzz-not-a-page/');
+    expect(res.status()).toBe(200); // the point: the status code is uninformative, by construction
+    const body = await res.text();
+    expect(body).not.toContain(`rel="canonical" href="${SITE}/blog/zzz-not-a-page"`);
+    expect(body).toContain(`rel="canonical" href="${SITE}/en"`);
+  });
+
+  // The human's half. Deliberately asserts ONLY that the reader is resolved INTO an edition and reaches
+  // the article — never WHICH language. That is `#661`'s subject, and "a pt-BR reader lands in
+  // Portuguese" is false for a returning reader with a stored toggle (detectLocale: path → persisted →
+  // navigator), so an unqualified assertion here would pin the wrong behaviour and make the later fix
+  // read as a regression.
+  test('a human is resolved out of it into a locale-prefixed edition of the same article', async ({ page }) => {
+    await page.goto('/blog/my-commitment');
+    await expect(page).toHaveURL(/\/(pt|en)\/blog\/(meu-compromisso|my-commitment)$/);
+    // The article itself, not the landing: `ArticlePage` renders `<article>` only when the slug resolves.
+    await expect(page.locator('article h1')).toBeVisible();
+  });
+
+  // THE PRERENDER OPT-OUT, exercised in a live browser rather than inferred from the artifact. With the
+  // flag set, the route must RENDER instead of redirecting — which is the single thing that makes the
+  // snapshot above possible, and the thing "just add the path to the prerender list" does not give you.
+  test('renders in place, without redirecting, for the snapshot browser', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __PRERENDER__: boolean }).__PRERENDER__ = true;
+    });
+    await page.goto('/blog/my-commitment');
+    await expect(page).toHaveURL(/\/blog\/my-commitment$/); // no prefix appeared — it did not redirect
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', NEUTRAL_ART);
+    await expect(page.locator('article h1')).toBeVisible();
+  });
+
+  // #660 scope item 4 — the retired-slug intercept reaches the neutral path, and STAYS neutral. The
+  // neutral URL is now the most-shared address an article has, so a slug correction that dropped a reader
+  // out of it would break exactly the link every future post carries.
+  //
+  // Observed under the snapshot flag deliberately: without it the reader is resolved onward into an
+  // edition and the neutral→neutral hop is invisible in the final URL. The flag freezes the chain at the
+  // step under test — and the retired intercept runs BEFORE the flag is consulted, which is what this
+  // asserts.
+  test('a RETIRED English slug redirects to the neutral address of the current one', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __PRERENDER__: boolean }).__PRERENDER__ = true;
+    });
+    await page.goto('/blog/the-problem-stopped-changing');
+    await expect(page).toHaveURL(/\/blog\/from-cloud-to-ai-same-badge$/);
+    await expect(page).not.toHaveURL(/\/(pt|en)\/blog\//); // neutral in, neutral out
+    await expect(page.locator('article h1')).toBeVisible();
+  });
+
+  // A held article must not gain a public neutral address (ADR-0049 isolation, #510). Asserted on the
+  // SERVED HTML, because that is where the hold would leak: the route still answers 200 through the SPA
+  // fallback, so the discriminator is again the canonical rather than the status.
+  //
+  // READ THIS ARM AS THE OUTERMOST OF THREE, not as the check. Calibrated by planting the held pair into
+  // `neutralArticleRoutes()` and rebuilding, and what that mutation showed is that the leak is caught
+  // EARLIER and HARDER than here: the build itself dies, because `NeutralArticleRoute` refuses to render
+  // a held article and `prerender.mjs` then waits out its canonical timeout. The unit arm
+  // (`routes.test.mjs`, "omits a held article") is what fails for the right reason on the enumeration,
+  // and the sitemap count one layer down moves too. On its own this arm is green whenever NOTHING is
+  // snapshotted, which is why it is not the one to trust alone — said here rather than left for a
+  // reviewer to work out from a green.
+  test('a HELD article has no neutral snapshot', async ({ request }) => {
+    const body = await (await request.get('/blog/held-draft-fixture/')).text();
+    expect(body).not.toContain(`rel="canonical" href="${SITE}/blog/held-draft-fixture"`);
+    expect(body).toContain(`rel="canonical" href="${SITE}/en"`);
   });
 });
 
@@ -574,8 +693,8 @@ test.describe('locale offer on a link that pins the other language', () => {
   });
 });
 
-// 8 · Sitemap drift guard — one <loc> per (locale, route) plus the x-default root, each with xhtml:link
-// alternates, and no retired/redirect paths.
+// 8 · Sitemap drift guard — one <loc> per (locale, route), one per article's NEUTRAL share address
+// (#660), plus the x-default root, each with xhtml:link alternates, and no retired/redirect paths.
 test.describe('sitemap advertises every per-locale URL', () => {
   // Shared-slug routes: the same logical path under both prefixes. `/library` (#166) joins them —
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
@@ -602,9 +721,13 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // page, which is the duplicate-content signal the per-locale canonical exists to avoid. The redirect
   // itself is asserted in routes.spec.ts; this is the other half — that the retired address is gone from
   // everything that ADVERTISES a URL.
+  // The NEUTRAL form of the retired English slug joins this list (#660) rather than being assumed away:
+  // `/blog/<en-slug>` is a real advertised address now, so a retired one is a redirect that could be
+  // advertised — the exact duplicate-content signal these entries exist to keep out of the sitemap.
   const SUPERSEDED = [
     `${SITE}/pt/blog/o-problema-parou-de-variar`,
     `${SITE}/en/blog/the-problem-stopped-changing`,
+    `${SITE}/blog/the-problem-stopped-changing`,
   ];
   // Articles that were live and were taken down. Asserted absent, not merely dropped from ARTICLES:
   // deleting the entry alone would leave the count green if the prerender ever kept serving the route,
@@ -624,10 +747,13 @@ test.describe('sitemap advertises every per-locale URL', () => {
       expect(body).toContain(`<loc>${pt}</loc>`);
       expect(body).toContain(`<loc>${en}</loc>`);
     }
-    // Every article's per-locale <loc>s.
+    // Every article's per-locale <loc>s, PLUS its neutral share address (#660). The neutral form is
+    // derived from the `en` entry rather than listed a fourth time: a second hand-written list of the
+    // same slugs is a list that can be corrected in one place and not the other.
     for (const article of ARTICLES) {
       expect(body).toContain(`<loc>${article.pt}</loc>`);
       expect(body).toContain(`<loc>${article.en}</loc>`);
+      expect(body).toContain(`<loc>${article.en.replace(`${SITE}/en`, SITE)}</loc>`);
     }
     // The old shared-slug EN URL is NEVER advertised (it is a not-found now).
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
@@ -641,7 +767,8 @@ test.describe('sitemap advertises every per-locale URL', () => {
     // Every <url> carries alternates.
     const locCount = (body.match(/<loc>/g) ?? []).length;
     const altCount = (body.match(/xhtml:link/g) ?? []).length;
-    expect(locCount).toBe(LOGICAL_COUNT * 2 + 1); // routes × locales + x-default root
+    // routes × locales + one NEUTRAL share address per article (#660) + the x-default root.
+    expect(locCount).toBe(LOGICAL_COUNT * 2 + ARTICLES.length + 1);
     expect(altCount).toBe(locCount * 3); // pt · en · x-default per <url>
 
     // No retired/redirect paths, and no UNPREFIXED locale routes advertised (only the x-default root is bare).

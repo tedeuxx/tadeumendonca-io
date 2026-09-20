@@ -18,12 +18,18 @@ const canonicalHref = () => document.head.querySelector('link[rel="canonical"]')
 // `search` defaults to empty — the published-reader case every existing test was written against. It is a
 // parameter rather than a second helper so the review-bar cases below differ from those by exactly the
 // one thing under test (#506).
-const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt', search = '') =>
+//
+// `neutral` (#660) is the same parameter shape and the same reason: the neutral-share-address case must
+// differ from the published-reader case by exactly the flag under test. The ROUTE stays locale-prefixed
+// even then, deliberately — the prop is what this page reads, and mounting it at an unprefixed path here
+// would additionally be testing `LocaleProvider`'s fallback, which is `App.tsx`'s wiring and is covered
+// by the E2E instead.
+const renderAt = (slug: string, locale: 'pt' | 'en' = 'pt', search = '', neutral = false) =>
   render(
     <MemoryRouter initialEntries={[`/${locale}/blog/${slug}${search}`]}>
       <LocaleProvider>
         <Routes>
-          <Route path="/:locale/blog/:slug" element={<ArticlePage />} />
+          <Route path="/:locale/blog/:slug" element={<ArticlePage neutral={neutral} />} />
         </Routes>
       </LocaleProvider>
     </MemoryRouter>,
@@ -158,7 +164,28 @@ describe('ArticlePage', () => {
     expect(canonicalHref()).toBe('https://tadeumendonca.io/pt/blog/construindo'); // self
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/building');
+    // x-default is the NEUTRAL, unprefixed English-slug URL (#660). It was the PREFIXED English URL
+    // until then, for #200's two reasons — the bare URL was not prerendered, and it dead-ended a pt-BR
+    // reader — and both are discharged: the build snapshots it now, and #204 fixed the dead end at its
+    // own source.
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/building');
+  });
+
+  // #660 — the same page rendered for the NEUTRAL share address. Two things move and nothing else does,
+  // which is why the reciprocal pair is re-asserted here rather than assumed: the canonical loses the
+  // locale prefix, and it stays on the ENGLISH slug even though this render is under the pt wrapper.
+  //
+  // Rendered at the pt locale on purpose. The neutral page always serves English in the real build, so a
+  // canonical that quietly followed the active locale would be invisible there; driving it from the other
+  // locale is what makes the missing prefix a real assertion rather than a coincidence of the default.
+  it('emits an unprefixed self-canonical when rendered for the neutral share address', () => {
+    getPostBySlug.mockReturnValue(post({ slug: 'building' }));
+    getEditions.mockReturnValue({ en: post({ slug: 'building' }), pt: post({ slug: 'construindo' }) });
+    renderAt('building', 'pt', '', true);
+    expect(canonicalHref()).toBe('https://tadeumendonca.io/blog/building');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/building');
+    expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
+    expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
   });
 
   // #510 — the weaker half of the hold, and it is written as the weaker half deliberately.

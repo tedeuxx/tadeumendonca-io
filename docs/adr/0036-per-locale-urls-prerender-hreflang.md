@@ -170,9 +170,17 @@ The route module already guaranteed that for the `pt` and `en` alternates: they 
 `localizedRoutes()` enumeration the prerender consumes, so they cannot drift. **x-default was the one place
 the invariant did not hold**, and it broke.
 
-**What changed.** `hreflang="x-default"` now points at the **prefixed English canonical** for every route —
+**What changed.** ~~`hreflang="x-default"` now points at the **prefixed English canonical** for every route —
 `/en/me`, `/en/portfolio`, `/en/ramp-up`, `/en/architecture`, `/en/blog/<en-slug>` — instead of the bare,
-unprefixed path. **The root keeps its bare x-default** (`https://tadeumendonca.io/`), because the bare origin
+unprefixed path.~~ **→ the ARTICLE half of that enumeration is struck 2026-09-20 by
+[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660); the four static routes are
+untouched.** Struck rather than rewritten because this is the clause a reader takes the rule from, and it is
+the clause that stopped being true. **The four static routes — `/en/me`, `/en/portfolio`, `/en/ramp-up`,
+`/en/architecture` — still take the prefixed English canonical as x-default**, and this amendment's trade for
+them is unchanged and still paid. **An ARTICLE's x-default is now the neutral, unprefixed `/blog/<en-slug>`.**
+That is not the invariant being traded away, it is the invariant being *satisfied*: ADR-0052 makes the bare
+article URL a snapshotted, self-canonical document, so it may be advertised **because** the build prerenders
+it. **The root keeps its bare x-default** (`https://tadeumendonca.io/`), because the bare origin
 is the one unprefixed URL the prerender genuinely snapshots (`dist/index.html`, the bare-root English snapshot
 this ADR already decided). Changed in **both** implementations, which are duplicated by construction:
 `apps/fed/scripts/routes.mjs` (feeds sitemap + prerender) and `apps/fed/src/hooks/useDocumentHead.ts`
@@ -205,10 +213,26 @@ for en-US. Prerendering the bare URL would have made that failure *quieter*, not
 the prefixed English canonical fixes both readers at once: the scraper reads the real English page, and the
 pt-BR reader is never handed a path that cannot resolve in their locale.
 
-**Trade-off (accepted).** x-default **no longer advertises a locale-neutral entry point for sub-paths** — it
+> **The rejection above was TAKEN for articles on 2026-09-20 — and its stated reason was discharged first,
+> not overruled** ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md), issue #660). Both halves
+> of *"leaves the Portuguese reader in a dead end"* are gone: issue #204 made the unprefixed redirect
+> slug-aware (`articlePathForLocale`), so the bare path resolves in **both** editions, and ADR-0052 keys the
+> neutral address on the **current English slug** so there is a single string to snapshot. What that record
+> chose is narrower than the option rejected here — **one neutral URL per ARTICLE, not a bare snapshot for
+> every route** — so the four static routes still sit under the rejection as written. Read this paragraph as
+> correct about the world it was written in, and as the reason ADR-0052 had to say what changed about that
+> world before it could take the option.
+
+**Trade-off (accepted).** ~~x-default **no longer advertises a locale-neutral entry point for sub-paths** — it
 names the English edition explicitly. That is standard hreflang practice, and it is what
 [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s English-canonical decision already implies; but it
-does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root.
+does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root.~~
+**→ the accepted cost is DISCHARGED for articles 2026-09-20 by
+[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660)** — an article does advertise
+a locale-neutral entry point again, and it is the address every social post carries. **It is still paid in
+full by the four static routes**, which advertise the prefixed English canonical and nothing bare. The
+English-canonical implication from ADR-0024 is untouched either way: the neutral article snapshot is served
+in English.
 
 **What this costs a reader, stated rather than glossed.** The redirect clause is untouched, so a bare path
 a reader *types or is sent* still auto-detects. But the **advertised** address changed, and for the four
@@ -231,15 +255,26 @@ un-prerendered and therefore still wrong for a scraper even once it resolves for
 > now maps the article slug to the reader's locale (`articlePathForLocale`), so a bare `/blog/<slug>` reaches
 > the article in **both** editions instead of dead-ending a pt-BR reader on a route that does not exist.
 >
-> **The decision this amendment records is unchanged.** Resolving is not advertising: the bare URL is still
+> ~~**The decision this amendment records is unchanged.** Resolving is not advertising: the bare URL is still
 > **not prerendered**, so it still answers a scraper with the home page's OG card, and it must **not** be
 > re-added to hreflang or the sitemap. The invariant stands as written — *a URL may be advertised only if the
 > build prerenders it*. What changed is that the bare form now works for a **human** who was sent one; it did
-> not become an address the site publishes.
+> not become an address the site publishes.~~
+>
+> **→ struck 2026-09-20 for ARTICLES by [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)
+> (issue #660), and this is the clause that most needed striking** — it is the one other documents quote as
+> *"must not be re-added to hreflang or the sitemap"*, and it is now false of the article class. The bare
+> article URL **is** prerendered, **is** in the sitemap, and **is** the advertised x-default. **The invariant
+> itself did not move and is not weakened** — *a URL may be advertised only if the build prerenders it* is
+> exactly what ADR-0052 satisfies, by making the address a document rather than by loosening the rule. For
+> the four static routes this paragraph stands verbatim: `/me`, `/portfolio`, `/ramp-up`, `/architecture`
+> resolve for a human, are still un-prerendered, and must still never be advertised.
 
 **Clarification to [ADR-0037](./0037-localized-article-slugs.md).** Its line *"x-default = the English slug"*
-is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`. Nothing about per-locale article
-slugs changes.
+~~is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`~~ **→ struck 2026-09-20 by
+[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660): it is the **unprefixed**
+English slug, `/blog/<en-slug>`.** Nothing about per-locale article slugs changes — the neutral address is
+keyed on the current English slug, which is the same string ADR-0037 already governs.
 
 **How the invariant is now enforced, not just written down.**
 - `apps/fed/scripts/routes.test.mjs` (new) asserts it by **membership**: every advertised alternate — `pt`,
@@ -481,7 +516,10 @@ and what the wrong-locale slug does), **not** a table entry — and the green su
   gates. Related: [ADR-0005](./0005-og-coverage-every-public-url.md) (OG pinned on first fetch),
   [ADR-0037](./0037-localized-article-slugs.md) (per-locale article slugs — the pt-BR dead end),
   [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment (the same hazard, guarded
-  at one consumer).
+  at one consumer). **Read *"root excepted"* as *"root and articles excepted"* since 2026-09-20 —
+  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660) moves an article's
+  x-default to the neutral `/blog/<en-slug>` by making that URL a prerendered document, so #200's membership
+  gate is satisfied rather than relaxed.**
 - **Amended by** Issue [#172](https://github.com/tedeuxx/tadeumendonca-io/issues/172) — the authoritative path
   left a reader no in-page way to their own edition; a dismissible **offer** (never a redirect) now proposes
   the visitor's locale, persisting through the same `locale` key as the toggle, with a second key
