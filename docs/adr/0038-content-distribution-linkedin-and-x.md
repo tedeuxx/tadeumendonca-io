@@ -378,16 +378,17 @@ before it merges. That is what caught this one, one merge too late.
    today, so a drafter following the amendment blindly ships a dead link. Read the amendment's
    precondition before acting on either.
 
-**The ambiguity this paragraph names OUTLIVED part 3 and is worth reading even now** — the amendment
-below resolves the *same* ADR-0037 ambiguity in the opposite direction, so the analysis stands and only
-its conclusion moved.
-
 **Why part 3 does not contradict anything this record already decides.** The decision outcome above
 requires *"the canonical URL must be the thing shared"*, and ADR-0037 made article URLs per-locale, so
 "canonical" alone no longer picks one URL — it picks one *per edition*. Part 3 resolves that ambiguity in
 the direction of the English edition for **shared** links only. It changes nothing about the site: ADR-0036
 still advertises both editions with hreflang, and a reader who wants the Portuguese edition is one locale
 switch away from it.
+
+**This paragraph is left standing rather than struck, and the reason is precise: the ambiguity it names
+OUTLIVED part 3.** The amendment below resolves the *same* ADR-0037 ambiguity in the opposite direction —
+toward a locale-neutral address rather than the English edition — so the analysis is still correct and
+only its conclusion moved.
 
 ~~**Its accepted cost, stated rather than assumed.** A Portuguese-language teaser sends its reader to an
 English page. That is a real friction for exactly the audience the Portuguese half was written for, and it
