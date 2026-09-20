@@ -367,10 +367,16 @@ before it merges. That is what caught this one, one merge too late.
 1. **X — always English.** Unchanged from the amendment above; this part was recorded correctly.
 2. **LinkedIn — bilingual: the same teaser in both languages, in one post.** Not two posts, and not a
    Portuguese post with an English variant filed elsewhere. One post carries both.
-3. **The shared link is always the `/en/` URL, on both surfaces** — *"o link deveria ser em inglês ao
+3. ~~**The shared link is always the `/en/` URL, on both surfaces** — *"o link deveria ser em inglês ao
    compartilhar nessas redes"* — **even under a Portuguese body.** This part appeared nowhere in the
    amendment above and it is the one a future drafter is most likely to get wrong, because on LinkedIn the
-   teaser's Portuguese half now sits directly above an English link and looks like a mistake. It is not.
+   teaser's Portuguese half now sits directly above an English link and looks like a mistake. It is not.~~
+   **→ REVERSED 2026-09-20 by the amendment below** — the shared link is the **locale-neutral** URL, on
+   both surfaces, and the owner's word for the behaviour this clause defends is *«erro»*. **Struck, not
+   deleted: this clause was applied correctly for a month and anyone who read it took a decision from
+   it.** It is also **not yet replaceable in practice** — the neutral URL does not resolve to an article
+   today, so a drafter following the amendment blindly ships a dead link. Read the amendment's
+   precondition before acting on either.
 
 **Why part 3 does not contradict anything this record already decides.** The decision outcome above
 requires *"the canonical URL must be the thing shared"*, and ADR-0037 made article URLs per-locale, so
@@ -379,9 +385,19 @@ the direction of the English edition for **shared** links only. It changes nothi
 still advertises both editions with hreflang, and a reader who wants the Portuguese edition is one locale
 switch away from it.
 
-**Its accepted cost, stated rather than assumed.** A Portuguese-language teaser sends its reader to an
+**This paragraph is left standing rather than struck, and the reason is precise: the ambiguity it names
+OUTLIVED part 3.** The amendment below resolves the *same* ADR-0037 ambiguity in the opposite direction —
+toward a locale-neutral address rather than the English edition — so the analysis is still correct and
+only its conclusion moved.
+
+~~**Its accepted cost, stated rather than assumed.** A Portuguese-language teaser sends its reader to an
 English page. That is a real friction for exactly the audience the Portuguese half was written for, and it
-is accepted on the owner's call. Nothing here measures it — see *no claim about results* below.
+is accepted on the owner's call. Nothing here measures it — see *no claim about results* below.~~
+**→ discharged 2026-09-20 by the amendment below.** The cost was named honestly and accepted; **what the
+owner reversed is the acceptance, not the description.** The sentence is the most exact statement of the
+defect anywhere in this library, which is why it is struck in place and quoted forward rather than
+removed. **It is still unmeasured** — *no claim about results* stands, and the reversal rests on his
+judgement plus the routing measurement below, not on a number.
 
 ### C · Hashtags on LinkedIn, none on X
 
@@ -572,6 +588,167 @@ the words.
 review against. **This record holds the decision; that skill holds the wording**, and the two must not
 drift.
 
+## Amendment (2026-09-20) — the shared link is the **locale-neutral** URL on both surfaces; part 3 above is REVERSED, and the rule is **not satisfiable yet**
+
+**This amendment reverses a decision this record made, on the owner's ruling, and states the
+precondition that makes the new rule unusable today.** Both halves are obligatory together: an
+amendment carrying only the reversal instructs a drafter to ship a link that lands nobody on the
+article.
+
+### A · The reversal, in his words
+
+The ruling, 2026-09-19, opening a LinkedIn post he had just published:
+
+> *«todo post de rede social tem que ser feito com a url nao regionalizada»*
+>
+> *«o link que vc tem compartilhado no linkedin nao é o slug nao regionalizado idioma. entao quando
+> abro ele carrega em ingles para mim ao inves de portugues.»* · *«isso é um erro»*
+>
+> *«isso deveria se aplicar tanto ao link compartilhado no post do x como do linkedin»*
+
+**The new rule, replacing part 3 of the amendment above:**
+
+> **The URL in a social post is the locale-neutral one, on EVERY surface. The reader's own language
+> decides what they land on — the post's language does not, and neither does the network's.**
+
+**BOTH surfaces, and the X post is the one to get wrong.** X's post is written in English, which makes
+an English link look correct there. It is not: that audience is not English-only, and a reader who
+follows a link is entitled to the same resolution whichever network they came from. The owner ruled
+this explicitly rather than leaving it to be inferred, which is why the clause above says *every*
+surface instead of naming LinkedIn.
+
+**This is not a drafting slip being corrected, and the distinction is the whole reason the reversal
+needs a record.** The convention was his own call of 2026-08-16 — *"o link deveria ser em inglês ao
+compartilhar nessas redes"* — it was applied correctly on every post since, and **this record already
+named its cost in the exact words he has now called an error** (*"a real friction for exactly the
+audience the Portuguese half was written for"*). A ratified decision has been overturned. The old
+clause and its cost are struck in place above rather than deleted, per this library's own
+*strike + discharge* shape for a reversed decision.
+
+### B · The PRECONDITION — the neutral URL does not resolve to an article today
+
+**Stated second only because the rule has to be quoted before it can be qualified. It is not
+optional, and a drafter who skips it publishes a dead link.**
+
+> **The neutral URL is the share target only once it resolves to the ARTICLE. Where it does not, the
+> localized URL stays and the post ships with the friction.** A link that lands nobody on the piece is
+> strictly worse than a link that lands the wrong half of the audience on it in the wrong language.
+
+**Measured against production on 2026-09-20, re-derived for this amendment rather than carried from
+the Issue that raised it:**
+
+```
+# status codes alone — the instrument that CANNOT see this failure
+curl -s -o /dev/null -w '%{http_code}\n' https://tadeumendonca.io/blog/my-commitment      # -> 200
+curl -s -o /dev/null -w '%{http_code}\n' https://tadeumendonca.io/blog/zzz-not-a-page     # -> 200   <- the calibration
+curl -s -o /dev/null -w '%{http_code}\n' https://tadeumendonca.io/en/blog/my-commitment   # -> 200
+
+# the served canonical against the requested path — the instrument that CAN
+curl -s https://tadeumendonca.io/blog/my-commitment      | grep -oE 'rel="canonical" href="[^"]*"'
+# -> rel="canonical" href="https://tadeumendonca.io/en"                      the English LANDING page
+curl -s https://tadeumendonca.io/blog/zzz-not-a-page     | grep -oE 'rel="canonical" href="[^"]*"'
+# -> rel="canonical" href="https://tadeumendonca.io/en"                      IDENTICAL — a soft-404
+curl -s https://tadeumendonca.io/en/blog/my-commitment   | grep -oE 'rel="canonical" href="[^"]*"'
+# -> rel="canonical" href="https://tadeumendonca.io/en/blog/my-commitment"   the article, only under the locale
+```
+
+**The neutral URL and a URL that was never a page are byte-identical in both instruments.** The
+nonsense-slug row is the calibration and it is the point of the block: a status check here has an
+**unconditional positive result**, so *"I fetched it and it worked"* is true of an address nobody can
+open. **The discriminator is `canonical == requested URL`**, and over those rows it answers both ways —
+negative three times, positive once — which is what makes it a check rather than an observation of
+passing.
+
+**And it is not an artifact of a held draft.** The article measured is published in both editions, and
+the Portuguese edition fails the same way under its own slug:
+
+```
+curl -s https://tadeumendonca.io/pt/blog/meu-compromisso | grep -oE 'rel="canonical" href="[^"]*"'
+# -> rel="canonical" href="https://tadeumendonca.io/pt/blog/meu-compromisso"   the article
+curl -s https://tadeumendonca.io/blog/meu-compromisso    | grep -oE 'rel="canonical" href="[^"]*"'
+# -> rel="canonical" href="https://tadeumendonca.io/en"                        soft-404, same as the English
+```
+
+**The cheapest wrong reading is *"it only fails for held pieces"*, which would make the rule look
+immediately usable and send a drafter to a dead link.** It is a property of the routing.
+
+**Why the fix is larger than dropping a path segment.** [ADR-0037](./0037-localized-article-slugs.md)
+makes article slugs localized, so the two editions of one piece are different strings and there is no
+single slug for the segment to be dropped from. What the neutral form is keyed on is a design decision,
+not a repair — and it is not this record's.
+
+### C · The SEAM — this record owns the CONVENTION, not the ROUTE
+
+**Two Issues touch one behaviour and they do not overlap.** `#665` — this amendment — owns **what a
+post links**. `#660` owns **what that link serves**: whether the neutral form is a prerendered route or
+an edge redirect, what it is keyed on, and whether `x-default` moves to it. **Neither blocks the
+other**, and they may land in either order: this record states the convention plus the condition under
+which it takes effect, and the route makes that condition true.
+
+**The route's own decisions belong in the new record `#660` produces — number `0052` in this library,
+not yet written — and are deliberately not restated here.** One of them is already ruled and is named
+rather than re-argued: the owner decided on 2026-09-20 that the neutral URL is **self-canonical** — it
+declares itself canonical and is the advertised `x-default` for articles. That is an architecture
+decision with no reader side, both leads declined to take it, and **it is recorded where it was taken,
+not here.** A convention record restating a routing decision is two sources of truth for one fact.
+
+**Say the seam out loud, because a reader meeting the amended clause will ask why the rule it states is
+not yet usable.** The rule is correct and inert; the thing that makes it live is in a different Issue
+and a different record.
+
+### D · What this does NOT change
+
+- **Parts 1 and 2 of the amendment above are untouched.** X is always English; LinkedIn carries the
+  same teaser in both languages in one post. Only the **link** moved.
+- **The body placement is unchanged and re-affirmed.** The canonical link goes in the LinkedIn post
+  body, against the stated down-ranking cost. A later reader must still not "fix" it.
+- **Hashtags are unchanged** — LinkedIn yes, X none, on the selection rule the amendment above records.
+- **The digest rule is unchanged.** The 2026-09-04 amendment governs what the post *says*; this one
+  governs the URL it carries.
+- **Campaign tagging is unchanged.** [ADR-0039](./0039-share-campaign-tagging.md)'s `utm_campaign` is a
+  query string on whatever the share target is; moving the target does not touch it.
+- **The two live posts stay as published.** They carry `/en/` links and a scraper has pinned their
+  cards. **Changing what a URL serves is safe; changing a URL inside a published post is a different
+  act and is the owner's, per post.** Nothing here obliges a correction, and `product-lead` verified on
+  `#660` that none is owed.
+- **No claim about results.** The owner's hypothesis — that the locale-pinned link is costing reads —
+  is recorded on `#660` **as a hypothesis**, with what would test it (clicks per post, and the language
+  of the page the click resolved to). **It is not measured, and this amendment does not assert it.**
+  The reversal does not depend on it.
+
+### E · Still manual, and now with one thing that actively contradicts the rule
+
+**Nothing reads this convention, exactly as nothing read the one it replaces.** `gen-distribution.mjs`
+holds no language, placement, hashtag or link-locale logic; every convention in all three amendments is
+the author's act, unread by any gate.
+
+**One correction to that claim as this record previously worded it.** *"It scaffolds from the English
+frontmatter and emits a bare canonical URL"* is true of what *bare* meant when it was written — free of
+campaign tags — and is now readable as *locale-neutral*, which it is not. Measured at head:
+`shareUrlFor()` in `apps/fed/scripts/gen-distribution.mjs` selects the route whose `locale` is `'en'`
+and returns that route's prefixed `url`, so **it emits `/en/blog/<en-slug>` by construction** — and
+would keep doing so after the neutral route ships, because the selection is on the locale field rather
+than on the share convention.
+
+**That is a CODE change and it is NOT this record's slice.** It belongs to `#660`, where the route it
+has to select already lives; pulling it here turns a record slice into a code slice. **Recorded here
+with one recommendation**, because the seam otherwise hides it: the generator should be an **acceptance
+item of that Issue rather than a follow-up**. If the route ships without it, the precondition above is
+satisfied by the routing and defeated by the tooling that scaffolds every post — and **nothing anywhere
+would say so**, since no gate reads either the convention or the URL the generator emits.
+
+### F · What enforces any of this — nothing, and the honest split
+
+**No layer observes a draft, a post or a published URL.** The rule lives in two places by design — this
+record holds the decision, `published-voice`'s rule 21 holds the wording a drafter is judged against —
+and **the obligation that they not drift is carried by nobody.** That is the same honest limit this
+record already admits for the fan-out, the cadence, the hashtags and the campaign tag.
+
+**One thing IS mechanically checkable and is named rather than claimed as built:** the precondition.
+`canonical == requested URL` against the neutral form is a falsifier a build or a smoke test could run,
+and it is calibrated by the nonsense-slug probe above. It is `#660`'s acceptance check, not a gate that
+exists today.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
@@ -585,3 +762,8 @@ drift.
   destination. That record carries the values, the reasoning and the honest limit (the tag is applied by
   hand, and `gen-distribution.mjs` neither emits it nor can draft a static route at all — so *"still
   manual, therefore still skippable"* above is now true of the tag as well as of the post).
+- **Since 2026-09-20 the share target is the locale-neutral URL** (the amendment above) — issue `#665`
+  for the convention; issue `#660` for the route that has to exist before it can be used, and for the
+  record that carries the route's own decisions. The wording a drafter is judged against is
+  `published-voice`'s **rule 21** in `tedeuxx/tadeumendonca-skills`, merged in that repository's
+  PR #472, which states the same precondition.
