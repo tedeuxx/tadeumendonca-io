@@ -7,6 +7,7 @@ import {
   buildBlogEditions,
   canonicalFor,
   localizedRoutes,
+  neutralArticleRoutes,
   slugPairIndexOf,
   LOCALES,
   SITE_URL,
@@ -15,10 +16,18 @@ import {
 import { getAllPosts, getEditions, SLUG_SHAPE as CONTENT_SLUG_SHAPE } from '../src/lib/content';
 import { HELD_SLUGS } from '../src/content/heldFixture';
 
-// The set of URLs the build actually SNAPSHOTS: every localized route, plus the bare origin (the one
-// unprefixed URL prerender.mjs writes, as dist/index.html).
+// The set of URLs the build actually SNAPSHOTS: every localized route, every NEUTRAL share address
+// (#660), plus the bare origin (dist/index.html).
+//
+// The neutral entry is what keeps the arm below a CHECK rather than an observation of passing: every
+// article now advertises a neutral x-default, so dropping `neutralArticleRoutes()` from the prerender
+// walk turns that arm red by naming the exact URL — which is how the replacement was calibrated.
 const prerendered = () =>
-  new Set([`${SITE_URL}/`, ...localizedRoutes().map((r) => `${SITE_URL}${r.url}`)]);
+  new Set([
+    `${SITE_URL}/`,
+    ...localizedRoutes().map((r) => `${SITE_URL}${r.url}`),
+    ...neutralArticleRoutes().map((r) => `${SITE_URL}${r.url}`),
+  ]);
 
 // The invariant #200 existed for, and the assertion that would have caught it.
 //
@@ -43,17 +52,76 @@ describe('every advertised hreflang alternate is a URL the build prerenders', ()
     expect(offenders, `advertised but never prerendered:\n${offenders.join('\n')}`).toEqual([]);
   });
 
-  it('advertises the bare origin as x-default only for the root, which IS prerendered', () => {
+  it('advertises the bare origin as x-default for the root, which IS prerendered', () => {
     expect(alternatesFor('/')['x-default']).toBe(`${SITE_URL}/`);
     expect(prerendered().has(`${SITE_URL}/`)).toBe(true);
   });
 
-  it('never advertises a bare, unprefixed sub-path — that URL is not snapshotted', () => {
+  // ~~'never advertises a bare, unprefixed sub-path — that URL is not snapshotted'~~ — REPLACED by the
+  // two arms below (#660). The old arm pinned the #200 rule for EVERY non-root route, and #660 moves
+  // exactly one class of them: an article's x-default is the bare `/blog/<en-slug>` again, because that
+  // URL is snapshotted now. Split in two rather than loosened, so the half that did NOT move is still
+  // asserted at full strength — a single relaxed arm would have stopped watching `/me` and `/library`
+  // in order to let articles through.
+  it('never advertises a bare, unprefixed STATIC sub-path — those URLs are still not snapshotted', () => {
     for (const route of logicalRoutes()) {
-      if (route === '/') continue;
+      if (route === '/' || route.startsWith('/blog/')) continue;
       const bare = `${SITE_URL}${route}`;
       expect(Object.values(alternatesFor(route))).not.toContain(bare);
     }
+  });
+
+  // The #660 rule itself, and the reason the bare form is admissible HERE and nowhere else: the URL is
+  // prerendered. Both halves are asserted on every article, so an article whose neutral route the build
+  // stopped snapshotting fails on the second expectation rather than passing on the first.
+  it('advertises the NEUTRAL bare URL as an article x-default, and that URL IS prerendered', () => {
+    const snapshot = prerendered();
+    const articles = logicalRoutes().filter((route) => route.startsWith('/blog/'));
+    expect(articles.length, 'no article routes to check — the arm would be vacuous').toBeGreaterThan(0);
+    for (const route of articles) {
+      const alt = alternatesFor(route);
+      // The neutral URL of THIS article, derived from the alternate set's own English entry rather than
+      // re-derived from `route` — `route` may be either edition's slug, and the neutral form is keyed on
+      // the English one. Deriving it twice is how the two would disagree.
+      const neutral = alt.en.replace(`${SITE_URL}/en`, SITE_URL);
+      expect(alt['x-default']).toBe(neutral);
+      expect(snapshot.has(neutral), `${neutral} advertised as x-default but never prerendered`).toBe(true);
+    }
+  });
+});
+
+// #660 — the neutral share addresses themselves. `alternatesFor` above proves what is ADVERTISED; this
+// proves what is ENUMERATED, which is the other half of the never-drift invariant.
+describe('neutralArticleRoutes — the unprefixed share address', () => {
+  it('emits one unprefixed route per published article, keyed on the CURRENT English slug', () => {
+    const neutral = neutralArticleRoutes();
+    const enArticles = localizedRoutes().filter((r) => r.locale === 'en' && r.route.startsWith('/blog/'));
+    expect(neutral.map((r) => r.route).sort()).toEqual(enArticles.map((r) => r.route).sort());
+    // No prefix to add, so the two fields are the same string — stated as an assertion because every
+    // consumer (prerender outDir, sitemap <loc>, the share URL) reads one or the other.
+    for (const r of neutral) expect(r.url).toBe(r.route);
+  });
+
+  // The precedent this slice REFUTED, pinned against the live content that refutes it. `og-cards.mjs`
+  // keys card filenames on the article KEY; keying a URL that way would publish a RETIRED slug, because
+  // `the-problem-stopped-changing.en.md` carries `slug: from-cloud-to-ai-same-badge` and lists its own
+  // filename under `previousSlugs`. The assertion is derived from the content rather than hard-coded to
+  // that one article, so it keeps meaning something after the next slug correction.
+  it('never emits a retired English slug as a neutral address', () => {
+    const neutralSlugs = new Set(neutralArticleRoutes().map((r) => r.route.replace('/blog/', '')));
+    const retired = getAllPosts('en').flatMap((post) => post.previousSlugs);
+    expect(retired.length, 'no retired English slug in the content — the arm would be vacuous').toBeGreaterThan(0);
+    expect([...neutralSlugs].filter((slug) => retired.includes(slug))).toEqual([]);
+  });
+
+  // A held article must not gain a public prerendered address (ADR-0049 isolation, #510). It leaves
+  // `localizedRoutes()` at the source — `blogEditions()` drops the key — so this asserts the neutral set
+  // inherits that rather than re-implementing the hold, which is the property that could silently break.
+  it('omits a held article, the same way localizedRoutes() does', () => {
+    const neutralSlugs = neutralArticleRoutes().map((r) => r.route.replace('/blog/', ''));
+    // Both editions' slugs, although only the English one could ever have appeared: asserting the pt one
+    // too costs nothing and catches a future keying change that reached for the wrong edition.
+    for (const slug of Object.values(HELD_SLUGS)) expect(neutralSlugs).not.toContain(slug);
   });
 });
 
@@ -95,7 +163,7 @@ describe('the route-count prose above STATIC_ROUTES is still true', () => {
 
   it('App.tsx declares exactly as many <Route>s as the comment claims', () => {
     const declared = (appSource.match(/<Route\b/g) ?? []).length;
-    expect(declared, 'update the comment above STATIC_ROUTES in routes.mjs').toBe(11);
+    expect(declared, 'update the comment above STATIC_ROUTES in routes.mjs').toBe(12);
   });
 
   it('STATIC_ROUTES holds exactly as many logical routes as the comment claims', () => {
@@ -112,8 +180,19 @@ describe('alternatesFor — reciprocity and per-locale slugs', () => {
     expect(alternatesFor(article.route)).toEqual(alternatesFor(pt.route));
   });
 
-  it('points x-default at the English canonical for a non-root route', () => {
+  it('points x-default at the English canonical for a non-root STATIC route', () => {
     expect(alternatesFor('/me')['x-default']).toBe(canonicalFor('en', '/me'));
+  });
+
+  // The asymmetry #660 introduced, asserted as an asymmetry rather than as two unrelated facts: the two
+  // expectations sit in one arm so a sweep that moved static routes to the neutral form too — a strictly
+  // larger decision, with its own cost and no driver — turns this red instead of reading as consistency.
+  it('points x-default at the NEUTRAL URL for an article, while a static route keeps the prefix', () => {
+    const article = localizedRoutes().find((r) => r.locale === 'en' && r.route.startsWith('/blog/'));
+    expect(article, 'no published article — the arm would be vacuous').toBeDefined();
+    expect(alternatesFor(article.route)['x-default']).toBe(`${SITE_URL}${article.route}`);
+    expect(alternatesFor(article.route)['x-default']).not.toBe(canonicalFor('en', article.route));
+    expect(alternatesFor('/library')['x-default']).toBe(canonicalFor('en', '/library'));
   });
 
   // The throw is THE change of #211 — the sitemap path was the one place a duplicate slug resolved by

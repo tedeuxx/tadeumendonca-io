@@ -9,14 +9,14 @@ import {
   shareUrlFor,
   writeDrafts,
 } from './gen-distribution.mjs';
-import { localizedRoutes, SITE_URL } from './routes.mjs';
+import { neutralArticleRoutes, SITE_URL } from './routes.mjs';
 
-// A stand-in for `localizedRoutes()` output, including the pt edition with a DIFFERENT slug — the
-// per-locale-slug shape ADR-0037 introduced.
+// A stand-in for `neutralArticleRoutes()` output (#660): one UNPREFIXED route per article, keyed on the
+// CURRENT ENGLISH slug. The Portuguese slug appears nowhere in it, which is what makes the "refuses a PT
+// slug" arm below still mean something after the set changed.
 const ROUTES = [
-  { locale: 'en', route: '/', url: '/en' },
-  { locale: 'en', route: '/blog/my-commitment', url: '/en/blog/my-commitment' },
-  { locale: 'pt', route: '/blog/meu-compromisso', url: '/pt/blog/meu-compromisso' },
+  { route: '/blog/my-commitment', url: '/blog/my-commitment' },
+  { route: '/blog/what-my-agents-do', url: '/blog/what-my-agents-do' },
 ];
 
 const ARTICLE = `---
@@ -78,26 +78,35 @@ describe('sectionHeadings', () => {
 // That case is the third test below, and it is the one that would otherwise emit a share URL for a page
 // that does not exist.
 describe('shareUrlFor — the URL must be one the prerender actually snapshotted', () => {
-  it('resolves the English prerendered route for a slug', () => {
-    expect(shareUrlFor(ROUTES, 'my-commitment')).toBe(`${SITE_URL}/en/blog/my-commitment`);
+  it('resolves the NEUTRAL prerendered route for a slug', () => {
+    expect(shareUrlFor(ROUTES, 'my-commitment')).toBe(`${SITE_URL}/blog/my-commitment`);
   });
 
-  it('never emits the bare, unprerendered x-default article URL', () => {
+  // ~~'never emits the bare, unprerendered x-default article URL'~~ — INVERTED by #660, and inverted
+  // rather than deleted because the property it protected is unchanged: emit only what the build
+  // snapshots. The bare URL is what the build snapshots now, and the LOCALE-PINNED one is what must not
+  // be emitted — it is what `published-voice` rule 21 took out of circulation, and the owner's word for
+  // a reader landing on it was «erro».
+  it('never emits a LOCALE-PINNED article URL — that is the address this slice retired', () => {
     const url = shareUrlFor(ROUTES, 'my-commitment');
-    expect(url).not.toBe(`${SITE_URL}/blog/my-commitment`);
-    expect(url).toContain('/en/');
+    expect(url).not.toBe(`${SITE_URL}/en/blog/my-commitment`);
+    expect(url).not.toContain('/en/');
+    expect(url).not.toContain('/pt/');
   });
 
-  it('refuses a slug with no prerendered English route', () => {
-    expect(() => shareUrlFor(ROUTES, 'never-published')).toThrow(/no prerendered English route/);
+  it('refuses a slug with no prerendered neutral route', () => {
+    expect(() => shareUrlFor(ROUTES, 'never-published')).toThrow(/no prerendered neutral route/);
   });
 
-  it('refuses a PT slug — the pt route exists but is not the English canonical', () => {
-    expect(() => shareUrlFor(ROUTES, 'meu-compromisso')).toThrow(/no prerendered English route/);
+  // Still refused, and the reason survives the set change intact: the neutral set is keyed on the
+  // CURRENT ENGLISH slug, so a Portuguese slug is simply not a member of it. This is the arm that would
+  // have gone quietly green on a lookup loosened to "any route whose path ends in the slug".
+  it('refuses a PT slug — the neutral address is keyed on the English slug', () => {
+    expect(() => shareUrlFor(ROUTES, 'meu-compromisso')).toThrow(/no prerendered neutral route/);
   });
 
-  it('every emitted URL is a member of the REAL localizedRoutes() output', () => {
-    const routes = localizedRoutes();
+  it('every emitted URL is a member of the REAL neutralArticleRoutes() output', () => {
+    const routes = neutralArticleRoutes();
     const prerendered = new Set(routes.map((r) => `${SITE_URL}${r.url}`));
     const files = ['my-commitment.en.md'];
     const drafts = buildDrafts(files, routes, () => ARTICLE);

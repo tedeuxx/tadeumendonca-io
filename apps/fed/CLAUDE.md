@@ -79,18 +79,36 @@ in `iac/`.
   PT `/pt/blog/meu-compromisso` — while the remaining facts (date, tag, track, links, media) are still
   authored once and shared. `getPostBySlug` matches on the active locale's own slug, and the toggle maps
   `/blog/<thisSlug>` → `/blog/<otherSlug>` across locales (`localizeArticlePath`); hreflang advertises the
-  reciprocal localized pair, **x-default → the PREFIXED English URL** (`/en/blog/<en-slug>`, #200 —
-  never the bare `/blog/<slug>`, which the prerender does not snapshot, so a scraper there reads the
-  HOME page's OG card). The rule is general: **advertise only what the build prerenders** (ADR-0036
-  amendment). **Resolving ≠ advertising:** the bare form *does* now reach the article in both editions
-  (#204 — the unprefixed redirect maps the slug via `articlePathForLocale`, since re-prefixing it
-  verbatim dead-ended a pt-BR reader), but it is still un-prerendered and must **not** be re-added to
-  hreflang or the sitemap.
+  reciprocal localized pair, and **x-default → the NEUTRAL, unprefixed English-slug URL**
+  (`/blog/<en-slug>`, #660) — the share address every social post carries, prerendered by
+  `neutralArticleRoutes()` and SELF-canonical. The rule is unchanged and is what permits it:
+  **advertise only what the build prerenders** (ADR-0036 amendment).
+
+  ~~**x-default → the PREFIXED English URL** (`/en/blog/<en-slug>`, #200 — never the bare
+  `/blog/<slug>`, which the prerender does not snapshot, so a scraper there reads the HOME page's OG
+  card). **Resolving ≠ advertising:** the bare form *does* now reach the article in both editions (#204
+  — the unprefixed redirect maps the slug via `articlePathForLocale`, since re-prefixing it verbatim
+  dead-ended a pt-BR reader), but it is still un-prerendered and must **not** be re-added to hreflang or
+  the sitemap.~~ **Struck by #660, and struck rather than deleted because it is the sentence a reader
+  would take the old rule from.** Both of its reasons are discharged rather than overruled: the bare
+  article URL **is** snapshotted now, and the pt-BR dead end was fixed at its own source by #204. The
+  clause applies **to articles only** — `/me`, `/portfolio`, `/library` and the other static routes keep
+  the prefixed x-default and are still never advertised bare. The record is OWED and is not in this slice, with a
+  pointer amendment striking ADR-0036's own copy of that clause. Both land in their own merge request.
+
+  **The neutral URL is ONE URL serving TWO consumers differently, on purpose.** A scraper reads the
+  document and never runs the page, so it gets the English preview — one stable card per article. A
+  human executes the page and is resolved into their own edition by `RootRedirect`. The split works
+  because it is a split by **JavaScript execution**, not by request-time inspection, which is why an edge
+  redirect was rejected: it would have followed the unfurler too. `App.tsx`'s `NeutralArticleRoute`
+  renders only for the snapshot browser (`window.__PRERENDER__`) and redirects everyone else.
   **An article can be HELD** (#510, ADR-0049): `draft: true` in frontmatter — a **shared fact**, so both
   editions must agree — takes it out of **four** public enumerations and no more. `lib/content.ts` drops
   it from `byLocale` (the index, the feed, the track filters) while `getPostBySlug`/`getEditions` still
   resolve it; `scripts/routes.mjs` drops it from `localizedRoutes()`, so it leaves the sitemap **and** the
-  prerender together (the never-drift invariant holds — both sets shrink); `scripts/og-cards.mjs` requires
+  prerender together (the never-drift invariant holds — both sets shrink) — **and from
+  `neutralArticleRoutes()` with it (#660), for free rather than by a second rule, since both derive from
+  the same `blogEditions()` that dropped the key**; `scripts/og-cards.mjs` requires
   no card for it; `scripts/gen-distribution.mjs` writes no draft kit for it. The URL still answers, because
   `custom_error_response` maps 404 → `/index.html` with a 200 and the SPA routes client-side. **`?preview`
   is what distinguishes reading it from not finding it** (`lib/preview.ts`): without it, `ArticleRoute`

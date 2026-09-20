@@ -21,6 +21,7 @@ import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale, type Locale } from './i18n/config';
 import { articlePathForLocale, getPostBySlug, supersededSlugTarget } from './lib/content';
 import { isPreviewRequested } from './lib/preview';
+import { isPrerender } from './lib/localeSuggestion';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 const queryClient = new QueryClient({
@@ -87,6 +88,46 @@ function ArticleRoute({ locale }: { locale: Locale }) {
   return <ArticlePage />;
 }
 
+// THE NEUTRAL SHARE ADDRESS — `/blog/<en-slug>`, unprefixed (#660).
+//
+// ONE URL, TWO CONSUMERS, SERVED DIFFERENTLY ON PURPOSE. A scraper reads the document and never runs the
+// page, so it gets the English preview — one stable card per article whatever the reader's language. A
+// human executes the page, so they get the site's own locale resolution and land in their own edition.
+// The split works BECAUSE it is a split by JavaScript execution rather than by request-time inspection:
+// an edge redirect would apply to the unfurler too, which is why it was rejected rather than deferred.
+//
+// So this route renders the article ONLY for the build-time snapshot browser, and redirects everyone
+// else. `isPrerender()` is the SAME `window.__PRERENDER__` flag the locale-suggestion notice already
+// uses — ADR-0036's 2026-07-28 invariant, "any component that renders off the VISITOR rather than the
+// route must opt out of the snapshot explicitly". A locale redirect is the purest instance of that
+// invariant, so this is a second consumer of an existing seam, not a new mechanism.
+//
+// THE ORDER OF THE THREE CHECKS IS LOAD-BEARING, and it is the same order `ArticleRoute` uses one layer
+// down. The retired-slug intercept runs FIRST and stays NEUTRAL — `/blog/<retired-en-slug>` →
+// `/blog/<current-en-slug>`, not into a prefixed edition — because the neutral address is now the most
+// shared one an article has, and a rename that dropped a reader out of it would break exactly the link
+// every post carries. `replace`, like every other redirect on this site, so the back button leaves.
+//
+// Everything that is NOT a published English article falls through to `RootRedirect` UNCHANGED: a
+// Portuguese slug, an unknown slug, a held article. That is deliberate rather than incidental — #204's
+// either-slug human resolution and #510's held-article gate both live down that path, and neither is
+// this route's to re-implement.
+function NeutralArticleRoute() {
+  const { slug } = useParams<{ slug: string }>();
+  const { search, hash } = useLocation();
+  const current = slug ? supersededSlugTarget(slug, 'en') : undefined;
+  if (current) return <Navigate to={`/blog/${current}${search}${hash}`} replace />;
+  const post = slug ? getPostBySlug(slug, 'en') : undefined;
+  if (!post || post.draft || !isPrerender()) return <RootRedirect />;
+  return (
+    <LocaleProvider>
+      <AppShell>
+        <ArticlePage neutral />
+      </AppShell>
+    </LocaleProvider>
+  );
+}
+
 // The locale-scoped app: validates the `:locale` segment, then wraps the shell + routes in the
 // LocaleProvider (which reads the locale straight off the path). An invalid segment (`/xyz/…`) is not a
 // locale at all — treat the whole path as unprefixed and let RootRedirect send it to a real prefix.
@@ -134,6 +175,10 @@ export function App() {
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
+            {/* The neutral share address (#660). It OUTRANKS `:locale/*` without needing to be ordered
+                against it — react-router scores a static segment above a dynamic one — but it is written
+                first anyway, because a reader of this table should meet the more specific route first. */}
+            <Route path="blog/:slug" element={<NeutralArticleRoute />} />
             <Route path=":locale/*" element={<LocaleApp />} />
             <Route path="*" element={<RootRedirect />} />
           </Routes>

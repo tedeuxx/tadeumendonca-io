@@ -1251,9 +1251,13 @@ experience. The site is the storefront; the **argument is the code it links to**
 `/pt/me` renders the Portuguese edition regardless of the visitor's browser, which is what makes a shared
 link keep its language. Sub-paths without a prefix (`/me`, `/portfolio`) exist only as a client-side
 redirect to the reader's edition; they are **not** prerendered and must never be advertised in hreflang or
-the sitemap. **The bare root `/` is the one exception, deliberately**: it *is* prerendered (the English
-landing), *is* in the sitemap, and *is* the advertised `x-default` — it is the JS-less crawler's entry
-point. `apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set; read it before
+the sitemap. ~~**The bare root `/` is the one exception, deliberately**~~ — **struck #660: there are
+TWO exceptions now, and the digit is the whole of what changed.** The bare root `/` *is* prerendered (the
+English landing), *is* in the sitemap, and *is* the advertised `x-default` — the JS-less crawler's entry
+point. **The bare ARTICLE path `/blog/<en-slug>` is the second**: the neutral share address every social
+post carries, prerendered in English, self-canonical, in the sitemap, and the advertised `x-default` for
+its article. Nothing else moved — `/me`, `/portfolio`, `/ramp-up`, `/architecture` and `/library` are
+still redirect-only and still never advertised bare. A decision record for it is OWED and is not in this slice — it lands with its own merge request, which is also where the pointer amendment striking ADR-0036's clause belongs. `apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set; read it before
 assuming a route exists.
 
 **Six public surfaces** — `STATIC_ROUTES` in `apps/fed/scripts/routes.mjs` is

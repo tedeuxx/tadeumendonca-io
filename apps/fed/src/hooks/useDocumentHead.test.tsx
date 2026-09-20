@@ -96,10 +96,15 @@ describe('useDocumentHead', () => {
 
   // Per-locale slugs (ADR-0037): when `alternates` carries the two localized logical paths, the hreflang
   // set advertises each locale's OWN slug (not the shared canonicalPath re-prefixed). This is what pairs
-  // `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler. x-default is the PREFIXED
-  // English article URL (#200): the bare `/blog/<en-slug>` is not prerendered AND, because unprefixed
-  // paths redirect preserving the path while slugs are per-locale, it dead-ends a pt-BR reader on
-  // `/pt/blog/<en-slug>` — a route that does not exist.
+  // `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler.
+  //
+  // ~~x-default is the PREFIXED English article URL (#200): the bare `/blog/<en-slug>` is not prerendered
+  // AND, because unprefixed paths redirect preserving the path while slugs are per-locale, it dead-ends a
+  // pt-BR reader on `/pt/blog/<en-slug>` — a route that does not exist.~~ Struck by #660: BOTH
+  // halves of that reason are discharged. The neutral URL is prerendered now (`neutralArticleRoutes()`),
+  // and the dead end was fixed at its own source by #204's `articlePathForLocale`. x-default for an
+  // ARTICLE is the neutral, unprefixed English-slug URL; every shared-slug route keeps the prefixed one,
+  // which the arms above still assert.
   it('emits per-locale hreflang from `alternates` when a route’s slug differs across locales', () => {
     const alternates = { en: '/blog/my-commitment', pt: '/blog/meu-compromisso' };
     // The EN edition (self-canonical is /en/blog/my-commitment) still advertises the reciprocal pair.
@@ -109,7 +114,7 @@ describe('useDocumentHead', () => {
     );
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
     // Self-canonical stays this locale's own slug.
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://tadeumendonca.io/en/blog/my-commitment',
@@ -123,9 +128,53 @@ describe('useDocumentHead', () => {
     );
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
-    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://tadeumendonca.io/pt/blog/meu-compromisso',
+    );
+  });
+
+  // #660 — the NEUTRAL share address's own head. The advertised x-default (asserted above) and the
+  // document served at it have to agree that this URL is canonical, or the page is advertised as the
+  // selector while telling a crawler it is a duplicate of something else.
+  //
+  // Rendered under the PT wrapper on purpose, and that is the assertion rather than a detail: the neutral
+  // canonical must not follow whatever locale happens to be active. A `localePath(locale, …)` left in
+  // place would emit `/pt/blog/my-commitment` here and the arm would name it.
+  it('emits an UNPREFIXED self-canonical for the neutral share address, whatever the active locale', () => {
+    const alternates = { en: '/blog/my-commitment', pt: '/blog/meu-compromisso' };
+    renderHook(
+      () =>
+        useDocumentHead({
+          title: 'My Commitment',
+          canonicalPath: '/blog/my-commitment',
+          alternates,
+          unprefixedCanonical: true,
+        }),
+      { wrapper: wrapperAt('pt') },
+    );
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+      'https://tadeumendonca.io/blog/my-commitment',
+    );
+    // og:url moves with the canonical — the two describe the same claim to an unfurler and a crawler,
+    // and a page whose card points at one address while its canonical names another is the split this
+    // whole route exists to avoid.
+    expect(metaContent('meta[property="og:url"]')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    // The document IS the x-default it advertises. Self-canonical, per the owner's ruling.
+    expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/my-commitment');
+    // The reciprocal pair is untouched — only the x-default cell and the canonical moved.
+    expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/my-commitment');
+    expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/meu-compromisso');
+  });
+
+  // The flag's default, asserted so the neutral behaviour cannot leak into every other page by someone
+  // flipping the default. This is the calibration of the arm above: same call, flag omitted, prefixed.
+  it('keeps the locale prefix when `unprefixedCanonical` is omitted', () => {
+    renderHook(() => useDocumentHead({ title: 'My Commitment', canonicalPath: '/blog/my-commitment' }), {
+      wrapper: wrapperAt('pt'),
+    });
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+      'https://tadeumendonca.io/pt/blog/my-commitment',
     );
   });
 

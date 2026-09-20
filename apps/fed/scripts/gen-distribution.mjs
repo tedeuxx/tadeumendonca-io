@@ -11,8 +11,13 @@
 // per-locale slug. `alternatesFor()` USED TO advertise a bare x-default article URL (/blog/<en-slug>)
 // that the prerender never snapshots; #200 fixed that at the source, so hreflang now advertises only
 // prerendered URLs. This generator predates the fix and does not depend on it: it resolves the draft URL
-// by LOOKUP in `localizedRoutes()` and FAILS if no prerendered route matches, which holds regardless of
-// what the alternate set happens to contain.
+// by LOOKUP and FAILS if no prerendered route matches, which holds regardless of what the alternate set
+// happens to contain.
+//
+// SINCE #660 THE SET IT LOOKS IN IS `neutralArticleRoutes()`, not `localizedRoutes()` — and the bare
+// `/blog/<en-slug>` above is now a REAL prerendered address rather than the hazard that sentence
+// describes. The invariant is the same one, read the same way: emit only what the build snapshots. What
+// changed is what the build snapshots.
 //
 // What lookup buys over construction: a constructed string would already differ from a bare URL (no
 // `/en` prefix), but only lookup catches a slug with NO prerendered route at all — unpublished, renamed,
@@ -24,7 +29,7 @@
 import { load } from 'js-yaml';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { localizedRoutes, SITE_URL } from './routes.mjs';
+import { neutralArticleRoutes, SITE_URL } from './routes.mjs';
 
 const fedRoot = resolve(import.meta.dirname, '..');
 const contentDir = join(fedRoot, 'src', 'content', 'blog');
@@ -44,18 +49,32 @@ export function sectionHeadings(body) {
 }
 
 /**
- * The canonical URL to share for an article, resolved by LOOKUP rather than construction.
+ * The URL to share for an article, resolved by LOOKUP rather than construction.
  *
- * `routes` is the output of `localizedRoutes()`. Only those routes are prerendered, so membership in
- * that list is the property that matters — a constructed string can be well-formed and still point at
- * a URL no scraper can read OG tags from. Throws when the slug has no prerendered English route.
+ * `routes` is the output of `neutralArticleRoutes()` — the NEUTRAL, unprefixed share addresses
+ * (#660). It was `localizedRoutes()` until then, and the change of ARGUMENT is the whole
+ * change: the refusal semantics are untouched, because they never depended on which set was passed.
+ *
+ * WHY THE SET MOVED. `published-voice` rule 21 tells the drafter to post the neutral URL, and this
+ * generator scaffolds every draft the drafter starts from. A generator emitting the locale-pinned URL
+ * while the ruler asks for the neutral one is a tool and a rule disagreeing at the exact moment a human
+ * is composing something irreversible — and the generator's output is the half that looks authoritative.
+ *
+ * WHY IT IS STILL A LOOKUP. Membership in a prerendered set is the property that matters: a constructed
+ * string can be well-formed and still point at a URL no scraper can read OG tags from. That argument is
+ * unchanged by the set changing — and it still catches the case construction cannot, a slug with NO
+ * prerendered route at all (unpublished, renamed, or typo'd). A HELD article has no neutral route by
+ * construction, so the refusal that keeps a held piece from getting a share URL keeps working untouched.
+ *
+ * A PT slug is still refused, and for the same reason as before rather than a new one: the neutral set
+ * is keyed on the CURRENT ENGLISH SLUG, so a Portuguese slug is simply not a member of it.
  */
 export function shareUrlFor(routes, enSlug) {
   const route = `/blog/${enSlug}`;
-  const match = routes.find((r) => r.locale === 'en' && r.route === route);
+  const match = routes.find((r) => r.route === route);
   if (!match) {
     throw new Error(
-      `no prerendered English route for slug "${enSlug}" — refusing to emit a share URL that the ` +
+      `no prerendered neutral route for slug "${enSlug}" — refusing to emit a share URL that the ` +
         `prerender never snapshotted (it would pin a generic OG card, ADR-0005)`,
     );
   }
@@ -86,8 +105,17 @@ export function hashtagsFor(frontmatter) {
 export const LAUNCH_HASHTAGS = ['#AIEngineering', '#BuildInPublic', '#AgenticDevelopment'];
 
 /**
- * The draft pair for one article. LinkedIn and X BOTH carry the English canonical: ADR-0024 makes
- * English the canonical edition and ADR-0037's drivers state the owner posts in English on LinkedIn.
+ * The draft pair for one article. LinkedIn and X BOTH carry the NEUTRAL share URL — `/blog/<en-slug>`,
+ * with no locale prefix (#660, `published-voice` rule 21).
+ *
+ * ~~LinkedIn and X BOTH carry the English canonical: ADR-0024 makes English the canonical edition and
+ * ADR-0037's drivers state the owner posts in English on LinkedIn.~~ Struck rather than deleted, because
+ * it is the sentence a reader would take the old behaviour from, and its PREMISE is still true while its
+ * CONCLUSION is not. The surfaces do still carry English: the neutral URL serves the English preview to
+ * an unfurler, so the card is unchanged. What changed is who decides the LANGUAGE OF THE PAGE — the
+ * prefixed URL decided it for the reader, and the owner called that «erro»: a Portuguese reader followed
+ * a Portuguese post and landed on English prose with no visible way back. The neutral URL hands that
+ * decision to the reader's own browser while keeping one card per article.
  *
  * This emits a SCAFFOLD, not a finished post. ADR-0038 rejects syndicated identical copy because
  * "automation-shaped presence undercuts the 'written by a peer' claim" — that obligation is the
@@ -136,7 +164,7 @@ Link in the final post: ${url}
  * skip is a `continue` rather than a filter somewhere upstream:
  *  - a distribution draft is copy for LinkedIn and X, and an article that is deliberately out of the
  *    index has nothing to distribute yet — scaffolding a post for it is the opposite of holding it;
- *  - `shareUrlFor` REFUSES a slug with no prerendered English route, and a held article has none by
+ *  - `shareUrlFor` REFUSES a slug with no prerendered neutral route, and a held article has none by
  *    construction. Without this line the generator would throw on every held draft, turning a working
  *    feature into a broken script — a real failure mode, not a hypothetical one.
  */
@@ -200,7 +228,7 @@ export function formatResults(results, outputDir) {
 
 function main() {
   const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
-  const drafts = buildDrafts(files, localizedRoutes(), (f) => readFileSync(join(contentDir, f), 'utf8'));
+  const drafts = buildDrafts(files, neutralArticleRoutes(), (f) => readFileSync(join(contentDir, f), 'utf8'));
 
   mkdirSync(outputDir, { recursive: true });
   const results = writeDrafts(drafts, outputDir, {
