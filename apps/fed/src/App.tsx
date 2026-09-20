@@ -88,7 +88,7 @@ function ArticleRoute({ locale }: { locale: Locale }) {
   return <ArticlePage />;
 }
 
-// THE NEUTRAL SHARE ADDRESS — `/blog/<en-slug>`, unprefixed (#660).
+// THE NEUTRAL SHARE ADDRESS — `/blog/<en-slug>`, unprefixed (#660, ADR-0052).
 //
 // ONE URL, TWO CONSUMERS, SERVED DIFFERENTLY ON PURPOSE. A scraper reads the document and never runs the
 // page, so it gets the English preview — one stable card per article whatever the reader's language. A

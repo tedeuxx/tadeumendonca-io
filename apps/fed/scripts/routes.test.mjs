@@ -19,9 +19,25 @@ import { HELD_SLUGS } from '../src/content/heldFixture';
 // The set of URLs the build actually SNAPSHOTS: every localized route, every NEUTRAL share address
 // (#660), plus the bare origin (dist/index.html).
 //
-// The neutral entry is what keeps the arm below a CHECK rather than an observation of passing: every
-// article now advertises a neutral x-default, so dropping `neutralArticleRoutes()` from the prerender
-// walk turns that arm red by naming the exact URL — which is how the replacement was calibrated.
+// WHAT THIS SET IS, AND WHAT IT IS NOT. It is an ENUMERATION, not a reading of `dist/`. `prerendered()`
+// calls `neutralArticleRoutes()` — the same function `prerender.mjs` walks — so both sides of the arm
+// below come from one source and NEITHER TOUCHES THE FILESYSTEM. The arm therefore pins what the build
+// is *told* to snapshot; it cannot observe what the build *wrote*.
+//
+// SO THE SEAM IS: unit = the enumeration, artifact = E2E. Measured, by mutating the source rather than
+// this file, and each restored:
+//   - delete the `for (const { route, url } of neutralTargets)` loop from `prerender.mjs` (the prerender
+//     WALK) -> `routes.test.mjs` 41 passed, 0 failed. Green. `dist/blog/` is never written and the
+//     sitemap still advertises five URLs the build did not produce — the #200 defect re-created, and
+//     invisible from here.
+//   - neuter the ENUMERATION at source (`neutralArticleRoutes()` returning nothing) -> 3 arms red. That
+//     is what this arm actually catches, and it is how the replacement was calibrated.
+//
+// The only layer that sees a missing snapshot is `e2e/per-locale.spec.ts`'s neutral-share-address
+// acceptance arm, which fetches the served document and asserts `canonical == requested URL` with a
+// nonsense-slug control. That job (`playwright`) is a dependency of the aggregating gate in
+// `.github/workflows/app.yml`, so it is blocking on any change here — which is why no arm is added to
+// this file to cover the artifact. See the same statement from the other side in that spec's comment.
 const prerendered = () =>
   new Set([
     `${SITE_URL}/`,

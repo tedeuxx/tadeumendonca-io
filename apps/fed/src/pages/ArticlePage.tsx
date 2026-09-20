@@ -99,7 +99,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           title: article.title,
           description: article.excerpt,
           canonicalPath: `/blog/${article.slug}`,
-          // The neutral address is SELF-canonical (#660, owner's ruling) — the head names the address
+          // The neutral address is SELF-canonical (#660, ADR-0052 — the owner's ruling, recorded there with its cost) — the head names the address
           // that was requested, unprefixed, or the acceptance check for this whole route fails against
           // the artifact the build just produced.
           unprefixedCanonical: neutral,

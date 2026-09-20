@@ -30,7 +30,7 @@ const perLocale = targets.map(
   ({ locale, route }) => `  <url>\n    <loc>${canonicalFor(locale, route)}</loc>\n${alternateLinks(route)}\n  </url>`,
 );
 
-// The neutral share URLs (#660). `alternateLinks(route)` is called with the SAME logical article route
+// The neutral share URLs (#660, ADR-0052). `alternateLinks(route)` is called with the SAME logical article route
 // the two prefixed editions use, so all three <url> entries carry a byte-identical alternate block —
 // which is the reciprocity a crawler needs to pair them, and the reason this is a lookup rather than a
 // third construction.

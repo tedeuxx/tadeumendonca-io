@@ -355,5 +355,12 @@
     "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
     "status": "accepted",
     "amended": true
+  },
+  {
+    "id": "0052",
+    "title": "A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution",
+    "file": "0052-neutral-self-canonical-share-url-per-article.md",
+    "status": "accepted",
+    "amended": false
   }
 ]

@@ -209,7 +209,7 @@ function slugPairIndex() {
 
 /**
  * The UNPREFIXED article routes — one per published article, keyed on that article's CURRENT ENGLISH
- * SLUG (#660). `{ route, url }` with `route === url`, because a neutral address belongs to no
+ * SLUG (#660, ADR-0052). `{ route, url }` with `route === url`, because a neutral address belongs to no
  * locale and therefore has no prefix to add: `/blog/<en-slug>`.
  *
  * WHY THE ENGLISH SLUG AND NOT THE ARTICLE KEY. `scripts/og-cards.mjs` keys card FILENAMES on the key
@@ -277,7 +277,7 @@ export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, 
 // entry point); every other STATIC route advertises the ENGLISH CANONICAL, which is prerendered and
 // self-consistent.
 //
-// ARTICLES MOVED (#660). An article's x-default is now the bare `/blog/<en-slug>` again — but
+// ARTICLES MOVED (#660, ADR-0052). An article's x-default is now the bare `/blog/<en-slug>` again — but
 // the two sentences above are the reason that is a different decision rather than a reversal. Both
 // halves of what made it wrong are gone: the URL IS snapshotted now (`neutralArticleRoutes()`), and the
 // pt-BR dead end it produced was fixed at its own source by #204's `articlePathForLocale`, which maps an
@@ -299,7 +299,7 @@ export const alternatesFor = (route) => {
       return {
         pt: `${SITE_URL}${localePath('pt', ptRoute)}`,
         en,
-        // ARTICLES ONLY (#660): x-default is the NEUTRAL, unprefixed English-slug URL — the
+        // ARTICLES ONLY (#660, ADR-0052): x-default is the NEUTRAL, unprefixed English-slug URL — the
         // address that belongs to no edition and performs the selection, which is what x-default means.
         // #200's invariant is HONOURED rather than traded away: `neutralArticleRoutes()` prerenders this
         // exact URL, so the advertised x-default is still a URL the build snapshots. Non-article routes

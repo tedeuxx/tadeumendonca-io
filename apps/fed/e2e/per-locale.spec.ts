@@ -431,7 +431,7 @@ test.describe('per-locale article slugs', () => {
   });
 });
 
-// 4c · THE NEUTRAL SHARE ADDRESS (#660) — one URL, two consumers, served differently on purpose.
+// 4c · THE NEUTRAL SHARE ADDRESS (#660, ADR-0052) — one URL, two consumers, served differently on purpose.
 //
 // THE ACCEPTANCE CHECK IS `canonical == the requested URL`, AND A STATUS CODE CANNOT BE IT. CloudFront
 // maps 404 → /index.html with a 200 and `vite preview` falls a missing path through to the SPA shell, so

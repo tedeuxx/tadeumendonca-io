@@ -52,7 +52,7 @@ export function sectionHeadings(body) {
  * The URL to share for an article, resolved by LOOKUP rather than construction.
  *
  * `routes` is the output of `neutralArticleRoutes()` — the NEUTRAL, unprefixed share addresses
- * (#660). It was `localizedRoutes()` until then, and the change of ARGUMENT is the whole
+ * (#660, ADR-0052). It was `localizedRoutes()` until then, and the change of ARGUMENT is the whole
  * change: the refusal semantics are untouched, because they never depended on which set was passed.
  *
  * WHY THE SET MOVED. `published-voice` rule 21 tells the drafter to post the neutral URL, and this
@@ -106,7 +106,7 @@ export const LAUNCH_HASHTAGS = ['#AIEngineering', '#BuildInPublic', '#AgenticDev
 
 /**
  * The draft pair for one article. LinkedIn and X BOTH carry the NEUTRAL share URL — `/blog/<en-slug>`,
- * with no locale prefix (#660, `published-voice` rule 21).
+ * with no locale prefix (#660, ADR-0052, `published-voice` rule 21).
  *
  * ~~LinkedIn and X BOTH carry the English canonical: ADR-0024 makes English the canonical edition and
  * ADR-0037's drivers state the owner posts in English on LinkedIn.~~ Struck rather than deleted, because

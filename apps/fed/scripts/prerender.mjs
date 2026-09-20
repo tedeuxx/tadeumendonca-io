@@ -96,7 +96,7 @@ try {
     }
   }
 
-  // The NEUTRAL article snapshots → dist/blog/<en-slug>/index.html (#660). This is the URL
+  // The NEUTRAL article snapshots → dist/blog/<en-slug>/index.html (#660, ADR-0052). This is the URL
   // every social post carries, so it must serve a document of its own: English head, English OG card,
   // and a canonical naming the address that was requested.
   //

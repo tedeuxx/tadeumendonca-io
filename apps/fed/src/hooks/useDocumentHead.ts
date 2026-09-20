@@ -63,7 +63,7 @@ export interface DocumentHead {
   /**
    * Per-locale LOGICAL paths for hreflang, when a route's path DIFFERS across locales (article slugs are
    * per-locale, ADR-0037 — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
-   * alternates prefix these localized paths and x-default is the NEUTRAL, UNPREFIXED English URL (#660).
+   * alternates prefix these localized paths and x-default is the NEUTRAL, UNPREFIXED English URL (#660, ADR-0052).
    * When absent (the shared-slug routes), the alternates re-prefix `canonicalPath` for both locales and
    * x-default stays the PREFIXED English URL (#200), which is what those routes still snapshot.
    *

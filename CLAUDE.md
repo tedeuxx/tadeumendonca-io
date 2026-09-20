@@ -1257,7 +1257,10 @@ English landing), *is* in the sitemap, and *is* the advertised `x-default` — t
 point. **The bare ARTICLE path `/blog/<en-slug>` is the second**: the neutral share address every social
 post carries, prerendered in English, self-canonical, in the sitemap, and the advertised `x-default` for
 its article. Nothing else moved — `/me`, `/portfolio`, `/ramp-up`, `/architecture` and `/library` are
-still redirect-only and still never advertised bare. A decision record for it is OWED and is not in this slice — it lands with its own merge request, which is also where the pointer amendment striking ADR-0036's clause belongs. `apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set; read it before
+still redirect-only and still never advertised bare. The decision, its rejected options and its accepted
+costs are [ADR-0052](./docs/adr/0052-neutral-self-canonical-share-url-per-article.md), which also strikes
+ADR-0036's own copies of the clause in place. `apps/fed/scripts/routes.mjs` is the build-time source of
+truth for the route set; read it before
 assuming a route exists.
 
 **Six public surfaces** — `STATIC_ROUTES` in `apps/fed/scripts/routes.mjs` is

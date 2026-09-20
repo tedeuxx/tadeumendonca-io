@@ -685,8 +685,8 @@ an edge redirect, what it is keyed on, and whether `x-default` moves to it. **Ne
 other**, and they may land in either order: this record states the convention plus the condition under
 which it takes effect, and the route makes that condition true.
 
-**The route's own decisions belong in the new record `#660` produces — number `0052` in this library,
-not yet written — and are deliberately not restated here.** One of them is already ruled and is named
+**The route's own decisions belong in the new record `#660` produces — [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md), written 2026-09-20 in the same merge request as
+the route — and are deliberately not restated here.** One of them is already ruled and is named
 rather than re-argued: the owner decided on 2026-09-20 that the neutral URL is **self-canonical** — it
 declares itself canonical and is the advertised `x-default` for articles. That is an architecture
 decision with no reader side, both leads declined to take it, and **it is recorded where it was taken,
