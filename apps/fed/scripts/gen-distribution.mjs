@@ -105,6 +105,97 @@ export function hashtagsFor(frontmatter) {
 export const LAUNCH_HASHTAGS = ['#AIEngineering', '#BuildInPublic', '#AgenticDevelopment'];
 
 /**
+ * The Portuguese signpost — the FIRST line of the LinkedIn post, pointing at the Portuguese block.
+ *
+ * Exact string, ruled by the owner on 2026-09-21 after reading the line that shipped:
+ * *«"🇧🇷 Versão em português na segunda metade." essa frase ficou ruim»* · *«o padrao deveria ser algo
+ * mais soft e elegante do que metade»* · *«"🇧🇷 Versão em português abaixo." funciona»*.
+ *
+ * THE STANDARD IS THE SOFT POINTER — `abaixo`, never a mechanical position. «na segunda metade» reads
+ * like a form. Note what he did NOT change: «Versão» stayed. A proposal to drop it was made on the
+ * argument that it framed the Portuguese as a derivative of the English, and he rejected it by keeping
+ * the word — so the defect was the mechanical half alone.
+ *
+ * IT IS THE LOAD-BEARING HALF OF THE PATTERN, not a courtesy (his words on 2026-08-28: the audience is
+ * global, so the position read without a click belongs to English). Leading in English WITHOUT the
+ * signpost drops the Portuguese reader silently. Any later tidy-up that removes this line while keeping
+ * English first breaks the thing the convention is for.
+ *
+ * Only ONE flag renders, and that is the second consequence the owner named himself: if English always
+ * leads, the language hint only ever points AT Portuguese, so the 🇬🇧-versus-🇺🇸 question loses its
+ * object rather than being answered.
+ */
+export const PT_SIGNPOST = '🇧🇷 Versão em português abaixo.';
+
+/** The separator between the two language blocks — the exact string the live posts carry. */
+export const LANGUAGE_SEPARATOR = '— — —';
+
+/**
+ * The LinkedIn post body: signpost, English block, separator, Portuguese block (#562, ADR-0038).
+ *
+ * WHY THIS EXISTS AT ALL. Until this function the LinkedIn skeleton was MONOLINGUAL — one excerpt, one
+ * takeaway, one link, hashtags — while ADR-0038 has required a bilingual post since 2026-08-16. The
+ * generator was not disagreeing with the ruler; it was SILENT where the ruler speaks, which is worse in
+ * one specific way: every bilingual post was assembled by hand from a monolingual scaffold, so the
+ * language ORDER was re-decided from memory each time, and it was decided wrongly at least twice.
+ *
+ * IT REFUSES RATHER THAN GUESSES, the same way `shareUrlFor()` does. An absent excerpt or takeaway used
+ * to emit an empty blockquote silently. Under a signpost that PROMISES an English-first post, an empty
+ * English block is exactly the misleading scaffold the refusal discipline exists to prevent — and the
+ * generator's output is the half that looks authoritative. It never fires on published content today;
+ * it fires on the day someone publishes an article without one.
+ *
+ * IT DOES NOT WRITE HIS VOICE. The Portuguese block is a marked placeholder, exactly as the English one
+ * is a scaffold to be voiced — and it is deliberately NOT machine-translated from the English excerpt.
+ * Putting words in his mouth at the one point where the output looks authoritative is the failure mode
+ * this whole file is written against. It is also not read out of the `.pt.md` sibling: `buildDrafts`
+ * reads only the English edition (ADR-0024), and reversing that is a decision nobody has taken.
+ *
+ * THE LINK AND THE HASHTAGS SIT AT THE FOOT OF THE WHOLE POST, below the Portuguese block — owner
+ * ruling, 2026-09-21: *«o que os seus posts publicados fazem, incluindo os que você editou à mão»*.
+ *
+ * IT REVERSES A WRITTEN RULING, AND THE LOSING ARGUMENT IS WORTH KEEPING. #562's body put them at the
+ * end of the ENGLISH block on the fold argument — LinkedIn truncates behind "see more", so the foot of
+ * a doubled-length post is below the fold for every reader. **That argument is real and it lost to
+ * something stronger: the live posts are the owner's own voice, and he edited one by hand and left the
+ * hashtags at the foot.** A written rule no published post obeys is a rule the practice already
+ * rejected. Recorded so nobody re-derives the fold argument and flips this back — it was heard.
+ */
+export function linkedInPost({ frontmatter, url }) {
+  const excerpt = frontmatter.excerpt;
+  const takeaway = frontmatter.takeaway;
+  for (const [field, value] of [
+    ['excerpt', excerpt],
+    ['takeaway', takeaway],
+  ]) {
+    if (!value) {
+      throw new Error(
+        `article has no "${field}" — refusing to scaffold a bilingual LinkedIn post whose English ` +
+          `block is empty under a signpost promising it (#562, ADR-0038)`,
+      );
+    }
+  }
+
+  return [
+    PT_SIGNPOST,
+    '',
+    `> ${excerpt}`,
+    '',
+    `Takeaway: ${takeaway}`,
+    '',
+    LANGUAGE_SEPARATOR,
+    '',
+    '> [excerpt em português — escreva na sua voz. NÃO traduza a versão em inglês.]',
+    '',
+    'Takeaway: [takeaway em português]',
+    '',
+    url,
+    '',
+    hashtagsFor(frontmatter),
+  ].join('\n');
+}
+
+/**
  * The draft pair for one article. LinkedIn and X BOTH carry the NEUTRAL share URL — `/blog/<en-slug>`,
  * with no locale prefix (#660, ADR-0052, `published-voice` rule 21).
  *
@@ -116,6 +207,10 @@ export const LAUNCH_HASHTAGS = ['#AIEngineering', '#BuildInPublic', '#AgenticDev
  * prefixed URL decided it for the reader, and the owner called that «erro»: a Portuguese reader followed
  * a Portuguese post and landed on English prose with no visible way back. The neutral URL hands that
  * decision to the reader's own browser while keeping one card per article.
+ *
+ * SINCE #562 THE LINKEDIN SECTION IS BILINGUAL BY CONSTRUCTION — see `linkedInPost()` for the ruled
+ * shape (signpost first line, English block, separator, Portuguese placeholder) and for why the order
+ * being emitted rather than remembered is the whole point.
  *
  * This emits a SCAFFOLD, not a finished post. ADR-0038 rejects syndicated identical copy because
  * "automation-shaped presence undercuts the 'written by a peer' claim" — that obligation is the
@@ -135,17 +230,16 @@ re-argued and never byte-identical.
 Canonical URL (resolved from the prerendered route list, do not retype):
 ${url}
 
+The LinkedIn link is NOT tagged here — this generator holds no UTM logic (ADR-0039). The
+utm_content=en / utm_content=pt split approved on #562 assumed one link PER BLOCK, and the ruled
+shape carries one link at the foot of the whole post, so that split needs the owner before it can be
+emitted at all.
+
 ---
 
-## LinkedIn — long form
+## LinkedIn — long form, bilingual: English first, Portuguese below (#562)
 
-> ${frontmatter.excerpt ?? ''}
-
-Takeaway: ${frontmatter.takeaway ?? ''}
-
-Read it: ${url}
-
-${hashtagsFor(frontmatter)}
+${linkedInPost({ frontmatter, url })}
 
 ---
 

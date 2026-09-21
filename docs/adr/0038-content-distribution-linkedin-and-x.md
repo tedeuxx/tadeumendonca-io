@@ -749,6 +749,166 @@ record already admits for the fan-out, the cadence, the hashtags and the campaig
 and it is calibrated by the nonsense-slug probe above. It is `#660`'s acceptance check, not a gate that
 exists today.
 
+## Amendment (2026-09-21) — the bilingual post's **order** and its **signpost**: English leads, and line one points at the Portuguese in the owner's exact words
+
+**This record was SILENT here, not wrong — and the distinction decides what this section is.** Nothing
+below contradicts anything above it; no clause is struck and none needs to be. The 2026-08-16 second
+amendment established *"the same teaser in both languages, in one post"* and stopped there. It even
+reasons about *"the first line of **each** language block"* without ever ranking them. So the record
+knew the post was bilingual and never said which language a reader meets first.
+
+**A convention that lives only in a ruler and a memory is one the next draft re-derives** — and this one
+was re-derived wrongly at least twice, on posts that shipped.
+
+### A · The two rulings, verbatim, and they are separate acts
+
+**The ORDER, 2026-09-20.** Re-taken rather than inherited: this was already his call on 2026-08-28, and
+on 2026-09-19 he read a Portuguese-first post, edited it by hand and did **not** reorder it. Behaviour
+and ruling disagreed, so it went back to him:
+
+> *«eu acho que faz sentido mostrar o ingles primeiro, depois portugues, com a primeira linha sendo a
+> bandeirinha do brasil indicando conteudo em portugues na segunda metade do post. assim aproveitamos
+> para driblar a bandeirinha us/uk tbm»*
+
+**The WORDING, 2026-09-21**, after reading the line that shipped under that ruling:
+
+> *«"🇧🇷 Versão em português na segunda metade." essa frase ficou ruim»* ·
+> *«o padrao deveria ser algo mais soft e elegante do que metade»* ·
+> *«"🇧🇷 Versão em português abaixo." funciona»*
+
+**The standard is the SOFT pointer — `abaixo` — never a mechanical position.** «na segunda metade»
+reads like a form.
+
+**Note what he did NOT change, because it was put to him and he declined.** A proposal to drop «Versão»
+was made, arguing the word framed the Portuguese half as a derivative of the English when both halves
+are his. **He kept it and cut only «na segunda metade»** — so the defect was the mechanical half alone,
+and «Versão» is ruled in rather than incidental.
+
+### B · The shape, in full
+
+1. **Line one — the signpost**, exactly `🇧🇷 Versão em português abaixo.`
+2. **The English block**, immediately after — carrying no link and no hashtags of its own.
+3. **A separator — `— — —` — then the Portuguese block.**
+4. **The link, then the hashtags, at the FOOT of the whole post.** One link, serving both blocks.
+
+#### The link position REVERSES a written ruling, and the losing argument is kept
+
+**`#562`'s body put the link and the hashtags at the end of the ENGLISH block**, on the fold argument:
+LinkedIn truncates behind *"see more"*, so the foot of a doubled-length post is below the fold for
+every reader — the same argument that put the link in the body rather than a first comment, applied to
+a body that grew. **The generator was built that way and the conflict was flagged rather than settled
+by whichever source the builder preferred**, which is the only reason this was decided at all instead
+of being fossilised in tooling.
+
+**The owner ruled for the foot on 2026-09-21:** *«o que os seus posts publicados fazem, incluindo os
+que você editou à mão»*.
+
+**The fold argument is real and it lost to something stronger: the live posts are his own voice, and he
+edited one of them by hand and left the hashtags at the foot.** A written rule that no published post
+obeys is a rule the practice has already rejected. **Recorded so a future reader does not re-derive the
+fold argument and flip this back** — it was heard, and it was outranked by the artifacts.
+
+**It also changes what the approved measurement would have to be.** The `utm_content=en` /
+`utm_content=pt` split below assumed **one link per block**; the ruled shape carries **one link at the
+foot**, so that split is not merely untagged — it has no two positions to occupy. It needs the owner
+before anything can emit it.
+
+### C · The signpost is the LOAD-BEARING half, and the two are not separable
+
+His deciding clause on 2026-08-28 was *«queremos manter uma audiência global por isso inglês primeiro
+antes da versão em português»* — the criterion is **who the surface is for**, which is why it outranks
+the observation the pt-first convention rested on (*only the first language is read without a click*)
+rather than merely outweighing it. That observation is not disputed; the position is traded to English
+deliberately, **and the signpost is what makes the trade cost nobody.**
+
+**So: leading in English WITHOUT the signpost drops the Portuguese reader silently. Any later
+simplification that removes line one while keeping English first breaks the thing this convention is
+for.** Recorded as one rule with two halves rather than two rules, so a tidy-up cannot take one.
+
+### D · A second consequence the owner named himself — a rule getting SMALLER
+
+**If English always leads, the language hint only ever points AT Portuguese.** The English flag is
+never rendered, so the 🇬🇧-versus-🇺🇸 question — which nationality stands for a language — **loses its
+object rather than being answered.** He sidestepped the pick. The pin is kept with its reason and
+marked as having no live subject under this ordering (`published-voice` rule 19, `-skills` PR #483); a
+future monolingual-English piece with a Portuguese gloss would need it.
+
+### E · It was OBSERVED before it was argued, and the record says so
+
+> *«eu vi isso sendo feito em outros perfis no linkedin e achei interessante a estrategia»*
+
+**The pattern was borrowed from other profiles and justified afterwards.** That does not weaken it — it
+changes what would falsify it. A derived rule is tested against its premise; **a borrowed one is tested
+against whether it TRANSFERS**, and the observed profiles are not this profile: different follower
+composition, different language mix, different reason people follow.
+
+**A live precedent on this profile predates both rulings and is consistent with the standard.** The
+`blast-radius-supernova` LinkedIn post already leads in English behind
+`🇧🇷 A versão em português está no final deste post.` — English-first, signposted, and already avoiding
+«metade». Evidence that the shape is his rather than invented here.
+
+### F · What was NOT decided here, and one instrument is still owed
+
+- **The `utm_content=en` / `utm_content=pt` split is approved, NOT emitted, and now structurally
+  unsettled.** He approved it on 2026-08-28 (*«eu tô definindo uma estratégia para seguirmos e medirmos
+  eficácia no futuro»* · *«não vejo problema»*), and it is the only thing that can answer *did we keep
+  the Brazilian reader* — with one shared link, GA4 cannot separate a click from the English block from
+  one out of the Portuguese. **`gen-distribution.mjs` holds no UTM logic at all** (ADR-0039 records
+  that as a deliberate limit), so the generator emits the untagged neutral URL once, at the foot, and
+  tells the drafter in the draft itself that the split is theirs. **And the foot ruling above removed
+  the second position the split was designed to occupy** — it assumed one link per block. So the open
+  question is no longer *tag them* but *does the pt block get its own link back*, which is his.
+  **Approved, unbuilt, and named here so nobody reads the emitted shape as the measurement having
+  shipped.**
+- **Nothing about already-published posts.** The LinkedIn sweep of 2026-09-20/21 is recorded on `#562`;
+  X was excluded because a repair there is delete-and-repost and destroys the engagement, and the
+  `blast-radius-supernova` EN/PT pair was excluded because collapsing it would delete the very
+  `utm_content` split above.
+- **A share URL is neutral for an ARTICLE, and only for an article.** Neutral routes are prerendered
+  per article ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)); a non-article page
+  has none. Measured 2026-09-21 — and the status code is exactly why it has to be measured rather than
+  assumed:
+
+  ```
+  curl -s -o /dev/null -w '%{http_code}\n' https://tadeumendonca.io/architecture   # -> 200
+  curl -s https://tadeumendonca.io/architecture    | grep -oE '<title>[^<]*</title>'
+  # <title>tadeumendonca.io</title>                  <- the SPA fallback, canonical https://tadeumendonca.io/en
+  curl -s https://tadeumendonca.io/en/architecture | grep -oE '<title>[^<]*</title>'
+  # <title>Architecture — how this site is built · tadeumendonca.io</title>
+  ```
+
+  **The `200` is the trap**: a share of the neutral form lands the reader on the English home page
+  instead of the page shared. The pinned `/en/architecture` link on that post is **correct and stays**.
+  `shareUrlFor()` never emits it by construction — it resolves by membership in the article route set —
+  but a human reading *"the share URL is neutral"* as universal would break a non-article share by
+  hand.
+
+### G · What is UNCHANGED, said explicitly so this is read as additive
+
+X is untouched — it is monolingual, so the order clause has **no subject** there. Parts 1 and 2 of the
+2026-08-16 second amendment, the body placement of the link, the hashtag selection rule, the digest
+rule (2026-09-04), the campaign tag (ADR-0039) and the locale-neutral share target (2026-09-20) all
+stand exactly as written.
+
+### H · What enforces it — the generator now EMITS it, and nothing reads a post
+
+**`gen-distribution.mjs` emits the ruled shape from this slice on**, which is a real change to *"nothing
+reads this convention"*: the skeleton was monolingual, so every bilingual post was assembled by hand and
+the order was re-decided from memory each time. It now arrives in the scaffold, with the signpost and
+the separator as exact strings, and it **refuses rather than guesses** when the English block's inputs
+are absent — the same discipline `shareUrlFor()` already carries, because an empty English block under
+a signpost *promising* one is the misleading-scaffold case.
+
+**That is a DEFAULT, not a gate, and the difference is the whole of the honest claim.** A generated
+draft is hand-voiced before posting and the generator never sees what is posted. **No layer observes a
+draft, a post or a published URL** — so a drafter who reorders the blocks by hand is caught by nobody,
+and the LinkedIn sweep above had to be done by reading live posts. The same limit this record already
+admits for the fan-out, the cadence, the hashtags and the campaign tag.
+
+**The two homes must not drift, and nothing holds that either.** This record carries the decision;
+`published-voice`'s **rule 19** in `tedeuxx/tadeumendonca-skills` carries the wording a drafter is
+judged against. They are in two repositories with independent pipelines.
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
