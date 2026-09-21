@@ -29,9 +29,9 @@
 // in dev and visible only in the shipped artifact.
 import { useEffect, useState } from 'react';
 import { useLocale } from '../i18n';
-import { htmlLang, isLocale } from '../i18n/config';
+import { browserLocale, htmlLang, isLocale } from '../i18n/config';
 import { translate } from '../i18n/messages';
-import { browserLocale, isPrerender, localeToOffer, readSuggestionState, storeChoice, storeDismissal } from '../lib/localeSuggestion';
+import { isPrerender, localeToOffer, readSuggestionState, storeChoice, storeDismissal } from '../lib/localeSuggestion';
 
 const buttonBase = 'px-4 py-2 font-mono text-xs uppercase tracking-[0.12em]';
 

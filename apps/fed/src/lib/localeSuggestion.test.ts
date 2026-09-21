@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
-  browserLocale,
   localeToOffer,
   readSuggestionState,
   storeChoice,
@@ -9,23 +8,9 @@ import {
 } from './localeSuggestion';
 import { detectLocale, STORAGE_KEY } from '../i18n/config';
 
-describe('browserLocale', () => {
-  it.each([
-    ['pt-BR', 'pt'],
-    ['PT-br', 'pt'],
-    ['pt', 'pt'],
-    ['en-US', 'en'],
-  ])('maps %s → %s', (input, expected) => {
-    expect(browserLocale(input)).toBe(expected);
-  });
-
-  // The owner's rule (2026-07-28): the device language decides, and ANY language that is not Portuguese
-  // loads English. The site has two editions, so a French or Japanese reader gets the baseline rather
-  // than nothing — asserted explicitly because "not pt" is easy to write as "== en" by accident.
-  it.each(['fr-FR', 'ja', 'es-AR', 'de'])('falls back to en for %s', (input) => {
-    expect(browserLocale(input)).toBe('en');
-  });
-});
+// `browserLocale`'s own cases MOVED to `i18n/config.test.ts` with the function itself (#661). It had a
+// duplicate of the detection rule here, which is what let the offer and the detection disagree; there is
+// one implementation now, and its tests live beside it rather than in two places for the same reason.
 
 describe('localeToOffer', () => {
   const base = { pathLocale: 'en', visitorLocale: 'pt', storedChoice: null, dismissed: false } as const;
