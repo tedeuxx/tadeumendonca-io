@@ -3,7 +3,10 @@ import {
   buildDrafts,
   formatResults,
   hashtagsFor,
+  LANGUAGE_SEPARATOR,
+  linkedInPost,
   parseArticle,
+  PT_SIGNPOST,
   renderDraft,
   sectionHeadings,
   shareUrlFor,
@@ -135,6 +138,82 @@ describe('hashtagsFor', () => {
   });
 });
 
+// #562 — the LinkedIn skeleton is BILINGUAL, and the language ORDER is the thing being pinned.
+//
+// The defect these arms exist for is not a wrong generator: until this slice the skeleton was
+// MONOLINGUAL, so every bilingual post was assembled by hand and the order was re-decided from memory —
+// and decided wrongly at least twice. An arm that only asserted "both blocks are present" would stay
+// green on the exact defect (pt-first is also both blocks), which is why the ordering arm compares
+// INDICES rather than counting occurrences.
+describe('linkedInPost — the bilingual shape, English first', () => {
+  const frontmatter = parseArticle(ARTICLE).frontmatter;
+  const url = `${SITE_URL}/blog/my-commitment`;
+  const post = linkedInPost({ frontmatter, url });
+
+  it('opens with the Portuguese signpost as the FIRST line', () => {
+    expect(post.split('\n')[0]).toBe('🇧🇷 Versão em português abaixo.');
+    expect(PT_SIGNPOST).toBe('🇧🇷 Versão em português abaixo.');
+  });
+
+  // The owner read the line that shipped and ruled it bad: «o padrao deveria ser algo mais soft e
+  // elegante do que metade». The standard is the SOFT pointer — `abaixo` — never a mechanical position.
+  it('points softly and never by mechanical position', () => {
+    expect(post).toContain('abaixo');
+    expect(post).not.toContain('metade');
+    expect(post).not.toContain('segunda metade');
+  });
+
+  // He kept «Versão» when a proposal to drop it was put to him. The word is ruled in, not incidental.
+  it('keeps «Versão» — he rejected dropping it by keeping it', () => {
+    expect(PT_SIGNPOST).toContain('Versão');
+  });
+
+  it('orders the English block BEFORE the separator and the Portuguese block', () => {
+    const signpost = post.indexOf(PT_SIGNPOST);
+    const english = post.indexOf('The first post.');
+    const separator = post.indexOf(LANGUAGE_SEPARATOR);
+    const portuguese = post.indexOf('excerpt em português');
+    expect(signpost).toBe(0);
+    expect(signpost).toBeLessThan(english);
+    expect(english).toBeLessThan(separator);
+    expect(separator).toBeLessThan(portuguese);
+  });
+
+  // Only ONE flag renders, which is the consequence the owner named himself: with English always
+  // leading, the language hint only ever points AT Portuguese, so the 🇬🇧/🇺🇸 pin loses its object.
+  it('renders exactly one flag, and it is the Brazilian one', () => {
+    expect(post.match(/🇧🇷/g)).toHaveLength(1);
+    expect(post).not.toContain('🇺🇸');
+    expect(post).not.toContain('🇬🇧');
+  });
+
+  // The ruling on #562: LinkedIn truncates behind "see more", so the foot of a doubled-length post is
+  // below the fold for every reader. The link and the tags stay at the end of the ENGLISH block.
+  it('keeps the link and the hashtags at the end of the English block, above the separator', () => {
+    expect(post.indexOf(`Read it: ${url}`)).toBeLessThan(post.indexOf(LANGUAGE_SEPARATOR));
+    expect(post.indexOf(hashtagsFor(frontmatter))).toBeLessThan(post.indexOf(LANGUAGE_SEPARATOR));
+  });
+
+  // The generator scaffolds; it does not write his voice. Machine-translating the excerpt would put
+  // words in his mouth at the one point where the output looks authoritative.
+  it('leaves the Portuguese block a marked placeholder, never a translation', () => {
+    expect(post).toContain('[excerpt em português');
+    expect(post).toContain('NÃO traduza');
+    // the English excerpt appears exactly once — it was not reused as the Portuguese block's text
+    expect(post.match(/The first post\./g)).toHaveLength(1);
+  });
+
+  // The file's own refusal discipline: `shareUrlFor()` throws rather than emitting a URL the prerender
+  // never snapshotted. An empty English block under a signpost PROMISING it is the same class.
+  it('refuses to scaffold when the English block has no excerpt', () => {
+    expect(() => linkedInPost({ frontmatter: { takeaway: 'x' }, url })).toThrow(/no "excerpt"/);
+  });
+
+  it('refuses to scaffold when the English block has no takeaway', () => {
+    expect(() => linkedInPost({ frontmatter: { excerpt: 'x' }, url })).toThrow(/no "takeaway"/);
+  });
+});
+
 describe('renderDraft', () => {
   const draft = renderDraft({
     key: 'my-commitment',
@@ -153,6 +232,14 @@ describe('renderDraft', () => {
     expect(draft).toContain("2/ What I'm not going to do");
     expect(draft).toContain('3/ The commitment');
     expect(draft).toContain('4/ the link, and the ask');
+  });
+
+  // Guards the wiring, not the shape: `linkedInPost` can be perfect and unreferenced.
+  it('wires the bilingual LinkedIn body into the draft, English block first', () => {
+    expect(draft).toContain(PT_SIGNPOST);
+    expect(draft).toContain(LANGUAGE_SEPARATOR);
+    expect(draft.indexOf('## LinkedIn')).toBeLessThan(draft.indexOf(PT_SIGNPOST));
+    expect(draft.indexOf(LANGUAGE_SEPARATOR)).toBeLessThan(draft.indexOf('## X — thread'));
   });
 
   it('marks itself as a scaffold to be voiced, not copy to post', () => {
