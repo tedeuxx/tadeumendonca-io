@@ -27,11 +27,14 @@ export function isPrerender(): boolean {
   return typeof window !== 'undefined' && window.__PRERENDER__ === true;
 }
 
-/** The visitor's own language, from the browser/OS. Anything that is not Portuguese reads as English —
- *  the site has two editions, and English is the baseline for every other language (owner rule). */
-export function browserLocale(language = navigator.language): Locale {
-  return language.toLowerCase().startsWith('pt') ? 'pt' : 'en';
-}
+// `browserLocale` USED TO LIVE HERE, with its own copy of the rule, and that duplication is what #661
+// repaired rather than merely worked around. The detection (`detectLocale`) and the offer
+// (`localeToOffer`) are two answers to the same question — what language is this reader? — and
+// `localeToOffer` returns null precisely when the two agree. Two implementations of one question is a
+// contradiction waiting for one of them to be edited: fix the detection alone and the site serves
+// Portuguese while offering English on top of it; fix the offer alone and it fires on every page for a
+// reader the detection never served. There is now ONE implementation, in `i18n/config`, and divergence
+// is not expressible.
 
 export interface SuggestionInput {
   /** The locale the URL pins (ADR-0036) — what the reader is currently being served. */

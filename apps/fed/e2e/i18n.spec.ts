@@ -1,15 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // i18n journeys (ADR-0032). The site is bilingual via a light in-repo locale layer: it auto-detects the
-// visitor's native browser language (navigator.language → pt | en, fallback en), a persisted PT/EN nav
+// visitor's native browser language from the FULL declared list (navigator.languages, pt* anywhere in
+// the list → pt, fallback en — #661), a persisted PT/EN nav
 // toggle overrides detection, <html lang> tracks the locale (pt-BR | en), and dates follow the locale.
 // The CV *content* (profile.ts) is authored bilingually and follows the locale; English stays the
 // canonical edition and the facts are shared between editions (ADR-0024 amendment).
 //
 // These are journey-level checks against the real rendered DOM: chrome strings come from src/i18n/messages.ts,
 // the toggle is the role="group" of PT/EN buttons in AppShell.tsx (aria-pressed marks the active locale).
-// Playwright drives navigator.language/Accept-Language via test.use({ locale }), which is exactly the
-// detection signal detectLocale() reads. The prerendered baseline is pinned to English, so a fresh context
+// Playwright drives navigator.language/navigator.languages/Accept-Language via test.use({ locale }) — but
+// from ONE string, so it can only ever express a single-entry list. The multi-entry block below uses
+// page.addInitScript instead, and says why there. The prerendered baseline is pinned to English, so a fresh context
 // starts on the English snapshot and the client re-resolves to the detected locale after hydration — every
 // assertion below is web-first (auto-retrying) to ride out that settle.
 
@@ -55,6 +57,66 @@ test.describe('i18n — auto-detect + <html lang>', () => {
       await expect(nav.getByRole('link', { name: NAV.en.articles })).toHaveCount(0);
       await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
     });
+  });
+});
+
+// #661 — THE MULTI-ENTRY LIST, AND WHY IT NEEDS A DIFFERENT SEAM THAN EVERY TEST ABOVE IT.
+//
+// `test.use({ locale })` takes ONE string and sets `navigator.language`, `navigator.languages` and
+// `Accept-Language` from it together. Every locale assertion in this file uses it, which means the
+// harness could express "this reader speaks Portuguese" and "this reader speaks English" and NOTHING
+// ELSE. The owner's own browser declares ["en-US", "en", "pt"] — Portuguese asked for, third — and that
+// configuration was UNREPRESENTABLE here. That is a mechanical gap in the harness, not an oversight in
+// any one test, and it is one reason the defect survived a green suite for as long as it did.
+//
+// `page.addInitScript` is the seam that can express it: it runs before any page script, which is the
+// requirement, because `detectLocale` resolves SYNCHRONOUSLY before `createRoot` (main.tsx) — a stub
+// installed any later would be reading a decision already taken. The repository already drives this
+// seam the same way in `scripts/prerender.mjs` (for `window.__PRERENDER__`) and in
+// `e2e/per-locale.spec.ts`, so this is an existing pattern reaching a new input rather than a new one.
+//
+// `locale: 'en-US'` is kept underneath deliberately, and it is not redundant: it pins `Accept-Language`
+// and the first entry to English, so the ONLY reason this page can resolve to Portuguese is the third
+// entry of the overridden list. Without it the test could pass on a runner whose default locale is pt.
+test.describe('i18n — the browser declares a LIST, and a later entry counts (#661)', () => {
+  test.use({ locale: 'en-US' });
+
+  const declare = (page: Page, languages: string[]) =>
+    page.addInitScript((langs) => {
+      Object.defineProperty(navigator, 'languages', { get: () => langs, configurable: true });
+      Object.defineProperty(navigator, 'language', { get: () => langs[0], configurable: true });
+    }, languages);
+
+  test('serves Portuguese to a reader who declares en first and pt third', async ({ page }) => {
+    await declare(page, ['en-US', 'en', 'pt']);
+    await page.goto('/');
+
+    // The whole bug in one line: before #661 this redirected to /en.
+    await expect(page).toHaveURL(/\/pt$/);
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('link', { name: NAV.pt.articles })).toBeVisible();
+    await expect(nav.getByRole('link', { name: NAV.en.articles })).toHaveCount(0);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
+  });
+
+  // The control, and it is the half that makes the test above mean something. Identical seam, identical
+  // navigation, one entry removed — so a stub that simply forced Portuguese, or an `addInitScript` that
+  // silently never ran, cannot produce both results.
+  test('still serves English to a reader whose list contains no Portuguese at all', async ({ page }) => {
+    await declare(page, ['en-US', 'en', 'fr-FR']);
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/en$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  // The persisted override still outranks the list — the clause #661 put out of scope in writing, held
+  // here in a real browser rather than only in jsdom.
+  test('keeps a persisted override above the declared list', async ({ page }) => {
+    await declare(page, ['en-US', 'en', 'pt']);
+    await page.addInitScript(() => window.localStorage.setItem('locale', 'en'));
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/en$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 });
 

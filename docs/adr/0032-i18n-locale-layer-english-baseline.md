@@ -44,8 +44,10 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
 ## Decision outcome
 Chosen: **the light in-repo locale layer**, with the following specifics.
 
-- **Default = the visitor's native browser language.** `navigator.language` resolves to `pt` or `en`; a
-  **manual PT/EN toggle** overrides and **persists** in `localStorage`; the fallback is `en`.
+- **Default = the visitor's native browser language.** ~~`navigator.language` resolves to `pt` or `en`~~
+  **the visitor's FULL declared list, `navigator.languages`, resolves to `pt` or `en` (amended
+  2026-09-20, see the foot of this file)**; a **manual PT/EN toggle** overrides and **persists** in
+  `localStorage`; the fallback is `en`.
 - **Detect-before-first-render.** The locale is resolved **synchronously before `createRoot`**, so there is
   no post-mount language flash. `<html lang>` tracks the active locale.
 - ~~**CV content stays canonical English.** Only the UI **chrome** localizes; the CV data (`profile.ts`,
@@ -146,6 +148,63 @@ the x-default entry for the JS-less crawler. hreflang advertises the reciprocal 
 `LocaleProvider` is a LANGUAGE context and not the forbidden visual `ThemeProvider`. English also remains
 the **canonical edition** (ADR-0024) — a statement about which edition is authoritative, never about which
 one a visitor is served.
+
+## Amendment (2026-09-20) — the detection signal WIDENS from one entry to the whole declared list (#661)
+
+**Nothing here is reversed. The signal's BREADTH changed and nothing else did**, which is why this is an
+amendment rather than a new record: a new record would owe a `What this replaced` fold with nothing to
+put in it.
+
+**What was written above, and what it actually did.** The Decision outcome says *"the visitor's native
+browser language"* and named `navigator.language` as how that is read. Those are not the same thing, and
+the gap is the whole defect: **the browser declares an ORDERED LIST (`navigator.languages`) and
+`navigator.language` is only its first entry.** A reader whose browser declares
+`["en-US", "en", "pt"]` — Portuguese asked for, third — was served English. The intent above was always
+*the visitor's native language*; the mechanism under it answered *the visitor's first-listed language*.
+
+**Why the affected reader is not a fringe.** That is the ordinary machine of a Brazilian engineer whose
+OS, IDE and browser are configured in English, which is this site's modal reader. **And the defect was
+invisible to the one person who inspects this site closely**: the owner's own `localStorage` holds a
+`pt` override, so step 2 answers before step 3 is ever consulted and every test he runs on the root
+passes.
+
+**The rule now, stated so a later reader does not re-derive the asymmetry as an oversight.** The walk is
+over `navigator.languages` in DECLARED ORDER, comparing on the PRIMARY SUBTAG (`pt-BR`, `pt-PT`, `pt` all
+read as Portuguese). **English is the BASELINE, not a match** — the site has two editions and English is
+what every other language on earth falls back to, so an `en*` entry cannot end the walk. In one sentence:
+**Portuguese declared anywhere in the list wins; everything else is English.** With two editions and one
+of them the fallback, declared order is not observable in the outcome; the walk is written in order
+anyway so a third edition would behave correctly rather than accidentally.
+
+**Absence is handled rather than assumed.** Some privacy configurations expose an empty `languages` and
+some environments do not expose it at all, so `navigator.language` is the fallback and an empty list
+reaches the baseline — never `languages[0]` on an empty array, which would be a regression for exactly
+those readers rather than a fix.
+
+**Two call sites moved together, and the duplication was removed rather than synchronised.**
+`detectLocale` decides what is SERVED and `browserLocale` decided whether to OFFER the other edition, and
+each carried its own copy of the rule. Fix one alone and the site contradicts itself out loud — serving
+Portuguese while offering English on top of it, or firing the offer on every page for a reader the
+detection never served. There is now **one implementation**, in `src/i18n/config.ts`, used by both; the
+copy in `src/lib/localeSuggestion.ts` is gone and divergence is no longer expressible.
+
+**The precedence ladder is UNTOUCHED, and that is scope rather than luck.** The path still beats
+everything ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md), and
+[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) made that path the one every shared link now takes), and a
+persisted override still beats every inference. Three things rest on the path rule — the prerender, the
+self-canonical + `hreflang` reciprocity and the sharer's contract — so overriding it would make
+`canonical`, `og:locale` and `<html lang>` lie about served content. Only step 3 widened, and both
+clauses are now asserted rather than assumed, in jsdom and in a real browser.
+
+**One mechanical reason this survived a green suite, recorded because it outlives this fix.** Every
+locale assertion in `e2e/i18n.spec.ts` drove `test.use({ locale: '<one string>' })`, which takes a single
+string — so the harness could express *this reader speaks Portuguese* and *this reader speaks English*
+and nothing else. **The affected configuration was unrepresentable in it.** That is a gap in the harness,
+not an oversight in any one test. The seam that can express it is `page.addInitScript`, already used in
+`scripts/prerender.mjs` and `e2e/per-locale.spec.ts`.
+
+**Explicitly NOT in scope, and not stubbed:** the IP-geolocation step (`#669`). It touches `iac/`, it is
+a decision against [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), and it gets its own record.
 
 ## Links
 - **Supersedes** [ADR-0011](./0011-ui-ptbr-i18n-deferred.md) (UI in pt-BR; i18n deferred) — this is the i18n

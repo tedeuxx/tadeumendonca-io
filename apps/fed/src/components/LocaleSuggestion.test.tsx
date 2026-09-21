@@ -5,10 +5,17 @@ import { SUGGESTION_DISMISSED_KEY } from '../lib/localeSuggestion';
 import { STORAGE_KEY } from '../i18n/config';
 import { renderWithLocale } from '../test-utils';
 
-// The visitor's own language is the input that decides everything here, and jsdom's navigator.language
-// is read-only — so it is stubbed per test rather than assumed.
-const withBrowserLanguage = (language: string) =>
-  vi.spyOn(window.navigator, 'language', 'get').mockReturnValue(language);
+// The visitor's own language is the input that decides everything here, and jsdom's navigator is
+// read-only — so it is stubbed per test rather than assumed.
+//
+// BOTH accessors are stubbed since #661, and stubbing only `language` would now be a silent no-op:
+// `browserLocale` reads `navigator.languages` first and falls back to `navigator.language` only when
+// the list is absent or empty. jsdom always supplies `languages: ['en-US']`, so a test that stubbed
+// `language` alone would have kept resolving to English while reading as though it had set pt.
+const withBrowserLanguage = (...languages: string[]) => {
+  vi.spyOn(window.navigator, 'language', 'get').mockReturnValue(languages[0]);
+  vi.spyOn(window.navigator, 'languages', 'get').mockReturnValue(languages);
+};
 
 beforeEach(() => window.localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
@@ -33,6 +40,26 @@ describe('LocaleSuggestion', () => {
 
   it('stays silent when the page is already in the visitor language', () => {
     withBrowserLanguage('pt-BR');
+    renderWithLocale(<LocaleSuggestion />, { locale: 'pt' });
+    expect(screen.queryByRole('region')).toBeNull();
+  });
+
+  // #661, AT THE SECOND CALL SITE. The offer and the detection answer the same question, so they have to
+  // read the same signal or the site contradicts itself out loud: detection alone fixed would serve the
+  // reader Portuguese and then offer them English on top of it.
+  //
+  // Both directions are asserted, in two tests, because each alone is satisfiable by a wrong fix: the
+  // first passes if the offer were hard-wired to pt, the second if the widening had never happened.
+  it('reads the WHOLE declared list: a non-first pt entry fires the offer on the English edition', () => {
+    withBrowserLanguage('en-US', 'en', 'pt'); // the owner's own browser
+    renderWithLocale(<LocaleSuggestion />, { locale: 'en' });
+    expect(screen.getByRole('region', { name: 'Sugestão de idioma' })).toBeInTheDocument();
+  });
+
+  // The half that would have contradicted a detection-only fix: once detection serves them Portuguese,
+  // the offer must agree and say nothing, rather than suggesting the English they were just moved off.
+  it('reads the WHOLE declared list: the same reader is offered NOTHING on the pt edition', () => {
+    withBrowserLanguage('en-US', 'en', 'pt');
     renderWithLocale(<LocaleSuggestion />, { locale: 'pt' });
     expect(screen.queryByRole('region')).toBeNull();
   });
