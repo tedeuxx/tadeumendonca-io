@@ -787,11 +787,31 @@ and «Versão» is ruled in rather than incidental.
 ### B · The shape, in full
 
 1. **Line one — the signpost**, exactly `🇧🇷 Versão em português abaixo.`
-2. **The English block**, immediately after.
-3. **The link and the hashtags at the end of the ENGLISH block.** LinkedIn truncates behind *"see
-   more"*, so the foot of a doubled-length post is below the fold for every reader. This is the same
-   argument that put the link in the body rather than a first comment, applied to a body that grew.
-4. **A separator — `— — —` — then the Portuguese block.**
+2. **The English block**, immediately after — carrying no link and no hashtags of its own.
+3. **A separator — `— — —` — then the Portuguese block.**
+4. **The link, then the hashtags, at the FOOT of the whole post.** One link, serving both blocks.
+
+#### The link position REVERSES a written ruling, and the losing argument is kept
+
+**`#562`'s body put the link and the hashtags at the end of the ENGLISH block**, on the fold argument:
+LinkedIn truncates behind *"see more"*, so the foot of a doubled-length post is below the fold for
+every reader — the same argument that put the link in the body rather than a first comment, applied to
+a body that grew. **The generator was built that way and the conflict was flagged rather than settled
+by whichever source the builder preferred**, which is the only reason this was decided at all instead
+of being fossilised in tooling.
+
+**The owner ruled for the foot on 2026-09-21:** *«o que os seus posts publicados fazem, incluindo os
+que você editou à mão»*.
+
+**The fold argument is real and it lost to something stronger: the live posts are his own voice, and he
+edited one of them by hand and left the hashtags at the foot.** A written rule that no published post
+obeys is a rule the practice has already rejected. **Recorded so a future reader does not re-derive the
+fold argument and flip this back** — it was heard, and it was outranked by the artifacts.
+
+**It also changes what the approved measurement would have to be.** The `utm_content=en` /
+`utm_content=pt` split below assumed **one link per block**; the ruled shape carries **one link at the
+foot**, so that split is not merely untagged — it has no two positions to occupy. It needs the owner
+before anything can emit it.
 
 ### C · The signpost is the LOAD-BEARING half, and the two are not separable
 
@@ -829,14 +849,17 @@ composition, different language mix, different reason people follow.
 
 ### F · What was NOT decided here, and one instrument is still owed
 
-- **The `utm_content=en` / `utm_content=pt` split is approved and NOT emitted.** He approved it on
-  2026-08-28 (*«eu tô definindo uma estratégia para seguirmos e medirmos eficácia no futuro»* ·
-  *«não vejo problema»*), and it is the only thing that can answer *did we keep the Brazilian reader* —
-  with one shared link, GA4 cannot separate a click from the English block from one out of the
-  Portuguese. **`gen-distribution.mjs` holds no UTM logic at all** (ADR-0039 records that as a
-  deliberate limit), so the generator emits the untagged neutral URL in both blocks and tells the
-  drafter, in the draft itself, that the split is theirs to add. **Approved, unbuilt, and named here so
-  nobody reads the emitted shape as the measurement having shipped.**
+- **The `utm_content=en` / `utm_content=pt` split is approved, NOT emitted, and now structurally
+  unsettled.** He approved it on 2026-08-28 (*«eu tô definindo uma estratégia para seguirmos e medirmos
+  eficácia no futuro»* · *«não vejo problema»*), and it is the only thing that can answer *did we keep
+  the Brazilian reader* — with one shared link, GA4 cannot separate a click from the English block from
+  one out of the Portuguese. **`gen-distribution.mjs` holds no UTM logic at all** (ADR-0039 records
+  that as a deliberate limit), so the generator emits the untagged neutral URL once, at the foot, and
+  tells the drafter in the draft itself that the split is theirs. **And the foot ruling above removed
+  the second position the split was designed to occupy** — it assumed one link per block. So the open
+  question is no longer *tag them* but *does the pt block get its own link back*, which is his.
+  **Approved, unbuilt, and named here so nobody reads the emitted shape as the measurement having
+  shipped.**
 - **Nothing about already-published posts.** The LinkedIn sweep of 2026-09-20/21 is recorded on `#562`;
   X was excluded because a repair there is delete-and-repost and destroys the engagement, and the
   `blast-radius-supernova` EN/PT pair was excluded because collapsing it would delete the very

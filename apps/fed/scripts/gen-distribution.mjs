@@ -151,9 +151,15 @@ export const LANGUAGE_SEPARATOR = '— — —';
  * this whole file is written against. It is also not read out of the `.pt.md` sibling: `buildDrafts`
  * reads only the English edition (ADR-0024), and reversing that is a decision nobody has taken.
  *
- * THE LINK AND THE HASHTAGS SIT AT THE END OF THE ENGLISH BLOCK, per the ruling on #562: LinkedIn
- * truncates behind "see more", and the foot of a doubled-length post is below the fold for every reader.
- * ADR-0038 already requires the link in the body rather than a first comment, for the same reason.
+ * THE LINK AND THE HASHTAGS SIT AT THE FOOT OF THE WHOLE POST, below the Portuguese block — owner
+ * ruling, 2026-09-21: *«o que os seus posts publicados fazem, incluindo os que você editou à mão»*.
+ *
+ * IT REVERSES A WRITTEN RULING, AND THE LOSING ARGUMENT IS WORTH KEEPING. #562's body put them at the
+ * end of the ENGLISH block on the fold argument — LinkedIn truncates behind "see more", so the foot of
+ * a doubled-length post is below the fold for every reader. **That argument is real and it lost to
+ * something stronger: the live posts are the owner's own voice, and he edited one by hand and left the
+ * hashtags at the foot.** A written rule no published post obeys is a rule the practice already
+ * rejected. Recorded so nobody re-derives the fold argument and flips this back — it was heard.
  */
 export function linkedInPost({ frontmatter, url }) {
   const excerpt = frontmatter.excerpt;
@@ -177,17 +183,15 @@ export function linkedInPost({ frontmatter, url }) {
     '',
     `Takeaway: ${takeaway}`,
     '',
-    `Read it: ${url}`,
-    '',
-    hashtagsFor(frontmatter),
-    '',
     LANGUAGE_SEPARATOR,
     '',
     '> [excerpt em português — escreva na sua voz. NÃO traduza a versão em inglês.]',
     '',
     'Takeaway: [takeaway em português]',
     '',
-    `Leia: ${url}`,
+    url,
+    '',
+    hashtagsFor(frontmatter),
   ].join('\n');
 }
 
@@ -226,8 +230,10 @@ re-argued and never byte-identical.
 Canonical URL (resolved from the prerendered route list, do not retype):
 ${url}
 
-The two LinkedIn links are NOT tagged here — this generator holds no UTM logic (ADR-0039), so the
-utm_content=en / utm_content=pt split approved on #562 is still yours to add by hand.
+The LinkedIn link is NOT tagged here — this generator holds no UTM logic (ADR-0039). The
+utm_content=en / utm_content=pt split approved on #562 assumed one link PER BLOCK, and the ruled
+shape carries one link at the foot of the whole post, so that split needs the owner before it can be
+emitted at all.
 
 ---
 

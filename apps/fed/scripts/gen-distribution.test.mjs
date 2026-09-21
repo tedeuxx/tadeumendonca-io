@@ -187,11 +187,29 @@ describe('linkedInPost — the bilingual shape, English first', () => {
     expect(post).not.toContain('🇬🇧');
   });
 
-  // The ruling on #562: LinkedIn truncates behind "see more", so the foot of a doubled-length post is
-  // below the fold for every reader. The link and the tags stay at the end of the ENGLISH block.
-  it('keeps the link and the hashtags at the end of the English block, above the separator', () => {
-    expect(post.indexOf(`Read it: ${url}`)).toBeLessThan(post.indexOf(LANGUAGE_SEPARATOR));
-    expect(post.indexOf(hashtagsFor(frontmatter))).toBeLessThan(post.indexOf(LANGUAGE_SEPARATOR));
+  // Owner ruling, 2026-09-21: the link and the tags go at the FOOT of the whole post — «o que os seus
+  // posts publicados fazem, incluindo os que você editou à mão». It reverses #562's body, which put
+  // them at the end of the English block on the fold argument; the live artifacts won.
+  //
+  // INDICES, not presence. "the post contains the link" stays green under BOTH shapes, which is the
+  // same defect the ordering arm above exists to avoid — and this arm asserted the opposite shape one
+  // commit ago, so a presence check here would have gone quietly green on the reversal.
+  it('puts the link and the hashtags at the FOOT, below the Portuguese block', () => {
+    const portuguese = post.indexOf('excerpt em português');
+    const link = post.indexOf(url);
+    const tags = post.indexOf(hashtagsFor(frontmatter));
+    expect(post.indexOf(LANGUAGE_SEPARATOR)).toBeLessThan(portuguese);
+    expect(portuguese).toBeLessThan(link);
+    expect(link).toBeLessThan(tags);
+    // the tags are the last thing in the post — nothing trails them
+    expect(post.trimEnd().endsWith(hashtagsFor(frontmatter))).toBe(true);
+  });
+
+  // The English block carries NO link and NO tags of its own: they serve both languages from the foot.
+  it('leaves no link and no hashtags inside the English block', () => {
+    const english = post.slice(0, post.indexOf(LANGUAGE_SEPARATOR));
+    expect(english).not.toContain(url);
+    expect(english).not.toContain('#');
   });
 
   // The generator scaffolds; it does not write his voice. Machine-translating the excerpt would put
