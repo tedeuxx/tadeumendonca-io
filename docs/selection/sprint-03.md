@@ -1,4 +1,4 @@
-Selections 1 and 2 for sprint-03 selected work in `tedeuxx/tadeumendonca-skills` (#499), so they live in that repository's `docs/selection/sprint-03.md`. This file carries only Selection 3, which selected the sprint-03 closing rite whose report lands in this repository. It is kept verbatim.
+The earlier sprint-03 selections live in `tedeuxx/tadeumendonca-skills`. Selection 1 is the planning ranking, which had an empty pool and selected nothing; it is in `docs/planning/sprint-03.md`. Selection 2 selected #499; it is in `docs/selection/sprint-03.md`. This file carries only Selection 3, which selected the sprint-03 closing rite whose report lands in this repository. It is kept verbatim.
 
 ## Selection 3 — 2026-09-23
 iteration: sprint-03   pool-as-shown: 0 items
