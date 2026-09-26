@@ -1464,7 +1464,11 @@ landing's `#artigos`. The only real article route is `/blog/:slug`, and the slug
 
 **Operating rules (not flavor):** defensible decisions with documented trade-offs (the code is public and IS
 the pitch); **no over-engineering** (simplest thing that solves it), but **not a playground** (it must work);
-**no client/employer references** in public writing (abstract any war-story to a generic principle).
+~~**no client/employer references** in public writing (abstract any war-story to a generic principle).~~
+**a client or other third-party organisation is described by its sector or industry in public writing,
+never by its name; the owner's own employer may be named** (abstract any war-story to a generic
+principle). *Struck 2026-09-26 (#682): the struck wording forbade naming the employer, which the owner's
+2026-09-25 ruling permits and `AGENTS.md` already states.*
 
 ## Architecture (static — read before changing infra)
 A **fully static SPA** (React + Vite + TypeScript, no PWA) built to `dist/` and served from
@@ -1614,7 +1618,11 @@ Working rules that follow from that:
   `#F5F4EF` + one accent, safety orange `#FF5A00`; radius 0, no shadow, no gradient); **no PWA**.
 - **CI OIDC roles** pinned to the **immutable OIDC subject**; role ARNs are **environment secrets**, tooling
   tokens are **repository** secrets (see `/workflow/github-actions`).
-- **No client/employer references** in public writing.
+- ~~**No client/employer references** in public writing.~~ **A client or other third-party organisation
+  is described by its sector or industry in public writing, never by its name; the owner's own employer
+  may be named** (abstract any war-story to a generic principle). *Struck 2026-09-26 (#682): the struck
+  wording forbade naming the employer, which the owner's 2026-09-25 ruling permits and `AGENTS.md`
+  already states.*
 - **The vocabulary for the practice is fixed, and it lives in `.brand/positioning.md`** — read it before
   writing copy that names the practice (owner decision, #245). The hierarchy, and which term is
   authoritative in which slot, is recorded there with the rest of the positioning and is **not** repeated
