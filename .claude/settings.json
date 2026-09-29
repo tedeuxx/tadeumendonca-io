@@ -201,9 +201,6 @@
       "Bash(rm -f -r:*)",
       "Bash(npm run e2e:production:*)"
     ],
-    "additionalDirectories": [
-      "/Users/tadeumen/git-reps/tadeumendonca-skills"
-    ],
     "ask": [
       "Edit(.claude/**)"
     ]

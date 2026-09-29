@@ -1571,7 +1571,11 @@ Two consequences worth stating outright, because they are what the other model g
   `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`.
   Empty output means no declaration, and the rite stops `SWEEP-ORIGIN-UNBOUND`. The pattern must cover
   every URL `apps/fed/scripts/routes.mjs` emits. It takes effect only in a session rooted here, after a
-  restart.
+  restart. **This file declares no `permissions.additionalDirectories`**, by the owner's ruling on #683.
+  With the `-skills` checkout declared as an extra directory, the server usually started before the `env`
+  reached it: the origin was bound in 2 of 12 trials, against 12 of 12 without it. The cost is that a
+  session rooted here cannot open the `-skills` checkout with `Read` or `cat` unless it is granted.
+  `git -C <-skills path> …` still runs.
 
 ## Scratch — the session scratchpad, not a repo directory
 
