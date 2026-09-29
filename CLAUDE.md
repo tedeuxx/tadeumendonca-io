@@ -1565,6 +1565,17 @@ Two consequences worth stating outright, because they are what the other model g
   portfolio — and `docs/iac-deploy-policy.{md,json}`. **Read the relevant ADR before changing anything it
   decides**; the ADRs *are* the architecture documentation, this file is the map.
 - **`.brand/`** — **gitignored, local-only, never published.** See below.
+- **`.claude/settings.json` declares the production sweep origin** (#683) under the key
+  `.env.HARNESS_SWEEP_ORIGIN`. The plugin's browser server is bounded by that pattern, and the
+  `/sprint-review` step-0 probe compares the server's argument against this tracked value. Read it only with
+  `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`.
+  Empty output means no declaration, and the rite stops `SWEEP-ORIGIN-UNBOUND`. The pattern must cover
+  every URL `apps/fed/scripts/routes.mjs` emits. It takes effect only in a session rooted here, after a
+  restart. **This file declares no `permissions.additionalDirectories`**, by the owner's ruling on #683.
+  With the `-skills` checkout declared as an extra directory, the server usually started before the `env`
+  reached it: the origin was bound in 2 of 12 trials, against 12 of 12 without it. The cost is that a
+  session rooted here cannot open the `-skills` checkout with `Read` or `cat` unless it is granted.
+  `git -C <-skills path> …` still runs.
 
 ## Scratch — the session scratchpad, not a repo directory
 

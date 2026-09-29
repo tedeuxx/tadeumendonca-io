@@ -33,10 +33,17 @@ Both navigations attempted, to `https://tadeumendonca.io/pt` and `https://tadeum
 *"blocked by blocklist/allowlist rules"*. The driver did not try to work around the bound. Changing the
 browser's configuration is the owner's act, not a sweep's.
 
-**To unblock:** start the session that runs `/sprint-review` with `HARNESS_SWEEP_ORIGIN` set to the
+~~**To unblock:** start the session that runs `/sprint-review` with `HARNESS_SWEEP_ORIGIN` set to the
 production origin pattern in the environment the browser server inherits, then re-run this rite. Until
 then the rite fails at the first navigation, every time, on this host. That is the fail-closed design
-working, and it also means the rite cannot run.
+working, and it also means the rite cannot run.~~
+
+**Struck 2026-09-28 (#683).** This told a reader to set the origin in a shell environment. The owner
+ruled that out on `tadeumendonca-skills` #525: the origin belongs in tracked repository configuration,
+not in an untracked, per-machine shell profile. The carrier is now `.claude/settings.json`, key
+`.env.HARNESS_SWEEP_ORIGIN` (#683 AC1). The read command is in `CLAUDE.md`'s *Structure* section
+(#683 AC-L). The failure recorded above is unchanged: this sweep ran without a bound origin. The text
+is struck rather than deleted because it is the instruction this report gave.
 
 ## Scope and derivation
 
