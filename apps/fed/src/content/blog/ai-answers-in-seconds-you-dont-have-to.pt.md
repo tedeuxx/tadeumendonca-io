@@ -10,6 +10,10 @@ excerpt: "LLMs encurtaram o tempo entre formular uma pergunta e receber uma resp
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'
 ---
 
+![Tadeu e seu pai lado a lado em uma convenção de ficção científica no Rio, diante de miniaturas de naves; ao fundo, astronautas e referências tecnológicas compõem uma cena simbólica e satírica.](/illustrations/ai-answers-in-seconds-cover.jpg)
+
+*Ilustração gerada por IA: uma composição simbólica de Tadeu e seu pai em uma convenção de ficção científica.*
+
 Isso é RLHF? Não exatamente. Isso é ser humano.
 
 Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
@@ -96,6 +100,12 @@ Jensen Huang chama essa virada de [*accelerated computing*](https://blogs.nvidia
 
 É isso que chamo de “presente NVIDIA”: a infraestrutura que aprendeu a desenhar mundos agora participa das máquinas linguísticas com que reorganizo o meu. Essa é, para mim, uma das imagens centrais da Generative-Era.
 
+É nesse ponto que outra figura de *Star Trek* volta para mim: Data. [A história oficial do personagem](https://www.startrek.com/news/data-and-his-artistic-pursuits) mostra um androide recorrendo à pintura, à música, à poesia e ao teatro para investigar uma humanidade que ele conseguia observar, mas não experimentar como nós.
+
+**Será que hoje eu sou o Data?** A pergunta chega invertida. Data era uma máquina usando arte, relações e experiência para entender o que significava ser humano. Eu sou um humano usando máquinas, linguagem e arte para entender a minha própria humanidade.
+
+Agent Harness Engineering, engenharia de prompt, *tokenmaxxing*, engenharia de linguagem: esses nomes são tentativas de tocar partes da prática que estou vivendo, não de transformá-la numa nova doutrina. O que reconheço por baixo deles é uma ontologia pessoal da relação humano–máquina — corpo, atenção, linguagem, tempo, memória, ambiente, feedback, trabalho, infância e futuro. O harness não inventa nenhuma dessas coisas. Ele as torna observáveis e versionáveis enquanto eu construo, para que eu possa voltar e reconhecer não apenas o que fiz, mas quem estava me tornando ao fazê-lo.
+
 A extensão é minha, não dele: **possuir a minha inteligência começa antes da infraestrutura**. Começa nas condições em que permito que ela mude. A memória que conservo importa. Os procedimentos que escrevo importam. E também importam o ritmo em que peço a próxima resposta, o ambiente em que a leio e o intervalo que preservo antes de reagir.
 
 É o aprendizado que a fase atual da minha vida profissional está me cobrando agora. Eu o ofereço como um presente, não como um método: uma pausa que talvez você consiga experimentar no seu próprio contexto.
@@ -112,4 +122,10 @@ Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. 
 
 Grande abraço, e até a próxima.
 
-Isso é o que eu penso.
+![Tadeu sentado à mesa com o androide fictício Data em um encontro imaginário e reflexivo, diante de um caderno aberto e de imagens ligadas à arte, à linguagem e à natureza.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
+
+*Ilustração gerada por IA: um encontro fictício e reflexivo entre Tadeu e Data.*
+
+> “Isso é AGI — ou apenas parece? Vai do tempo nos dizer.”
+
+**THIS IS WHAT I THOUGHT · tadeumendonca.io**

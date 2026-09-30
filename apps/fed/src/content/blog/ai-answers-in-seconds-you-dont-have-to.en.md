@@ -10,6 +10,10 @@ excerpt: "LLMs shortened the time between forming a question and receiving an an
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'
 ---
 
+![Tadeu and his father standing together at a science-fiction convention in Rio, in front of model starships; astronauts and technology references form a symbolic, satirical background.](/illustrations/ai-answers-in-seconds-cover.jpg)
+
+*AI-generated illustration: a symbolic composition of Tadeu and his father at a science-fiction convention.*
+
 Is this RLHF? Not exactly. This is being human.
 
 I am learning AI in front of more screens than I can look at at once.
@@ -96,6 +100,12 @@ Jensen Huang calls this shift [*accelerated computing*](https://blogs.nvidia.com
 
 This is what I mean by the “NVIDIA present”: the infrastructure that learnt to draw worlds now participates in the linguistic machines with which I rearrange mine. For me, that is one of the central images of the Generative-Era.
 
+This is where another figure from *Star Trek* returns to me: Data. [The character’s official history](https://www.startrek.com/news/data-and-his-artistic-pursuits) shows an android turning to painting, music, poetry and theatre to investigate a humanity he could observe but not experience as we do.
+
+**Am I Data today?** The question arrives reversed. Data was a machine using art, relationships and experience to understand what it meant to be human. I am a human using machines, language and art to understand my own humanity.
+
+Agent Harness Engineering, prompt engineering, *tokenmaxxing*, language engineering: these names are attempts to touch parts of the practice I am living, not to turn it into a new doctrine. Underneath them, what I recognise is a personal ontology of the human–machine relationship — body, attention, language, time, memory, environment, feedback, work, childhood and future. The harness invents none of those things. It makes them observable and versioned while I build, so I can return and recognise not only what I made, but who I was becoming as I made it.
+
 The extension is mine, not his: **owning my intelligence begins before the infrastructure**. It begins in the conditions under which I allow it to change. The memory I keep matters. The procedures I write matter. So do the pace at which I ask for the next answer, the environment where I read it, and the interval I preserve before reacting.
 
 This is what the present chapter of my professional life is asking me to learn. I offer it as a gift, not as a method: a pause you might be able to try in your own context.
@@ -112,4 +122,10 @@ This is what is happening today, at scale. I don’t know if you’ve noticed it
 
 A hug, and see you next time.
 
-This is what I think.
+![Tadeu seated at a table with the fictional android Data in an imagined, reflective encounter, beside an open notebook and images connected to art, language and nature.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
+
+*AI-generated illustration: an imagined, reflective encounter between Tadeu and Data.*
+
+> “Is this AGI — or does it only seem that way? Time will tell.”
+
+**THIS IS WHAT I THOUGHT · tadeumendonca.io**

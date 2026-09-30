@@ -7,6 +7,51 @@ Content Issue: #687
 article URL with the `author-post` campaign, generated only after the hold is removed and the route is
 present in the prerendered set.
 
+## Native media plan — DRAFT, ask first
+
+Posting remains ask-first under the draft status above. Attach the same two illustrations used in the
+article, in this order on both networks:
+
+1. `/illustrations/ai-answers-in-seconds-cover.jpg`
+2. `/illustrations/ai-answers-in-seconds-data-mirror.jpg`
+
+### LinkedIn
+
+Use one native two-image post. Keep the LinkedIn release URL in the existing post body. LinkedIn treats
+a native multi-image post and a URL-generated preview as alternative presentation modes, so do not
+expect an OG preview in this same post. The two JPEGs are within LinkedIn's current native-photo
+allowance and upload-size requirements.
+
+**Image 1 alt text — copy as one bilingual field:**
+
+```text
+AI-generated symbolic and satirical illustration of Tadeu and his father at a science-fiction convention in Rio, with model starships and a fictional technology-themed background. Ilustração simbólica e satírica gerada por IA de Tadeu e seu pai em uma convenção de ficção científica no Rio, com miniaturas de naves e um fundo tecnológico fictício.
+```
+
+**Image 2 alt text — copy as one bilingual field:**
+
+```text
+AI-generated imagined reflective illustration of Tadeu seated with the fictional android Data beside an open notebook and images of art, language and nature. Ilustração reflexiva e imaginária gerada por IA de Tadeu sentado com o androide fictício Data diante de um caderno aberto e de imagens de arte, linguagem e natureza.
+```
+
+### X
+
+Attach the same two native images in the same order and keep the X release URL in the existing post
+body. Two images are within X's current native-media allowance. The URL remains clickable, but make no
+claim that X will also render a card alongside the native images.
+
+**Image 1 alt text:**
+
+```text
+AI-generated symbolic and satirical illustration of Tadeu and his father at a science-fiction convention in Rio, with model starships and a fictional technology-themed background.
+```
+
+**Image 2 alt text:**
+
+```text
+AI-generated imagined reflective illustration of Tadeu seated with the fictional android Data beside an open notebook and images of art, language and nature.
+```
+
 ## LinkedIn — DIGEST — bilingual, English first
 
 🇧🇷 Versão em português abaixo.
