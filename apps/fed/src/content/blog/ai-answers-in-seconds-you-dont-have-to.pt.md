@@ -10,6 +10,8 @@ excerpt: "LLMs encurtaram o tempo entre formular uma pergunta e receber uma resp
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'
 ---
 
+Isso é RLHF? Não exatamente. Isso é ser humano.
+
 Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
 
 Não é uma cena excepcional. É justamente a repetição: uma resposta aparece, abre três caminhos, desloca a minha atenção e torna muito fácil pedir a próxima. As palavras voltam mais rápido do que o meu corpo consegue perceber o que aconteceu com elas.
@@ -42,7 +44,7 @@ O próprio formato deste artigo faz parte do argumento. Ele foi fortemente inspi
 
 Tenho usado a palavra **dopamina** com cuidado. Não como diagnóstico, não como sinônimo de prazer e muito menos como uma explicação universal para o comportamento de quem usa IA. A pesquisa clássica sobre [erro de previsão de recompensa](https://pubmed.ncbi.nlm.nih.gov/9054347/) é mais específica do que essa caricatura: ela relaciona sinais dopaminérgicos à diferença entre recompensa esperada e observada durante o aprendizado.
 
-A aprendizagem por reforço também nomeia uma capacidade biológica importante. [Um experimento em seres humanos](https://pubmed.ncbi.nlm.nih.gov/16929307/) ligou a modulação dopaminérgica desses erros de previsão à forma como resultados atualizam decisões futuras. Isso não é exclusividade humana, nem torna cérebro e algoritmo a mesma coisa. A analogia que me interessa é outra: aprender com recompensa está para a adaptação biológica como a linguagem está para a coordenação simbólica. A combinação e a escala humanas me chamam a atenção — aprendemos com consequências, damos nome ao aprendido e agora usamos linguagem para orientar máquinas também ajustadas por feedback. Biologia, aprendizagem por reforço algorítmica e RLHF se tocam. Não se confundem.
+A aprendizagem por recompensa também é uma capacidade biológica importante. [Um experimento em seres humanos](https://pubmed.ncbi.nlm.nih.gov/16929307/) ligou a modulação dopaminérgica desses erros de previsão à forma como resultados atualizam decisões futuras. Isso não é exclusividade humana, nem torna cérebro e algoritmo a mesma coisa. A analogia que me interessa é outra: aprender com recompensa está para a adaptação biológica como a linguagem está para a coordenação simbólica. A combinação e a escala humanas me chamam a atenção — aprendemos com consequências, damos nome ao aprendido e agora usamos linguagem para orientar máquinas também ajustadas por feedback. Biologia, aprendizagem por reforço algorítmica e RLHF se tocam. Não se confundem.
 
 O que consigo afirmar é menor e pessoal. Eu percebo vários impulsos se intensificando juntos: busca por novidade, antecipação de recompensa, curiosidade, validação social, vigilância e urgência de responder. Não uso essa lista como diagnóstico neurológico; são nomes para o que reconheço em mim. A IA generativa encurta o intervalo entre estímulo e recompensa possível, enquanto as múltiplas telas multiplicam os estímulos. Uma resposta inesperada abre uma possibilidade, a possibilidade pede um teste, o teste pede outra janela. O ciclo pode estar ensinando. Também pode apenas estar me mantendo dentro dele.
 

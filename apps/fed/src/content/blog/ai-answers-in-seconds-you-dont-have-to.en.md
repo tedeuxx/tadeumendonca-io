@@ -10,6 +10,8 @@ excerpt: "LLMs shortened the time between forming a question and receiving an an
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'
 ---
 
+Is this RLHF? Not exactly. This is being human.
+
 I am learning AI in front of more screens than I can look at at once.
 
 It is not an exceptional scene. The repetition is precisely the point: an answer appears, opens three paths, moves my attention and makes asking for the next one very easy. Words come back faster than my body can notice what happened to them.
@@ -42,7 +44,7 @@ The format of this article is part of its argument. It was strongly inspired by 
 
 I have been using the word **dopamine** carefully. Not as a diagnosis, not as a synonym for pleasure, and certainly not as a universal explanation for how people use AI. The classic research on [reward-prediction error](https://pubmed.ncbi.nlm.nih.gov/9054347/) is more specific than that caricature: it connects dopamine signals to the difference between expected and observed reward during learning.
 
-Reinforcement learning also names an important biological capacity. [An experiment in humans](https://pubmed.ncbi.nlm.nih.gov/16929307/) linked dopaminergic modulation of those prediction errors to the way outcomes update future decisions. This is not uniquely human, and it does not make a brain and an algorithm the same thing. The analogy that interests me is different: reward learning relates to biological adaptation as language relates to symbolic coordination. Their combination and human scale catch my attention — we learn from consequences, name what we learnt, and now use language to guide machines also adjusted through feedback. Biology, algorithmic reinforcement learning and RLHF touch. They do not collapse into one.
+Reward learning is also an important biological capacity. [An experiment in humans](https://pubmed.ncbi.nlm.nih.gov/16929307/) linked dopaminergic modulation of those prediction errors to the way outcomes update future decisions. This is not uniquely human, and it does not make a brain and an algorithm the same thing. The analogy that interests me is different: reward learning relates to biological adaptation as language relates to symbolic coordination. Their combination and human scale catch my attention — we learn from consequences, name what we learnt, and now use language to guide machines also adjusted through feedback. Biology, algorithmic reinforcement learning and RLHF touch. They do not collapse into one.
 
 What I can claim is smaller and personal. I notice several drives intensifying together: novelty seeking, reward anticipation, curiosity, social validation, vigilance and urgency to respond. I do not use that list as a neurological diagnosis; they are names for what I recognise in myself. Generative AI shortens the interval between stimulus and possible reward, while multiple screens multiply the stimuli. An unexpected answer opens a possibility, the possibility asks for a test, the test asks for another window. The loop may be teaching me. It may also just be keeping me inside it.
 

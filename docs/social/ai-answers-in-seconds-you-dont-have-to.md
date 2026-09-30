@@ -17,7 +17,7 @@ I call it language engineering with cybernetic machines. Not a new discipline �
 
 The model participates in the recursion. I am the one who has to notice it.
 
-This has changed what “own your intelligence” means to me. Infrastructure, memory and procedures matter. So do the conditions under which I let my attention change: the pace of the next prompt, the physical environment where I read the answer, and what I can still feel while I am there.
+This has changed what “own your intelligence” means to me. It begins in the conditions under which I let my attention change: the pace of the next prompt, the physical environment where I read the answer, and what I can still feel while I am there.
 
 I am not writing from the far side of this transformation. I am learning alongside you as it unfolds.
 
@@ -33,7 +33,7 @@ Chamo isso de engenharia de linguagem com máquinas cibernéticas. Não é uma n
 
 O modelo participa da recursão. Quem precisa percebê-la sou eu.
 
-Isso mudou o que “possuir a sua inteligência” significa para mim. Infraestrutura, memória e procedimentos importam. Também importam as condições em que deixo a minha atenção mudar: o ritmo do próximo prompt, o ambiente físico em que leio a resposta e o que ainda consigo sentir enquanto estou ali.
+Isso mudou o que “possuir a sua inteligência” significa para mim. Começa nas condições em que deixo a minha atenção mudar: o ritmo do próximo prompt, o ambiente físico em que leio a resposta e o que ainda consigo sentir enquanto estou ali.
 
 Não escrevo do outro lado dessa transformação. Estou aprendendo junto com vocês enquanto ela acontece.
 
