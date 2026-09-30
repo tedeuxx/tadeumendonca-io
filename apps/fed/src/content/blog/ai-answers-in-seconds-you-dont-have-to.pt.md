@@ -96,6 +96,12 @@ Jensen Huang chama essa virada de [*accelerated computing*](https://blogs.nvidia
 
 É isso que chamo de “presente NVIDIA”: a infraestrutura que aprendeu a desenhar mundos agora participa das máquinas linguísticas com que reorganizo o meu. Essa é, para mim, uma das imagens centrais da Generative-Era.
 
+É nesse ponto que outra figura de *Star Trek* volta para mim: Data. [A história oficial do personagem](https://www.startrek.com/news/data-and-his-artistic-pursuits) mostra um androide recorrendo à pintura, à música, à poesia e ao teatro para investigar uma humanidade que ele conseguia observar, mas não experimentar como nós.
+
+**Será que hoje eu sou o Data?** A pergunta chega invertida. Data era uma máquina usando arte, relações e experiência para entender o que significava ser humano. Eu sou um humano usando máquinas, linguagem e arte para entender a minha própria humanidade.
+
+Agent Harness Engineering, engenharia de prompt, *tokenmaxxing*, engenharia de linguagem: esses nomes são tentativas de tocar partes da prática que estou vivendo, não de transformá-la numa nova doutrina. O que reconheço por baixo deles é uma ontologia pessoal da relação humano–máquina — corpo, atenção, linguagem, tempo, memória, ambiente, feedback, trabalho, infância e futuro. O harness não inventa nenhuma dessas coisas. Ele as torna observáveis e versionáveis enquanto eu construo, para que eu possa voltar e reconhecer não apenas o que fiz, mas quem estava me tornando ao fazê-lo.
+
 A extensão é minha, não dele: **possuir a minha inteligência começa antes da infraestrutura**. Começa nas condições em que permito que ela mude. A memória que conservo importa. Os procedimentos que escrevo importam. E também importam o ritmo em que peço a próxima resposta, o ambiente em que a leio e o intervalo que preservo antes de reagir.
 
 É o aprendizado que a fase atual da minha vida profissional está me cobrando agora. Eu o ofereço como um presente, não como um método: uma pausa que talvez você consiga experimentar no seu próprio contexto.

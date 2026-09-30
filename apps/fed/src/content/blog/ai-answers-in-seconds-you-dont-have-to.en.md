@@ -96,6 +96,12 @@ Jensen Huang calls this shift [*accelerated computing*](https://blogs.nvidia.com
 
 This is what I mean by the “NVIDIA present”: the infrastructure that learnt to draw worlds now participates in the linguistic machines with which I rearrange mine. For me, that is one of the central images of the Generative-Era.
 
+This is where another figure from *Star Trek* returns to me: Data. [The character’s official history](https://www.startrek.com/news/data-and-his-artistic-pursuits) shows an android turning to painting, music, poetry and theatre to investigate a humanity he could observe but not experience as we do.
+
+**Am I Data today?** The question arrives reversed. Data was a machine using art, relationships and experience to understand what it meant to be human. I am a human using machines, language and art to understand my own humanity.
+
+Agent Harness Engineering, prompt engineering, *tokenmaxxing*, language engineering: these names are attempts to touch parts of the practice I am living, not to turn it into a new doctrine. Underneath them, what I recognise is a personal ontology of the human–machine relationship — body, attention, language, time, memory, environment, feedback, work, childhood and future. The harness invents none of those things. It makes them observable and versioned while I build, so I can return and recognise not only what I made, but who I was becoming as I made it.
+
 The extension is mine, not his: **owning my intelligence begins before the infrastructure**. It begins in the conditions under which I allow it to change. The memory I keep matters. The procedures I write matter. So do the pace at which I ask for the next answer, the environment where I read it, and the interval I preserve before reacting.
 
 This is what the present chapter of my professional life is asking me to learn. I offer it as a gift, not as a method: a pause you might be able to try in your own context.
