@@ -118,4 +118,6 @@ Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. 
 
 Grande abraço, e até a próxima.
 
-Isso é o que eu penso.
+> “Isso é AGI — ou apenas parece? Vai do tempo nos dizer.”
+
+**THIS IS WHAT I THOUGHT · tadeumendonca.io**

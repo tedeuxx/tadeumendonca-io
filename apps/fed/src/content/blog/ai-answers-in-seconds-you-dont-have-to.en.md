@@ -118,4 +118,6 @@ This is what is happening today, at scale. I don’t know if you’ve noticed it
 
 A hug, and see you next time.
 
-This is what I think.
+> “Is this AGI — or does it only seem that way? Time will tell.”
+
+**THIS IS WHAT I THOUGHT · tadeumendonca.io**
