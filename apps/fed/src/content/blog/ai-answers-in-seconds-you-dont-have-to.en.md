@@ -10,6 +10,10 @@ excerpt: "LLMs shortened the time between forming a question and receiving an an
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'
 ---
 
+![Tadeu and his father standing together at a science-fiction convention in Rio, in front of model starships; astronauts and technology references form a symbolic, satirical background.](/illustrations/ai-answers-in-seconds-cover.jpg)
+
+*AI-generated illustration: a symbolic composition of Tadeu and his father at a science-fiction convention.*
+
 Is this RLHF? Not exactly. This is being human.
 
 I am learning AI in front of more screens than I can look at at once.
@@ -117,6 +121,10 @@ This is a personal, independent effort that I sustain myself. My commitment is t
 This is what is happening today, at scale. I don’t know if you’ve noticed it. Tell me what you think.
 
 A hug, and see you next time.
+
+![Tadeu seated at a table with the fictional android Data in an imagined, reflective encounter, beside an open notebook and images connected to art, language and nature.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
+
+*AI-generated illustration: an imagined, reflective encounter between Tadeu and Data.*
 
 > “Is this AGI — or does it only seem that way? Time will tell.”
 
