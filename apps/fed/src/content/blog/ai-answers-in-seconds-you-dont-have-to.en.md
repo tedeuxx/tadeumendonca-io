@@ -4,7 +4,6 @@ slug: ai-answers-in-seconds-you-dont-have-to
 date: '2026-09-30T12:00:00.000Z'
 tag: ai
 track: pessoal
-draft: true
 contentIssue: 687
 excerpt: "LLMs shortened the time between forming a question and receiving an answer. What I am learning now is about the interval after that: noticing what the answer changed in me before asking for another one."
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'
@@ -89,6 +88,8 @@ Garry Tan called his latest keynote [*Own Your Intelligence*](https://www.youtub
 In the previous article, I had connected another talk of his to a company’s brain: models are rented; what an organisation learns can be its own. This new keynote pushes the question toward the person.
 
 Last night, I was reading [Yuval Noah Harari’s *Nexus*](https://www.ynharari.com/book/nexus/). The book crosses history through information networks and flows. What stayed with me is my interpretation, not a quotation from Harari: perhaps AI is becoming a new lever of the age of knowledge and information — and I am trying to learn how to touch it without handing it all of my time.
+
+I have lived that scale arriving in layers. The internet connected networks; hypertext gave documents relationships before HTTP offered a practical way to move them across the Web. Broadband changed the tempo, mobile changed where access happened, cloud changed how computing could be provisioned, and GPUs expanded what we could run in parallel. They are not one invention, or a neat causal chain. In my life, they form a succession of interfaces and scale — and generative AI is the latest layer to become ordinary while I am still learning what the earlier ones did to me.
 
 That lever has a strange and beautiful material genealogy. [NVIDIA’s own published history](https://www.nvidia.com/en-us/about-nvidia/corporate-timeline/) begins with 3D graphics for gaming and multimedia; in 2006, CUDA opened the parallel-processing capability of GPUs to general-purpose computing. During the pandemic, crypto amplified demand for that hardware without creating the technology: in its 2022 annual filing, the company attributed Gaming growth to a combination that included games, remote work and mining, and reported [$550 million in dedicated mining-processor revenue](https://www.sec.gov/Archives/edgar/data/1045810/000104581022000036/nvda-20220130.htm). Demand is not technical origin. It was another wave pushing the same substrate.
 

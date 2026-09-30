@@ -99,7 +99,11 @@ describe('content (markdown-in-repo, per-locale)', () => {
 
   it('filters by track', () => {
     expect(getAllPosts('en', { track: 'engenharia' }).length).toBeGreaterThan(0);
-    expect(getAllPosts('en', { track: 'pessoal' })).toEqual([]);
+    const personalPosts = getAllPosts('en', { track: 'pessoal' });
+    expect(personalPosts.map(({ slug }) => slug)).toContain(
+      'ai-answers-in-seconds-you-dont-have-to',
+    );
+    expect(personalPosts.every(({ track }) => track === 'pessoal')).toBe(true);
   });
 
   it('returns everything when no filter is given', () => {

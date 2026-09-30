@@ -4,7 +4,6 @@ slug: a-ia-responde-em-segundos-voce-nao-precisa
 date: '2026-09-30T12:00:00.000Z'
 tag: ai
 track: pessoal
-draft: true
 contentIssue: 687
 excerpt: "LLMs encurtaram o tempo entre formular uma pergunta e receber uma resposta. O meu aprendizado agora é sobre o intervalo seguinte: como perceber o que a resposta mudou em mim antes de pedir outra."
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'
@@ -89,6 +88,8 @@ Garry Tan chamou seu keynote mais recente de [*Own Your Intelligence*](https://w
 No artigo anterior, eu tinha conectado outro talk dele ao cérebro de uma empresa: modelos são alugados; o que uma organização aprende pode ser seu. Este novo keynote empurra a pergunta para a pessoa.
 
 Na noite passada, eu estava lendo [*Nexus*, de Yuval Noah Harari](https://www.ynharari.com/pt-br/book/nexus/). O livro atravessa a história pelas redes e pelos fluxos de informação. A leitura que ficou comigo não é uma citação de Harari: talvez a IA esteja se tornando uma nova alavanca da idade do saber e da informação — e eu esteja tentando aprender a tocá-la sem entregar a ela o meu tempo inteiro.
+
+Eu vivi essa escala chegando em camadas. A internet conectou redes; o hipertexto deu relações aos documentos antes de o HTTP oferecer uma forma prática de movê-los pela Web. A banda larga mudou o ritmo, o mobile mudou o lugar do acesso, a cloud mudou a forma de provisionar computação, e as GPUs ampliaram o que conseguíamos executar em paralelo. Não são uma invenção só, nem uma cadeia causal bem-comportada. Na minha vida, formam uma sucessão de interfaces e escala — e a IA generativa é a camada mais recente a se tornar cotidiana enquanto ainda estou aprendendo o que as anteriores fizeram comigo.
 
 Essa alavanca tem uma genealogia material estranha e bonita. A própria [história publicada pela NVIDIA](https://www.nvidia.com/pt-br/about-nvidia/corporate-timeline/) começa com gráficos 3D para games e multimídia; em 2006, CUDA abriu a capacidade de processamento paralelo das GPUs para computação de uso geral. Durante a pandemia, a cripto ampliou a procura por esse hardware, sem ter criado a tecnologia: no relatório fiscal de 2022, a empresa atribuiu o crescimento de gaming a uma combinação que incluía games, trabalho remoto e mineração, e registrou [US$ 550 milhões em processadores específicos para mineração](https://www.sec.gov/Archives/edgar/data/1045810/000104581022000036/nvda-20220130.htm). Demanda não é origem técnica. Foi outra onda empurrando a mesma base.
 
