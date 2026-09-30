@@ -102,7 +102,7 @@ Isso não é um sistema de produtividade nem uma promessa contra burnout. “Sem
 
 Um dia de cada vez. Estoicamente, se der. Humano, de qualquer jeito.
 
-Estou aprendendo junto com vocês durante a jornada. Quero aproveitar o presente da era que vivemos hoje sem me ausentar dele.
+Esta é uma iniciativa pessoal, independente e sustentada por mim. Meu compromisso é continuar aprendendo em público com as pessoas e as máquinas desta era, e devolver o que eu descobrir enquanto conseguir sustentar as ferramentas e a infraestrutura que tornam esse trabalho possível. Quero aproveitar o presente da era que vivemos hoje sem me ausentar dele.
 
 Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. Me digam o que pensam sobre isso.
 

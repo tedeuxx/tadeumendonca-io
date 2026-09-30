@@ -19,7 +19,7 @@ The model participates in the recursion. I am the one who has to notice it.
 
 This has changed what “own your intelligence” means to me. It begins in the conditions under which I let my attention change: the pace of the next prompt, the physical environment where I read the answer, and what I can still feel while I am there.
 
-I am not writing from the far side of this transformation. I am learning alongside you as it unfolds.
+I am not writing from the far side of this transformation. This is a personal, independent effort that I sustain myself: my commitment is to keep learning in public with the people and machines of this era, and give back what I discover for as long as I can sustain the tools and infrastructure that make it possible.
 
 This is what is happening today, at scale. I don’t know if you’ve noticed it. Tell me what you think.
 
@@ -35,7 +35,7 @@ O modelo participa da recursão. Quem precisa percebê-la sou eu.
 
 Isso mudou o que “possuir a sua inteligência” significa para mim. Começa nas condições em que deixo a minha atenção mudar: o ritmo do próximo prompt, o ambiente físico em que leio a resposta e o que ainda consigo sentir enquanto estou ali.
 
-Não escrevo do outro lado dessa transformação. Estou aprendendo junto com vocês enquanto ela acontece.
+Não escrevo do outro lado dessa transformação. Esta é uma iniciativa pessoal, independente e sustentada por mim: meu compromisso é continuar aprendendo em público com as pessoas e as máquinas desta era, e devolver o que eu descobrir enquanto conseguir sustentar as ferramentas e a infraestrutura que a tornam possível.
 
 Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. Me digam o que pensam sobre isso.
 

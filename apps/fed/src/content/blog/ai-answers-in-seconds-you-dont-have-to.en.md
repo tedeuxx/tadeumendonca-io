@@ -102,7 +102,7 @@ This is not a productivity system or a promise against burnout. “Without burno
 
 One day at a time. Stoically, if possible. Human either way.
 
-I am learning alongside you as this journey unfolds. I want to receive what this extraordinary era offers without disappearing from the present in which it arrives.
+This is a personal, independent effort that I sustain myself. My commitment is to keep learning in public with the people and machines of this era, and give back what I discover for as long as I can sustain the tools and infrastructure that make this work possible. I want to receive what this extraordinary era offers without disappearing from the present in which it arrives.
 
 This is what is happening today, at scale. I don’t know if you’ve noticed it. Tell me what you think.
 
