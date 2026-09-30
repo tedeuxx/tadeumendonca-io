@@ -16,3 +16,13 @@ draft: `apps/fed/src/content/blog/ai-answers-in-seconds-you-dont-have-to.en.md`,
 - The current emotional title remains. “Isso é RLHF?” / “Is this RLHF?” is the source-selected opening; as a declarative title it would falsely describe the interaction as model training.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-09-30
+draft: `apps/fed/src/content/blog/ai-answers-in-seconds-you-dont-have-to.en.md`, `apps/fed/src/content/blog/ai-answers-in-seconds-you-dont-have-to.pt.md`, and `docs/social/ai-answers-in-seconds-you-dont-have-to.md` @ `40d55b65ef64a65a8ce4a3fc54e509d1d3993c2a`
+
+### Advisory and droppable
+
+- The source-approved commitment now appears in the article and the LinkedIn digest. It remains attached to the living author, names the initiative as personal and independent, preserves the material limit on tools and infrastructure, and names no vendor. Its repetition across the two surfaces is a craft choice, not a canonical repair ground, so the prose is unchanged.
+- The editions now measure 2,080 English words and 2,067 Portuguese words including front matter. The Round 1 reason for exceeding the target still applies; rule 10 does not turn the target into a hard limit.
+
+CONTENT-REVIEW-CLEAR
