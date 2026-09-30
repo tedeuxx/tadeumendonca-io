@@ -173,14 +173,17 @@ Rules that follow, and they are absolute:
 card they first fetch, so a wrong unfurl on an already-shared post is not repaired by the next merge.
 It stays wrong on that post and right everywhere after. This is bounded and accepted.
 
-## How to ask — the form of an escalation
+## How to ask — one global rule, then the form of an escalation
 
-The section above says **when** the owner has to be in the loop. This says **in what form you reach
-him**, and it governs one act only: a decision rising out of work already in flight. An interview, a
-design conversation, an ad-hoc request typed at a terminal is not an escalation, whatever its subject.
+**Rule 1 governs every ask directed to the owner — decisions and actions, inside or outside work in
+flight.** An interview, a design conversation and an ad-hoc request are not thereby escalations; rules
+2–5 govern the form only when the act they describe applies. The global rule is one ask. The remaining
+rules say what shape that one ask takes, and an interview remains distinct: it elicits without options.
 
-1. **One decision per interruption.** Two, however short, is a decision list, and he pays the
-   context-rebuilding cost twice. Ask the first and carry the second to its own interruption. **This is
+1. **One owner ask per activation or message.** Two, however short, is a list, and he pays the
+   context-rebuilding cost twice. Ask or order the first; preserve every remaining ask until after he
+   answers, then carry the next to its own activation or message. Never move the remainder into a prose
+   or numbered list. **This is
    the costliest rule here, not the politest one:** where the surface you raise questions through shows
    only the first of several, the remainder were never put to anybody, nothing announces the loss, and
    the work carries on as if they had been answered. You have no way to tell which surface you got. Ask

@@ -33,6 +33,14 @@
   },
   {
     "kind": "hook",
+    "id": "hitl-one-question-guard.sh",
+    "file": "hooks/scripts/hitl-one-question-guard.sh",
+    "event": "PreToolUse",
+    "matcher": "AskUserQuestion",
+    "enforcement": "denies"
+  },
+  {
+    "kind": "hook",
     "id": "mcp-guard.sh",
     "file": "hooks/scripts/mcp-guard.sh",
     "event": "PreToolUse",

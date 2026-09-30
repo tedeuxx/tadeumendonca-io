@@ -1,6 +1,7 @@
 name: brief
 
-# PR gate for the harness-neutral root brief, `AGENTS.md`.
+# PR gate for the two root briefs: harness-neutral `AGENTS.md` and the canonical HITL contract in
+# `CLAUDE.md`.
 #
 # WHY IT EXISTS. `AGENTS.md` is read as always-on steering by at least one agent harness that never
 # reads this repository's other root brief. For that reader it is not a compatibility copy — it is the
@@ -9,9 +10,9 @@ name: brief
 # per-directory guide that does not exist. Tracking it is what makes a check possible at all; this
 # workflow is the check.
 #
-# ITS OWN FILE, not a step in `app`. `app` is filtered to `apps/**` and this file is at the repository
-# root, so a change that edits only the brief would match nothing there. That is the exact shape of
-# issue #79 — a green check that verified nothing, indistinguishable from one that verified everything.
+# ITS OWN FILE, not a step in `app`. `AGENTS.md` sits outside that workflow's application surface, and
+# the HITL test must read both root carriers in one run. A change to either carrier or to the checker
+# starts this gate; a green from an unrelated path is never presented as verification.
 #
 # TRIGGERING: runs on EVERY PR, with the path filter applied INSIDE the job — the same shape as `app`,
 # `iac` and `github`, and for the same reason. A workflow-level `paths:` filter can never be a required
@@ -26,7 +27,9 @@ on:
     branches: [main]
     paths:
       - "AGENTS.md"
+      - "CLAUDE.md"
       - "scripts/**"
+      - ".github/workflows/brief.yml"
 
 permissions:
   contents: read
@@ -42,8 +45,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # `scripts/**` as well as the brief itself: the checker is the other half of the subject, and an
-      # edit that weakens it must start the gate it weakens.
+      # The scripts and workflow are subjects too: an edit that weakens or disconnects a checker must
+      # start the gate it weakens.
       - name: Detect brief changes
         uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: changes
@@ -51,7 +54,9 @@ jobs:
           filters: |
             brief:
               - 'AGENTS.md'
+              - 'CLAUDE.md'
               - 'scripts/**'
+              - '.github/workflows/brief.yml'
 
       # Four MECHANICAL properties: tracked, under the character budget with headroom, free of tokens
       # specific to one harness, and every repository-relative path it names resolves. It asserts
@@ -62,6 +67,12 @@ jobs:
         if: steps.changes.outputs.brief == 'true'
         run: bash scripts/agents-md.test.sh
 
+      # The canonical block is byte-pinned to the merged sibling source, while AGENTS.md is checked by
+      # the five semantic commitments because the two harness-neutral briefs are independently authored.
+      - name: Assert the one-owner-ask contract has not drifted
+        if: steps.changes.outputs.brief == 'true'
+        run: bash scripts/hitl-contract.test.sh
+
       # A check that matched nothing must not read like a check that passed. Three cases, always
       # distinguished — the convention this repository's other gates already follow.
       - name: Report what was checked
@@ -69,11 +80,11 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ steps.changes.outputs.brief }}" != "true" ]; then
-            echo "::notice::AGENTS.md and scripts/ unchanged — the brief gate did not run (nothing was verified)"
+            echo "::notice::root briefs, brief workflow and scripts unchanged — the brief gate did not run (nothing was verified)"
             exit 0
           fi
           if [ "${{ job.status }}" != "success" ]; then
             echo "::notice::the brief gate did NOT complete — read the failing step, not this line."
             exit 0
           fi
-          echo "::notice::AGENTS.md is tracked, under budget, free of the declared harness-specific tokens, and every repository-relative path it names exists. This says NOTHING about whether the brief is true, or neutral rather than merely token-free."
+          echo "::notice::AGENTS.md mechanical properties and the local one-owner-ask carriers were checked. This says NOTHING about whether the briefs are true, or neutral rather than merely token-free."
