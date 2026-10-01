@@ -4,6 +4,7 @@ slug: ai-answers-in-seconds-you-dont-have-to
 date: '2026-09-30T12:00:00.000Z'
 tag: ai
 track: pessoal
+draft: true
 contentIssue: 687
 excerpt: "LLMs shortened the time between forming a question and receiving an answer. What I am learning now is about the interval after that: noticing what the answer changed in me before asking for another one."
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'

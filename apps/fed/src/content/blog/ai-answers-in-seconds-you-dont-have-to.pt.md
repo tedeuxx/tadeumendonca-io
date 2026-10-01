@@ -4,6 +4,7 @@ slug: a-ia-responde-em-segundos-voce-nao-precisa
 date: '2026-09-30T12:00:00.000Z'
 tag: ai
 track: pessoal
+draft: true
 contentIssue: 687
 excerpt: "LLMs encurtaram o tempo entre formular uma pergunta e receber uma resposta. O meu aprendizado agora é sobre o intervalo seguinte: como perceber o que a resposta mudou em mim antes de pedir outra."
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'

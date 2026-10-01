@@ -709,10 +709,6 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // It moves in BOTH directions: an article withdrawn from `src/content/blog/` leaves this list in the
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
   const ARTICLES = [
-    {
-      pt: `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
-      en: `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
-    },
     { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
     { pt: `${SITE}/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
     { pt: `${SITE}/pt/blog/blast-radius-supernova`, en: `${SITE}/en/blog/blast-radius-supernova` },
@@ -739,6 +735,14 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // `why-i-engineer-the-loop` / `por-que-eu-projeto-o-loop` — published 2026-08-14, withdrawn 2026-08-21;
   // the content is held on `content/hold-engineer-the-loop` for a deliberate re-publication.
   const WITHDRAWN = [`${SITE}/pt/blog/por-que-eu-projeto-o-loop`, `${SITE}/en/blog/why-i-engineer-the-loop`];
+  // Issue #687 returned this article to held preview after it was published without the owner's
+  // mandatory in-place validation. A held article remains in the content tree and must still be absent
+  // from every advertised address: both localized routes and its neutral share URL.
+  const HELD = [
+    `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
+    `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
+    `${SITE}/blog/ai-answers-in-seconds-you-dont-have-to`,
+  ];
   const LOGICAL_COUNT = SHARED.length + ARTICLES.length;
 
   test('lists routes × locales + x-default, with alternates and no retired paths', async ({ request }) => {
@@ -763,6 +767,8 @@ test.describe('sitemap advertises every per-locale URL', () => {
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // Neither is any withdrawn article, in either locale.
     for (const url of WITHDRAWN) expect(body).not.toContain(`<loc>${url}</loc>`);
+    // Nor the article held for the owner's corrective in-place validation.
+    for (const url of HELD) expect(body).not.toContain(`<loc>${url}</loc>`);
     // Nor any corrected-away address: it redirects, and a redirect is never a <loc>.
     for (const url of SUPERSEDED) expect(body).not.toContain(`<loc>${url}</loc>`);
     // The x-default homepage entry.
