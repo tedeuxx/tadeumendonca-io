@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LOCALE_OFFER_LABEL, LOCALE_OFFER_LABELS } from './locale-offer-labels';
+import { HELD_SLUGS } from '../src/content/heldFixture';
 
 // Per-locale URLs (ADR-0036). Every public route is served under a first-class locale prefix — /pt/… and
 // /en/… — each with its own prerendered, self-canonical, OG-complete HTML and reciprocal hreflang
@@ -714,6 +715,10 @@ test.describe('sitemap advertises every per-locale URL', () => {
     { pt: `${SITE}/pt/blog/blast-radius-supernova`, en: `${SITE}/en/blog/blast-radius-supernova` },
     { pt: `${SITE}/pt/blog/tres-loops-de-agentes-um-mes`, en: `${SITE}/en/blog/three-agent-loops-one-month` },
     { pt: `${SITE}/pt/blog/o-que-os-meus-agentes-fazem`, en: `${SITE}/en/blog/what-my-agents-do` },
+    {
+      pt: `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
+      en: `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
+    },
   ];
   // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
   // below, the article is still live — at a different address — so these must stay reachable via redirect
@@ -735,13 +740,11 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // `why-i-engineer-the-loop` / `por-que-eu-projeto-o-loop` — published 2026-08-14, withdrawn 2026-08-21;
   // the content is held on `content/hold-engineer-the-loop` for a deliberate re-publication.
   const WITHDRAWN = [`${SITE}/pt/blog/por-que-eu-projeto-o-loop`, `${SITE}/en/blog/why-i-engineer-the-loop`];
-  // Issue #687 returned this article to held preview after it was published without the owner's
-  // mandatory in-place validation. A held article remains in the content tree and must still be absent
-  // from every advertised address: both localized routes and its neutral share URL.
+  // The permanent held fixture remains absent from both localized routes and its neutral share URL.
   const HELD = [
-    `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
-    `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
-    `${SITE}/blog/ai-answers-in-seconds-you-dont-have-to`,
+    `${SITE}/pt/blog/${HELD_SLUGS.pt}`,
+    `${SITE}/en/blog/${HELD_SLUGS.en}`,
+    `${SITE}/blog/${HELD_SLUGS.en}`,
   ];
   const LOGICAL_COUNT = SHARED.length + ARTICLES.length;
 
@@ -767,7 +770,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
     expect(body).not.toContain(`<loc>${SITE}/en/blog/meu-compromisso</loc>`);
     // Neither is any withdrawn article, in either locale.
     for (const url of WITHDRAWN) expect(body).not.toContain(`<loc>${url}</loc>`);
-    // Nor the article held for the owner's corrective in-place validation.
+    // Nor the permanent held fixture.
     for (const url of HELD) expect(body).not.toContain(`<loc>${url}</loc>`);
     // Nor any corrected-away address: it redirects, and a redirect is never a <loc>.
     for (const url of SUPERSEDED) expect(body).not.toContain(`<loc>${url}</loc>`);

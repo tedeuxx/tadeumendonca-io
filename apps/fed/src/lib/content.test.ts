@@ -97,14 +97,17 @@ describe('content (markdown-in-repo, per-locale)', () => {
     expect(getAllPosts('en', { tag: 'does-not-exist' })).toEqual([]);
   });
 
-  it('filters by track without enumerating a held post', () => {
+  it('filters by track and enumerates the released personal post', () => {
     expect(getAllPosts('en', { track: 'engenharia' }).length).toBeGreaterThan(0);
-    const personalPosts = getAllPosts('en', { track: 'pessoal' });
-    expect(personalPosts).toEqual([]);
-    expect(getPostBySlug('ai-answers-in-seconds-you-dont-have-to', 'en')).toMatchObject({
-      draft: true,
-      track: 'pessoal',
-    });
+    for (const locale of LOCALES) {
+      const personalPosts = getAllPosts(locale, { track: 'pessoal' });
+      expect(personalPosts).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ contentIssue: 687, draft: false, track: 'pessoal' }),
+        ]),
+      );
+      expect(personalPosts.every((post) => post.track === 'pessoal' && !post.draft)).toBe(true);
+    }
   });
 
   it('returns everything when no filter is given', () => {

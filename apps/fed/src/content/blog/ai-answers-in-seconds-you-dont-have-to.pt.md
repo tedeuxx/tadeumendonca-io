@@ -1,10 +1,9 @@
 ---
 title: "A IA responde em segundos. Você não precisa."
 slug: a-ia-responde-em-segundos-voce-nao-precisa
-date: '2026-09-30T12:00:00.000Z'
+date: '2026-10-01T13:17:22.000Z'
 tag: ai
 track: pessoal
-draft: true
 hasVideo: true
 contentIssue: 687
 excerpt: "Large language models (LLMs) encurtaram o tempo entre formular uma pergunta e receber uma resposta. O meu aprendizado agora é sobre o intervalo seguinte: como perceber o que a resposta mudou em mim antes de pedir outra."
