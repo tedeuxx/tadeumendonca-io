@@ -709,6 +709,10 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // It moves in BOTH directions: an article withdrawn from `src/content/blog/` leaves this list in the
   // same commit, and its two URLs move to WITHDRAWN below rather than simply disappearing from the file.
   const ARTICLES = [
+    {
+      pt: `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
+      en: `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
+    },
     { pt: `${SITE}/pt/blog/meu-compromisso`, en: `${SITE}/en/blog/my-commitment` },
     { pt: `${SITE}/pt/blog/da-cloud-a-ia-com-o-mesmo-cracha`, en: `${SITE}/en/blog/from-cloud-to-ai-same-badge` },
     { pt: `${SITE}/pt/blog/blast-radius-supernova`, en: `${SITE}/en/blog/blast-radius-supernova` },

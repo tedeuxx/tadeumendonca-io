@@ -1,15 +1,15 @@
 # Social pair — "AI answers in seconds. You don’t have to."
 
-Article preview (held): https://tadeumendonca.io/en/blog/ai-answers-in-seconds-you-dont-have-to?preview
+Article: https://tadeumendonca.io/blog/ai-answers-in-seconds-you-dont-have-to
 Content Issue: #687
 
-**DRAFT, pending the owner’s review. Nothing here is published.** The release link is the locale-neutral
-article URL with the `author-post` campaign, generated only after the hold is removed and the route is
-present in the prerendered set.
+**READY FOR THE ORCHESTRATOR TO POST AFTER THE RELEASE DEPLOY.** Both post bodies carry the
+locale-neutral article URL with the `author-post` campaign; the neutral route is emitted only after
+the hold is removed and must be verified live before either post is published.
 
-## Native media plan — DRAFT, ask first
+## Native media plan
 
-Posting remains ask-first under the draft status above. Attach the same two illustrations used in the
+Posting was authorised by the owner on 2026-09-30. Attach the same two illustrations used in the
 article, in this order on both networks:
 
 1. `/illustrations/ai-answers-in-seconds-cover.jpg`
