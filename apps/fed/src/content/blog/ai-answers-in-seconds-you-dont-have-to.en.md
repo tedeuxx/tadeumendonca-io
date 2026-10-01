@@ -1,10 +1,9 @@
 ---
 title: "AI answers in seconds. You don’t have to."
 slug: ai-answers-in-seconds-you-dont-have-to
-date: '2026-09-30T12:00:00.000Z'
+date: '2026-10-01T13:17:22.000Z'
 tag: ai
 track: pessoal
-draft: true
 hasVideo: true
 contentIssue: 687
 excerpt: "Large language models (LLMs) shortened the time between forming a question and receiving an answer. What I am learning now is about the interval after that: noticing what the answer changed in me before asking for another one."

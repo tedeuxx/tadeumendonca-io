@@ -7,12 +7,13 @@ Held previews:
 
 Content Issue: #687
 
-**PAUSED — DO NOT POST.** The article remains held with `draft: true` in both editions. The owner must
-validate this corrected in-place preview before a release is prepared, then confirm the materially
-revised social pair again at action time. Earlier confirmations do not authorize either transition.
+**PAUSED — DO NOT POST. ARTICLE RELEASE APPROVED; SOCIAL POSTS STILL HELD.** The owner approved the
+corrected v1.1.141 preview on 2026-10-01 ([approval](https://github.com/tedeuxx/tadeumendonca-io/issues/687#issuecomment-5932153591)).
+This release removes the article hold; deployment is not asserted here. The owner must still confirm
+the final social pair at action time before either post is sent.
 
-Production currently serves the same `/en` landing-page canonical for the neutral article path, the
-localized English article path, and a nonexistent control path while the article is held. The draft
+The held-preview check found the same `/en` landing-page canonical for the neutral article path, the
+localized English article path, and a nonexistent control path. The draft
 bodies therefore use the tagged localized English URL as rule 21's fallback. After release, re-run the
 canonical comparison; replace it with the locale-neutral URL only if that URL then resolves to the
 article itself.
