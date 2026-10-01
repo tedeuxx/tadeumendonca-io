@@ -1,16 +1,27 @@
 # Social pair — "AI answers in seconds. You don’t have to."
 
-Article: https://tadeumendonca.io/blog/ai-answers-in-seconds-you-dont-have-to
+Held previews:
+
+- EN: https://tadeumendonca.io/en/blog/ai-answers-in-seconds-you-dont-have-to?preview
+- PT: https://tadeumendonca.io/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa?preview
+
 Content Issue: #687
 
-**READY FOR THE ORCHESTRATOR TO POST AFTER THE RELEASE DEPLOY.** Both post bodies carry the
-locale-neutral article URL with the `author-post` campaign; the neutral route is emitted only after
-the hold is removed and must be verified live before either post is published.
+**PAUSED — DO NOT POST.** The article remains held with `draft: true` in both editions. The owner must
+validate this corrected in-place preview before a release is prepared, then confirm the materially
+revised social pair again at action time. Earlier confirmations do not authorize either transition.
+
+Production currently serves the same `/en` landing-page canonical for the neutral article path, the
+localized English article path, and a nonexistent control path while the article is held. The draft
+bodies therefore use the tagged localized English URL as rule 21's fallback. After release, re-run the
+canonical comparison; replace it with the locale-neutral URL only if that URL then resolves to the
+article itself.
 
 ## Native media plan
 
-Posting was authorised by the owner on 2026-09-30. Attach the same two illustrations used in the
-article, in this order on both networks:
+On eventual action-time confirmation, attach the same two generative-AI illustrations used in the
+article, in this order on both networks. The post prose names both images and their recurring
+cover/footer function; they are part of the argument, not unmentioned attachments:
 
 1. `/illustrations/ai-answers-in-seconds-cover.jpg`
 2. `/illustrations/ai-answers-in-seconds-data-mirror.jpg`
@@ -25,13 +36,13 @@ allowance and upload-size requirements.
 **Image 1 alt text — copy as one bilingual field:**
 
 ```text
-AI-generated symbolic and satirical illustration of Tadeu and his father at a science-fiction convention in Rio, with model starships and a fictional technology-themed background. Ilustração simbólica e satírica gerada por IA de Tadeu e seu pai em uma convenção de ficção científica no Rio, com miniaturas de naves e um fundo tecnológico fictício.
+AI-generated symbolic scene of adult Tadeu and his father together at an imagined science-fiction fan event in Rio, surrounded by model starships and fictional space-program references. Cena simbólica gerada por IA de Tadeu adulto e seu pai juntos em um evento imaginário de fãs de ficção científica no Rio, cercados por miniaturas de naves e referências fictícias a programas espaciais.
 ```
 
 **Image 2 alt text — copy as one bilingual field:**
 
 ```text
-AI-generated imagined reflective illustration of Tadeu seated with the fictional android Data beside an open notebook and images of art, language and nature. Ilustração reflexiva e imaginária gerada por IA de Tadeu sentado com o androide fictício Data diante de um caderno aberto e de imagens de arte, linguagem e natureza.
+AI-generated reflective scene of Tadeu seated with the fictional android Data at a table, beside an open notebook and images connected to art, language and nature. Cena reflexiva gerada por IA de Tadeu sentado à mesa com o androide fictício Data, diante de um caderno aberto e de imagens ligadas à arte, à linguagem e à natureza.
 ```
 
 ### X
@@ -43,13 +54,13 @@ claim that X will also render a card alongside the native images.
 **Image 1 alt text:**
 
 ```text
-AI-generated symbolic and satirical illustration of Tadeu and his father at a science-fiction convention in Rio, with model starships and a fictional technology-themed background.
+AI-generated symbolic scene of adult Tadeu and his father together at an imagined science-fiction fan event in Rio, surrounded by model starships and fictional space-program references.
 ```
 
 **Image 2 alt text:**
 
 ```text
-AI-generated imagined reflective illustration of Tadeu seated with the fictional android Data beside an open notebook and images of art, language and nature.
+AI-generated reflective scene of Tadeu seated with the fictional android Data at a table, beside an open notebook and images connected to art, language and nature.
 ```
 
 ## LinkedIn — DIGEST — bilingual, English first
@@ -58,40 +69,38 @@ AI-generated imagined reflective illustration of Tadeu seated with the fictional
 
 I am learning modern AI in a loop that does not stay on the screen: language, an LLM answer, changed attention, language again.
 
-I call it language engineering with cybernetic machines. Not a new discipline — my description of what I feel while using LLMs across exhausting multi-screen days. An answer opens a possibility, the possibility asks for a test, and the test asks for another window.
+This essay begins and ends with the two generative-AI illustrations attached to this post. They are a recurring editorial signature, not decoration.
 
-The model participates in the recursion. I am the one who has to notice it.
+The cover imagines my father and me as Trekkies at a Rio fan event. The scene never happened; the memory inside it did. I learnt to imagine the future watching *Star Trek* beside him. Now I live inside accelerated computing, asking what the machine is changing in me.
 
-This has changed what “own your intelligence” means to me. It begins in the conditions under which I let my attention change: the pace of the next prompt, the physical environment where I read the answer, and what I can still feel while I am there.
+The footer returns that question through Data as the inverse mirror. The android used art and relationships to understand humanity; I use machines, language and art to observe my own.
 
-I am not writing from the far side of this transformation. This is a personal, independent effort that I sustain myself: my commitment is to keep learning in public with the people and machines of this era, and give back what I discover for as long as I can sustain the tools and infrastructure that make it possible.
+Between them is the practical part: a one-minute pause before the next prompt, and one visible physical difference between two work contexts. The model participates in the recursion. I am the one who has to notice it.
 
-This is what is happening today, at scale. I don’t know if you’ve noticed it. Tell me what you think.
+What is the machine changing in you before you ask for another answer?
 
 — — —
 
 🇧🇷 Português
 
-Estou aprendendo IA moderna num loop que não fica na tela: linguagem, uma resposta de LLM, atenção alterada, linguagem novamente.
+Estou aprendendo IA moderna num loop que não fica preso na tela: linguagem, uma resposta de LLM, atenção alterada, linguagem novamente.
 
-Chamo isso de engenharia de linguagem com máquinas cibernéticas. Não é uma nova disciplina — é a minha descrição do que sinto usando LLMs em dias extenuantes de múltiplas telas. Uma resposta abre uma possibilidade, a possibilidade pede um teste, e o teste pede outra janela.
+Este artigo abre e fecha com as duas ilustrações geradas por IA anexadas ao post. Elas formam uma assinatura editorial recorrente, não uma decoração.
 
-O modelo participa da recursão. Quem precisa percebê-la sou eu.
+Na capa, meu pai e eu aparecem como trekkies num evento imaginário no Rio. A cena não aconteceu; a memória dentro dela, sim. Aprendi a imaginar o futuro assistindo a *Star Trek* ao lado dele. Agora vivo por dentro da computação acelerada, perguntando o que a máquina está mudando em mim.
 
-Isso mudou o que “possuir a sua inteligência” significa para mim. Começa nas condições em que deixo a minha atenção mudar: o ritmo do próximo prompt, o ambiente físico em que leio a resposta e o que ainda consigo sentir enquanto estou ali.
+No rodapé, Data devolve a pergunta como espelho invertido. O androide usava arte e relações para entender a humanidade; eu uso máquinas, linguagem e arte para observar a minha.
 
-Não escrevo do outro lado dessa transformação. Esta é uma iniciativa pessoal, independente e sustentada por mim: meu compromisso é continuar aprendendo em público com as pessoas e as máquinas desta era, e devolver o que eu descobrir enquanto conseguir sustentar as ferramentas e a infraestrutura que a tornam possível.
+Entre as duas imagens está a parte prática: um minuto de pausa antes do próximo prompt e uma diferença física visível entre dois contextos de trabalho. O modelo participa da recursão. Quem precisa percebê-la sou eu.
 
-Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. Me digam o que pensam sobre isso.
+O que a máquina está mudando em você antes de pedir outra resposta?
 
-[RELEASE URL: https://tadeumendonca.io/blog/ai-answers-in-seconds-you-dont-have-to?utm_source=linkedin&utm_medium=social&utm_campaign=author-post]
+[RELEASE URL FALLBACK: https://tadeumendonca.io/en/blog/ai-answers-in-seconds-you-dont-have-to?utm_source=linkedin&utm_medium=social&utm_campaign=author-post]
 
 #AIEngineering #GenerativeAI #LLM #ContextEngineering
 
 ## X — DIGEST — English, single post
 
-AI answers in seconds. I let one wait.
+Recurring visual signature: a generative-AI cover imagines a *Star Trek* memory with my father; the footer turns Data into the inverse mirror. He used art to study humanity. I use machines, language and art to observe mine. What is AI changing in you?
 
-Language → LLM → attention → language. This happens at scale. Notice it? What do you think?
-
-[RELEASE URL: https://tadeumendonca.io/blog/ai-answers-in-seconds-you-dont-have-to?utm_source=x&utm_medium=social&utm_campaign=author-post]
+[RELEASE URL FALLBACK: https://tadeumendonca.io/en/blog/ai-answers-in-seconds-you-dont-have-to?utm_source=x&utm_medium=social&utm_campaign=author-post]

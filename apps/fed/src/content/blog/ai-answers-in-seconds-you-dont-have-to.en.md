@@ -10,9 +10,11 @@ excerpt: "LLMs shortened the time between forming a question and receiving an an
 takeaway: 'a one-minute experiment for observing your attention between two answers, and a visual way to mark the environments where you think with AI.'
 ---
 
-![Tadeu and his father standing together at a science-fiction convention in Rio, in front of model starships; astronauts and technology references form a symbolic, satirical background.](/illustrations/ai-answers-in-seconds-cover.jpg)
+![AI-generated symbolic scene of adult Tadeu and his father together at an imagined science-fiction fan event in Rio, surrounded by model starships and fictional space-program references.](/illustrations/ai-answers-in-seconds-cover.jpg)
 
-*AI-generated illustration: a symbolic composition of Tadeu and his father at a science-fiction convention.*
+*AI-generated cover: my father and I at an imagined science-fiction fan event in Rio. The scene is fictional; its role is to open the real father-and-child memory from which this chapter of my human–machine story begins.*
+
+Before I knew what a GPU was, I was a child watching *Star Trek* beside my father. I learnt to imagine the future with him. Today I live inside accelerated computing, asking what machines that answer in seconds are changing in me.
 
 Is this RLHF? Not exactly. This is being human.
 
@@ -124,9 +126,9 @@ This is what is happening today, at scale. I don’t know if you’ve noticed it
 
 A hug, and see you next time.
 
-![Tadeu seated at a table with the fictional android Data in an imagined, reflective encounter, beside an open notebook and images connected to art, language and nature.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
+![AI-generated reflective scene of Tadeu seated with the fictional android Data at a table, beside an open notebook and images connected to art, language and nature.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
 
-*AI-generated illustration: an imagined, reflective encounter between Tadeu and Data.*
+*AI-generated reflective footer: Data is the inverse mirror. The android used art and relationships to investigate humanity; I use machines, language and art to observe my own. The image returns this chapter's live question without answering it for me.*
 
 > “Is this AGI — or does it only seem that way? Time will tell.”
 

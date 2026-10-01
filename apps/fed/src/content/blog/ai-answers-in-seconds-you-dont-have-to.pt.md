@@ -10,9 +10,11 @@ excerpt: "LLMs encurtaram o tempo entre formular uma pergunta e receber uma resp
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'
 ---
 
-![Tadeu e seu pai lado a lado em uma convenção de ficção científica no Rio, diante de miniaturas de naves; ao fundo, astronautas e referências tecnológicas compõem uma cena simbólica e satírica.](/illustrations/ai-answers-in-seconds-cover.jpg)
+![Cena simbólica gerada por IA de Tadeu adulto e seu pai juntos em um evento imaginário de fãs de ficção científica no Rio, cercados por miniaturas de naves e referências fictícias a programas espaciais.](/illustrations/ai-answers-in-seconds-cover.jpg)
 
-*Ilustração gerada por IA: uma composição simbólica de Tadeu e seu pai em uma convenção de ficção científica.*
+*Capa gerada por IA: meu pai e eu em um evento imaginário de fãs de ficção científica no Rio. A cena é fictícia; seu papel é abrir a memória real entre pai e filho a partir da qual começa este capítulo da minha história humano–máquina.*
+
+Antes de saber o que era uma GPU, eu era uma criança que assistia a *Star Trek* ao lado do meu pai. Aprendi a imaginar o futuro com ele. Hoje vivo por dentro da computação acelerada, perguntando o que máquinas que respondem em segundos estão mudando em mim.
 
 Isso é RLHF? Não exatamente. Isso é ser humano.
 
@@ -124,9 +126,9 @@ Isso é o que está acontecendo hoje, em escala. Não sei se vocês perceberam. 
 
 Grande abraço, e até a próxima.
 
-![Tadeu sentado à mesa com o androide fictício Data em um encontro imaginário e reflexivo, diante de um caderno aberto e de imagens ligadas à arte, à linguagem e à natureza.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
+![Cena reflexiva gerada por IA de Tadeu sentado à mesa com o androide fictício Data, diante de um caderno aberto e de imagens ligadas à arte, à linguagem e à natureza.](/illustrations/ai-answers-in-seconds-data-mirror.jpg)
 
-*Ilustração gerada por IA: um encontro fictício e reflexivo entre Tadeu e Data.*
+*Rodapé reflexivo gerado por IA: Data é o espelho invertido. O androide usava arte e relações para investigar a humanidade; eu uso máquinas, linguagem e arte para observar a minha. A imagem devolve a pergunta viva deste capítulo sem respondê-la por mim.*
 
 > “Isso é AGI — ou apenas parece? Vai do tempo nos dizer.”
 
