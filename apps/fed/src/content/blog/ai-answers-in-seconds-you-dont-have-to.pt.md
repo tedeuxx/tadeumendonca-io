@@ -15,13 +15,17 @@ takeaway: 'um experimento de um minuto para observar a sua atenção entre duas 
 
 *Capa gerada por IA: meu pai e eu em um evento imaginário de fãs de ficção científica no Rio. A cena é fictícia; seu papel é abrir a memória real entre pai e filho a partir da qual começa este capítulo da minha história humano–máquina.*
 
-> “to explore strange new worlds, to seek out new life, and new civilizations.”
+> Space, the final frontier\
+> These are the voyages of the Starship Enterprise\
+> Its five year mission\
+> To explore strange new worlds\
+> To seek out new life\
+> And new civilizations\
+> To boldly go where no man has gone before
 >
-> — *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe))
+> — *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe)).
 
 Todo Trekker reconhece o convite. Antes de saber o que era uma GPU, eu era uma criança que assistia a *Star Trek* ao lado do meu pai. Aprendi a imaginar o futuro com ele. Hoje vivo por dentro da computação acelerada, perguntando o que máquinas que respondem em segundos estão mudando em mim.
-
-Isso é RLHF — reinforcement learning from human feedback? Não exatamente. Isso é ser humano.
 
 Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
 
@@ -29,9 +33,11 @@ Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
 
 *Ponte visual do argumento gerada por IA a partir de uma fotografia do meu ambiente real de trabalho. O arranjo físico vem desse ambiente; o conteúdo das telas foi abstraído para proteger contexto privado. Ela expressa a densidade sensorial de aprender diante de mais telas do que consigo acompanhar ao mesmo tempo.*
 
+> Isso é RLHF — reinforcement learning from human feedback? Não exatamente. Isso é ser humano.
+
 Não é uma cena excepcional. É justamente a repetição: uma resposta aparece, abre três caminhos, desloca a minha atenção e torna muito fácil pedir a próxima. As palavras voltam mais rápido do que o meu corpo consegue perceber o que aconteceu com elas.
 
-É assim que estou entendendo o meu momento na **Generative-Era** — a era dos modelos generativos, especialmente os large language models (LLMs) com os quais trabalho. Não é uma teoria sobre toda IA, nem sobre como todas as pessoas deveriam viver. É o que eu sinto usando essas máquinas agora, dentro de uma mudança grande o bastante para atravessar também a jornada do nosso *life span*: envelhecer, aprender e gastar um tempo que continua finito enquanto a velocidade em volta aumenta.
+É assim que estou entendendo o momento atual da IA generativa — a era dos modelos generativos, especialmente os large language models (LLMs) com os quais trabalho. Não é uma teoria sobre toda IA, nem sobre como todas as pessoas deveriam viver. É o que eu sinto usando essas máquinas agora, dentro de uma mudança grande o bastante para atravessar também a jornada do nosso *life span*: envelhecer, aprender e gastar um tempo que continua finito enquanto a velocidade em volta aumenta.
 
 Eu acho essa mudança individualmente fascinante. Aprender linguagem humano–máquina no tempo de LLMs, frontier models e Generative AI é um desafio cognitivo próprio. Muitos LLMs e frontier models são construídos sobre [Transformer architectures](https://arxiv.org/abs/1706.03762) e attention mechanisms; isso não vale para toda Generative AI. Justamente por isso, o avanço que responde em segundos está me ensinando a não responder na mesma velocidade.
 
@@ -129,7 +135,7 @@ E aqui está o punch que amarrou a imagem para mim: eu vivo na era da programaç
 
 Jensen Huang chama essa virada de [*accelerated computing*](https://blogs.nvidia.com/blog/2024-gtc-keynote/): em 2024, disse que ela havia chegado a um ponto de inflexão; em 2026, a NVIDIA descreveu a IA como [infraestrutura essencial de uma nova era industrial](https://nvidianews.nvidia.com/news/nvidia-ceo-jensen-huang-and-global-technology-leaders-to-showcase-age-of-ai-at-gtc-2026). Essa é a visão da empresa sobre o momento, não uma história neutra dele. Na história mais ampla, Huang é um dos seus principais arquitetos materiais. Na minha leitura pessoal, ele é o arquiteto deste momento.
 
-É isso que chamo de “presente NVIDIA”: a infraestrutura que aprendeu a desenhar mundos agora participa das máquinas linguísticas com que reorganizo o meu. Essa é, para mim, uma das imagens centrais da Generative-Era.
+É isso que chamo de “presente NVIDIA”: a infraestrutura que aprendeu a desenhar mundos agora participa das máquinas linguísticas com que reorganizo o meu. Essa é, para mim, uma das imagens centrais do momento atual da IA generativa.
 
 É nesse ponto que outra figura de *Star Trek* volta para mim: Data. [A história oficial do personagem](https://www.startrek.com/news/data-and-his-artistic-pursuits) mostra um androide recorrendo à pintura, à música, à poesia e ao teatro para investigar uma humanidade que ele conseguia observar, mas não experimentar como nós.
 
