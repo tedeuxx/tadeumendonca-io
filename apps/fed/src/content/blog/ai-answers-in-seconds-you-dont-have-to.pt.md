@@ -15,9 +15,9 @@ takeaway: 'um experimento de um minuto para observar a sua atenção entre duas 
 
 *Capa gerada por IA: meu pai e eu em um evento imaginário de fãs de ficção científica no Rio. A cena é fictícia; seu papel é abrir a memória real entre pai e filho a partir da qual começa este capítulo da minha história humano–máquina.*
 
-> “to explore strange new worlds, to seek out new life, and new civilizations.”
->
-> — *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe))
+*A narração de abertura apresentava o espaço como fronteira: uma viagem de cinco anos a bordo da Enterprise, ao encontro de mundos, formas de vida e civilizações desconhecidas, além de todas as rotas conhecidas.*
+
+Fonte: *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe)).
 
 Todo Trekker reconhece o convite. Antes de saber o que era uma GPU, eu era uma criança que assistia a *Star Trek* ao lado do meu pai. Aprendi a imaginar o futuro com ele. Hoje vivo por dentro da computação acelerada, perguntando o que máquinas que respondem em segundos estão mudando em mim.
 
