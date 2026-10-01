@@ -15,9 +15,15 @@ takeaway: 'a one-minute experiment for observing your attention between two answ
 
 *AI-generated cover: my father and I at an imagined science-fiction fan event in Rio. The scene is fictional; its role is to open the real father-and-child memory from which this chapter of my human–machine story begins.*
 
-*The opening narration framed space as a frontier: a five-year voyage aboard the Enterprise, meeting unfamiliar worlds, life and civilizations beyond every known route.*
-
-Source: *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe)).
+> Space, the final frontier\
+> These are the voyages of the Starship Enterprise\
+> Its five year mission\
+> To explore strange new worlds\
+> To seek out new life\
+> And new civilizations\
+> To boldly go where no man has gone before
+>
+> — *Star Trek: The Original Series*, opening narration ([StarTrek.com](https://www.startrek.com/news/enterprise-reminds-us-that-humanity-is-not-the-center-of-the-universe)).
 
 Every Trekker knows the invitation. Before I knew what a GPU was, I was a child watching *Star Trek* beside my father. I learnt to imagine the future with him. Today I live inside accelerated computing, asking what machines that answer in seconds are changing in me.
 
