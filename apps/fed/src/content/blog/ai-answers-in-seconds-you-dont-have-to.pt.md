@@ -105,7 +105,7 @@ Arranjos visualmente distintos me ajudam a marcar a transição. Mudo a posiçã
 
 A descoberta de hoje é que preciso levar a mesma distinção para o harness. Eu atravesso projetos pessoais, ambientes internos, contextos de clientes e harnesses diferentes; os princípios éticos que protegem a minha responsabilidade individual precisam atravessar essas fronteiras comigo. **Os princípios que protegem sua responsabilidade precisam viajar com você; o contexto local só diz onde você está.**
 
-Meu baseline pessoal carrega presença, pausa estoica e privacy by harness perimeter. Cada workspace ancora o papel — pessoal, interno ou cliente — e acrescenta suas restrições locais. A política governada de empregador ou cliente fica dentro daquele perímetro; não retorna ao meu baseline pessoal. O que viaja é o princípio. Identidade e propriedade de outra esfera, não.
+Meu baseline pessoal carrega os princípios éticos que não posso delegar. Privacy by harness perimeter é um deles. Cada workspace ancora o papel — pessoal, interno ou cliente — e acrescenta suas restrições locais. A política governada de empregador ou cliente fica dentro daquele perímetro; não retorna ao meu baseline pessoal. O que viaja é o princípio. Identidade e propriedade de outra esfera, não.
 
 Isso torna a experiência mais sensorial, não menos. O ambiente deixa de ser fundo e vira um sinal. A tela continua acesa, mas eu consigo perceber de qual trabalho ela está me chamando — e, algumas vezes, perceber que não quero atender ainda.
 

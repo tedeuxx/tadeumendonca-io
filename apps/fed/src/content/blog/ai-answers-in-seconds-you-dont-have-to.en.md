@@ -105,7 +105,7 @@ Visually distinct arrangements help me mark the transition. I change the positio
 
 Today’s discovery is that I need the same distinction in the harness. I cross personal projects, internal environments, client contexts and different harnesses; the ethical principles that protect my individual responsibility need to cross those boundaries with me. **The principles that protect your responsibility need to travel with you; the local context only says where you are.**
 
-My personal baseline carries presence, Stoic pause and privacy by harness perimeter. Each workspace anchors the role — personal, internal or client — and adds its local constraints. Governed employer or client policy stays inside that perimeter; it does not travel back into my personal baseline. What travels is the principle. Identity and another sphere’s property do not.
+My personal baseline carries the ethical principles I cannot delegate. Privacy by harness perimeter is one of them. Each workspace anchors the role — personal, internal or client — and adds its local constraints. Governed employer or client policy stays inside that perimeter; it does not travel back into my personal baseline. What travels is the principle. Identity and another sphere’s property do not.
 
 It makes the experience more sensory, not less. The environment stops being a background and becomes a signal. The screen stays on, but I can recognise which work it is calling me into — and, sometimes, recognise that I do not want to answer yet.
 
