@@ -21,17 +21,17 @@ Source: *Star Trek: The Original Series*, opening narration ([StarTrek.com](http
 
 Every Trekker knows the invitation. Before I knew what a GPU was, I was a child watching *Star Trek* beside my father. I learnt to imagine the future with him. Today I live inside accelerated computing, asking what machines that answer in seconds are changing in me.
 
-Is this RLHF — reinforcement learning from human feedback? Not exactly. This is being human.
-
 I am learning AI in front of more screens than I can look at at once.
 
 ![AI-generated illustration based on Tadeu’s real workstation, with a vertical display, a wide screen divided into concurrent terminal panes, and a smaller side display in warm light.](/illustrations/ai-answers-in-seconds-workstation.jpg)
 
 *AI-generated argument bridge based on a photograph of my real workspace. The physical arrangement comes from that environment; the screen content was abstracted to protect private context. It expresses the sensory density of learning across more screens than I can attend to at once.*
 
+> Is this RLHF — reinforcement learning from human feedback? Not exactly. This is being human.
+
 It is not an exceptional scene. The repetition is precisely the point: an answer appears, opens three paths, moves my attention and makes asking for the next one very easy. Words come back faster than my body can notice what happened to them.
 
-This is how I am making sense of my moment in the **Generative-Era** — the era of generative models, especially the large language models (LLMs) I work with. It is not a theory about all AI, or about how everyone should live. It is what I feel while using these machines now, inside a change large enough to cross the journey of our *life span* too: ageing, learning and spending time that remains finite while everything around it accelerates.
+This is how I am making sense of the current generative-AI moment — the era of generative models, especially the large language models (LLMs) I work with. It is not a theory about all AI, or about how everyone should live. It is what I feel while using these machines now, inside a change large enough to cross the journey of our *life span* too: ageing, learning and spending time that remains finite while everything around it accelerates.
 
 I find this shift personally fascinating. Learning human–machine language in the time of LLMs, frontier models and Generative AI is a cognitive challenge of its own. Many LLMs and frontier models are built on [Transformer architectures](https://arxiv.org/abs/1706.03762) and attention mechanisms; that is not true of all Generative AI. Precisely because of that, the advance answering in seconds is teaching me not to answer at the same speed.
 
@@ -129,7 +129,7 @@ And here is the punch that tied the image together for me: I live in the era of 
 
 Jensen Huang calls this shift [*accelerated computing*](https://blogs.nvidia.com/blog/2024-gtc-keynote/): in 2024, he said it had reached a tipping point; in 2026, NVIDIA described AI as [essential infrastructure powering a new industrial era](https://nvidianews.nvidia.com/news/nvidia-ceo-jensen-huang-and-global-technology-leaders-to-showcase-age-of-ai-at-gtc-2026). That is the company’s account of the moment, not a neutral history of it. In the wider history, Huang is one of its principal material architects. In my personal reading, he is the architect of this moment.
 
-This is what I mean by the “NVIDIA present”: the infrastructure that learnt to draw worlds now participates in the linguistic machines with which I rearrange mine. For me, that is one of the central images of the Generative-Era.
+This is what I mean by the “NVIDIA present”: the infrastructure that learnt to draw worlds now participates in the linguistic machines with which I rearrange mine. For me, that is one of the central images of the current generative-AI moment.
 
 This is where another figure from *Star Trek* returns to me: Data. [The character’s official history](https://www.startrek.com/news/data-and-his-artistic-pursuits) shows an android turning to painting, music, poetry and theatre to investigate a humanity he could observe but not experience as we do.
 
