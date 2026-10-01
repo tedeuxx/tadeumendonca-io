@@ -27,16 +27,6 @@ takeaway: 'a one-minute experiment for observing your attention between two answ
 
 Every Trekker knows the invitation. Before I knew what a GPU was, I was a child watching *Star Trek* beside my father. I learnt to imagine the future with him. Today I live inside accelerated computing, asking what machines that answer in seconds are changing in me.
 
-I am learning AI in front of more screens than I can look at at once.
-
-![AI-generated illustration based on Tadeu’s real workstation, with a vertical display, a wide screen divided into concurrent terminal panes, and a smaller side display in warm light.](/illustrations/ai-answers-in-seconds-workstation.jpg)
-
-*AI-generated argument bridge based on a photograph of my real workspace. The physical arrangement comes from that environment; the screen content was abstracted to protect private context. It expresses the sensory density of learning across more screens than I can attend to at once.*
-
-> Is this RLHF — reinforcement learning from human feedback? Not exactly. This is being human.
-
-It is not an exceptional scene. The repetition is precisely the point: an answer appears, opens three paths, moves my attention and makes asking for the next one very easy. Words come back faster than my body can notice what happened to them.
-
 This is how I am making sense of the current generative-AI moment — the era of generative models, especially the large language models (LLMs) I work with. It is not a theory about all AI, or about how everyone should live. It is what I feel while using these machines now, inside a change large enough to cross the journey of our *life span* too: ageing, learning and spending time that remains finite while everything around it accelerates.
 
 I find this shift personally fascinating. Learning human–machine language in the time of LLMs, frontier models and Generative AI is a cognitive challenge of its own. Many LLMs and frontier models are built on [Transformer architectures](https://arxiv.org/abs/1706.03762) and attention mechanisms; that is not true of all Generative AI. Precisely because of that, the advance answering in seconds is teaching me not to answer at the same speed.
@@ -57,7 +47,7 @@ I returned on a second attempt with fresher eyes, and [those ideas](https://www.
 
 The same interface also has me living between human languages. A formulation begins in Portuguese, finds another edge in English and returns differently — not because translation is automatic or perfect, but because language has become a workspace I can enter from both sides. For me, language engineering is both talking to the model and noticing what an idea gains and loses as it crosses a language.
 
-The model already reaches me shaped by human feedback. Techniques such as [RLHF](https://arxiv.org/abs/2203.02155) adjust a model during training from human demonstrations and preferences. My everyday loop is not RLHF: correcting a prompt does not change the model’s weights. What it changes immediately is the next formulation — and the person formulating it.
+The model already reaches me shaped by human feedback. Techniques such as [RLHF](https://arxiv.org/abs/2203.02155) (reinforcement learning from human feedback) adjust a model during training from human demonstrations and preferences. My everyday loop is not RLHF: correcting a prompt does not change the model’s weights. What it changes immediately is the next formulation — and the person formulating it.
 
 In the article about my three loops, I wrote about what I took from [Ethan Mollick’s *Co-Intelligence*](https://www.penguinrandomhouse.com/books/741805/co-intelligence-by-ethan-mollick/): treating AI as someone working beside me made it visible that human bias could appear on both sides of the desk. That reading has now moved one step inward. The question is no longer only how I design agents that disagree. It has become **how I design my own attention while talking to them**.
 
@@ -104,6 +94,16 @@ What interests me in that irony is quite serious.
 ## The body needs to recognise the environment
 
 I have also started treating the places where I work as part of this language.
+
+I am learning AI in front of more screens than I can look at at once.
+
+![AI-generated illustration based on Tadeu’s real workstation, with a vertical display, a wide screen divided into concurrent terminal panes, and a smaller side display in warm light.](/illustrations/ai-answers-in-seconds-workstation.jpg)
+
+*AI-generated argument bridge based on a photograph of my real workspace. The physical arrangement comes from that environment; the screen content was abstracted to protect private context. It expresses the sensory density of learning across more screens than I can attend to at once.*
+
+> Is this RLHF — reinforcement learning from human feedback? Not exactly. This is being human.
+
+It is not an exceptional scene. The repetition is precisely the point: an answer appears, opens three paths, moves my attention and makes asking for the next one very easy. Words come back faster than my body can notice what happened to them.
 
 I move through different contexts on the same screens, sometimes within the same hour. When all of them have the same physical arrangement, the passage becomes invisible. The work changes; the body keeps receiving the same frame.
 

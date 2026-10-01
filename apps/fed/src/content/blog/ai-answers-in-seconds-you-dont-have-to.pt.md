@@ -27,16 +27,6 @@ takeaway: 'um experimento de um minuto para observar a sua atenção entre duas 
 
 Todo Trekker reconhece o convite. Antes de saber o que era uma GPU, eu era uma criança que assistia a *Star Trek* ao lado do meu pai. Aprendi a imaginar o futuro com ele. Hoje vivo por dentro da computação acelerada, perguntando o que máquinas que respondem em segundos estão mudando em mim.
 
-Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
-
-![Ilustração gerada por IA a partir do ambiente real de trabalho de Tadeu, com uma tela vertical, um monitor amplo dividido em sessões simultâneas de terminal e uma tela lateral sob luz quente.](/illustrations/ai-answers-in-seconds-workstation.jpg)
-
-*Ponte visual do argumento gerada por IA a partir de uma fotografia do meu ambiente real de trabalho. O arranjo físico vem desse ambiente; o conteúdo das telas foi abstraído para proteger contexto privado. Ela expressa a densidade sensorial de aprender diante de mais telas do que consigo acompanhar ao mesmo tempo.*
-
-> Isso é RLHF — reinforcement learning from human feedback? Não exatamente. Isso é ser humano.
-
-Não é uma cena excepcional. É justamente a repetição: uma resposta aparece, abre três caminhos, desloca a minha atenção e torna muito fácil pedir a próxima. As palavras voltam mais rápido do que o meu corpo consegue perceber o que aconteceu com elas.
-
 É assim que estou entendendo o momento atual da IA generativa — a era dos modelos generativos, especialmente os large language models (LLMs) com os quais trabalho. Não é uma teoria sobre toda IA, nem sobre como todas as pessoas deveriam viver. É o que eu sinto usando essas máquinas agora, dentro de uma mudança grande o bastante para atravessar também a jornada do nosso *life span*: envelhecer, aprender e gastar um tempo que continua finito enquanto a velocidade em volta aumenta.
 
 Eu acho essa mudança individualmente fascinante. Aprender linguagem humano–máquina no tempo de LLMs, frontier models e Generative AI é um desafio cognitivo próprio. Muitos LLMs e frontier models são construídos sobre [Transformer architectures](https://arxiv.org/abs/1706.03762) e attention mechanisms; isso não vale para toda Generative AI. Justamente por isso, o avanço que responde em segundos está me ensinando a não responder na mesma velocidade.
@@ -57,7 +47,7 @@ Voltei numa segunda tentativa, com olhos mais descansados, e [aquelas ideias](ht
 
 Essa mesma interface também me faz viver entre idiomas humanos. Uma formulação começa em português, encontra outra borda em inglês e volta diferente — não porque tradução seja automática ou perfeita, mas porque a linguagem passou a ser um espaço de trabalho acessível dos dois lados. Engenharia de linguagem, para mim, é tanto conversar com o modelo quanto perceber o que uma ideia ganha e perde ao atravessar um idioma.
 
-O modelo já chega até mim moldado por feedback humano. Técnicas como [RLHF](https://arxiv.org/abs/2203.02155) ajustam o modelo durante o treinamento a partir de demonstrações e preferências humanas. O meu ciclo cotidiano não é RLHF: corrigir um prompt não altera os pesos do modelo. O que ele altera, imediatamente, é a próxima formulação — e a pessoa que a formula.
+O modelo já chega até mim moldado por feedback humano. Técnicas como [RLHF](https://arxiv.org/abs/2203.02155) (reinforcement learning from human feedback) ajustam o modelo durante o treinamento a partir de demonstrações e preferências humanas. O meu ciclo cotidiano não é RLHF: corrigir um prompt não altera os pesos do modelo. O que ele altera, imediatamente, é a próxima formulação — e a pessoa que a formula.
 
 No artigo sobre os meus três loops, escrevi sobre a interpretação que tirei de [*Co-Intelligence*, de Ethan Mollick](https://www.penguinrandomhouse.com/books/741805/co-intelligence-by-ethan-mollick/): tratar a IA como alguém trabalhando ao meu lado tornou visível que o viés humano podia aparecer nos dois lados da mesa. Agora essa leitura avançou um passo para dentro. A questão deixou de ser apenas como desenho agentes que discordam. Passou a ser **como desenho a minha própria atenção enquanto converso com eles**.
 
@@ -104,6 +94,16 @@ O que me interessa nessa ironia é bastante sério.
 ## O corpo precisa reconhecer o ambiente
 
 Também comecei a tratar os lugares onde trabalho como parte dessa linguagem.
+
+Estou aprendendo IA diante de mais telas do que consigo olhar ao mesmo tempo.
+
+![Ilustração gerada por IA a partir do ambiente real de trabalho de Tadeu, com uma tela vertical, um monitor amplo dividido em sessões simultâneas de terminal e uma tela lateral sob luz quente.](/illustrations/ai-answers-in-seconds-workstation.jpg)
+
+*Ponte visual do argumento gerada por IA a partir de uma fotografia do meu ambiente real de trabalho. O arranjo físico vem desse ambiente; o conteúdo das telas foi abstraído para proteger contexto privado. Ela expressa a densidade sensorial de aprender diante de mais telas do que consigo acompanhar ao mesmo tempo.*
+
+> Isso é RLHF — reinforcement learning from human feedback? Não exatamente. Isso é ser humano.
+
+Não é uma cena excepcional. É justamente a repetição: uma resposta aparece, abre três caminhos, desloca a minha atenção e torna muito fácil pedir a próxima. As palavras voltam mais rápido do que o meu corpo consegue perceber o que aconteceu com elas.
 
 Eu passo por contextos diferentes nas mesmas telas, às vezes dentro da mesma hora. Quando todos eles têm a mesma disposição física, a passagem fica invisível. O trabalho muda; o corpo continua recebendo o mesmo quadro.
 
