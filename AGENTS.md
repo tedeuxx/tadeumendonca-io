@@ -6,6 +6,10 @@ name, that other file exists in this repository too and is longer; **this one is
 and the two are authored side by side under the same rule rather than one being transformed into the
 other.
 
+sphere: personal
+
+This is a declaration only, recorded as decision record 0035 in the [workstation configuration repository's decision library](https://github.com/tedeuxx/mhw/tree/main/docs/adr); there is no stop-on-undeclared rule.
+
 ## The budget, and whose it is
 
 **Keep this file under 50,000 characters.** That number is **one consumer's measured floor, not a
