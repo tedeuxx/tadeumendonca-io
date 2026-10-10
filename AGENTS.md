@@ -6,6 +6,10 @@ name, that other file exists in this repository too and is longer; **this one is
 and the two are authored side by side under the same rule rather than one being transformed into the
 other.
 
+sphere: personal
+
+This is a declaration only, recorded in [mhw ADR-0035](https://github.com/tedeuxx/mhw/blob/rc/next/docs/adr/0035-workstation-blueprint-reconciliation.md); there is no stop-on-undeclared rule.
+
 ## The budget, and whose it is
 
 **Keep this file under 50,000 characters.** That number is **one consumer's measured floor, not a
