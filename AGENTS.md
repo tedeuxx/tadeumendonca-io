@@ -8,7 +8,7 @@ other.
 
 sphere: personal
 
-This is a declaration only, recorded as decision record 0035 in the [workstation configuration repository's decision library](https://github.com/tedeuxx/mhw/tree/rc/next/docs/adr); there is no stop-on-undeclared rule.
+This is a declaration only, recorded as decision record 0035 in the [workstation configuration repository's decision library](https://github.com/tedeuxx/mhw/tree/main/docs/adr); there is no stop-on-undeclared rule.
 
 ## The budget, and whose it is
 
