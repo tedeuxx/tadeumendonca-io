@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Checkov
-        uses: bridgecrewio/checkov-action@1246d92f57abae29d5db5f9aeeed2a9813e52d7d # v12.3117.0
+        uses: bridgecrewio/checkov-action@c13aafd679d3814a25067d10fcaf98c4f7594931 # v12.3131.0
         with:
           directory: iac/
           framework: terraform
@@ -236,9 +236,12 @@ jobs:
         # identical failure, proved by #414/#534/#587, which carry no such flag. So the evidence is
         # CONFOUNDED and #101 cannot establish the attribution; it is the same misreading ADR-0014's
         # 2026-09-14 amendment records at two other sites. The conclusion stands on better evidence
-        # anyway: the flag is gone everywhere, and v6.2.3 assumed the role cleanly on this very PR's own
-        # terraform-plan run (`Secret source: Actions`, plan completed). v6 runs clean (#89).
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        # anyway: the flag is gone everywhere, and the PREVIOUS pin — v6.2.3, SHA e6de0542 — assumed
+        # this INFRA role cleanly on #645's own terraform-plan run 34891195229 (2026-09-14; `Secret
+        # source: Actions`, plan completed). That evidence is v6.2.3's, NOT the v6.3.0 pin below (#713
+        # moved it); v6.3.0's first evidence at this step is #713's own terraform-plan run, which the
+        # comment does not record. v6 ran clean at v6.2.3 (#89).
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
           aws-region: us-east-1
