@@ -512,15 +512,17 @@ jobs:
         #
         # The conclusion stands on better evidence anyway, and it is evidence from THIS file: the flag
         # is gone everywhere (#89's own closing commit adopted v6 and deleted it here — `git show
-        # 237df83 -- .github/workflows/deploy.yml`), and this exact pin assumed a role cleanly in this
-        # workflow's own `deploy-app` job on run 34636689611 (2026-09-11), whose `Resolve config from
-        # SSM` and `Publish to S3` steps then succeeded — so the credentials were real, not merely a
-        # step that exited 0. BOUND IT HONESTLY: that is the SAME action at the SAME SHA in THIS file,
-        # but the FED role, not this step's INFRA role — `terraform-apply` is skipped on every recent
-        # run because no recent slice has touched `iac/`, so THIS step has no v6.2.3 success of its own
-        # to point at. The action is exonerated; this call site is untested at this pin, and a reader
-        # deciding whether to trust it should know which of the two they are being shown. Running it is
-        # the next `iac/` merge's business, not a comment's. v6 runs clean (#89).
+        # 237df83 -- .github/workflows/deploy.yml`), and the PREVIOUS pin — v6.2.3, SHA e6de0542 —
+        # assumed a role cleanly in this workflow's own `deploy-app` job on run 34636689611
+        # (2026-09-11), whose `Resolve config from SSM` and `Publish to S3` steps then succeeded — so
+        # the credentials were real, not merely a step that exited 0. BOUND IT HONESTLY, twice over:
+        # that run used v6.2.3, NOT the v6.3.0 pin below (#713 moved it), so it says nothing about
+        # v6.3.0; and it was the FED role, not this step's INFRA role — `terraform-apply` is skipped on
+        # every recent run because no recent slice has touched `iac/`, so THIS step has no success of
+        # its own at ANY v6 pin to point at. v6.2.3 is exonerated; this call site is untested at
+        # v6.3.0, and a reader deciding whether to trust it should know which of the two they are
+        # being shown. Running it is the next `iac/` merge's business, not a comment's. v6 ran clean
+        # at v6.2.3 (#89).
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_INFRA_OIDC_ROLE_ARN }}
