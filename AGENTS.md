@@ -55,7 +55,7 @@ is public and *is* the pitch. No over-engineering; not a playground either — i
    deletes backtick and dollar spans from an inline argument.
 10. **Bound work in progress by `wip:` in `docs/loop-mode.md`, and finish each slice through merge.**
     Development may run in parallel up to that bound, one `git worktree` per slice; review never does
-    (standing rule 23).
+    (see *Loop mode, parallel development, the serial gate*).
 11. **A review finding is named, never filed.** Only the owner opens work.
 12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
     text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
@@ -179,7 +179,8 @@ already-shared post. Bounded and accepted.
 ## How to ask
 
 **Rule 1 governs every ask directed to the owner — decisions and actions, inside or outside work in
-flight.** Rules 2–5 govern form only where their act applies; an interview remains distinct: it elicits without options.
+flight.** A design conversation or an ad-hoc request is not thereby an escalation. Rules 2–5 govern
+form only where their act applies; an interview remains distinct: it elicits without options.
 
 1. **One owner ask per activation or message.** Two is a list and he rebuilds context twice. Ask or
    order the first; preserve every remaining ask until after he

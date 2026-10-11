@@ -5,7 +5,8 @@ decides nothing. **The CONTRACT — what a mode may vary and what it may never t
 `<!-- loop-mode-contract -->` block in ~~`CLAUDE.md`~~ `AGENTS.md` at the root of this repository**, and
 where this file and that block disagree, the block wins and the disagreement is a finding. *Amended
 2026-10-11 (#721): `CLAUDE.md` was deleted and `AGENTS.md` became the single root brief. Its contract is
-standing rule 28 there, between the same markers, stated as obligations; it no longer carries the
+the rules between the same `loop-mode-contract` markers there, stated as obligations (cited by marker,
+never by rule number, so a renumbering cannot break this pointer); it no longer carries the
 byte-shared block or its plugin-tree commands, so the sections below that measure "that shared block" in
 this repository are dated history.*
 
@@ -445,7 +446,7 @@ here. Fixing that is not `#385`.
   settings layers and no registered hook reads this file, so an (N+1)th concurrent PR executes with no
   prompt, no denial and no record.
 - **It does not relax the GATE.** Review stays serial at any value of `wip` (owner ruling 1, in
-  `AGENTS.md` standing rule 29; `CLAUDE.md`'s `loop-mode-contract` block until #721). `wip` is a ceiling on **development**, never on review.
+  `AGENTS.md` between its `loop-mode-contract` markers; `CLAUDE.md`'s block of that name until #721). `wip` is a ceiling on **development**, never on review.
 - **It is not a target.** A composed set smaller than `wip` is a correct answer, and on items that
   converge on the same files it is the right one.
 - **`absent` was not the safe default it looks like.** A missing `wip` meant **unbounded**, not one —
