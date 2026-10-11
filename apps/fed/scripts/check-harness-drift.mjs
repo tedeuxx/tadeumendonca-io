@@ -73,18 +73,22 @@ try {
   // discarding the return means the check ran and the ORIGINAL was used anyway. This was the last site
   // where the pattern was still half-applied.
   //
-  // Landing it now rather than as a follow-up, on `security`'s ruling and for a reason worth keeping:
-  // the two `jssecurity:S8689` findings are now marked false-positive, which permanently silences the
-  // only automated objector to this shape in these files. The new test in harness-source.test.mjs does
-  // not reach here either — it pins the transformation, and a call that discards the return never
-  // consumes it. A follow-up with no remaining objector is, in practice, never.
+  // ~~The two `jssecurity:S8689` findings are now marked false-positive~~ — STRUCK at #721: the owner's
+  // rule is that a security finding is FIXED IN CODE, never accepted. Both are fixed now by removing
+  // the sink rather than arguing about the source: no file-derived version string is logged here or in
+  // gen-harness.mjs, and the error below names the file instead of echoing the validator's message,
+  // which quotes the raw value. Once the code no longer triggers the rule, the false-positive marks in
+  // SonarCloud have nothing left to mark. The new test in harness-source.test.mjs still pins the
+  // transformation; a call that discards the return never consumes it.
   committedVersion = assertPluginVersion(
     JSON.parse(readFileSync(PLUGIN_RELEASE, 'utf8')).version,
     'src/content/generated/plugin-release.json',
   );
 } catch (err) {
+  // The validator's message quotes the raw file value, so it is NOT echoed (jssecurity:S8689); the
+  // error class is enough to say which kind of failure it was.
   console.error(
-    `::error::src/content/generated/plugin-release.json is unusable — ${err.message}. ` +
+    `::error::src/content/generated/plugin-release.json is unusable (${err instanceof SyntaxError ? 'not valid JSON' : 'no valid X.Y.Z version'}). ` +
       'Run `npm --prefix apps/fed run gen-harness`.',
   );
   process.exit(1);
