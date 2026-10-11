@@ -56,7 +56,7 @@ const RELATIVE_PATH_RE = /\]\(\.\/(\d{4}-[A-Za-z0-9._-]+\.md)/g;
 /**
  * `docs/adr/NNNN-….md` anywhere — the form used from OUTSIDE the library, and deliberately not
  * anchored to markdown-link syntax. It appears inside a markdown link in `architecture.{en,pt}.md`,
- * inside a `](./docs/adr/…)` link in `CLAUDE.md`, and as a bare string literal in TypeScript. Keying
+ * inside a `](./docs/adr/…)` link in a root brief, and as a bare string literal in TypeScript. Keying
  * on `](` would have covered the first two and missed the third.
  */
 const DOCS_PATH_RE = /docs\/adr\/(\d{4}-[A-Za-z0-9._-]+\.md)/g;
@@ -91,7 +91,7 @@ const LEAD_WINDOW = 80;
  *
  * This repo's convention is supersede-never-rewrite: a reversed statement is struck and left in
  * place, because the reader who took a decision from the old text deserves to find out it changed
- * rather than to find it silently gone. `CLAUDE.md` and the library both do this constantly. The
+ * rather than to find it silently gone. The library does this constantly. The
  * first live run of this gate reddened on
  * `0043-harness-inventory-derived-from-plugin-repo.md:1287`, a struck link whose own struck text
  * says *"that record was never written"* — i.e. the gate was arguing with the repo's convention and

@@ -878,7 +878,7 @@ describe('driftReport — aimed at the author who did not cause the failure', ()
   });
 });
 
-// The dispatch roster in `CLAUDE.md` (#353). Against SYNTHETIC markdown, never the real file — a guard
+// The dispatch roster in `AGENTS.md` (#353; `CLAUDE.md` until #721). Against SYNTHETIC markdown, never the real file — a guard
 // asserted against the artifact it guards passes for as long as the artifact is correct and says
 // nothing about whether it could ever fail. The live comparison is check-harness-drift.mjs.
 describe('rosterDispatchNames — what the guide presents as invocable', () => {
@@ -915,7 +915,7 @@ describe('rosterDispatchReport — both directions, because both have happened',
   // sentence routing the permission floor to it FAILED WHEN FOLLOWED.
   it('catches a name the guide dispatches that the plugin no longer has', () => {
     const report = rosterDispatchReport(['security', 'tech-lead'], ['tech-lead']);
-    expect(report).toContain('security is dispatched in CLAUDE.md and has NO file');
+    expect(report).toContain('security is dispatched in AGENTS.md and has NO file');
     expect(report).toContain('supersede, never rewrite');
   });
 

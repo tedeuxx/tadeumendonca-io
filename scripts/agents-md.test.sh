@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Asserts the four MECHANICAL properties of this repository's harness-neutral root brief, `AGENTS.md`.
+# Asserts the five MECHANICAL properties of this repository's single root brief, `AGENTS.md`.
+#
+# SINCE #721 (2026-10-11) THIS FILE IS THE ONLY ROOT BRIEF. The owner decided to stop using the brief
+# only one harness reads and to keep this open-standard file for every harness; that harness was
+# measured loading `AGENTS.md` natively the same day. Two arms changed with it, and the paragraphs
+# below that describe "the other root brief" are history: arm 3 now exempts ONE fenced, harness-labelled
+# section, and arm 5 asserts no second root brief is tracked. THE BODY THEREFORE NO LONGER MATCHES the
+# sibling repository's copy byte for byte — the sync obligation described below is broken on purpose,
+# because that sibling is to be generated from the workstation repository rather than edited by hand.
 #
 # WHY THIS EXISTS. `AGENTS.md` is read as always-on steering by at least one agent harness that never
 # reads this repository's other root brief — measured against Kiro 1.0.437, whose bundle resolves
@@ -233,16 +241,35 @@ $(calibrate "$TOKENS_CS" E "${FIXTURES_CS[@]}")"
       trusting any green from it:
 $vac"
   else
-    hits_ci="$(grep -niE "$TOKENS_CI" "$ROOT/$BRIEF" || true)"
-    hits_cs="$(grep -nE  "$TOKENS_CS" "$ROOT/$BRIEF" || true)"
+    # THE LABELLED HARNESS SECTION IS EXEMPT, AND ONLY IT (#721). Since this file became the single brief
+    # for every harness, instructions that make sense on one harness live in ONE fenced section headed by
+    # that harness's name. The fence must appear exactly once, opened before it is closed; any other shape
+    # reddens rather than silently exempting more or less than the section. Lines outside the fence keep
+    # their original numbers so a hit points at the real line.
+    n_open="$(grep -c '^<!-- harness-specific -->$' "$ROOT/$BRIEF" || true)"
+    n_close="$(grep -c '^<!-- /harness-specific -->$' "$ROOT/$BRIEF" || true)"
+    l_open="$(grep -n '^<!-- harness-specific -->$' "$ROOT/$BRIEF" | head -1 | cut -d: -f1)"
+    l_close="$(grep -n '^<!-- /harness-specific -->$' "$ROOT/$BRIEF" | head -1 | cut -d: -f1)"
+    if [ "$n_open" != "1" ] || [ "$n_close" != "1" ] || [ "${l_open:-0}" -ge "${l_close:-0}" ]; then
+      bad "arm 3 — the harness-specific fence must open once and close once, in that order (found
+      $n_open opening / $n_close closing); the token assertion did NOT run"
+      outside=""
+    else
+      outside="$(awk -v a="$l_open" -v b="$l_close" 'NR < a || NR > b { print NR ":" $0 }' "$ROOT/$BRIEF")"
+    fi
+    hits_ci="$(printf '%s\n' "$outside" | grep -iE "$TOKENS_CI" || true)"
+    hits_cs="$(printf '%s\n' "$outside" | grep -E  "$TOKENS_CS" || true)"
     hits="$(printf '%s\n%s' "$hits_ci" "$hits_cs" | grep -v '^$' || true)"
-    if [ -n "$hits" ]; then
-      bad "arm 3 — $BRIEF names a token specific to one harness. This file is another harness's ENTIRE
-      brief, so such a token is either an identifier that does not exist for its reader or a mechanism
-      that does not run for it. Restate the sentence as an obligation, or drop it:
+    if [ -z "$outside" ]; then
+      :
+    elif [ -n "$hits" ]; then
+      bad "arm 3 — $BRIEF names a token specific to one harness OUTSIDE the labelled harness-specific
+      section. This file is every harness's ENTIRE brief, so such a token is either an identifier that
+      does not exist for most readers or a mechanism that does not run for them. Restate the sentence
+      as an obligation, or move it into the harness-specific section under its harness's heading:
 $hits"
     else
-      ok "arm 3 — $BRIEF carries none of the declared harness-specific tokens"
+      ok "arm 3 — $BRIEF carries none of the declared harness-specific tokens outside its labelled section"
     fi
   fi
 fi
@@ -305,6 +332,19 @@ EOF
       ok "arm 4 — all $n repository-relative paths named in $BRIEF exist"
     fi
   fi
+fi
+
+# ── ARM 5 · NO SECOND ROOT BRIEF ────────────────────────────────────────────────────────────────────
+# The owner's decision on #721 (2026-10-11): this file is the single brief, and the root brief only one
+# harness reads is gone. Re-adding it would recreate two sources of truth for one set of rules, which
+# is the drift this repository already paid for. Tracked files only — a CI checkout contains nothing
+# else, so this is a check that can go red rather than one whose subject is absent by construction.
+second="$(git -C "$ROOT" ls-files -- CLAUDE.md)"
+if [ -n "$second" ]; then
+  bad "arm 5 — a second root brief is tracked ($second). $BRIEF is the single brief (#721); move any
+      rule it carries into $BRIEF, under the harness-specific section if it binds one harness only."
+else
+  ok "arm 5 — no second root brief is tracked; $BRIEF is the single root brief"
 fi
 
 printf '\n'

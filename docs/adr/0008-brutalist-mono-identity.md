@@ -104,7 +104,7 @@ of this ADR applies to the diagrams as written.
 
 ## Links
 - Driven by ADR-0001 · drives ADR-0007 (own components) and ADR-0009 (fonts) · supersedes the
-  Borussia-Dortmund identity (History index) · a fixed decision (see repo `CLAUDE.md`) · amended above
+  Borussia-Dortmund identity (History index) · a fixed decision (see repo ~~`CLAUDE.md`~~ `AGENTS.md`, #721) · amended above
   for the portrait, within the same guard · amended (2026-07-30) for the **generated** surface introduced
   by [ADR-0040](./0040-build-time-mermaid-diagrams.md) — same rule, wider reach, conformance asserted
   mechanically.

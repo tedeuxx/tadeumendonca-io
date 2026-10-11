@@ -116,4 +116,4 @@ The PR gate (`build-test`) runs a dependency audit → lint → typecheck → te
 which is load-bearing: the CloudFront rewrite function is JS with behaviour, so it is unit-gated here rather
 than by `infra-plan`.
 
-See the [repo README](../../README.md) for the full picture, and `CLAUDE.md` for the working rules.
+See the [repo README](../../README.md) for the full picture, and the root `AGENTS.md` for the working rules.

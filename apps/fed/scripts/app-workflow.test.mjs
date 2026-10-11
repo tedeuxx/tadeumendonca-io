@@ -13,8 +13,8 @@
 //
 // ─── WHY THE SECOND HALF IS DERIVED AND NOT ASSERTED ──────────────────────────────────────────────────
 // The first version of this file hand-asserted which notices name `npm-audit`, and got one wrong: it
-// claimed the CLAUDE.md-only branch was a shape where `npm-audit` does not run, and pinned that. It does
-// run — `CLAUDE.md` is matched by the `citations` pattern `*.md` and is the ONLY `harness` path not also
+// claimed the root-brief-only branch was a shape where `npm-audit` does not run, and pinned that. It does
+// run — the root brief (`CLAUDE.md` then, `AGENTS.md` since #721) is matched by the `citations` pattern `*.md` and is the ONLY `harness` path not also
 // covered by `test`, so that branch's whole domain is a shape where `citations` is true and `npm-ci`
 // starts. The green then DEFENDED the false sentence: mutating the workflow into the correct state went
 // red, so the next person to fix the sentence would have hit a failing test and reverted.
@@ -155,7 +155,7 @@ const SHAPES = [
   // for the filter, is a real file, and is invisible to that regex. Do not "simplify" it back.
   { marker: 'docs/adr or deploy.yml-only change', files: ['docs/adr/README.md'] },
   { marker: 'VERSION-only change', files: ['VERSION'] },
-  { marker: 'CLAUDE.md-only change', files: ['CLAUDE.md'] },
+  { marker: 'AGENTS.md-only change', files: ['AGENTS.md'] },
   { marker: 'no gated changes', files: ['LICENSE'] },
 ];
 
@@ -201,9 +201,9 @@ describe('app.yml — every filter pattern is a form the matcher below actually 
     expect(unknown).toEqual([]);
   });
 
-  it('places CLAUDE.md in `citations` and in no other category but `harness`', () => {
+  it('places AGENTS.md in `citations` and in no other category but `harness`', () => {
     // This is the fact the first version of this file got wrong. Derived, so it cannot go stale silently.
-    const cats = categoriesFor(['CLAUDE.md']);
+    const cats = categoriesFor(['AGENTS.md']);
     expect(cats).toEqual({
       code: false,
       test: false,
@@ -213,14 +213,14 @@ describe('app.yml — every filter pattern is a form the matcher below actually 
     });
   });
 
-  it('leaves CLAUDE.md as the only `harness` path outside `test`', () => {
+  it('leaves AGENTS.md as the only `harness` path outside `test`', () => {
     // The gate flagged this derivation as uncorroborated, so it is computed here rather than reasoned
     // about. If a future `harness` entry lands outside `test`, the harness branch gains a second domain
     // and its notice may need different wording — this is what will say so.
     const outsideTest = FILTERS.harness.filter(
       (p) => !FILTERS.test.some((t) => matches(t, p)),
     );
-    expect(outsideTest).toEqual(['CLAUDE.md']);
+    expect(outsideTest).toEqual(['AGENTS.md']);
   });
 });
 
@@ -251,21 +251,21 @@ describe('app.yml — the report never claims npm-audit ran where it did not, or
     expect(notice.includes('npm-audit')).toBe(auditRuns);
   });
 
-  it('names vitest and harness-drift on the CLAUDE.md branch, both of which do run there', () => {
+  it('names vitest and harness-drift on the AGENTS.md branch, both of which do run there', () => {
     // The other two claims in the corrected sentence, derived rather than trusted: `citations` starts
     // vitest (the ADR citation gate) and `harness` starts harness-drift.
-    const categories = categoriesFor(['CLAUDE.md']);
+    const categories = categoriesFor(['AGENTS.md']);
     expect(runs('vitest', categories)).toBe(true);
     expect(runs('harness-drift', categories)).toBe(true);
-    const notice = noticeFor('CLAUDE.md-only change');
+    const notice = noticeFor('AGENTS.md-only change');
     expect(notice).toContain('vitest');
     expect(notice).toContain('harness-drift');
   });
 
-  it('names npm-audit in the CLAUDE.md-only notice, where npm-ci starts via `citations`', () => {
+  it('names npm-audit in the AGENTS.md-only notice, where npm-ci starts via `citations`', () => {
     // Kept as an explicit assertion beside the derived one: this is the exact statement that was
     // inverted, and a reader looking for it should find it spelled out rather than only computed.
-    expect(noticeFor('CLAUDE.md-only change')).toContain('npm-audit');
+    expect(noticeFor('AGENTS.md-only change')).toContain('npm-audit');
   });
 
   it('does NOT name npm-audit where npm-ci is genuinely skipped', () => {

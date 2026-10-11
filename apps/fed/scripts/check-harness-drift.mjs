@@ -43,8 +43,9 @@ import {
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
-// `CLAUDE.md` sits at the repo root, two levels above this package (#353).
-const GUIDE = join(dirname(FED), '..', 'CLAUDE.md');
+// `AGENTS.md` sits at the repo root, two levels above this package (#353; the fence moved there from the
+// deleted `CLAUDE.md` at #721).
+const GUIDE = join(dirname(FED), '..', 'AGENTS.md');
 const PLUGIN_RELEASE = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 // `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
 // itself any more: a second resolve in the caller is what put the existing check off the path between the
@@ -163,7 +164,7 @@ if (report) {
 }
 
 // The SECOND artifact this job compares against the same plugin tree (#353): the dispatch roster in
-// `CLAUDE.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
+// `AGENTS.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
 // checkout of the plugin — is already paid for above, and `collectPersonas` is the same read.
 //
 // Ordered AFTER the manifest diff deliberately. When a persona is retired over there, both checks
@@ -204,5 +205,5 @@ if (linkProblem) {
 // A green run that does not say which one it compared leaves the one fact a reader would want unrecorded
 // in the only place it was ever observed.
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, CLAUDE.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, AGENTS.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
 );

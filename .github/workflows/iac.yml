@@ -66,7 +66,7 @@ jobs:
               - '.github/workflows/iac.yml'
               # deploy.yml now contains the apply, and its own paths include itself, so without this line
               # a change to the applying workflow would reach production with no plan ever reviewed —
-              # while CLAUDE.md instructs "merge that touches iac/ → confirm the plan". Same defect shape
+              # while AGENTS.md instructs "merge that touches iac/ → confirm the plan". Same defect shape
               # as #237: the gate did not cover the file that drives it.
               - '.github/workflows/deploy.yml'
 

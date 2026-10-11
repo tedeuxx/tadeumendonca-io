@@ -1,11 +1,13 @@
 name: brief
 
-# PR gate for the two root briefs: harness-neutral `AGENTS.md` and the canonical HITL contract in
-# `CLAUDE.md`.
+# PR gate for the single root brief, `AGENTS.md`.
 #
-# WHY IT EXISTS. `AGENTS.md` is read as always-on steering by at least one agent harness that never
-# reads this repository's other root brief. For that reader it is not a compatibility copy — it is the
-# entire brief. Until skills#411 the file was UNTRACKED here and in the sibling repository: absent from
+# SINCE #721 (2026-10-11) IT IS THE ONLY ROOT BRIEF: the brief only one harness read was deleted on the
+# owner's decision, and `CLAUDE.md` stays in the path filter below so that re-adding it starts this gate,
+# whose arm 5 then fails.
+#
+# WHY IT EXISTS. `AGENTS.md` is read as always-on steering by every agent harness that works here; it is
+# the entire brief. Until skills#411 the file was UNTRACKED here and in the sibling repository: absent from
 # every PR, so no reviewer and no gate could see it drift, while it was a month stale and pointed at a
 # per-directory guide that does not exist. Tracking it is what makes a check possible at all; this
 # workflow is the check.
@@ -67,8 +69,8 @@ jobs:
         if: steps.changes.outputs.brief == 'true'
         run: bash scripts/agents-md.test.sh
 
-      # The canonical block is byte-pinned to the merged sibling source, while AGENTS.md is checked by
-      # the five semantic commitments because the two harness-neutral briefs are independently authored.
+      # AGENTS.md is checked by the five semantic commitments. The byte-pinned canonical block lived in
+      # the deleted root brief and left with it (#721).
       - name: Assert the one-owner-ask contract has not drifted
         if: steps.changes.outputs.brief == 'true'
         run: bash scripts/hitl-contract.test.sh
