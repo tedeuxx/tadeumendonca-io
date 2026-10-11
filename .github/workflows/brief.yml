@@ -3,8 +3,9 @@ name: brief
 # PR gate for the single root brief, `AGENTS.md`.
 #
 # SINCE #721 (2026-10-11) IT IS THE ONLY ROOT BRIEF: the brief only one harness read was deleted on the
-# owner's decision, and `CLAUDE.md` stays in the path filter below so that re-adding it starts this gate,
-# whose arm 5 then fails.
+# owner's decision. `CLAUDE.md`, `.claude/CLAUDE.md` and `CLAUDE.local.md` stay in the path filters
+# below so that adding any of them starts this gate, whose arm 5 then fails: measured on Claude Code
+# 2.1.296, each one REPLACES `AGENTS.md` in that harness (#721 review, B2).
 #
 # WHY IT EXISTS. `AGENTS.md` is read as always-on steering by every agent harness that works here; it is
 # the entire brief. Until skills#411 the file was UNTRACKED here and in the sibling repository: absent from
@@ -30,6 +31,8 @@ on:
     paths:
       - "AGENTS.md"
       - "CLAUDE.md"
+      - ".claude/CLAUDE.md"
+      - "CLAUDE.local.md"
       - "scripts/**"
       - ".github/workflows/brief.yml"
 
@@ -57,6 +60,8 @@ jobs:
             brief:
               - 'AGENTS.md'
               - 'CLAUDE.md'
+              - '.claude/CLAUDE.md'
+              - 'CLAUDE.local.md'
               - 'scripts/**'
               - '.github/workflows/brief.yml'
 

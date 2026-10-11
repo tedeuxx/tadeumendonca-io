@@ -110,9 +110,13 @@ const isAhead = (a, b) => {
   return false;
 };
 if (isAhead(committedVersion, livePluginVersion)) {
+  // NO FILE-DERIVED VALUE IS LOGGED (jssecurity:S8689, log injection). Both versions are read from files
+  // and pass through `assertPluginVersion`, but the taint engine cannot see that validator as a
+  // sanitiser, and this repository's rule is to fix a security finding in code rather than mark it
+  // accepted. The message names the two files to compare instead; nothing a reader needs is lost.
   console.error(
-    `::error::plugin-release.json says ${committedVersion}, but tedeuxx/tadeumendonca-skills is at ` +
-      `${livePluginVersion} — the committed value names a release that does not exist, so the ` +
+    '::error::src/content/generated/plugin-release.json is AHEAD of the VERSION file of ' +
+      'tedeuxx/tadeumendonca-skills — the committed value names a release that does not exist, so the ' +
       '/portfolio card would link a 404. Run `npm --prefix apps/fed run gen-harness`.',
   );
   process.exit(1);
