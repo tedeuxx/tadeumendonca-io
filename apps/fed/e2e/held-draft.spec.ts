@@ -50,7 +50,7 @@ test.describe('a held article is out of every public enumeration', () => {
   // unsnapshotted one are INDISTINGUISHABLE over HTTP, and an assertion written here would pass on a held
   // article and on a published one alike — the assertion-that-cannot-fail this repo keeps finding.
   //
-  // Rather than write a green that proves nothing, this follows the exception `CLAUDE.md` already states
+  // Rather than write a green that proves nothing, this follows the exception `AGENTS.md` already states
   // for the CloudFront Function (#216): an assertion that cannot be true before the deploy exists lives
   // in the post-deploy smoke and SKIPS elsewhere. The pre-merge half of criterion 2 is carried by
   // `scripts/routes.test.mjs`, which asserts the held slugs are absent from `localizedRoutes()` — the

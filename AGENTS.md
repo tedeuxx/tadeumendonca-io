@@ -1,416 +1,403 @@
-# tadeumendonca-io — the harness-neutral brief
+# tadeumendonca-io — the brief
 
-**This file is the whole brief for any agent harness that reads `AGENTS.md`.** It is not a
-compatibility copy and it is not generated. Where your harness reads a root brief under a different
-name, that other file exists in this repository too and is longer; **this one is not derived from it**,
-and the two are authored side by side under the same rule rather than one being transformed into the
-other.
+**This file is the single brief for every agent harness that works in this repository** (#721, owner
+decision 2026-10-11: no brief that only one harness reads). It is authored, not generated. The body
+states rules as obligations true on any harness; instructions for one harness sit only in the labelled
+section at the end.
 
 sphere: personal
 
 This is a declaration only, recorded as decision record 0035 in the [workstation configuration repository's decision library](https://github.com/tedeuxx/mhw/tree/main/docs/adr); there is no stop-on-undeclared rule.
 
-## The budget, and whose it is
+## The budget
 
-**Keep this file under 50,000 characters.** That number is **one consumer's measured floor, not a
-standard**: Kiro `1.0.437` loads `AGENTS.md` as always-on steering and truncates it at 50,000
-characters, announcing the loss only on a debug channel. **Every other harness's budget is unmeasured.**
-The measurement is a read of the shipped bundle's control flow on a machine where that tool has never
-authenticated; it has not been confirmed against a live session.
+**Keep this file under 30,000 bytes; the gate fails at 30,000.** The smallest measured consumer reads
+only the first 32,768 bytes and silently drops the rest, so a rule past that point does not exist for
+it. Which harnesses were measured, and how, is in the harness-specific section. Carry rules and the
+minimum reason for each; measurements and struck wording live in git history and the decision records.
 
 ## What this repository is
 
-**The owner's proof-of-engineering site — a fully static single-page application served from object
-storage behind a CDN. There is no backend**: no API, no database, no authentication, no Lambda. It
-was a backend-bearing monorepo once; that half was retired.
+**The owner's proof-of-engineering site: a fully static single-page application served from object
+storage behind a CDN. No backend** — no API, database, authentication or Lambda; that half was retired.
+It is the public presence for the apex domain, backing his repositioning toward AI engineering (agentic
+development, AI-native automation) on delivery-lifecycle and distributed-systems experience: an
+interactive CV, a portfolio of public repositories, a reading shelf, long-form writing. **Content ships
+in the repository** — markdown for long-form, typed source for structured data — prerendered at build
+time in both locales so social and search metadata land in the served HTML.
 
-It is the public presence for the apex domain: an interactive CV, a portfolio linking to a curated
-catalog of public repositories, a reading shelf, and long-form writing. **Content ships in the
-repository** — markdown for long-form, typed source for structured data — and every route is
-prerendered at build time, in both locales, so social and search metadata land in the served HTML.
+**The argument is the code it links to.** Decisions carry documented trade-offs because the repository
+is public and *is* the pitch. No over-engineering; not a playground either — it has to work.
 
-**The argument is the code it links to.** Decisions are defensible with documented trade-offs, because
-the repository is public and it *is* the pitch. No over-engineering; also not a playground — it has to
-work.
+## The floor — obligations, true on a harness with no hooks
 
-## The floor — obligations, not descriptions of enforcement
-
-**Every rule below is stated as something you must do, and each is true on a harness with no hooks at
-all.** Where this platform also enforces one mechanically, that is a property of one harness and is
-deliberately not written into the rule.
-
-1. **No solo architectural decisions.** Architecture, contracts, positioning and anything irreversible
-   or public-facing go to the owner. In-pattern implementation is yours to decide and report — asking
-   on in-pattern work is the loop failing to flow, not caution.
+1. **No solo architectural decisions.** Plan and align before coding. Architecture, contracts,
+   positioning and anything irreversible or public-facing go to the owner. In-pattern implementation is
+   yours to decide and report; asking on it is the loop failing to flow.
 2. **Never merge your own work, and never push to the trunk.** `main` is the only branch; work on a
    short-lived branch off it and open a merge request.
-3. **Never rewrite published history.** No force-push to a shared branch, no destructive reset over
-   work you did not create.
+3. **Never rewrite published history**: no force-push to a shared branch, no destructive reset over
+   work you did not create, no recursive force delete.
 4. **Never write a secret into this repository or into a forge secret store.**
 5. **Infrastructure mutation is pipeline-only.** Never run `terraform apply` or `terraform destroy`
-   from a workstation. Local is read-only: format, validate, inspection plan. Destroying live
-   infrastructure means removing it from configuration and merging. Changing DNS, the CDN
-   distribution or the bucket needs explicit confirmation first.
+   from a workstation, nor mutate the cloud account directly. Local is read-only: format, validate,
+   inspection plan. Destroying infrastructure means removing it from configuration and merging.
+   Changing DNS, the CDN distribution or the bucket needs explicit confirmation first.
 6. **Never use a runtime flag that disables your harness's permission checks.**
-7. **Never publish anything private.** See *The private layer* below — it is the sharpest rule here,
-   because this repository is public and the mistake is not reversible.
+7. **Never publish anything private** (*The private layer*). This repository is public and the mistake
+   is not reversible.
 8. **Never name a client in public writing.** A client or other third-party organisation is described
-   by its sector or industry, never by its name; the owner's own employer may be named. Abstract every
-   war story to a generic principle.
-9. **Scratch files go in your harness's own session scratchpad, never in a repository path.** Bodies
-   for merge-request and issue text are written to a file and passed by file, never inlined into a
-   shell argument.
-10. **One work item at a time.** One branch, one open merge request, finished through merge.
+   by its sector or industry; the owner's own employer may be named. Public means everything published
+   — prose, commit and merge-request text, issues, decision records, examples. Abstract every war story
+   to a generic principle.
+9. **Scratch files go in your harness's session scratchpad, never in a repository path.** Merge-request,
+   issue and multi-line commit text is written to a file and passed by file — the shell silently
+   deletes backtick and dollar spans from an inline argument.
+10. **Bound work in progress by `wip:` in `docs/loop-mode.md`, and finish each slice through merge.**
+    Development may run in parallel up to that bound, one `git worktree` per slice; review never does
+    (see *Loop mode, parallel development, the serial gate*).
 11. **A review finding is named, never filed.** Only the owner opens work.
-12. **Everything published on the forge is written in English** — this file, the README, commit and
-    merge-request text, issues, decision records. **The site's own copy is bilingual**; that is
-    content, not forge publication.
-13. **Publish a measured number with the command that produced it, or do not publish the number.**
-14. **Never hardcode a string the interface displays.** The site's chrome is bilingual, and every new
-    interface string is added to the in-repository locale catalog **in both locales**. A string typed
-    straight into a component is shipped untranslated to half the audience — measured here once, where
-    one module typed as a plain string served the wrong language for three days because nothing
-    objected. Long-form content is one file per locale rather than two languages in one document; a
-    missing translation should fail the build, never render.
+12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
+    text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
+13. **Publish a measured number with the command that produced it, or do not publish it.**
+14. **Never hardcode a string the interface displays.** Add it to the locale catalog **in both
+    locales**; structured data carries a leaf-bilingual type, so a missing translation fails the build
+    instead of rendering. Long-form is one file per locale.
 
 ## Quality — what "done" requires
 
-- Lint and type-check clean; unit coverage at or above the project threshold; a green build.
-- **The end-to-end suite is the proof that nothing already working broke**, and it must functionally
-  cover every implemented feature. A change that adds behaviour without its regression is not done.
-- **Observability is part of done, in the shape this repository actually has**: analytics, the client
-  error surface, and a build and prerender smoke — routes render, metadata is present in the served
-  HTML. There is no server telemetry here because there is no server.
-- **A green pipeline is not the review.** The pipeline proves nothing broke; the gate judges whether
-  the change is right.
+- Lint and type-check clean, unit coverage at or above 85%, a green build, the SonarCloud gate.
+- **The end-to-end suite (Playwright) proves nothing working broke** and covers every implemented
+  feature; behaviour added without its regression is not done.
+- **Observability in the shape this repository has**: analytics, the client error surface, and a build
+  and prerender smoke (routes render, metadata in the served HTML). No server, so no server telemetry.
+- **Security by design**: least-privilege pipeline roles per job, no secrets in the repository, a
+  minimal static surface. Rigor scales with blast radius.
+- **A green pipeline is not the review**; the gate judges whether the change is right.
 
-## The routes, and why the path is authoritative
+## The routes
 
-Public URLs carry a locale prefix. **The path decides the language** — a prefixed URL renders that
-edition regardless of the visitor's browser, which is what makes a shared link keep its language.
-Unprefixed sub-paths exist only as a client-side redirect and are **never** advertised in the sitemap
-or in alternate-language metadata. The bare root is the one deliberate exception: it is prerendered,
-it is in the sitemap, and it is the advertised default entry for a crawler with no scripting.
+Public URLs carry a locale prefix (ADR-0036), and **the path decides the language** regardless of the
+browser, so a shared link keeps its language. Unprefixed sub-paths are client-side redirects only: not
+prerendered, **never** in the sitemap or alternate-language metadata. **Two exceptions** (ADR-0052): the
+bare root, prerendered in English, in the sitemap, the default for a crawler without scripting; and the
+bare article path with the English slug, the neutral share address every social post carries —
+prerendered in English, self-canonical, in the sitemap, its article's default.
 
-**`apps/fed/scripts/routes.mjs` is the build-time source of truth for the route set. Read it before
-assuming a route exists.** Do not maintain a route list anywhere else — a second list is a list that
-rots.
+**`apps/fed/scripts/routes.mjs` is the source of truth for the route set; read it before assuming a
+route exists, and keep no route list anywhere else.** The surfaces:
 
-**The prerender is not a visitor.** It snapshots in a single browser and that HTML is served to
-everyone, so anything rendering off the *visitor* — language preference, stored state, viewport —
-rather than off the *route* must opt out of the snapshot. A post-mount check does not do it: the
-snapshot is taken from an already-hydrated page.
+- **Landing** — the storefront; it hosts the articles list, and the old blog index redirects there.
+  Article slugs are **per locale** (ADR-0037).
+- **Interactive CV** — the only CV surface; a two-page edition is printed from it at build time
+  (ADR-0034). Both derive from `apps/fed/src/data/profile.ts`; nothing is re-typed.
+- **Portfolio** — typed data in `apps/fed/src/data/catalog.ts`; the bar to be listed is
+  `docs/catalog-ready.md`.
+- **Ramp-up plan and architecture page** — markdown, both locales.
+- **Library** — typed data in `apps/fed/src/data/library.ts`; its empty state is live copy kept under
+  test; its slug is not localized. Where it and the ramp-up plan name the same book they agree on facts
+  (title, URL, finished status), never on prose.
 
-## Structure
+**The prerender is not a visitor.** It snapshots one en-US browser and serves that HTML to everyone, so
+anything rendering off the *visitor* (language preference, stored state, viewport) rather than the
+*route* must opt out through `window.__PRERENDER__`. A post-mount check does not: the snapshot is of a
+hydrated page. The exemption is *identical for every visitor*, not *does not render*.
 
-- **`apps/fed/`** — the single-page application: the components, the typed data under
-  `apps/fed/src/data/` (the CV, the portfolio catalog and the reading shelf are typed source, not
-  markdown), the route generator in `apps/fed/scripts/`, and the end-to-end suite in `apps/fed/e2e/`.
-  **This directory carries no nested `AGENTS.md`, deliberately, and that absence is the whole of the
-  claim.** A per-directory guide for it *does* exist — under the other root-brief filename, which the
-  harness reading this file does not resolve at any depth — and its material is absorbed into this
-  file rather than pointed at. A second brief under *this* filename would be a second thing to keep
-  honest, and the duplicated pair in this workspace was measured drifting 118 lines in three weeks.
-  Read this file, then read the source.
-- **`iac/`** — the infrastructure as code: object storage, the CDN and its edge rewrite function,
-  custom email records, the pipeline's identity roles, and an account-level cost budget scoped
-  deliberately wider than this project so it catches spend this repository did not create. State lives
-  in a managed remote backend; apply and destroy are pipeline-only.
-- **`docs/adr/`** — the decision library, and **the architecture documentation**. This file is the
-  map; those records are the territory. **Read the relevant record before changing anything it
-  decides.** Also `docs/catalog-ready.md`, the bar a project must clear before it is published in the
-  portfolio.
-- **`.github/workflows/README.md`** — the full pipeline map, kept next to the pipeline definitions
-  because that is where the questions get asked. **Read it before changing a workflow.**
-- **`VERSION`** — numeric SemVer, no pre-release suffix. The deploy bumps the patch on every merge to
-  the trunk and publishes a release; it is the deploy's first step because the version is a build
-  input.
+## Architecture and structure
+
+- **`apps/fed/`** — the application (React, Vite, TypeScript, its own Tailwind, no PWA shell): typed
+  data in `apps/fed/src/data/`, the route generator in `apps/fed/scripts/`, the end-to-end suite in
+  `apps/fed/e2e/`. The build prerenders every route in both locales from the local preview server.
+  **Never add a nested brief under this file's name**; a duplicated pair here drifted 118 lines in
+  three weeks.
+- **`iac/`** — storage, the CDN and its URL-rewrite function, email records, pipeline identity roles,
+  and an account-wide cost budget scoped wider than this project on purpose. State in Terraform Cloud,
+  local execution, one environment at the apex; the web firewall was retired. **`iac/cloudfront-functions/`
+  is application logic**, gated by both `app` (behaviour) and `iac` (the edge running it): a gate
+  follows what a file is, not its directory (ADR-0018).
+- **`docs/adr/`** — the decision library and **the architecture documentation**. Its README is the
+  index and the count; write no count elsewhere. **Read the relevant record before changing anything
+  it decides.** Also `docs/catalog-ready.md` and `docs/iac-deploy-policy.md`.
+- **`.github/workflows/README.md`** — the pipeline map. **Read it before changing a workflow.**
+- **`VERSION`** — numeric SemVer, no suffix. The deploy's first job bumps the patch on every merge,
+  tags and releases, because the footer renders it. A deliberate minor or major is the same job run by
+  hand with its part input (ADR-0044). The `bump:` commit is loop-guarded.
 
 ## The private layer
 
-This repository is **the one place the owner's professional presence is maintained from**, and the site
-is one surface among several. The positioning, the copy canonically published on each surface, and the
-playbook that keeps them in sync live in a **private, version-control-ignored directory at the
-repository root**, named in the ignore file. It is never published.
+This repository is **the one place the owner's professional presence is maintained from**; the site is
+one surface of several. Positioning, each surface's canonical copy and the sync playbook live in a
+**private, version-control-ignored directory at the root**, named in the ignore file. Absolute rules:
 
-Rules that follow, and they are absolute:
-
-- **Read the positioning source before writing any public-facing copy** — site content, READMEs,
-  profile text, CV text. Never write positioning copy from memory; it drifts.
-- **Never commit, quote, paraphrase or otherwise move anything out of that directory into a public
-  surface** — not into this repository, not into an issue, not into a merge request, not into a
-  comment.
-- **A positioning change propagates to every surface in one batch**, and the record of what each
-  surface carries is updated to match what actually shipped.
-- **Writes to external public surfaces are ask-first.** Show the proposal and wait.
+- **Read its positioning and surfaces files before writing any public copy** — site, READMEs, profile,
+  CV. Never write positioning from memory.
+- **Never commit, quote, paraphrase or move anything from it into a public surface** — repository,
+  issue, merge request or comment.
+- **A positioning change reaches every surface in one batch**, and the surfaces file is updated to
+  what shipped.
+- **Writes to external public surfaces are ask-first.**
+- **Tool servers for this workflow are registered in your harness's per-user local scope**, never in a
+  committed configuration file.
 
 ## Fixed decisions — do not reverse without discussion
 
-- **Static site, no backend.** Content is in the repository and prerendered.
-- **The application owns its styling system directly**; no component-library dependency; a single
-  theme; no progressive-web-app shell.
-- **The visual identity is a set of deliberate constraints, not defaults — confirm before changing any
-  of them.** One fixed theme and **no light/dark toggle**; a near-black, warm off-white and exactly
-  **one** accent colour; a display face and a monospace face for labels, data and metadata,
-  self-hosted rather than fetched; and **zero border-radius, no shadow, no gradient**, enforced in the
-  styling scale itself so a leftover rounded or shadowed utility renders square and flat. There is one
-  carved exception, a round portrait, reachable only through its own named utility and deliberately not
-  through the general scale. Read these as decisions someone made and had reasons for: they are the
-  reason the surface looks like one thing, and each is individually easy to erode by accident.
-- **Pipeline identity is pinned to the repository's immutable subject**, never to its name — a rename
-  silently breaks every trust relationship otherwise.
-- **The vocabulary for the practice is fixed and lives in the private positioning source.** Read it
-  before writing copy that names the practice.
-- **A client is described by its sector in public writing, never by its name; the owner's employer
-  may be named** (floor item 8).
+- **Static site, no backend**; content in the repository, prerendered.
+- **The application owns its styling** (ADR-0007): no component library, one theme, no PWA shell.
+- **The visual identity is deliberate — confirm before changing any of it** (ADR-0008): **no
+  light/dark toggle**; near-black `#0A0A0A`, off-white `#F5F4EF` and **one** accent, safety orange
+  `#FF5A00`; a self-hosted display face and monospace face; **zero radius, no shadow, no gradient**,
+  enforced in the styling scale. The one exception, a round portrait, has its own named utility.
+- **Pipeline identity is pinned to the repository's immutable subject**, never its name. Role
+  identifiers are environment secrets; tooling tokens are repository secrets.
+- **The practice's vocabulary lives in the private positioning file**; read it before naming the
+  practice. *agent-driven* is retired from reader-facing copy.
 
-## Requires explicit confirmation before you act
+## Merge classes
 
-- **A merge that touches `iac/`** — the deploy applies it against real infrastructure. Confirm the
-  plan first.
-- **Publishing an article.** It is the owner's *voice*: what the piece argues, in whose words, is not
-  something an agent supplies.
-- **Anything that threatens the site's continuity**, and any change to the rules by which work is
-  decided.
+**Loop model: `trunk-single-env`** — one branch, one environment, merge request to `main` to deploy.
+The integration-branch and staging half of the platform's loop skills does not apply; where a platform
+skill and this file disagree, this file wins.
 
-**One residue, stated so it is a known cost rather than a surprise:** social scrapers pin the preview
-card they first fetch, so a wrong unfurl on an already-shared post is not repaired by the next merge.
-It stays wrong on that post and right everywhere after. This is bounded and accepted.
+The merge **is** the deploy, and the quality-assurance gate holds it. It runs on every merge request,
+verifies the Definition of Done with evidence, then merges the **safe class** or escalates the
+**boundary class** to the owner (ADR-0003 and its amendments are operative; read them to classify).
 
-## How to ask — one global rule, then the form of an escalation
+- **Safe:** docs, dependency bumps, tests, in-pattern work on an approved spec, the whole `product`
+  backlog **including what a reader sees**, an amendment that decides something, and a record
+  correction that only points at a ratified decision.
+- **Boundary:** a merge touching `iac/` (confirm the plan first); anything threatening the site's
+  continuity; any change to how work is decided; **publishing an article** (the owner's voice).
+- **Unclear means boundary.** The gate never merges an expansion of its own authority. The owner
+  ratifies by commenting on the merge request and the gate verifies that comment; a relay is never the
+  authority.
+- **`reader-facing` is an ordering and lens signal, not a gate**; the gate still dispatches the product
+  lead's copy lens on such a diff.
+
+**Known residue:** social scrapers pin the first card they fetch, so a wrong unfurl stays wrong on an
+already-shared post. Bounded and accepted.
+
+## How to ask
 
 **Rule 1 governs every ask directed to the owner — decisions and actions, inside or outside work in
-flight.** An interview, a design conversation and an ad-hoc request are not thereby escalations; rules
-2–5 govern the form only when the act they describe applies. The global rule is one ask. The remaining
-rules say what shape that one ask takes, and an interview remains distinct: it elicits without options.
+flight.** A design conversation or an ad-hoc request is not thereby an escalation. Rules 2–5 govern
+form only where their act applies; an interview remains distinct: it elicits without options.
 
-1. **One owner ask per activation or message.** Two, however short, is a list, and he pays the
-   context-rebuilding cost twice. Ask or order the first; preserve every remaining ask until after he
-   answers, then carry the next to its own activation or message. Never move the remainder into a prose
-   or numbered list. **This is
-   the costliest rule here, not the politest one:** where the surface you raise questions through shows
-   only the first of several, the remainder were never put to anybody, nothing announces the loss, and
-   the work carries on as if they had been answered. You have no way to tell which surface you got. Ask
-   one.
-2. **The interruption is a tweet; the context lives in the OPTIONS.** Each option states its own
-   consequence, and that is the entire preamble — the reasoning goes in something he can open, never
-   into the interruption. **Write the consequence into the option's own visible text.** A consequence
-   attached beside the option rather than inside it can be lost in transport on the way to him, silently.
-3. **Enumerate the choices and give each its consequence. Four is a ceiling, not a target.** This is an
-   obligation about the choices and not about any widget: use a structured presentation where your
-   harness has one, enumerate in prose where it does not, and keep the ceiling either way. An open
-   question standing in for a reduction you owed is the failure this rule exists for.
-4. **An act you cannot perform yourself is an order and a link, not a question.** The test is whether
-   there is a second option you would genuinely defend; if there is not, it is an instruction — one
-   line, the act and the object, no options, no recommendation. The tell in a bad one is that every
-   option is the same act at a different time. Lead with the ask.
-5. **An interview takes NO options; an escalation always does.** They are opposite rules because they
-   are opposite acts — an interview draws out what he thinks and a menu would put words in his mouth,
-   while an escalation asks him to settle something you have already reduced. **The escalation half is
-   a floor rule rather than a matter of taste:** an options-less question can be disposed of by the
-   machinery itself and the work advanced, leaving at most a debug record nobody is watching.
+1. **One owner ask per activation or message.** Two is a list and he rebuilds context twice. Ask or
+   order the first; preserve every remaining ask until after he
+   answers, then carry the next to its own activation. Never move the remainder into a prose
+   or numbered list: where a surface shows only the first, the rest silently never reached him.
+2. **The interruption is a tweet; the context lives in the OPTIONS**, each stating its consequence in
+   its own visible text. Reasoning goes in something he can open.
+3. **Enumerate the choices with their consequences; four is a ceiling.** Use a structured multiple-
+   choice presentation where your harness has one, prose where not. An open question in place of a
+   reduction you owed is the failure.
+4. **An act you cannot perform — a merge above all — is an order and a link, not a question.** If there
+   is no second option you would defend, it is one line: the act and the object. The tell: every option
+   is the same act at a different time.
+5. **An interview takes NO options; an escalation always does.** An interview draws out what he thinks;
+   an escalation asks him to settle what you already reduced.
 
-**Rule 4 was built as an automatic control once and removed.** The lesson is why it is a written rule
-here: **a preventive control whose false positives are invisible to the person it protects is worse than
-no control at all, however good its true positives** — the suppression lands before he sees anything, so
-a withheld decision reaches him as prose that reads like a decision already made.
-
-**The provenance of the three consequences above, because a measured claim with no version quietly goes
-false:** they are read from the control flow of Kiro `1.0.437`'s shipped bundle, on the same machine and
-the same build as the budget figure at the top of this file — a machine that has never authenticated
-that tool and has never run a session in it. Control flow read, not behaviour observed; dated, not
-settled. **None of the five obligations depends on that reading being right**: each is worth obeying on
-a harness where none of it holds, which is why they are stated as things you do rather than as things
-that happen.
-
-**The sibling repository's brief is to carry the same five rules, with NO byte-identity obligation
-between them.** That is stated as the rule and not as a claim about that repository's state, which
-nothing here can verify. The two briefs are deliberately different documents — different floors,
-different structure, different subject matter — so it is the rules that must agree and never the
-characters. The divergence is not a defect to repair.
+**Rule 4 was built as an automatic control and removed — do not rebuild it.** It classified by label
+spelling, not choice shape. **A preventive control whose false positives are invisible to the person
+it protects is worse than none.** Rules 2, 4 and 5 are held by review. The sibling repository's brief
+carries the same five rules; the rules must agree, never the characters.
 
 ## How work is dispatched
 
-Work here is carried out by the platform's profiles — product lead, tech lead, agents lead, scrum
-master, developer, content writer, content reviewer and quality assurance — whose briefs live in the
-sibling repository rather than in this one. The main session hands each piece of work to one of them.
+The main session hands each piece of work to the profile that owns it; profile briefs live in the
+sibling repository. **The list is the whole live roster**, checked by the `app` workflow against the
+sibling's profiles. Retired names (security reviewer, harness reviewer or lead, plain writer, plan
+reviewer, principles guide) fail when invoked.
 
-**Every dispatch is a fresh instance, and no instance is reused.** When you hand work to a profile,
-start a new instance of it for that one dispatch. Never carry an instance from one issue to the next,
-and never carry the instance that built a change into reviewing it — the review is its own dispatch,
-started fresh. Proposing a change and building it are separate dispatches too. **This is about
-instances, not profiles:** the agents lead may still both build a `loop` item and review it, which is
-an accepted decision in the sibling repository's decision library (its roster-and-loop record, record
-0015 there, mitigated by that profile never merging), and this rule does not reverse it — it requires
-the two acts to run in two contexts. The reason is what a verdict attests: the diff the reviewing
-context actually holds. An instance carried across several issues, or whose earlier history has been
-summarised or truncated to fit, may no longer hold the diff it signs, and its verdict reads the same
-either way. Nothing observes which instance ran a dispatch; this is held by whoever dispatches and by
-review.
+<!-- roster:dispatch -->
+- **`tech-lead`** — decisions against the principles and records; writes product and system records.
+- **`product-lead`** — what to build next; whether published copy is true.
+- **`developer`** — builds a slice end to end against an approved spec.
+- **`content-writer`** — drafts articles, site copy and social posts in the owner's voice; never posts.
+- **`content-reviewer`** — repairs that draft in place, at most two rounds, quoting the voice standard or the source; never posts. No copy block on the content lane.
+- **`quality-assurance`** — the merge gate: delivery and production lenses, permission floor, supply chain.
+- **`agents-lead`** — the machinery (hooks, configuration, briefs, plugin); may build what it reviews, never merges or gates.
+- **`scrum-master`** — which profile acts next, and whether rites ran in order; holds no tools.
+<!-- /roster:dispatch -->
 
-## Standing rules for working this loop
+**Every dispatch is a fresh instance.** Never carry an instance across issues, nor the builder's
+instance into review; proposing and building are separate dispatches too. The agents lead may both
+build and review a `loop` item, but in two contexts, because a verdict attests the diff the reviewing
+context holds.
 
-**These are the owner's standing rules for any agent working this loop, restated as obligations.**
-Until this section existed they were recorded only in one harness's private memory store, which no
-other harness reads, so they never reached a session running anywhere else — and a session rooted in
-this repository reads this file, not the sibling repository's brief, which carried them first. Each is
-true on a harness with no hooks. They add to the floor above rather than restate it; where one sits
-next to a floor item, it names that item. Mode-dependent values, and the bound on work in progress, are
-deliberately not stated here — read them from `docs/loop-mode.md`.
+## Standing rules
 
-### Git and the forge
+Each is true on a harness with no hooks. Mode values and the work-in-progress bound are in
+`docs/loop-mode.md`.
 
-1. **Merge with a real merge commit. Never squash, and do not rebase-merge unless the owner asks.** The
-   branch's individual commits are the changelog: release notes are built from their conventional
-   commit subjects, and a squash collapses them into one. If a repository permits only squash, report
-   that rather than squashing.
-2. **In a commit message, reference an issue as `Refs #N`. Never put a closing verb — close, fix,
-   resolve, in any tense — in the same clause as an issue number, not even to deny it.** The forge's
-   parser is lexical: it closes the issue on merge and never reads the negation. A merge request's
-   resolved closing set is derived from its body alone, so inspecting the body cannot see a commit
-   message. Check the commit range instead:
+### Git, forge and reporting
 
-   ```
-   git log <merge-base>..<head> --format='%B' \
-     | grep -inE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\b[^.]{0,20}#[0-9]+'
-   ```
-
-   Calibrated rather than trusted: the same selector finds a negated sentence in this repository's own
-   history, so it can return a hit.
-
-   ```
-   git log --all --format='%B' --grep='Filed not fixed: #266' \
-     | grep -inE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\b[^.]{0,20}#[0-9]+'
-   # -> 1 line: "Filed not fixed: #266 (ContactFooter hardcodes a UI string outside the i18n"
-   ```
-3. **Undo a recent change by reversing that change, never by checking out or restoring the whole
-   file.** Resetting a file to the index discards every edit in it that is not yet staged, not only
-   the last one, and nothing keeps a copy; restoring it from the last commit discards the staged ones
-   too. Before deliberately breaking something to test it, commit the good state;
-   then a restore is correct instead of destructive.
-4. **Address a repository explicitly rather than through the shell's current directory** — `git -C
-   <path>`, and a repository flag placed after the subcommand — and never change directory inside a
-   compound command. Several checkouts of one repository can be live at once, so the current
-   directory does not identify which one an act lands in, and an act that defaults to the current
-   branch can land on a different slice's work.
-5. **Commit messages longer than one line go through a file as well** — floor item 9 requires it for
-   merge-request and issue bodies, and the reason is the same: the shell silently deletes backtick and
-   dollar spans from an inline message, and the commit is created anyway, carrying the mutilated text.
-6. **Scratch never goes to a shared system temporary directory, and never inside a repository's `.git`
-   directory.** Floor item 9 says where scratch goes; these are the two places it has actually gone
-   instead. If your harness gives you no session scratchpad, ask where scratch belongs rather than
-   choosing either of those.
-7. **Never wait on a pipeline with a sleep-and-poll loop.** Push, report that checks are running, and
-   check once, when it matters. When you read a result, read it for the exact commit you mean, by its
-   full identifier. **The same holds for an agent you dispatched:** wait for it once, blocking, with
-   the longest timeout your tool accepts — the wait returns as soon as the agent finishes — and never
-   sleep, list or re-wait on a short timeout in between. Every check is a model request that re-sends
-   your whole context.
-
-### Reporting to the owner
-
-8. **A merge-request link reaches the owner only when that merge request is ready to merge**: every
-   check has finished and passed, and the gate's verdict at the current head leaves only his act.
-   Before that, report state in prose and name the item by number. A merge-request link in his hands
-   reads as *something is waiting for me*, whatever sentence sits beside it. An issue link carries no
-   such signal and is unaffected.
-9. **When you do hand him a link, it is the browser address, not a command line for him to run.**
-10. **A failed check is yours to fix, not his to hear about.** Send it back to whoever built the change,
-    with the failing job and its cause, and keep going until the pipeline is green — unless the failure
-    needs a decision only he holds, in which case it is an escalation and *How to ask* above governs
-    its form.
-11. **Anything you need from him goes first in the message, labelled as a request.** An ask buried
-    under a status report is not read. Rule 4 of *How to ask* says this for an act he must perform;
-    this extends it to every message.
-12. **His decision lands on the item it decides, at the moment he makes it** — a comment on the issue
-    or merge request, carrying his words. Relaying his answer into a dispatch is a separate act and does
-    not record it: a fresh context, such as a gate or a later session, reads the tracker, never your
-    conversation.
+1. **Merge with a real merge commit; never squash, no rebase-merge unless he asks.** Commits are the
+   changelog. If only squash is permitted, report it.
+2. **Reference an issue as `Refs #N`; never put a closing verb (close, fix, resolve, any tense) in the
+   same clause as an issue number, even negated** — the forge closes on merge. The closing set read
+   from the body cannot see commits, so check the range:
+   `git log <merge-base>..<head> --format='%B' | grep -inE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\b[^.]{0,20}#[0-9]+'`
+3. **Undo a change by reversing it, never by restoring the whole file**, which discards every unstaged
+   edit. Commit the good state before breaking something to test it.
+4. **Address a repository explicitly** (`git -C <path>`, a repository flag after the subcommand); never
+   change directory inside a compound command. Several checkouts can be live at once.
+5. **Scratch never goes to a shared system temp directory or inside `.git`**; with no scratchpad, ask.
+   Verdicts go to the merge-request comment; interview transcripts and source material to the private
+   directory; a probe worth running twice is a spec under `apps/fed/e2e/`, else nothing; an isolated
+   checkout is a `git worktree` with its own install. The application's old scratch directory is
+   retired and deliberately not ignored, so writing there fails lint.
+6. **Never sleep-and-poll a pipeline or an agent.** Push, say checks are running, check once for the
+   exact commit by full identifier; wait for a dispatched agent once, blocking, with the longest
+   timeout. Every check re-sends your whole context.
+7. **A merge-request link reaches the owner only when it is ready to merge** — every check passed and
+   the gate's verdict at head leaves only his act. Before that, report in prose by number. A link is
+   the browser address, never a command for him to run.
+8. **A failed check is yours to fix**: send it back to the builder with the job and cause until green,
+   unless only he can decide it (then *How to ask*).
+9. **What you need from him goes first, labelled as a request.**
+10. **His decision lands on the item it decides when he makes it** — a comment carrying his words.
+    Relaying it into a dispatch is not recording it.
 
 ### The queue
 
-13. **An item the owner opened is never closed on an agent's advice.** A lead recommending that it be
-    dropped withholds `ready`; the item stays, and closing it is his act.
-14. **When he gives several asks at once, each becomes its own tracked item before anything is
-    built.** Folding them straight into slices invents groupings and silently drops whatever did not
-    fit one.
-15. **In every mode, every eligible `loop` item is worked before any eligible `product` item.**
-    Ordering inside each block follows the mode of record. Eligible means in the pool that
-    `docs/loop-mode.md` defines for the mode in force — read the predicate there, not a paraphrase of
-    it; under `scrum` that pool holds only items in the active iteration's milestone. Every mode's pool
-    requires `ready`, so an item still awaiting `ready` is never in it. Neither predicate filters
-    `blocked`, so a `ready` item carrying `blocked` is still in the pool.
-16. **`content` is selected by the owner one piece at a time and is never drained autonomously.** When a
-    `content` item is opened, its intake starts by interviewing him about what it must communicate,
-    recorded in his words, one question at a time and without options (rule 5 of *How to ask*).
-17. **The eligible pool spans both repositories of this platform** — read both queues. Read the mode of
-    record, `docs/loop-mode.md`, before any pool query, and never infer the mode from what a query
-    returns: an empty result means different things in different modes.
-18. **Review is routed by type.** `loop`: one agents-lead lens pass, plus the gate. `product`: the
-    leads' lenses as the slice warrants, plus the gate. `content`: the content writer drafts and the
-    content reviewer repairs in place for at most two rounds, plus the gate. The gate runs on every
-    merge request whatever the type, and nothing in this routing narrows it. Intake is routed the same
-    way: a `loop` item's description is closed by the agents lead alone, a `content` item's by the
-    product lead alone, and a `product` item's by the product and tech leads together.
-19. **A dispatch that only reads a checkout still gets its own worktree whenever a build may be
-    running.** Producing no diff is not the same as not colliding: a concurrent build switches branches
-    under a reader sharing its checkout, and the reader measures the wrong tree.
+11. **An item he opened is never closed on an agent's advice**; a lead withholds `ready` instead.
+12. **Several asks at once become one tracked item each before anything is built.**
+13. **Every eligible `loop` item is worked before any eligible `product` item**, in every mode.
+    Eligible means in the pool `docs/loop-mode.md` defines for the mode in force — read the predicate,
+    not a paraphrase. Every pool requires `ready`; none filters `blocked`.
+14. **`content` is selected by him one piece at a time, never drained.** Its intake interviews him, in
+    his words, one question at a time, without options.
+15. **The pool spans both repositories.** Read the mode of record before any pool query and never infer
+    it from a result: an empty active milestone ends an iteration in one mode and means nothing in the
+    other, with byte-identical output. At drain entry, compare both repositories' mode records and stop
+    on a disagreement.
+<!-- review-chain-routing -->
+16. **Review is routed by type.** `loop`: one agents-lead lens pass plus the gate. `product`: the leads'
+    lenses as warranted plus the gate. `content`: writer drafts, reviewer repairs in place (two rounds
+    at most), plus the gate. The gate runs on every merge request under both lenses; routing never
+    narrows a criterion, removes a hold or changes a verdict literal, and the reader-facing copy
+    criterion fires regardless of type. A lens the row does not name needs its reason in the dispatch.
+    A lens's stop condition bounds a pass; routing bounds the passes; no rule keys on a round count.
+    Intake: `loop` closed by the agents lead alone, `content` by the product lead alone, `product` by
+    both leads.
+<!-- /review-chain-routing -->
+17. **A read-only dispatch gets its own worktree whenever a build may be running.**
 
-### Building and investigating
+### Building, investigating, acting
 
-20. **Before changing the loop, re-derive its state model**: the item types, the states each passes
-    through, which role acts at each transition, and what observable artifact records that it happened.
-    A rule whose application no artifact records is applied inconsistently and silently.
-21. **Before relying on a check you wrote or changed, break its subject on purpose, watch it go red,
-    restore, and watch it go green.** Mutate the thing checked, never the checker. A check that has
-    only ever passed has been observed passing, not shown to work. See *Before you trust a green, break
-    it on purpose* in the platform's engineering-standards skill.
-22. **A true answer that closes the inquiry is the failure to guard against.** When a symptom repeats,
-    *the actor should have been more careful* is a reason to keep going, not a conclusion: find what
-    made the rule unreachable at the moment of the act. That is principle 12 in the same skill.
-23. **Do not assert in a dispatch brief a premise you have not measured.** Measure it and carry the
-    command, or write it as a premise the dispatch must verify. A brief is the specification the
-    dispatch builds against, so a false premise there becomes the design. State facts in a brief, and
-    mark any argument written to justify one as briefing-only — reasoning placed in a brief tends to
-    come back as published text. **Never ask a dispatched profile to re-read a file its instructions
-    already carry, and as that profile do not re-read one on your own:** the read adds a second copy
-    that every later request re-sends. If you have reason to think the carried copy is stale, read only
-    the section you need and say why.
-24. **A change to the machinery is evaluated against every harness that runs sessions in this
-    repository**, not only the one you are running on.
-25. **A secret's scope and name follow the single standard in the platform's devops skill.** Never
-    decide either per repository.
+18. **Before changing the loop, re-derive its state model**: types, states, the role at each
+    transition, and the artifact that records it.
+19. **Before relying on a check, break its subject, see red, restore, see green.** Mutate the thing
+    checked, never the checker (engineering-standards skill). **A true answer that closes the inquiry
+    is the failure**: on a repeating symptom, *be more careful* means keep digging for what made the
+    rule unreachable.
+20. **Do not assert an unmeasured premise in a dispatch brief.** Carry the command, or mark it a premise
+    to verify; mark any justification briefing-only. **Do not ask a dispatched profile to re-read a
+    file it already carries, nor re-read one yourself**; if stale, read only the section and say why.
+    **Evaluate a machinery change against every harness that runs sessions here.** Secret scope and
+    name follow the devops skill's single standard.
+21. **The orchestrator — the main session the owner talks to — only dispatches and never edits a
+    repository file.** On the `loop` lane **he decides `ready` and the orchestrator applies it once
+    aligned**, his words recorded on the item; no dispatched profile applies it. Elsewhere `ready`
+    follows the intake that closes the description.
 
-### Who acts, and what is written in public
+### Loop mode, parallel development, the serial gate
 
-26. **The main session — the context the owner talks to, called the orchestrator here — only
-    dispatches. It never edits a repository file itself.** Every real change flows through a profile
-    and that profile's gates, on any harness. **No layer enforces this**: the check that once refused
-    such an edit was removed, so nothing stops the orchestrator from making one. It is an obligation
-    held by the orchestrator and by review.
-27. **On the `loop` lane, the owner decides whether an item is ready, and the orchestrator applies the
-    `ready` label once it has aligned with him.** The agents lead closing the description does not earn
-    the label, and no dispatched profile applies it. Aligned means he has said the item is ready, and
-    his words are recorded on the item (standing rule 12, not floor item 12). On the other lanes,
-    `ready` follows the intake that closes the description (standing rule 18).
-28. **On any public surface, a client or other third-party organisation is described by its sector or
-    industry, never by its name.** The owner's own employer may be named. Public means everything
-    published — prose, commit and merge-request text, issues, decision records, examples. Floor item 8
-    states the same rule.
+<!-- loop-mode-contract -->
+22. **A mode names a known agile method and fixes only what the iteration container MEANS and which
+    rites run at its edges**; value, enum and predicates are in `docs/loop-mode.md`. `scrum`: the
+    milestone is a commitment, a limb of the pool whose exhaustion ends the iteration and hands off to
+    review, retrospective and planning; ranked at planning. `kanban`: the same milestone is a period
+    label bounding nothing, no rite at a boundary, arrival order with `loop` first. The milestone exists
+    in both; nothing enters a running iteration automatically; composing one is his act. **A mode
+    selects a predicate and a rite set, never a permission rule**: it may not touch the permission
+    floor, the gate and its lenses, head-scoped verdicts, only-the-owner-opens-work, the readiness bar
+    (`sp:N` in both modes), the routing labels or the container's existence; `content` has no second
+    mode. A rite trigger keys on elapsed time, never on an empty pool. A mechanism that needs the mode
+    is reviewed before it is written.
+23. **Development parallelises; review does not.** One merge request in review at a time whatever
+    `wip:` says; the next goes to the gate only after the previous merged or was sent back. **Rebase
+    onto the current trunk before the gate**, asking *has the trunk moved since the head I attested?*,
+    not only *does a named branch overlap?*. The author resolves conflicts at merge-request time. The
+    sequence in an iteration is the machine's: the scrum master proposes, the orchestrator opens
+    worktrees and dispatches, no per-item approval. Remove a slice's worktree after merge.
+<!-- /loop-mode-contract -->
+24. **A gate dispatch names the merge request by number, positionally** (`gh pr merge <number> --merge`);
+    with no reference it resolves to the current checkout's branch, possibly another slice's.
+25. **A harness diff needs an agents-lead verdict marker whose commit line names the merged head in
+    full forty characters**; an older head's marker attests a diff it never read. The gate checks it.
 
-## What is checked, and what no check can say
+## The pipelines
 
-A gate asserts that this file is **tracked**, **under the character budget with headroom**, **free of a
-declared set of tokens specific to one harness**, and that **every repository-relative path it names
-exists**.
+Workflows are named after the directory they gate; the map is `.github/workflows/README.md`.
 
-**What no check can assert: that this brief is TRUE, or that it is neutral rather than merely free of
-the tokens on a list.** A sentence that is portable in vocabulary and false in substance passes every
-arm. Neutrality is held by whoever writes and reviews this file.
+- **`app`** — dependency audit (blocks high and critical production advisories, ADR-0021), lint,
+  types, unit tests with coverage, build, end-to-end, SonarCloud, harness drift, behind one aggregator
+  whose name branch protection fixes.
+- **`iac`** — credential-free policy scan and format check, then the plan, the only job with a cloud
+  token.
+- **`github`** — workflow and shell linting, separate so another workflow's syntax error cannot stop it.
+- **`brief`** — this file's mechanical properties.
+- **`deploy`** — on push to `main`, skipping `bump:` commits: release, gate, apply and publish, then
+  end-to-end against the live apex, which is not a gate — red means the site is broken.
 
-## What this file deliberately does not carry
+**Every merge-request workflow runs on every merge request and filters inside the job**, since a
+workflow-level path filter can never be a required check, and ends with a notice saying whether
+nothing matched, a step failed, or what ran. A check that matched nothing must not read as passed. The
+merge request carries every check that can be true before merge; only post-deploy-only assertions live
+in the post-deploy smoke. **`main` is the working branch**: no tooling may block edits by branch.
 
-- **The harness-specific installation and configuration steps.** They are in `README.md` and in this
-  repository's other root brief.
-- **The invocation syntax for a typed command.** Reach a guide by its path and read it.
-- **Counts.** Every enumerated number ages. Where you need one, derive it.
+## What is checked
+
+A gate asserts this file is **tracked**, **under the byte budget**, **free of declared single-harness
+tokens outside the labelled section**, that **its repository-relative paths exist**, that **no
+competing root brief is tracked**, and that the five *How to ask* commitments are present. **No check
+can assert the brief is TRUE, or that a sentence is neutral rather than token-free** — nor that text
+inside a harness subsection belongs to that harness; review holds those. Test: *would this sentence be
+true on a harness with no hooks?* Counts age; derive them.
+
+<!-- harness-specific -->
+## Harness-specific instructions
+
+Each subsection applies only to the harness it names and relaxes nothing above.
+
+### Claude Code
+
+- **This file loads only as a fallback.** Measured on `2.1.296` (2026-10-11, headless, no tools): alone
+  it loads; a root CLAUDE.md, a .claude/CLAUDE.md, a CLAUDE.local.md or a CLAUDE.md in any ancestor
+  directory each **replace** it entirely. The gate refuses the three tracked forms; an untracked local
+  file or an ancestor file is invisible to it, so never create one here or above this checkout. On
+  `2.1.263` (#409) a skill body did not reach the main session (only name and description) and an
+  added working directory did not bring its root brief; the second is unmeasured for this filename.
+- **The plugin.** `.claude/settings.json` enables `tadeumendonca-skills`, whose `PreToolUse` guard
+  denies push or merge to `main`, `terraform apply`/`destroy`, cloud mutation, force-push, `rm -rf` and
+  secret writes. Never use `--dangerously-skip-permissions`. Nothing bounds work in progress or the
+  serial gate: opening a merge request is allowlisted.
+- **Pickers.** *How to ask* rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
+  -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. The
+  plugin's one-question guard denies two or more questions in one call. Its link detectors decide
+  *whether* a merge-request link may go; rule 4 decides the form.
+- **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
+  the plugin's zombie-loop detector reports all-stale markers on `Stop`, one turn late, denying nothing.
+- **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounds the
+  plugin's browser server and which the sprint-review rite's first probe compares. Read it only with
+  `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`;
+  empty means the rite stops. It must cover every generated route URL and takes effect after restart.
+  **No additional directories are declared** (#683: the origin bound in 2 of 12 trials with the
+  sibling declared, 12 of 12 without); reach the sibling only through `git -C`.
+- **Tool servers**: `claude mcp add -s local`, never a committed project file.
+- **The `claude` workflow** answers explicit mentions; the review gate is the quality-assurance
+  profile, and the automatic app review is retired.
+- **`apps/fed/CLAUDE.md`** is a per-directory guide only this harness reads; outside #721.
+
+### Codex
+
+- **The budget's smallest measured consumer.** `0.155.0-alpha.16.3` defaults `project_doc_max_bytes`
+  to 32768 and truncates the rest; measured live 2026-10-11 with nonces before and after that offset.
+
+### Kiro
+
+- `1.0.437` loads this file as always-on steering and truncates at 50,000 characters, logging the loss
+  only on a debug channel (read from the shipped bundle, never run authenticated).
+<!-- /harness-specific -->

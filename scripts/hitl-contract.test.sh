@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-# Asserts the local carriers of the one-owner-ask contract introduced by skills#538.
+# Asserts the local carrier of the one-owner-ask contract introduced by skills#538.
 #
-# The canonical `hitl-escalation-format` block is byte-shared with the sibling repository, but this
-# repository's pipeline cannot read a sibling checkout. Its local guard is therefore the SHA-256 of the
-# merged canonical block plus an exact delimiter count. The digest detects any local byte drift; the
-# cross-repository comparison remains a published build-time measurement, not a CI claim.
+# `AGENTS.md` is the single root brief since #721 (2026-10-11), so it is the only local carrier. It is
+# checked by semantic commitments rather than by byte identity: every owner ask; decisions and actions;
+# one activation or message; later asks wait for the answer and do not move into prose; interviews
+# remain distinct and optionless.
 #
-# `AGENTS.md` is independently authored, so it is checked by semantic commitments rather than by byte
-# identity: every owner ask; decisions and actions; one activation or message; later asks wait for the
-# answer and do not move into prose; interviews remain distinct and optionless.
+# WHAT WAS REMOVED, AND WHY. Until #721 this suite also pinned the SHA-256 of a canonical
+# `hitl-escalation-format` block in the root brief that only one harness reads, byte-shared with the
+# sibling repository. That brief is deleted and its five rules are stated once, in `AGENTS.md`'s *How
+# to ask* section, so the digest arms had no subject. They are removed rather than left to pass over
+# an absent file. The cost: nothing here compares the sibling repository's copy of the block with
+# anything; that sibling is to be generated from the workstation repository rather than synced by hand.
 #
-# MUTATION-CHECKED: changing one byte inside the CLAUDE.md block makes the digest assertion red;
-# reverting the AGENTS.md one-ask heading to its former decision-only wording makes the semantic arm
-# red; removing this script's workflow invocation makes the reachability arm red. Restore-and-green is
-# part of the calibration. Run: bash scripts/hitl-contract.test.sh
+# MUTATION-CHECKED: reverting the AGENTS.md one-ask heading to its former decision-only wording makes
+# the semantic arm red; removing this script's workflow invocation makes the reachability arm red.
+# Restore-and-green is part of the calibration. Run: bash scripts/hitl-contract.test.sh
 
 set -uo pipefail
 
@@ -23,37 +25,22 @@ if [ -z "$ROOT" ]; then
   exit 1
 fi
 
-CLAUDE="$ROOT/CLAUDE.md"
 AGENTS="$ROOT/AGENTS.md"
 WORKFLOW="$ROOT/.github/workflows/brief.yml"
-EXPECTED_BLOCK_SHA="39e2636fa2daa59945ace09d6539a7da675c0b4b7a70ba6044596b7cd7f61c9a"
 
 pass=0
 fail=0
 ok()  { pass=$((pass + 1)); printf 'PASS  %s\n' "$1"; }
 bad() { fail=$((fail + 1)); printf 'FAIL  %s\n' "$1"; }
 
-open_count="$(grep -c '^<!-- hitl-escalation-format -->$' "$CLAUDE" || true)"
-close_count="$(grep -c '^<!-- /hitl-escalation-format -->$' "$CLAUDE" || true)"
-if [ "$open_count" != "1" ] || [ "$close_count" != "1" ]; then
-  bad "canonical block has one opening and one closing delimiter (found ${open_count}/${close_count})"
+if [ ! -f "$AGENTS" ]; then
+  bad "AGENTS.md does not exist; the semantic assertion did NOT run"
 else
-  ok "canonical block has one opening and one closing delimiter"
-fi
-
-block_sha="$(sed -n '/^<!-- hitl-escalation-format -->$/,/^<!-- \/hitl-escalation-format -->$/p' "$CLAUDE" \
-  | shasum -a 256 | awk '{print $1}')"
-if [ "$block_sha" = "$EXPECTED_BLOCK_SHA" ]; then
-  ok "canonical block matches the merged skills#538 bytes"
-else
-  bad "canonical block SHA is $block_sha; expected $EXPECTED_BLOCK_SHA"
-fi
-
-missing=""
-while IFS= read -r needle; do
-  [ -n "$needle" ] || continue
-  grep -Fq "$needle" "$AGENTS" || missing="$missing\n  $needle"
-done <<'EOF'
+  missing=""
+  while IFS= read -r needle; do
+    [ -n "$needle" ] || continue
+    grep -Fq "$needle" "$AGENTS" || missing="$missing\n  $needle"
+  done <<'EOF'
 **Rule 1 governs every ask directed to the owner — decisions and actions, inside or outside work in
 1. **One owner ask per activation or message.**
 preserve every remaining ask until after he
@@ -61,10 +48,11 @@ Never move the remainder into a prose
 an interview remains distinct: it elicits without options.
 5. **An interview takes NO options; an escalation always does.**
 EOF
-if [ -n "$missing" ]; then
-  bad "AGENTS.md is missing one-owner-ask commitment(s):$missing"
-else
-  ok "AGENTS.md carries the five one-owner-ask commitments"
+  if [ -n "$missing" ]; then
+    bad "AGENTS.md is missing one-owner-ask commitment(s):$missing"
+  else
+    ok "AGENTS.md carries the five one-owner-ask commitments"
+  fi
 fi
 
 if grep -Fq 'run: bash scripts/hitl-contract.test.sh' "$WORKFLOW"; then

@@ -48,4 +48,4 @@ no forms left to hand-build.).
 
 ## Links
 - Driven by ADR-0001, serves ADR-0008 (the identity) · `cn()` = clsx + tailwind-merge (shadcn convention,
-  not its components) · a fixed decision (see repo `CLAUDE.md`).
+  not its components) · a fixed decision (see repo ~~`CLAUDE.md`~~ `AGENTS.md`, #721).

@@ -72,4 +72,7 @@ console.log(
     `${library ? `, ${library.skills} skill(s)` : ''}.`,
 );
 console.log(`Plugin layout read: ${pluginLayout(pluginDir)}.`);
-console.log(`Wrote src/content/generated/plugin-release.json — plugin version ${pluginVersion}.`);
+// The version itself is NOT echoed (jssecurity:S8689, log injection): it is read from the plugin tree,
+// and the owner's rule is to fix such a finding in code rather than accept it. The file it went to is
+// one `cat` away.
+console.log('Wrote src/content/generated/plugin-release.json.');

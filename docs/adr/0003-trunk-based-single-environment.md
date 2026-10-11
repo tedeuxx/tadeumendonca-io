@@ -43,7 +43,7 @@ under `apps/fed`)~~ (retired by the 2026-07-30 amendment: reader-facing content 
 publishing an *article* still escalates), anything creating or changing an ADR decision, anything
 irreversible. *Significance beats
 in-pattern.* A blanket human confirmation on every merge spent the owner's attention on in-pattern work,
-which devalues it at the boundary where it is actually needed. See `CLAUDE.md` §Branching.
+which devalues it at the boundary where it is actually needed. See ~~`CLAUDE.md` §Branching~~ `AGENTS.md`, *Merge classes* (#721 deleted `CLAUDE.md`).
 
 ## Amendment (2026-07-29) — how a ratification is proven, and what no longer needs one
 Two corrections to the 2026-07-23 amendment above, both from operating it: the boundary path had **no
@@ -128,7 +128,7 @@ this ADR's own driving issue — and it makes the class **narrower**, never wide
 including copy a reader sees, is the reviewer's to merge. What still reaches the owner is exactly:
 
 1. **`iac/`**, and anything that threatens the site's continuity.
-2. **A change to the dev-loop's own rules** — this ADR, `CLAUDE.md`'s merge sections, an ADR that
+2. **A change to the dev-loop's own rules** — this ADR, ~~`CLAUDE.md`'s~~ `AGENTS.md`'s merge sections (#721), an ADR that
    decides how work is decided. (This amendment is itself in that class, and is ratified as such.)
 3. **Publishing an article** — the `content` backlog.
 

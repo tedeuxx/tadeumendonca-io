@@ -139,7 +139,7 @@ export const catalog: CatalogProject[] = [
     },
     description: {
       // `agent-driven` is retired (#245). The vocabulary that replaced it — which term is authoritative
-      // where — lives in the private positioning source; `CLAUDE.md` points at it and this comment does
+      // where — lives in the private positioning source; `AGENTS.md` points at it and this comment does
       // not restate it.
       //
       // The rename does NOT put `agent-first` here: the tagline one line above already carries it, so

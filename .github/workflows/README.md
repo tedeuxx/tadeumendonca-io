@@ -152,7 +152,7 @@ not prove that.
 | job | runs when these change |
 |---|---|
 | `eslint`, `tsc` | `apps/**` (**including `e2e/**`**), `packages/shared/**`, root TS + lint config |
-| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`**, **`CLAUDE.md`** |
+| `vitest`, `sonarqube-scan` | the above + `vitest.config.ts`, `sonar-project.properties`, **`docs/adr/**`**, **`AGENTS.md`** |
 | `build-static` | the above + **`VERSION`** |
 | `playwright` | the above — **never only when `e2e/**` changes**, because it drives the build |
 | `harness-drift` | the `code` filter — but see below: its real trigger is **in another repository** |
@@ -214,6 +214,11 @@ Without the entry, the same failure as `docs/adr/**`: a `CLAUDE.md`-only PR skip
 never runs on its own trigger, and the red lands later on an unrelated author. **Not** in `deploy`'s
 gate, for the credential reason above and one more — `CLAUDE.md` ships no served byte, so a deploy
 triggered by it would republish nothing.
+
+**Amended 2026-10-11 (#721): the root `CLAUDE.md` is deleted, and the fence, the filter entry and every
+claim above now belong to `AGENTS.md`, the single root brief.** Read `CLAUDE.md` in this section and in
+the #353 amendment below as the file that carried the fence until then; the rule and the cost are
+unchanged, only the filename moved.
 
 Its blind spot belongs here rather than only in the code: the check reads **only between the markers**.
 A routing sentence in prose elsewhere in the file is invisible to it, which means it would not have

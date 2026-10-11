@@ -1182,9 +1182,9 @@ export function driftReport(diff) {
   ].join('\n');
 }
 
-// ── THE DISPATCH ROSTER IN `CLAUDE.md` (#353) ────────────────────────────────────────────────────
+// ── THE DISPATCH ROSTER IN `AGENTS.md` (#353; in the deleted `CLAUDE.md` until #721) ────────────────────────────────────────────────────
 //
-// `CLAUDE.md` tells the agent which subagent OWNS a given decision. For one day it routed the
+// The root brief tells the agent which subagent OWNS a given decision. For one day it routed the
 // permission floor to a persona the plugin had retired, so the guide's most actionable sentence was
 // the one instruction in the file that FAILED WHEN FOLLOWED. Nothing could have caught it: the
 // manifest under `generated/` is derived and checked; prose is neither.
@@ -1232,7 +1232,7 @@ export function rosterDispatchNames(markdown) {
 export function rosterDispatchReport(fenceNames, livePersonaIds) {
   if (fenceNames === null) {
     return [
-      'CLAUDE.md has no `roster:dispatch` fence, so the dispatch roster is unchecked.',
+      'AGENTS.md has no `roster:dispatch` fence, so the dispatch roster is unchecked.',
       'Restore the <!-- roster:dispatch --> … <!-- /roster:dispatch --> markers around the list.',
     ].join('\n');
   }
@@ -1241,9 +1241,9 @@ export function rosterDispatchReport(fenceNames, livePersonaIds) {
   const unnamed = live.filter((n) => !fenceNames.includes(n));
   if (dead.length === 0 && unnamed.length === 0) return '';
   return [
-    "CLAUDE.md's dispatch roster no longer matches tedeuxx/tadeumendonca-skills:",
-    ...dead.map((n) => `  - ${n} is dispatched in CLAUDE.md and has NO file in the plugin's agents/`),
-    ...unnamed.map((n) => `  + ${n} exists in the plugin and is dispatched NOWHERE in CLAUDE.md`),
+    "AGENTS.md's dispatch roster no longer matches tedeuxx/tadeumendonca-skills:",
+    ...dead.map((n) => `  - ${n} is dispatched in AGENTS.md and has NO file in the plugin's agents/`),
+    ...unnamed.map((n) => `  + ${n} exists in the plugin and is dispatched NOWHERE in AGENTS.md`),
     '',
     'This is almost certainly NOT your change — the roster lives in a separate repository.',
     'Fix the list between the <!-- roster:dispatch --> markers. Say what ABSORBED a retired persona',

@@ -43,8 +43,9 @@ import {
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
-// `CLAUDE.md` sits at the repo root, two levels above this package (#353).
-const GUIDE = join(dirname(FED), '..', 'CLAUDE.md');
+// `AGENTS.md` sits at the repo root, two levels above this package (#353; the fence moved there from the
+// deleted `CLAUDE.md` at #721).
+const GUIDE = join(dirname(FED), '..', 'AGENTS.md');
 const PLUGIN_RELEASE = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 // `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
 // itself any more: a second resolve in the caller is what put the existing check off the path between the
@@ -72,18 +73,22 @@ try {
   // discarding the return means the check ran and the ORIGINAL was used anyway. This was the last site
   // where the pattern was still half-applied.
   //
-  // Landing it now rather than as a follow-up, on `security`'s ruling and for a reason worth keeping:
-  // the two `jssecurity:S8689` findings are now marked false-positive, which permanently silences the
-  // only automated objector to this shape in these files. The new test in harness-source.test.mjs does
-  // not reach here either — it pins the transformation, and a call that discards the return never
-  // consumes it. A follow-up with no remaining objector is, in practice, never.
+  // ~~The two `jssecurity:S8689` findings are now marked false-positive~~ — STRUCK at #721: the owner's
+  // rule is that a security finding is FIXED IN CODE, never accepted. Both are fixed now by removing
+  // the sink rather than arguing about the source: no file-derived version string is logged here or in
+  // gen-harness.mjs, and the error below names the file instead of echoing the validator's message,
+  // which quotes the raw value. Once the code no longer triggers the rule, the false-positive marks in
+  // SonarCloud have nothing left to mark. The new test in harness-source.test.mjs still pins the
+  // transformation; a call that discards the return never consumes it.
   committedVersion = assertPluginVersion(
     JSON.parse(readFileSync(PLUGIN_RELEASE, 'utf8')).version,
     'src/content/generated/plugin-release.json',
   );
 } catch (err) {
+  // The validator's message quotes the raw file value, so it is NOT echoed (jssecurity:S8689); the
+  // error class is enough to say which kind of failure it was.
   console.error(
-    `::error::src/content/generated/plugin-release.json is unusable — ${err.message}. ` +
+    `::error::src/content/generated/plugin-release.json is unusable (${err instanceof SyntaxError ? 'not valid JSON' : 'no valid X.Y.Z version'}). ` +
       'Run `npm --prefix apps/fed run gen-harness`.',
   );
   process.exit(1);
@@ -109,9 +114,13 @@ const isAhead = (a, b) => {
   return false;
 };
 if (isAhead(committedVersion, livePluginVersion)) {
+  // NO FILE-DERIVED VALUE IS LOGGED (jssecurity:S8689, log injection). Both versions are read from files
+  // and pass through `assertPluginVersion`, but the taint engine cannot see that validator as a
+  // sanitiser, and this repository's rule is to fix a security finding in code rather than mark it
+  // accepted. The message names the two files to compare instead; nothing a reader needs is lost.
   console.error(
-    `::error::plugin-release.json says ${committedVersion}, but tedeuxx/tadeumendonca-skills is at ` +
-      `${livePluginVersion} — the committed value names a release that does not exist, so the ` +
+    '::error::src/content/generated/plugin-release.json is AHEAD of the VERSION file of ' +
+      'tedeuxx/tadeumendonca-skills — the committed value names a release that does not exist, so the ' +
       '/portfolio card would link a 404. Run `npm --prefix apps/fed run gen-harness`.',
   );
   process.exit(1);
@@ -163,7 +172,7 @@ if (report) {
 }
 
 // The SECOND artifact this job compares against the same plugin tree (#353): the dispatch roster in
-// `CLAUDE.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
+// `AGENTS.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
 // checkout of the plugin — is already paid for above, and `collectPersonas` is the same read.
 //
 // Ordered AFTER the manifest diff deliberately. When a persona is retired over there, both checks
@@ -204,5 +213,5 @@ if (linkProblem) {
 // A green run that does not say which one it compared leaves the one fact a reader would want unrecorded
 // in the only place it was ever observed.
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, CLAUDE.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, AGENTS.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
 );

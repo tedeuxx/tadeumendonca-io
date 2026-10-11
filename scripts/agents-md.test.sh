@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Asserts the four MECHANICAL properties of this repository's harness-neutral root brief, `AGENTS.md`.
+# Asserts the five MECHANICAL properties of this repository's single root brief, `AGENTS.md`.
+#
+# SINCE #721 (2026-10-11) THIS FILE IS THE ONLY ROOT BRIEF. The owner decided to stop using the brief
+# only one harness reads and to keep this open-standard file for every harness; that harness was
+# measured loading `AGENTS.md` natively the same day. Two arms changed with it, and the paragraphs
+# below that describe "the other root brief" are history: arm 3 now exempts ONE fenced, harness-labelled
+# section, and arm 5 asserts no second root brief is tracked. THE BODY THEREFORE NO LONGER MATCHES the
+# sibling repository's copy byte for byte — the sync obligation described below is broken on purpose,
+# because that sibling is to be generated from the workstation repository rather than edited by hand.
 #
 # WHY THIS EXISTS. `AGENTS.md` is read as always-on steering by at least one agent harness that never
 # reads this repository's other root brief — measured against Kiro 1.0.437, whose bundle resolves
@@ -67,11 +75,17 @@ if [ -z "$ROOT" ]; then
 fi
 
 BRIEF="AGENTS.md"
-# The budget is the consumer's measured cap; the LIMIT is deliberately lower so growth reddens BEFORE
-# it truncates. A gate that fires exactly at the cliff edge tells you at the moment content is already
-# being lost, which is one merge too late.
-BUDGET=50000
-LIMIT=45000
+# The budget is the SMALLEST measured consumer's cap; the LIMIT is deliberately lower so growth reddens
+# BEFORE it truncates. A gate that fires exactly at the cliff edge tells you at the moment content is
+# already being lost, which is one merge too late.
+#
+# BYTES, since #721's review. Codex 0.155.0-alpha.16.3 defaults `project_doc_max_bytes` to 32768 and
+# truncates the rest — measured live 2026-10-11 with `codex exec --ephemeral -s read-only` on a throwaway
+# repository: a nonce before the offset came back, one after it did not, and a short control returned
+# both. That is lower than Kiro 1.0.437's 50,000 CHARACTERS, which set this arm until then, and a byte
+# count is never smaller than a character count, so counting bytes against 32768 also covers Kiro.
+BUDGET=32768
+LIMIT=30000
 
 fails=0
 ok()  { printf 'PASS  %s\n' "$1"; }
@@ -91,22 +105,22 @@ else
 fi
 
 # ── ARM 2 · UNDER BUDGET, WITH HEADROOM ─────────────────────────────────────────────────────────────
-# Characters, not bytes. The consumer slices a decoded string, so a multi-byte character costs one.
+# Bytes of the file as stored: the smallest consumer cuts by bytes, so a multi-byte character costs
+# its full encoded length.
 if [ ! -f "$ROOT/$BRIEF" ]; then
   bad "arm 2 — $ROOT/$BRIEF does not exist; the length assertion did NOT run"
 elif ! command -v python3 >/dev/null 2>&1; then
   bad "arm 2 — python3 unavailable; the length assertion did NOT run"
 else
-  chars="$(python3 -c "import sys;print(len(open(sys.argv[1],encoding='utf-8').read()))" "$ROOT/$BRIEF" 2>/dev/null || true)"
+  chars="$(python3 -c "import sys;print(len(open(sys.argv[1],'rb').read()))" "$ROOT/$BRIEF" 2>/dev/null || true)"
   if ! printf '%s' "$chars" | grep -qE '^[0-9]+$'; then
     bad "arm 2 — could not measure $BRIEF; the length assertion did NOT run"
   elif [ "$chars" -ge "$LIMIT" ]; then
-    bad "arm 2 — $BRIEF is $chars characters, at or past the $LIMIT headroom limit (consumer cap
-      $BUDGET, measured on Kiro 1.0.437, which truncates the file, logs the loss on a debug channel,
-      and appends a '[Truncated: …]' marker to the text the model reads — so the reader is told
-      something went, never what). Cut content; do not raise the limit without re-measuring."
+    bad "arm 2 — $BRIEF is $chars bytes, at or past the $LIMIT headroom limit (smallest measured
+      consumer cap $BUDGET bytes, Codex 0.155.0-alpha.16.3, which silently drops everything after
+      it). Cut content; do not raise the limit without re-measuring every consumer."
   else
-    ok "arm 2 — $BRIEF is $chars characters, under the $LIMIT limit ($((LIMIT - chars)) to spare; consumer cap $BUDGET)"
+    ok "arm 2 — $BRIEF is $chars bytes, under the $LIMIT limit ($((LIMIT - chars)) to spare; smallest consumer cap $BUDGET bytes)"
   fi
 fi
 
@@ -233,16 +247,73 @@ $(calibrate "$TOKENS_CS" E "${FIXTURES_CS[@]}")"
       trusting any green from it:
 $vac"
   else
-    hits_ci="$(grep -niE "$TOKENS_CI" "$ROOT/$BRIEF" || true)"
-    hits_cs="$(grep -nE  "$TOKENS_CS" "$ROOT/$BRIEF" || true)"
+    # THE LABELLED HARNESS SECTION IS EXEMPT, AND ONLY IT (#721). Since this file became the single brief
+    # for every harness, instructions that make sense on one harness live in ONE fenced section headed by
+    # that harness's name. The fence must appear exactly once, opened before it is closed; any other shape
+    # reddens rather than silently exempting more or less than the section. Lines outside the fence keep
+    # their original numbers so a hit points at the real line.
+    #
+    # AND THE FENCE MUST WRAP THE SECTION, NOT MERELY EXIST (#721 review, B3). Order and count alone let
+    # the opener move to the top of the file and exempt the whole floor — measured green by the lens. So
+    # the line straight after the opener must be the section's own heading, and the fenced span must hold
+    # exactly ONE level-2 heading: a relocated opener swallows every level-2 heading below it. What this
+    # still cannot see: text placed inside a real harness subsection that is not about that harness.
+    # That is held by review.
+    #
+    # The predicate reads TEXT, not a path, so the lens's own mutation can be replayed against it below
+    # without writing a file anywhere.
+    fence_outside() {
+      _t="$1"
+      _no="$(printf '%s\n' "$_t" | grep -c '^<!-- harness-specific -->$' || true)"
+      _nc="$(printf '%s\n' "$_t" | grep -c '^<!-- /harness-specific -->$' || true)"
+      _lo="$(printf '%s\n' "$_t" | grep -n '^<!-- harness-specific -->$' | head -1 | cut -d: -f1)"
+      _lc="$(printf '%s\n' "$_t" | grep -n '^<!-- /harness-specific -->$' | head -1 | cut -d: -f1)"
+      fence_err=""
+      outside=""
+      if [ "$_no" != "1" ] || [ "$_nc" != "1" ] || [ "${_lo:-0}" -ge "${_lc:-0}" ]; then
+        fence_err="the harness-specific fence must open once and close once, in that order (found
+      $_no opening / $_nc closing)"
+        return
+      fi
+      _head="$(printf '%s\n' "$_t" | sed -n "$((_lo + 1))p")"
+      _h2="$(printf '%s\n' "$_t" | sed -n "${_lo},${_lc}p" | grep -c '^## ' || true)"
+      if [ "$_head" != "## Harness-specific instructions" ] || [ "$_h2" != "1" ]; then
+        fence_err="the harness-specific fence does not wrap exactly its own section: the line after the
+      opener must be '## Harness-specific instructions' (found '$_head') and the fenced span must hold
+      exactly one level-2 heading (found $_h2)"
+        return
+      fi
+      outside="$(printf '%s\n' "$_t" | awk -v a="$_lo" -v b="$_lc" 'NR < a || NR > b { print NR ":" $0 }')"
+    }
+
+    # SELF-TEST, the lens's mutation replayed: the opener moved to line 3 and a floor line planted with
+    # tokens. It must be refused by the shape check or caught by the token grep; a pass is a hole.
+    brief_text="$(cat "$ROOT/$BRIEF")"
+    relocated="$(printf '%s\n' "$brief_text" | grep -v '^<!-- harness-specific -->$' \
+      | awk 'NR == 3 { print "<!-- harness-specific -->" } { print } NR == 3 { print "Never pass --dangerously-skip-permissions; PreToolUse." }')"
+    fence_outside "$relocated"
+    if [ -z "$fence_err" ] && ! printf '%s\n' "$outside" | grep -qE "$TOKENS_CS"; then
+      bad "arm 3 — SELF-TEST: a fence relocated to the top of the file exempts a planted floor token;
+      the shape check is not holding"
+    fi
+
+    fence_outside "$brief_text"
+    if [ -n "$fence_err" ]; then
+      bad "arm 3 — $fence_err; the token assertion did NOT run"
+    fi
+    hits_ci="$(printf '%s\n' "$outside" | grep -iE "$TOKENS_CI" || true)"
+    hits_cs="$(printf '%s\n' "$outside" | grep -E  "$TOKENS_CS" || true)"
     hits="$(printf '%s\n%s' "$hits_ci" "$hits_cs" | grep -v '^$' || true)"
-    if [ -n "$hits" ]; then
-      bad "arm 3 — $BRIEF names a token specific to one harness. This file is another harness's ENTIRE
-      brief, so such a token is either an identifier that does not exist for its reader or a mechanism
-      that does not run for it. Restate the sentence as an obligation, or drop it:
+    if [ -z "$outside" ]; then
+      :
+    elif [ -n "$hits" ]; then
+      bad "arm 3 — $BRIEF names a token specific to one harness OUTSIDE the labelled harness-specific
+      section. This file is every harness's ENTIRE brief, so such a token is either an identifier that
+      does not exist for most readers or a mechanism that does not run for them. Restate the sentence
+      as an obligation, or move it into the harness-specific section under its harness's heading:
 $hits"
     else
-      ok "arm 3 — $BRIEF carries none of the declared harness-specific tokens"
+      ok "arm 3 — $BRIEF carries none of the declared harness-specific tokens outside its labelled section"
     fi
   fi
 fi
@@ -305,6 +376,25 @@ EOF
       ok "arm 4 — all $n repository-relative paths named in $BRIEF exist"
     fi
   fi
+fi
+
+# ── ARM 5 · NO SECOND ROOT BRIEF ────────────────────────────────────────────────────────────────────
+# The owner's decision on #721 (2026-10-11): this file is the single brief, and the root brief only one
+# harness reads is gone. Re-adding it would recreate two sources of truth for one set of rules, which
+# is the drift this repository already paid for. Tracked files only — a CI checkout contains nothing
+# else, so this is a check that can go red rather than one whose subject is absent by construction.
+#
+# THREE PATHS, not one (#721 review, B2). Measured on Claude Code 2.1.296: a root CLAUDE.md, a
+# .claude/CLAUDE.md and a CLAUDE.local.md EACH replace this file entirely in that harness — it reads
+# AGENTS.md only as a fallback. Residual this arm cannot see: an UNTRACKED local file, and a CLAUDE.md in
+# any ANCESTOR directory of the checkout, which suppress it the same way and never reach a CI checkout.
+second="$(git -C "$ROOT" ls-files -- CLAUDE.md .claude/CLAUDE.md CLAUDE.local.md | tr '\n' ' ')"
+if [ -n "${second// /}" ]; then
+  bad "arm 5 — a competing root brief is tracked (${second% }). $BRIEF is the single brief (#721), and
+      in one harness each of these files REPLACES it entirely. Move any rule it carries into $BRIEF,
+      under the harness-specific section if it binds one harness only."
+else
+  ok "arm 5 — no competing root brief (CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md) is tracked"
 fi
 
 printf '\n'
