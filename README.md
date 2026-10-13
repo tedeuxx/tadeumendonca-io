@@ -303,5 +303,5 @@ skipped, failed part-way, or ran in full — a check that matched nothing must n
 
 ## Related repos
 
-- [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo consumes its principles layer.
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the method's generated mirror (Claude Code plugin + marketplace); enabled here until the method is installed at user level (mhw#130).
+- [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo is to consume its principles layer once the method is installed (mhw#130).
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the Claude Code plugin this repo runs today; it is to become the method's generated mirror (mhw#63), and is disabled here after mhw#130.
