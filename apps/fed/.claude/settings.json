@@ -1,5 +1,10 @@
 {
+  "extraKnownMarketplaces": {
+    "tadeumendonca": {
+      "source": { "source": "github", "repo": "tedeuxx/tadeumendonca-skills" }
+    }
+  },
   "enabledPlugins": {
-    "tadeumendonca-skills@tadeumendonca": false
+    "tadeumendonca-skills@tadeumendonca": true
   }
 }

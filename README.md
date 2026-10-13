@@ -23,13 +23,15 @@ page — it was retired, and `/blog` redirects to the landing's `#artigos`.
 
 ## Where the method comes from
 
-**The working method — agents, skills and commands — comes from the workstation, not from this
-repository.** It is installed at user level by [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw)
-(`mhw install --method`), and the same copy serves every project on the machine. **This repository
-keeps only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
+**The working method — agents, skills and commands — is to come from the workstation, not from this
+repository.** It is to be installed at user level by [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw)
+(`mhw install --method`), so that one copy serves every project on the machine. **This repository keeps
+only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
 [`.claude/skills/`](./.claude/skills/), because they describe this stack and the method stays generic
-(mhw#64). The [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin is
-disabled here (#723): it becomes a generated mirror of the method that nobody installs. The
+(mhw#64). Until the method is installed and verified loaded, the
+[`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin stays enabled here; it is
+disabled in this project after that (mhw#130), and becomes a generated mirror of the method that nobody
+installs. From then on its guard no longer runs here, and merges are held by instruction alone. The
 [`.workstation-version`](./.workstation-version) file names the workstation release range this project
 expects.
 
@@ -121,7 +123,7 @@ property of how a *person* works; disabling is a property of what a *project* al
 `true` would hand a session capability to everyone who forks this and to CI without any of them choosing
 it — and, per the table, it would not even take effect. Committing `false` *would* take effect, and would
 remove the choice in the other direction from a forker who wants the capability. So neither is here:
-`.claude/settings.json` carries the permission floor, and this setting stays yours.
+`.claude/settings.json` carries the permission floor and the plugin wiring, and this setting stays yours.
 An organisation that needs the opposite has the managed `disableRemoteControl` setting, which sits at
 policy scope above both.
 
@@ -302,4 +304,4 @@ skipped, failed part-way, or ran in full — a check that matched nothing must n
 ## Related repos
 
 - [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo consumes its principles layer.
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the method's generated mirror (Claude Code plugin + marketplace), disabled here and installed by nobody.
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the method's generated mirror (Claude Code plugin + marketplace); enabled here until the method is installed at user level (mhw#130).

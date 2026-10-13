@@ -6,9 +6,10 @@ purpose: "hold the cloud scenario space - when to pick each service and what eac
 
 > **Project skill of tadeumendonca-io (tedeuxx/mhw#64, #723).** Copied from the tadeumendonca-skills
 > plugin's `skills/cloud-infrastructure/SKILL.md` at `4882b911`, unchanged below this note. The workstation method
-> (tedeuxx/mhw) stays generic and does not carry it. Where this text points at `/devops`, read the method's
-> split of that skill: `/scm` (branching, versioning, the forge), `/ci` (workflows, OIDC roles, secrets,
-> the SonarCloud wiring) and `/provisioning` (Terraform Cloud state, pipeline-only apply). Its sibling
+> (tedeuxx/mhw) stays generic and does not carry it. Where this text points at `/devops`: while the plugin is
+> enabled here that is its skill; once the method is installed at user level (mhw#130) read the method's
+> split of it: `/scm` (branching, versioning, the forge), `/ci` (workflows, OIDC roles, secrets, the
+> SonarCloud wiring) and `/provisioning` (Terraform Cloud state, pipeline-only apply). Its sibling
 > skills `/backend`, `/frontend` and `/cloud-infrastructure` are project skills here too.
 
 # Cloud infrastructure (AWS)

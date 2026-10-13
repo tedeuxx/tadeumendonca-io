@@ -206,10 +206,17 @@
     ]
   },
   "enabledPlugins": {
-    "tadeumendonca-skills@tadeumendonca": false,
+    "tadeumendonca-skills@tadeumendonca": true,
     "mattpocock-skills@mattpocock": true
   },
   "extraKnownMarketplaces": {
+    "tadeumendonca": {
+      "source": {
+        "source": "github",
+        "repo": "tedeuxx/tadeumendonca-skills"
+      },
+      "autoUpdate": true
+    },
     "mattpocock": {
       "source": {
         "source": "github",
