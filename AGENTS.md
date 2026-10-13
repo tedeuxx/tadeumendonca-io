@@ -370,20 +370,24 @@ Each subsection applies only to the harness it names and relaxes nothing above.
   file or an ancestor file is invisible to it, so never create one here or above this checkout. On
   `2.1.263` (#409) a skill body did not reach the main session (only name and description) and an
   added working directory did not bring its root brief; the second is unmeasured for this filename.
-- **The plugin.** `.claude/settings.json` enables `tadeumendonca-skills`, whose `PreToolUse` guard
-  denies push or merge to `main`, `terraform apply`/`destroy`, cloud mutation, force-push, `rm -rf` and
-  secret writes. Never use `--dangerously-skip-permissions`. Nothing bounds work in progress or the
-  serial gate: opening a merge request is allowlisted. **It is to be disabled here** once the method is
-  installed at user level (`mhw install --method`) and verified loaded (mhw#130); from then on its guard
-  does not run and **merges here are held by instruction alone**. Project skills: `.claude/skills/`.
+- **The plugin is disabled here.** `.claude/settings.json` and `apps/fed/.claude/settings.json` set
+  `tadeumendonca-skills` to `false`; the method (agents, skills, commands) comes from the workstation at
+  user level (`mhw install --method`, mhw#130). Its `PreToolUse` guard no longer runs here, so **merges
+  here are held by instruction alone**; what is still mechanical is the workstation's deny floor (native
+  deny rules by command prefix). Never use `--dangerously-skip-permissions`. Nothing bounds work in
+  progress or the serial gate: opening a merge request is allowlisted. Project skills: `.claude/skills/`.
 - **Pickers.** *How to ask* rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
   -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. The
-  plugin's one-question guard denies two or more questions in one call. Its link detectors decide
-  *whether* a merge-request link may go; rule 4 decides the form.
+  retired plugin's one-question guard and link detectors no longer run: one question per call, and
+  *whether* a merge-request link may go, are instructions; rule 4 decides the form.
 - **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
-  the plugin's zombie-loop detector reports all-stale markers on `Stop`, one turn late, denying nothing.
-- **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounds the
-  plugin's browser server and which the sprint-review rite's first probe compares. Read it only with
+  the retired plugin's zombie-loop detector no longer runs; the method's end-of-turn checks read them.
+- **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounded the
+  retired plugin's browser server and which the sprint-review rite's first probe compares. **No browser
+  server exists here now**: the plugin carried the only `chrome-devtools` server, and neither the user
+  nor the local scope declares one, so `product-lead`'s `mcp__chrome-devtools` grant resolves to nothing
+  and the rite's probe finds no process until the owner adds one (user or local scope, below), bounded
+  by `--allowedUrlPattern`. Read it only with
   `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`;
   empty means the rite stops. It must cover every generated route URL and takes effect after restart.
   **No additional directories are declared** (#683: the origin bound in 2 of 12 trials with the
