@@ -296,7 +296,7 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
     to verify; mark any justification briefing-only. **Do not ask a dispatched profile to re-read a
     file it already carries, nor re-read one yourself**; if stale, read only the section and say why.
     **Evaluate a machinery change against every harness that runs sessions here.** Secret scope and
-    name follow the devops skill's single standard.
+    name follow the devops skill's single standard (the ci skill's, once the method is installed).
 21. **The orchestrator — the main session the owner talks to — only dispatches and never edits a
     repository file.** On the `loop` lane **he decides `ready` and the orchestrator applies it once
     aligned**, his words recorded on the item; no dispatched profile applies it. Elsewhere `ready`
@@ -373,7 +373,9 @@ Each subsection applies only to the harness it names and relaxes nothing above.
 - **The plugin.** `.claude/settings.json` enables `tadeumendonca-skills`, whose `PreToolUse` guard
   denies push or merge to `main`, `terraform apply`/`destroy`, cloud mutation, force-push, `rm -rf` and
   secret writes. Never use `--dangerously-skip-permissions`. Nothing bounds work in progress or the
-  serial gate: opening a merge request is allowlisted.
+  serial gate: opening a merge request is allowlisted. **It is to be disabled here** once the method is
+  installed at user level (`mhw install --method`) and verified loaded (mhw#130); from then on its guard
+  does not run and **merges here are held by instruction alone**. Project skills: `.claude/skills/`.
 - **Pickers.** *How to ask* rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
   -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. The
   plugin's one-question guard denies two or more questions in one call. Its link detectors decide

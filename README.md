@@ -21,6 +21,20 @@ Five surfaces:
 Long-form writing lives at `/blog/:slug`, with a **per-locale slug** (ADR-0037). There is no `/blog` list
 page — it was retired, and `/blog` redirects to the landing's `#artigos`.
 
+## Where the method comes from
+
+**The working method — agents, skills and commands — is to come from the workstation, not from this
+repository.** It is to be installed at user level by [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw)
+(`mhw install --method`), so that one copy serves every project on the machine. **This repository keeps
+only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
+[`.claude/skills/`](./.claude/skills/), because they describe this stack and the method stays generic
+(mhw#64). Until the method is installed and verified loaded, the
+[`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin stays enabled here; it is
+disabled in this project after that (mhw#130), and becomes a generated mirror of the method that nobody
+installs. From then on its guard no longer runs here, and merges are held by instruction alone. The
+[`.workstation-version`](./.workstation-version) file names the workstation release range this project
+expects.
+
 ## Stack
 
 - **Frontend** (`apps/fed`): React 18 + Vite + TypeScript, Tailwind v3 (no shadcn), **no PWA**. Content ships
@@ -53,7 +67,7 @@ and deployed by merging.
 | **GitHub account** | yes — **because this repo is public**; Actions minutes are metered on a private one | the repo, and CI is GitHub Actions |
 | **Terraform Cloud org** | yes — this workspace is small enough for the free tier | Terraform state. Execution mode is **Local**, so TFC holds state and CI runs the plan |
 | **SonarCloud account** | yes — **because this repo is public** | the quality gate on `app` |
-| **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) |
+| **Claude Code** | **no** — a paid Anthropic plan | only if you want the *loop*. See [`mhw`](https://github.com/tedeuxx/mhw), which installs the method |
 
 **Each cell states its own condition, and none of these vendors is something this file can keep true.**
 They set their own tiers and change them without telling a README, so check the pricing yourself —
@@ -61,8 +75,8 @@ They set their own tiers and change them without telling a README, so check the 
 [HashiCorp](https://www.hashicorp.com/pricing), [SonarCloud](https://www.sonarsource.com/plans-and-pricing/),
 [Anthropic](https://www.anthropic.com/pricing) — rather than trusting the table above.
 
-**The site runs without Claude Code**, and the plugin repo is the half you can adopt with **no cloud
-account and no AWS bill at all** — it has neither.
+**The site runs without Claude Code**, and the workstation repository that installs the method is the
+half you can adopt with **no cloud account and no AWS bill at all** — it has neither.
 
 ### Local toolchain
 
@@ -182,8 +196,8 @@ amount of preparation makes faster. Everything in
 1. **Fork both repos.** Read the ADRs first, starting at
    [0001](./docs/adr/0001-lean-by-design-calibrated-to-strategy.md) — the decisions are the part worth
    taking, and several of them will not fit your context. If you only want the loop, stop after
-   [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills): it installs with no cloud
-   account, no domain and nothing to deploy, and its README is self-contained.
+   [`mhw`](https://github.com/tedeuxx/mhw): it installs the method with no cloud account, no domain and
+   nothing to deploy, and its README is self-contained.
 2. **Register the domain and create its Route 53 hosted zone.** Then request an ACM certificate **in
    `us-east-1`** — CloudFront reads certificates from that region only, wherever the rest of your stack
    lives — and **add its validation CNAMEs to the zone**, which is the part that actually makes you wait.
@@ -289,4 +303,5 @@ skipped, failed part-way, or ran in full — a check that matched nothing must n
 
 ## Related repos
 
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — Claude Code skills library (plugin + marketplace), whose principles layer this repo consumes.
+- [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo is to consume its principles layer once the method is installed (mhw#130).
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the Claude Code plugin this repo runs today; it is to become the method's generated mirror (mhw#63), and is disabled here after mhw#130.
