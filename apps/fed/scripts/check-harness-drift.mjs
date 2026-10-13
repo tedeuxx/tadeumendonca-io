@@ -26,15 +26,12 @@ import { fileURLToPath } from 'node:url';
 
 import {
   collectComponents,
-  collectPersonas,
   diffAgainstManifest,
   driftReport,
   pluginLayout,
   pluginPresent,
   readPluginVersion,
   resolvePluginDir,
-  rosterDispatchNames,
-  rosterDispatchReport,
   assertEnforcement,
   assertPluginVersion,
   pluginLinkTargets,
@@ -43,9 +40,6 @@ import {
 
 const FED = dirname(dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = join(FED, 'src', 'content', 'generated', 'harness.json');
-// `AGENTS.md` sits at the repo root, two levels above this package (#353; the fence moved there from the
-// deleted `CLAUDE.md` at #721).
-const GUIDE = join(dirname(FED), '..', 'AGENTS.md');
 const PLUGIN_RELEASE = join(FED, 'src', 'content', 'generated', 'plugin-release.json');
 // `resolvePluginDir` does the resolving AND the validating — see its header. Nothing here calls `resolve`
 // itself any more: a second resolve in the caller is what put the existing check off the path between the
@@ -171,28 +165,13 @@ if (report) {
   process.exit(1);
 }
 
-// The SECOND artifact this job compares against the same plugin tree (#353): the dispatch roster in
-// `AGENTS.md`. It rides here rather than in a job of its own because the expensive part — a tokenless
-// checkout of the plugin — is already paid for above, and `collectPersonas` is the same read.
+// The SECOND artifact against the same tree: the cross-repo links on /architecture. The checkout is
+// already paid for above, and it runs last because its failure is a hand edit in two markdown files,
+// while the manifest report names a generator, and a reader should act on the mechanical fix first.
 //
-// Ordered AFTER the manifest diff deliberately. When a persona is retired over there, both checks
-// fire; the manifest report names the command that fixes it (`gen-harness`), and this one names a
-// hand edit. Reporting the mechanical fix first is the one a reader should act on first.
-const guideRoster = rosterDispatchNames(readFileSync(GUIDE, 'utf8'));
-const rosterProblem = rosterDispatchReport(
-  guideRoster,
-  collectPersonas(pluginDir).map((p) => p.id),
-);
-if (rosterProblem) {
-  console.error(`::error::${rosterProblem.split('\n')[0]}`);
-  console.error(rosterProblem);
-  process.exit(1);
-}
-
-// The THIRD artifact against the same tree: the cross-repo links on /architecture. Same reasoning as the
-// roster check above — the checkout is already paid for — and the same ordering rule: it runs last
-// because its failure is a hand edit in two markdown files, while the two above name a generator or a
-// list, and a reader should act on the mechanical fix first.
+// A third leg compared `AGENTS.md`'s `roster:dispatch` fence with the plugin's `agents/` until #715.
+// The fence left the brief when the working method moved to the workstation (mhw), so the plugin is no
+// longer the source of the roster this repository dispatches; that leg had no subject and was removed.
 //
 // Both editions, and the paths are POOLED rather than compared: the link-parity unit test already asserts
 // the two editions cite the same targets in the same order, so re-deriving that here would be a second
@@ -213,5 +192,5 @@ if (linkProblem) {
 // A green run that does not say which one it compared leaves the one fact a reader would want unrecorded
 // in the only place it was ever observed.
 console.log(
-  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, AGENTS.md dispatches the ${guideRoster.length} live persona(s), and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
+  `::notice::the harness inventory matches tedeuxx/tadeumendonca-skills — ${manifest.length} component(s) verified in the ${pluginLayout(pluginDir)} layout, and all ${new Set(pageLinks).size} cross-repo link(s) on /architecture resolve`,
 );

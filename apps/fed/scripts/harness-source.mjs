@@ -1182,75 +1182,6 @@ export function driftReport(diff) {
   ].join('\n');
 }
 
-// ── THE DISPATCH ROSTER IN `AGENTS.md` (#353; in the deleted `CLAUDE.md` until #721) ────────────────────────────────────────────────────
-//
-// The root brief tells the agent which subagent OWNS a given decision. For one day it routed the
-// permission floor to a persona the plugin had retired, so the guide's most actionable sentence was
-// the one instruction in the file that FAILED WHEN FOLLOWED. Nothing could have caught it: the
-// manifest under `generated/` is derived and checked; prose is neither.
-//
-// WHY A FENCE RATHER THAN A SCAN OF THE WHOLE FILE, which is the design decision here. The same file
-// deliberately keeps retired names in its history — `brand-guardian`, `editor`, `marketing-lead`,
-// `plan-reviewer` — under a *supersede, never rewrite* convention. A guard reading the whole document
-// would redden on that history, and a guard that reddens on correct content is one somebody disables
-// inside a week. The markers make the claim exact: everything between them is presented as
-// INVOCABLE; everything outside is narrative and out of scope.
-//
-// The comparison runs BOTH ways on purpose. A name inside the fence with no file is the defect that
-// prompted this. A live persona missing from the fence is the same defect with the opposite sign:
-// `harness-reviewer` existed for a day and the guide named it nowhere, so nothing dispatched it.
-//
-// WHAT THIS DOES NOT SEE, and it is sharper than a caveat: a routing sentence in PROSE, outside the
-// markers, is invisible. **So this guard would not have caught #353 in the form #353 actually took** —
-// the dead persona sat in an ordinary sentence, and the fence did not exist yet. The fence is what buys
-// exactness over the file's deliberate history; the price is that it guards a SHAPE, and the shape has
-// to be adopted before the guard can see the claim. Measured, not reasoned: routing the permission
-// floor to a retired name in the line directly below the closing marker exits 0.
-//
-// Second silent pass, same class: a SECOND `roster:dispatch` fence is ignored. The regex is lazy and
-// non-global, so only the first pair of markers is read. Neither is worth closing today — both are
-// authoring mistakes a reader of this comment can avoid, and widening the match is how a guard starts
-// reddening on the history it was scoped away from.
-const ROSTER_FENCE = /<!--\s*roster:dispatch\s*-->([\s\S]*?)<!--\s*\/roster:dispatch\s*-->/;
-
-/**
- * The persona names presented as invocable in a guide's dispatch fence.
- *
- * Returns `null` when the fence is ABSENT, and the caller must treat that as an error rather than as
- * an empty roster — an empty set compares equal to "nothing missing", which is the vacuous-pass shape
- * this repo keeps paying for. A fence that is present and empty returns `[]`, a real and failing answer.
- */
-export function rosterDispatchNames(markdown) {
-  const fenced = ROSTER_FENCE.exec(markdown);
-  if (!fenced) return null;
-  return [...fenced[1].matchAll(/`([a-z][a-z0-9-]*)`/g)]
-    .map((m) => m[1])
-    .sort((a, b) => a.localeCompare(b));
-}
-
-/** Compare a guide's dispatch fence against the live persona ids. Empty string means they agree. */
-export function rosterDispatchReport(fenceNames, livePersonaIds) {
-  if (fenceNames === null) {
-    return [
-      'AGENTS.md has no `roster:dispatch` fence, so the dispatch roster is unchecked.',
-      'Restore the <!-- roster:dispatch --> … <!-- /roster:dispatch --> markers around the list.',
-    ].join('\n');
-  }
-  const live = [...livePersonaIds].sort((a, b) => a.localeCompare(b));
-  const dead = fenceNames.filter((n) => !live.includes(n));
-  const unnamed = live.filter((n) => !fenceNames.includes(n));
-  if (dead.length === 0 && unnamed.length === 0) return '';
-  return [
-    "AGENTS.md's dispatch roster no longer matches tedeuxx/tadeumendonca-skills:",
-    ...dead.map((n) => `  - ${n} is dispatched in AGENTS.md and has NO file in the plugin's agents/`),
-    ...unnamed.map((n) => `  + ${n} exists in the plugin and is dispatched NOWHERE in AGENTS.md`),
-    '',
-    'This is almost certainly NOT your change — the roster lives in a separate repository.',
-    'Fix the list between the <!-- roster:dispatch --> markers. Say what ABSORBED a retired persona',
-    "rather than only deleting the name; the file's convention is supersede, never rewrite.",
-  ].join('\n');
-}
-
 // ---------------------------------------------------------------------------------------------
 // CROSS-REPO LINKS ON /architecture.
 //
@@ -1260,7 +1191,7 @@ export function rosterDispatchReport(fenceNames, livePersonaIds) {
 // paths in THIS repository, offline, and skips every cross-repo URL by design.
 //
 // So the guard rides here, where a tokenless checkout of the plugin has already been paid for by the
-// drift check. Same argument the roster check makes directly above: the expensive part is the checkout,
+// drift check: the expensive part is the checkout,
 // and a second reader of that tree costs nothing.
 //
 // WHAT IT CANNOT DO, said plainly rather than left to look stronger: it resolves paths against a checkout
@@ -1294,7 +1225,7 @@ export function pluginLinkReport(targets, exists) {
   // `localeCompare`, not a bare `.sort()`. Default sort coerces to string and orders by UTF-16 code
   // unit, which is a latent defect on any other input and merely arbitrary on paths — SonarCloud flags
   // it CRITICAL (javascript:S2871) either way, and it turned the quality gate red the moment this line
-  // landed. Explicit here matches `rosterDispatchReport` directly above, which already sorts this way.
+  // landed.
   const missing = [...new Set(targets)].filter((p) => !exists(p)).sort((a, b) => a.localeCompare(b));
   if (missing.length === 0) return '';
   return [

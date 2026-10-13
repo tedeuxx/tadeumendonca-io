@@ -14,9 +14,9 @@
 // ─── WHY THE SECOND HALF IS DERIVED AND NOT ASSERTED ──────────────────────────────────────────────────
 // The first version of this file hand-asserted which notices name `npm-audit`, and got one wrong: it
 // claimed the root-brief-only branch was a shape where `npm-audit` does not run, and pinned that. It does
-// run — the root brief (`CLAUDE.md` then, `AGENTS.md` since #721) is matched by the `citations` pattern `*.md` and is the ONLY `harness` path not also
-// covered by `test`, so that branch's whole domain is a shape where `citations` is true and `npm-ci`
-// starts. The green then DEFENDED the false sentence: mutating the workflow into the correct state went
+// run — the root brief (`CLAUDE.md` then, `AGENTS.md` since #721) is matched by the `citations` pattern `*.md` and was then the ONLY `harness` path not also
+// covered by `test`, so that branch's whole domain was a shape where `citations` is true and `npm-ci`
+// starts. (Since #715 the root brief is in no `harness` entry and that branch is gone; see below.) The green then DEFENDED the false sentence: mutating the workflow into the correct state went
 // red, so the next person to fix the sentence would have hit a failing test and reverted.
 //
 // The lesson, which is why the shape of this file changed rather than one line of it: A MUTATION CHECK
@@ -155,7 +155,6 @@ const SHAPES = [
   // for the filter, is a real file, and is invisible to that regex. Do not "simplify" it back.
   { marker: 'docs/adr or deploy.yml-only change', files: ['docs/adr/README.md'] },
   { marker: 'VERSION-only change', files: ['VERSION'] },
-  { marker: 'AGENTS.md-only change', files: ['AGENTS.md'] },
   { marker: 'no gated changes', files: ['LICENSE'] },
 ];
 
@@ -201,26 +200,28 @@ describe('app.yml — every filter pattern is a form the matcher below actually 
     expect(unknown).toEqual([]);
   });
 
-  it('places AGENTS.md in `citations` and in no other category but `harness`', () => {
+  it('places AGENTS.md in `citations` and in no other category', () => {
     // This is the fact the first version of this file got wrong. Derived, so it cannot go stale silently.
+    // Until #715 AGENTS.md was also a `harness` path: the drift checker read its `roster:dispatch` fence.
+    // The fence and that leg left together, so the root brief is a citation surface and nothing else.
     const cats = categoriesFor(['AGENTS.md']);
     expect(cats).toEqual({
       code: false,
       test: false,
-      harness: true,
+      harness: false,
       version: false,
       citations: true,
     });
   });
 
-  it('leaves AGENTS.md as the only `harness` path outside `test`', () => {
-    // The gate flagged this derivation as uncorroborated, so it is computed here rather than reasoned
-    // about. If a future `harness` entry lands outside `test`, the harness branch gains a second domain
-    // and its notice may need different wording — this is what will say so.
+  it('keeps every `harness` path inside `test`, so no harness-only notice branch is needed', () => {
+    // Computed rather than reasoned about. If a future `harness` entry lands outside `test`, a
+    // harness-only change gains a domain of its own and the report ladder needs a branch for it again
+    // (one existed for AGENTS.md until #715) — this is what will say so.
     const outsideTest = FILTERS.harness.filter(
       (p) => !FILTERS.test.some((t) => matches(t, p)),
     );
-    expect(outsideTest).toEqual(['AGENTS.md']);
+    expect(outsideTest).toEqual([]);
   });
 });
 
@@ -251,21 +252,17 @@ describe('app.yml — the report never claims npm-audit ran where it did not, or
     expect(notice.includes('npm-audit')).toBe(auditRuns);
   });
 
-  it('names vitest and harness-drift on the AGENTS.md branch, both of which do run there', () => {
-    // The other two claims in the corrected sentence, derived rather than trusted: `citations` starts
-    // vitest (the ADR citation gate) and `harness` starts harness-drift.
+  it('reports an AGENTS.md-only change as the citation-surface change it is', () => {
+    // The shape the removed AGENTS.md-only branch used to name (#715). Derived: `citations` starts
+    // npm-ci, npm-audit and vitest (the ADR citation gate); harness-drift no longer runs on it.
     const categories = categoriesFor(['AGENTS.md']);
     expect(runs('vitest', categories)).toBe(true);
-    expect(runs('harness-drift', categories)).toBe(true);
-    const notice = noticeFor('AGENTS.md-only change');
+    expect(runs('npm-audit', categories)).toBe(true);
+    expect(runs('harness-drift', categories)).toBe(false);
+    const notice = noticeFor('citation-surface-only change');
+    expect(notice).toContain('npm-audit');
     expect(notice).toContain('vitest');
-    expect(notice).toContain('harness-drift');
-  });
-
-  it('names npm-audit in the AGENTS.md-only notice, where npm-ci starts via `citations`', () => {
-    // Kept as an explicit assertion beside the derived one: this is the exact statement that was
-    // inverted, and a reader looking for it should find it spelled out rather than only computed.
-    expect(noticeFor('AGENTS.md-only change')).toContain('npm-audit');
+    expect(notice).toContain('root *.md');
   });
 
   it('does NOT name npm-audit where npm-ci is genuinely skipped', () => {

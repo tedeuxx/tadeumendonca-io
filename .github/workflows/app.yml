@@ -131,26 +131,21 @@ jobs:
               # there is nothing to widen there.
               - '.github/workflows/deploy.yml'
 
-            # `harness` stands alone, gating ONLY `harness-drift`. `AGENTS.md` carries a `roster:dispatch`
-            # fence naming the subagents an agent may invoke, and `check-harness-drift.mjs` — the ONLY job
-            # that reads AGENTS.md — compares it to the plugin's `agents/`. Nothing else in this file opens
-            # AGENTS.md: not eslint, not tsc, not vitest, not the build. (The fence lived in the root
-            # `CLAUDE.md` until #721 deleted that file; everything below said `CLAUDE.md` until then.) It used to live in `code` (arrived
-            # with #353) on the argument that an authored source belongs in the filter that guards it —
-            # true, but that filter fanned out to every `code` job, so a root-brief-only PR ran the full
-            # app gate (measured over one month at the time: 11 commits) for a file only harness-drift
-            # reads. Split into its own category once that cost showed up on a real docs-only PR.
+            # `harness` stands alone, gating ONLY `harness-drift`, and every path in it sits under `apps/**`.
+            # ~~`AGENTS.md` carries a `roster:dispatch` fence … compares it to the plugin's `agents/`~~ —
+            # STRUCK #715: the fence left the root brief when the working method moved to the workstation
+            # (mhw), so the plugin is no longer the source of the roster this repository dispatches, and the
+            # checker's roster leg was removed with it. `AGENTS.md` was the first entry of this list from #353
+            # (it was `CLAUDE.md` until #721) and is no longer here: an AGENTS.md-only PR now matches
+            # `citations` alone (root `*.md`), which runs npm-audit and the ADR citation gate.
             #
-            # NOT in the deploy gate's filter: `AGENTS.md` ships no served byte at all, so a deploy
-            # triggered by it would republish nothing.
-            #
-            # THE MANIFEST IS THE SECOND ENTRY, and it was missing until #463. `harness.json` is the OTHER
+            # THE MANIFEST IS THE FIRST ENTRY (the second until #715), and it was missing until #463. `harness.json` is the OTHER
             # file `check-harness-drift.mjs` compares against the plugin tree — and since #463 it is the
             # source four published claims on /architecture are derived from. Filtered on the root brief alone,
             # a hand-edit to the manifest plus a matching edit to the drawing agreed with each other,
             # satisfied every assertion in architecture-diagrams.test.mjs, and published a false statement
             # about the plugin with the one job that would have caught it never running. So the filter now
-            # matches EITHER authored input to that job: the roster fence in AGENTS.md, and the committed
+            # matched EITHER authored input to that job: the roster fence (gone since #715), and the committed
             # manifest itself. (It ships a served byte, so it is in `code`/`test` too — but those gates
             # never compare it to the plugin, which is the check that was absent.)
             #
@@ -168,7 +163,6 @@ jobs:
             # unchanged (measured at fourteen days on #615). This closes the narrower gap only — an
             # edit to the comparison logic now runs the comparison.
             harness:
-              - 'AGENTS.md'
               - 'apps/fed/src/content/generated/harness.json'
               - 'apps/fed/scripts/check-harness-drift.mjs'
               - 'apps/fed/scripts/harness-source.mjs'
@@ -638,14 +632,11 @@ jobs:
       # `no gated changes` does not: that is the one shape where every category is false, so npm-ci is
       # skipped and npm-audit with it.
       #
-      # THE AGENTS.md-ONLY BRANCH IS THE TRAP, and it shipped saying the opposite for one review round
-      # (when the root brief in this filter was `CLAUDE.md`, deleted at #721).
-      # `AGENTS.md` is matched by the `citations` pattern `*.md` (picomatch, root-level only), and it is
-      # the ONLY `harness` path not also covered by `test` — every other one sits under `apps/**`. So
-      # this branch's entire domain is "AGENTS.md and nothing else", and on that shape `citations` is
-      # ALWAYS true: npm-ci starts, npm-audit runs, and so does vitest, which is the citation gate. An
-      # AGENTS.md-only PR is not the light-touch run this sentence used to describe. Measured on three
-      # real pre-fix runs (34261407171, 34160893755, 34144393858): npm-ci success, three for three.
+      # ~~THE AGENTS.md-ONLY BRANCH IS THE TRAP~~ — STRUCK #715: that branch is gone. It existed because
+      # `AGENTS.md` was the only `harness` path outside `test`; the roster leg left the checker and
+      # `AGENTS.md` left the `harness` filter with it, so every `harness` path is now under `apps/**`
+      # (hence also `test`) and the branch had no reachable domain. An AGENTS.md-only PR now reports as
+      # the citation-surface-only change it is.
       #
       # These strings no longer rest on that reading being right. `app-workflow.test.mjs` DERIVES, from
       # these filter patterns through picomatch, which jobs run for a representative diff of each shape,
@@ -684,10 +675,6 @@ jobs:
           # what ran must not fire on a run where something failed.
           if [ "$CITATIONS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$HARNESS" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
             echo "::notice::citation-surface-only change (iac/**, .github/**, docs outside adr, root *.md) — npm-audit and vitest ran, the latter being the ADR citation gate; lint, typecheck, build, Playwright and Sonar had nothing to look at and did NOT run"
-            exit 0
-          fi
-          if [ "$HARNESS" = "true" ] && [ "$CODE" != "true" ] && [ "$TEST" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then
-            echo "::notice::AGENTS.md-only change — npm-audit, vitest and harness-drift ran (AGENTS.md is also in the citations filter, so npm-ci and the citation gate start); lint, typecheck, build, E2E and Sonar had nothing to look at and did NOT run"
             exit 0
           fi
           if [ "$TEST" = "true" ] && [ "$CODE" != "true" ] && [ "$VERSION_ONLY" != "true" ]; then

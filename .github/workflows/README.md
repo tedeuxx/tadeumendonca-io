@@ -220,6 +220,13 @@ claim above now belong to `AGENTS.md`, the single root brief.** Read `CLAUDE.md`
 the #353 amendment below as the file that carried the fence until then; the rule and the cost are
 unchanged, only the filename moved.
 
+**Amended 2026-10-13 (#715): the fence is gone, and so is this filter entry.** The working method —
+agents, skills and commands — comes from the workstation (mhw) since #723, so the plugin is no longer
+the source of the roster this repository dispatches. The `roster:dispatch` fence left `AGENTS.md`, the
+checker's roster leg left `check-harness-drift.mjs`, and `AGENTS.md` left the `harness` filter. It is
+still gated, by `citations` (root `*.md`), which runs the ADR citation gate. The fourth instance above is
+therefore history: the rule it illustrated stands, and this file no longer has a path that exercises it.
+
 Its blind spot belongs here rather than only in the code: the check reads **only between the markers**.
 A routing sentence in prose elsewhere in the file is invisible to it, which means it would not have
 caught #353 in the form #353 took. The fence is what buys exactness over the file's deliberate history
@@ -275,6 +282,12 @@ The asymmetry is the whole content of this amendment, and it is why *"cannot be 
 not simply struck. **Editing the fence here triggers the check; retiring a persona over there still does
 not.** One of the two events that can falsify the claim now has a path in this repo, and the other never
 will — so the attribution mitigation above still carries the cross-repo half, unchanged.
+
+**Amended 2026-10-13 (#715): the roster half of this amendment is withdrawn.** The job compares the
+manifest and the cross-repo links on `/architecture` against the plugin, and nothing else; the roster
+leg was removed with the fence. Both remaining legs check claims `/architecture` publishes about the
+public plugin repository, which is why the job stays while the plugin is no longer used as this
+project's harness: it is the same kind of read as `deploy`'s version checkout for `/portfolio`.
 
 What is now false in the original paragraph, said plainly rather than left for a reader to reconcile:
 *"there is no such path here"* was true of the manifest and is not true of the job. The manifest has no
