@@ -23,17 +23,18 @@ page — it was retired, and `/blog` redirects to the landing's `#artigos`.
 
 ## Where the method comes from
 
-**The working method — agents, skills and commands — is to come from the workstation, not from this
-repository.** It is to be installed at user level by [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw)
-(`mhw install --method`), so that one copy serves every project on the machine. **This repository keeps
-only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
+**The strategy: harness behaviour comes from the managed workstation, at the release range named in
+[`.workstation-version`](./.workstation-version), and the plugin is not used (#715).** The working
+method — agents, skills and commands — is installed at user level by
+[`tedeuxx/mhw`](https://github.com/tedeuxx/mhw) (`mhw install --method`), so that one copy serves every
+project on the machine, and every agent harness that works here (Claude Code, Codex, Kiro) reads it from
+there. **This repository keeps only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
 [`.claude/skills/`](./.claude/skills/), because they describe this stack and the method stays generic
-(mhw#64). The
-[`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin is disabled in this
-project since the method was installed and verified at user level (mhw#130); it is a generated mirror of
-the method that nobody installs. Its guard no longer runs here, and merges are held by instruction alone. The
-[`.workstation-version`](./.workstation-version) file names the workstation release range this project
-expects.
+(mhw#64). The [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin is
+disabled in this project (mhw#130); it is a generated mirror of the method that nobody installs. Its
+guard no longer runs here, and merges are held by instruction alone. Two reads of that public repository
+remain, and neither is harness consumption: `deploy` checks it out for the version on the `/portfolio`
+card, and the `app` workflow's `harness-drift` job compares what `/architecture` publishes about it.
 
 ## Stack
 
