@@ -28,10 +28,10 @@ repository.** It is to be installed at user level by [`tedeuxx/mhw`](https://git
 (`mhw install --method`), so that one copy serves every project on the machine. **This repository keeps
 only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
 [`.claude/skills/`](./.claude/skills/), because they describe this stack and the method stays generic
-(mhw#64). Until the method is installed and verified loaded, the
-[`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin stays enabled here; it is
-disabled in this project after that (mhw#130), and becomes a generated mirror of the method that nobody
-installs. From then on its guard no longer runs here, and merges are held by instruction alone. The
+(mhw#64). The
+[`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin is disabled in this
+project since the method was installed and verified at user level (mhw#130); it is a generated mirror of
+the method that nobody installs. Its guard no longer runs here, and merges are held by instruction alone. The
 [`.workstation-version`](./.workstation-version) file names the workstation release range this project
 expects.
 
@@ -303,5 +303,5 @@ skipped, failed part-way, or ran in full — a check that matched nothing must n
 
 ## Related repos
 
-- [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo is to consume its principles layer once the method is installed (mhw#130).
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the Claude Code plugin this repo runs today; it is to become the method's generated mirror (mhw#63), and is disabled here after mhw#130.
+- [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo consumes its method at user level (mhw#130).
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the former Claude Code plugin, now the method's generated mirror (mhw#63); disabled here (mhw#130).

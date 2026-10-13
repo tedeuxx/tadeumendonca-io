@@ -1,5 +1,5 @@
 # The workstation release range this project expects (tedeuxx/mhw#57). Its agents, skills and commands
-# are to come from the workstation method at user level (tedeuxx/mhw#64, #130); this repository keeps only
+# come from the workstation method at user level (tedeuxx/mhw#64, #130); this repository keeps only
 # its own skills under .claude/skills/. Compared at session start by an instruction in the user brief and by
 # `mhw status`; a mismatch prints one line and never blocks.
->=5.5 <6
+>=5.6 <6
