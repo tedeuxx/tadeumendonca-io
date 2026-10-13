@@ -123,7 +123,7 @@ property of how a *person* works; disabling is a property of what a *project* al
 `true` would hand a session capability to everyone who forks this and to CI without any of them choosing
 it — and, per the table, it would not even take effect. Committing `false` *would* take effect, and would
 remove the choice in the other direction from a forker who wants the capability. So neither is here:
-`.claude/settings.json` carries the permission floor and the plugin wiring, and this setting stays yours.
+`.claude/settings.json` carries the permission floor and the plugin settings, and this setting stays yours.
 An organisation that needs the opposite has the managed `disableRemoteControl` setting, which sits at
 policy scope above both.
 

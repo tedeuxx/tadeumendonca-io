@@ -383,7 +383,11 @@ Each subsection applies only to the harness it names and relaxes nothing above.
 - **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
   the retired plugin's zombie-loop detector no longer runs; the method's end-of-turn checks read them.
 - **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounded the
-  retired plugin's browser server and which the sprint-review rite's first probe compares. Read it only with
+  retired plugin's browser server and which the sprint-review rite's first probe compares. **No browser
+  server exists here now**: the plugin carried the only `chrome-devtools` server, and neither the user
+  nor the local scope declares one, so `product-lead`'s `mcp__chrome-devtools` grant resolves to nothing
+  and the rite's probe finds no process until the owner adds one (user or local scope, below), bounded
+  by `--allowedUrlPattern`. Read it only with
   `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`;
   empty means the rite stops. It must cover every generated route URL and takes effect after restart.
   **No additional directories are declared** (#683: the origin bound in 2 of 12 trials with the
