@@ -136,8 +136,9 @@ one surface of several. Positioning, each surface's canonical copy and the sync 
 - **A positioning change reaches every surface in one batch**, and the surfaces file is updated to
   what shipped.
 - **Writes to external public surfaces are ask-first.**
-- **Tool servers for this workflow are registered in your harness's per-user local scope**, never in a
-  committed configuration file.
+- **Tool servers are registered in the committed project `.mcp.json`** (#726, reversing the earlier
+  local-scope-only rule; other harnesses do not read that file). It is public: never put a credential, a private path or anything from this
+  directory in it.
 
 ## Fixed decisions — do not reverse without discussion
 
@@ -383,16 +384,15 @@ Each subsection applies only to the harness it names and relaxes nothing above.
 - **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
   the retired plugin's zombie-loop detector no longer runs; the method's end-of-turn checks read them.
 - **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounded the
-  retired plugin's browser server and which the sprint-review rite's first probe compares. **No browser
-  server exists here now**: the plugin carried the only `chrome-devtools` server, and neither the user
-  nor the local scope declares one, so `product-lead`'s `mcp__chrome-devtools` grant resolves to nothing
-  and the rite's probe finds no process until the owner adds one (user or local scope, below), bounded
-  by `--allowedUrlPattern`. Read it only with
+  retired plugin's browser server and which the sprint-review rite's first probe compares. **The sweep's
+  browser is the `chrome-devtools` server in the committed `.mcp.json`** (#726): pinned, `--isolated`,
+  bounded by `--allowedUrlPattern ${HARNESS_SWEEP_ORIGIN:-http://127.0.0.1:9/*}`, and active only after
+  the owner approves the project server in an interactive session. Read the origin only with
   `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`;
   empty means the rite stops. It must cover every generated route URL and takes effect after restart.
   **No additional directories are declared** (#683: the origin bound in 2 of 12 trials with the
   sibling declared, 12 of 12 without); reach the sibling only through `git -C`.
-- **Tool servers**: `claude mcp add -s local`, never a committed project file.
+- **Tool servers**: the committed project `.mcp.json`, reviewed by merge request; not local scope.
 - **The `claude` workflow** answers explicit mentions; the review gate is the quality-assurance
   profile, and the automatic app review is retired.
 - **`apps/fed/CLAUDE.md`** is a per-directory guide only this harness reads; outside #721.
