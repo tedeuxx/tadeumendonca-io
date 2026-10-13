@@ -204,8 +204,8 @@ carries the same five rules; the rules must agree, never the characters.
 
 ## How work is dispatched
 
-The main session hands each piece of work to the profile that owns it; profile briefs live in the
-sibling repository. **The list is the whole live roster**, checked by the `app` workflow against the
+The main session hands each piece of work to the profile that owns it; profile briefs come from the
+workstation method at user level, mirrored in the sibling repository. **The list is the whole live roster**, checked by the `app` workflow against the
 sibling's profiles. Retired names (security reviewer, harness reviewer or lead, plain writer, plan
 reviewer, principles guide) fail when invoked.
 
@@ -296,7 +296,7 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
     to verify; mark any justification briefing-only. **Do not ask a dispatched profile to re-read a
     file it already carries, nor re-read one yourself**; if stale, read only the section and say why.
     **Evaluate a machinery change against every harness that runs sessions here.** Secret scope and
-    name follow the devops skill's single standard.
+    name follow the ci skill's single standard.
 21. **The orchestrator — the main session the owner talks to — only dispatches and never edits a
     repository file.** On the `loop` lane **he decides `ready` and the orchestrator applies it once
     aligned**, his words recorded on the item; no dispatched profile applies it. Elsewhere `ready`
@@ -370,18 +370,18 @@ Each subsection applies only to the harness it names and relaxes nothing above.
   file or an ancestor file is invisible to it, so never create one here or above this checkout. On
   `2.1.263` (#409) a skill body did not reach the main session (only name and description) and an
   added working directory did not bring its root brief; the second is unmeasured for this filename.
-- **The plugin.** `.claude/settings.json` enables `tadeumendonca-skills`, whose `PreToolUse` guard
-  denies push or merge to `main`, `terraform apply`/`destroy`, cloud mutation, force-push, `rm -rf` and
-  secret writes. Never use `--dangerously-skip-permissions`. Nothing bounds work in progress or the
-  serial gate: opening a merge request is allowlisted.
+- **No plugin.** `.claude/settings.json` disables `tadeumendonca-skills` (#723): its guard hooks do
+  not run here. The method comes from the workstation at user level, and its deny floor is the
+  mechanical layer; this repository adds its own skills in `.claude/skills/`. Never use
+  `--dangerously-skip-permissions`. Nothing bounds work in progress or the serial gate: opening a merge
+  request is allowlisted.
 - **Pickers.** *How to ask* rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
-  -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. The
-  plugin's one-question guard denies two or more questions in one call. Its link detectors decide
-  *whether* a merge-request link may go; rule 4 decides the form.
+  -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. Rule 7
+  decides *whether* a merge-request link may go; rule 4 decides the form.
 - **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
-  the plugin's zombie-loop detector reports all-stale markers on `Stop`, one turn late, denying nothing.
-- **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounds the
-  plugin's browser server and which the sprint-review rite's first probe compares. Read it only with
+  nothing here detects a stale one.
+- **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which the
+  sprint-review rite's first probe compares. Read it only with
   `git -C <consumer> show HEAD:.claude/settings.json | jq -r '.env.HARNESS_SWEEP_ORIGIN // empty'`;
   empty means the rite stops. It must cover every generated route URL and takes effect after restart.
   **No additional directories are declared** (#683: the origin bound in 2 of 12 trials with the
