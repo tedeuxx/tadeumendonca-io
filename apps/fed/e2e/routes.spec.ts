@@ -157,7 +157,7 @@ test.describe('routes', () => {
 
     // The property the facade exists to protect: no third-party frame until the reader asks.
     await expect(page.locator('iframe')).toHaveCount(0);
-    const facades = page.getByRole('button', { name: /Reproduzir vídeo/ });
+    const facades = page.getByRole('button', { name: /^Assistir:/ });
     await expect(facades).toHaveCount(4);
 
     // Pin WHICH videos on the SERVED build, not only in the unit parity test: each id was verified

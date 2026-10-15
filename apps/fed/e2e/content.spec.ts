@@ -257,14 +257,14 @@ test.describe('content detail', () => {
       '/pt/blog/blast-radius-supernova',
       'mais vezes do que consigo contar',
       'escritos sob instrução minha, em cima daquela forma',
-      'Reproduzir vídeo',
+      'Assistir:',
     ],
     [
       'en',
       '/en/blog/blast-radius-supernova',
       'more times than I can count',
       'written to my instruction, on that form',
-      'Play video',
+      'Watch:',
     ],
   ] as const) {
     test(`/${locale}: the parody article serves ONE player, right after the opening paragraph`, async ({

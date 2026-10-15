@@ -5,7 +5,8 @@ import videos from '../src/content/videos.json' with { type: 'json' };
 // #718 — two accessible names, against the SERVED artifact, in both locales.
 //
 // 1. Every video play button announced "Play video: Video": the markdown facade passes no title, so the
-//    label fell back to the generic word. It now names the video by what its poster shows.
+//    label fell back to the generic word. It now names the video (manifest title, else caption, else
+//    channel) and opens with the word the button shows ("Watch" / "Assistir"), per WCAG 2.5.3.
 // 2. /pt/me's skill meters announced "Proficiency level N of 4" in English, a literal in LevelMeter.
 //
 // THE ROUTE DECIDES THE LANGUAGE, NOT THE VISITOR (AGENTS.md, the prerender rule). So each locale's page
@@ -18,8 +19,8 @@ import videos from '../src/content/videos.json' with { type: 'json' };
 
 type Locale = 'pt' | 'en';
 
-const PLAY: Record<Locale, string> = { pt: 'Reproduzir vídeo: ', en: 'Play video: ' };
-const GENERIC: Record<Locale, string> = { pt: 'Reproduzir vídeo: Vídeo', en: 'Play video: Video' };
+const PLAY: Record<Locale, string> = { pt: 'Assistir: ', en: 'Watch: ' };
+const GENERIC: Record<Locale, string> = { pt: 'Assistir: Vídeo', en: 'Watch: Video' };
 const METER: Record<Locale, RegExp> = {
   pt: /^Nível de proficiência [1-4] de 4$/,
   en: /^Proficiency level [1-4] of 4$/,
@@ -34,6 +35,7 @@ async function playButtons(page: Page) {
   return page.locator('button:has(img[src^="/video/"])').evaluateAll((buttons) =>
     buttons.map((b) => ({
       name: b.getAttribute('aria-label') ?? '',
+      visible: (b.textContent ?? '').trim(),
       id: /\/video\/(.+)\.png$/.exec(b.querySelector('img')?.getAttribute('src') ?? '')?.[1] ?? '',
     })),
   );
@@ -51,7 +53,11 @@ for (const locale of ['pt', 'en'] as const) {
       // Nothing to check means nothing below can fail — the page must carry play buttons.
       expect(buttons.length, 'no play buttons rendered on the ramp-up plan').toBeGreaterThan(1);
 
-      for (const { name, id } of buttons) {
+      for (const { name, id, visible } of buttons) {
+        // WCAG 2.5.3: the name opens with the word the button SHOWS, read off the rendered button.
+        const word = visible.replace(/^[^\p{L}]+/u, '');
+        expect(word.length, `button for ${id} shows no word`).toBeGreaterThan(0);
+        expect(name.startsWith(`${word}: `), `"${name}" does not open with "${word}"`).toBe(true);
         const entry = manifest[id];
         expect(entry, `poster ${id} has no manifest entry`).toBeDefined();
         expect(name, id).not.toBe(GENERIC[locale]);

@@ -83,10 +83,15 @@ export function embeddingDisabled(id: string): boolean {
 export const videoEntry = (id: string): VideoEntry | undefined => manifest[id];
 
 /**
- * The video's name as its poster shows it (#718): the manifest's `title`, else the poster `caption`,
- * else the `channel` — `cardLines()` in scripts/video-thumbs.mjs draws the channel on every poster and
- * the caption where there is one, so this is always words the sighted reader can see. Undefined only for
- * an id with no manifest entry, which the poster generator already refuses to build.
+ * The name a play button announces (#718): the manifest's `title`, else its `caption`, else its
+ * `channel`. Undefined only for an id with no manifest entry, which the poster generator refuses.
+ *
+ * THE RUNGS ARE NOT ALL POSTER TEXT, and the difference matters to anyone reasoning about it.
+ * `title` is the video's own name, the one the surrounding prose gives — the poster NEVER draws it.
+ * `cardLines()` in scripts/video-thumbs.mjs draws only the `caption`, else nothing, under the
+ * `channel`. So a video with a `title` and no `caption` announces a name its poster does not show (one
+ * playable video is in that shape today); the name is true, and it is the prose's, not the poster's.
+ * The `caption` and `channel` rungs are poster text.
  *
  * Before this, the markdown facade passed no title, so every play button announced the generic
  * "Play video: Video" — identical names on every page, none saying which video the button plays.

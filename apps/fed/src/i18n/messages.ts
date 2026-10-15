@@ -645,8 +645,8 @@ const strings = {
     // whose only consumer is gone sits there green forever and reads to the next author as a string in use.
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
     // The skill meter's accessible name (#718). It was the English literal `Proficiency level N of 4`
-    // inside LevelMeter, so /pt/me announced English to a screen reader while every visible word on the
-    // page was Portuguese. `{level}` and `{max}` are substituted by LevelMeter, `{max}` from the same
+    // inside LevelMeter, so /pt/me announced English to a screen reader while the page's own chrome was
+    // Portuguese (the skill names themselves are English proper nouns in both editions). `{level}` and `{max}` are substituted by LevelMeter, `{max}` from the same
     // constant that draws the squares, so the announced scale cannot disagree with the drawn one.
     levelLabel: { pt: 'Nível de proficiência {level} de {max}', en: 'Proficiency level {level} of {max}' },
     // RETIRED as of #317, and kept as strings rather than deleted only for the length of this comment:
@@ -879,8 +879,14 @@ const strings = {
   video: {
     // The play button's accessible name, as ONE template rather than a word plus a `: ` joined in the
     // component (#718) — the separator is part of what a screen reader speaks, so it belongs to the
-    // catalog. `{title}` is the video's own name from `videos.json`, the words its poster shows.
-    playLabel: { pt: 'Reproduzir vídeo: {title}', en: 'Play video: {title}' },
+    // catalog. `{title}` is the video's name from `videos.json` (see `videoName` for which rung is
+    // poster text and which is the prose's).
+    //
+    // IT OPENS WITH THE VISIBLE WORD OF `watch` BELOW, minus the glyph (WCAG 2.5.3, label in name): a
+    // speech-input user says what they see — "Watch" / "Assistir" — and a name that began "Play video"
+    // did not contain it. `VideoEmbed.test.tsx` derives the expected opening from `watch` itself, so
+    // rewording either key without the other goes red.
+    playLabel: { pt: 'Assistir: {title}', en: 'Watch: {title}' },
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
     defaultTitle: { pt: 'Vídeo', en: 'Video' },
     // The link-preview form, for a video whose owner disabled embedding. The GLYPH is the

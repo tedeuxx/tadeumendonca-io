@@ -148,7 +148,7 @@ describe('RampUpPage', () => {
 
     // Count facades by their accessible role, not by the thumbnail host — the CDN hostname is an
     // internal of VideoEmbed, and pinning it would fail a rename that changes no behavior.
-    const facades = screen.getAllByRole('button', { name: /Reproduzir vídeo/ });
+    const facades = screen.getAllByRole('button', { name: /^Assistir:/ });
     expect(facades).toHaveLength(4);
 
     // Pin WHICH videos: each was chosen and verified against the channel it is attributed to, so a
