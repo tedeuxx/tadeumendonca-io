@@ -40,8 +40,28 @@ describe('CVSection', () => {
     // (owner, 2026-07-31), because English IS the pt-BR usage for this section of a CV.
     expect(screen.getByText('Skills')).toBeInTheDocument();
     // Each leveled skill shows the 4-square proficiency meter (AWS L100–L400 model).
-    expect(screen.getAllByRole('img', { name: /Proficiency level/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('img', { name: /Nível de proficiência/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute('href', 'https://github.com/tedeuxx');
+  });
+
+  // #718: the meter's accessible name was an English literal, so the pt edition announced English. Each
+  // locale's exact names, in data order, from the fixture's two levels — and the pt case asserts the
+  // English wording is absent, since a name merely CONTAINING Portuguese would still pass otherwise.
+  it.each([
+    ['pt', ['Nível de proficiência 4 de 4', 'Nível de proficiência 3 de 4'], /Proficiency/],
+    ['en', ['Proficiency level 4 of 4', 'Proficiency level 3 of 4'], /Nível/],
+  ] as const)('announces the skill meter in the route locale (%s)', (locale, names, foreign) => {
+    renderWithLocale(<CVSection profile={profile} />, { locale });
+    const meters = screen.getAllByRole('img').filter((el) => el.getAttribute('aria-label')?.match(/\d of \d|\d de \d/));
+    expect(meters.map((el) => el.getAttribute('aria-label'))).toEqual(names);
+    expect(screen.queryAllByRole('img', { name: foreign })).toHaveLength(0);
+  });
+
+  it('draws as many squares as the announced scale has steps, filling the level', () => {
+    renderWithLocale(<CVSection profile={profile} />, { locale: 'en' });
+    const meter = screen.getByRole('img', { name: 'Proficiency level 3 of 4' });
+    expect(meter.children).toHaveLength(4);
+    expect(meter.querySelectorAll('.bg-foreground')).toHaveLength(3);
   });
 
   it('numbers the credential sequence 01–04, each on its own block', () => {

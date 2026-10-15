@@ -64,6 +64,55 @@ describe('VideoEmbed', () => {
   });
 });
 
+// #718: every play button announced "Play video: Video", because the markdown facade passes no title.
+// The name now comes from the words the poster shows. Pinned per fallback rung with literals typed here
+// (not re-derived from the manifest, which would agree with the code by construction), in both locales.
+describe('VideoEmbed accessible name', () => {
+  it.each([
+    // `title` wins over `caption` where the manifest has both — this id has only `title`.
+    ['5uGP97AmMHY', 'Deus, vaidade e morte: conversa de Karnal com uma IA'],
+    // `caption` where there is no `title`.
+    ['I4B37S1dyQQ', 'Jensen Huang: The Mindset That Built NVIDIA'],
+    // `channel` alone: the poster carries no caption, only the channel line.
+    ['P1-8da1GgBg', 'Lucas Montano'],
+  ])('names %s after what its poster shows, in the route locale', (id, name) => {
+    const pt = renderWithLocale(<VideoEmbed id={id} />, { locale: 'pt' });
+    expect(screen.getByRole('button')).toHaveAccessibleName(`Reproduzir vídeo: ${name}`);
+    pt.unmount();
+    renderWithLocale(<VideoEmbed id={id} />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName(`Play video: ${name}`);
+  });
+
+  it('gives the mounted player the same name', () => {
+    const { container } = renderWithLocale(<VideoEmbed id="I4B37S1dyQQ" />, { locale: 'en' });
+    fireEvent.click(screen.getByRole('button'));
+    expect(container.querySelector('iframe')).toHaveAttribute('title', 'Jensen Huang: The Mindset That Built NVIDIA');
+  });
+
+  it('falls back to the catalog word only for an id the manifest does not know', () => {
+    renderWithLocale(<VideoEmbed id="dQw4w9WgXcQ" />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName('Play video: Video');
+  });
+
+  it("prefers the caller's title, and substitutes it verbatim even when it carries `$` patterns", () => {
+    renderWithLocale(<VideoEmbed id="I4B37S1dyQQ" title="Costs $& and $' too" />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName("Play video: Costs $& and $' too");
+  });
+
+  it('gives every playable manifest video a distinct name, none of them the generic one', () => {
+    const playable = Object.keys(videos).filter((id) => !FLAGGED.includes(id));
+    expect(playable.length).toBeGreaterThan(1);
+    const names = playable.map((id) => {
+      const { unmount } = renderWithLocale(<VideoEmbed id={id} />, { locale: 'en' });
+      const name = screen.getByRole('button').getAttribute('aria-label');
+      unmount();
+      return name;
+    });
+    expect(names).not.toContain('Play video: Video');
+    expect(new Set(names).size).toBe(names.length);
+  });
+});
+
 // THE TEST THAT WOULD HAVE CAUGHT THE DEFECT.
 //
 // The defect is a video whose owner has disabled embedding: the facade renders a play button, the

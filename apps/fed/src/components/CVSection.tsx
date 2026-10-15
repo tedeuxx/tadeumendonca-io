@@ -62,10 +62,20 @@ export function Block({ index, title, children }: { index: string; title: string
 /** Credly badge when the data has the image, otherwise a typographic seal built from the label. */
 // A 4-square proficiency meter (AWS L100–L400 model): `level` squares filled, the rest muted. Mono,
 // radius-0 squares — on-brand, and read as a recognized competency ladder, not an arbitrary self-bar.
+// The accessible name comes from the catalog in the ROUTE's locale (#718): it was an English literal, so
+// /pt/me announced English. `useT` reads the locale from the path, so the prerendered HTML carries the
+// right language for every visitor. `LEVEL_MAX` draws the squares and fills `{max}`, so the two agree.
+const LEVEL_MAX = 4;
+const LEVEL_STEPS = Array.from({ length: LEVEL_MAX }, (_, i) => i + 1);
+
 function LevelMeter({ level }: { level: number }) {
+  const t = useT();
+  const label = t('cv.levelLabel')
+    .replace('{level}', String(level))
+    .replace('{max}', String(LEVEL_MAX));
   return (
-    <span className="inline-flex gap-px" role="img" aria-label={`Proficiency level ${level} of 4`}>
-      {[1, 2, 3, 4].map((i) => (
+    <span className="inline-flex gap-px" role="img" aria-label={label}>
+      {LEVEL_STEPS.map((i) => (
         <span key={i} className={`h-2 w-2 ${i <= level ? 'bg-foreground' : 'bg-border'}`} />
       ))}
     </span>

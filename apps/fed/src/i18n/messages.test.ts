@@ -26,6 +26,22 @@ describe('message catalog', () => {
     }
   });
 
+  // A template's `{name}` placeholders are substituted by the component that reads it (RatingMeter,
+  // LevelMeter, VideoEmbed). A placeholder present in one locale and missing in the other renders a
+  // literal `{level}` to one audience only, and the non-empty check above passes it. Derived from the
+  // catalog, so a template added later is covered the moment it exists.
+  it('carries the same placeholders in both locales of every entry', () => {
+    const placeholders = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+    const keys = entryKeys(strings);
+    const templated = keys.filter((key) => placeholders(translate('en', key as MessageKey)).length > 0);
+    expect(templated.length, 'no templated entry means this assertion cannot fail').toBeGreaterThan(0);
+    for (const key of keys) {
+      expect(placeholders(translate('pt', key as MessageKey)), key).toEqual(
+        placeholders(translate('en', key as MessageKey)),
+      );
+    }
+  });
+
   // ADR-0045 — the document-title convention, asserted rather than reviewed.
   //
   // DERIVED, not listed: the pairs come from the catalog itself (every top-level group that owns a

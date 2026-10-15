@@ -82,9 +82,23 @@ export function embeddingDisabled(id: string): boolean {
 /** The manifest row for a video, or undefined. The card reads its title and source from here. */
 export const videoEntry = (id: string): VideoEntry | undefined => manifest[id];
 
+/**
+ * The video's name as its poster shows it (#718): the manifest's `title`, else the poster `caption`,
+ * else the `channel` — `cardLines()` in scripts/video-thumbs.mjs draws the channel on every poster and
+ * the caption where there is one, so this is always words the sighted reader can see. Undefined only for
+ * an id with no manifest entry, which the poster generator already refuses to build.
+ *
+ * Before this, the markdown facade passed no title, so every play button announced the generic
+ * "Play video: Video" — identical names on every page, none saying which video the button plays.
+ */
+export const videoName = (id: string): string | undefined => {
+  const entry = manifest[id];
+  return entry?.title || entry?.caption || entry?.channel || undefined;
+};
+
 export function VideoEmbed({ id, title }: { id: string; title?: string }) {
   const t = useT();
-  const label = title ?? t('video.defaultTitle');
+  const label = title ?? videoName(id) ?? t('video.defaultTitle');
   const [playing, setPlaying] = useState(false);
 
   // A LINK CARD, NOT A PLAYER — and the shape is the whole point of this branch.
@@ -108,7 +122,7 @@ export function VideoEmbed({ id, title }: { id: string; title?: string }) {
   if (embeddingDisabled(id)) {
     const entry = videoEntry(id);
     // The video's own name where the manifest states one, then the poster caption, then the caller's
-    // title, then the generic label. Never a bare id — a card titled with a hash reads as broken
+    // title, then the channel (`videoName`, #718), then the generic label. Never a bare id — a card titled with a hash reads as broken
     // rather than as a link, which is the failure this whole branch exists to avoid.
     const cardTitle = entry?.title || entry?.caption || label;
     return (
@@ -182,7 +196,9 @@ export function VideoEmbed({ id, title }: { id: string; title?: string }) {
         <button
           type="button"
           onClick={() => setPlaying(true)}
-          aria-label={`${t('video.play')}: ${label}`}
+          // A FUNCTION replacer, not a string one: a string replacement interprets `$&`, `$'` and
+          // friends, so a video title carrying a `$` would be announced mangled.
+          aria-label={t('video.playLabel').replace('{title}', () => label)}
           className="group relative flex h-full w-full items-center justify-center bg-muted"
         >
           {/* Decorative, exactly as it was when this was YouTube's thumbnail: the poster is a visual
