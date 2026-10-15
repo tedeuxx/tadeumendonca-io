@@ -1134,23 +1134,25 @@ describe('the components diagram distinguishes a mechanism from a convention', (
 describe('the dev-loop diagram states who applies ready, what holds the merge and what the reviewer does (#716)', () => {
   const CLAIMS = {
     en: {
-      retired: ['mine alone to apply', 'a hook refuses it the merge', 'a hook refuses it both', 'what it blocks is a draft', 'commits, pushes'],
-      labels: ['applied by the main session', 'the merge: no hook refuses it, a rule holds it'],
+      retired: ['mine alone to apply', 'a hook refuses it the merge', 'a hook refuses it both', 'what it blocks is a draft', 'commits, pushes', 'the gate merges none of them:'],
+      labels: ['applied by the main session', 'the merge: no hook refuses it, a rule holds it', 'and continuity'],
       descr: [
         'applying that label is my decision, which the main session carries out',
         'the merge is held by a rule',
         'it blocks nothing: it repairs the draft in place',
-        'the gate merges none of them',
+        'the gate merges none of them before my go',
+        'the gate reads that comment itself',
       ],
     },
     pt: {
-      retired: ['só eu ponho', 'um hook recusa a ele', 'um hook recusa as duas', 'o que ele barra é um rascunho', 'commita, empurra'],
-      labels: ['posta pela sessão principal', 'o merge: nenhum hook recusa, uma regra segura'],
+      retired: ['só eu ponho', 'um hook recusa a ele', 'um hook recusa as duas', 'o que ele barra é um rascunho', 'commita, empurra', 'o gate não faz merge de nenhum deles:'],
+      labels: ['posta pela sessão principal', 'o merge: nenhum hook recusa, uma regra segura', 'e continuidade'],
       descr: [
         'pôr esse rótulo é decisão minha, que a sessão principal executa',
         'o merge é segurado por uma regra',
         'ele não barra nada: conserta o rascunho ali mesmo',
-        'o gate não faz merge de nenhum deles',
+        'o gate não faz merge de nenhum deles antes do meu go',
+        'o gate lê esse comentário ele mesmo',
       ],
     },
   };
@@ -1178,5 +1180,20 @@ describe('the dev-loop diagram states who applies ready, what holds the merge an
   it.each(LOCALES)('states the corrected claims in the %s accessible description', (locale) => {
     const descr = accDescrOf(TIER_FENCE[locale]().source);
     for (const phrase of CLAIMS[locale].descr) expect(descr).toContain(phrase);
+  });
+});
+
+// The persona table on the same page restated the retired claim the tier fence corrected (#716, copy
+// lens round 1): it said a permission HOOK lets only quality-assurance merge. The plugin carrying that
+// hook is disabled here (#715), so the row now says a rule holds it. Pinned on the whole page because
+// the row is markdown, not a fence.
+describe('the persona table does not claim a hook holds the merge (#716)', () => {
+  it.each([
+    ['architecture.en.md', 'the only one the permission hook lets merge', 'the only one a rule lets merge; no hook holds that here any more'],
+    ['architecture.pt.md', 'o único que o hook de permissão deixa fazer merge', 'o único que uma regra deixa fazer merge; nenhum hook segura isso aqui mais'],
+  ])('%s', (file, retired, present) => {
+    const page = read(file);
+    expect(page).not.toContain(retired);
+    expect(page).toContain(present);
   });
 });

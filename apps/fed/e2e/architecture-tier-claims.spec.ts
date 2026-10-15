@@ -20,22 +20,24 @@ const flatten = (html: string): string =>
 for (const [path, retired, present] of [
   [
     '/en/architecture/',
-    ['mine alone to apply', 'a hook refuses it the merge', 'what it blocks is a draft', 'commits, pushes'],
+    ['mine alone to apply', 'a hook refuses it the merge', 'what it blocks is a draft', 'commits, pushes', 'the gate merges none of them:'],
     [
       'applied by the main session',
       'no hook refuses it, a rule holds it',
       'it blocks nothing: it repairs the draft in place',
-      'the gate merges none of them',
+      'the gate merges none of them before my go',
+      'the gate reads that comment itself',
     ],
   ],
   [
     '/pt/architecture/',
-    ['só eu ponho', 'um hook recusa a ele', 'o que ele barra é um rascunho', 'commita, empurra'],
+    ['só eu ponho', 'um hook recusa a ele', 'o que ele barra é um rascunho', 'commita, empurra', 'o gate não faz merge de nenhum deles:'],
     [
       'posta pela sessão principal',
       'nenhum hook recusa, uma regra segura',
       'ele não barra nada: conserta o rascunho ali mesmo',
-      'o gate não faz merge de nenhum deles',
+      'o gate não faz merge de nenhum deles antes do meu go',
+      'o gate lê esse comentário ele mesmo',
     ],
   ],
 ] as const) {
