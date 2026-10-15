@@ -58,6 +58,41 @@ describe('resolveProfile', () => {
     });
   });
 
+  // A translated sentence is free to differ in wording; it is not free to differ in FACT. The test above
+  // pins the structured facts (dates, titles); this one pins the facts that live INSIDE the prose — the
+  // years a role's description and highlights name. #717: the EN edition said he joined as an intern in
+  // 2008 and the PT edition did not mention it, and `/cv.pdf` prints only the EN edition, so nothing
+  // printed or rendered compared the two. Over EVERY role, not the one that drifted, because the hole
+  // belongs to the prose and not to that role.
+  it('names the same years in each role prose across editions (#717)', () => {
+    const years = (role: (typeof en.experience)[number]) =>
+      [...new Set([role.description ?? '', ...(role.highlights ?? [])].join(' ').match(/\b(?:19|20)\d{2}\b/g) ?? [])].sort();
+
+    // Without this the test could pass by comparing empty sets everywhere — prose that names no year.
+    expect(en.experience.some((role) => years(role).length > 0), 'no role prose names a year — this test would assert nothing').toBe(true);
+
+    en.experience.forEach((role, i) => {
+      expect(years(pt.experience[i]), `${role.company} (${role.start_date}): PT prose names different years than EN`).toEqual(
+        years(role),
+      );
+    });
+  });
+
+  // The fact itself, settled by the owner on #717 («Estágio nas duas»): both editions say the career
+  // began as an internship, in the year the role's own start date carries. Read the year off the data
+  // rather than typing it, so a corrected start date moves the expectation with it.
+  it('says the career began as an internship, in both editions (#717)', () => {
+    const first = [...en.experience].sort((a, b) => a.start_date.localeCompare(b.start_date))[0];
+    const i = en.experience.indexOf(first);
+    const year = first.start_date.slice(0, 4);
+    const prose = (role: (typeof en.experience)[number]) => (role.highlights ?? []).join(' ');
+
+    expect(prose(first)).toMatch(/\bintern\b/i);
+    expect(prose(first)).toContain(year);
+    expect(prose(pt.experience[i])).toMatch(/\best[aá]gi/i); // estágio · estagiário · estagiária
+    expect(prose(pt.experience[i])).toContain(year);
+  });
+
   it('localizes education wording but not the institution', () => {
     expect(en.education[0].degree).toBe("Bachelor's Degree");
     expect(pt.education[0].degree).toBe('Bacharelado');

@@ -386,8 +386,8 @@ const sourceTemplate: ProfileSource = {
             'telecom, e-commerce.',
         ],
         pt: [
-          'Comecei em desenvolvimento web e, a partir da formatura em 2010, cresci de analista júnior a sênior ' +
-            'construindo integrações de sistemas corporativos.',
+          'Entrei como estagiário em 2008, ainda cursando a graduação em Sistemas de Informação; a partir da ' +
+            'formatura em 2010, cresci de analista júnior a sênior construindo integrações de sistemas corporativos.',
           'Construí e conectei sistemas distribuídos de larga escala entre integração batch (Informatica ' +
             'PowerCenter ETL) e online / tempo real (SOA), conectando plataformas corporativas heterogêneas.',
           'Entreguei ao longo de todo o SDLC para clientes corporativos em setores regulados — serviços ' +
