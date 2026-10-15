@@ -114,7 +114,7 @@ describe('Markdown — bare URLs autolink under GFM, and the facades survive it'
       { locale: 'pt' },
     );
     // Queried by the facade's play button, the way VideoEmbed's own suite does it.
-    expect(screen.getByRole('button', { name: /Reproduzir vídeo/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Assistir:/ })).toBeInTheDocument();
     expect(container.querySelector('img')).toHaveAttribute('src', '/video/dQw4w9WgXcQ.png');
   });
 

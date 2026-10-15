@@ -456,7 +456,8 @@ const strings = {
     // The rating meter's accessible name. `{rating}` and `{max}` are substituted by RatingMeter, `{max}`
     // from the same constant that generates the squares — so the announced scale cannot disagree with the
     // drawn one. A screen reader is the only way this value reaches a reader who cannot see the fill,
-    // which is why it is a catalog string and not the hardcoded English literal `LevelMeter` still uses.
+    // which is why it is a catalog string. (`LevelMeter`, the CV's skill meter, used a hardcoded English
+    // literal until #718 and now reads `cv.levelLabel` the same way.)
     ratingLabel: { pt: 'Nota {rating} de {max}', en: 'Rated {rating} out of {max}' },
   },
   portfolio: {
@@ -643,6 +644,11 @@ const strings = {
     // proficiency wording below was: `messages.test.ts` has NO orphan-key detection, so a catalog entry
     // whose only consumer is gone sits there green forever and reads to the next author as a string in use.
     download: { pt: 'Baixar CV (PDF)', en: 'Download CV (PDF)' },
+    // The skill meter's accessible name (#718). It was the English literal `Proficiency level N of 4`
+    // inside LevelMeter, so /pt/me announced English to a screen reader while the page's own chrome was
+    // Portuguese (the skill names themselves are English proper nouns in both editions). `{level}` and `{max}` are substituted by LevelMeter, `{max}` from the same
+    // constant that draws the squares, so the announced scale cannot disagree with the drawn one.
+    levelLabel: { pt: 'Nível de proficiência {level} de {max}', en: 'Proficiency level {level} of {max}' },
     // RETIRED as of #317, and kept as strings rather than deleted only for the length of this comment:
     // these were the print-only proficiency wording for the one-page CV (#161). The meter was hidden in
     // print then, so a level-1 keyword printed beside a level-4 one as equals, and the calibration was
@@ -871,7 +877,16 @@ const strings = {
     copyText: { pt: 'Copiar o texto do artigo', en: 'Copy the article text' },
   },
   video: {
-    play: { pt: 'Reproduzir vídeo', en: 'Play video' },
+    // The play button's accessible name, as ONE template rather than a word plus a `: ` joined in the
+    // component (#718) — the separator is part of what a screen reader speaks, so it belongs to the
+    // catalog. `{title}` is the video's name from `videos.json` (see `videoName` for which rung is
+    // poster text and which is the prose's).
+    //
+    // IT OPENS WITH THE VISIBLE WORD OF `watch` BELOW, minus the glyph (WCAG 2.5.3, label in name): a
+    // speech-input user says what they see — "Watch" / "Assistir" — and a name that began "Play video"
+    // did not contain it. `VideoEmbed.test.tsx` derives the expected opening from `watch` itself, so
+    // rewording either key without the other goes red.
+    playLabel: { pt: 'Assistir: {title}', en: 'Watch: {title}' },
     watch: { pt: '▶ Assistir', en: '▶ Watch' },
     defaultTitle: { pt: 'Vídeo', en: 'Video' },
     // The link-preview form, for a video whose owner disabled embedding. The GLYPH is the

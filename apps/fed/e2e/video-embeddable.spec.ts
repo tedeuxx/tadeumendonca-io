@@ -46,8 +46,8 @@ const FLAGGED = Object.entries(videos)
  * this one, where the coverage assertion reported zero visits after both visits had passed.
  */
 const ROUTES = [
-  { id: 'pqlWNihgdjI', path: '/pt/blog/tres-loops-de-agentes-um-mes', play: 'Reproduzir vídeo' },
-  { id: 'pqlWNihgdjI', path: '/en/blog/three-agent-loops-one-month', play: 'Play video' },
+  { id: 'pqlWNihgdjI', path: '/pt/blog/tres-loops-de-agentes-um-mes', play: 'Assistir:' },
+  { id: 'pqlWNihgdjI', path: '/en/blog/three-agent-loops-one-month', play: 'Watch:' },
 ] as const;
 
 test.describe('a video whose owner disabled embedding is served as a link preview', () => {

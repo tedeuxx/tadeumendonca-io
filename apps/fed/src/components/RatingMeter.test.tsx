@@ -38,7 +38,8 @@ describe('RatingMeter', () => {
     expect(meter).toHaveAccessibleName('Nota 4 de 5');
   });
 
-  // THE DEFECT NOT COPIED FROM `LevelMeter`, whose label is a hardcoded English literal. Asserted in
+  // THE DEFECT NOT COPIED FROM `LevelMeter`, whose label ~~is~~ was a hardcoded English literal (moved
+  // to the catalog at #718; `CVSection.test.tsx` now asserts it per locale the same way). Asserted in
   // both editions, and each assertion also checks the OTHER locale's wording is absent — a fallback
   // rendering English under a pt provider would pass a laxer check.
   it('announces the rating in the reader’s language, not in English regardless', () => {

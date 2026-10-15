@@ -3,6 +3,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { VideoEmbed, youtubeId, embeddingDisabled } from './VideoEmbed';
 import { Markdown } from './Markdown';
 import { renderWithLocale } from '../test-utils';
+import { LOCALES, translate } from '../i18n';
 import videos from '../content/videos.json';
 
 // Derived from the manifest, deliberately NOT from `embeddingDisabled` — that is the function under
@@ -31,7 +32,7 @@ describe('VideoEmbed', () => {
     const { container } = renderWithLocale(<VideoEmbed id="dQw4w9WgXcQ" />);
     expect(container.querySelector('iframe')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: /Reproduzir vídeo/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Assistir:/ }));
     expect(container.querySelector('iframe')).toHaveAttribute(
       'src',
       expect.stringContaining('youtube-nocookie.com/embed/dQw4w9WgXcQ'),
@@ -64,6 +65,68 @@ describe('VideoEmbed', () => {
   });
 });
 
+// #718: every play button announced "Play video: Video", because the markdown facade passes no title.
+// The name now comes from the manifest: `title` (the prose's name for it, never drawn on the poster), else the
+// poster's `caption`, else its `channel`. Pinned per fallback rung with literals typed here
+// (not re-derived from the manifest, which would agree with the code by construction), in both locales.
+describe('VideoEmbed accessible name', () => {
+  it.each([
+    // `title` wins over `caption` where the manifest has both — this id has only `title`.
+    ['5uGP97AmMHY', 'Deus, vaidade e morte: conversa de Karnal com uma IA'],
+    // `caption` where there is no `title`.
+    ['I4B37S1dyQQ', 'Jensen Huang: The Mindset That Built NVIDIA'],
+    // `channel` alone: the poster carries no caption, only the channel line.
+    ['P1-8da1GgBg', 'Lucas Montano'],
+  ])('names %s by its manifest rung, in the route locale', (id, name) => {
+    const pt = renderWithLocale(<VideoEmbed id={id} />, { locale: 'pt' });
+    expect(screen.getByRole('button')).toHaveAccessibleName(`Assistir: ${name}`);
+    pt.unmount();
+    renderWithLocale(<VideoEmbed id={id} />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName(`Watch: ${name}`);
+  });
+
+  // WCAG 2.5.3, label in name: a speech-input user says the word they SEE. The expected opening is
+  // derived from the catalog key the visible text comes from (`video.watch`, minus its glyph) and from
+  // the rendered button's own text, never typed here — so rewording either key alone goes red.
+  it.each(LOCALES)('opens the accessible name with the visible label (%s)', (locale) => {
+    renderWithLocale(<VideoEmbed id="I4B37S1dyQQ" />, { locale });
+    const button = screen.getByRole('button');
+    const visibleWord = translate(locale, 'video.watch').replace(/^[^\p{L}]+/u, '');
+    expect(visibleWord.length, 'the visible label has no word to contain').toBeGreaterThan(0);
+    expect(button.textContent?.trim()).toBe(translate(locale, 'video.watch'));
+    expect(button.getAttribute('aria-label')?.startsWith(`${visibleWord}: `)).toBe(true);
+  });
+
+  it('gives the mounted player the same name', () => {
+    const { container } = renderWithLocale(<VideoEmbed id="I4B37S1dyQQ" />, { locale: 'en' });
+    fireEvent.click(screen.getByRole('button'));
+    expect(container.querySelector('iframe')).toHaveAttribute('title', 'Jensen Huang: The Mindset That Built NVIDIA');
+  });
+
+  it('falls back to the catalog word only for an id the manifest does not know', () => {
+    renderWithLocale(<VideoEmbed id="dQw4w9WgXcQ" />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName('Watch: Video');
+  });
+
+  it("prefers the caller's title, and substitutes it verbatim even when it carries `$` patterns", () => {
+    renderWithLocale(<VideoEmbed id="I4B37S1dyQQ" title="Costs $& and $' too" />, { locale: 'en' });
+    expect(screen.getByRole('button')).toHaveAccessibleName("Watch: Costs $& and $' too");
+  });
+
+  it('gives every playable manifest video a distinct name, none of them the generic one', () => {
+    const playable = Object.keys(videos).filter((id) => !FLAGGED.includes(id));
+    expect(playable.length).toBeGreaterThan(1);
+    const names = playable.map((id) => {
+      const { unmount } = renderWithLocale(<VideoEmbed id={id} />, { locale: 'en' });
+      const name = screen.getByRole('button').getAttribute('aria-label');
+      unmount();
+      return name;
+    });
+    expect(names).not.toContain('Watch: Video');
+    expect(new Set(names).size).toBe(names.length);
+  });
+});
+
 // THE TEST THAT WOULD HAVE CAUGHT THE DEFECT.
 //
 // The defect is a video whose owner has disabled embedding: the facade renders a play button, the
@@ -91,7 +154,7 @@ describe('VideoEmbed when the owner has disabled embedding', () => {
       // The play button is the thing that must not exist. Asserting "no iframe after clicking it" would
       // need it to exist first; asserting it is ABSENT is the stronger claim and the one that fails if
       // the flag stops being read.
-      expect(screen.queryByRole('button', { name: /Reproduzir vídeo/ }), id).toBeNull();
+      expect(screen.queryByRole('button', { name: /^Assistir:/ }), id).toBeNull();
       expect(container.querySelector('iframe'), id).toBeNull();
       unmount();
     }
@@ -150,7 +213,7 @@ describe('VideoEmbed when the owner has disabled embedding', () => {
   it('leaves every video that is not flagged as a player', () => {
     for (const id of NOT_FLAGGED) {
       const { unmount } = renderWithLocale(<VideoEmbed id={id} />);
-      expect(screen.getByRole('button', { name: /Reproduzir vídeo/ }), id).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^Assistir:/ }), id).toBeInTheDocument();
       expect(screen.queryByTestId('video-preview'), id).toBeNull();
       unmount();
     }
@@ -175,12 +238,12 @@ describe('embeddingDisabled', () => {
 describe('Markdown video embedding', () => {
   it('turns a standalone YouTube link into the facade', () => {
     renderWithLocale(<Markdown>{'texto\n\nhttps://youtu.be/dQw4w9WgXcQ\n'}</Markdown>);
-    expect(screen.getByRole('button', { name: /Reproduzir vídeo/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Assistir:/ })).toBeInTheDocument();
   });
 
   it('leaves an inline link (and a non-YouTube link) alone', () => {
     renderWithLocale(<Markdown>{'veja [aqui](https://youtu.be/dQw4w9WgXcQ) e https://example.com/x\n'}</Markdown>);
-    expect(screen.queryByRole('button', { name: /Reproduzir vídeo/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Assistir:/ })).toBeNull();
     expect(screen.getByRole('link', { name: 'aqui' })).toBeInTheDocument();
   });
 });
