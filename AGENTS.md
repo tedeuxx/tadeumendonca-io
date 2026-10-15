@@ -199,26 +199,16 @@ form only where their act applies; an interview remains distinct: it elicits wit
 
 **Rule 4 was built as an automatic control and removed — do not rebuild it.** It classified by label
 spelling, not choice shape. **A preventive control whose false positives are invisible to the person
-it protects is worse than none.** Rules 2, 4 and 5 are held by review. The sibling repository's brief
-carries the same five rules; the rules must agree, never the characters.
+it protects is worse than none.** Rules 2, 4 and 5 are held by review. They are no longer mirrored
+with the sibling repository's brief (#715).
 
 ## How work is dispatched
 
-The main session hands each piece of work to the profile that owns it; profile briefs live in the
-sibling repository. **The list is the whole live roster**, checked by the `app` workflow against the
-sibling's profiles. Retired names (security reviewer, harness reviewer or lead, plain writer, plan
-reviewer, principles guide) fail when invoked.
-
-<!-- roster:dispatch -->
-- **`tech-lead`** — decisions against the principles and records; writes product and system records.
-- **`product-lead`** — what to build next; whether published copy is true.
-- **`developer`** — builds a slice end to end against an approved spec.
-- **`content-writer`** — drafts articles, site copy and social posts in the owner's voice; never posts.
-- **`content-reviewer`** — repairs that draft in place, at most two rounds, quoting the voice standard or the source; never posts. No copy block on the content lane.
-- **`quality-assurance`** — the merge gate: delivery and production lenses, permission floor, supply chain.
-- **`agents-lead`** — the machinery (hooks, configuration, briefs, plugin); may build what it reviews, never merges or gates.
-- **`scrum-master`** — which profile acts next, and whether rites ran in order; holds no tools.
-<!-- /roster:dispatch -->
+The main session hands each piece of work to the profile that owns it. **The profiles are the
+workstation method's** (`mhw install --method`, at the release range in `.workstation-version`); the
+agent definitions it installs are the live roster, and no list here restates them (#715). Retired names
+(security reviewer, harness reviewer or lead, plain writer, plan reviewer, principles guide) fail when
+invoked.
 
 **Every dispatch is a fresh instance.** Never carry an instance across issues, nor the builder's
 instance into review; proposing and building are separate dispatches too. The agents lead may both

@@ -342,10 +342,12 @@ describe('the dev-loop diagram shows where the human stands', () => {
 //   description, in both editions.
 //
 //   IT DOES NOT CHECK the reverse — a name on this fence that the manifest no longer carries. A RETIRED
-//   persona left published here passes this block untouched. That direction is covered twice elsewhere
-//   and neither of those covers it HERE: the components grid asserts `PS`'s label equals the manifest's
-//   id list exactly (`names NO persona the manifest has retired`), and AGENTS.md's `roster:dispatch`
-//   fence is compared by `check-harness-drift.mjs`. Both are about a different surface. Closing this
+//   persona left published here passes this block untouched. ~~That direction is covered twice elsewhere
+//   and neither of those covers it HERE~~ — STRUCK #715: it is covered ONCE elsewhere, and not HERE.
+//   The components grid asserts `PS`'s label equals the manifest's id list exactly (`names NO persona the
+//   manifest has retired`). ~~and AGENTS.md's `roster:dispatch` fence is compared by
+//   `check-harness-drift.mjs`~~ — the fence left AGENTS.md and that checker leg was removed in #715.
+//   The grid is about a different surface. Closing this
 //   direction on THIS fence needs an authored anchor the drawing does not have today — its persona names
 //   are scattered across nine boxes and its own prose, so there is no enumeration to compare against, and
 //   inventing one by scraping every capitalised token out of the labels would red on ordinary editing.
