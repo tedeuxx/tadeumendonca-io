@@ -1112,3 +1112,71 @@ describe('the components diagram distinguishes a mechanism from a convention', (
     }
   });
 });
+
+// THE TIER FENCE'S CLAIMS ABOUT WHO DOES WHAT (#716). Three sentences on this fence went false while
+// every shape and membership assertion above stayed green, because none of those reads a claim:
+//
+//   1. `ready` on a `loop` Issue is the owner's DECISION and the main session APPLIES it (ruling of
+//      2026-09-25 on `-skills` #512); the fence said the owner applied it alone.
+//   2. The orchestrator's merge is held by a rule, not a hook: the plugin whose guard refused it is
+//      switched off in this repository (#715). The fence said a hook refused it the merge and the push.
+//   3. `content-reviewer` repairs a draft in place and blocks nothing (since 2026-09-03); the fence said
+//      it blocked a draft.
+//
+// Pinned on BOTH surfaces of BOTH editions — the node labels a sighted reader sees and the accessible
+// description a screen reader gets instead — because a fix landing on one surface only is exactly how a
+// stale claim survived here before. Each row carries the retired wording, which must be gone, and the
+// corrected wording, which must be present: an absence check alone passes on a fence that dropped the
+// subject entirely, which would silently remove the claim instead of correcting it.
+//
+// WHAT THIS CANNOT DO: it pins wording, never truth. If the loop changes again, these rows are what goes
+// stale, and nothing here notices — the same limit the persona-membership block states for its own half.
+describe('the dev-loop diagram states who applies ready, what holds the merge and what the reviewer does (#716)', () => {
+  const CLAIMS = {
+    en: {
+      retired: ['mine alone to apply', 'a hook refuses it the merge', 'a hook refuses it both', 'what it blocks is a draft', 'commits, pushes'],
+      labels: ['applied by the main session', 'the merge: no hook refuses it, a rule holds it'],
+      descr: [
+        'applying that label is my decision, which the main session carries out',
+        'the merge is held by a rule',
+        'it blocks nothing: it repairs the draft in place',
+        'the gate merges none of them',
+      ],
+    },
+    pt: {
+      retired: ['só eu ponho', 'um hook recusa a ele', 'um hook recusa as duas', 'o que ele barra é um rascunho', 'commita, empurra'],
+      labels: ['posta pela sessão principal', 'o merge: nenhum hook recusa, uma regra segura'],
+      descr: [
+        'pôr esse rótulo é decisão minha, que a sessão principal executa',
+        'o merge é segurado por uma regra',
+        'ele não barra nada: conserta o rascunho ali mesmo',
+        'o gate não faz merge de nenhum deles',
+      ],
+    },
+  };
+  const labelsOf = (source) =>
+    source
+      .split('\n')
+      .filter((line) => !/^\s*acc(?:Title|Descr):/.test(line))
+      .flatMap((line) => [...line.matchAll(/[[({]\s*"([^"]*)"/g)].map((m) => m[1].replace(/<br\/>/g, ' ')))
+      .join('\n');
+
+  it.each(LOCALES)('carries none of the retired wording in the %s edition, on either surface', (locale) => {
+    const { source } = TIER_FENCE[locale]();
+    for (const phrase of CLAIMS[locale].retired) {
+      expect(labelsOf(source), `${locale} node labels still say: ${phrase}`).not.toContain(phrase);
+      expect(accDescrOf(source), `${locale} accDescr still says: ${phrase}`).not.toContain(phrase);
+    }
+  });
+
+  it.each(LOCALES)('states the corrected claims in the %s node labels', (locale) => {
+    const labels = labelsOf(TIER_FENCE[locale]().source);
+    expect(labels.length, `${locale}: no node labels parsed`).toBeGreaterThan(200);
+    for (const phrase of CLAIMS[locale].labels) expect(labels).toContain(phrase);
+  });
+
+  it.each(LOCALES)('states the corrected claims in the %s accessible description', (locale) => {
+    const descr = accDescrOf(TIER_FENCE[locale]().source);
+    for (const phrase of CLAIMS[locale].descr) expect(descr).toContain(phrase);
+  });
+});
