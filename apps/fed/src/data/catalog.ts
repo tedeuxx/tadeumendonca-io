@@ -192,15 +192,20 @@ export const catalog: CatalogProject[] = [
     // would just point at the page they're viewing. The GitHub link is the useful one here (#175).
     status: 'live',
   },
-  // #313. The asymmetry with the entry above is the point rather than a wart: this repo is a
-  // DEPENDENCY of that one. The site consumes this plugin, so the card is not a second product — it
-  // is the thing that explains how the first is built, which is the "the code is the pitch" argument
-  // taken one level down.
+  // #313, reframed by #736. ~~This repo is a DEPENDENCY of the entry above: the site consumes this
+  // plugin, so the card explains how the first is built.~~ Struck at #736: no longer true. The plugin is
+  // disabled in this repository (`.claude/settings.json`, #715), and the method that runs here is
+  // installed at user level from the workstation repository. The owner kept the card and reframed it
+  // (option (a) on #736): it now says what the repo is today, a published plugin that is deprecated as a
+  // source, where the loop took shape, and it points at `tedeuxx/mhw` the way #733 does on
+  // `/architecture`. It does not call the repo a generated mirror: that is false while no regeneration
+  // has landed (PR #738's lens record).
   //
-  // It clears `docs/catalog-ready.md` as of `-skills`#109. It did NOT before: the README pitched a
-  // "personal Claude skills library" and failed the "README in the new framing" box, and that bar
-  // explicitly refuses to extend the platform's scoping exception to anything else on the shelf. The
-  // honest options were to fix the repo or not publish the card; the repo was fixed first.
+  // It cleared `docs/catalog-ready.md` as of `-skills`#109, and #736 re-assessed it row by row at a
+  // named `-skills` commit; the rows and the commit are in that file. It did NOT clear the bar before
+  // #109: the README pitched a "personal Claude skills library" and failed the "README in the new
+  // framing" box, and that bar explicitly refuses to extend the platform's scoping exception to anything
+  // else on the shelf.
   {
     name: 'tadeumendonca-skills',
     // A TAG now, where this said `index` until #345 — and the premise that put `index` here is what
@@ -217,68 +222,70 @@ export const catalog: CatalogProject[] = [
     // plugin's cadence.
     releases: 'plugin-build',
     tagline: {
-      // NOT "biblioteca de skills" / "skills library" — that is the pitch `-skills`#109 retired, and it
-      // names the least differentiated third of the repo. The personas and the hooks are what make it a
-      // harness; a skill library is what any prompt collection also has.
+      // NOT "biblioteca de skills" / "skills library" as the pitch — that is the pitch `-skills`#109
+      // retired, and it names the least differentiated third of the repo. NOT a skill count either: that
+      // number lives in the other repo's tree, where a gate keeps its copies true, and no gate here can
+      // see it.
       //
-      // AND NOT A SKILL COUNT, which the first draft led with. Two reasons, and the second is the one
-      // that decided it. (a) It leads with the least differentiated part — the same defect the sentence
-      // above avoids, one clause later. (b) That number lives in the OTHER repo's tree, which has a CI
-      // gate asserting every published copy of it precisely because it rots on the next skill added.
-      // That gate cannot see this file. Publishing it here would have created a sixth copy, in a repo
-      // the test cannot reach, on the surface whose whole thesis is that its claims are checkable.
-      //
-      // What replaced it is the strongest CHECKABLE fact in that repo's README, which the first draft
-      // gave zero words: the merge gate is enforced by a hook rather than asked for in a prompt.
-      //
-      // "cannot be skipped" was the first phrasing and is NOT used, because the README pairs that
-      // headline with a caveat this line has no room for — the hooks fail open, and a raw API call to
-      // the same endpoint is a named, accepted gap. A tagline may compress; it may not compress away
-      // the qualifier and keep the absolute, on a card whose pitch is that its claims are checkable
-      // against the repo one click away. What is stated instead needs no caveat and is the actual
-      // differentiator: the guarantee is wired into the tool, not into an instruction the context can
-      // forget.
-      pt: 'O harness que constrói este site — personas de review, hooks de permissão, e um gate de merge que é hook, não instrução.',
-      en: 'The harness that builds this site — review personas, permission hooks, and a merge gate wired into the tool, not the prompt.',
+      // ~~"The harness that builds this site — … a merge gate wired into the tool, not the prompt."~~
+      // Struck at #736. Both halves are false here: the plugin is disabled in this repository, so it
+      // builds nothing here, and since #731 this repository's merge is held by a rule, not a hook. What
+      // the line says now is true of the repo itself and needs no qualifier: the loop took shape in this
+      // plugin, and the plugin's personas and skills check an agent's work. Hooks are left to the
+      // description, where they can be scoped to where the plugin is installed (#736 AC 1).
+      pt: 'O plugin de Claude Code onde meu loop de agentes tomou forma: personas de review e skills que verificam o trabalho de um agente antes de alguém confiar nele.',
+      en: "The Claude Code plugin my agent loop took shape in: review personas and skills that check an agent's work before anyone trusts it.",
     },
     description: {
-      // The claim is `agent-led verification, HUMAN-RESIDUAL`, and the second half is not decoration.
-      // The first draft stopped at "a hook denies the irreversible floor", which describes a loop with
-      // no human in it — a reader who has not clicked through parses that as *the irreversible is
-      // handled mechanically*, the opposite of what the hook routes to. It overclaims the automation
-      // and under-sells the design in one clause, and every other surface states the pair explicitly
-      // (`architecture.{en,pt}.md`, and the plugin's own README).
+      // Three sentences, each with one job, and the last two are pinned verbatim in meaning by
+      // `content/architecture-plugin-disabled.test.ts`, so they cannot drift from `/architecture`.
       //
-      // `contexto fresco`, not `contexto limpo`: `/pt/architecture` already publishes `contexto fresco`,
-      // including in a diagram's accDescr, which is copy a screen reader receives. One presence, one
-      // name — the same rule the sibling card's `description` comment states for `CI gates`.
+      // 1. What the plugin does, SCOPED to where it is installed (#736 AC 1). The card published
+      //    before #736 said "Here … a hook refuses irreversible actions", and "here" became false when
+      //    #715 disabled the plugin in this repository. The human half (`agent-led verification,
+      //    HUMAN-RESIDUAL`) stays: a hook line with no human in it reads as *the irreversible is handled
+      //    mechanically*, the opposite of what the hook routes to.
+      // 2. The disabled-here sentence `/architecture` carries (#733), without its backticks: card copy
+      //    renders as plain text, so a backtick would print.
+      // 3. The plugin's status, the ADR-0043 sentence #738 landed, also without backticks. It does NOT
+      //    say "generated mirror": the plugin's own README says it "becomes" one, and its main still ships
+      //    skills the method retired.
       //
-      // pt does NOT say `piso irreversível`. In BR Portuguese `piso` carries the MINIMUM-level sense,
-      // and this site uses it that way three paragraphs later in `architecture.pt.md` (`piso de custo`).
-      // Using it for a boundary you may not cross points the opposite way on the same axis. English
-      // keeps `irreversible floor`, which is the repo's established term there.
+      // `contexto fresco`, not `contexto limpo`: `/pt/architecture` already publishes `contexto fresco`.
+      // One presence, one name.
       pt:
-        'Um agente produz trabalho plausível com rapidez; o gargalo vira confiar nele. Aqui a verificação é ' +
-        'mecânica e o humano fica com o que é dele: um reviewer julga o MR em contexto fresco, e um hook ' +
-        'recusa as ações irreversíveis antes do comando rodar, deixando-as com você.',
+        'Onde o plugin está instalado, um reviewer julga cada MR em contexto fresco e um hook recusa as ações ' +
+        'irreversíveis antes do comando rodar, e o humano fica com o que é dele. ' +
+        'O plugin tadeumendonca-skills está desligado neste repositório, e o método que roda aqui vem da ' +
+        'workstation, no nível do usuário. ' +
+        'O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o tedeuxx/mhw.',
       en:
-        'An agent produces plausible work fast; the bottleneck becomes trusting it. Here the verification is ' +
-        'mechanical and the human keeps what is theirs: a reviewer judges the MR in a fresh context, and a ' +
-        'hook refuses irreversible actions before the command runs, leaving them to you.',
+        'Where the plugin is installed, a reviewer judges each MR in a fresh context and a hook refuses ' +
+        'irreversible actions before the command runs, so the human keeps what is theirs. ' +
+        'The tadeumendonca-skills plugin is disabled in this repository, and the method that runs here comes ' +
+        'from the workstation at user level. ' +
+        'The plugin is still published, but it is deprecated as a source, and its README points to tedeuxx/mhw.',
     },
-    // Answers "what you take away", so it points at what is reusable — and at the honest limit,
-    // because the same README this card is drawn from publishes that limit rather than burying it.
+    // Answers "what you take away". ~~"what you can install into your own repo today"~~ struck at #736:
+    // the plugin's README now opens by telling a reader to install the method from tedeuxx/mhw, not this
+    // plugin, so a card inviting installation contradicts the repo one click away. What a reader takes
+    // from it is the loop's design as it was packaged here, and the README's first line, which this
+    // proof points at rather than contradicts.
     proof: {
       pt:
-        'o que dá para instalar no seu repo hoje, e o que é padrão de referência — o próprio README publica ' +
-        'como distinguir os dois, em vez de deixar você descobrir por arquivo.',
+        'a primeira forma empacotada do loop, lida nas decisões e nos trade-offs que ele registra; o README ' +
+        'abre dizendo onde o método mora agora.',
       en:
-        'what you can install into your own repo today, and what is a reference pattern — the README publishes ' +
-        'how to tell them apart rather than leaving you to find out per file.',
+        'the first packaged form of the loop, read through the decisions and trade-offs it records; the README ' +
+        'opens by saying where the method lives now.',
     },
     // FACTS, and deliberately short: there is no runtime here. Markdown, shell and the plugin manifests.
     stack: ['Claude Code', 'Bash', 'GitHub Actions'],
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-skills',
+    // `live` is kept on purpose (#736 AC 8): the badge says the repo is published and current, not that
+    // it runs here. The plugin is still published and still cuts a release on every merge, which is
+    // also why `releases: 'plugin-build'` above still has a tag to show. `wip` would be the false badge:
+    // nothing about the plugin is in progress.
     status: 'live',
   },
 ];
