@@ -379,6 +379,127 @@ query string**. No snapshot can request the preview, so no snapshot can render t
 **Pinned rather than argued**, which is what makes it worth more than the correction itself:
 `scripts/routes.test.mjs`, *"no prerendered route can carry the preview parameter (#506)"*.
 
+## Amendment (2026-10-16) — a PENDING REVISION of a published article: isolated the same way, without unpublishing it
+
+Implemented by [#741](https://github.com/tedeuxx/tadeumendonca-io/issues/741) in
+[PR #742](https://github.com/tedeuxx/tadeumendonca-io/pull/742), on the owner's decision on
+[tedeuxx/mhw#180](https://github.com/tedeuxx/mhw/issues/180#issuecomment-6214156628) (*"Construir modo
+revisão"*). Written by `tech-lead`. This record decided where **unpublished** text lives. A **correction
+to published text** is unpublished text too, and the hold cannot carry it: `draft: true` on a live
+article drops it from `byLocale` and from the route set, redirects its prefixed and neutral addresses,
+and orphans its committed OG cards, so the build reddens until they are deleted, and deleting them
+breaks the `og:image` every scraper already pinned. **The hold unpublishes, so it cannot be the tool for
+correcting something published.**
+
+**Decision.** A pending revision is a full copy of each edition at
+`apps/fed/src/content/revisions/<key>.<locale>.md`, **both locales**, keyed by the article **key** (the
+`blog/` filename stem, never a slug, per [ADR-0037](./0037-localized-article-slugs.md)), with
+**frontmatter byte-identical** to the published edition and only the body corrected. `?preview`
+(presence, unchanged) renders the revision at the article's real URL; every other visitor, and every
+prerendered snapshot, gets the published text. The review bar states which text it shows: *Pending
+revision* or *Published text, no pending revision*. **On a held article it shows neither**, because there
+is no published text to contrast with. A rendered revision carries `noindex, nofollow`, written or removed
+on every route, as the hold does. `content.ts` refuses five things at module load: an orphan key, a half
+pair, a held host, frontmatter that is not byte-equal, and a body equal to the published one.
+
+**Why a directory.** The enumerating readers read `blog/` **flat**: `content.ts`'s `blog/` glob,
+`scripts/routes.mjs`, `scripts/og-cards.mjs` with `scripts/gen-og-articles.mjs`, and
+`scripts/gen-distribution.mjs`. A sibling file inside `blog/` would parse as a new article. Outside it,
+they need no change, and **with the frontmatter locked, each is correct reading the published file**.
+None of them is edited by #741. The recursive walkers (`scripts/diagram-source.mjs`'s `contentFiles()`,
+`scripts/video-thumbs.mjs`'s `markdownFilesIn()`) do see the revision, and must: its compiled diagrams
+and its posters are needed to render it.
+
+**Release is two merges, and the second is one commit.** Merge is deploy and the text has to be deployed
+to be read, so:
+
+1. **The revision merge** adds `revisions/<key>.{en,pt}.md`, plus any regenerated `diagrams.json` and
+   posters. Without the parameter, nothing a reader sees changes.
+2. **The release merge** is one commit:
+   `git mv -f apps/fed/src/content/revisions/<key>.en.md apps/fed/src/content/blog/<key>.en.md`,
+   the same for `.pt.md`, plus `npm --prefix apps/fed run gen-diagrams` if a fence changed. **That
+   commit's diff on `blog/` is exactly the text that was read.** A changed fence left without
+   `gen-diagrams` orphans a diagram, and `diagram-source.test.mjs` reddens. A copy instead of a move
+   leaves a revision equal to the published body, and refusal 5 reddens.
+
+**What records the owner's read: his comment on the release MR, naming the URLs he read.** He reads
+between the two merges, at the deployed `?preview` addresses. The comment is the artifact, and a relay
+into a dispatch is not. **What nothing checks:** that the body moved onto `blog/` is the body he read.
+This is the same gap as the held draft's one-word promotion. The release diff is the ruler a reviewer
+holds against his comment, and nothing holds it mechanically.
+
+**Considered and rejected.**
+
+1. **The hold itself.** It unpublishes, as measured above.
+2. **A sibling file inside `blog/`.** Every flat reader would enumerate it as an article, so all of them
+   would have to learn to skip it.
+3. **A pointer field in the published file.** It edits the live file, and every reader must learn to
+   ignore the field.
+4. **A lazy (non-eager) glob for `revisions/`.** Visitors would download no revision bytes. The price is
+   an asynchronous render path (a loading state and a second render branch) and the five refusals moved
+   out of module load into a Node test, for windows measured in days. **Kept as the extension point** if
+   a window ever runs long.
+5. **Revisions that may change the title or other frontmatter.** The OG card, the social kit and
+   JSON-LD read the frontmatter and are not preview-aware. Out of scope until a correction needs it; a
+   title fix is an ordinary edit with no preview.
+
+**Accepted costs.**
+
+- **The bundle carries both bodies, both locales, while a revision is pending**, plus a second compiled
+  SVG for each revised mermaid fence. Every visitor downloads these bytes, not only the owner. Measured
+  on #742's branch at `9746b9fe25e183b01aa25c008e5c954a551d79ab`, with a temporary, uncommitted revision
+  of `my-commitment` (each edition copied to `revisions/` with one sentence appended, 5,347 bytes for the
+  two files):
+
+  ```
+  npm --prefix apps/fed run build:static
+  wc -c apps/fed/dist/assets/index-*.js    # no revision: 1995411 · with it: 2000861 → +5,450 bytes
+  ```
+
+  The PR body reports +4,930 bytes from a different temporary revision of the same article (one
+  paragraph replaced per locale). **The cost is the size of the revision files, not a constant**: about
+  one more copy of the article per pending revision.
+- **The revision text is fetchable without the parameter**, exactly as the held text is, and it is
+  already public in its own merge request. Isolation, not privacy: the consequence and the upgrade path
+  above apply unchanged.
+- **A hard load with the parameter paints the published snapshot first**, then the revision, because
+  `main.tsx` uses `createRoot`, not hydration. Only someone carrying the parameter sees it, and every
+  end-to-end assertion waits for the revision text, not for the first paint.
+- **The flat readers are pinned by source text, not by behaviour.**
+  `scripts/revision-isolation.test.mjs` asserts each reader's directory declaration and the absence of a
+  recursive `readdirSync`. Their directories are module-private constants, and a behavioural pin would
+  need those modules edited to export a path, which this slice is specified not to do. A reader that
+  reached `revisions/` by a route the text check does not recognise would pass. The walkers' half **is**
+  behavioural, over a committed fixture tree, `scripts/__fixtures__/content-with-revision/`.
+- **The end-to-end spec has nothing to run while no revision exists**, and reports *skipped* with a
+  reason, never *passed*. No fixture can be committed: a revision needs a published host, a published
+  fixture would sit in the live index, and a held host is refused. The first real run is the revision
+  merge of the first correction. The spec takes its witnesses from `scripts/revision-lines.mjs`, which
+  derives one readable line present only in the revision (and the reverse, when one exists). **A revision
+  that changes only markup or a fence has no such line, and the spec fails on it instead of skipping.**
+  That error is loud, and it fails before merge.
+- **The post-deploy check asserts absence only.** Against the live apex, the served HTML at every
+  address, with and without the parameter, does not contain the revision-only line, and is the article's
+  own snapshot (a control against the SPA fallback). Presence of the published text is not asserted on
+  raw HTML, because entity escaping would make a true presence read as absent. That half is a build-output
+  grep reported on the merge request, not a committed check.
+
+**What this amendment does not alter.**
+
+- **The held draft**: its mechanism, the hold's readers, promotion by one edit, the isolation-not-privacy
+  consequence and the upgrade path. A held article is still corrected in place, and refusal 3 keeps it
+  that way.
+- **The 2026-08-29 amendment**: the gate is still the parameter alone, and the copy payload is still the
+  rendered body, which is now the revision when one is shown.
+- **[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s narrowing is unchanged.** The revision is
+  compiled in and never prerendered, the same exception, bounded the same way.
+- **[ADR-0005](./0005-og-coverage-every-public-url.md) is not reached.** A revision is not the text of a
+  public URL until the release merge, and no snapshot can carry it.
+- **[ADR-0041](./0041-per-article-og-cards.md) and
+  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) are untouched**, because the
+  frontmatter cannot move. The card set, the neutral address and its canonical are the published
+  article's.
+
 ## Links
 
 - [#510](https://github.com/tedeuxx/tadeumendonca-io/issues/510) — the Issue, its intake and its
@@ -391,3 +512,8 @@ query string**. No snapshot can request the preview, so no snapshot can render t
   buttons, which depend on this parameter · [#479](https://github.com/tedeuxx/tadeumendonca-io/issues/479)
   — the enforced-ratification machine, independent of this slice and the origin of the `drafts/` proposal
 - `apps/fed/CLAUDE.md`, the *"An article can be HELD"* paragraph — the operative wording for an author
+- [#741](https://github.com/tedeuxx/tadeumendonca-io/issues/741) ·
+  [PR #742](https://github.com/tedeuxx/tadeumendonca-io/pull/742) — the pending revision, the 2026-10-16
+  amendment · [tedeuxx/mhw#180](https://github.com/tedeuxx/mhw/issues/180) — the owner's decision and
+  the method side · `apps/fed/CLAUDE.md`, the *"A PUBLISHED article is corrected through a PENDING
+  REVISION"* paragraph — the operative wording for an author
