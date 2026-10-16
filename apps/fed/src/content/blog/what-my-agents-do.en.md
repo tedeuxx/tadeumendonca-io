@@ -154,10 +154,31 @@ And here is the limit, before you reach it on your own: I do not have the measur
 
 One thing I am leaving out, deliberately. Everything above is the part that worked. What none of it can check, and the two occasions where something was written down and then simply not read, is the next article — the one with the receipts I like least. Saying that costs me a sentence; letting this one look finished would have cost more.
 
-The tiers, what each one is *not* allowed to do, and how a change crosses them are in one drawing — the same loop, laid out to be inspected rather than read. It is not a second drawing: it is the one that sits on [the architecture page](/architecture), taken as it is. Drawing it twice is exactly the one-off work this piece is against.
+The tiers, what each one is *not* allowed to do, and how a change crosses them are in one drawing — the same loop, laid out to be inspected rather than read. It is not a second drawing: it was the one that sat on [the architecture page](/architecture) when I published this. The loop has changed since; the dated addendum at the end of this piece says what changed, and the architecture page carries the current drawing. Drawing it twice is exactly the one-off work this piece is against.
 
 He closes by listing what is portable: skill files as employees, the library and the librarian, never do one-off work. Those, he says, travel with you to any stack. Mine travels as a plugin, in the other repository — the one thing here built to be carried off by somebody else. That it can be is not why I wrote it: I wrote the reasons for myself, and only afterwards found out the reasons were the part that could leave.
 
 Good luck, and I hope you find yours in better shape than I found mine.
 
 This is what I think.
+
+---
+
+## Addendum — 15 October 2026
+
+This piece is a record of the loop as it stood when I published it, on 18 September 2026, and it stays one. The drawing above is that loop. Since then, part of what it says has stopped being true, and one sentence in it was already wrong on the day it went out.
+
+The correction first. The drawing's description said content-reviewer blocks a draft rather than a merge. Not even then: it blocks nothing, it repairs the draft in place. That sentence is now fixed in the drawing above, and nothing else in it was touched.
+
+What changed since:
+
+- **`ready` on a loop issue.** The drawing says that label is mine alone to apply. Today applying it is my decision, which the main session carries out once we are aligned.
+- **The orchestrator.** The drawing has it committing and pushing. Today it only dispatches, and it never edits a file in the repository.
+- **The merge and the trunk push.** The drawing says a hook refuses the orchestrator both. Today no hook refuses anything in this repository: the merge is held by a written rule, and a push straight to the trunk is refused by a deny rule committed in this repository, which matches the command by its spelling.
+- **Where the method lives.** Near the end I wrote that mine travels as a plugin, in the other repository. The `tadeumendonca-skills` plugin is disabled in this repository, and the method that runs here comes from the workstation at user level. Its agents, skills and commands are installed by [tedeuxx/mhw](https://github.com/tedeuxx/mhw). The plugin is still published, but it is deprecated as a source, and its README points to `tedeuxx/mhw`.
+
+The current drawing is on [the architecture page](/architecture).
+
+Now the why. For me, as a software engineer, these are not capabilities of a project. They are capabilities of how I work. Each person works differently — unless the organisation imposes a way of working on us. That is why I needed to rehearse the organisations' way of working with myself.
+
+And another point: perimeter defence. My workstation must set the rules of the game. The projects only follow.

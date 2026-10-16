@@ -158,10 +158,31 @@ E aqui vai o limite, antes que você chegue nele sozinho: eu não tenho a mediç
 
 Uma coisa eu estou deixando de fora, de propósito. Tudo aí em cima é a parte que deu certo. O que nada disso consegue conferir, e as duas vezes em que alguma coisa foi registrada e simplesmente não foi lida, é o próximo artigo — o dos recibos de que eu menos gosto. Falar isso me custa uma frase; deixar este aqui parecendo pronto teria custado mais.
 
-As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão em um desenho só — o mesmo loop, montado para ser inspecionado, não lido. E não é um segundo desenho: é o que está na [página de arquitetura](/architecture), tal como está. Desenhar de novo seria exatamente o trabalho de uma vez só contra o qual este texto argumenta.
+As camadas, o que cada uma **não** pode fazer, e como uma mudança atravessa elas estão em um desenho só — o mesmo loop, montado para ser inspecionado, não lido. E não é um segundo desenho: era o que estava na [página de arquitetura](/architecture) quando eu publiquei este texto. O loop mudou desde então; o adendo datado no fim deste texto diz o que mudou, e a página de arquitetura traz o desenho atual. Desenhar de novo seria exatamente o trabalho de uma vez só contra o qual este texto argumenta.
 
 Ele fecha listando o que é portátil: arquivos de skill como funcionários, a biblioteca e o bibliotecário, nunca fazer trabalho de uma vez só. Isso, ele diz, viaja com você para qualquer stack. O meu viaja num plugin, no outro repositório — a única coisa aqui feita para alguém pegar e levar embora. Poder ser levado não é o motivo de eu ter escrito: eu escrevi os motivos para mim mesmo, e só depois descobri que os motivos eram justamente a parte que conseguia sair dali.
 
 Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.
 
 Isso é o que eu penso.
+
+---
+
+## Adendo — 15 de outubro de 2026
+
+Este texto é um registro do loop como ele estava quando eu publiquei, em 18 de setembro de 2026, e continua sendo. O desenho lá em cima é esse loop. De lá para cá, parte do que ele diz deixou de ser verdade, e uma frase dele já estava errada no dia em que saiu.
+
+Primeiro a correção. A descrição do desenho dizia que o content-reviewer barra um rascunho, nunca um merge. Nem naquele dia era assim: ele não barra nada, conserta o rascunho ali mesmo. Essa frase agora está corrigida no desenho acima, e nada mais nele foi mexido.
+
+O que mudou desde então:
+
+- **O `ready` numa issue de loop.** O desenho diz que esse rótulo é meu, só eu ponho. Hoje pôr esse rótulo é decisão minha, que a sessão principal executa depois que nos alinhamos.
+- **O orquestrador.** No desenho ele commita e empurra. Hoje ele só aciona as personas, e nunca edita um arquivo do repositório.
+- **O merge e o push na trunk.** O desenho diz que um hook recusa as duas coisas ao orquestrador. Hoje nenhum hook recusa nada neste repositório: o merge é segurado por uma regra escrita, e um push direto na trunk é recusado por uma regra de deny versionada neste repositório, que reconhece o comando pela grafia.
+- **Onde o método mora.** Perto do fim eu escrevi que o meu viaja num plugin, no outro repositório. O plugin `tadeumendonca-skills` está desligado neste repositório, e o método que roda aqui vem da workstation, no nível do usuário. Os agentes, as skills e os comandos dele são instalados pelo [tedeuxx/mhw](https://github.com/tedeuxx/mhw). O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o `tedeuxx/mhw`.
+
+O desenho atual está na [página de arquitetura](/architecture).
+
+Agora o porquê. Para mim, como engenheiro de software, não são capacidades de projeto. São capacidades de como eu trabalho. Cada pessoa trabalha diferente — a não ser que a organização nos imponha uma forma de trabalho. Por isso eu precisava ensaiar comigo mesmo a forma das organizações.
+
+E outro ponto: defesa em perímetro. A minha workstation deve ditar as regras do jogo. Os projetos só seguem.
