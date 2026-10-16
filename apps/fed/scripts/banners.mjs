@@ -16,8 +16,8 @@
 //
 // ── WHY THE COPY IS ONE SUBORDINATE LINE AND NOT THE CARD'S WORDS ──
 // The banner sits roughly 40px above a headline that already names the role and the practice (and, since
-// #749, opens on the mission — see `BANNER_COPY` below for why the line still repeats none of it). Repeating
-// either puts the same words twice on one screen: one sentence stuttering, not one identity system. And
+// #749, opens on the mission — see `BANNER_COPY` below for why the line still repeats none of its
+// segments). Repeating either puts the same words twice on one screen: one sentence stuttering, not one identity system. And
 // the hero tagline — the literal reading of "mirror the root URL's preview" — inverts its implied
 // subject here. On an unfurl card the subject is the SITE; above a photograph and a name it becomes the
 // person, and an instruction to the reader reads as an offer to teach them. So the banner carries the
@@ -77,8 +77,8 @@ export const markSvg = () =>
  * The words. Three fields, and every one of them is a decision recorded on the Issue.
  *
  * `line` is a CALL TO ACTION rather than a claim — the owner's own framing, chosen over a checkable
- * assertion he was offered first (#558). It repeats nothing from the headline it sits above, and names
- * no practice, role or product.
+ * assertion he was offered first (#558). It repeats none of the segments of the headline it sits above
+ * (narrowed by #749, below), and names no practice, role or product.
  *
  * #748 moved it onto the mission #688 recentred the site on — a commitment to learn in public — with
  * wording the owner chose on that Issue: it points the reader at the learning as it is written down,

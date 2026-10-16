@@ -39,8 +39,11 @@ describe('resolveProfile', () => {
 
   // LinkedIn caps a headline at 220 characters, and the English edition is the one it carries. At 211
   // the margin is nine, so one added tool name overflows it; this fails before the copy reaches LinkedIn.
-  it('keeps the LinkedIn headline within its 220-character limit (#749)', () => {
+  // The pt edition is held to the same limit: it is the CV's other edition of the same headline, and at
+  // 215 its margin is five, the thinner of the two.
+  it('keeps the LinkedIn headline within its 220-character limit in both editions (#749)', () => {
     expect(en.headline.length).toBeLessThanOrEqual(220);
+    expect(pt.headline.length).toBeLessThanOrEqual(220);
   });
 
   it('tells the full career arc, not only the AI-Engineer slice (#125)', () => {
