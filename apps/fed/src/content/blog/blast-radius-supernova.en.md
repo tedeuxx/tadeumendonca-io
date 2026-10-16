@@ -252,4 +252,23 @@ The model wrote it. The audit is what made it worth your time, and the audit is 
 
 **So: take something you made, run it through a shape you did not invent, and check what it claims about you — one item at a time. Tell me what falls out.**
 
+---
+
+## Addendum — 16 October 2026
+
+This piece is a record of the loop as it stood when I published it, on 28 August 2026, and it stays one. Since then, part of what it describes has changed.
+
+What changed since:
+
+- **Two hooks, one command.** I wrote that every shell command I run passes through `permission-guard` and then through `wip-guard`. `wip-guard` was removed from the plugin on 4 September 2026. Today the plugin registers one hook on shell commands, `permission-guard`.
+- **Where the method lives.** The `tadeumendonca-skills` plugin is disabled in this repository, and the method that runs here comes from the workstation at user level. Its agents, skills and commands are installed by [tedeuxx/mhw](https://github.com/tedeuxx/mhw). The plugin is still published, but it is deprecated as a source, and its README points to `tedeuxx/mhw`.
+- **What refuses a command.** Near the end I wrote of hooks that deny a command before it runs. In this repository no hook does that today. The irreversible commands are refused by native deny rules, which match the command by its spelling, and the merge is held by a written rule.
+- **The drift detector.** That one has not moved. The inventory still compares against the plugin's repository, and a mismatch still reddens the build here.
+
+The current state of the loop is on [the architecture page](/architecture).
+
+Now the why. For me, as a software engineer, these are not capabilities of a project. They are capabilities of how I work. Each person works differently — unless the organisation imposes a way of working on us. That is why I needed to rehearse the organisations' way of working with myself.
+
+And another point: perimeter defence. My workstation must set the rules of the game. The projects only follow.
+
 Good luck out there, and may your radius be narrow.
