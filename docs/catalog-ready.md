@@ -117,18 +117,20 @@ is answered by a different mechanism and therefore **passes**, this one has noth
 
 **The secret scan.** Run from a `tadeumendonca-skills` checkout on 2026-10-15 for #736. The first
 command reads only the history reachable from the named commit; the second adds every ref the checkout
-holds, remote branches included. Both printed `0`:
+holds, remote branches included. The pattern is set once in a shell variable, and every line below
+runs in that same shell. Both scans printed `0`:
 
 ```
-git log -p b69055cd2276140487b1157afac68494ac524a3a | grep -cE 'AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|aws_(access_key_id|secret_access_key)[[:space:]]*=[[:space:]]*[A-Za-z0-9/+]{16,}'
-git log -p --all | grep -cE '<the same pattern>'
+P='AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|aws_(access_key_id|secret_access_key)[[:space:]]*=[[:space:]]*[A-Za-z0-9/+]{16,}'
+git log -p b69055cd2276140487b1157afac68494ac524a3a | grep -cE "$P"
+git log -p --all | grep -cE "$P"
 ```
 
 The same pattern, fed two planted positives built at run time so that no key-shaped string is committed
 anywhere, printed `2`:
 
 ```
-printf 'AKIA%s\n-----BEGIN %s PRIVATE KEY-----\n' AAAAAAAAAAAAAAAA RSA | grep -cE '<the same pattern>'
+printf 'AKIA%s\n-----BEGIN %s PRIVATE KEY-----\n' AAAAAAAAAAAAAAAA RSA | grep -cE "$P"
 ```
 
 **Scoping is not softening, and the difference is a test with three outcomes**, not two:
