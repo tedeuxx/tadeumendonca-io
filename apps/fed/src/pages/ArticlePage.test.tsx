@@ -5,7 +5,8 @@ import type { BlogPost } from '../lib/content';
 import { LocaleProvider } from '../i18n';
 
 const { getPostBySlug, getEditions } = vi.hoisted(() => ({ getPostBySlug: vi.fn(), getEditions: vi.fn() }));
-vi.mock('../lib/content', () => ({ getPostBySlug, getEditions }));
+// `getRevision` (#741) answers "no pending revision" here; the revision cases are `ArticlePage.revision.test.tsx`.
+vi.mock('../lib/content', () => ({ getPostBySlug, getEditions, getRevision: () => undefined }));
 
 import { ArticlePage } from './ArticlePage';
 

@@ -819,7 +819,7 @@ const strings = {
       en: 'Decision index (ADRs), in the repository',
     },
   },
-  // #506 — the draft review bar. THESE FOUR STRINGS ARE READER-FACING ONLY BEHIND `?preview`: the bar
+  // #506 — the draft review bar. THESE STRINGS (~~FOUR~~ six since #741) ARE READER-FACING ONLY BEHIND `?preview`: the bar
   // renders nowhere else, so NO VISITOR SEES THEM AT ANY URL THAT DOES NOT CARRY THE PARAMETER. Stated
   // here because that is what keeps the slice in the safe class, and it is a property of the render gate
   // in `ArticlePage`, not of the catalog — move the bar and this sentence stops being true.
@@ -875,6 +875,13 @@ const strings = {
     // control and the question it answers is "the whole piece, or the link" — so the noun that
     // disambiguates is the article, and the destination stays implicit as it does in `share.copyLink`.
     copyText: { pt: 'Copiar o texto do artigo', en: 'Copy the article text' },
+    // #741 — WHICH TEXT THE PAGE IS SHOWING, on a published article reached with the parameter. Without it
+    // a `?preview` on an article with a pending revision and one without are indistinguishable, and the
+    // owner could read the published text believing he had read the correction. Behind the same gate as
+    // the rest of this group, so no visitor without the parameter sees either string. A held article
+    // shows neither: it has no published text to contrast with.
+    shownRevision: { pt: 'Revisão pendente', en: 'Pending revision' },
+    shownPublished: { pt: 'Texto publicado, sem revisão pendente', en: 'Published text, no pending revision' },
   },
   video: {
     // The play button's accessible name, as ONE template rather than a word plus a `: ` joined in the

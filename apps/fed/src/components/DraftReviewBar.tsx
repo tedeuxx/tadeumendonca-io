@@ -51,6 +51,7 @@ export function DraftReviewBar({
   path,
   body,
   contentIssue,
+  shown,
 }: {
   title: string;
   /** The LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`), as `ArticlePage` builds it. */
@@ -69,6 +70,12 @@ export function DraftReviewBar({
    * badly".
    */
   contentIssue?: number;
+  /**
+   * WHICH TEXT THE PAGE RENDERS (#741): `revision` when a pending revision of a published article is shown,
+   * `published` when the article is published and has none. Absent for a held article, which has no
+   * published text to contrast with — so the bar states nothing rather than something false.
+   */
+  shown?: 'revision' | 'published';
 }) {
   const t = useT();
   const lp = useLocalePath();
@@ -122,6 +129,11 @@ export function DraftReviewBar({
       aria-label={t('review.label')}
       className="mb-6 flex flex-wrap items-center gap-2 border-2 border-border-strong p-2"
     >
+      {shown !== undefined && (
+        <span data-review-shown={shown} className="px-1.5 font-mono text-xs uppercase tracking-wider">
+          {t(shown === 'revision' ? 'review.shownRevision' : 'review.shownPublished')}
+        </span>
+      )}
       {contentIssue !== undefined && (
         <a
           href={contentIssueUrl(contentIssue)}
