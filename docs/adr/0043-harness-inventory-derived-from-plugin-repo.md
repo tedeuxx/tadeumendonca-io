@@ -1708,8 +1708,9 @@ and "this repository's loop" as one subject, and that stopped being true.
   # agents-lead                              -> scm · ci                  (and no devops)
   ```
 
-- **The plugin mirror still says `devops`.** On the plugin's `main` the tree still ships `skills/devops`,
-  and `agents/tech-lead.md` still preloads it:
+- **The published plugin still says `devops`.** It is not yet a mirror of the method: no regeneration
+  from `tedeuxx/mhw` has landed, and its README says it *"becomes"* one. On the plugin's `main` the tree
+  still ships `skills/devops`, and `agents/tech-lead.md` still preloads it:
 
   ```
   git -C <plugin-checkout> ls-tree --name-only origin/main skills/ | grep devops            # -> skills/devops
@@ -1731,7 +1732,8 @@ re-scoped here:
   installed**. In this repository no hook refuses anything. The merge is held by a written rule. The
   irreversible commands are held by the workstation's deny floor, a set of native deny rules matched on
   the command's spelling. Delivery is gated by CI and the fresh-context gate. None of these is committed
-  as a hook in this repository, and the deny floor is not committed here at all.
+  as a hook in this repository, and the workstation's deny floor is not committed here. The committed
+  `.claude/settings.json` carries this project's own deny rules, which are a separate layer.
 - *"What this decides for the page, beyond the mechanism"*, item 1: *"Hooks and CI gates `deny`"*. In
   this repository's own loop, **CI gates deny and hooks do not run**. Where the plugin is installed, its
   hooks deny.
@@ -1761,10 +1763,11 @@ here. It loses for three reasons:
 
 That is a change of mechanism. It would need its own record, not an amendment.
 
-**Rejected: remove the inventory, because the plugin no longer runs here.** The plugin is still public
-and still the published, adoptable form of the method. That is the claim the inventory was built to make
-checkable. Deleting it would lose a drift-checked inventory to fix a framing problem that one sentence
-fixes.
+**Rejected: remove the inventory, because the plugin no longer runs here.** The plugin is still
+published, but it is deprecated as a source, and its README points to `tedeuxx/mhw`. The inventory
+still makes what the published plugin ships checkable. Deleting it would lose a drift-checked inventory
+to fix a framing problem that one sentence fixes. This reason is weaker than it was when the plugin was
+the way to install the method; whether to keep inventorying a deprecated plugin is a separate decision.
 
 **Rejected: keep the persona skills column sourced from the plugin, to match the grid.** That is
 consistent, and it is wrong about the subject. The persona table describes the agents that work here,
