@@ -33,8 +33,8 @@ test.describe('the path is authoritative', () => {
       await page.goto('/pt/me');
       await expect(page).toHaveURL(/\/pt\/me$/); // no redirect away — the path stands
       await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
-      await expect(page.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toBeVisible(); // a pt-only string
-      await expect(page.getByText(/\d+\+ years across Software Development/)).toHaveCount(0); // the en counterpart absent
+      await expect(page.getByText(/\d+\+ anos em Engenharia de Software/)).toBeVisible(); // a pt-only string
+      await expect(page.getByText(/\d+\+ years in Software Engineering/)).toHaveCount(0); // the en counterpart absent
     });
 
     test('/pt/me resolves in Portuguese even with a persisted en preference (path beats localStorage)', async ({
@@ -45,7 +45,7 @@ test.describe('the path is authoritative', () => {
       await page.goto('/pt/me');
       await expect(page).toHaveURL(/\/pt\/me$/);
       await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
-      await expect(page.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ anos em Engenharia de Software/)).toBeVisible();
     });
   });
 
@@ -57,8 +57,8 @@ test.describe('the path is authoritative', () => {
       await page.goto('/en/me');
       await expect(page).toHaveURL(/\/en\/me$/);
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-      await expect(page.getByText(/\d+\+ years across Software Development/)).toBeVisible();
-      await expect(page.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toHaveCount(0);
+      await expect(page.getByText(/\d+\+ years in Software Engineering/)).toBeVisible();
+      await expect(page.getByText(/\d+\+ anos em Engenharia de Software/)).toHaveCount(0);
     });
   });
 });

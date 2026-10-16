@@ -29,13 +29,15 @@ const sourceTemplate: ProfileSource = {
   avatar_url: avatar,
   headline: {
     en:
-      'AI Engineer — Context & Harness Engineering | ' +
-      'Claude Code · Kiro · Python · Node.js · TypeScript · AWS · Terraform | ' +
-      '{{years}} years across Software Development & Distributed Systems',
+      'AI Engineer, learning in public with the people and machines of this era | ' +
+      'Context & Harness Engineering | ' +
+      'Claude Code · Kiro · Python · TypeScript · AWS | ' +
+      '{{years}} years in Software Engineering & Distributed Systems',
     pt:
-      'AI Engineer — Context & Harness Engineering | ' +
-      'Claude Code · Kiro · Python · Node.js · TypeScript · AWS · Terraform | ' +
-      '{{years}} anos em Desenvolvimento de Software & Sistemas Distribuídos',
+      'AI Engineer, aprendendo em público com as pessoas e as máquinas desta era | ' +
+      'Context & Harness Engineering | ' +
+      'Claude Code · Kiro · Python · TypeScript · AWS | ' +
+      '{{years}} anos em Engenharia de Software & Sistemas Distribuídos',
   },
   // THE `applied GenAI` PHRASE IN THIS PARAGRAPH IS THE ONLY STRUCTURED SITE HOME THAT EXACT PHRASE HAS,
   // AND NOTHING PINS IT. Both editions of the block IMMEDIATELY BELOW carry it — en "My lane is applied

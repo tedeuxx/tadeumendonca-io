@@ -15,8 +15,9 @@
 // banners.test.mjs asserts they still differ — "one artwork exported twice" reddens rather than ships.
 //
 // ── WHY THE COPY IS ONE SUBORDINATE LINE AND NOT THE CARD'S WORDS ──
-// The banner sits roughly 40px above a headline that already names the role and the practice. Repeating
-// either puts the same words twice on one screen: one sentence stuttering, not one identity system. And
+// The banner sits roughly 40px above a headline that already names the role and the practice (and, since
+// #749, opens on the mission — see `BANNER_COPY` below for why the line still repeats none of its
+// segments). Repeating either puts the same words twice on one screen: one sentence stuttering, not one identity system. And
 // the hero tagline — the literal reading of "mirror the root URL's preview" — inverts its implied
 // subject here. On an unfurl card the subject is the SITE; above a photograph and a name it becomes the
 // person, and an instruction to the reader reads as an offer to teach them. So the banner carries the
@@ -28,6 +29,11 @@
 // this comment and DELIBERATELY NOWHERE IN THE COPY: the LinkedIn headline beside the banner already
 // carries it, and the divergence between what LinkedIn says and what the site says is a recorded
 // decision rather than drift — this slice does not reconcile it and must not.
+// #749 (2026-10-16): on the HEADLINE that divergence is gone. The owner chose one headline for LinkedIn
+// and the site CV (`src/data/profile.ts`, ADR-0024), and it names the practice in the full
+// `Context & Harness Engineering` form. The rule above is unchanged and so is its reason: the headline
+// beside the banner still names the practice, so the banner copy still must not. banners.test.mjs now
+// reads the resolved CV headline to check that premise instead of assuming it.
 import { readdirSync } from 'node:fs';
 
 /** The two palette values the brand mark is built from, plus the canvas the site sets them on. */
@@ -71,12 +77,20 @@ export const markSvg = () =>
  * The words. Three fields, and every one of them is a decision recorded on the Issue.
  *
  * `line` is a CALL TO ACTION rather than a claim — the owner's own framing, chosen over a checkable
- * assertion he was offered first (#558). It repeats nothing from the headline it sits above, and names
- * no practice, role or product.
+ * assertion he was offered first (#558). It repeats none of the segments of the headline it sits above
+ * (narrowed by #749, below), and names no practice, role or product.
  *
  * #748 moved it onto the mission #688 recentred the site on — a commitment to learn in public — with
  * wording the owner chose on that Issue: it points the reader at the learning as it is written down,
- * which is what the site now publishes. It still does NOT repeat the card's hook or the hero tagline
+ * which is what the site now publishes.
+ *
+ * ~~It repeats nothing from the headline it sits above~~ — narrowed by #749: the headline now OPENS on the
+ * mission (`AI Engineer, learning in public with the people and machines of this era | …`), so the line
+ * and the headline share a subject and the word `learning`. What still holds, and what banners.test.mjs
+ * asserts against the resolved CV headline, is that the line repeats none of the headline's segments.
+ * Sharing the subject is the point: the banner points at the learning the headline commits to.
+ *
+ * It still does NOT repeat the card's hook or the hero tagline
  * (`Let’s learn in public`): above a photograph and a name that sentence would make the person its
  * subject, which is the #558 reasoning above, unchanged.
  *

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolveProfile } from './resolveProfile';
-import { profileSource } from './profile';
+import { profileSource, CAREER_YEARS_PUBLIC } from './profile';
 import type { ProfileSource } from '../types/profile';
 
 const en = resolveProfile(profileSource, 'en');
@@ -10,12 +10,40 @@ describe('resolveProfile', () => {
   it('resolves prose to the requested locale', () => {
     // The public figure is the evergreen "N+" floor (#124); assert the SHAPE and the locale, not the
     // exact floor — pinning the number here would recreate the drift this replaced, one layer down.
-    expect(en.headline).toMatch(/\d+\+ years across Software Development/);
-    expect(pt.headline).toMatch(/\d+\+ anos em Desenvolvimento de Software/);
+    expect(en.headline).toMatch(/\d+\+ years in Software Engineering/);
+    expect(pt.headline).toMatch(/\d+\+ anos em Engenharia de Software/);
     expect(en.summary).toContain('not machine learning research');
     expect(pt.summary).toContain('não pesquisa em machine learning');
     expect(en.location).toBe('São Paulo — Brazil');
     expect(pt.location).toBe('São Paulo — Brasil');
+  });
+
+  // The headline is the owner's ratified string, word for word (#749). It is the same string LinkedIn
+  // carries (ADR-0024), so a paraphrase here is a drift between two surfaces, and the assertion is the
+  // whole string rather than a fragment. The years figure is read from the exported constant rather than
+  // typed, so the evergreen floor can move without this test going stale.
+  it('carries the ratified mission-first headline in both editions (#749)', () => {
+    expect(en.headline).toBe(
+      'AI Engineer, learning in public with the people and machines of this era | ' +
+        'Context & Harness Engineering | ' +
+        'Claude Code · Kiro · Python · TypeScript · AWS | ' +
+        `${CAREER_YEARS_PUBLIC} years in Software Engineering & Distributed Systems`,
+    );
+    expect(pt.headline).toBe(
+      'AI Engineer, aprendendo em público com as pessoas e as máquinas desta era | ' +
+        'Context & Harness Engineering | ' +
+        'Claude Code · Kiro · Python · TypeScript · AWS | ' +
+        `${CAREER_YEARS_PUBLIC} anos em Engenharia de Software & Sistemas Distribuídos`,
+    );
+  });
+
+  // LinkedIn caps a headline at 220 characters, and the English edition is the one it carries. At 211
+  // the margin is nine, so one added tool name overflows it; this fails before the copy reaches LinkedIn.
+  // The pt edition is held to the same limit: it is the CV's other edition of the same headline, and at
+  // 215 its margin is five, the thinner of the two.
+  it('keeps the LinkedIn headline within its 220-character limit in both editions (#749)', () => {
+    expect(en.headline.length).toBeLessThanOrEqual(220);
+    expect(pt.headline.length).toBeLessThanOrEqual(220);
   });
 
   it('tells the full career arc, not only the AI-Engineer slice (#125)', () => {

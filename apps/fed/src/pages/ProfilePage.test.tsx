@@ -42,12 +42,12 @@ describe('ProfilePage', () => {
     renderProfile('pt');
     await screen.findByRole('heading', { level: 1, name: profile.name });
     // Locale-discriminating, floor-agnostic: the years figure is the evergreen "N+" form (#124).
-    expect(screen.getByText(/\d+\+ anos em Desenvolvimento de Software/)).toBeInTheDocument();
+    expect(screen.getByText(/\d+\+ anos em Engenharia de Software/)).toBeInTheDocument();
   });
 
   it('renders the profile content in English for an en visitor', async () => {
     renderProfile('en');
     await screen.findByRole('heading', { level: 1, name: profile.name });
-    expect(screen.getByText(/\d+\+ years across Software Development/)).toBeInTheDocument();
+    expect(screen.getByText(/\d+\+ years in Software Engineering/)).toBeInTheDocument();
   });
 });
