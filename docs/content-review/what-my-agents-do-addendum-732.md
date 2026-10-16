@@ -132,3 +132,61 @@ draft since. That is a judgement, not the mechanical cap of two rounds. A round 
 another hand changes the draft. The next act is the held preview, not prose handed to the owner.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-10-15
+draft: `apps/fed/src/content/blog/what-my-agents-do.en.md`, `apps/fed/src/content/blog/what-my-agents-do.pt.md`, `docs/social/what-my-agents-do-addendum.md` @ 2a3afd27001909914ed15a662a826c426b874432
+
+A fresh reviewer read this round. No other hand changed the draft after round 1:
+`git diff --stat 93be5b8 2a3afd2 -- apps/fed/src/content/blog docs/social` is empty. The orchestrator
+opened this round because AC 10 requires the file to end on `CONTENT-REVIEW-CLEAR` or after a second
+round. This round re-read the whole addendum, the erratum, the EN L157 / PT L161 sentence and the social
+drafts. It did not read only round 1's repairs.
+
+### Round 1's repairs, re-read
+- **The orchestrator bullet** holds against its sources. `AGENTS.md` standing rule 21 states the rule.
+  The ORCH box in `architecture.en.md` says "the repository edit: nothing refuses it". The PT wording
+  says the same thing.
+- **"One thing that moved"** holds. The addendum lists four changes, and the social post names one of
+  them without calling it the only one.
+
+### Checked and clear — a fresh read against the sources
+- **Each "the drawing says" clause matches the published drawing.** `git show 3389dbb:<edition>` shows
+  the RQ label ("mine alone to apply" / "só eu ponho") at L39. It shows the ORCH box ("commits, pushes",
+  "a hook refuses it the merge and the trunk push") at L41. Both editions match.
+- **"Already wrong on the day it went out" names only one sentence, and that is still true against the
+  repository.** The orchestrator's dispatch-only rule entered the brief after publication:
+  `git log --format='%h %ad' --date=short -S 'only dispatches' -- AGENTS.md CLAUDE.md` returns only
+  `7a45ddd 2026-10-11`. The brief at `3389dbb` has no such rule. So the "commits, pushes" clause was true
+  on the day of publication. The `ready` change came later too (the ruling of 2026-09-25).
+- **The trunk push.** `.claude/settings.json` `permissions.deny` holds `Bash(git push origin main)`,
+  `Bash(git push origin main:*)` and `Bash(git push origin HEAD:main:*)`. Both settings files set
+  `tadeumendonca-skills@tadeumendonca` to `false`. `architecture.en.md` L127 says "In this repository no
+  hook refuses anything. The merge is held by a written rule."
+- **The erratum.** Inside the fence, only the `accDescr` line differs from `3389dbb` in each edition.
+- **Rows 17 to 20** trace to Q3, Q4 and Q5 in both editions. The PT reflection is close to his own words.
+- **Rules 19 and 20** hold for the social drafts. The post leads in English. It opens with
+  "🇧🇷 Versão em português abaixo." and the trailing block has its own 🇧🇷 marker. The blocks are
+  986 and 1107 characters, well below the ceiling.
+
+No edit was made in this round, so the provenance table above is still accurate.
+
+### Advisory and droppable
+- **Round 1's open question about the signature.** I agree that it is still open, and it is the owner's
+  call. AC 4 puts the addendum after the signature. Rule 17 tells a reviewer to raise the question about
+  what counts as *themed* rather than assume either way. So this round makes no edit and states no
+  preference.
+- **The referent of "these"** (row 17, and the opening line of both social posts). I agree with round 1
+  that this is advisory. The sentence is his, nearly verbatim from Q3, and no ruler clause makes it a
+  repair ground.
+- **The social post says "installed from my workstation".** The source says the method comes from the
+  workstation and is installed there by `tedeuxx/mhw`. The post's phrasing compresses that but is not
+  false, so it is left as it is.
+
+### What no one checks on this lane
+This is unchanged from round 1. No world-check runs on the content lane, and a clear round is not a
+fact-check against the world.
+
+**Terminal.** This round made no repair and cut nothing. The pair ends on this literal, and the cap of two
+rounds is reached in any case. The next act is the held preview.
+
+CONTENT-REVIEW-CLEAR
