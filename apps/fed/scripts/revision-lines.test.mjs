@@ -38,6 +38,7 @@ describe('proseLines — what a reader sees', () => {
     expect(unlink('[x](no close and [y]')).toBe('[x](no close and [y]');
     expect(unlink('[a](b [c](d)')).toBe('a');
     expect(unlink('wow! [x](y)')).toBe('wow! x');
+    expect(unlink('a [note] then [a link](x)')).toBe('a [note] then a link');
   });
 
   it('drops fenced blocks, tables, raw HTML and short lines', () => {
