@@ -145,7 +145,9 @@ const bannerHtml = (id) => {
 const browser = await chromium.launch();
 mkdirSync(join(root, 'public'), { recursive: true });
 
-for (const id of SURFACE_IDS) {
+// One surface, one page, one output file. Surfaces share nothing but the browser, so they render
+// concurrently; the report line is returned rather than printed so the log keeps SURFACE_IDS order.
+const renderSurface = async (id) => {
   const s = SURFACES[id];
   const page = await browser.newPage({ viewport: { width: s.width, height: s.height }, deviceScaleFactor: 1 });
   await page.setContent(bannerHtml(id), { waitUntil: 'networkidle' });
@@ -248,11 +250,14 @@ for (const id of SURFACE_IDS) {
   // copy or the type scale can move at all.
   const widest = Math.max(...boxes.map((b) => b.x1 - b.x0));
   const budget = s.layout === 'stack-centre' ? centredBandPx(s) : safeAreaPx(s);
-  console.log(
-    `Wrote ${out} (${s.width}x${s.height}, ${s.label}) — widest row ${widest.toFixed(0)}px of ` +
-      `${(budget.x1 - budget.x0).toFixed(0)}px usable`,
-  );
   await page.close();
-}
+  return (
+    `Wrote ${out} (${s.width}x${s.height}, ${s.label}) — widest row ${widest.toFixed(0)}px of ` +
+    `${(budget.x1 - budget.x0).toFixed(0)}px usable`
+  );
+};
+
+const reports = await Promise.all(SURFACE_IDS.map(renderSurface));
+for (const line of reports) console.log(line);
 
 await browser.close();
