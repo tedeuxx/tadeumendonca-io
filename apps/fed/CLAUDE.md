@@ -158,7 +158,10 @@ in `iac/`.
   place), frontmatter that is not byte-equal (title and slug changes are an ordinary edit), and a body
   equal to the published one. Routes, the sitemap, the OG cards and the social kit read `blog/` flat and
   never see a revision. The diagram and video-poster walkers are recursive and do see it, so run
-  `npm run gen-diagrams` when a revision edits a mermaid fence. **Release is one commit:**
+  `npm run gen-diagrams` when a revision edits a mermaid fence. **Release is the SECOND merge, never the
+  first:** the merge that adds the revision deploys it, the owner reads it at `?preview` on the live site,
+  and only after that is release made, in its own merge request — never in the one that adds the revision,
+  or nobody reads the correction before it is published. **Release is one commit:**
   `git mv -f src/content/revisions/<key>.en.md src/content/blog/<key>.en.md`
   `git mv -f src/content/revisions/<key>.pt.md src/content/blog/<key>.pt.md`
   (plus `gen-diagrams` if a fence changed). That commit's diff on `blog/` is exactly the text that was

@@ -18,6 +18,9 @@ const revisions = readRevisions();
 const NONE = 'no pending revision in src/content/revisions/ — nothing to preview (reported as skipped, never passed)';
 const cases: (Revision | undefined)[] = revisions.length > 0 ? revisions : [undefined];
 const PENDING = { en: 'Pending revision', pt: 'Revisão pendente' } as const;
+// The production origin every snapshot's canonical is written against — a literal, as `library.spec.ts`
+// pins it, because the canonical never follows the address the suite happens to run against.
+const SITE = 'https://tadeumendonca.io';
 
 for (const rev of cases) {
   test.describe(`pending revision: ${rev?.key ?? '(none)'}`, () => {
@@ -96,10 +99,16 @@ for (const rev of cases) {
         for (const url of [path, `${path}?preview`]) {
           const html = await (await request.get(url)).text();
           expect(html, `${url}: the snapshot must not carry the revision`).not.toContain(rev!.revisionOnly[locale]!);
-          // The control: this is a real snapshot of THIS article, not the SPA fallback.
+          // The control: this is a real snapshot of THIS address, not the SPA fallback. It is the CANONICAL,
+          // never a bare `/blog/<slug>"`: the fallback is the English landing, which LISTS the articles, so
+          // it carries that string for the en and neutral addresses and the control passed on the very
+          // response it exists to reject. Each snapshot is self-canonical (the neutral one too, ADR-0052);
+          // the fallback's canonical is `/en`.
           // (The published text's PRESENCE is not asserted on raw HTML: entity escaping would make a true
           // presence read as absent. It is the build-output grep reported on the PR, AC 15.)
-          expect(html, `${url}: must be the article's own snapshot`).toContain(`/blog/${rev!.slug[locale]}"`);
+          expect(html, `${url}: must be the article's own snapshot`).toContain(
+            `rel="canonical" href="${SITE}${path}"`,
+          );
         }
       }
     });

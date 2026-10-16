@@ -11,6 +11,7 @@ export interface Revision {
 export const LOCALES: readonly Locale[];
 export function split(raw: string): { fm: string; body: string };
 export function slugOf(fm: string, key: string): string;
+export function unlink(line: string): string;
 export function proseLines(body: string): string[];
 export function onlyIn(a: string, b: string): string | undefined;
 export const CONTENT_DIR: string;

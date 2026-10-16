@@ -52,7 +52,7 @@ export function DraftReviewBar({
   body,
   contentIssue,
   shown,
-}: {
+}: Readonly<{
   title: string;
   /** The LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`), as `ArticlePage` builds it. */
   path: string;
@@ -76,7 +76,7 @@ export function DraftReviewBar({
    * published text to contrast with — so the bar states nothing rather than something false.
    */
   shown?: 'revision' | 'published';
-}) {
+}>) {
   const t = useT();
   const lp = useLocalePath();
   const clipboard = useCopyToClipboard();
@@ -113,12 +113,9 @@ export function DraftReviewBar({
   // The label IS the feedback, and both outcomes reuse the share modal's strings — `share.copied` /
   // `share.copyFailed`. Not new keys: they say exactly this, and a second pair would be two spellings of
   // one outcome that a future reword would fix in one of them.
-  const copyLabel =
-    clipboard.status === 'copied'
-      ? t('share.copied')
-      : clipboard.status === 'failed'
-        ? t('share.copyFailed')
-        : t('review.copyText');
+  let copyLabel = t('review.copyText');
+  if (clipboard.status === 'copied') copyLabel = t('share.copied');
+  else if (clipboard.status === 'failed') copyLabel = t('share.copyFailed');
   const CopyIcon = clipboard.status === 'failed' ? AlertTriangle : ClipboardCopy;
 
   return (

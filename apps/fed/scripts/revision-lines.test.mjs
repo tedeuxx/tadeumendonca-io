@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { join, resolve } from 'node:path';
-import { split, slugOf, proseLines, onlyIn, readRevisions, CONTENT_DIR } from './revision-lines.mjs';
+import { split, slugOf, unlink, proseLines, onlyIn, readRevisions, CONTENT_DIR } from './revision-lines.mjs';
 
 // #741 — the derivation `e2e/revision-preview.spec.ts` runs on. If it picked the wrong line, the spec
 // would assert on text both versions share (green for the wrong reason) or on markup a browser never
@@ -16,6 +16,11 @@ describe('split / slugOf', () => {
     expect(slugOf('title: T\nslug: my-slug', 'k')).toBe('my-slug');
     expect(slugOf('slug: "quoted"', 'k')).toBe('quoted');
     expect(slugOf('title: T', 'the-key')).toBe('the-key');
+    expect(slugOf("slug: 'single'  ", 'k')).toBe('single');
+    expect(slugOf('slug: bad"quote', 'the-key')).toBe('the-key');
+    // An empty value falls back to the key, as `content.ts` does; it never reads the NEXT line as the slug.
+    expect(slugOf('slug:\ndate: 2026-01-01', 'the-key')).toBe('the-key');
+    expect(slugOf('aslug: no', 'the-key')).toBe('the-key');
   });
 });
 
@@ -25,6 +30,14 @@ describe('proseLines — what a reader sees', () => {
       'A heading long enough',
       'a bold link and code item',
     ]);
+  });
+
+  it('unlinks images and links, and leaves an unclosed bracket as written', () => {
+    expect(unlink('see ![alt text](/a.png) and [a link](https://x.y/z) here')).toBe('see alt text and a link here');
+    expect(unlink('a [bracket] (not a link) and [open only')).toBe('a [bracket] (not a link) and [open only');
+    expect(unlink('[x](no close and [y]')).toBe('[x](no close and [y]');
+    expect(unlink('[a](b [c](d)')).toBe('a');
+    expect(unlink('wow! [x](y)')).toBe('wow! x');
   });
 
   it('drops fenced blocks, tables, raw HTML and short lines', () => {

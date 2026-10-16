@@ -133,8 +133,11 @@ const asString = (value: unknown): string | undefined => (value != null ? String
 // A YAML list, normalised to `string[]`. A single scalar is accepted as a one-element list because that is
 // the overwhelmingly common case (one correction), and an author writing `previousSlugs: old-slug` should
 // get a redirect rather than a silent no-op — the failure mode of dropping it is a dead published URL.
-const asStringList = (value: unknown): string[] =>
-  value == null ? [] : (Array.isArray(value) ? value : [value]).map((v) => String(v));
+const asStringList = (value: unknown): string[] => {
+  if (value == null) return [];
+  const list: unknown[] = Array.isArray(value) ? value : [value];
+  return list.map(String);
+};
 
 /**
  * A GitHub Issue number from frontmatter — absent, or a positive integer, or a build failure.
@@ -477,28 +480,32 @@ export function buildRevisions(
     }
     const revised = {} as Editions;
     for (const locale of LOCALES) {
-      const raw = raws[locale]!;
       // Present by construction: `host` exists, and `buildEditions` already refused a half pair.
       const published = publishedRaw.get(`${key}.${locale}`)!;
-      if (rawFrontmatterOf(raw) !== rawFrontmatterOf(published)) {
-        throw new Error(
-          `content: revision "${key}" (${locale}) has frontmatter that differs from the published edition. ` +
-            'A revision corrects the BODY only — copy the frontmatter byte for byte; title and slug changes ' +
-            'are an ordinary edit, because the OG card, the sitemap and the social kit read them.',
-        );
-      }
-      const body = parse(key, raw).body;
-      if (body === host[locale].body) {
-        throw new Error(
-          `content: revision "${key}" (${locale}) has the same body as the published edition — a leftover. ` +
-            'Releasing a revision MOVES it onto blog/ (git mv -f); delete this file.',
-        );
-      }
-      revised[locale] = { ...host[locale], body };
+      revised[locale] = revisedEdition(key, locale, raws[locale]!, published, host[locale]);
     }
     resolved[key] = revised;
   }
   return resolved;
+}
+
+/** One locale of a revision: refusals 4 and 5 of `buildRevisions`, then the published post with the new body. */
+function revisedEdition(key: string, locale: Locale, raw: string, publishedRaw: string, published: BlogPost): BlogPost {
+  if (rawFrontmatterOf(raw) !== rawFrontmatterOf(publishedRaw)) {
+    throw new Error(
+      `content: revision "${key}" (${locale}) has frontmatter that differs from the published edition. ` +
+        'A revision corrects the BODY only — copy the frontmatter byte for byte; title and slug changes ' +
+        'are an ordinary edit, because the OG card, the sitemap and the social kit read them.',
+    );
+  }
+  const body = parse(key, raw).body;
+  if (body === published.body) {
+    throw new Error(
+      `content: revision "${key}" (${locale}) has the same body as the published edition — a leftover. ` +
+        'Releasing a revision MOVES it onto blog/ (git mv -f); delete this file.',
+    );
+  }
+  return { ...published, body };
 }
 
 /**

@@ -22,9 +22,42 @@ export function split(raw) {
   return { fm: m ? m[1] : '', body: (m ? m[2] : raw).trim() };
 }
 
-/** The `slug:` frontmatter value, or the key — the same fallback `content.ts` applies. */
+/**
+ * The `slug:` frontmatter value, or the key — the same fallback `content.ts` applies. One quote may wrap
+ * the value; a quote INSIDE it is not a slug and falls back to the key. Read line by line rather than with
+ * one anchored pattern, whose lazy group between two optional quotes backtracks super-linearly.
+ */
 export function slugOf(fm, key) {
-  return /^slug:\s*["']?([^"'\n]+?)["']?\s*$/m.exec(fm)?.[1] ?? key;
+  const line = fm.split('\n').find((l) => l.startsWith('slug:'));
+  if (line === undefined) return key;
+  let value = line.slice('slug:'.length).trim();
+  if (value.startsWith('"') || value.startsWith("'")) value = value.slice(1);
+  if (value.endsWith('"') || value.endsWith("'")) value = value.slice(0, -1);
+  return value === '' || value.includes('"') || value.includes("'") ? key : value;
+}
+
+/**
+ * `[text](target)` and `![text](target)` replaced by `text` — scanned with `indexOf` rather than one
+ * global pattern, whose two negated runs backtrack super-linearly on a line of unclosed brackets.
+ */
+export function unlink(line) {
+  let out = '';
+  let from = 0;
+  let open = line.indexOf('[', from);
+  while (open !== -1) {
+    const close = line.indexOf(']', open + 1);
+    if (close === -1) break;
+    const end = line[close + 1] === '(' ? line.indexOf(')', close + 2) : -1;
+    if (end === -1) {
+      open = line.indexOf('[', open + 1);
+      continue;
+    }
+    const start = open > from && line[open - 1] === '!' ? open - 1 : open;
+    out += line.slice(from, start) + line.slice(open + 1, close);
+    from = end + 1;
+    open = line.indexOf('[', from);
+  }
+  return out + line.slice(from);
 }
 
 /**
@@ -42,8 +75,7 @@ export function proseLines(body) {
       continue;
     }
     if (inFence || /^\s*[|<]/.test(line)) continue;
-    const plain = line
-      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    const plain = unlink(line)
       .replace(/[*_`]/g, '')
       .replace(/^\s*(#+|>|[-+]|\d+\.)\s+/, '')
       .replace(/\s+/g, ' ')
@@ -76,7 +108,7 @@ export function readRevisions(contentDir = CONTENT_DIR) {
   if (!existsSync(dir)) return [];
   const keys = [
     ...new Set(readdirSync(dir).flatMap((f) => /^(.+)\.(?:en|pt)\.md$/.exec(f)?.[1] ?? [])),
-  ].sort();
+  ].sort((a, b) => a.localeCompare(b));
   return keys.map((key) => {
     const slug = {};
     const revisionOnly = {};
