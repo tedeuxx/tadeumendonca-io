@@ -7,17 +7,34 @@
 // and a dated addendum, not a rewrite. This pins the SOURCE and the generated artifact; the served bytes
 // are pinned by `e2e/what-my-agents-do-addendum.spec.ts`.
 //
+// TWO STATES, ONE FILE (#732 AC 17). The correction ships as a PENDING REVISION (#741, ADR-0049 as amended
+// 2026-10-16): merge 1 adds `revisions/what-my-agents-do.{en,pt}.md`, merge 2 moves them onto `blog/` with
+// `git mv -f` and nothing else. So the text under test is the revision while one exists for this key, and
+// the published edition otherwise; each state adds the arms only it can hold. Neither needs an edit at
+// release, which is what keeps the release one commit.
+//
 // WHAT THIS CANNOT DO. Every arm is a PHRASE CHECK: it catches the retired wording as published and the
 // new wording as written, and a paraphrase passes either way. It cannot tell whether the addendum's
 // statements about today's loop are still true tomorrow; the addendum is dated for exactly that reason.
 // AC 1 and AC 5 (nothing else in the article moved since `3389dbb`) need git history, which a unit test
-// does not read; they are checked with `git diff 3389dbb -- <both editions>`.
+// does not read; they are checked with `git diff 3389dbb` (blob form against the revision files at merge 1).
 import { describe, it, expect } from 'vitest';
 import en from './blog/what-my-agents-do.en.md?raw';
 import pt from './blog/what-my-agents-do.pt.md?raw';
 import diagrams from './generated/diagrams.json';
 
-const BODY = { en, pt } as const;
+const revisions = import.meta.glob('./revisions/what-my-agents-do.*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+// The state is read off the tree, never typed: a revision file for this key means merge 1 has landed and
+// merge 2 has not.
+const PENDING = Object.keys(revisions).length > 0;
+const PUBLISHED = { en, pt } as const;
+const BODY = PENDING
+  ? { en: revisions['./revisions/what-my-agents-do.en.md'] ?? '', pt: revisions['./revisions/what-my-agents-do.pt.md'] ?? '' }
+  : PUBLISHED;
 const LOCALES = ['en', 'pt'] as const;
 
 const SIGNATURE = { en: 'This is what I think.', pt: 'Isso é o que eu penso.' };
@@ -102,5 +119,34 @@ describe('a dated addendum closes each edition (#732 AC 4, 6, 7)', () => {
     expect(text.length, `${locale}: addendum missing`).toBeGreaterThan(500);
     for (const d of DATES[locale]) text = text.split(d).join('');
     expect(text).not.toMatch(/\d/);
+  });
+});
+
+// While the revision is pending (merge 1 landed, merge 2 not): the published edition is the one every
+// visitor reads, so it must be untouched, and its diagram must still be compiled beside the revised one.
+describe.runIf(PENDING)('while the revision is pending, the published edition is untouched (#732 AC 2, 14, 15)', () => {
+  it.each(LOCALES)('the %s revision is a pair member with a body', (locale) => {
+    expect(BODY[locale].length, `${locale}: revision file missing — a revision is a pair`).toBeGreaterThan(1000);
+  });
+
+  it.each(LOCALES)('the published %s edition carries no addendum and keeps its text as published', (locale) => {
+    expect(PUBLISHED[locale]).not.toContain(ADDENDUM_HEADING[locale]);
+    expect(fence(PUBLISHED[locale])).toContain(RETIRED_REVIEWER[locale]);
+    expect(PUBLISHED[locale]).not.toContain(PAST_IDENTITY[locale]);
+  });
+
+  it.each(LOCALES)('diagrams.json still compiles the published %s fence beside the revised one', (locale) => {
+    const svg = (diagrams as Record<string, string>)[fence(PUBLISHED[locale]).trimEnd()];
+    expect(svg, `${locale}: the published diagram lost its entry — every visitor would see no drawing`).toBeTruthy();
+    expect(flattenSvg(svg)).toContain(RETIRED_REVIEWER[locale]);
+  });
+});
+
+// Once released (merge 2: the revision moved onto blog/): no revision is left, and the retired clause is
+// gone from the generated artifact too, because gen-diagrams ran in the release commit (AC 2, second check).
+describe.runIf(!PENDING)('once released, the retired clause is gone everywhere (#732 AC 2, 8, 18)', () => {
+  it('diagrams.json carries no retired content-reviewer clause in either locale', () => {
+    const all = Object.keys(diagrams as Record<string, string>).join('\n');
+    for (const locale of LOCALES) expect(all).not.toContain(RETIRED_REVIEWER[locale]);
   });
 });
