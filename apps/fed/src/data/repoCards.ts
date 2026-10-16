@@ -35,8 +35,8 @@ export interface RepoCardData {
 
 // Two groups, and the split is worth knowing before adding a row.
 //
-// FIRST, the site's own two repos — cited by `/architecture`'s "Replicate it for your own context"
-// section (#318). They are the page's closing element: the walkthrough that used to sit there moved to
+// FIRST, the three repos this site is built from — cited by `/architecture`'s "Replicate it for your own
+// context" section (#318; the workstation repository joined at #733, when the method moved there). They are the page's closing element: the walkthrough that used to sit there moved to
 // the READMEs, so what the page owes a reader at that point is a way INTO those repos, not a second copy
 // of what they say. Cards rather than bullets because that section is the page's call to action and a
 // list item is not one.
@@ -59,13 +59,25 @@ export const repoCards: RepoCardData[] = [
     },
   },
   {
+    name: 'mhw',
+    owner: 'tedeuxx',
+    language: 'Python',
+    repoUrl: 'https://github.com/tedeuxx/mhw',
+    description: {
+      en: 'The workstation configuration the loop here runs from. Its method installer puts the agents, skills and commands at user level: the half you can adopt with no cloud account at all.',
+      pt: 'A configuração de workstation de onde o loop daqui roda. O instalador do método coloca os agentes, as skills e os comandos no nível do usuário: a metade que dá pra adotar sem nenhuma conta em nuvem.',
+    },
+  },
+  {
     name: 'tadeumendonca-skills',
     owner: 'tedeuxx',
     language: 'Shell',
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-skills',
     description: {
-      en: 'The reusable dev-loop plugin: the principles layer, the agent personas, the permission guards. The half you can adopt with no cloud account at all.',
-      pt: 'O plugin reutilizável do dev-loop: a camada de princípios, as personas dos agentes, os guardas de permissão. A metade que dá pra adotar sem nenhuma conta em nuvem.',
+      // #733: no longer "the half you can adopt". The plugin is disabled in this repository and its own
+      // README sends an adopter to tedeuxx/mhw, so this card says what it is today and points there.
+      en: 'The dev-loop plugin: still published, but deprecated as a source. Its README points to tedeuxx/mhw.',
+      pt: 'O plugin do dev-loop: continua publicado, mas está descontinuado como fonte. O README dele aponta para o tedeuxx/mhw.',
     },
   },
   {

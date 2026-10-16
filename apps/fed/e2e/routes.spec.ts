@@ -221,12 +221,14 @@ test.describe('routes', () => {
     // + language + description + "view on GitHub") and pinning that string would make this journey go red
     // on a copy edit — a check somebody deletes, not a check that caught something.
     const cards = page.getByTestId('repo-card');
-    await expect(cards).toHaveCount(2);
+    // #733: three, because the section counts three repos and the method now comes from mhw.
+    await expect(cards).toHaveCount(3);
     expect(
       await cards.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href.replace(/\/$/, ''))),
-      'the closing element leaves for both public repos, in order',
+      'the closing element leaves for the three public repos, in order',
     ).toEqual([
       'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/mhw',
       'https://github.com/tedeuxx/tadeumendonca-skills',
     ]);
     // The mark #318 asked for, and the reason it is asserted rather than trusted: it is decorative
