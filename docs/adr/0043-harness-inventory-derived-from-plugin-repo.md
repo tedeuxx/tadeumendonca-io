@@ -1668,6 +1668,145 @@ declared closure, not loosening it.
   precisely why the pinning recorded above is the only thing standing between a plugin change and a false
   published claim.
 
+## Amendment, 2026-10-15 — the plugin is DISABLED in this repository, so the inventory describes the plugin AS PUBLISHED, and the persona table's skills column is sourced from the INSTALLED METHOD
+
+**Decides one thing: what the inventory on `/architecture` is a claim ABOUT.** The `tadeumendonca-skills`
+plugin is disabled in this repository (#715). The components grid and `harness.json` therefore describe
+**the plugin as published**: what it ships and exports where someone installs it. They do **not**
+describe what runs in this repository's loop. The persona table's **skills column** describes the agents
+that actually run here, so its source is **the installed method's preload lists**, not the plugin's agent
+files. Two subjects on one page, each with its named source.
+
+**Class: safe.** It decides what the page may assert and changes no permission, no gate filter, no
+schema and no generator behaviour. By [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-31
+amendment, an amendment that decides something is `quality-assurance`'s to merge. It crosses the
+significance gate on *alters a previously-recorded decision*: until now this record treated "the plugin"
+and "this repository's loop" as one subject, and that stopped being true.
+
+### What was checked, and the command for each
+
+- **The plugin is disabled here.** Both committed settings layers set it to `false`:
+
+  ```
+  git show HEAD:.claude/settings.json          | jq '.enabledPlugins["tadeumendonca-skills@tadeumendonca"]'   # -> false
+  git show HEAD:apps/fed/.claude/settings.json | jq '.enabledPlugins["tadeumendonca-skills@tadeumendonca"]'   # -> false
+  git log -S 'tadeumendonca-skills@tadeumendonca": false' --format='%h %s' -- .claude/settings.json
+  # -> 566789c chore(harness): disable the tadeumendonca-skills plugin in this project
+  ```
+
+  The setting landed through PR #725 (`Refs #723`). It is one step of #715, which applies the
+  workstation's method to this repository. The root `README.md` section *"Where the method comes from"*
+  says the same thing: the method (agents, skills, commands) is installed at user level by `tedeuxx/mhw`
+  (`mhw install --method`), and the plugin's guard no longer runs here.
+- **The installed method's preload lists.** These were read from the user-level agent definitions that
+  `mhw install --method` writes. They are not in this repository, so this repository's CI cannot read
+  them:
+
+  ```
+  grep -A12 '^skills:' "$HOME/.claude/agents/<persona>.md"
+  # tech-lead, developer, quality-assurance  -> scm · ci · provisioning   (and no devops)
+  # agents-lead                              -> scm · ci                  (and no devops)
+  ```
+
+- **The plugin mirror still says `devops`.** On the plugin's `main` the tree still ships `skills/devops`,
+  and `agents/tech-lead.md` still preloads it:
+
+  ```
+  git -C <plugin-checkout> ls-tree --name-only origin/main skills/ | grep devops            # -> skills/devops
+  git -C <plugin-checkout> show origin/main:agents/tech-lead.md | grep -A10 '^skills:' | grep devops   # -> - devops
+  ```
+
+  **That is why the column went stale with no red anywhere.** It was true of the plugin and false of
+  what runs here. The two sources disagree about the same persona, and nothing compared the column to
+  either of them.
+
+### What the page may say, re-pointed rather than rewritten
+
+Three passages above stay as written. Each was true of the subject this record had at the time, and is
+re-scoped here:
+
+- **Option 1** in *"What the manifest is allowed to assert about a component"*: `denies` *"is for the two
+  `PreToolUse` hooks, which refuse before the act"*, and *"`permission-guard.sh` rule 7b refuses `gh pr
+  merge` from every `agent_type` except `*:quality-assurance`"*. Both now read as **where the plugin is
+  installed**. In this repository no hook refuses anything. The merge is held by a written rule. The
+  irreversible commands are held by the workstation's deny floor, a set of native deny rules matched on
+  the command's spelling. Delivery is gated by CI and the fresh-context gate. None of these is committed
+  as a hook in this repository, and the deny floor is not committed here at all.
+- *"What this decides for the page, beyond the mechanism"*, item 1: *"Hooks and CI gates `deny`"*. In
+  this repository's own loop, **CI gates deny and hooks do not run**. Where the plugin is installed, its
+  hooks deny.
+- **The 2026-08-04 roster amendment**: it says the page's *"exactly one kind can stop you"* remains
+  literally true of mechanism. That is true of the plugin's components, and the grid is about the plugin's
+  components. It is not a claim about what can stop a change in this repository.
+
+**The `enforcement` classes do not move, and the closed set stays at three.** A class is a property of a
+component *in the plugin*, and the plugin's `permission-guard.sh` still refuses before the act wherever
+it runs. What changes is the **frame** around the grid. The page must say, before its first hook or
+plugin claim, that the plugin is disabled here and that the method running here comes from the
+workstation at user level.
+
+### Considered options
+
+**Chosen: keep the grid and `harness.json` sourced from the plugin tree, frame them as the plugin as
+published, and source the persona skills column from the installed method.** `harness-drift`,
+`architecture-diagrams.test.mjs` and the manifest are untouched.
+
+**Rejected: re-source the grid from the installed method.** It would make the grid describe what runs
+here. It loses for three reasons:
+- the method carries no hooks, so the hook lane, which is the grid's argument, would be empty;
+- the generator, the three-way drift check, `KIND_ORDER` and every fixture are built against the
+  plugin's layout;
+- the method's agent definitions sit at user level, where no tokenless checkout in this repository's CI
+  reaches.
+
+That is a change of mechanism. It would need its own record, not an amendment.
+
+**Rejected: remove the inventory, because the plugin no longer runs here.** The plugin is still public
+and still the published, adoptable form of the method. That is the claim the inventory was built to make
+checkable. Deleting it would lose a drift-checked inventory to fix a framing problem that one sentence
+fixes.
+
+**Rejected: keep the persona skills column sourced from the plugin, to match the grid.** That is
+consistent, and it is wrong about the subject. The persona table describes the agents that work here,
+and the plugin's agent files are not loaded here. The column would describe a preload no session in this
+repository receives.
+
+### Consequences
+
+**Good**
+- Every hook claim on the page becomes true of something real: the plugin, where installed. None says or
+  implies that a hook acts in this repository.
+- The skills column describes the agents a session here actually loads.
+
+**Bad / accepted costs**
+- **Two sources on one page, with unequal guarantees.** The grid's source is drift-checked against the
+  plugin's `main`. The skills column's source is a user-level install outside every checkout, and no CI
+  job reads it. The only guard #733 adds is a **one-identifier spelling check**: no persona-table row
+  lists `devops`. A skill added to or removed from a method preload reddens nothing, and the column can
+  go stale silently again.
+- **The page now carries a frame that depends on a setting.** If the plugin is re-enabled here, the
+  *"disabled here"* statement becomes false. #733's regression ties the statement to
+  `.claude/settings.json`, so the statement is required only while the setting says `false`. That check
+  only says the sentence is present; nothing checks that it is true.
+- The two sources already disagree about one persona (`devops` versus `scm` · `ci` · `provisioning`), and
+  the page will show the method's answer next to an inventory that is the plugin's. A reader comparing
+  the column to the plugin repository will find the difference. The page owes them the sentence that
+  names the column's source.
+
+**Neutral**
+- `iac/` is untouched. There is no new dependency, no public contract and no schema change.
+
+### What this amendment does NOT decide
+
+- **Whether `harness-drift` survives #715's later steps.** If a later step removes it, the grid loses its
+  only check against the plugin, and this record's mechanism goes with it. That needs its own amendment
+  at that time.
+- **The page's wording.** The framing sentences, the line about *"hooks and gates rather than a giant
+  prompt"*, and the re-derived *"preloaded"* and *"nobody carries"* figures are copy in #733. This record
+  only constrains what they may claim.
+- **Re-sourcing the grid from the method.** Rejected above as an amendment. It stays open as its own
+  record if the plugin stops being published.
+
 
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
