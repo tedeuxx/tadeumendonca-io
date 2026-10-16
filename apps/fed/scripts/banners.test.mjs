@@ -40,7 +40,11 @@ import {
   toPx,
   withinSafeArea,
 } from './banners.mjs';
+import { CARD_COPY, LOCALES } from './og-copy.mjs';
 import { strings } from '../src/i18n/messages';
+
+/** Lower-case, typographic apostrophes folded to straight ones, runs of whitespace collapsed. */
+const normaliseCopy = (s) => s.replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
 
 const root = resolve(import.meta.dirname, '..');
 const publicDir = join(root, 'public');
@@ -451,12 +455,28 @@ describe('the copy', () => {
   // and that is the one line that must not ship here: on an unfurl card the implied subject is the SITE,
   // but above a photograph and a name it becomes the person, and an instruction to the reader turns into
   // an offer to teach them. Same words, different implied speaker, opposite compliance.
+  //
+  // Both sides are NORMALISED before comparing (#748): the catalog spells the hook with a typographic
+  // apostrophe, so a line repeating it with a straight one (`let's learn in public`) used to pass. And the
+  // accent is checked as a SUBSTRING, not only for equality — a line that embeds it is the same repetition.
   it.each(['pt', 'en'])('is not the hero tagline (%s edition)', (locale) => {
-    const lead = strings.hero.taglineLead[locale].replace(/\s*—\s*$/, '');
+    const lead = normaliseCopy(strings.hero.taglineLead[locale].replace(/\s*—\s*$/, ''));
+    const accent = normaliseCopy(strings.hero.taglineAccent[locale]);
     expect(lead.length).toBeGreaterThan(10); // the comparison is against a real sentence, not ''
-    expect(BANNER_COPY.line).not.toBe(lead);
-    expect(BANNER_COPY.line.toLowerCase()).not.toContain(lead.toLowerCase());
-    expect(BANNER_COPY.line).not.toBe(strings.hero.taglineAccent[locale]);
+    expect(accent.length).toBeGreaterThan(10);
+    const line = normaliseCopy(BANNER_COPY.line);
+    expect(line).not.toContain(lead);
+    expect(line).not.toContain(accent);
+  });
+
+  // The default card's hook, asserted directly rather than through the hero (#748). Today the two are the
+  // same sentence and og-copy.test.mjs ties them together; if that tie is ever relaxed, this keeps #558's
+  // rule — the banner does not repeat the card — from silently losing its subject.
+  it.each(LOCALES)('does not repeat the default card’s hook (%s edition)', (locale) => {
+    const { lines, tail, accent } = CARD_COPY[locale];
+    const hook = normaliseCopy([...lines, tail, accent].join(' '));
+    expect(hook.length).toBeGreaterThan(10);
+    expect(normaliseCopy(BANNER_COPY.line)).not.toContain(hook);
   });
 
   // THE SECOND TRAP. The banner sits roughly 40px above a headline that already states the role and the

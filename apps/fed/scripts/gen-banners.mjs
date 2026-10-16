@@ -130,7 +130,10 @@ const bannerHtml = (id) => {
   .wm .badge { width:${t.badge}px; height:${t.badge}px; flex:none; display:block; }
   .wm .io { color:${PALETTE.accent}; }
   .cta { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:${t.cta}px;
-    letter-spacing:0.09em; line-height:1; color:${PALETTE.muted}; }
+    letter-spacing:0.09em; line-height:1; color:${PALETTE.muted};
+    /* #748: one row always. On X the block's available width is 750px, so without this an over-long
+       line wrapped to two rows and every refusal below still passed; now it overflows and is refused. */
+    white-space:nowrap; }
 </style></head><body>
   <div id="block">
     <div class="wm"><span class="badge">${mark}</span><span class="text">${BANNER_COPY.wordmark}<span class="io">${BANNER_COPY.tld}</span></span></div>
@@ -142,7 +145,9 @@ const bannerHtml = (id) => {
 const browser = await chromium.launch();
 mkdirSync(join(root, 'public'), { recursive: true });
 
-for (const id of SURFACE_IDS) {
+// One surface, one page, one output file. Surfaces share nothing but the browser, so they render
+// concurrently; the report line is returned rather than printed so the log keeps SURFACE_IDS order.
+const renderSurface = async (id) => {
   const s = SURFACES[id];
   const page = await browser.newPage({ viewport: { width: s.width, height: s.height }, deviceScaleFactor: 1 });
   await page.setContent(bannerHtml(id), { waitUntil: 'networkidle' });
@@ -245,11 +250,14 @@ for (const id of SURFACE_IDS) {
   // copy or the type scale can move at all.
   const widest = Math.max(...boxes.map((b) => b.x1 - b.x0));
   const budget = s.layout === 'stack-centre' ? centredBandPx(s) : safeAreaPx(s);
-  console.log(
-    `Wrote ${out} (${s.width}x${s.height}, ${s.label}) — widest row ${widest.toFixed(0)}px of ` +
-      `${(budget.x1 - budget.x0).toFixed(0)}px usable`,
-  );
   await page.close();
-}
+  return (
+    `Wrote ${out} (${s.width}x${s.height}, ${s.label}) — widest row ${widest.toFixed(0)}px of ` +
+    `${(budget.x1 - budget.x0).toFixed(0)}px usable`
+  );
+};
+
+const reports = await Promise.all(SURFACE_IDS.map(renderSurface));
+for (const line of reports) console.log(line);
 
 await browser.close();

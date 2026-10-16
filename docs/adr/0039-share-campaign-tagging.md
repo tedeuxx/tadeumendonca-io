@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate)
+- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change)
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -308,3 +308,102 @@ surfaces with the canonical URL; the canonical URL is still what is shared, and 
 is neither a shortener nor a different destination. Recording one decision in two places is how a
 library starts disagreeing with itself, so ADR-0038 gets a dated pointer in its Links section and this
 record keeps the reasoning.
+
+## Amendment (2026-10-16) — a third campaign value, `author-profile`
+
+**Decided by the owner** on Issue [#749](https://github.com/tedeuxx/tadeumendonca-io/issues/749)
+(intake decision 5, 2026-10-16, option *"Tag nova author-profile"*); written by tech-lead. This one
+**does** decide something, unlike the 2026-08-16 amendment: it adds a member to the `utm_campaign` set
+this record closed.
+
+### Context
+
+The author's LinkedIn profile carries a website link and his X profile may carry one too. Both point at
+the site's root, `https://tadeumendonca.io/`. Untagged, a visit from either lands in GA4 as
+`linkedin.com / referral`, `t.co / referral` or `(direct)`, the same buckets an untagged post or a
+stripped reader share lands in. The owner wants traffic that starts on his **profile** measured apart
+from traffic that starts on one of his **posts**. The two answer different questions: *"does the
+profile itself send people to the site"* against *"is a given publication worth posting"*.
+
+### Considered options
+
+1. **A new campaign value, `author-profile`** (chosen). *Trade-off:* the immutable set grows by one
+   value, permanently. A third value is one more series to read, and one more spelling that could be
+   mistyped by hand (see the consequences).
+2. **Reuse `author-post`.** *Why not:* it merges the two populations the owner asked to separate. It
+   would also change what `author-post` means after it has been in use for two months: rows before this
+   date would be posts only, rows after would be posts and profile visits. The silent split in meaning
+   is the same failure as a rename.
+3. **Leave the profile links untagged.** *Why not:* profile traffic stays indistinguishable from
+   referral traffic of every other origin, which is the question this record exists to make answerable.
+4. **A per-network value such as `linkedin-profile` and `x-profile`.** *Why not:* the network is already
+   `utm_source`. Encoding it a second time in the campaign duplicates a dimension and names a platform
+   rather than a mechanism, the shape this record rejected for per-article and per-launch campaigns.
+
+### Decision
+
+| | LinkedIn profile link | X profile link |
+|---|---|---|
+| `utm_source` | `linkedin` | `x` |
+| `utm_medium` | `social` | `social` |
+| `utm_campaign` | `author-profile` | `author-profile` |
+
+**Meaning:** *"the visitor followed the link on the author's own social profile."* It names a
+mechanism, like `reader-share` and `author-post`, and the `author-` prefix keeps the reasoning this
+record already gives against `owner-`. `utm_campaign` now has three values:
+
+- `reader-share`: a reader sent the link;
+- `author-post`: the author posted the link;
+- `author-profile`: the link sits on the author's profile.
+
+**Owner of the value:** the owner. He writes it into the two profile fields by hand, and this record
+fixes its spelling. **No parameter other than `utm_campaign` changes.** `linkedin` and `x` were already
+members of the closed `utm_source` set, `social` is unchanged for the reason this record gives, and
+`utm_content` stays not emitted. The destination is the bare root, a prerendered route (`'/'` in
+`apps/fed/scripts/routes.mjs`'s `STATIC_ROUTES`), so `page_path` already says where the visit landed.
+
+**It joins the immutable set on its first use**, by the clause this record already carries: *"the day it
+is first used it joins the immutable set."* A profile link can be edited, unlike a link in someone
+else's chat, but the rows it has already produced cannot. A later rename would split the series exactly
+as the context section describes.
+
+**Ordering:** this amendment merges before any tagged profile link is posted, so a link never carries a
+value the record does not define.
+
+### What this does not touch
+
+- **[ADR-0033](./0033-ga4-consent-gated-analytics.md)'s consent gate.** The arrival URL is still
+  captured at module load (`landingLocation` in `apps/fed/src/lib/analytics.ts`) and sent only after
+  consent. An unconsented profile visit stays invisible; every `author-profile` number is a floor.
+- **`reader-share` and its success criterion.** The criterion counts `reader-share` sessions only.
+  `author-profile` sessions are outside it by construction and neither contribute to it nor restart it.
+- **`author-post`.** Its meaning and its population are unchanged.
+- **No `iac/` and no cache behaviour.** `CachingOptimized` ignores query strings
+  ([ADR-0013](./0013-s3-cloudfront-hosting.md)); canonical, `og:url` and hreflang are built from the
+  route constant.
+
+### Consequences
+
+**Good**
+- Profile-originated traffic becomes separable from post-originated traffic for the first time.
+- The separation costs no code, no deploy and no infrastructure.
+
+**Bad / accepted costs**
+- **The value is not in `apps/fed/src/lib/utm.ts`.** The decision outcome above says the literals are
+  *"defined in one module and nowhere else"*. That clause holds for the values the site's own code
+  emits or reserves. `author-profile` is never emitted by the site: it is typed into a field on LinkedIn
+  and X. A constant with no caller would name the value without applying it, as `AUTHOR_CAMPAIGN`
+  already does. So the spelling is fixed here, in this record, and in no module. Nothing checks the
+  string the owner types. A typo such as `author_profile` would start a separate series that nothing
+  would flag. Check the two profile fields against the table above after posting them.
+- **Hand-placed and ungated**, like `author-post` (2026-08-16 amendment). A profile link left untagged,
+  or later edited back to a clean URL, is a real state that nothing detects.
+- **Query-string survival through each network's profile link is not measured.** Whether LinkedIn's
+  profile website field and X's (wrapped by `t.co`) preserve the query string is a premise. The first
+  reading in GA4 is the first evidence either way. If the parameters are dropped, those visits fall
+  back to referral and the `author-profile` count reads low.
+- **No success criterion is set.** Volumes are expected to be small, and no number was decided. Read the
+  series as existence-class, as the reader-share criterion already is, never as a ranking between the
+  two networks.
+
+**Refs** Issue [#749](https://github.com/tedeuxx/tadeumendonca-io/issues/749).
