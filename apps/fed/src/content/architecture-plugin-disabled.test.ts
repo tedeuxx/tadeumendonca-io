@@ -12,10 +12,14 @@
 //       BEFORE the first hook id it names. If the plugin is ever re-enabled here, the requirement lifts,
 //       because the sentence would then be false.
 //   (b) No persona-table row lists `devops`. The method that runs here split that skill into `scm`, `ci`
-//       and `provisioning`; the plugin mirror still ships it, which is how the column went stale.
+//       and `provisioning`; the plugin still ships it, which is how the column went stale.
+//   (c) Neither edition, nor the plugin's repo card, calls the plugin a generated mirror of the method.
+//       It is not one yet: its own README says it "becomes" one, and its main still ships skills the
+//       method retired. Each edition instead carries the ADR-0043 sentence on the plugin's status.
 //
 // WHAT THIS CANNOT DO. Arm (a) checks that a sentence is PRESENT and placed first; it cannot check that
-// any other sentence in the section is true. Arm (b) is a ONE-IDENTIFIER SPELLING CHECK: it catches
+// any other sentence in the section is true. Arm (c) is a PHRASE CHECK: it catches the mirror claim in
+// the words it was published in, and a paraphrase passes. Arm (b) is a ONE-IDENTIFIER SPELLING CHECK: it catches
 // `devops` coming back and nothing else. The column's real source is the user-level agent definitions
 // that `mhw install --method` writes, which no checkout in CI can read, so a skill added to or removed
 // from a method preload reddens nothing here.
@@ -23,6 +27,7 @@ import { describe, it, expect } from 'vitest';
 import architectureEn from './architecture.en.md?raw';
 import architecturePt from './architecture.pt.md?raw';
 import harness from './generated/harness.json';
+import { repoCards } from '../data/repoCards';
 
 const settingsModules = import.meta.glob('../../../../.claude/settings.json', {
   eager: true,
@@ -98,5 +103,29 @@ describe('the persona table lists no `devops` (#733)', () => {
     expect(rows.length, `${locale}: the persona table did not parse to one row per persona`).toBe(personaIds.length);
     const stale = rows.filter((row) => row.includes('`devops`')).map((row) => row.split('|')[1].trim());
     expect(stale, `${locale}: these rows still list devops, which the method split into scm, ci and provisioning`).toEqual([]);
+  });
+});
+
+// The plugin's status, verbatim per locale: the ADR-0043 amendment's sentence, as page copy (#733).
+const PLUGIN_STATUS: Record<string, string> = {
+  en: 'The plugin is still published, but it is deprecated as a source, and its README points to `tedeuxx/mhw`.',
+  pt: 'O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o `tedeuxx/mhw`.',
+};
+// The claim in the words each edition published it in.
+const MIRROR_CLAIM: Record<string, RegExp> = {
+  en: /generated mirror|\bmirror of (?:that|the) method/i,
+  pt: /espelho gerado|espelho (?:desse|do) método/i,
+};
+
+describe('the page does not call the plugin a generated mirror (#733)', () => {
+  it.each(LOCALES)('the %s edition makes no mirror claim and states the plugin status', (locale) => {
+    expect(BODY[locale], `${locale}: the page calls the plugin a generated mirror again`).not.toMatch(MIRROR_CLAIM[locale]);
+    expect(BODY[locale], `${locale}: the ADR-0043 sentence on the plugin's status is gone`).toContain(PLUGIN_STATUS[locale]);
+  });
+
+  it.each(LOCALES)('the plugin repo card makes no mirror claim in %s', (locale) => {
+    const card = repoCards.find((r) => r.repoUrl === 'https://github.com/tedeuxx/tadeumendonca-skills');
+    expect(card, 'the plugin card is gone from the registry').toBeDefined();
+    expect(card?.description[locale]).not.toMatch(MIRROR_CLAIM[locale]);
   });
 });
