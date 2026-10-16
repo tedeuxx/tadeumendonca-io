@@ -121,9 +121,11 @@ describe('revisionFor / getRevision — which revision a URL resolves to', () =>
     expect(revisionFor('old-fixed', 'en', moved, revisions)).toBeUndefined();
   });
 
-  // The real binding, against the real (empty) directory: a real published article has no revision.
-  it('getRevision answers undefined for a real published article while no revision is pending', () => {
-    expect(getPostBySlug('my-commitment', 'en')).toBeDefined();
-    expect(getRevision('my-commitment', 'en')).toBeUndefined();
+  // The real binding, against the real directory: a real published article with no revision has none.
+  // ~~`my-commitment`~~ was the subject until #688 put a pending revision on it; the subject must be an
+  // article with no file in `revisions/`, or this asserts the opposite of what it names.
+  it('getRevision answers undefined for a real published article with no pending revision', () => {
+    expect(getPostBySlug('three-agent-loops-one-month', 'en')).toBeDefined();
+    expect(getRevision('three-agent-loops-one-month', 'en')).toBeUndefined();
   });
 });
