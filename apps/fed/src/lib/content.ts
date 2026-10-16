@@ -393,6 +393,130 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
   return resolved;
 }
 
+/** An article key, read off a `<key>.<locale>.md` path — the same `FILENAME` rule `buildEditions` applies. */
+function keyAndLocaleOf(path: string, kind: string): [string, Locale] {
+  const m = FILENAME.exec(path);
+  if (!m) throw new Error(`content: unexpected ${kind} filename "${path}" — expected <key>.<locale>.md`);
+  const [, key, localePart] = m;
+  if (!LOCALES.includes(localePart as Locale)) {
+    throw new Error(`content: "${path}" has locale "${localePart}" that is not one of ${LOCALES.join(', ')}`);
+  }
+  return [key, localePart as Locale];
+}
+
+/** The frontmatter block exactly as written, or undefined when the file has none. */
+const rawFrontmatterOf = (raw: string): string | undefined => FRONTMATTER.exec(raw)?.[1];
+
+/**
+ * PENDING REVISIONS of published articles (#741, ADR-0049's amendment) — `src/content/revisions/`.
+ *
+ * A revision is a full copy of each edition of a PUBLISHED article, keyed by the article KEY (the `blog/`
+ * filename stem, never a slug — ADR-0037), with frontmatter byte-identical to the published edition and a
+ * corrected body. `ArticlePage` renders it under `?preview` at the article's real URL; every other visitor,
+ * and every prerendered snapshot, gets the published text.
+ *
+ * WHY A SEPARATE DIRECTORY, measured from the code rather than preferred: every enumerating reader —
+ * the `blog/` glob above, `routes.mjs`, `og-cards.mjs`, `gen-distribution.mjs` — reads `blog/` FLAT, so
+ * a sibling file there would parse as a new article. Outside it, they need no change.
+ *
+ * WHY THE FRONTMATTER IS LOCKED: every frontmatter field feeds a reader that is not preview-aware (the
+ * title feeds the OG card, the social kit and JSON-LD; the slug feeds routes and the sitemap). Identical
+ * frontmatter keeps each of them correct while it reads the published file. So the revision `BlogPost` is
+ * the published one with ONLY the body replaced — nothing else can differ by construction.
+ *
+ * FIVE REFUSALS, each a build failure, in the order they are checked:
+ *  1. an ORPHAN — a revision whose key names no article (a key renamed after the revision was written);
+ *  2. a HALF PAIR — one locale only, the same unpublishable rule `buildEditions` enforces;
+ *  3. a HELD host — releasing a held article flips `draft` on the `blog/` file, which would publish the
+ *     committed body and not the revision that was read. A held article is reviewed in place;
+ *  4. frontmatter NOT BYTE-EQUAL to the published edition's;
+ *  5. a body EQUAL to the published one — a leftover, which is what a release done by copy instead of
+ *     move leaves behind.
+ *
+ * Exported so tests feed it synthetic sets; the real glob below is empty whenever no correction is
+ * pending, so in production none of the throws fire.
+ */
+export function buildRevisions(
+  revisionRaws: Record<string, string>,
+  publishedRaws: Record<string, string>,
+  editions: Record<string, Editions>,
+): Record<string, Editions> {
+  const publishedRaw = new Map<string, string>();
+  for (const [path, raw] of Object.entries(publishedRaws)) {
+    const [key, locale] = keyAndLocaleOf(path, 'blog');
+    publishedRaw.set(`${key}.${locale}`, raw);
+  }
+
+  const grouped = new Map<string, Partial<Record<Locale, string>>>();
+  for (const [path, raw] of Object.entries(revisionRaws)) {
+    const [key, locale] = keyAndLocaleOf(path, 'revision');
+    grouped.set(key, { ...grouped.get(key), [locale]: raw });
+  }
+
+  const resolved: Record<string, Editions> = {};
+  for (const [key, raws] of grouped) {
+    const host = editions[key];
+    if (!host) {
+      throw new Error(
+        `content: revision "${key}" names no published article — a revision is keyed by the article KEY ` +
+          `(the blog/ filename stem). Was the article's key renamed? Move the revision to the new key or delete it.`,
+      );
+    }
+    const missing = LOCALES.filter((l) => raws[l] === undefined);
+    if (missing.length > 0) {
+      throw new Error(
+        `content: revision "${key}" is missing the ${missing.join(', ')} edition — a revision is a pair, ` +
+          'like the article it corrects (revisions/<key>.pt.md and revisions/<key>.en.md).',
+      );
+    }
+    if (host[LOCALES[0]].draft) {
+      throw new Error(
+        `content: revision "${key}" targets a HELD article. A held article is not published yet, so edit its ` +
+          'blog/ file directly — releasing it flips draft in blog/ and would publish that body, not this revision.',
+      );
+    }
+    const revised = {} as Editions;
+    for (const locale of LOCALES) {
+      const raw = raws[locale]!;
+      // Present by construction: `host` exists, and `buildEditions` already refused a half pair.
+      const published = publishedRaw.get(`${key}.${locale}`)!;
+      if (rawFrontmatterOf(raw) !== rawFrontmatterOf(published)) {
+        throw new Error(
+          `content: revision "${key}" (${locale}) has frontmatter that differs from the published edition. ` +
+            'A revision corrects the BODY only — copy the frontmatter byte for byte; title and slug changes ' +
+            'are an ordinary edit, because the OG card, the sitemap and the social kit read them.',
+        );
+      }
+      const body = parse(key, raw).body;
+      if (body === host[locale].body) {
+        throw new Error(
+          `content: revision "${key}" (${locale}) has the same body as the published edition — a leftover. ` +
+            'Releasing a revision MOVES it onto blog/ (git mv -f); delete this file.',
+        );
+      }
+      revised[locale] = { ...host[locale], body };
+    }
+    resolved[key] = revised;
+  }
+  return resolved;
+}
+
+/**
+ * The pending revision of the article whose `locale` edition is currently published at `slug`, or
+ * undefined. The CURRENT slug only, as with `getPostBySlug` — a retired slug is redirected by `App.tsx`
+ * before any page renders. Pure so it can be tested against synthetic sets; `getRevision` binds it to the
+ * real ones.
+ */
+export function revisionFor(
+  slug: string,
+  locale: Locale,
+  editions: Record<string, Editions>,
+  revisions: Record<string, Editions>,
+): BlogPost | undefined {
+  const key = Object.keys(editions).find((k) => editions[k][locale].slug === slug);
+  return key === undefined ? undefined : revisions[key]?.[locale];
+}
+
 const raws = import.meta.glob('../content/blog/*.{pt,en}.md', {
   query: '?raw',
   import: 'default',
@@ -400,6 +524,25 @@ const raws = import.meta.glob('../content/blog/*.{pt,en}.md', {
 }) as Record<string, string>;
 
 const editionsBySlug = buildEditions(raws);
+
+// EAGER, like the glob above, and the cost is named rather than hidden (ADR-0049's amendment): while a
+// revision is pending its body — both locales — ships in the main bundle every visitor downloads, and is
+// fetchable without the parameter. Isolation, not privacy, exactly as for a held draft; and the text is
+// already public in its own merge request. A lazy glob would spare visitors the bytes at the price of an
+// asynchronous render path and guards moved out of module load; it is the extension point if a window
+// between the revision merge and the release merge ever runs long.
+const revisionRaws = import.meta.glob('../content/revisions/*.{pt,en}.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const revisionsByKey = buildRevisions(revisionRaws, raws, editionsBySlug);
+
+/** The pending revision of the published article at `slug` in `locale`, if one exists (#741). */
+export function getRevision(slug: string, locale: Locale): BlogPost | undefined {
+  return revisionFor(slug, locale, editionsBySlug, revisionsByKey);
+}
 
 // Per-locale, newest first (ISO date strings sort lexicographically).
 //
