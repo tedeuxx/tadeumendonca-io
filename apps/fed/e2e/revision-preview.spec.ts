@@ -46,7 +46,7 @@ for (const rev of cases) {
 
       test(`${locale}: without the parameter the published text renders`, async ({ page }) => {
         await page.goto(`/${locale}/blog/${rev!.slug[locale]}`);
-        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        await expect(page.locator('article h1')).toBeVisible();
         if (rev!.publishedOnly[locale]) {
           await expect(page.locator('body')).toContainText(rev!.publishedOnly[locale]!);
         }
@@ -66,7 +66,7 @@ for (const rev of cases) {
     test('the neutral address without the parameter ends on the published text', async ({ page }) => {
       await page.goto(`/blog/${rev!.slug.en}`);
       await expect(page).toHaveURL(new RegExp(`/en/blog/${rev!.slug.en}$`));
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await expect(page.locator('article h1')).toBeVisible();
       await expect(page.locator('body')).not.toContainText(rev!.revisionOnly.en!);
     });
 
