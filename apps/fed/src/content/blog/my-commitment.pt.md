@@ -7,12 +7,6 @@ track: engenharia
 excerpt: 'O primeiro post. Por que este espaço existe, e o que eu te prometo — a versão honesta de uma transição de meio de carreira pra AI Engineering.'
 takeaway: 'o que é este espaço, e os quatro compromissos por trás dele.'
 ---
-> **Atualização, 16 de outubro de 2026.** Este foi o primeiro post, e deixo do jeito que escrevi em 26 de julho de 2026. A missão que ele descreve mudou de centro desde então. Este espaço não é mais guiado por uma transição para AI Engineering, nem pelo código como argumento. É o meu compromisso pessoal e independente de aprender em público com as pessoas e as máquinas desta era, transformar em linguagem o que vivo e devolver o que descubro — enquanto eu conseguir sustentar as ferramentas e a infraestrutura por trás disso.
->
-> Escrevo como um livro em andamento: cada artigo é um capítulo situado, o que eu pensei num ponto da jornada, e não uma palavra final; a Biblioteca são os livros com que aprendi. O harness é a minha oficina, não o meu assunto. Acredito que harness engineering é a nova arte moderna: a linguagem é o material, as restrições são a forma, os modelos são os instrumentos, e a relação humano–máquina que emerge é a obra. É a minha convicção, e você é livre pra chegar à sua.
->
-> O que vem abaixo é de onde eu parti.
-
 Sou engenheiro de software no meio de uma transição — de arquitetura de cloud e sistemas distribuídos para AI Engineering — e decidi fazê-la em público.
 
 A maior parte do conteúdo de "como virar AI Engineer" é uma de duas coisas: gatekeeping de PhD em ML, ou thread de hype. Nenhum me ajudou. Então escrevo o que eu queria ter encontrado: a transição de verdade, com os trade-offs explícitos e o código aberto pra você pegar.
