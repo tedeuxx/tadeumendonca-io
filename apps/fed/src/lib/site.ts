@@ -24,9 +24,9 @@ export const OG_IMAGE_TYPE = 'image/png';
 import type { Locale } from '../i18n/config';
 
 export const DEFAULT_DESCRIPTION_EN =
-  'A personal, independent effort to learn in public with the people and machines of this era — an ongoing book in situated chapters on agentic development.';
+  'A personal, independent commitment to learn in public with the people and machines of this era — agentic development is the workshop; the writing, an ongoing book.';
 export const DEFAULT_DESCRIPTION_PT =
-  'Um esforço pessoal e independente de aprender em público com as pessoas e as máquinas desta era — um livro em andamento, em capítulos situados sobre agentic development.';
+  'Um compromisso pessoal e independente de aprender em público com as pessoas e as máquinas desta era — agentic development é a oficina; a escrita, um livro em andamento.';
 
 /** The default OG/meta description in the active locale. */
 export const defaultDescription = (locale: Locale): string =>

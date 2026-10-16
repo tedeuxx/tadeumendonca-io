@@ -217,8 +217,8 @@ test.describe('SEO discovery', () => {
   // The words are spelled out rather than imported, so a wrong catalog cannot make this pass.
   test('the landing serves the recentered mission, not the retired proposition', async ({ request }) => {
     const MISSION = {
-      en: 'A personal, independent effort to learn in public with the people and machines of this era',
-      pt: 'Um esforço pessoal e independente de aprender em público com as pessoas e as máquinas desta era',
+      en: 'A personal, independent commitment to learn in public with the people and machines of this era',
+      pt: 'Um compromisso pessoal e independente de aprender em público com as pessoas e as máquinas desta era',
     };
     const RETIRED = /proof[- ]of[- ]engineering|portfolio of automations|portfólio de automações|learn to build with AI|aprenda a construir com IA/i;
     for (const [path, locale] of [

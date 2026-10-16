@@ -76,6 +76,19 @@ describe('the new proposition is what first contact says', () => {
     expect(description).toContain('agentic development');
   });
 
+  // The owner named the noun on the PR (#743): first contact calls the mission a commitment, never an
+  // effort. Pinned on the two carriers that state it, the hero body and the default description.
+  const NOUN: Record<Locale, { kept: RegExp; retired: RegExp }> = {
+    en: { kept: /\bcommitment\b/i, retired: /\beffort\b/i },
+    pt: { kept: /\bcompromisso\b/i, retired: /esfor[cç]o/i },
+  };
+  it.each(LOCALES)('the %s first contact names the mission a commitment, not an effort', (locale) => {
+    for (const text of [heroText(locale), defaultDescription(locale)]) {
+      expect(text).toMatch(NOUN[locale].kept);
+      expect(text).not.toMatch(NOUN[locale].retired);
+    }
+  });
+
   it('the pre-load description is the English default, word for word', () => {
     expect(preloadDescription).toBe(DEFAULT_DESCRIPTION_EN);
   });

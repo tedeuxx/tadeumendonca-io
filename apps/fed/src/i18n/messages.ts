@@ -134,8 +134,8 @@ const strings = {
     taglineLead: { pt: 'Vamos aprender em público —', en: 'Let’s learn in public —' },
     taglineAccent: { pt: 'com as pessoas e as máquinas desta era', en: 'with the people and machines of this era' },
     bodyLead: {
-      pt: 'Um esforço pessoal e independente: transformo em linguagem o que vivo com IA e devolvo o que descubro, como um livro em andamento, em',
-      en: 'A personal, independent effort: I turn what I live with AI into language and give back what I find, as an ongoing book in',
+      pt: 'Um compromisso pessoal e independente: transformo em linguagem o que vivo com IA e devolvo o que descubro, como um livro em andamento, em',
+      en: 'A personal, independent commitment: I turn my experience with AI into language and give back what I find, as an ongoing book in',
     },
     bodyStrong1: { pt: 'capítulos situados', en: 'situated chapters' },
     bodyConnector: { pt: 'e com', en: 'with' },
