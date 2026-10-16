@@ -42,6 +42,8 @@ import {
 } from './banners.mjs';
 import { CARD_COPY, LOCALES } from './og-copy.mjs';
 import { strings } from '../src/i18n/messages';
+import { resolveProfile } from '../src/data/resolveProfile';
+import { profileSource } from '../src/data/profile';
 
 /** Lower-case, typographic apostrophes folded to straight ones, runs of whitespace collapsed. */
 const normaliseCopy = (s) => s.replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
@@ -484,6 +486,32 @@ describe('the copy', () => {
   // because the OG card's meta line is right there and looks like the obvious thing to reuse.
   it('states no role, product or practice — the headline beside it already does', () => {
     expect(BANNER_COPY.line).not.toMatch(/engineer|architect|harness|agent|\bAI\b|AI-DLC|agentic/i);
+  });
+
+  // The PREMISE of the test above, read rather than assumed (#749). The LinkedIn headline and the en CV
+  // headline are one string (ADR-0024), so the resolved en headline is the repo's copy of what sits beside
+  // the banner. If a later headline drops the role or the practice, this goes red and the rule above has
+  // to be re-decided instead of silently guarding a premise that no longer holds.
+  it('rests on a headline that does name the role and the practice', () => {
+    const { headline } = resolveProfile(profileSource, 'en');
+    expect(headline).toMatch(/\bAI Engineer\b/);
+    expect(headline).toContain('Context & Harness Engineering');
+  });
+
+  // #749 put the mission into the headline, so the line and the headline now share a subject. The line
+  // may share it; it must not repeat any of the headline's segments, in either locale's edition.
+  it.each(['en', 'pt'])('repeats none of the headline’s segments (%s edition)', (locale) => {
+    const segments = resolveProfile(profileSource, locale)
+      .headline.split('|')
+      .flatMap((s) => s.split(','))
+      .map(normaliseCopy)
+      .filter((s) => s.length > 0);
+    expect(segments.length).toBeGreaterThan(3); // compared against the real headline, not ''
+    const line = normaliseCopy(BANNER_COPY.line);
+    for (const segment of segments) {
+      expect(line).not.toContain(segment);
+      expect(segment).not.toContain(line);
+    }
   });
 
   // It is a CALL TO ACTION rather than a claim — the owner's own reframing of what the line is for. What
