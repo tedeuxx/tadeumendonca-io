@@ -50,7 +50,7 @@ export interface DocumentHead {
    * Alt text for `image`, when the caller has one.
    *
    * Required in practice for any custom card, because the alternative is worse than silence: the
-   * default card's alt describes the DEFAULT card ("learn to build with AI…"), so reusing it on an
+   * default card's alt describes the DEFAULT card ("let’s learn in public…" since #688), so reusing it on an
    * article would tell a screen-reader user they are being shown a picture they are not being shown.
    * Falls back to the locale's default-card alt, which is only correct when the image IS that card.
    */
