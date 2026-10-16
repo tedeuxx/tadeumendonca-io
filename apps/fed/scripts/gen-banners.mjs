@@ -130,7 +130,10 @@ const bannerHtml = (id) => {
   .wm .badge { width:${t.badge}px; height:${t.badge}px; flex:none; display:block; }
   .wm .io { color:${PALETTE.accent}; }
   .cta { font-family:'JetBrains Mono',monospace; font-weight:500; font-size:${t.cta}px;
-    letter-spacing:0.09em; line-height:1; color:${PALETTE.muted}; }
+    letter-spacing:0.09em; line-height:1; color:${PALETTE.muted};
+    /* #748: one row always. On X the block's available width is 750px, so without this an over-long
+       line wrapped to two rows and every refusal below still passed; now it overflows and is refused. */
+    white-space:nowrap; }
 </style></head><body>
   <div id="block">
     <div class="wm"><span class="badge">${mark}</span><span class="text">${BANNER_COPY.wordmark}<span class="io">${BANNER_COPY.tld}</span></span></div>
