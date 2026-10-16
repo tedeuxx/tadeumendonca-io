@@ -93,12 +93,17 @@ const RETIRED_STEM = /Loop Engineer/;
 // IT WAS WRONG WHEN THIS RENAME FOUND IT — the published value was 164 and the command beside it
 // returned 180, because PR #457 shortened a different part of the same string and the figure was not
 // re-run. That is the exact defect the "publish the number with its command" rule exists to make
-// visible, arriving through the number rather than through the command. Re-derived at head, the
+// visible, arriving through the number rather than through the command. ~~Re-derived at head, the
 // headline is 175 characters: the rename cut five, and `Node.js / TypeScript` → `Node.js · TypeScript`
-// cut none. Run from the repo root:
+// cut none.~~ Struck 2026-10-16 (#749): the owner's mission-first headline replaced the string, and
+// the command below now returns 210. It substitutes `18` for `{{years}}`, so the published string,
+// which resolves to `18+`, is 211 characters, nine under the limit. Run from the repo root:
 //   node -e "const s=require('fs').readFileSync('apps/fed/src/data/profile.ts','utf8');const b=s.split('headline: {')[1].split('},')[0].split('pt:')[0];const en=[...b.matchAll(/'([^']*)'/g)].map(m=>m[1]).join('').replace('{{years}}','18');console.log(en.length)"
-// Nothing pins it — the command is the falsifier, not a test — so re-run it on any edit that touches
-// the headline. A figure beside its own refuting command is worse than no figure: it reads as checked.
+// ~~Nothing pins it — the command is the falsifier, not a test~~ — struck 2026-10-16 (#749): at 211
+// characters the margin is nine, so `resolveProfile.test.ts` now asserts the resolved headline in both
+// editions stays within 220. The figure above is still pinned by nothing, so re-run the command on any
+// edit that touches the headline. A figure beside its own refuting command is worse than no figure: it
+// reads as checked.
 //
 // TWO THINGS ABOUT THE FIGURE THAT LIVE NOWHERE ELSE. The first CHANGED with the rename and the second
 // did not:
