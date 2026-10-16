@@ -69,3 +69,58 @@ and names no employer or client.
 
 **Numbers (AC 5).** The addendum publishes three dates and no other digit. "One hook" (row 6) is a
 count written as a word; its command is row 6.
+
+## Round 1 — 2026-10-16
+draft: apps/fed/src/content/revisions/blast-radius-supernova.{en,pt}.md @ ef4fe6aa2429c4d516ea619bf661e654711c538f
+
+**No edit was made to either edition.** No sentence fails a clause of `published-voice` that I can quote,
+and no claim is false against the source. The facts below were re-run by the reviewer and not taken
+from the provenance table above.
+
+**Facts re-run.** `<skills>` is a fresh fetch of `tedeuxx/tadeumendonca-skills`, `origin/main` at
+`b69055c`. This repository is at `origin/main` `98a063d`.
+
+- Row 5: `git -C <skills> log origin/main --diff-filter=D --format='%h %ad %s' --date=short -- hooks/scripts/wip-guard.sh`
+  returns `e145cd0f 2026-09-04`. It reached `main` the same day, through merge `29c76547`
+  (2026-09-04 23:43 -03:00).
+- Row 6: `git -C <skills> show origin/main:hooks/hooks.json | jq -c '.hooks.PreToolUse[] | select(.matcher=="Bash") | [.hooks[].command]'`
+  returns one entry, `permission-guard.sh`. At `8cd68b6` the same command returns two, in the
+  article's order.
+- Rows 7 and 11: `git show origin/main:<f> | jq -c '.enabledPlugins, (.hooks // "no hooks key")'`, for
+  `.claude/settings.json` and `apps/fed/.claude/settings.json`. Both set the plugin to `false` and have
+  no `hooks` key. The user-level hooks on this workstation are the iTerm status hooks only, and they
+  make no permission decision. So "no hook does that today" also holds beyond the project settings.
+- Row 9: `git -C <skills> show origin/main:README.md | sed -n '3,4p'` gives "Deprecated as a source
+  (2026-10-12)", pointing to `tedeuxx/mhw`.
+- Row 12: `.permissions.deny` in `.claude/settings.json` lists 30 prefix rules, including
+  `git push --force`, `git reset --hard` and `rm -rf`.
+- Row 13: the `harness-drift` job checks out the plugin and runs `check-harness-drift.mjs`, and
+  `build-test` lists it in `needs` and fails on `contains(needs.*.result, 'failure')`. I checked what
+  changed since publication with `git log 0812dac..origin/main -- apps/fed/scripts/check-harness-drift.mjs`.
+  #715 removed a roster leg that compared `AGENTS.md`'s fence with the plugin's `agents/`. The article
+  never described that leg: L179 describes the committed inventory (hooks, personas, commands), and
+  `harness.json` still carries 8 personas, 16 hooks and 7 commands compared against the plugin tree.
+  So "That one has not moved" is true of what the article said.
+- Rows 16–19 match the released `what-my-agents-do` addendum line for line, in both editions (`diff`
+  of the two paragraphs: no output).
+- The sign-off appears once and is the last line of each edition.
+
+**Voice.** Read against *The owner's voice, in his own words*, the sourcing constraint, rule 12 and
+rule 13. Each bullet states the article's own claim, then today's state. Nothing is added that the
+source does not hold. The "why" paragraphs are his recorded answers. No reader is addressed in
+Portuguese with a gendered form (rule 23). The only digits are the dates (AC 5).
+
+### Advisory and droppable
+- Rule 17 (the signature) does not apply here unless this is a *themed* article, and the ruler says
+  nobody has defined that set. The published article never carried «Isso é o que eu penso» /
+  "This is what I think", and AC 3 only moves the existing sign-off. Adding the signature would go
+  beyond AC 1, so it is a question for the owner, not an edit.
+- This record's row 13 cites `grep -n` over `app.yml` with no line numbers. Line numbers would make it
+  faster to check. Nothing in the draft depends on this.
+
+**Stopping rule.** I stop on the mechanical terminal: this section carries `CONTENT-REVIEW-CLEAR`. No
+second round is owed. **This is not a fact-check of the world.** Cross-surface staleness, durability
+and the machine read are checked by nobody on this lane. The next step is the owner's read at the held
+preview, after merge 1 deploys.
+
+CONTENT-REVIEW-CLEAR
