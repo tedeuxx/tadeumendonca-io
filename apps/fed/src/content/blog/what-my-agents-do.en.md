@@ -160,11 +160,9 @@ He closes by listing what is portable: skill files as employees, the library and
 
 Good luck, and I hope you find yours in better shape than I found mine.
 
-This is what I think.
-
 ---
 
-## Addendum — 15 October 2026
+## Addendum — 16 October 2026
 
 This piece is a record of the loop as it stood when I published it, on 18 September 2026, and it stays one. The drawing above is that loop. Since then, part of what it says has stopped being true, and one sentence in it was already wrong on the day it went out.
 
@@ -182,3 +180,5 @@ The current drawing is on [the architecture page](/architecture).
 Now the why. For me, as a software engineer, these are not capabilities of a project. They are capabilities of how I work. Each person works differently — unless the organisation imposes a way of working on us. That is why I needed to rehearse the organisations' way of working with myself.
 
 And another point: perimeter defence. My workstation must set the rules of the game. The projects only follow.
+
+This is what I think.

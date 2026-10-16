@@ -21,11 +21,11 @@ const BODY = { en, pt } as const;
 const LOCALES = ['en', 'pt'] as const;
 
 const SIGNATURE = { en: 'This is what I think.', pt: 'Isso é o que eu penso.' };
-const ADDENDUM_HEADING = { en: '## Addendum — 15 October 2026', pt: '## Adendo — 15 de outubro de 2026' };
+const ADDENDUM_HEADING = { en: '## Addendum — 16 October 2026', pt: '## Adendo — 16 de outubro de 2026' };
 // The dates the addendum is allowed to carry; every other digit would be a count (AC 6).
 const DATES = {
-  en: ['15 October 2026', '18 September 2026'],
-  pt: ['15 de outubro de 2026', '18 de setembro de 2026'],
+  en: ['16 October 2026', '18 September 2026'],
+  pt: ['16 de outubro de 2026', '18 de setembro de 2026'],
 };
 const RETIRED_REVIEWER = { en: 'what it blocks is a draft', pt: 'o que ele barra é um rascunho' };
 const CURRENT_REVIEWER = {
@@ -78,13 +78,17 @@ describe('the architecture-page sentence is past tense (#732 AC 3)', () => {
 });
 
 describe('a dated addendum closes each edition (#732 AC 4, 6, 7)', () => {
-  it.each(LOCALES)('the %s addendum follows the signature behind a rule', (locale) => {
+  // The owner moved the signature (#732, "Mover a assinatura"): the original body ends on its sign-off,
+  // a rule separates it from the addendum, and the signature is the addendum's last line, once.
+  it.each(LOCALES)('the %s addendum sits behind a rule and ends on the signature', (locale) => {
     const body = BODY[locale];
-    const sig = body.indexOf(SIGNATURE[locale]);
     const head = body.indexOf(ADDENDUM_HEADING[locale]);
-    expect(sig, `${locale}: signature missing`).toBeGreaterThan(0);
-    expect(head, `${locale}: addendum heading missing`).toBeGreaterThan(sig);
-    expect(body.slice(sig + SIGNATURE[locale].length, head).trim()).toBe('---');
+    expect(head, `${locale}: addendum heading missing`).toBeGreaterThan(0);
+    expect(body.slice(0, head).trimEnd().endsWith('\n---'), `${locale}: no rule before the addendum`).toBe(true);
+    expect(body.split(SIGNATURE[locale]).length - 1, `${locale}: signature must appear exactly once`).toBe(1);
+    expect(body.indexOf(SIGNATURE[locale]), `${locale}: signature before the addendum`).toBeGreaterThan(head);
+    const lines = body.trimEnd().split('\n');
+    expect(lines[lines.length - 1], `${locale}: last line is not the signature`).toBe(SIGNATURE[locale]);
   });
 
   it.each(LOCALES)('the %s addendum points to /architecture and to tedeuxx/mhw', (locale) => {

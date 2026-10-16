@@ -18,19 +18,19 @@ const svgText = (html: string): string =>
 for (const [path, heading, retired, present] of [
   [
     '/en/blog/what-my-agents-do/',
-    'Addendum — 15 October 2026',
+    'Addendum — 16 October 2026',
     'what it blocks is a draft',
     'it blocks nothing: it repairs the draft in place',
   ],
   [
     '/pt/blog/o-que-os-meus-agentes-fazem/',
-    'Adendo — 15 de outubro de 2026',
+    'Adendo — 16 de outubro de 2026',
     'o que ele barra é um rascunho',
     'ele não barra nada: conserta o rascunho ali mesmo',
   ],
   [
     '/blog/what-my-agents-do/',
-    'Addendum — 15 October 2026',
+    'Addendum — 16 October 2026',
     'what it blocks is a draft',
     'it blocks nothing: it repairs the draft in place',
   ],

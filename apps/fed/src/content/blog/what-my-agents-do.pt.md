@@ -164,11 +164,9 @@ Ele fecha listando o que é portátil: arquivos de skill como funcionários, a b
 
 Boa sorte, e tomara que você encontre o seu em estado melhor do que eu encontrei o meu.
 
-Isso é o que eu penso.
-
 ---
 
-## Adendo — 15 de outubro de 2026
+## Adendo — 16 de outubro de 2026
 
 Este texto é um registro do loop como ele estava quando eu publiquei, em 18 de setembro de 2026, e continua sendo. O desenho lá em cima é esse loop. De lá para cá, parte do que ele diz deixou de ser verdade, e uma frase dele já estava errada no dia em que saiu.
 
@@ -186,3 +184,5 @@ O desenho atual está na [página de arquitetura](/architecture).
 Agora o porquê. Para mim, como engenheiro de software, não são capacidades de projeto. São capacidades de como eu trabalho. Cada pessoa trabalha diferente — a não ser que a organização nos imponha uma forma de trabalho. Por isso eu precisava ensaiar comigo mesmo a forma das organizações.
 
 E outro ponto: defesa em perímetro. A minha workstation deve ditar as regras do jogo. Os projetos só seguem.
+
+Isso é o que eu penso.
