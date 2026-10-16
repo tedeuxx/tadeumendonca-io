@@ -130,11 +130,11 @@ describe('ArchitecturePage', () => {
     );
   });
 
-  // The two site repos are CARDS, not links (#318) — and the test above cannot tell the difference,
+  // The site's repos are CARDS, not links (#318) — and the test above cannot tell the difference,
   // because a <RepoCard> IS an <a>. `querySelectorAll('a')` reads the same href either way.
   //
   // That distinction is the section's whole point. The setup walkthrough moved to the READMEs, so what
-  // the page owes a reader at the end is a way INTO the two repos, rendered as the page's call to action
+  // the page owes a reader at the end is a way INTO the repos, rendered as the page's call to action
   // rather than as a bullet. The delivery is invisible in the markdown source: `Markdown.tsx` turns a
   // paragraph holding a LONE self-labelled repo URL into a <RepoCard>, opt-in through `repoCards.ts`.
   //
@@ -157,13 +157,15 @@ describe('ArchitecturePage', () => {
   // assertion on the served build, but only for `/pt/architecture`; this is what covers en. Same shape
   // as `RampUpPage.test.tsx` for the ramp-up cards (#157), and its own `it` for the same reason: a
   // failure here is about RENDERING, and reporting it under a name about reachability misdirects.
-  it.each(['pt', 'en'] as const)('closes with both repos as cards, in order (%s edition)', (locale) => {
+  // #733: three cards, because the section counts three repos and the method now comes from mhw.
+  it.each(['pt', 'en'] as const)('closes with the three repos as cards, in order (%s edition)', (locale) => {
     const { container } = renderPage(locale);
 
     expect(
       [...container.querySelectorAll('[data-testid="repo-card"]')].map((c) => c.getAttribute('href')),
     ).toEqual([
       'https://github.com/tedeuxx/tadeumendonca-io',
+      'https://github.com/tedeuxx/mhw',
       'https://github.com/tedeuxx/tadeumendonca-skills',
     ]);
   });
