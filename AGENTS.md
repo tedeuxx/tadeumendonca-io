@@ -18,16 +18,20 @@ minimum reason for each; measurements and struck wording live in git history and
 
 ## What this repository is
 
-**The owner's proof-of-engineering site: a fully static single-page application served from object
-storage behind a CDN. No backend** — no API, database, authentication or Lambda; that half was retired.
-It is the public presence for the apex domain, backing his repositioning toward AI engineering (agentic
-development, AI-native automation) on delivery-lifecycle and distributed-systems experience: an
-interactive CV, a portfolio of public repositories, a reading shelf, long-form writing. **Content ships
-in the repository** — markdown for long-form, typed source for structured data — prerendered at build
-time in both locales so social and search metadata land in the served HTML.
+**The mission (#688): the owner's personal, independent commitment to learn in public with the people
+and machines of this era**, turn lived experience into language, and give back what he finds. The site
+reads as an ongoing book: each article a situated chapter, the reading shelf the lineage it received,
+for as long as he can sustain the tools and infrastructure behind it. Its surfaces: an interactive CV, a
+portfolio of public repositories, a reading shelf, long-form writing.
 
-**The argument is the code it links to.** Decisions carry documented trade-offs because the repository
-is public and *is* the pitch. No over-engineering; not a playground either — it has to work.
+**A fully static single-page application served from object storage behind a CDN. No backend** — no
+API, database, authentication or Lambda; that half was retired. **Content ships in the repository** —
+markdown for long-form, typed source for structured data — prerendered at build time in both locales so
+social and search metadata land in the served HTML.
+
+**The harness is the workshop, not the mission.** The code, the decisions and their documented
+trade-offs stay public as evidence of the work. No over-engineering; not a playground either — it has to
+work.
 
 ## The floor — obligations, true on a harness with no hooks
 

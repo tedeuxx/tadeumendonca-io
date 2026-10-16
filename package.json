@@ -2,7 +2,7 @@
   "name": "tadeumendonca-io",
   "private": true,
   "version": "0.0.0",
-  "description": "tadeumendonca.io — the owner's proof-of-engineering site: a fully static SPA (apps/fed, React + Vite + PWA) served on S3 + CloudFront (iac, Terraform, frontend-only). No backend.",
+  "description": "tadeumendonca.io — a personal, independent commitment to learn in public with the people and machines of this era: a fully static SPA (apps/fed, React + Vite) served on S3 + CloudFront (iac, Terraform, frontend-only). No backend.",
   "engines": {
     "node": ">=22"
   }
