@@ -231,10 +231,16 @@ export const catalog: CatalogProject[] = [
       // Struck at #736. Both halves are false here: the plugin is disabled in this repository, so it
       // builds nothing here, and since #731 this repository's merge is held by a rule, not a hook. What
       // the line says now is true of the repo itself and needs no qualifier: the loop took shape in this
-      // plugin, and the plugin's personas and skills check an agent's work. Hooks are left to the
-      // description, where they can be scoped to where the plugin is installed (#736 AC 1).
-      pt: 'O plugin de Claude Code onde meu loop de agentes tomou forma: personas de review e skills que verificam o trabalho de um agente antes de alguém confiar nele.',
-      en: "The Claude Code plugin my agent loop took shape in: review personas and skills that check an agent's work before anyone trusts it.",
+      // plugin, its review personas check an agent's work, and its skills document the conventions the
+      // agent follows. Hooks are left to the description, where they can be scoped to where the plugin is
+      // installed (#736 AC 1).
+      //
+      // ~~"review personas and skills that check an agent's work"~~ struck in review of #739: it made the
+      // skills the subject of "check", and `/architecture` publishes that personas ADVISE while skills and
+      // commands only DOCUMENT (the committed harness manifest says `documents` for the skill library).
+      // "check" stays on the personas only.
+      pt: 'O plugin de Claude Code onde meu loop de agentes tomou forma: personas de review que verificam o trabalho de um agente antes de alguém confiar nele, e skills que documentam as convenções que o agente segue.',
+      en: "The Claude Code plugin my agent loop took shape in: review personas that check an agent's work before anyone trusts it, and skills that document the conventions the agent follows.",
     },
     description: {
       // Three sentences, each with one job, and the last two are pinned verbatim in meaning by
@@ -254,13 +260,13 @@ export const catalog: CatalogProject[] = [
       // `contexto fresco`, not `contexto limpo`: `/pt/architecture` already publishes `contexto fresco`.
       // One presence, one name.
       pt:
-        'Onde o plugin está instalado, um reviewer julga cada MR em contexto fresco e um hook recusa as ações ' +
+        'Onde o plugin está instalado, um reviewer julga o MR em contexto fresco e um hook recusa as ações ' +
         'irreversíveis antes do comando rodar, e o humano fica com o que é dele. ' +
         'O plugin tadeumendonca-skills está desligado neste repositório, e o método que roda aqui vem da ' +
         'workstation, no nível do usuário. ' +
         'O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o tedeuxx/mhw.',
       en:
-        'Where the plugin is installed, a reviewer judges each MR in a fresh context and a hook refuses ' +
+        'Where the plugin is installed, a reviewer judges the MR in a fresh context and a hook refuses ' +
         'irreversible actions before the command runs, so the human keeps what is theirs. ' +
         'The tadeumendonca-skills plugin is disabled in this repository, and the method that runs here comes ' +
         'from the workstation at user level. ' +
@@ -282,7 +288,7 @@ export const catalog: CatalogProject[] = [
     // FACTS, and deliberately short: there is no runtime here. Markdown, shell and the plugin manifests.
     stack: ['Claude Code', 'Bash', 'GitHub Actions'],
     repoUrl: 'https://github.com/tedeuxx/tadeumendonca-skills',
-    // `live` is kept on purpose (#736 AC 8): the badge says the repo is published and current, not that
+    // `live` is kept on purpose (#736 AC 8): the badge says the repo is published and still releasing, not that
     // it runs here. The plugin is still published and still cuts a release on every merge, which is
     // also why `releases: 'plugin-build'` above still has a tag to show. `wip` would be the false badge:
     // nothing about the plugin is in progress.

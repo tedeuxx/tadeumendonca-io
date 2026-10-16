@@ -144,6 +144,12 @@ const RETIRED_CARD_PHRASES: Record<string, RegExp> = {
   en: /builds this site|merge gate wired into the tool|install into your own repo|Here the verification is mechanical/i,
   pt: /constrói este site|gate de merge que é hook|instalar no seu repo|Aqui a verificação é mecânica/i,
 };
+// Skills as the subject of a checking verb, which `/architecture` contradicts: skills and commands only
+// DOCUMENT (review of #739). A SPELLING CHECK on the published construction: a reworded claim passes.
+const SKILLS_CHECK_CLAIM: Record<string, RegExp> = {
+  en: /\bskills (that|which) (check|verify|judge)/i,
+  pt: /\bskills que (verificam|checam|julgam)/i,
+};
 // Any hook the card names belongs to the plugin, so it is named only after this scope (#736 AC 1).
 const INSTALLED_SCOPE: Record<string, string> = {
   en: 'Where the plugin is installed',
@@ -170,6 +176,12 @@ describe('the plugin portfolio card says what the plugin is today (#736)', () =>
       expect(text, `${locale} ${name} brings back a phrase the card retired at #736`).not.toMatch(
         RETIRED_CARD_PHRASES[locale],
       );
+    }
+  });
+
+  it.each(LOCALES)('no %s field says the skills check an agent\'s work', (locale) => {
+    for (const [name, text] of fields(locale)) {
+      expect(text, `${locale} ${name} makes the skills the subject of a check`).not.toMatch(SKILLS_CHECK_CLAIM[locale]);
     }
   });
 
