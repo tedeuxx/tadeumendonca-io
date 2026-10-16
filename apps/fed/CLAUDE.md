@@ -136,7 +136,7 @@ in `iac/`.
   `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
   the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means
   a PUBLISHED article reached with `?preview` renders the bar too — that is what makes promotion rebuild
-  nothing, and it is why **none of these four strings is ever seen at a URL that does not carry the
+  nothing, and it is why **none of these strings (~~four~~ six since #741) is ever seen at a URL that does not carry the
   parameter**. ~~is ever seen by a reader who did not type the parameter~~ — **struck: a reader who
   CLICKS such a link did not type it**, and the copy payload's citation carries `?preview` into the public
   `content` Issue every review round, so links carrying it are published deliberately. The claim that
@@ -146,6 +146,25 @@ in `iac/`.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
   flag is the mutation that proves those gates can go red.
+  **A PUBLISHED article is corrected through a PENDING REVISION, never through the hold** (#741, ADR-0049's
+  amendment). `draft: true` on a live article unpublishes it: it leaves the index and the route set, its
+  URLs redirect, and its committed OG cards become orphans that redden the build. Instead, write the
+  correction to `src/content/revisions/<key>.<locale>.md`, **both locales**, keyed by the article KEY (the
+  `blog/` filename stem), each a full copy of the published edition with **frontmatter byte-identical**
+  and only the body corrected. `?preview` at the article's real URL renders the revision, and the review
+  bar says **Pending revision**; every other visitor and every prerendered snapshot gets the published
+  text. `?preview` on an article with no revision says **Published text, no pending revision**.
+  `lib/content.ts` refuses, at module load: an orphan key, a half pair, a held host (edit a held draft in
+  place), frontmatter that is not byte-equal (title and slug changes are an ordinary edit), and a body
+  equal to the published one. Routes, the sitemap, the OG cards and the social kit read `blog/` flat and
+  never see a revision. The diagram and video-poster walkers are recursive and do see it, so run
+  `npm run gen-diagrams` when a revision edits a mermaid fence. **Release is one commit:**
+  `git mv -f src/content/revisions/<key>.en.md src/content/blog/<key>.en.md`
+  `git mv -f src/content/revisions/<key>.pt.md src/content/blog/<key>.pt.md`
+  (plus `gen-diagrams` if a fence changed). That commit's diff on `blog/` is exactly the text that was
+  read. **Isolation, not privacy, as for the hold:** while a revision is pending, both of its bodies ship
+  in the main bundle every visitor downloads. `e2e/revision-preview.spec.ts` runs over whatever is in
+  `revisions/` and reports *skipped* when it is empty.
   (Everything published on GitHub — this file, READMEs, commit and PR text — is written in English.)
 
 ## Conventions

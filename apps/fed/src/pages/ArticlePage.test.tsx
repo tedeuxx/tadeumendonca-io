@@ -233,7 +233,7 @@ describe('the draft review bar', () => {
   const COPY = 'Copiar o texto do artigo';
 
   // THE WHOLE SAFE-CLASS CLAIM, in one assertion. If this goes green with the bar rendered, two controls
-  // and four strings a reader was never meant to see are on every published article.
+  // and the bar's strings (~~four~~ six since #741) a reader was never meant to see are on every published article.
   it('renders NOTHING for a visitor with no preview parameter', () => {
     getPostBySlug.mockReturnValue(post({ contentIssue: 506 }));
     renderAt('building');
