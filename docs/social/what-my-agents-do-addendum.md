@@ -32,7 +32,7 @@ For me, as a software engineer, these are not capabilities of a project. They ar
 
 In September I published a piece on running Claude Code, Codex and Kiro like an AI-native company, with a drawing of my loop. The article stays as it was: a record of when I published it. It now carries a dated addendum, because part of that drawing is no longer true — and one sentence in it was already wrong on the day it went out.
 
-What moved is where the method lives. It used to travel as a plugin. Now it is installed from my workstation, at user level, and the projects only follow.
+One thing that moved is where the method lives. It used to travel as a plugin. Now it is installed from my workstation, at user level, and the projects only follow.
 
 Why: each person works differently, unless the organisation imposes a way of working on us. That is why I needed to rehearse the organisations' way of working with myself. And perimeter defence: my workstation must set the rules of the game.
 
@@ -46,7 +46,7 @@ Para mim, como engenheiro de software, não são capacidades de projeto. São ca
 
 Em setembro eu publiquei um texto sobre rodar Claude Code, Codex e Kiro como uma empresa AI-native, com o desenho do meu loop. O artigo fica como estava: um registro de quando eu publiquei. Agora ele tem um adendo datado, porque parte daquele desenho deixou de ser verdade — e uma frase dele já estava errada no dia em que saiu.
 
-O que mudou foi onde o método mora. Ele viajava como plugin. Agora ele é instalado a partir da minha workstation, no nível do usuário, e os projetos só seguem.
+Uma das coisas que mudaram foi onde o método mora. Ele viajava como plugin. Agora ele é instalado a partir da minha workstation, no nível do usuário, e os projetos só seguem.
 
 Por quê: cada pessoa trabalha diferente, a não ser que a organização nos imponha uma forma de trabalho. Por isso eu precisava ensaiar comigo mesmo a forma das organizações. E defesa em perímetro: a minha workstation deve ditar as regras do jogo.
 
@@ -66,7 +66,7 @@ https://tadeumendonca.io/blog/what-my-agents-do
 
 ## Character counts
 
-Measured on 2026-10-15 with the command below, run from the repository root. LinkedIn counts every
+Measured on 2026-10-15 with the command below, and re-measured the same day after the content-review repair (`docs/content-review/what-my-agents-do-addendum-732.md`, round 1), run from the repository root. LinkedIn counts every
 character; X counts any URL as 23, so the X figure substitutes that weight for the link.
 
 ```
@@ -82,10 +82,10 @@ print('x raw', len(x), '| x weighted', len(re.sub(r'https?://\S+', 'x' * 23, x))
 ```
 
 ```
-linkedin whole 2077 | blocks 976 1092
+linkedin whole 2102 | blocks 986 1107
 x raw 286 | x weighted 262
 ```
 
 The second LinkedIn block includes the link and the hashtag line, which trail the Portuguese half. The
-whole LinkedIn post sits at about 69% of the 3,000-character ceiling; X sits under its 280 limit only
+whole LinkedIn post sits at about 70% of the 3,000-character ceiling; X sits under its 280 limit only
 because the link is weighted at 23.

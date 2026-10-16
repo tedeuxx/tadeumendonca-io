@@ -173,7 +173,7 @@ The correction first. The drawing's description said content-reviewer blocks a d
 What changed since:
 
 - **`ready` on a loop issue.** The drawing says that label is mine alone to apply. Today applying it is my decision, which the main session carries out once we are aligned.
-- **The orchestrator.** The drawing has it committing and pushing. Today it only dispatches, and it never edits a file in the repository.
+- **The orchestrator.** The drawing has it committing and pushing. Today a written rule has it only dispatch and never edit a file in the repository, and nothing refuses it the edit.
 - **The merge and the trunk push.** The drawing says a hook refuses the orchestrator both. Today no hook refuses anything in this repository: the merge is held by a written rule, and a push straight to the trunk is refused by a deny rule committed in this repository, which matches the command by its spelling.
 - **Where the method lives.** Near the end I wrote that mine travels as a plugin, in the other repository. The `tadeumendonca-skills` plugin is disabled in this repository, and the method that runs here comes from the workstation at user level. Its agents, skills and commands are installed by [tedeuxx/mhw](https://github.com/tedeuxx/mhw). The plugin is still published, but it is deprecated as a source, and its README points to `tedeuxx/mhw`.
 

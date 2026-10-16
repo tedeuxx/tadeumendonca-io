@@ -177,7 +177,7 @@ Primeiro a correção. A descrição do desenho dizia que o content-reviewer bar
 O que mudou desde então:
 
 - **O `ready` numa issue de loop.** O desenho diz que esse rótulo é meu, só eu ponho. Hoje pôr esse rótulo é decisão minha, que a sessão principal executa depois que nos alinhamos.
-- **O orquestrador.** No desenho ele commita e empurra. Hoje ele só aciona as personas, e nunca edita um arquivo do repositório.
+- **O orquestrador.** No desenho ele commita e empurra. Hoje uma regra escrita diz que ele só aciona as personas e nunca edita um arquivo do repositório, e nada o impede de editar.
 - **O merge e o push na trunk.** O desenho diz que um hook recusa as duas coisas ao orquestrador. Hoje nenhum hook recusa nada neste repositório: o merge é segurado por uma regra escrita, e um push direto na trunk é recusado por uma regra de deny versionada neste repositório, que reconhece o comando pela grafia.
 - **Onde o método mora.** Perto do fim eu escrevi que o meu viaja num plugin, no outro repositório. O plugin `tadeumendonca-skills` está desligado neste repositório, e o método que roda aqui vem da workstation, no nível do usuário. Os agentes, as skills e os comandos dele são instalados pelo [tedeuxx/mhw](https://github.com/tedeuxx/mhw). O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o `tedeuxx/mhw`.
 
