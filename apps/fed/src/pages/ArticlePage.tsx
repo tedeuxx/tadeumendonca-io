@@ -2,7 +2,7 @@
 // post from markdown-in-repo (../lib/content) and renders its markdown body — fully static, no backend.
 import { useRef } from 'react';
 import { useParams, useLocation, Link as RouterLink } from 'react-router-dom';
-import { getEditions, getPostBySlug } from '../lib/content';
+import { getEditions, getPostBySlug, getRevision, type BlogPost } from '../lib/content';
 import { useDocumentHead } from '../hooks/useDocumentHead';
 import { useArticleProgress } from '../hooks/useArticleProgress';
 import { absoluteUrl } from '../lib/site';
@@ -18,6 +18,12 @@ const fmtDate = (iso: string, locale: Locale) =>
   new Date(iso).toLocaleDateString(dateLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' });
 
 const TRACK_KEY = { pessoal: 'tracks.pessoal', engenharia: 'tracks.engenharia' } as const satisfies Record<string, MessageKey>;
+
+/** What the review bar says the page shows (#741). A held article has no published text, so: nothing. */
+function shownText(article: BlogPost, revision: BlogPost | undefined): 'revision' | 'published' | undefined {
+  if (article.draft) return undefined;
+  return revision ? 'revision' : 'published';
+}
 
 interface ArticlePageProps {
   /**
@@ -40,7 +46,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
   const { search } = useLocation();
-  const article = slug ? getPostBySlug(slug, locale) : undefined;
+  const published = slug ? getPostBySlug(slug, locale) : undefined;
   // THE REVIEW BAR'S GATE, and it is the parameter ALONE (#506) — the owner's refinement: "esse argumento
   // de query string pode permitir esses dois botoes visualizados tbm".
   //
@@ -67,6 +73,18 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   // Read from `useLocation`, not `window.location`, for the reason `ArticleRoute` gives one layer up: a
   // client-side navigation is the one moment the two disagree.
   const reviewing = isPreviewRequested(search);
+  // A PENDING REVISION of a published article (#741, ADR-0049's amendment) renders in place of the
+  // published text — under the parameter only, so every other visitor and every prerendered snapshot (no
+  // snapshot URL can carry a query string, #506) gets the published text. A held article never has one:
+  // `content.ts` refuses a revision on a held host at module load.
+  //
+  // Everything below reads `article`, so the body, the review bar's copy payload, both `ShareButton`
+  // bodies and the diagrams all follow what is RENDERED — the bar's contract is "the markdown body the
+  // page renders", and a payload that copied the published text under a revision would hand the owner
+  // the text he was not reading. The frontmatter is byte-identical by construction, so title, slug,
+  // canonical and card are unaffected.
+  const revision = reviewing && published && !published.draft ? getRevision(published.slug, locale) : undefined;
+  const article = revision ?? published;
   // The edition GROUP (both locales) so hreflang can advertise each locale's OWN slug — the canonical /
   // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
   const eds = slug ? getEditions(slug, locale) : undefined;
@@ -115,7 +133,11 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           // it is the weaker half of the hold rather than its mechanism (see `DocumentHead.robots`).
           // `nofollow` too: a held draft's outbound links should not spend crawl budget or pass signal
           // from a page that is, by construction, not published yet.
-          robots: article.draft ? 'noindex, nofollow' : undefined,
+          // A rendered REVISION gets the same weak half (#741): the URL is the published one and the
+          // snapshot is the published text, but a crawler that executes scripts with the parameter would
+          // otherwise index text that is not published. Written or removed on every route, so it never
+          // rides into the next article.
+          robots: article.draft || revision ? 'noindex, nofollow' : undefined,
           alternates: { pt: `/blog/${eds.pt.slug}`, en: `/blog/${eds.en.slug}` },
           jsonLd: {
             '@context': 'https://schema.org',
@@ -151,6 +173,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
               path={lp(articleShareUrl(article))}
               body={article.body}
               contentIssue={article.contentIssue}
+              shown={shownText(article, revision)}
             />
           )}
           <header className="mb-[clamp(1.8rem,3vw,2.6rem)] border-b-2 border-border-strong pb-[clamp(1.4rem,3vw,2rem)]">
