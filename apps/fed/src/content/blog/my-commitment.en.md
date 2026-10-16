@@ -7,6 +7,12 @@ track: engenharia
 excerpt: "The first post. Why this space exists, and what I'm promising you — the honest version of a mid-career transition into AI Engineering."
 takeaway: 'what this space is, and the four promises behind it.'
 ---
+> **Update, 16 October 2026.** This was the first post, and I leave it as I wrote it on 26 July 2026. The mission it describes has since changed its centre. This space is no longer led by a transition into AI Engineering, or by the code as the argument. It is my personal, independent commitment to learn in public with the people and machines of this era, turn what I live into language, and give back what I find — for as long as I can sustain the tools and infrastructure behind it.
+>
+> I write it as an ongoing book: each article a situated chapter, what I thought at one point of the journey rather than a final word; the Library, the books I learnt from. The harness is my workshop, not my subject. I believe harness engineering is the new modern art: language is the material, constraints are the form, models are the instruments, and the human–machine relationship that emerges is the work. That is my conviction, and you are free to reach your own.
+>
+> What follows is where I started.
+
 I'm a software engineer in the middle of a transition — from cloud and distributed-systems architecture into AI Engineering — and I decided to do it in the open.
 
 Most "how to become an AI Engineer" content is one of two things: PhD-in-ML gatekeeping, or hype threads. Neither helped me. So I'm writing the thing I wish I'd found: the real transition, with the trade-offs made explicit and the code open for you to take.
