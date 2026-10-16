@@ -31,7 +31,8 @@ project on the machine, and every agent harness that works here (Claude Code, Co
 there. **This repository keeps only its own skills**: `backend`, `frontend` and `cloud-infrastructure` in
 [`.claude/skills/`](./.claude/skills/), because they describe this stack and the method stays generic
 (mhw#64). The [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) plugin is
-disabled in this project (mhw#130); it is a generated mirror of the method that nobody installs. Its
+disabled in this project (mhw#130). The plugin is still published, but it is deprecated as a source,
+and its README points to [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw). Its
 guard no longer runs here, and merges are held by instruction alone. Two reads of that public repository
 remain, and neither is harness consumption: `deploy` checks it out for the version on the `/portfolio`
 card, and the `app` workflow's `harness-drift` job compares what `/architecture` publishes about it.
@@ -305,4 +306,4 @@ skipped, failed part-way, or ran in full — a check that matched nothing must n
 ## Related repos
 
 - [`mhw`](https://github.com/tedeuxx/mhw) — the workstation configuration that installs the working method at user level; this repo consumes its method at user level (mhw#130).
-- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the former Claude Code plugin, now the method's generated mirror (mhw#63); disabled here (mhw#130).
+- [`tadeumendonca-skills`](https://github.com/tedeuxx/tadeumendonca-skills) — the former Claude Code plugin, still published but deprecated as a source; its README points to [`tedeuxx/mhw`](https://github.com/tedeuxx/mhw). Disabled here (mhw#130).
