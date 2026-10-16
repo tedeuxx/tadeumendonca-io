@@ -252,4 +252,23 @@ O modelo escreveu. A auditoria é o que fez aquilo valer o seu tempo, e a audito
 
 **Então: pega uma coisa que você fez, passa ela por um formato que você não inventou, e vai conferir o que aquilo afirma sobre você — item por item. Me conta o que cai fora.**
 
+---
+
+## Adendo — 16 de outubro de 2026
+
+Este texto é um registro do loop como ele estava quando eu publiquei, em 28 de agosto de 2026, e continua sendo. De lá para cá, parte do que ele descreve mudou.
+
+O que mudou desde então:
+
+- **Dois hooks, um comando.** Eu escrevi que cada comando de shell que eu rodo passa pelo `permission-guard` e depois pelo `wip-guard`. O `wip-guard` foi removido do plugin em 4 de setembro de 2026. Hoje o plugin registra um hook só nos comandos de shell, o `permission-guard`.
+- **Onde o método mora.** O plugin `tadeumendonca-skills` está desligado neste repositório, e o método que roda aqui vem da workstation, no nível do usuário. Os agentes, as skills e os comandos dele são instalados pelo [tedeuxx/mhw](https://github.com/tedeuxx/mhw). O plugin continua publicado, mas está descontinuado como fonte, e o README dele aponta para o `tedeuxx/mhw`.
+- **O que recusa um comando.** Perto do fim eu escrevi sobre hooks que negam um comando antes de ele rodar. Neste repositório, hoje, nenhum hook faz isso. Os comandos irreversíveis são recusados por regras nativas de deny, que reconhecem o comando pela grafia, e o merge é segurado por uma regra escrita.
+- **O detector de drift.** Esse não mudou. O inventário continua sendo comparado com o repositório do plugin, e uma divergência continua deixando o build daqui vermelho.
+
+O estado atual do loop está na [página de arquitetura](/architecture).
+
+Agora o porquê. Para mim, como engenheiro de software, não são capacidades de projeto. São capacidades de como eu trabalho. Cada pessoa trabalha diferente — a não ser que a organização nos imponha uma forma de trabalho. Por isso eu precisava ensaiar comigo mesmo a forma das organizações.
+
+E outro ponto: defesa em perímetro. A minha workstation deve ditar as regras do jogo. Os projetos só seguem.
+
 Boa sorte por aí, e que o seu raio seja estreito.
