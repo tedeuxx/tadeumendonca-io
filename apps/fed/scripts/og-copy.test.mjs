@@ -35,9 +35,11 @@ describe('OG card copy vs the hero tagline', () => {
   // width, which is what it was before: pt used to wrap wherever the browser ran out of room, stranding
   // the article "A" away from its verb. One edition line-planned and the other auto-wrapped reads as a
   // translation even when the words are a peer's.
+  // Re-planned at #688 with the recentered hero: pt sets VAMOS / APRENDER / EM PÚBLICO, en LET’S LEARN /
+  // IN PUBLIC — each edition's breaks still authored.
   it('every break is authored, not left to the browser', () => {
-    expect(CARD_COPY.pt.lines).toEqual(['Aprenda', 'a construir']);
-    expect(CARD_COPY.en.lines).toEqual(['Learn to build']);
+    expect(CARD_COPY.pt.lines).toEqual(['Vamos', 'aprender']);
+    expect(CARD_COPY.en.lines).toEqual(['Let’s learn']);
   });
 
   // Guards the false green: if the catalog lookup silently produced '' for both sides, the equality

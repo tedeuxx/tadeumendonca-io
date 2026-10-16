@@ -23,18 +23,22 @@ describe('Hero', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveClass('whitespace-nowrap');
   });
 
-  it('states the reader-first promise for both audiences (pt-BR chrome)', () => {
+  // #688: the hero leads with the mission — learning in public, the ongoing book of situated chapters,
+  // and the sustainability bound — not with a promise to build things for production.
+  it('states the mission a pt reader meets first', () => {
     renderHero('pt');
-    expect(screen.getByText(/do dia a dia à produção/)).toBeInTheDocument();
-    expect(screen.getByText(/vida pessoal com Claude Cowork/)).toBeInTheDocument();
+    expect(screen.getByText(/com as pessoas e as máquinas desta era/)).toBeInTheDocument();
+    expect(screen.getByText('capítulos situados')).toBeInTheDocument();
     expect(screen.getByText(/agentic development/)).toBeInTheDocument();
+    expect(screen.getByText(/enquanto eu conseguir sustentar as ferramentas e a infraestrutura/)).toBeInTheDocument();
   });
 
-  it('renders the promise in English when the locale is en', () => {
+  it('states the mission in English when the locale is en', () => {
     renderHero('en');
-    expect(screen.getByText(/from everyday life to production/)).toBeInTheDocument();
-    expect(screen.getByText(/personal life with Claude Cowork/)).toBeInTheDocument();
+    expect(screen.getByText(/with the people and machines of this era/)).toBeInTheDocument();
+    expect(screen.getByText('situated chapters')).toBeInTheDocument();
     expect(screen.getByText(/agentic development/)).toBeInTheDocument();
+    expect(screen.getByText(/as long as I can sustain the tools and infrastructure/)).toBeInTheDocument();
   });
 
   it('offers the articles CTA as a landing anchor', () => {

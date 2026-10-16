@@ -93,6 +93,10 @@ export default defineConfig({
         // `npm test` must never make one — the same shape as check-harness-drift.mjs's second repository
         // on disk. Nothing judgemental is left in it once the decisions moved into this module.
         'scripts/video-embeddable.mjs',
+        // #741. The derivation the generic revision E2E spec runs on — which line tells a pending
+        // revision from the published text. On this list for the reason every entry above gives: it is
+        // an ALLOWLIST, and a tested file left off it reads as 0% on new code to SonarCloud.
+        'scripts/revision-lines.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',

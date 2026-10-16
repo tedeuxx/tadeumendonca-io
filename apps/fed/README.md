@@ -35,7 +35,7 @@ Routes (`scripts/routes.mjs` is the build-time source of truth):
 - `/me` — the **interactive CV**, and the only CV surface. `/cv.pdf` is the one-page recruiter edition
   printed from it at build time (ADR-0034).
 - `/portfolio` — the full curated catalog.
-- `/ramp-up` — the open plan for the AI-Engineer transition.
+- `/ramp-up` — the depth still being built, planned in the open with its sources.
 - `/architecture` — how the site is built, linking the ADRs and both public repos.
 - `/blog/:slug` — the **canonical article**, with a **per-locale slug** (ADR-0037): the two editions of one
   article carry different URLs.

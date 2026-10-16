@@ -593,11 +593,12 @@ test.describe('per-locale default OG card', () => {
     // — that is the CloudFront Function's job and `edge-rewrite.spec.ts` is what proves it runs.
     const pt = await (await request.get('/pt/me/')).text();
     expect(pt).toContain(`property="og:image" content="${SITE}/og-default.pt.png"`);
-    expect(pt).toContain('property="og:image:alt" content="tadeumendonca.io — aprenda a construir com IA');
+    // The alt follows the card's words, recentered at #688.
+    expect(pt).toContain('property="og:image:alt" content="tadeumendonca.io — vamos aprender em público');
 
     const en = await (await request.get('/en/me/')).text();
     expect(en).toContain(`property="og:image" content="${SITE}/og-default.png"`);
-    expect(en).toContain('property="og:image:alt" content="tadeumendonca.io — learn to build with AI');
+    expect(en).toContain('property="og:image:alt" content="tadeumendonca.io — let’s learn in public');
   });
 
   // Both cards must actually be SERVED — the head can advertise a URL the deploy never uploaded, and a

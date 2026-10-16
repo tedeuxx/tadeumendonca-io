@@ -121,21 +121,28 @@ const strings = {
     // but the LABEL is now "Stack", because that is what the strip lists. See Marquee.tsx.
     subjects: { pt: 'Stack', en: 'Stack' },
   },
+  // THE MISSION, SAID FIRST (#688). The site stopped leading with a proof-of-engineering proposition:
+  // it is a personal, independent commitment to learn in public with the people and machines of this
+  // era, turn lived experience into language and give back what is found. The tagline invites the
+  // reader in (`Let's` / `Vamos`), so the reader stays the subject; the body carries the personal
+  // framing, the ongoing-book structure and the sustainability bound, and names no vendor, plan or
+  // employer. The default card's hook is this tagline (scripts/og-copy.mjs), and
+  // `src/lib/mission.test.ts` goes red if the retired proposition comes back to any key here.
   hero: {
-    badge: { pt: 'Conteúdo técnico aberto', en: 'Open technical content' },
-    badgeAccent: { pt: '▶ Da vida pessoal à produção', en: '▶ From personal life to production' },
-    taglineLead: { pt: 'Aprenda a construir com IA —', en: 'Learn to build with AI —' },
-    taglineAccent: { pt: 'do dia a dia à produção', en: 'from everyday life to production' },
+    badge: { pt: 'Pessoal · independente', en: 'Personal · independent' },
+    badgeAccent: { pt: '▶ Da experiência à linguagem', en: '▶ Experience into language' },
+    taglineLead: { pt: 'Vamos aprender em público —', en: 'Let’s learn in public —' },
+    taglineAccent: { pt: 'com as pessoas e as máquinas desta era', en: 'with the people and machines of this era' },
     bodyLead: {
-      pt: 'Compartilho o que aprendo construindo com IA — de experimentos que automatizam a',
-      en: 'I share what I learn building with AI — from experiments that automate',
+      pt: 'Um compromisso pessoal e independente: transformo em linguagem o que vivo com IA e devolvo o que descubro, como um livro em andamento, em',
+      en: 'A personal, independent commitment: I turn my experience with AI into language and give back what I find, as an ongoing book in',
     },
-    bodyStrong1: { pt: 'vida pessoal com Claude Cowork', en: 'personal life with Claude Cowork' },
-    bodyConnector: { pt: 'a', en: 'to' },
+    bodyStrong1: { pt: 'capítulos situados', en: 'situated chapters' },
+    bodyConnector: { pt: 'e com', en: 'with' },
     bodyStrong2: { pt: 'agentic development', en: 'agentic development' },
     bodyTail: {
-      pt: '. Trade-offs reais e código aberto pra você aplicar, seja na sua rotina ou na sua empresa. O objetivo é te fazer construir melhor — quem escreve isso é consequência, não o ponto.',
-      en: '. Real trade-offs and open source for you to apply, whether in your routine or at your company. The goal is to help you build better — who writes it is a by-product, not the point.',
+      pt: ' como oficina aberta. Cada artigo é o que eu pensei num ponto da jornada, não uma palavra final; a Biblioteca guarda os livros que me ensinaram. Segue enquanto eu conseguir sustentar as ferramentas e a infraestrutura por trás disso — leve o que te ajudar.',
+      en: ' as its open workshop. Each article is what I thought at one point of the journey, not a final word; the Library keeps the books that taught me. It goes on for as long as I can sustain the tools and infrastructure behind it — take whatever helps you.',
     },
   },
   tracks: {
@@ -144,7 +151,8 @@ const strings = {
   },
   articles: {
     headingBold: { pt: 'Artigos', en: 'Articles' },
-    headingRest: { pt: 'pra você aplicar', en: 'to put to use' },
+    // Chapters, not a feed (#688): each article is a situated chapter of an ongoing book.
+    headingRest: { pt: 'capítulos em andamento', en: 'chapters in progress' },
     // The `· videos embedded in the text` half was dropped (owner, 2026-07-31). Both editions, because
     // this is one string with two renderings, not two decisions.
     //
@@ -157,9 +165,12 @@ const strings = {
     //
     // The per-item `hasVideo` badge is the right home for the claim, and stays: it can only ever be
     // true, because it is rendered from the article that has one.
+    //
+    // Reworded at #688: "technical writing with explicit trade-offs" sold the retired proposition. The
+    // line now states what a chapter is — a dated thought, not a final one.
     subtitle: {
-      pt: 'Escrita técnica com trade-offs explícitos',
-      en: 'Technical writing with explicit trade-offs',
+      pt: 'Cada um datado: o que eu pensei, onde eu estava',
+      en: 'Each one dated: what I thought, where I was',
     },
     filtersLabel: { pt: 'Filtrar por trilha', en: 'Filter by track' },
     filterAll: { pt: 'Tudo', en: 'All' },
@@ -414,9 +425,13 @@ const strings = {
     // books marked *(reading)* and *(on my list)* — a reading list, by the owner's own hand, one route
     // away. It lost nothing to drop: the rule was the payload, the contrast only its framing, and the
     // framing would have read worst exactly when the two surfaces get cross-linked.
+    //
+    // #688 reframed the first sentence from "the books behind how I work" to lineage: the shelf
+    // acknowledges what this writing received. The rule half is unchanged. The metaDescription below is
+    // deliberately NOT touched — it is pinned by scrapers and states a rule that is still true.
     intro: {
-      pt: 'Uma estante curta: os livros por trás de como eu trabalho. Cada um entra com nota de 1 a 5 e uma frase do que eu tirei dele — e só entra o que eu terminei.',
-      en: 'A short shelf: the books behind how I work. Each one goes up with a 1–5 rating and a line on what I took from it — and only what I have finished gets in.',
+      pt: 'Uma estante curta: os livros com que aprendi, a linhagem de onde esta escrita vem. Cada um entra com nota de 1 a 5 e uma frase do que eu tirei dele — e só entra o que eu terminei.',
+      en: 'A short shelf: the books I learnt from, the lineage this writing comes out of. Each one goes up with a 1–5 rating and a line on what I took from it — and only what I have finished gets in.',
     },
     // THIS ONE STRING IS THE SERP SNIPPET, and it is why the rule form above is not a style preference.
     // `useDocumentHead` puts it in three places at once — <meta name="description">, `og:description`
@@ -620,9 +635,11 @@ const strings = {
   },
   about: {
     heading: { pt: 'Sobre este site', en: 'About this site' },
+    // Recentered with the hero at #688: the landing's second statement of what this is must not still
+    // say "about AI engineering" one screen below a hero that says something else.
     body: {
-      pt: 'Escrevo e construo em público sobre engenharia de IA. Se algo aqui te ajudou a evoluir, cumpriu o papel.',
-      en: 'I write and build in public about AI engineering. If something here helped you grow, it did its job.',
+      pt: 'Aprendo em público com as pessoas e as máquinas desta era, e escrevo o que descubro pelo caminho. Se algo aqui te ajudou, cumpriu o papel.',
+      en: 'I learn in public with the people and machines of this era, and write down what I find along the way. If something here helped you, it did its job.',
     },
     whoWrites: { pt: 'Quem escreve', en: 'Who writes this' },
   },
@@ -819,7 +836,7 @@ const strings = {
       en: 'Decision index (ADRs), in the repository',
     },
   },
-  // #506 — the draft review bar. THESE FOUR STRINGS ARE READER-FACING ONLY BEHIND `?preview`: the bar
+  // #506 — the draft review bar. THESE STRINGS (~~FOUR~~ six since #741) ARE READER-FACING ONLY BEHIND `?preview`: the bar
   // renders nowhere else, so NO VISITOR SEES THEM AT ANY URL THAT DOES NOT CARRY THE PARAMETER. Stated
   // here because that is what keeps the slice in the safe class, and it is a property of the render gate
   // in `ArticlePage`, not of the catalog — move the bar and this sentence stops being true.
@@ -875,6 +892,13 @@ const strings = {
     // control and the question it answers is "the whole piece, or the link" — so the noun that
     // disambiguates is the article, and the destination stays implicit as it does in `share.copyLink`.
     copyText: { pt: 'Copiar o texto do artigo', en: 'Copy the article text' },
+    // #741 — WHICH TEXT THE PAGE IS SHOWING, on a published article reached with the parameter. Without it
+    // a `?preview` on an article with a pending revision and one without are indistinguishable, and the
+    // owner could read the published text believing he had read the correction. Behind the same gate as
+    // the rest of this group, so no visitor without the parameter sees either string. A held article
+    // shows neither: it has no published text to contrast with.
+    shownRevision: { pt: 'Revisão pendente', en: 'Pending revision' },
+    shownPublished: { pt: 'Texto publicado, sem revisão pendente', en: 'Published text, no pending revision' },
   },
   video: {
     // The play button's accessible name, as ONE template rather than a word plus a `: ` joined in the

@@ -1,6 +1,9 @@
 // Hero (/frontend/design-system) — the signature surface. The title is the BRAND, not the person:
-// the owner's name and bio live on /me. Copy is reader-first (what you walk away knowing), and it
-// speaks to both audiences: personal-life automation and engineering in production.
+// the owner's name and bio live on /me. ~~Copy is reader-first (what you walk away knowing), and it
+// speaks to both audiences: personal-life automation and engineering in production.~~ Struck at #688:
+// the copy now states the mission first — a personal, independent commitment to learn in public with
+// the people and machines of this era — and the tagline invites the reader in rather than promising a
+// production outcome. The words live in i18n/messages.ts (`hero.*`).
 //
 // The title is a single unbreakable line (whitespace-nowrap) that scales with the viewport, so the
 // brand never wraps mid-word — hence the reduced clamp ceiling compared to the hero font size.

@@ -61,9 +61,18 @@ export const META_LINE = 'Agentic development · AI-DLC · Context & Harness Eng
  * a TRANSLATION — which this copy is not; it is the hero's own pt sentence, authored as a peer.
  * The generator still measures the rendered result, because an authored plan is not a guarantee of fit.
  */
+//
+// #688 recentered the hero, so the hook moved with it, in the same change and one regeneration: the
+// card now says `LET’S LEARN / IN PUBLIC` (en) and `VAMOS / APRENDER / EM PÚBLICO` (pt). META_LINE above
+// did NOT move — the owner kept it (2026-10-02, "Manter"), so no per-article card regenerates.
 export const CARD_COPY = {
-  pt: { lines: ['Aprenda', 'a construir'], tail: 'com', accent: 'IA', sub: 'do dia a dia à produção' },
-  en: { lines: ['Learn to build'], tail: 'with', accent: 'AI', sub: 'from everyday life to production' },
+  pt: {
+    lines: ['Vamos', 'aprender'],
+    tail: 'em',
+    accent: 'público',
+    sub: 'com as pessoas e as máquinas desta era',
+  },
+  en: { lines: ['Let’s learn'], tail: 'in', accent: 'public', sub: 'with the people and machines of this era' },
 };
 
 /**
