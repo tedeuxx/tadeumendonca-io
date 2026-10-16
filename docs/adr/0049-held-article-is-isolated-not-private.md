@@ -476,11 +476,10 @@ holds against his comment, and nothing holds it mechanically.
   fixture would sit in the live index, and a held host is refused. The first real run is the revision
   merge of the first correction. The spec takes its witnesses from `scripts/revision-lines.mjs`, which
   derives one readable line present only in the revision (and the reverse, when one exists). **A revision
-  that changes only markup or a fence has no such line, and neither has a correction that only deletes
-  text, unless the cut falls within the first 60 characters of a line: the witness is the opening 60
-  characters of a revised line that the published body does not contain, and deleting a paragraph, or a
-  sentence past that point, leaves every revised opening in the published text. On each of these the spec
-  fails instead of skipping.**
+  that changes only markup or a fence has no such line, and a correction that only deletes text may have
+  none: the witness is the opening 60 characters of a revised line that the published body does not
+  contain, and a deletion can leave every revised opening in the published text. On each of these the
+  spec fails instead of skipping.**
   That error is loud, and it fails before merge.
 - **The post-deploy check asserts absence only.** Against the live apex, the served HTML at every
   address, with and without the parameter, does not contain the revision-only line, and carries that
