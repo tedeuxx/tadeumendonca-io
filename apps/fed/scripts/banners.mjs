@@ -71,14 +71,25 @@ export const markSvg = () =>
  * The words. Three fields, and every one of them is a decision recorded on the Issue.
  *
  * `line` is a CALL TO ACTION rather than a claim — the owner's own framing, chosen over a checkable
- * assertion he was offered first. It promises only what the site delivers, repeats nothing from the
- * headline it sits above, and names no practice, role or product.
+ * assertion he was offered first (#558). It repeats nothing from the headline it sits above, and names
+ * no practice, role or product.
+ *
+ * #748 moved it onto the mission #688 recentred the site on — a commitment to learn in public — with
+ * wording the owner chose on that Issue: it points the reader at the learning as it is written down,
+ * which is what the site now publishes. It still does NOT repeat the card's hook or the hero tagline
+ * (`Let’s learn in public`): above a photograph and a name that sentence would make the person its
+ * subject, which is the #558 reasoning above, unchanged.
+ *
+ * Fit budget: `.cta` is `white-space: nowrap` in gen-banners.mjs, so a line too long for either surface
+ * fails the safe-area refusal loudly instead of wrapping to two rows on the X header. At the current type
+ * scale that is about 42 ASCII characters (LinkedIn binds first). Keep it ASCII: the embedded font is a
+ * latin subset, and a glyph outside it falls back to another face.
  */
 export const BANNER_COPY = {
   wordmark: 'tadeumendonca',
   /** Set in the accent, exactly as gen-og-default.mjs renders it. */
   tld: '.io',
-  line: 'read the build in the open',
+  line: 'read the learning as it happens',
 };
 
 /**
