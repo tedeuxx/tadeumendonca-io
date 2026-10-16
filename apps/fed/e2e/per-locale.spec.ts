@@ -134,10 +134,22 @@ test.describe('the portfolio body is per-locale', () => {
   // editions by design, so an assertion on it passes in either locale and cannot fail for the defect
   // this describes. The issue asked for this explicitly and it is the trap worth naming: the most
   // obvious string to assert on a card is the one that proves nothing about its language.
+  // Tagline · description · proof, one string each. Reframed at #736: the card now says what the plugin
+  // is today (published, deprecated as a source, disabled here) instead of "the harness that builds this
+  // site".
   const SKILLS_CARD = {
-    en: ['The harness that builds this site', 'the bottleneck becomes trusting it', 'what you can install into your own repo today'],
-    pt: ['O harness que constrói este site', 'o gargalo vira confiar nele', 'o que dá para instalar no seu repo hoje'],
+    en: ['my agent loop took shape in', 'it is deprecated as a source, and its README points to tedeuxx/mhw', 'the first packaged form of the loop'],
+    pt: ['meu loop de agentes tomou forma', 'está descontinuado como fonte, e o README dele aponta para o tedeuxx/mhw', 'a primeira forma empacotada do loop'],
   } as const;
+  // The card's copy before #736, asserted ABSENT in both editions so a revert of the card goes red here
+  // on the served HTML, not only in the unit arm. `/architecture` is not this route, so its own copy
+  // cannot satisfy or break these.
+  const SKILLS_CARD_RETIRED = [
+    'The harness that builds this site',
+    'O harness que constrói este site',
+    'what you can install into your own repo today',
+    'o que dá para instalar no seu repo hoje',
+  ] as const;
 
   for (const locale of ['en', 'pt'] as const) {
     const other = locale === 'en' ? 'pt' : 'en';
@@ -145,6 +157,13 @@ test.describe('the portfolio body is per-locale', () => {
       const body = await (await request.get(`/${locale}/portfolio/`)).text();
       for (const s of SKILLS_CARD[locale]) expect(body).toContain(s);
       for (const s of SKILLS_CARD[other]) expect(body).not.toContain(s);
+    });
+    test(`/${locale}/portfolio and the landing shortlist no longer serve the retired skills card`, async ({ request }) => {
+      for (const path of [`/${locale}/portfolio/`, `/${locale}/`]) {
+        const body = await (await request.get(path)).text();
+        expect(body, `${path} lost the reframed card`).toContain(SKILLS_CARD[locale][0]);
+        for (const s of SKILLS_CARD_RETIRED) expect(body, `${path} serves retired copy`).not.toContain(s);
+      }
     });
   }
 
@@ -160,6 +179,9 @@ test.describe('the portfolio body is per-locale', () => {
   // assertions pin that each edition is in its OWN LANGUAGE. A card that drops the human half in both
   // editions equally is perfectly bilingual and still wrong, so it passes them. This asserts the CLAIM;
   // those assert the locale. Different defects, and one cannot stand in for the other.
+  //
+  // Kept through #736: the reframed card scopes the hook to where the plugin is installed, and the human
+  // half still follows it, in the same words.
   const HUMAN_HALF = { en: 'the human keeps what is theirs', pt: 'o humano fica com o que é dele' } as const;
   for (const locale of ['en', 'pt'] as const) {
     test(`/${locale}/portfolio keeps the human in the loop the card describes`, async ({ request }) => {

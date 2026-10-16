@@ -89,25 +89,49 @@ row-by-row treatment the platform got. **Eleven boxes pass and one is n/a**, whi
 that clause's *clears every box* has met a box the artifact's shape leaves nothing to answer. Nothing
 below is softened; the n/a is argued under a test stated after the table.
 
+**Re-assessed row by row at `-skills` commit `b69055cd2276140487b1157afac68494ac524a3a`** (`main`,
+release `v2.0.108`), on 2026-10-15 for #736. That is the first assessment since the plugin was disabled in
+this repository (#715) and its README began by calling it deprecated as a source (`-skills`#566). **The
+count is unchanged: eleven pass, one is n/a.** Three rows now carry a note about the deprecation; no
+note changes the outcome, and each says why.
+
 | box | `tadeumendonca-skills` |
 |---|---|
-| Solves a real problem from my own workflow | **passes** |
+| Solves a real problem from my own workflow | **passes** — the problem, trusting an agent's output before acting on it, is still in my workflow, and the published plugin still addresses it wherever it is installed: its personas and hooks are in the tree at the named commit, and it still releases on every merge. That is a real problem rather than a toy or a tutorial reproduction, which is what the box separates. *Re-assessed at #736:* it no longer runs here, because the method moved to `tedeuxx/mhw` (it ran the loop that built this site until #715). The box does not ask whether the project is used here, and the card says it is not |
 | Demonstrates an agentic / AI-native pattern | **passes outright** — the box's own examples name *"an agent harness"*, and this is one |
 | Python-first where it fits | **passes** on the box's governing words — *"the preference, not a hard gate"*. It is markdown and POSIX shell, which is neither Python nor the TS/MCP case the box names as its example |
-| A clean clone runs by following the README only | **passes, by substitution** — you install it rather than cloning it (`claude plugin marketplace add` / `install`, both in the README), and the box's *"pin versions; commit a lockfile"* is answered by the release `ref`, which the README names as the lockfile in those words |
+| A clean clone runs by following the README only | **passes, by substitution** — you install it rather than cloning it (`claude plugin marketplace add` / `install`, both in the README), and the box's *"pin versions; commit a lockfile"* is answered by the release `ref`, which the README names as the lockfile in those words. *Re-assessed at #736:* both commands and the `ref` pin are still in the README's *Run it* section at the named commit, and the plugin still publishes a release on every merge. The README now opens by sending a reader to `tedeuxx/mhw` instead. That is a stated deprecation, not a missing step, so the box still reads true, and the card no longer invites installation. **Evidence level:** the commands were read, not run. Installing a plugin changes this workstation's configuration, which is out of reach for this assessment |
 | Config via env vars with a committed `.env.example` | **n/a — there is no config.** See below |
-| No secrets in history | **passes for the shapes scanned, which is what this row claims.** `git log --all -p` across the whole history matches no `AKIA…`, `ghp_…`, `xox…`, PRIVATE KEY block, or assigned `aws_access_key_id`/`aws_secret_access_key`. The box also names *endpoints*, and a five-pattern regex does not prove their absence — what it establishes is that no credential of a known shape was ever committed |
+| No secrets in history | **passes for the shapes scanned, which is what this row claims.** No `AKIA…`, `ghp_…`, `xox…`, PRIVATE KEY block, or assigned `aws_access_key_id`/`aws_secret_access_key` in any commit reachable from the named commit, nor in any commit reachable from any ref (`--all`): 0 matches in both scopes, and the same pattern matches 2 of 2 planted positives, so it can fail. The exact commands are under *The secret scan* below the table. The box also names *endpoints*, and a five-pattern regex does not prove their absence — what it establishes is that no credential of a known shape was ever committed |
 | No client references, and no war-story that identifies a client | **passes** — the repo is generic by construction (`<project>` / `<apex-domain>` placeholders), so it carries no engagement to identify |
-| A LICENSE | **passes** — MIT, and verified through `gh api repos/.../license` returning `mit`, not by reading the file. GitHub's classifier is the thing a visitor sees |
-| A README in the new framing | **passes as of `-skills`#109.** It did **not** before, which is why the card waited: the README pitched a "personal Claude skills library", missing the problem, the agentic pattern, the stack, the run block and the honest limitation |
+| A LICENSE | **passes** — MIT, read from GitHub's own classifier rather than from the file (`gh repo view --json licenseInfo` returns `mit` at re-assessment; it was first read through the license endpoint). The classifier is what a visitor sees |
+| A README in the new framing | **passes as of `-skills`#109.** It did **not** before, which is why the card waited: the README pitched a "personal Claude skills library", missing the problem, the agentic pattern, the stack, the run block and the honest limitation. *Re-assessed at #736:* the problem, how it works, the stack, run it and the limitation are all still sections of the README at the named commit, now behind a deprecation notice. The README also still says the loop builds this site and that the repository becomes a generated mirror. Those are stale claims on an external surface, named on #736 and not fixed from here. The box asks about the framing, which is intact |
 | Names each explicit choice and its trade-off | **passes** — the house style, and the README states a cost for each of its three mechanisms |
-| Green on its own basics | **passes** — `hooks-test` and `docs-test` are real CI suites that run on the PRs able to falsify them (each is path-filtered, with the reason in its own header), where the box accepts *"a documented 'how I verified it'"*. **Not the platform's "held to blocking CI"** standard: that repo has no required status checks |
+| Green on its own basics | **passes** — `hooks-test` and `docs-test` are real CI suites that run on the PRs able to falsify them (each is path-filtered, with the reason in its own header), where the box accepts *"a documented 'how I verified it'"*. **Not the platform's "held to blocking CI"** standard: that repo has no required status checks. *Re-assessed at #736:* `docs-test` passed on the last pull request's head; `hooks-test` last ran green on a commit whose `hooks/` tree is identical to the named commit's (only docs, version files and manifests changed since) |
 | Newsletter-ready: there's a story | **passes** |
 
 **The n/a row.** The plugin takes **no environment variables at all**, so `.env.example` would be an
 empty file committed to satisfy a checklist — worse than the honest absence. There is no
 configuration to substitute *for*, which is what makes this different from the row above it: that box
 is answered by a different mechanism and therefore **passes**, this one has nothing to answer.
+
+**The secret scan.** Run from a `tadeumendonca-skills` checkout on 2026-10-15 for #736. The first
+command reads only the history reachable from the named commit; the second adds every ref the checkout
+holds, remote branches included. The pattern is set once in a shell variable, and every line below
+runs in that same shell. Both scans printed `0`:
+
+```
+P='AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|aws_(access_key_id|secret_access_key)[[:space:]]*=[[:space:]]*[A-Za-z0-9/+]{16,}'
+git log -p b69055cd2276140487b1157afac68494ac524a3a | grep -cE "$P"
+git log -p --all | grep -cE "$P"
+```
+
+The same pattern, fed two planted positives built at run time so that no key-shaped string is committed
+anywhere, printed `2`:
+
+```
+printf 'AKIA%s\n-----BEGIN %s PRIVATE KEY-----\n' AAAAAAAAAAAAAAAA RSA | grep -cE "$P"
+```
 
 **Scoping is not softening, and the difference is a test with three outcomes**, not two:
 
