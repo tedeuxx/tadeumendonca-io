@@ -1,15 +1,22 @@
 # tadeumendonca-io
 
-The public presence for [tadeumendonca.io](https://tadeumendonca.io) — a **fully static SPA** that serves as
-the owner's proof-of-engineering: an interactive CV, a portfolio that links to a curated catalog of automations
-and agentic tools, and a blog. It backs a repositioning to **AI Engineer** (agentic development / AI-native
-automations), anchored in SDLC and distributed systems.
+[tadeumendonca.io](https://tadeumendonca.io) is a **personal, independent commitment to learn in public
+with the people and machines of this era**: turning lived experience into language, and giving back what
+is found along the way. The site is written as an ongoing book. Each article is a situated chapter, dated
+as a thought reached at one point of the journey rather than a final word; the Library acknowledges the
+books it learnt from. It continues for as long as its author can sustain the tools and infrastructure
+behind it.
+
+The harness that builds it — agents, gates, decision records — is the workshop, not the subject. It stays
+public as evidence of the work, and the rest of this README documents how to understand and reproduce it.
+Technically, the site is a **fully static SPA**: an interactive CV, a portfolio that links to a curated
+catalog of public repositories, a reading shelf, and long-form writing.
 
 **Every public URL carries a locale prefix** — `/pt/…` and `/en/…` — and the path is authoritative, so a
 shared link keeps its language regardless of the reader's browser (ADR-0036). The bare root `/` is the one
 deliberate exception: it is prerendered in English as the `x-default` entry for a JS-less crawler.
 
-Five surfaces:
+Six surfaces:
 
 1. **Landing** (`/`) — the storefront; it also hosts the articles list (`#artigos`).
 2. **Interactive CV** (`/me`) — canonical reference of the owner's experience, and the only CV surface.
@@ -17,6 +24,7 @@ Five surfaces:
 3. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that back the positioning with real code.
 4. **Ramp-up** (`/ramp-up`) — the open plan for the AI-Engineer transition.
 5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and both public repos.
+6. **Library** (`/library`) — a short reading shelf: the books the writing learnt from, each rated and only once finished.
 
 Long-form writing lives at `/blog/:slug`, with a **per-locale slug** (ADR-0037). There is no `/blog` list
 page — it was retired, and `/blog` redirects to the landing's `#artigos`.
