@@ -59,7 +59,7 @@ describe('useDocumentHead', () => {
     renderHook(() => useDocumentHead({ title: 'Perfil', canonicalPath: '/me' }), { wrapper: wrapperAt('pt') });
     expect(metaContent('meta[property="og:image"]')).toBe('https://tadeumendonca.io/og-default.pt.png');
     expect(metaContent('meta[property="og:image:alt"]')).toBe(
-      'tadeumendonca.io — aprenda a construir com IA, do dia a dia à produção',
+      'tadeumendonca.io — vamos aprender em público, com as pessoas e as máquinas desta era',
     );
   });
 
@@ -214,7 +214,7 @@ describe('useDocumentHead', () => {
     expect(metaContent('meta[property="og:image:height"]')).toBe('630');
     expect(metaContent('meta[property="og:image:type"]')).toBe('image/png');
     expect(metaContent('meta[property="og:image:alt"]')).toBe(
-      'tadeumendonca.io — learn to build with AI, from everyday life to production',
+      'tadeumendonca.io — let’s learn in public, with the people and machines of this era',
     );
   });
 
@@ -268,7 +268,9 @@ describe('useDocumentHead', () => {
       { wrapper: wrapperAt('pt') },
     );
     expect(metaContent('meta[property="og:image:alt"]')).toBe('Meu compromisso');
-    expect(metaContent('meta[property="og:image:alt"]')).not.toContain('aprenda a construir');
+    // Re-pointed at #688 to the CURRENT default alt's words. Against the retired phrase this arm passed
+    // whatever the code did, because nothing emits that phrase any more.
+    expect(metaContent('meta[property="og:image:alt"]')).not.toContain('vamos aprender em público');
   });
 
   it('drops the dimensions for an image the build did not generate, rather than lying about its size', () => {

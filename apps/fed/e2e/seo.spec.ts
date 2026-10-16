@@ -211,6 +211,32 @@ test.describe('SEO discovery', () => {
     expect(offenders, `routes whose title is not their address:\n${offenders.join('\n')}`).toEqual([]);
   });
 
+  // #688. The landing's SERVED head carries the recentered mission in its own language, on all three
+  // addresses a reader or crawler meets first. Raw fetch on purpose: the prerendered bytes are what a
+  // scraper pins, and page.goto would pass on the hydrated head whether or not the snapshot carried it.
+  // The words are spelled out rather than imported, so a wrong catalog cannot make this pass.
+  test('the landing serves the recentered mission, not the retired proposition', async ({ request }) => {
+    const MISSION = {
+      en: 'A personal, independent effort to learn in public with the people and machines of this era',
+      pt: 'Um esforço pessoal e independente de aprender em público com as pessoas e as máquinas desta era',
+    };
+    const RETIRED = /proof[- ]of[- ]engineering|portfolio of automations|portfólio de automações|learn to build with AI|aprenda a construir com IA/i;
+    for (const [path, locale] of [
+      ['/', 'en'],
+      ['/en/', 'en'],
+      ['/pt/', 'pt'],
+    ] as const) {
+      const html = await (await request.get(path)).text();
+      const description = /<meta name="description" content="([^"]*)"/.exec(html)?.[1] ?? '';
+      const og = /property="og:description" content="([^"]*)"/.exec(html)?.[1] ?? '';
+      expect(description, `${path} meta description`).toContain(MISSION[locale]);
+      expect(og, `${path} og:description`).toContain(MISSION[locale]);
+      const head = /<head>[\s\S]*<\/head>/.exec(html)?.[0] ?? '';
+      expect(head.length, `${path} must serve a head`).toBeGreaterThan(100);
+      expect(head, `${path} head carries the retired proposition`).not.toMatch(RETIRED);
+    }
+  });
+
   // #269. Each article advertises its OWN card, per locale, and the card RESOLVES.
   //
   // The 200 is the point, not decoration. A per-article `og:image` that 404s is the least reversible
@@ -270,7 +296,9 @@ test.describe('SEO discovery', () => {
     expect(title?.startsWith(alt!), `og:image:alt "${alt}" must describe THIS article, not the default card`).toBe(
       true,
     );
-    expect(alt).not.toContain('aprenda a construir');
+    // Re-pointed at #688 to the current default alt's words; the retired phrase is emitted by nothing,
+    // so a negative against it could not fail.
+    expect(alt).not.toContain('vamos aprender em público');
   });
 
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
