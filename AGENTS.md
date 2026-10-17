@@ -59,7 +59,7 @@ work.
    deletes backtick and dollar spans from an inline argument.
 10. **Bound work in progress by `wip:` in `docs/loop-mode.md`, and finish each slice through merge.**
     Development may run in parallel up to that bound, one `git worktree` per slice; review never does
-    (see *Loop mode, parallel development, the serial gate*).
+    (see *Loop mode and the serial gate*).
 11. **A review finding is named, never filed.** Only the owner opens work.
 12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
     text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
