@@ -1,9 +1,12 @@
 # The loop mode of record
 
 **This file is the RECORD of which named agile method this loop is currently running.** It declares; it
-decides nothing. **The CONTRACT — what a mode may vary and what it may never touch — is the
-`<!-- loop-mode-contract -->` block in ~~`CLAUDE.md`~~ `AGENTS.md` at the root of this repository**, and
-where this file and that block disagree, the block wins and the disagreement is a finding. *Amended
+decides nothing. **The CONTRACT — what a mode may vary and what it may never touch — is ~~the
+`<!-- loop-mode-contract -->` block in~~ ~~`CLAUDE.md`~~ ~~`AGENTS.md` at the root of this repository~~
+*The loop-mode contract* in the workstation method's `orchestration` skill**, and where this file and
+that contract disagree, the contract wins and the disagreement is a finding. *Amended 2026-10-17
+(#715, owner ruling 2026-10-13, "Mover pro mhw"): the contract moved into the method (mhw#176, first
+released in 5.8.0) and the root brief's block was removed; the brief keeps a one-line pointer. Amended
 2026-10-11 (#721): `CLAUDE.md` was deleted and `AGENTS.md` became the single root brief. Its contract is
 the rules between the same `loop-mode-contract` markers there, stated as obligations (cited by marker,
 never by rule number, so a renumbering cannot break this pointer); it no longer carries the
@@ -445,8 +448,9 @@ here. Fixing that is not `#385`.
 - **It does not bound merge requests.** Nothing enforces it — `gh pr create` is allowlisted in both
   settings layers and no registered hook reads this file, so an (N+1)th concurrent PR executes with no
   prompt, no denial and no record.
-- **It does not relax the GATE.** Review stays serial at any value of `wip` (owner ruling 1, in
-  `AGENTS.md` between its `loop-mode-contract` markers; `CLAUDE.md`'s block of that name until #721). `wip` is a ceiling on **development**, never on review.
+- **It does not relax the GATE.** Review stays serial at any value of `wip` (owner ruling 1, in the
+  `orchestration` skill's loop-mode contract since #715; `AGENTS.md` between its `loop-mode-contract`
+  markers until then, and `CLAUDE.md`'s block of that name until #721). `wip` is a ceiling on **development**, never on review.
 - **It is not a target.** A composed set smaller than `wip` is a correct answer, and on items that
   converge on the same files it is the right one.
 - **`absent` was not the safe default it looks like.** A missing `wip` meant **unbounded**, not one —

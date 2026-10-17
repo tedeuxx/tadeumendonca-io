@@ -33,6 +33,7 @@ on:
       - "CLAUDE.md"
       - ".claude/CLAUDE.md"
       - "CLAUDE.local.md"
+      - ".workstation-version"
       - "scripts/**"
       - ".github/workflows/brief.yml"
 
@@ -62,6 +63,7 @@ jobs:
               - 'CLAUDE.md'
               - '.claude/CLAUDE.md'
               - 'CLAUDE.local.md'
+              - '.workstation-version'
               - 'scripts/**'
               - '.github/workflows/brief.yml'
 
@@ -74,9 +76,11 @@ jobs:
         if: steps.changes.outputs.brief == 'true'
         run: bash scripts/agents-md.test.sh
 
-      # AGENTS.md is checked by the five semantic commitments. The byte-pinned canonical block lived in
-      # the deleted root brief and left with it (#721).
-      - name: Assert the one-owner-ask contract has not drifted
+      # Since #715 the review routing, the loop-mode contract and the ask rules live in the workstation
+      # method's `orchestration` skill, not in AGENTS.md. This step asserts the brief POINTS at that skill
+      # without restating the removed wording, and that `.workstation-version` admits no release older
+      # than 5.8, the first carrying it. Until #715 it asserted the five ask commitments were IN the brief.
+      - name: Assert the brief points the method rules at the orchestration skill
         if: steps.changes.outputs.brief == 'true'
         run: bash scripts/hitl-contract.test.sh
 
@@ -94,4 +98,4 @@ jobs:
             echo "::notice::the brief gate did NOT complete — read the failing step, not this line."
             exit 0
           fi
-          echo "::notice::AGENTS.md mechanical properties and the local one-owner-ask carriers were checked. This says NOTHING about whether the briefs are true, or neutral rather than merely token-free."
+          echo "::notice::AGENTS.md mechanical properties, its pointer at the orchestration skill and the workstation range floor were checked. This says NOTHING about whether the briefs are true, or neutral rather than merely token-free."

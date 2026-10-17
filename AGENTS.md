@@ -59,7 +59,7 @@ work.
    deletes backtick and dollar spans from an inline argument.
 10. **Bound work in progress by `wip:` in `docs/loop-mode.md`, and finish each slice through merge.**
     Development may run in parallel up to that bound, one `git worktree` per slice; review never does
-    (see *Loop mode, parallel development, the serial gate*).
+    (see *Loop mode and the serial gate*).
 11. **A review finding is named, never filed.** Only the owner opens work.
 12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
     text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
@@ -181,31 +181,17 @@ verifies the Definition of Done with evidence, then merges the **safe class** or
 **Known residue:** social scrapers pin the first card they fetch, so a wrong unfurl stays wrong on an
 already-shared post. Bounded and accepted.
 
-## How to ask
+## Review routing, the loop mode and how to ask
 
-**Rule 1 governs every ask directed to the owner — decisions and actions, inside or outside work in
-flight.** A design conversation or an ad-hoc request is not thereby an escalation. Rules 2–5 govern
-form only where their act applies; an interview remains distinct: it elicits without options.
-
-1. **One owner ask per activation or message.** Two is a list and he rebuilds context twice. Ask or
-   order the first; preserve every remaining ask until after he
-   answers, then carry the next to its own activation. Never move the remainder into a prose
-   or numbered list: where a surface shows only the first, the rest silently never reached him.
-2. **The interruption is a tweet; the context lives in the OPTIONS**, each stating its consequence in
-   its own visible text. Reasoning goes in something he can open.
-3. **Enumerate the choices with their consequences; four is a ceiling.** Use a structured multiple-
-   choice presentation where your harness has one, prose where not. An open question in place of a
-   reduction you owed is the failure.
-4. **An act you cannot perform — a merge above all — is an order and a link, not a question.** If there
-   is no second option you would defend, it is one line: the act and the object. The tell: every option
-   is the same act at a different time.
-5. **An interview takes NO options; an escalation always does.** An interview draws out what he thinks;
-   an escalation asks him to settle what you already reduced.
-
-**Rule 4 was built as an automatic control and removed — do not rebuild it.** It classified by label
-spelling, not choice shape. **A preventive control whose false positives are invisible to the person
-it protects is worse than none.** Rules 2, 4 and 5 are held by review. They are no longer mirrored
-with the sibling repository's brief (#715).
+**These three rules live in the workstation method's `orchestration` skill**, under *Review is routed
+by type*, *The loop-mode contract* and *How to ask the owner* (source:
+https://github.com/tedeuxx/mhw/blob/main/method/skills/orchestration/SKILL.md, first released in 5.8.0;
+owner ruling on #715, 2026-10-13: *"Mover pro mhw"*). **Load that skill before you route a review,
+before the first pool query of a drain or rite, and before you put anything to the owner.** This file
+does not restate them: one rule in two wordings is how the operative copy ends up where nobody reads
+it. What stays here is this repository's own: the mode, its pool predicates and the `wip:` bound are
+recorded in `docs/loop-mode.md`, and the user-level brief's escalation rules remain the floor for any
+ask.
 
 ## How work is dispatched
 
@@ -249,7 +235,7 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
    the gate's verdict at head leaves only his act. Before that, report in prose by number. A link is
    the browser address, never a command for him to run.
 8. **A failed check is yours to fix**: send it back to the builder with the job and cause until green,
-   unless only he can decide it (then *How to ask*).
+   unless only he can decide it (then the `orchestration` skill's ask rules).
 9. **What you need from him goes first, labelled as a request.**
 10. **His decision lands on the item it decides when he makes it** — a comment carrying his words.
     Relaying it into a dispatch is not recording it.
@@ -263,20 +249,10 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
     not a paraphrase. Every pool requires `ready`; none filters `blocked`.
 14. **`content` is selected by him one piece at a time, never drained.** Its intake interviews him, in
     his words, one question at a time, without options.
-15. **The pool spans both repositories.** Read the mode of record before any pool query and never infer
-    it from a result: an empty active milestone ends an iteration in one mode and means nothing in the
-    other, with byte-identical output. At drain entry, compare both repositories' mode records and stop
-    on a disagreement.
-<!-- review-chain-routing -->
-16. **Review is routed by type.** `loop`: one agents-lead lens pass plus the gate. `product`: the leads'
-    lenses as warranted plus the gate. `content`: writer drafts, reviewer repairs in place (two rounds
-    at most), plus the gate. The gate runs on every merge request under both lenses; routing never
-    narrows a criterion, removes a hold or changes a verdict literal, and the reader-facing copy
-    criterion fires regardless of type. A lens the row does not name needs its reason in the dispatch.
-    A lens's stop condition bounds a pass; routing bounds the passes; no rule keys on a round count.
-    Intake: `loop` closed by the agents lead alone, `content` by the product lead alone, `product` by
-    both leads.
-<!-- /review-chain-routing -->
+15. **The pool spans both repositories.** Read each repository's mode record before any pool query, as
+    the `orchestration` skill's loop-mode contract requires. At drain entry, compare both
+    repositories' mode records and stop on a disagreement.
+16. **Review is routed by type, as the `orchestration` skill states.**
 17. **A read-only dispatch gets its own worktree whenever a build may be running.**
 
 ### Building, investigating, acting
@@ -297,30 +273,14 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
     aligned**, his words recorded on the item; no dispatched profile applies it. Elsewhere `ready`
     follows the intake that closes the description.
 
-### Loop mode, parallel development, the serial gate
+### Loop mode and the serial gate
 
-<!-- loop-mode-contract -->
-22. **A mode names a known agile method and fixes only what the iteration container MEANS and which
-    rites run at its edges**; value, enum and predicates are in `docs/loop-mode.md`. `scrum`: the
-    milestone is a commitment, a limb of the pool whose exhaustion ends the iteration and hands off to
-    review, retrospective and planning; ranked at planning. `kanban`: the same milestone is a period
-    label bounding nothing, no rite at a boundary, arrival order with `loop` first. The milestone exists
-    in both; nothing enters a running iteration automatically; composing one is his act. **A mode
-    selects a predicate and a rite set, never a permission rule**: it may not touch the permission
-    floor, the gate and its lenses, head-scoped verdicts, only-the-owner-opens-work, the readiness bar
-    (`sp:N` in both modes), the routing labels or the container's existence; `content` has no second
-    mode. A rite trigger keys on elapsed time, never on an empty pool. A mechanism that needs the mode
-    is reviewed before it is written.
-23. **Development parallelises; review does not.** One merge request in review at a time whatever
-    `wip:` says; the next goes to the gate only after the previous merged or was sent back. **Rebase
-    onto the current trunk before the gate**, asking *has the trunk moved since the head I attested?*,
-    not only *does a named branch overlap?*. The author resolves conflicts at merge-request time. The
-    sequence in an iteration is the machine's: the scrum master proposes, the orchestrator opens
-    worktrees and dispatches, no per-item approval. Remove a slice's worktree after merge.
-<!-- /loop-mode-contract -->
-24. **A gate dispatch names the merge request by number, positionally** (`gh pr merge <number> --merge`);
+22. **The loop-mode contract is the `orchestration` skill's**, parallel development and the serial
+    gate included; this repository's mode value, enum, pool predicates and `wip:` are in
+    `docs/loop-mode.md`.
+23. **A gate dispatch names the merge request by number, positionally** (`gh pr merge <number> --merge`);
     with no reference it resolves to the current checkout's branch, possibly another slice's.
-25. **A harness diff needs an agents-lead verdict marker whose commit line names the merged head in
+24. **A harness diff needs an agents-lead verdict marker whose commit line names the merged head in
     full forty characters**; an older head's marker attests a diff it never read. The gate checks it.
 
 ## The pipelines
@@ -347,7 +307,9 @@ in the post-deploy smoke. **`main` is the working branch**: no tooling may block
 
 A gate asserts this file is **tracked**, **under the byte budget**, **free of declared single-harness
 tokens outside the labelled section**, that **its repository-relative paths exist**, that **no
-competing root brief is tracked**, and that the five *How to ask* commitments are present. **No check
+competing root brief is tracked**, that it **points the three method rules at the `orchestration`
+skill without restating the removed wording**, and that **`.workstation-version` admits no release
+older than the one carrying that skill**. **No check
 can assert the brief is TRUE, or that a sentence is neutral rather than token-free** — nor that text
 inside a harness subsection belongs to that harness; review holds those. Test: *would this sentence be
 true on a harness with no hooks?* Counts age; derive them.
@@ -371,10 +333,12 @@ Each subsection applies only to the harness it names and relaxes nothing above.
   here are held by instruction alone**; what is still mechanical is the workstation's deny floor (native
   deny rules by command prefix). Never use `--dangerously-skip-permissions`. Nothing bounds work in
   progress or the serial gate: opening a merge request is allowlisted. Project skills: `.claude/skills/`.
-- **Pickers.** *How to ask* rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
+- **The `orchestration` skill is not preloaded into the main session**: per the measurement above, only
+  its name and description are; invoke it (/orchestration) before routing, a pool query or an ask.
+- **Pickers.** That skill's ask rule 3 means `AskUserQuestion`, never prose numbering; headless (`claude
   -p`) lacks it and degrades to prose silently, so escalate only from interactive sessions. The
   retired plugin's one-question guard and link detectors no longer run: one question per call, and
-  *whether* a merge-request link may go, are instructions; rule 4 decides the form.
+  *whether* a merge-request link may go, are instructions; its rule 4 decides the form.
 - **Verdict markers** are merge-request comments carrying `harness-lead-verdict` and a `commit:` line;
   the retired plugin's zombie-loop detector no longer runs; the method's end-of-turn checks read them.
 - **Sweep origin.** `.claude/settings.json` declares `.env.HARNESS_SWEEP_ORIGIN`, which bounded the
@@ -395,9 +359,14 @@ Each subsection applies only to the harness it names and relaxes nothing above.
 
 - **The budget's smallest measured consumer.** `0.155.0-alpha.16.3` defaults `project_doc_max_bytes`
   to 32768 and truncates the rest; measured live 2026-10-11 with nonces before and after that offset.
+- **The `orchestration` skill** is installed at `~/.agents/skills/orchestration/`, which `0.160.0` lists
+  in the model-visible skill list (measured in the workstation repository's enforcement matrix); its body
+  loads when chosen, so invoke `$orchestration` before routing, a pool query or an ask.
 
 ### Kiro
 
 - `1.0.437` loads this file as always-on steering and truncates at 50,000 characters, logging the loss
   only on a debug channel (read from the shipped bundle, never run authenticated).
+- **The `orchestration` skill** is installed at `~/.kiro/skills/orchestration/`; Kiro's loading of it is
+  documented, not measured. Invoke /orchestration before routing, a pool query or an ask.
 <!-- /harness-specific -->
