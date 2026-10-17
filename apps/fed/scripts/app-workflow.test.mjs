@@ -1,5 +1,6 @@
-// Guards two properties of `.github/workflows/app.yml`: that `npm-audit` is a gate rather than a
-// decoration, and that the aggregator's "what was verified" report does not lie about it.
+// Guards properties of `.github/workflows/app.yml`: that `npm-audit` is a gate rather than a
+// decoration, that the aggregator's "what was verified" report does not lie about it, and (since #754,
+// at the bottom of this file) that a push run on `main` is not cancelled by the `bump:` push after it.
 //
 // WHY A TEST AND NOT A COMMENT. `npm-audit` reported `skipped` on six consecutive `main` runs, including
 // the merge base of the PR that finally surfaced a real advisory — every one a VERSION-only bump, which
@@ -334,5 +335,108 @@ describe('app.yml — the triggers still match what /architecture publishes abou
 
   it('declares no `schedule:` trigger, which is the fact that claim rests on', () => {
     expect(Object.keys(workflow.on)).not.toContain('schedule');
+  });
+});
+
+// ─── concurrency: a merge run on `main` survives the `bump:` push that follows it (#754) ──────────────
+// From 2026-07-31 SonarCloud recorded no analysis of `main`: every merge's push run shared one group with
+// deploy's `bump:` push 15-20 s later and was cancelled by it, and the bump run (VERSION only) skips
+// `sonarqube-scan`. These cases EVALUATE the two expressions for concrete events rather than pinning their
+// spelling, so an equivalent rewrite stays green and a regression to a shared, cancelling group goes red.
+//
+// The evaluator covers exactly the subset GitHub expressions use here: string literals, dotted context
+// paths, `==` / `!=`, `&&` / `||` (which return an operand, as in Actions), and parentheses. Anything else
+// throws, so a future expression outside that subset fails loudly instead of being misread.
+const evaluateBody = (source, body, context) => {
+  const tokens = body.match(/'[^']*'|[A-Za-z_][\w.-]*|==|!=|&&|\|\||[()]|\S/g) ?? [];
+  let position = 0;
+  const peek = () => tokens[position];
+  const next = () => tokens[position++];
+  const primary = () => {
+    const token = next();
+    if (token === '(') {
+      const value = or();
+      if (next() !== ')') throw new Error(`unbalanced parenthesis in ${source}`);
+      return value;
+    }
+    if (token?.startsWith("'")) return token.slice(1, -1);
+    if (token === 'true' || token === 'false') return token === 'true';
+    if (/^[A-Za-z_]/.test(token ?? '')) {
+      return token.split('.').reduce((object, key) => object?.[key], context) ?? '';
+    }
+    throw new Error(`unsupported token ${token} in ${source}`);
+  };
+  const equality = () => {
+    let left = primary();
+    while (peek() === '==' || peek() === '!=') {
+      const operator = next();
+      const right = primary();
+      left = operator === '==' ? left === right : left !== right;
+    }
+    return left;
+  };
+  const and = () => {
+    let left = equality();
+    while (peek() === '&&') {
+      next();
+      const right = equality();
+      left = left ? right : left;
+    }
+    return left;
+  };
+  const or = () => {
+    let left = and();
+    while (peek() === '||') {
+      next();
+      const right = and();
+      left = left || right;
+    }
+    return left;
+  };
+  const value = or();
+  if (position !== tokens.length) throw new Error(`trailing tokens in ${source}`);
+  return value;
+};
+
+// A value that is ONE expression keeps its type (`cancel-in-progress` becomes a boolean); a value with
+// literal text around expressions is interpolated into a string, as Actions does for `group: app-${{ … }}`.
+const evaluateExpression = (source, context) => {
+  if (typeof source !== 'string') return source; // a YAML literal such as `true` is already a value
+  const text = source.trim();
+  const whole = /^\$\{\{([^}]*)\}\}$/.exec(text);
+  if (whole) return evaluateBody(source, whole[1], context);
+  return text.replace(/\$\{\{([^}]*)\}\}/g, (_, body) => String(evaluateBody(source, body, context)));
+};
+
+const concurrencyFor = (github) => ({
+  group: evaluateExpression(workflow.concurrency.group, { github }),
+  cancel: evaluateExpression(workflow.concurrency['cancel-in-progress'], { github }),
+});
+
+const MAIN = 'refs/heads/main';
+const mergePush = { event_name: 'push', ref: MAIN, sha: 'a'.repeat(40) };
+const bumpPush = { event_name: 'push', ref: MAIN, sha: 'b'.repeat(40) };
+const prRun = (sha) => ({ event_name: 'pull_request', ref: 'refs/pull/754/merge', sha });
+
+describe('app.yml concurrency (#754)', () => {
+  it('puts the merge push and the bump push that follows it in DIFFERENT groups', () => {
+    expect(concurrencyFor(mergePush).group).not.toBe(concurrencyFor(bumpPush).group);
+  });
+
+  it('never cancels a push run on main', () => {
+    expect(concurrencyFor(mergePush).cancel).toBe(false);
+    expect(concurrencyFor(bumpPush).cancel).toBe(false);
+  });
+
+  it('still cancels a superseded pull-request run: same group, cancel-in-progress true', () => {
+    const first = concurrencyFor(prRun('c'.repeat(40)));
+    const second = concurrencyFor(prRun('d'.repeat(40)));
+    expect(second.group).toBe(first.group);
+    expect(second.cancel).toBe(true);
+  });
+
+  it('keeps pull-request groups per ref, so two pull requests do not cancel each other', () => {
+    const other = { ...prRun('c'.repeat(40)), ref: 'refs/pull/755/merge' };
+    expect(concurrencyFor(other).group).not.toBe(concurrencyFor(prRun('c'.repeat(40))).group);
   });
 });

@@ -23,6 +23,11 @@ on:
   # Kept on push-to-main deliberately, though the design doc draws only the PR edge: SonarCloud needs a
   # main-branch analysis to have a "new code" baseline to compare PRs against. Drop this trigger and the
   # quality gate slowly stops meaning what it says.
+  # ~~The trigger alone keeps that baseline current.~~ STRUCK #754: it did not. From 2026-07-31 to
+  # 2026-10-17 SonarCloud recorded no analysis of `main`, because every merge's push run was CANCELLED by
+  # the `bump:` push 15-20 s later (shared concurrency group, `cancel-in-progress: true`), and the bump
+  # run changes only VERSION, so `test=false` and `sonarqube-scan` skips. The trigger is necessary; the
+  # per-SHA push group in `concurrency:` below is what makes it sufficient.
   push:
     branches: [main]
     paths:
@@ -39,9 +44,15 @@ on:
 permissions:
   contents: read
 
+# Pull requests: one group per PR ref, and a new push to the PR cancels the superseded run.
+# Pushes to `main`: one group PER COMMIT, never cancelled (#754). Each merge is followed 15-20 s later by
+# deploy's `bump:` commit; with a shared `app-refs/heads/main` group that push cancelled the merge run,
+# the only one carrying `test=true`, so `sonarqube-scan` never analysed `main`. A per-SHA group also keeps
+# two quick merges from displacing each other's pending run, which `cancel-in-progress: false` on a
+# shared group would still do (GitHub keeps one pending run per group).
 concurrency:
-  group: app-${{ github.ref }}
-  cancel-in-progress: true
+  group: app-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NODE_VERSION: "22"

@@ -37,8 +37,10 @@ import type { PhotoAsset } from '../data/photos';
 // wrapper in this codebase — every other component still declares props bare. That inconsistency is
 // deliberate and is not a cleanup someone forgot: the rule fires 29 more times on `main`, and sweeping
 // them would turn a content PR into a lint pass. It surfaced here only because `main`'s SonarCloud
-// baseline for this file is empty — `sonarqube-scan` is path-filtered and skips on content merges, so
-// `main`'s newest analysis predates this file's last change and every issue in it reads as NEW code.
+// baseline for this file is empty: `main`'s newest analysis predates this file's last change, so every
+// issue in it reads as NEW code. ~~`sonarqube-scan` is path-filtered and skips on content merges~~ —
+// struck #754: the filter was not the cause. The `bump:` push after each merge cancelled the merge's
+// `app` run, so `main` went unanalysed from 2026-07-31; `app.yml`'s concurrency block now keeps push runs.
 export function PhotoFigure({
   photo,
   alt,
