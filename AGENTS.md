@@ -275,8 +275,9 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
 
 ### Loop mode and the serial gate
 
-22. **The loop-mode contract, development in parallel and review in series, is the `orchestration`
-    skill's**; this repository's mode value, enum, pool predicates and `wip:` are in `docs/loop-mode.md`.
+22. **The loop-mode contract is the `orchestration` skill's**, parallel development and the serial
+    gate included; this repository's mode value, enum, pool predicates and `wip:` are in
+    `docs/loop-mode.md`.
 23. **A gate dispatch names the merge request by number, positionally** (`gh pr merge <number> --merge`);
     with no reference it resolves to the current checkout's branch, possibly another slice's.
 24. **A harness diff needs an agents-lead verdict marker whose commit line names the merged head in
