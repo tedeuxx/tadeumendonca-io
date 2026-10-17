@@ -139,11 +139,7 @@ const sourceTemplate: ProfileSource = {
           'Built, hands-on, the serverless data integration for an aerospace manufacturer after its ' +
             'Heroku-to-AWS migration — Salesforce into a modernized custom backend, on Terraform, ' +
             'Amazon AppFlow and Python.',
-          'Developing an internal full-stack web platform — implemented in AI-DLC, with a reusable Kiro ' +
-            'harness customization other projects can adopt; embeddings-based semantic search running on ' +
-            'Amazon Bedrock over Amazon S3 Vectors; integrated with inbound corporate Slack and with AI ' +
-            'tooling over a bidirectional MCP server; MVP in progress — for sharing how AI is used in ' +
-            'LATAM app-modernization delivery.',
+          'Developing an internal full-stack web platform with agent loops; MVP in progress.',
           'Lead engagements across LATAM, developing architectures, applications and delivery strategy, and ' +
             'presenting them to C-level and technical stakeholders in English, Spanish and Portuguese.',
         ],
@@ -163,12 +159,7 @@ const sourceTemplate: ProfileSource = {
           'Construí, hands-on, a integração serverless de dados de um fabricante aeroespacial depois da ' +
             'migração dele de Heroku para AWS — do Salesforce para um backend custom modernizado, em ' +
             'Terraform, Amazon AppFlow e Python.',
-          'Desenvolvendo uma plataforma interna web full-stack — implementação em AI-DLC, com ' +
-            'customização de um harness Kiro reutilizável por outros projetos; busca semântica baseada em ' +
-            'embeddings rodando no Amazon Bedrock e base no Amazon S3 Vectors; integrada a Slack ' +
-            'corporativo inbound e a ferramentas de IA via um servidor MCP bidirecional; MVP em ' +
-            'andamento — de troca de conhecimento sobre uso de IA na entrega de modernização de ' +
-            'aplicações na América Latina.',
+          'Desenvolvendo uma plataforma interna web full-stack com loops de agentes; MVP em andamento.',
           'Conduzo engajamentos na América Latina, desenvolvendo arquiteturas, aplicações e estratégia de ' +
             'entrega, e as apresento para stakeholders técnicos e C-level em inglês, espanhol e português.',
         ],

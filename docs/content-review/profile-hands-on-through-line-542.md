@@ -42,7 +42,7 @@ streaming engagement (`internalization`). One exception, finding 3 below.
    — the harness described smaller than it is — reached by omission rather than by a diminutive.
 
    Smallest change that clears it: give each object one sized fact the record already carries — the
-   knowledge platform's MVP scope (bidirectional MCP server, semantic search on Bedrock + S3 Vectors) is
+   internal platform's MVP scope is
    already in bullet 5, so the practice line can carry the *live* one instead: a running public platform
    whose delivery goes through an enforced agent harness, and a plugin published and consumed by it.
    No new claim is needed; the sizes are in the file.
