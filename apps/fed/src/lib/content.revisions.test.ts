@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEditions, buildRevisions, revisionFor, getRevision, getPostBySlug } from './content';
+import { buildEditions, buildRevisions, revisionFor, getRevision, getPostBySlug, getAllPosts } from './content';
 
 // #741 — pending revisions of published articles. Fed SYNTHETIC sets: the real `revisions/` directory is
 // empty whenever no correction is pending, so the real glob exercises none of the refusals below.
@@ -122,10 +122,18 @@ describe('revisionFor / getRevision — which revision a URL resolves to', () =>
   });
 
   // The real binding, against the real directory: a real published article with no revision has none.
-  // ~~`my-commitment`~~ was the subject until #688 put a pending revision on it; the subject must be an
-  // article with no file in `revisions/`, or this asserts the opposite of what it names.
+  // The subject used to be a hand-picked slug. #688 put a pending revision on the first one, so the test
+  // asserted the opposite of what it names, and its hand-picked successor would break the same way (#759). So the subject is DERIVED: any
+  // advertised article (`getAllPosts` excludes a held one) with no file in `revisions/`. An empty candidate
+  // set fails loudly rather than letting the assertion pass over nothing.
   it('getRevision answers undefined for a real published article with no pending revision', () => {
-    expect(getPostBySlug('three-agent-loops-one-month', 'en')).toBeDefined();
-    expect(getRevision('three-agent-loops-one-month', 'en')).toBeUndefined();
+    const candidates = getAllPosts('en').filter((p) => getRevision(p.slug, 'en') === undefined);
+    expect(
+      candidates.length,
+      'no published article without a pending revision exists — this binding has no subject',
+    ).toBeGreaterThan(0);
+    const [subject] = candidates;
+    expect(getPostBySlug(subject.slug, 'en')).toBeDefined();
+    expect(getRevision(subject.slug, 'en')).toBeUndefined();
   });
 });
