@@ -25,8 +25,8 @@
 # blind to a paraphrase, which review holds.
 #
 # MUTATION-CHECKED against the SUBJECTS, not this checker: dropping the skill name from the brief, re-
-# inserting one removed commitment, re-inserting a fence marker, and lowering the range floor to 5.6 each
-# make one arm red; restoring each makes it green. Run: bash scripts/hitl-contract.test.sh
+# inserting one removed commitment, re-inserting a fence marker, lowering the range floor to 5.6 or
+# dropping it, and commenting out the workflow step each make one arm red; restoring each makes it green. Run: bash scripts/hitl-contract.test.sh
 
 set -uo pipefail
 
@@ -123,7 +123,9 @@ else
 fi
 
 # ── ARM 4 · REACHABILITY ────────────────────────────────────────────────────────────────────────────
-if grep -Fq 'run: bash scripts/hitl-contract.test.sh' "$WORKFLOW"; then
+# Anchored to a whole, uncommented line: a substring search stayed green with the step commented out
+# or pointed at a renamed file (measured while calibrating this arm in #715).
+if grep -Eq '^[[:space:]]+run: bash scripts/hitl-contract\.test\.sh[[:space:]]*$' "$WORKFLOW"; then
   ok "arm 4 — brief workflow executes this contract test"
 else
   bad "arm 4 — brief workflow does not execute scripts/hitl-contract.test.sh"
