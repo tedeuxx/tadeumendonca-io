@@ -10,8 +10,8 @@
 # owns, which is the drift the move was made to end. So the subject of the contract moved, and this
 # suite follows it rather than being deleted:
 #
-#   arm 1 — the brief NAMES the skill and its three section headings, so a reader of the brief, which
-#           every harness loads always-on, is sent to where the rules now live;
+#   arm 1 — the brief's pointer section NAMES the skill and its three section headings, so a reader of
+#           the brief, which every harness loads always-on, is sent to where the rules now live;
 #   arm 2 — the brief does NOT carry the removed wording or its fence markers, so a second copy that
 #           re-enters verbatim reddens;
 #   arm 3 — `.workstation-version`'s lower bound is at least 5.8, the first release carrying the skill,
@@ -39,6 +39,7 @@ fi
 AGENTS="$ROOT/AGENTS.md"
 RANGE_FILE="$ROOT/.workstation-version"
 WORKFLOW="$ROOT/.github/workflows/brief.yml"
+SECTION="## Review routing, the loop mode and how to ask"
 FLOOR_MAJOR=5
 FLOOR_MINOR=8
 
@@ -51,18 +52,25 @@ if [ ! -f "$AGENTS" ]; then
   bad "AGENTS.md does not exist; arms 1 and 2 did NOT run"
 else
   # ── ARM 1 · THE POINTER ─────────────────────────────────────────────────────────────────────────
+  # Read inside the pointer SECTION only, joined to one line so a wrapped heading still matches. The
+  # skill's name appears in several other rules too, so a file-wide search stays green when the pointer
+  # section itself loses it (measured while calibrating this arm).
+  section="$(awk -v h="$SECTION" '$0 == h { on = 1; next } on && /^## / { exit } on { print }' "$AGENTS" | tr '\n' ' ')"
   missing=""
+  if [ -z "$section" ]; then
+    missing="\n  the section '$SECTION' (absent or empty)"
+  fi
   while IFS= read -r needle; do
     [ -n "$needle" ] || continue
-    grep -Fq -- "$needle" "$AGENTS" || missing="$missing\n  $needle"
+    printf '%s' "$section" | grep -Fq -- "$needle" || missing="$missing\n  $needle"
   done <<'EOF'
 `orchestration` skill
-*Review is routed
+*Review is routed by type*
 *The loop-mode contract*
 *How to ask the owner*
 EOF
   if [ -n "$missing" ]; then
-    bad "arm 1 — AGENTS.md does not point the three method rules at the orchestration skill; missing:$missing"
+    bad "arm 1 — AGENTS.md does not point the three method rules at the orchestration skill; missing:$(printf '%b' "$missing")"
   else
     ok "arm 1 — AGENTS.md names the orchestration skill and its three section headings"
   fi
@@ -86,7 +94,7 @@ EOF
 <!-- loop-mode-contract -->
 EOF
   if [ -n "$present" ]; then
-    bad "arm 2 — AGENTS.md restates wording the orchestration skill owns (#715); replace it with the pointer:$present"
+    bad "arm 2 — AGENTS.md restates wording the orchestration skill owns (#715); replace it with the pointer:$(printf '%b' "$present")"
   else
     ok "arm 2 — AGENTS.md carries none of the removed routing, loop-mode or ask wording"
   fi
