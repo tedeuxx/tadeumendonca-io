@@ -1,5 +1,7 @@
 # The workstation release range this project expects (tedeuxx/mhw#57). Its agents, skills and commands
 # come from the workstation method at user level (tedeuxx/mhw#64, #130); this repository keeps only
 # its own skills under .claude/skills/. Compared at session start by an instruction in the user brief and by
-# `mhw status`; a mismatch prints one line and never blocks.
->=5.6 <6
+# `mhw status`; a mismatch prints one line and never blocks. The floor is 5.8 since #715: AGENTS.md
+# points its review routing, loop-mode contract and ask rules at the method's orchestration skill,
+# first released in 5.8.0 (tedeuxx/mhw#176), and scripts/hitl-contract.test.sh asserts this floor.
+>=5.8 <6
