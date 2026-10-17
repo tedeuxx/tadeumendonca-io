@@ -1,6 +1,10 @@
 // Compiles every ```mermaid fence in the long-form bodies to inline SVG, at BUILD time (#170).
 // Run: `npm run gen-diagrams`. Output: src/content/generated/diagrams.json, committed.
 //
+// The render is the exported `renderDiagrams(outPath)`, and the CLI at the bottom is a thin wrapper
+// around it. It is exported so `e2e/diagram-determinism.spec.ts` can render twice into scratch paths and
+// require byte-identical output without touching the committed artifact (#758).
+//
 // WHY BUILD TIME AND NOT RUNTIME. The site is fully static with no runtime XHR (ADR-0004), and the
 // /architecture page has to be readable by a crawler with JavaScript off — a client-side mermaid would
 // ship ~500kB to every reader to draw a picture that never changes. Inline SVG rather than an <img>, so
@@ -19,7 +23,8 @@
 // its box — on a machine other than the author's, silently.
 import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, join, relative } from 'node:path';
+import { resolve, join, relative, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { collectFences, spacingFor } from './diagram-source.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -45,6 +50,12 @@ const THEME = {
   // mermaid 11 — labels still render as <foreignObject> HTML, which defeats the reason inline SVG was
   // chosen over an image: text a crawler and a screen reader can actually read.
   htmlLabels: false,
+  // A FIXED seed for the shape renderer's jitter (#758). mermaid 11 draws node outlines through roughjs
+  // even without `look: 'handDrawn'`, and `handDrawnSeed` defaults to 0, which roughjs reads as "no
+  // seed" and replaces with Math.random. The outer `<path d=…>` of those shapes then changed on every
+  // run, so the committed artifact churned with no real change. Top level, like `htmlLabels`: that is
+  // where mermaid reads it. Any non-zero value works; changing it re-renders every affected diagram once.
+  handDrawnSeed: 1,
   themeVariables: {
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: '15px',
@@ -85,80 +96,99 @@ const THEME = {
   securityLevel: 'strict',
 };
 
-// Before either write path, not just the happy one. The zero-fence early exit below used to write
-// straight to outFile while this sat fifty lines lower, after the render loop — so on a tree where
-// `generated/` had been removed it threw ENOENT instead of writing an empty artifact. Loud rather than
-// wrong, but wrong for a reason that reads as a mermaid problem.
-mkdirSync(join(root, 'src', 'content', 'generated'), { recursive: true });
+/**
+ * Compile every mermaid fence under `src/content` and write the map to `outPath`.
+ * Returns the exact text written and the diagram count. Throws, and writes nothing, if any fence fails.
+ */
+export async function renderDiagrams(outPath = outFile) {
+  // Before either write path, not just the happy one. The zero-fence early return below used to write
+  // straight to the output while this sat fifty lines lower, after the render loop — so on a tree where
+  // `generated/` had been removed it threw ENOENT instead of writing an empty artifact. Loud rather than
+  // wrong, but wrong for a reason that reads as a mermaid problem.
+  mkdirSync(dirname(outPath), { recursive: true });
 
-const fences = collectFences(contentDir);
-if (fences.length === 0) {
-  console.log('::notice::no mermaid fences found — nothing to compile');
-  writeFileSync(outFile, '{}\n');
-  process.exit(0);
+  const fences = collectFences(contentDir);
+  if (fences.length === 0) {
+    console.log('::notice::no mermaid fences found — nothing to compile');
+    writeFileSync(outPath, '{}\n');
+    return { text: '{}\n', count: 0 };
+  }
+
+  const browser = await chromium.launch();
+  const out = {};
+  let failed = 0;
+  try {
+    const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
+    await page.setContent(
+      `<!doctype html><html><head><meta charset="utf-8"><style>
+      @font-face { font-family:'Space Grotesk'; font-weight:500; src:url('${grotesk}') format('woff2'); }
+      @font-face { font-family:'JetBrains Mono'; font-weight:500; src:url('${mono}') format('woff2'); }
+      body { margin:0; background:#F5F4EF; font-family:'JetBrains Mono',monospace; }
+    </style></head><body><div id="out"></div></body></html>`,
+    );
+    // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+    await page.evaluate(() => document.fonts.ready);
+    await page.addScriptTag({ content: mermaidJs });
+    // The UMD bundle assigns the global asynchronously; without this the first render can race it and
+    // fail with "cannot read properties of undefined", which reads like a mermaid bug and is a timing one.
+    // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+    await page.waitForFunction(() => typeof window.mermaid?.render === 'function');
+
+    for (const { source, hash, file } of fences) {
+      const where = `${relative(root, file)} (${hash})`;
+      try {
+        // The element id is derived from the HASH, not generated randomly. Mermaid's default random ids
+        // would make every regeneration produce a different SVG for identical input, so the committed
+        // artifact would churn on every run and its diff would never be reviewable.
+        const svg = await page.evaluate(
+          async ({ source, hash, theme }) => {
+            // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
+            const mermaid = window.mermaid;
+            mermaid.initialize({ startOnLoad: false, ...theme });
+            const { svg } = await mermaid.render(`d-${hash}`, source);
+            return svg;
+          },
+          {
+            source,
+            hash,
+            theme: { ...THEME, flowchart: { ...THEME.flowchart, ...spacingFor(source) } },
+          },
+        );
+        // Keyed by the NORMALISED SOURCE, not by the hash. The renderer looks a diagram up from the text
+        // it finds in the markdown body, and hashing in the browser to do that would ship a sha256 into
+        // the bundle and run it on every page load — to detect a mistake only makeable in this repo. The
+        // hash survives as the SVG's element id, where determinism is what it is actually for.
+        out[source] = svg;
+      } catch (err) {
+        // Loud, and it names the file — a diagram that fails to parse must not become a blank box on a
+        // published page. This is the whole reason the failure mode is build-time (see ADR-0040).
+        console.error(`✗ ${where}\n  ${err instanceof Error ? err.message : String(err)}`);
+        failed += 1;
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+
+  if (failed > 0) {
+    // No partial artifact. A half-written diagrams.json would make the NEXT run's staleness check pass
+    // for the diagrams that happened to compile, quietly shrinking the page instead of failing it.
+    throw new Error(`${failed} diagram(s) failed to compile — ${relative(root, outPath)} NOT written.`);
+  }
+
+  const text = `${JSON.stringify(out, null, 2)}\n`;
+  writeFileSync(outPath, text);
+  return { text, count: Object.keys(out).length };
 }
 
-const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
-await page.setContent(
-  `<!doctype html><html><head><meta charset="utf-8"><style>
-    @font-face { font-family:'Space Grotesk'; font-weight:500; src:url('${grotesk}') format('woff2'); }
-    @font-face { font-family:'JetBrains Mono'; font-weight:500; src:url('${mono}') format('woff2'); }
-    body { margin:0; background:#F5F4EF; font-family:'JetBrains Mono',monospace; }
-  </style></head><body><div id="out"></div></body></html>`,
-);
-// eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
-await page.evaluate(() => document.fonts.ready);
-await page.addScriptTag({ content: mermaidJs });
-// The UMD bundle assigns the global asynchronously; without this the first render can race it and fail
-// with "cannot read properties of undefined", which reads like a mermaid bug and is a timing one.
-// eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
-await page.waitForFunction(() => typeof window.mermaid?.render === 'function');
-
-const out = {};
-let failed = 0;
-
-for (const { source, hash, file } of fences) {
-  const where = `${relative(root, file)} (${hash})`;
+// The CLI: `npm run gen-diagrams`. Runs only when this file is the entry point, so importing the module
+// (as the determinism spec does) renders nothing until it calls `renderDiagrams` itself.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    // The element id is derived from the HASH, not generated randomly. Mermaid's default random ids
-    // would make every regeneration produce a different SVG for identical input, so the committed
-    // artifact would churn on every run and its diff would never be reviewable.
-    const svg = await page.evaluate(
-      async ({ source, hash, theme }) => {
-        // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
-        const mermaid = window.mermaid;
-        mermaid.initialize({ startOnLoad: false, ...theme });
-        const { svg } = await mermaid.render(`d-${hash}`, source);
-        return svg;
-      },
-      {
-        source,
-        hash,
-        theme: { ...THEME, flowchart: { ...THEME.flowchart, ...spacingFor(source) } },
-      },
-    );
-    // Keyed by the NORMALISED SOURCE, not by the hash. The renderer looks a diagram up from the text it
-    // finds in the markdown body, and hashing in the browser to do that would ship a sha256 into the
-    // bundle and run it on every page load — to detect a mistake only makeable in this repo. The hash
-    // survives as the SVG's element id, where determinism is what it is actually for.
-    out[source] = svg;
+    const { count } = await renderDiagrams(outFile);
+    console.log(`Wrote ${relative(root, outFile)} with ${count} diagram(s).`);
   } catch (err) {
-    // Loud, and it names the file — a diagram that fails to parse must not become a blank box on a
-    // published page. This is the whole reason the failure mode is build-time (see ADR-0040).
-    console.error(`✗ ${where}\n  ${err instanceof Error ? err.message : String(err)}`);
-    failed += 1;
+    console.error(`\n${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
   }
 }
-
-await browser.close();
-
-if (failed > 0) {
-  // No partial artifact. A half-written diagrams.json would make the NEXT run's staleness check pass
-  // for the diagrams that happened to compile, quietly shrinking the page instead of failing it.
-  console.error(`\n${failed} diagram(s) failed to compile — diagrams.json NOT written.`);
-  process.exit(1);
-}
-
-writeFileSync(outFile, `${JSON.stringify(out, null, 2)}\n`);
-console.log(`Wrote ${relative(root, outFile)} with ${Object.keys(out).length} diagram(s).`);

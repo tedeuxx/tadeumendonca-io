@@ -89,6 +89,8 @@ box — silently, and only on a machine other than the author's.**
 **The hash survives, in the one place determinism is what it is for:** the SVG root element's id.
 mermaid generates random ids by default, so identical input would produce a different SVG on every run —
 the committed artifact would churn on every regeneration and its diff would never be reviewable.
+*Amended 2026-10-17 (#758): the id was not the only random source. The shape renderer's seed is the
+second, and it is pinned too; see the amendment of that date below.*
 
 ### What happens when a diagram is wrong
 1. **Fail at build time, loudly, with two guards** (chosen).
@@ -535,3 +537,36 @@ words, of which the `accDescr` is 740 / 763. Counting the drawing, the title and
   `contentFiles`, recursive), `apps/fed/scripts/diagram-source.test.mjs` (the reach arms and the
   per-locale pairing arm). Reach inherited without an edit:
   `apps/fed/scripts/diagram-font-coverage.test.mjs`.
+
+## Amendment (2026-10-17) — the element id was not the only source of nondeterminism; the shape seed is the second
+
+**What this corrects.** *"The hash survives"* (under *How the renderer finds a compiled diagram*) names
+mermaid's random element ids as the reason identical input produced a different SVG on every run, and
+pins them to the fence hash. That fixed one source. **A second one was left open:** mermaid 11 draws node
+outlines through roughjs even when the diagram does not opt into `look: 'handDrawn'`, and its
+`handDrawnSeed` defaults to `0`, which roughjs reads as *no seed* and replaces with `Math.random`. So the
+curve control points in the outer `<path d=…>` of those shapes changed on every regeneration, and the
+committed artifact churned with no real change — the unreviewable diff this paragraph exists to prevent
+([#758](https://github.com/tedeuxx/tadeumendonca-io/issues/758)).
+
+**Decision.** `gen-diagrams.mjs` sets `handDrawnSeed: 1` as a top-level key of its `THEME`, beside
+`htmlLabels`. **Determinism now rests on two pinned sources: the element id (the fence hash) and the
+shape seed.** Changing the seed value is a deliberate one-time re-render of every affected diagram, not a
+content change.
+
+**What holds it.** `apps/fed/e2e/diagram-determinism.spec.ts` renders twice through the exported
+`renderDiagrams(outPath)` into scratch paths and requires byte-identical text. It is a Playwright spec,
+not a vitest test, because the render needs a browser and the unit job has none. It runs against a local
+target only and is skipped against the live apex, because it is a property of the source tree and the
+post-deploy smoke's red must mean the site is broken. Removing the seed from the source turns it red.
+
+**What it does not claim.** Same machine, same browser: two machines with different font metrics can
+still lay out differently, and no cross-machine comparison is made. Nor does CI regenerate the artifact
+and compare it with the committed file; that was out of scope for #758. **Visual identity is untouched**:
+the site does not opt into the hand-drawn look, so text, structure and alt text are unchanged and
+[ADR-0008](./0008-brutalist-mono-identity.md) is not reached.
+
+**Links added by this amendment**
+- Implementation: `apps/fed/scripts/gen-diagrams.mjs` (the seed, and the render extracted into
+  `renderDiagrams`), `apps/fed/scripts/gen-diagrams.d.mts`, `apps/fed/e2e/diagram-determinism.spec.ts`,
+  and the one-time re-render of `apps/fed/src/content/generated/diagrams.json`.
