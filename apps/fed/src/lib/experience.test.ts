@@ -84,8 +84,8 @@ describe('the published figure', () => {
     expect(rampUpPt).toContain(YEARS_TOKEN);
 
     // …and each resolves to the CV's figure, in its own wording.
-    expect(withYears(rampUpEn)).toContain('18+ years across SDLC');
-    expect(withYears(rampUpPt)).toContain('18+ anos entre SDLC');
+    expect(withYears(rampUpEn)).toContain('18+ years across software engineering and distributed systems');
+    expect(withYears(rampUpPt)).toContain('18+ anos em engenharia de software e sistemas distribuídos');
     expect(withYears(rampUpEn)).not.toContain(YEARS_TOKEN);
     expect(withYears(rampUpPt)).not.toContain(YEARS_TOKEN);
   });
