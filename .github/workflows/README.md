@@ -473,3 +473,13 @@ And `app` keeps its
 **push-to-`main`** trigger even though the diagram draws only the PR edge:
 SonarCloud needs a main-branch analysis to have a "new code" baseline, and without it the quality gate
 slowly stops meaning what it says.
+
+~~The trigger keeps that baseline current.~~ **Struck 2026-10-17 (#754): it did not.** SonarCloud's last
+analysis of `main` was dated 2026-07-31. The trigger fired on every merge, but `app` shared one
+concurrency group per ref with `cancel-in-progress: true`, so `deploy`'s `bump:` push 15–20 s later
+cancelled the merge-commit run, and the bump run changes only `VERSION`, so `test` was false and
+`sonarqube-scan` skipped. Measured with
+`gh run list -R tedeuxx/tadeumendonca-io --workflow app.yml --event push --limit 12`: six of six merge
+runs `cancelled`; every finished bump run `success`. **Since #754 a push run gets its own group per commit and is
+never cancelled; a pull-request run still cancels the run its next push supersedes.** The trigger is
+necessary; the per-commit group is what makes it sufficient.
