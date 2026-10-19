@@ -7,12 +7,12 @@ track: engenharia
 draft: true
 contentIssue: 712
 excerpt: "Once a month an agent reads screenshots of apps that have no API, pulls market prices from a desktop app, and updates a private tracker of my investments. The tracker is not the interesting part. The interesting part is everything I built so I never have to take the agent's word for a number."
-takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first — and why the human-in-the-loop rule is written after a run, not before.'
+takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first — and why the human-in-the-loop rule gets tuned to a real run instead of guessed upfront.'
 ---
 
 The first price after the market-data app launched came back for the wrong symbol.
 
-Nothing crashed. The call returned a price, a perfectly plausible one, for an asset I do not track. The agent caught it because it did not read the price first. It read the `symbol` field, saw that it did not match what it had asked for, and asked again.
+Nothing crashed. The call returned a price. The agent caught it because it did not read the price first. It read the `symbol` field, saw that it did not match what it had asked for, and asked again.
 
 That exchange is the whole article. Everything else here is what I built around that habit.
 
@@ -29,7 +29,7 @@ What I wanted was boring: one consolidated view, a month-by-month history, a bre
 ```mermaid
 flowchart TB
   accTitle: Where the numbers come from, who handles them, and where they end up
-  accDescr: Three zones from left to right. Sources: screenshots of the native apps, taken on my phone, and TradingView Desktop running on a Mac mini behind a local MCP server that speaks the Chrome DevTools Protocol. Orchestration: one Claude agent session that plans, reads the screenshots, edits the data and validates it, reaching the Mac through the Claude desktop app, which grants one folder per session, and carrying three guardrails — no trades, edits to the data only, no empty history fields. A scheduled task starts it once a month. State and delivery: one HTML file holding three data constants, published as a private Claude Artifact that I open on the phone, with a backup copy kept on the Mac.
+  accDescr: Three zones from top to bottom. Sources: screenshots of the native apps, taken on my phone, and TradingView Desktop running on a Mac mini behind a local MCP server that speaks the Chrome DevTools Protocol. Orchestration: one Claude agent session that plans, reads the screenshots, edits the data and validates it, reaching the Mac through the Claude desktop app, which grants one folder per session, and carrying three guardrails — no trades, edits to the data only, no empty history fields. A scheduled task starts it once a month. State and delivery: one HTML file holding three data constants, published as a private Claude Artifact that I open on the phone, with a backup copy kept on the Mac.
   subgraph SRC["SOURCES"]
     PH["phone screenshots<br/>of apps with no API"]
     TV["TradingView Desktop · Mac mini<br/>local MCP server over CDP"]
@@ -99,7 +99,7 @@ An agent reading a screenshot is reading pixels. An agent calling a tool is rece
 ```mermaid
 flowchart TB
   accTitle: The gates a monthly update passes before it is published
-  accDescr: A left-to-right pipeline. Inputs go to the screenshot cross-checks, then to the edit of the data constants, then to an independent Node recompute, then to a validator self-test against last month, then to a jsdom render check, and finally to publish and backup. Each of the four gates has its own branch that reads fail, stop and ask, and all four lead to one box: me, the human in the loop. One dashed branch, from the cross-checks to that same box, reads policy relaxed: outflows from one cash account no longer stop the run.
+  accDescr: A top-to-bottom pipeline. Inputs go to the screenshot cross-checks, then to the edit of the data constants, then to an independent Node recompute, then to a validator self-test against last month, then to a jsdom render check, and finally to publish and backup. Each of the four gates has its own branch that reads fail, stop and ask, and all four lead to one box: me, the human in the loop. One dashed branch, from the cross-checks to that same box, reads policy relaxed: outflows from one cash account no longer stop the run.
   IN["inputs<br/>screenshots · quotes"]
   G1["cross-checks<br/>inside the screenshots"]
   ED["edit the data constants"]
@@ -116,7 +116,7 @@ flowchart TB
   G1 -. "policy relaxed · one cash account's outflows<br/>no longer stop the run" .-> HU
 ```
 
-The wrong symbol from the top of this piece runs across all four layers. Tool output gets checked, not trusted: the agent compares what it asked for with what came back before it uses the answer. I wrote [in another piece](/en/blog/three-agent-loops-one-month) about catching myself believing we got things right on the first try far more often than we did. These checks are that lesson, built into a Saturday.
+The habit behind the wrong symbol at the top of this piece runs through all four layers. Tool output gets checked, not trusted: the agent compares what it asked for with what came back before it uses the answer. I wrote [in another piece](/en/blog/three-agent-loops-one-month) about catching myself believing we got things right on the first try far more often than we did. These checks are that lesson, built into a Saturday.
 
 ## The human in the loop, tuned to what happened
 
@@ -144,7 +144,7 @@ And the whole state lives as code, in one HTML file. It is crude. At this scale 
 
 ## What to take with you
 
-> **Three things to carry out of here:** make the source check itself before the model's reading counts; have something that is not the agent add it up, and prove that something against a known answer first; write the human-in-the-loop rule after a real run, not before one.
+> **Three things to carry out of here:** make the source check itself before the model's reading counts; have something that is not the agent add it up, and prove that something against a known answer first; tune the human-in-the-loop rule to a real run instead of guessing it upfront.
 
 This week, pick one number an agent gave you and recompute it with something that is not the agent. If you cannot, that is the first check to build.
 

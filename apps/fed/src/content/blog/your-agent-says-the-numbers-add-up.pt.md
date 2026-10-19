@@ -7,12 +7,12 @@ track: engenharia
 draft: true
 contentIssue: 712
 excerpt: "Uma vez por mês, um agente lê prints de aplicativos que não têm API, puxa cotações de um aplicativo de desktop e atualiza um controle privado dos meus investimentos. O controle não é a parte interessante. A parte interessante é tudo o que eu construí para nunca precisar acreditar na palavra do agente sobre um número."
-takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes — e por que a regra de human-in-the-loop se escreve depois de uma execução, não antes.'
+takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
 ---
 
 A primeira cotação depois que o aplicativo de mercado abriu veio com o símbolo errado.
 
-Nada quebrou. A chamada devolveu um preço, perfeitamente plausível, de um ativo que eu não acompanho. O agente percebeu porque não leu o preço primeiro. Ele leu o campo `symbol`, viu que não batia com o que tinha pedido, e pediu de novo.
+Nada quebrou. A chamada devolveu um preço. O agente percebeu porque não leu o preço primeiro. Ele leu o campo `symbol`, viu que não batia com o que tinha pedido, e pediu de novo.
 
 Essa troca é o artigo inteiro. Todo o resto aqui é o que eu construí em volta desse hábito.
 
@@ -29,7 +29,7 @@ O que eu queria era sem graça: uma visão consolidada, um histórico mês a mê
 ```mermaid
 flowchart TB
   accTitle: De onde vêm os números, quem mexe neles, e onde eles terminam
-  accDescr: Três zonas, da esquerda para a direita. Fontes: prints dos aplicativos nativos, tirados no meu celular, e o TradingView Desktop rodando num Mac mini atrás de um servidor MCP local que fala o Chrome DevTools Protocol. Orquestração: uma sessão de agente Claude que planeja, lê os prints, edita os dados e valida, alcançando o Mac pelo aplicativo desktop do Claude, que libera uma pasta por sessão, e carregando três guardrails — nenhuma operação, edição só nos dados, nenhum campo vazio no histórico. Uma tarefa agendada dispara a sessão uma vez por mês. Estado e entrega: um arquivo HTML com três constantes de dados, publicado como um Artifact privado do Claude que eu abro no celular, com uma cópia de backup guardada no Mac.
+  accDescr: Três zonas, de cima para baixo. Fontes: prints dos aplicativos nativos, tirados no meu celular, e o TradingView Desktop rodando num Mac mini atrás de um servidor MCP local que fala o Chrome DevTools Protocol. Orquestração: uma sessão de agente Claude que planeja, lê os prints, edita os dados e valida, alcançando o Mac pelo aplicativo desktop do Claude, que libera uma pasta por sessão, e carregando três guardrails — nenhuma operação, edição só nos dados, nenhum campo vazio no histórico. Uma tarefa agendada dispara a sessão uma vez por mês. Estado e entrega: um arquivo HTML com três constantes de dados, publicado como um Artifact privado do Claude que eu abro no celular, com uma cópia de backup guardada no Mac.
   subgraph SRC["FONTES"]
     PH["prints do celular<br/>de aplicativos sem API"]
     TV["TradingView Desktop · Mac mini<br/>servidor MCP local sobre CDP"]
@@ -99,7 +99,7 @@ Um agente lendo um print está lendo pixels. Um agente chamando uma ferramenta e
 ```mermaid
 flowchart TB
   accTitle: Os portões por que uma atualização mensal passa antes de ser publicada
-  accDescr: Um pipeline da esquerda para a direita. As entradas vão para as conferências dentro dos prints, depois para a edição das constantes de dados, depois para um recálculo independente em Node, depois para um autoteste do validador contra o mês passado, depois para uma checagem de renderização no jsdom, e por fim para a publicação e o backup. Cada um dos quatro portões tem o seu próprio desvio, que diz falhou, para e pergunta, e os quatro levam a uma caixa só: eu, o humano no loop. Um desvio tracejado, das conferências para essa mesma caixa, diz política relaxada: saídas de uma conta de caixa não param mais a execução.
+  accDescr: Um pipeline de cima para baixo. As entradas vão para as conferências dentro dos prints, depois para a edição das constantes de dados, depois para um recálculo independente em Node, depois para um autoteste do validador contra o mês passado, depois para uma checagem de renderização no jsdom, e por fim para a publicação e o backup. Cada um dos quatro portões tem o seu próprio desvio, que diz falhou, para e pergunta, e os quatro levam a uma caixa só: eu, o humano no loop. Um desvio tracejado, das conferências para essa mesma caixa, diz política relaxada: saídas de uma conta de caixa não param mais a execução.
   IN["entradas<br/>prints · cotações"]
   G1["conferências<br/>dentro dos prints"]
   ED["editar as constantes de dados"]
@@ -116,7 +116,7 @@ flowchart TB
   G1 -. "política relaxada · saídas de uma conta de caixa<br/>não param mais a execução" .-> HU
 ```
 
-O símbolo errado lá do começo atravessa as quatro camadas. Saída de ferramenta se confere, não se confia: o agente compara o que pediu com o que voltou antes de usar a resposta. Eu escrevi [em outro texto](/pt/blog/tres-loops-de-agentes-um-mes) sobre me pegar acreditando que a gente acertava de primeira muito mais do que acertava de verdade. Essas conferências são essa lição, montada dentro de um sábado.
+O hábito por trás do símbolo errado lá do começo atravessa as quatro camadas. Saída de ferramenta se confere, não se confia: o agente compara o que pediu com o que voltou antes de usar a resposta. Eu escrevi [em outro texto](/pt/blog/tres-loops-de-agentes-um-mes) sobre me pegar acreditando que a gente acertava de primeira muito mais do que acertava de verdade. Essas conferências são essa lição, montada dentro de um sábado.
 
 ## O humano no loop, ajustado ao que aconteceu
 
@@ -144,7 +144,7 @@ E o estado inteiro vive como código, num arquivo HTML. É tosco. Nesta escala �
 
 ## O que levar daqui
 
-> **Três coisas para levar daqui:** faça a fonte se conferir antes de a leitura do modelo contar; tenha algo que não é o agente fazendo a conta, e prove esse algo contra uma resposta conhecida antes; escreva a regra de human-in-the-loop depois de uma execução de verdade, não antes.
+> **Três coisas para levar daqui:** faça a fonte se conferir antes de a leitura do modelo contar; tenha algo que não é o agente fazendo a conta, e prove esse algo contra uma resposta conhecida antes; ajuste a regra de human-in-the-loop a uma execução de verdade, em vez de chutar ela de antemão.
 
 Esta semana, escolha um número que um agente te deu e recalcule com alguma coisa que não seja o agente. Se você não conseguir, essa é a primeira conferência a construir.
 
