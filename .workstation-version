@@ -3,5 +3,6 @@
 # its own skills under .claude/skills/. Compared at session start by an instruction in the user brief and by
 # `mhw status`; a mismatch prints one line and never blocks. The floor is 5.8 since #715: AGENTS.md
 # points its review routing, loop-mode contract and ask rules at the method's orchestration skill,
-# first released in 5.8.0 (tedeuxx/mhw#176), and scripts/hitl-contract.test.sh asserts this floor.
->=5.8 <6
+# first released in 5.8.0 (tedeuxx/mhw#176), and scripts/hitl-contract.test.sh asserts that floor.
+# The range is 8.x since #768: it accepts the release installed on the workstation (v8.0.0).
+>=8.0 <9
