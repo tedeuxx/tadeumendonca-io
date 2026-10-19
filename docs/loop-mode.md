@@ -26,7 +26,7 @@ by nothing but the drain (see *The two repositories* below).
 
 ## The declaration
 
-~~Four lines~~ **FIVE lines since 2026-09-11 (#385)**, each at column 0, each a parsing contract read
+~~Four lines~~ **FIVE lines since 2026-09-11 (#385)**, the fifth retired in place since 2026-10-19 (#771), each at column 0, each a parsing contract read
 literally — the same positional shape
 `invocable:` already uses across this loop's Issues, chosen for the same reason: a declaration a reader
 can find with an anchored `grep` rather than by reading prose around it.
@@ -35,7 +35,18 @@ loop-mode: scrum
 loop-mode-since: 2026-09-11
 loop-mode-enum: scrum kanban
 loop-mode-repos: tedeuxx/tadeumendonca-skills tedeuxx/tadeumendonca-io
-wip: 2
+wip: unbounded
+
+**`wip:` is RETIRED IN PLACE, not deleted (#771, owner ruling 2026-10-19).** In his words: *«a regra
+enforçada é paralelismo por issues baseado em git worktrees»*. Development runs one issue per
+`git worktree` with **no numeric ceiling**; the review gate stays serial. ~~`wip: 2`~~ is struck to
+`unbounded` rather than removed because the installed workstation method (8.0.0) still tells a session
+to read this line: `scrum-master` reads it as the ceiling on how many selections it emits, and
+`/autonomy` as the development bound. **Nothing parses it**: no script in that release reads `wip:`,
+only those prose instructions, and none of them defines what a missing line means. So an explicit
+`unbounded` is the one value that cannot be read back as a count, where an absent line could be read
+as the struck WIP=1. **The line goes once tedeuxx/mhw#216 ships a method that no longer reads it**,
+which is its own slice.
 
 **`loop-mode-enum` is closed at two, and an unrecognised value is refused BY NAME rather than defaulted.**
 A mode selects a pool predicate and a ceremony set; a session that cannot resolve the value has no
@@ -347,7 +358,16 @@ repositories, not a unilateral edit here.** Recorded rather than absorbed.
 
 ---
 
-## `wip: 2` — the value, and why this copy carries a basis measured in the SIBLING (#385)
+## ~~`wip: 2` — the value, and why this copy carries a basis measured in the SIBLING (#385)~~ — RETIRED 2026-10-19 (#771)
+
+**Struck with the value it argued for.** The owner removed the numeric ceiling on 2026-10-19 (see
+*The declaration* above): one issue, one `git worktree`, no count, the review gate still serial. Struck
+rather than deleted because `2` governed this repository for five weeks and the measurement below is
+real for the corpus it measured. **Nothing in this section and its *What does NOT bound* subsection
+describes the value in force.** Two of its claims outlive the count, and they are restated here so
+nobody has to read struck text to find them: **review stays serial**, and **nothing enforces how much
+development runs in parallel**. Opening a merge request is allowlisted and no registered hook reads this
+file, so the rule is an instruction.
 
 **`#406` declared the SLOT and deliberately decided no value. `#385` decides the value, and it is `2`.**
 
@@ -443,7 +463,7 @@ rulings 2 and 3 each *removed* an axis on the argument that a mode config gets b
 rather than tuned to them**, and the number cannot be improved until the instrument writes records
 here. Fixing that is not `#385`.
 
-### What `wip: 2` does NOT bound
+### ~~What `wip: 2` does NOT bound~~ — history, retired with the value (#771)
 
 - **It does not bound merge requests.** Nothing enforces it — `gh pr create` is allowlisted in both
   settings layers and no registered hook reads this file, so an (N+1)th concurrent PR executes with no

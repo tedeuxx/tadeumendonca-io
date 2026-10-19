@@ -57,9 +57,9 @@ work.
 9. **Scratch files go in your harness's session scratchpad, never in a repository path.** Merge-request,
    issue and multi-line commit text is written to a file and passed by file — the shell silently
    deletes backtick and dollar spans from an inline argument.
-10. **Bound work in progress by `wip:` in `docs/loop-mode.md`, and finish each slice through merge.**
-    Development may run in parallel up to that bound, one `git worktree` per slice; review never does
-    (see *Loop mode and the serial gate*).
+10. **One issue, one `git worktree`, and finish each slice through merge.** Development runs in
+    parallel per issue with no numeric ceiling; review never does (see *Loop mode and the serial
+    gate*). Remove a slice's worktree after its merge.
 11. **A review finding is named, never filed.** Only the owner opens work.
 12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
     text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
@@ -189,9 +189,10 @@ https://github.com/tedeuxx/mhw/blob/main/method/skills/orchestration/SKILL.md, f
 owner ruling on #715, 2026-10-13: *"Mover pro mhw"*). **Load that skill before you route a review,
 before the first pool query of a drain or rite, and before you put anything to the owner.** This file
 does not restate them: one rule in two wordings is how the operative copy ends up where nobody reads
-it. What stays here is this repository's own: the mode, its pool predicates and the `wip:` bound are
-recorded in `docs/loop-mode.md`, and the user-level brief's escalation rules remain the floor for any
-ask.
+it. What stays here is this repository's own: the mode and its pool predicates are recorded in
+`docs/loop-mode.md`, and the user-level brief's escalation rules remain the floor for any ask. **No
+development ceiling applies** (owner ruling 2026-10-19, #771): a method release that still reads a
+`wip:` count from the record finds `unbounded` there, until tedeuxx/mhw#216 stops reading it.
 
 ## How work is dispatched
 
@@ -208,8 +209,7 @@ context holds.
 
 ## Standing rules
 
-Each is true on a harness with no hooks. Mode values and the work-in-progress bound are in
-`docs/loop-mode.md`.
+Each is true on a harness with no hooks. Mode values are in `docs/loop-mode.md`.
 
 ### Git, forge and reporting
 
@@ -276,8 +276,9 @@ Each is true on a harness with no hooks. Mode values and the work-in-progress bo
 ### Loop mode and the serial gate
 
 22. **The loop-mode contract is the `orchestration` skill's**, parallel development and the serial
-    gate included; this repository's mode value, enum, pool predicates and `wip:` are in
-    `docs/loop-mode.md`.
+    gate included: one merge request in review at a time, rebased onto the current trunk before the
+    gate, with no count on development (floor rule 10). This repository's mode value, enum and pool
+    predicates are in `docs/loop-mode.md`.
 23. **A gate dispatch names the merge request by number, positionally** (`gh pr merge <number> --merge`);
     with no reference it resolves to the current checkout's branch, possibly another slice's.
 24. **A harness diff needs an agents-lead verdict marker whose commit line names the merged head in
