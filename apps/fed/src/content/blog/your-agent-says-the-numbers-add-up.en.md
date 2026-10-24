@@ -1,5 +1,5 @@
 ---
-title: "An investment app on your phone, with no app to install. Now trust the numbers."
+title: "Build your first AI app: track your investments on your phone using only natural language."
 slug: your-agent-says-the-numbers-add-up
 date: '2026-10-19T12:00:00.000Z'
 tag: ai

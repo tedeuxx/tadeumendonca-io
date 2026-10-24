@@ -1,5 +1,5 @@
 ---
-title: "Um app de investimentos no seu celular, sem instalar app nenhum. Só falta confiar nos números."
+title: "Crie seu primeiro AI app: acompanhe seus investimentos no celular apenas em linguagem natural."
 slug: seu-agente-diz-que-a-conta-fecha
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
