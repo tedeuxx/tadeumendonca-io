@@ -24,22 +24,33 @@
     },
     {
       "issue": "tedeuxx/tadeumendonca-io#663",
-      "planned_points": null,
+      "planned_points": 1,
       "work_type": "product",
       "parent": null,
       "estimate_provenance": {
-        "pending": "no sp:N at re-plan; the product estimation pass is running",
+        "product-lead": 1,
+        "tech-lead": 1,
+        "developer": 1,
+        "quality-assurance": 2,
+        "median": 1,
+        "method": "median of four isolated estimator dispatches, 2026-10-24",
         "owner_commitment": "the owner admitted both eligible items («Admitir as duas (Recommended)», 2026-10-24)"
       },
       "source_revision": "f9436d35dd0dd8aa931f12f826a17769344a4a15"
     },
     {
       "issue": "tedeuxx/tadeumendonca-io#765",
-      "planned_points": null,
+      "planned_points": 3,
       "work_type": "product",
       "parent": null,
       "estimate_provenance": {
-        "pending": "no sp:N at re-plan; the product estimation pass is running",
+        "product-lead": 3,
+        "tech-lead": 3,
+        "developer": 3,
+        "quality-assurance": 3,
+        "median": 3,
+        "method": "median of four isolated estimator dispatches, 2026-10-24",
+        "scope_note": "the frozen estimate covers pre-sprint delivery: the build slice merged 2026-10-19 as PR #773 (c9a23af5ce06dba6072106dfbb10a2f8f6367cfc); the item stays open only for AC8 (the owner's read-only GA read and a follow-up commit), which the estimators did not size separately",
         "owner_commitment": "the owner admitted both eligible items («Admitir as duas (Recommended)», 2026-10-24)"
       },
       "source_revision": "f9436d35dd0dd8aa931f12f826a17769344a4a15"
