@@ -1,5 +1,5 @@
 ---
-title: "Your agent says the numbers add up. Four checks to know if they do."
+title: "An investment app on your phone, with no app to install. Now trust the numbers."
 slug: your-agent-says-the-numbers-add-up
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
