@@ -1,6 +1,6 @@
 ---
 title: "Crie seu primeiro AI app: acompanhe seus investimentos no celular apenas em linguagem natural."
-slug: seu-agente-diz-que-a-conta-fecha
+slug: crie-seu-primeiro-ai-app
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
 track: engenharia

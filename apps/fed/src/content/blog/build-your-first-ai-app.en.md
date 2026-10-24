@@ -1,6 +1,6 @@
 ---
 title: "Build your first AI app: track your investments on your phone using only natural language."
-slug: your-agent-says-the-numbers-add-up
+slug: build-your-first-ai-app
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
 track: engenharia
