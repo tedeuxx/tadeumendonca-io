@@ -6,19 +6,23 @@ tag: ai
 track: engenharia
 draft: true
 contentIssue: 712
-excerpt: "Once a month an agent reads screenshots of apps that have no API, pulls market prices from a desktop app, and updates a private tracker of my investments. The tracker is not the interesting part. The interesting part is everything I built so I never have to take the agent's word for a number."
-takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first, check that the page still loads — and why the human-in-the-loop rule gets tuned to a real run instead of guessed upfront.'
+excerpt: "An investment app on the phone that sits in no app store: an HTML page published as a private Claude Artifact, which an agent updates once a month from TradingView prices and screenshots of the phone's apps. Building it is the easy part. The part that matters is what makes the numbers it shows worth trusting."
+takeaway: 'how to have an investment app on your phone without installing a new app — a page published as a Claude Artifact, updated by an agent — and the four checks that make its numbers worth trusting: the source checks itself, something that is not the agent adds it up, that something proves itself against a known answer, the page has to load; plus a human-in-the-loop rule tuned to a real run instead of guessed upfront.'
 ---
+
+There is an investment app on my phone that sits in no app store. It shows the whole portfolio on one screen: the consolidated view, the month-by-month history, the breakdown by asset class. There is no new app to install. It is an HTML page, published as a private Claude Artifact, that I open in the Claude app on the phone.
+
+Once a month, an agent updates that page. Part of the numbers come from TradingView, through an MCP server. The rest come from screenshots I take of the apps on the phone itself. The agent's session runs in the cloud, on Claude Cowork's cloud side, and works together with a Mac mini where TradingView stays open. I follow all of it from the Claude app on the phone.
+
+You can build one of these. Building it is the easy part. The hard part shows up on the first update: how do you know that what the agent read is what was there, and that what it returned is right?
 
 The first price after the market-data app launched came back for the wrong symbol.
 
 Nothing crashed. The call returned a price. The agent caught it because it did not read the price first. It read the `symbol` field, saw that it did not match what it had asked for, and asked again.
 
-That exchange is the whole article. Everything else here is what I built around that habit.
+That habit is what makes the app worth trusting. The rest of this piece is the app from the inside, and what I built around that habit so I never have to take the agent's word for a number.
 
-The example is personal: once a month, an agent updates a tracker of my investments. The subject is not money. It is a question everyone running agents hits sooner or later: how do you know that what the agent read is what was there, and that what it returned is right?
-
-One limit before you reach it on your own: the tracker is private, so nothing below opens a file you can inspect. What follows is testimony. What I can give you is the shape of the checks, and the moments they paid for themselves.
+One limit before you reach it on your own: the app is private, so nothing below opens a file you can inspect. What follows is testimony. What I can give you is the shape of the checks, and the moments they paid for themselves.
 
 ## Several apps, no API, one screen each
 
@@ -144,9 +148,11 @@ And the whole state lives as code, in one HTML file. It is crude. At this scale 
 
 ## What to take with you
 
-> **Three things to carry out of here:** make the source check itself before the model's reading counts; have something that is not the agent add it up, and prove that something against a known answer first; tune the human-in-the-loop rule to a real run instead of guessing it upfront.
+The app is the part that makes you want to build one. The checks are what let you open it on your phone without doubting what you see.
 
-This week, pick one number an agent gave you and recompute it with something that is not the agent. If you cannot, that is the first check to build.
+> **Four checks to trust an app an agent updates:** make the source check itself before the model's reading counts; have something that is not the agent add it up; prove that something against a known answer before you believe it; check that the page still loads. And tune the human-in-the-loop rule to a real run instead of guessing it upfront.
+
+This week, pick a number you only see today by opening an app on your phone, ask an agent to put it on a page, and recompute it with something that is not the agent. If you cannot recompute it, that is the first check to build.
 
 A hug, and see you next time.
 
