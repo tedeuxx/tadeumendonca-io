@@ -8,12 +8,14 @@ mode: `scrum` in both repository records (`loop-mode: scrum` in each `docs/loop-
 as #5, holding #712 (`content`, `ready`, `sp:8`) as its only item. This rite re-assembled the pool
 around it and admitted two `product` items. Nothing was removed from the milestone.
 
-**The milestone description is stale against the mode records.** Read with
+~~**The milestone description is stale against the mode records.**~~ **Struck: no longer true. The
+description was rewritten in step 4; see *Appended after step 4* under *The composition as
+confirmed*.** Read with
 `python3 <method>/scripts/milestone-read.py --repo tedeuxx/tadeumendonca-io 5` at assembly, it says
 *"No product build entered this sprint"* and that the loop queue continues *"under Kanban WIP=1"*.
-Both records read `loop-mode: scrum` and `wip: unbounded`, and two `product` items enter below. The
-description is rewritten by the orchestrator after this file lands; until then this file is the
-correct record.
+Both records read `loop-mode: scrum` and `wip: unbounded`, and two `product` items enter below.
+~~The description is rewritten by the orchestrator after this file lands; until then this file is
+the correct record.~~ **Struck: the rewrite has happened; see *Appended after step 4*.**
 
 ## The pool as assembled
 
