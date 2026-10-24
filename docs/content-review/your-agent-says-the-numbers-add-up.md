@@ -124,3 +124,59 @@ findings, and no other hand has changed the draft, so no round 2 is owed. The tw
 the reason. The next step is the held preview.
 
 CONTENT-REVIEW-FINDINGS
+
+## Round 2 — 2026-10-24
+draft: apps/fed/src/content/blog/your-agent-says-the-numbers-add-up.{en,pt}.md @ 5bcff0f2231c0f6f53e6833042a73a267cc3b8d3
+
+Why this round exists: another hand changed the draft after round 1. Commit 9840be8 applied the
+owner's new title, and commit 5bcff0f rewrote line 95 in both editions so it no longer cites the old
+title. The owner chose the title himself (#712, 2026-10-24, option B), so this round does not edit it.
+Scope is the diff from `origin/main` plus the parts of the piece the new title now depends on.
+
+The owner's rule for the title, quoted on #712: «precisa deixar bem claro no titulo o produto que o
+leitor ganha».
+
+### Repaired — ground 1, a quoted clause
+1. **The frontmatter `takeaway` lists three checks under a title that promises four.** Clause:
+   "**15. Title, `excerpt` and `takeaway` name the same article the body delivers.**"
+   - The body delivers four layers: the source checks itself, something that is not the agent adds it
+     up, the validator proves itself, and the page has to load. The new title counts four. The
+     `takeaway` named only the first three, so the page-load check appeared in the body and the title
+     but not in the field that travels without them.
+   - EN before: "… prove that something against a known answer first — and why …". After: "… prove
+     that something against a known answer first, check that the page still loads — and why …".
+   - PT before: "… provar esse algo contra uma resposta conhecida antes — e por que …". After: "…
+     provar esse algo contra uma resposta conhecida antes, conferir se a página ainda carrega — e por
+     que …".
+   - Why this is the smallest change: it adds one clause, taken from the body's fourth layer ("The
+     page has to load." / "A página tem que carregar."). The rest of the field is unchanged.
+
+### Advisory and droppable
+- **The closing blockquote says "Three things"; the title says "Four checks".** Its three items are:
+  check 1, then checks 2 and 3 joined into one item, then the human-in-the-loop rule. The page-load
+  check is missing. This is not wrong, but a reader carrying "four checks" from the title finds three
+  things that do not map to them. One option is to set the four checks as four items and keep the
+  human-in-the-loop rule as a separate line. That restructures a takeaway block, so it is the
+  writer's call, not a repair.
+- **The fourth check does not answer the title's question.** The title says the checks tell you
+  "if they [the numbers] add up". The page-load check confirms the file renders, not that the
+  numbers are right. The body is accurate: it calls them four layers, "each one catches something the
+  others cannot". The title is the owner's, so this is noted for his read only.
+- **Line 95's new wording holds.** "So it runs twice — once on this month, and once on a month whose
+  answer I already know." / "Então ele roda duas vezes …" is true against the paragraph above it, and
+  it no longer points at a title.
+- **Title gate.** Neither sentence has the author as its subject: "Your agent" in the first, and no
+  subject in the second fragment. The reader has something to try. Both editions survive uppercasing.
+  The body delivers the four checks it promises, in "Checked, not trusted" / "Conferido, não
+  confiado", and the excerpt still matches.
+- **Round 1's advisories still stand.** One concerned "Make it prove it twice"; the new title retires
+  it.
+
+### What this round does not cover
+No world-check runs on this lane. Nobody has re-read the repair above. It is listed here so that the
+gate and the owner's preview read can find it.
+
+**The pair stops here, on the cap.** This is the second `## Round` section, so no round 3 exists,
+whatever happens next. The next step is the gate, then the owner's preview read of the new title.
+
+CONTENT-REVIEW-FINDINGS

@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 contentIssue: 712
 excerpt: "Uma vez por mês, um agente lê prints de aplicativos que não têm API, puxa cotações de um aplicativo de desktop e atualiza um controle privado dos meus investimentos. O controle não é a parte interessante. A parte interessante é tudo o que eu construí para nunca precisar acreditar na palavra do agente sobre um número."
-takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
+takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes, conferir se a página ainda carrega — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
 ---
 
 A primeira cotação depois que o aplicativo de mercado abriu veio com o símbolo errado.

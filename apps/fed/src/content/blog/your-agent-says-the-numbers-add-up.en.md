@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 contentIssue: 712
 excerpt: "Once a month an agent reads screenshots of apps that have no API, pulls market prices from a desktop app, and updates a private tracker of my investments. The tracker is not the interesting part. The interesting part is everything I built so I never have to take the agent's word for a number."
-takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first — and why the human-in-the-loop rule gets tuned to a real run instead of guessed upfront.'
+takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first, check that the page still loads — and why the human-in-the-loop rule gets tuned to a real run instead of guessed upfront.'
 ---
 
 The first price after the market-data app launched came back for the wrong symbol.
