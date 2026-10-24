@@ -19,10 +19,10 @@ matching what `apps/fed/src/lib/analytics.ts` and `apps/fed/scripts/routes.mjs` 
 **GA-side declarations** state names that exist only in the analytics property. Nothing in this
 repository can observe them, so each one carries a status first:
 
-- not yet read off the property: the status literal you see on the lines below, optionally followed by
-  the value the repository alone supports;
+- not yet read off the property: the negated status word (`verified` with the prefix `un`), optionally
+  followed by the value the repository alone supports;
 - read off the property: `verified <YYYY-MM-DD> owner-ga-ui <value>`, where the date is the day the
-  owner read it in the GA UI.
+  value was read in the owner's GA UI session.
 
 That status literal appears in this file only on the GA-side lines, so a search for it counts exactly
 the values still outstanding. The test checks the shape of each GA-side line, never its truth.
@@ -76,22 +76,25 @@ What each line means:
 The shapes: `ga4-dimension` takes the event parameter, then the status; `internal-traffic-filter` and
 `saved-exploration` take the status alone.
 
-ga4-dimension: slug unverified
+ga4-dimension: slug verified 2026-10-24 owner-ga-ui slug
 
-ga4-dimension: locale unverified
+ga4-dimension: locale verified 2026-10-24 owner-ga-ui locale
 
-internal-traffic-filter: unverified
+internal-traffic-filter: verified 2026-10-24 owner-ga-ui Internal Traffic Testing
 
-saved-exploration: unverified none
+saved-exploration: verified 2026-10-24 owner-ga-ui none
 
 - **`ga4-dimension:`** is the display name the property registers for each event parameter (Admin,
-  Custom definitions). ADR-0051 records that both are registered. That is a record's claim, and the
-  display names have not been read off the property.
+  Custom definitions). ADR-0051 records that both are registered, and the property confirms it: on
+  2026-10-24 each was read as an event-scoped dimension whose display name equals its parameter.
+  The read was made by the agent inside the owner's GA browser session, not by the owner's own eyes
+  (#765).
 - **`internal-traffic-filter:`** is the exact name and state (Testing or Active) of the internal-traffic
-  data filter. The reporting state used by a period is declared separately, on that period's
+  data filter, read on 2026-10-24 as `Internal Traffic`, an exclude filter in state Testing. The
+  reporting state used by a period is declared separately, on that period's
   `internal-traffic:` line in its collection file and report.
-- **`saved-exploration:`** names any saved exploration the driver reads. The repository names none, so
-  the provisional value is `none`.
+- **`saved-exploration:`** names any saved exploration the driver reads. The property holds none that
+  the driver reads, so the value is `none`.
 
 Replacing a GA-side line after the owner's read is a normal merge request. #765 stays open until no
 GA-side line carries the outstanding status.
