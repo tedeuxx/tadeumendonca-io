@@ -92,7 +92,7 @@ An agent reading a screenshot is reading pixels. An agent calling a tool is rece
 
 **Something that is not the agent adds it up.** A separate Node script recomputes the totals and the per-class figures from the data constants and compares them with the new history row the agent wrote. The agent writes the row; something else does the arithmetic.
 
-**The validator proves itself.** The same script then runs against last month's version of the file and has to reproduce the total recorded then. If it cannot, its answer for this month means nothing: a check that has never been seen agreeing with a known answer is an opinion with a script attached. That is the twice in the title — once on this month, and once on a month whose answer I already know.
+**The validator proves itself.** The same script then runs against last month's version of the file and has to reproduce the total recorded then. If it cannot, its answer for this month means nothing: a check that has never been seen agreeing with a known answer is an opinion with a script attached. So it runs twice — once on this month, and once on a month whose answer I already know.
 
 **The page has to load.** A render check in jsdom, with the canvas stubbed out, opens the file: no script errors, and the expected number of charts and table rows.
 

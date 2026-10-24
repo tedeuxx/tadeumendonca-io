@@ -92,7 +92,7 @@ Um agente lendo um print está lendo pixels. Um agente chamando uma ferramenta e
 
 **Algo que não é o agente faz a conta.** Um script Node separado recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
 
-**O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Esse é o «duas vezes» do título — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
+**O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Então ele roda duas vezes — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
 
 **A página tem que carregar.** Uma checagem de renderização no jsdom, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
 
