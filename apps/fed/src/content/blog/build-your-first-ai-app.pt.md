@@ -6,15 +6,15 @@ tag: ai
 track: engenharia
 draft: true
 contentIssue: 712
-excerpt: "Um app de investimentos no celular que não está em loja nenhuma: uma página HTML publicada como um Artifact privado do Claude, que um agente atualiza uma vez por mês com cotações do TradingView e prints dos aplicativos. Montar é a parte fácil. A parte que interessa é o que faz dar para confiar nos números que ele mostra."
-takeaway: 'como ter um app de investimentos no celular sem instalar um app novo — uma página publicada como Artifact do Claude, atualizada por um agente — e as quatro conferências que fazem os números dele merecerem confiança: a fonte se confere sozinha, algo que não é o agente faz a conta, esse algo se prova contra uma resposta conhecida, a página tem que carregar; mais uma regra de human-in-the-loop ajustada a uma execução de verdade em vez de chutada de antemão.'
+excerpt: "Seu primeiro AI app pode ser um app de investimentos no celular, feito só conversando: uma página HTML publicada como um Artifact privado do Claude, que um agente escreveu e atualiza uma vez por mês com cotações do TradingView e prints dos aplicativos. Eu não escrevi código. O que faz dar para confiar nos números são quatro conferências, que o agente também escreveu."
+takeaway: 'como criar um primeiro AI app só conversando — um app de investimentos no celular, publicado como Artifact do Claude, que um agente escreve e atualiza — e as quatro conferências que fazem os números dele merecerem confiança: a fonte se confere sozinha, algo que não é o agente faz a conta, esse algo se prova contra uma resposta conhecida, a página tem que carregar; mais uma regra de human-in-the-loop ajustada a uma execução de verdade em vez de chutada de antemão.'
 ---
 
-Tem um app de investimentos no meu celular que não está em loja nenhuma. Ele mostra o portfólio inteiro numa tela só: a visão consolidada, o histórico mês a mês, a divisão por classe de ativo. Não tem app novo para instalar. É uma página HTML, publicada como um Artifact privado do Claude, que eu abro no aplicativo do Claude no celular.
+Tem um app de investimentos no meu celular que não está em loja nenhuma. Ele mostra o portfólio inteiro numa tela só: a visão consolidada, o histórico mês a mês, a divisão por classe de ativo. É uma página HTML, publicada como um Artifact privado do Claude, que eu abro no aplicativo do Claude no celular. Eu não escrevi uma linha dela: o agente escreveu a página e as conferências que a validam, tudo a partir de conversa.
 
 Uma vez por mês, um agente atualiza essa página. Parte dos números vem do TradingView, por um servidor MCP. O resto vem de prints que eu tiro dos aplicativos no próprio celular. A sessão do agente roda na nuvem, na parte cloud do Claude Cowork, e trabalha junto com um Mac mini, onde o TradingView fica aberto. Eu acompanho tudo pelo aplicativo do Claude no celular.
 
-Você consegue montar um desses. Montar é a parte fácil. A difícil aparece na primeira atualização: como você sabe que o que o agente leu é o que estava lá, e que o que ele devolveu está certo?
+Você consegue montar um desses só conversando. Montar é a parte fácil. A difícil aparece na primeira atualização: como você sabe que o que o agente leu é o que estava lá, e que o que ele devolveu está certo?
 
 A primeira cotação depois que o aplicativo de mercado abriu veio com o símbolo errado.
 
@@ -94,11 +94,11 @@ Um agente lendo um print está lendo pixels. Um agente chamando uma ferramenta e
 
 **A fonte se confere sozinha.** Antes de um número de um print contar, ele tem que bater com outro número da mesma tela. O saldo de um fundo tem que ser igual ao custo mais o rendimento que o aplicativo mostra, no centavo. Uma linha de ação tem que ser igual à quantidade vezes o preço que o TradingView acabou de devolver. O total de um fundo administrado pelo governo tem que ser igual à soma das suas subcontas. Se o modelo lê um dígito errado, a soma para de fechar, e a execução para junto.
 
-**Algo que não é o agente faz a conta.** Um script Node separado recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
+**Algo que não é o agente faz a conta.** Um script Node separado, que o agente escreveu a meu pedido, recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
 
 **O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Então ele roda duas vezes — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
 
-**A página tem que carregar.** Uma checagem de renderização no jsdom, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
+**A página tem que carregar.** Uma checagem de renderização no jsdom, também escrita pelo agente a meu pedido, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
 
 ```mermaid
 flowchart TB
@@ -144,7 +144,7 @@ O pipeline depende do Mac estar acordado com o TradingView aberto. Na execução
 
 Os prints ainda são manuais. O item em aberto é uma caixa de entrada que o celular alimenta sozinho. Levar os dados para o armazenamento do próprio Artifact também ficou para depois, porque isso significa reescrever a renderização.
 
-E o estado inteiro vive como código, num arquivo HTML. É tosco. Nesta escala — uma pessoa escrevendo, uma linha por mês — ganha de um banco de dados: cada mês é um diff que eu leio linha por linha, o arquivo abre em qualquer lugar sem instalar nada, e um script valida tudo só lendo três constantes.
+E o estado inteiro vive como código, num arquivo HTML que o agente escreve e eu não. É tosco. Nesta escala — uma pessoa escrevendo, uma linha por mês — ganha de um banco de dados: cada mês é um diff que eu leio linha por linha, o arquivo abre em qualquer lugar sem instalar nada, e um script valida tudo só lendo três constantes.
 
 ## O que levar daqui
 
