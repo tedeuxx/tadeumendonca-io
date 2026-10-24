@@ -1,5 +1,5 @@
 ---
-title: "Your agent says the numbers add up. Make it prove it twice."
+title: "Your agent says the numbers add up. Four checks to know if they do."
 slug: your-agent-says-the-numbers-add-up
 date: '2026-10-19T12:00:00.000Z'
 tag: ai

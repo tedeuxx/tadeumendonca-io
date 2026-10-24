@@ -1,5 +1,5 @@
 ---
-title: "Seu agente diz que a conta fecha. Faça ele provar duas vezes."
+title: "Seu agente diz que a conta fecha. Quatro conferências para saber se fecha mesmo."
 slug: seu-agente-diz-que-a-conta-fecha
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
