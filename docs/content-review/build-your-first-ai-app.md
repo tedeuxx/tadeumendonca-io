@@ -1,8 +1,10 @@
-# Content review: your-agent-says-the-numbers-add-up
+# Content review: build-your-first-ai-app
 
 Issue #712. Both editions:
-`apps/fed/src/content/blog/your-agent-says-the-numbers-add-up.en.md` and
-`apps/fed/src/content/blog/your-agent-says-the-numbers-add-up.pt.md`.
+`apps/fed/src/content/blog/build-your-first-ai-app.en.md` and
+`apps/fed/src/content/blog/build-your-first-ai-app.pt.md`
+(renamed from `your-agent-says-the-numbers-add-up.*` on 2026-10-24; the `draft:` lines below
+name the path as it was at their pinned commit).
 
 ## Round 1 — 2026-10-19
 draft: apps/fed/src/content/blog/your-agent-says-the-numbers-add-up.{en,pt}.md @ 3b6dbc9c2a5cd4fbe88dc40b4bc6dbbe68c036dc

@@ -1,24 +1,28 @@
 ---
-title: "Seu agente diz que a conta fecha. Quatro conferências para saber se fecha mesmo."
-slug: seu-agente-diz-que-a-conta-fecha
+title: "Crie seu primeiro AI app: acompanhe seus investimentos no celular apenas em linguagem natural."
+slug: crie-seu-primeiro-ai-app
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
 track: engenharia
 draft: true
 contentIssue: 712
-excerpt: "Uma vez por mês, um agente lê prints de aplicativos que não têm API, puxa cotações de um aplicativo de desktop e atualiza um controle privado dos meus investimentos. O controle não é a parte interessante. A parte interessante é tudo o que eu construí para nunca precisar acreditar na palavra do agente sobre um número."
-takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes, conferir se a página ainda carrega — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
+excerpt: "Seu primeiro AI app pode ser um app de investimentos no celular, feito só conversando: uma página HTML publicada como um Artifact privado do Claude, que um agente escreveu e atualiza uma vez por mês com cotações do TradingView e prints dos aplicativos. Eu não escrevi código. O que faz dar para confiar nos números são quatro conferências, que o agente também escreveu."
+takeaway: 'como criar um primeiro AI app só conversando — um app de investimentos no celular, publicado como Artifact do Claude, que um agente escreve e atualiza — e as quatro conferências que fazem os números dele merecerem confiança: a fonte se confere sozinha, algo que não é o agente faz a conta, esse algo se prova contra uma resposta conhecida, a página tem que carregar; mais uma regra de human-in-the-loop ajustada a uma execução de verdade em vez de chutada de antemão.'
 ---
+
+Tem um app de investimentos no meu celular que não está em loja nenhuma. Ele mostra o portfólio inteiro numa tela só: a visão consolidada, o histórico mês a mês, a divisão por classe de ativo. É uma página HTML, publicada como um Artifact privado do Claude, que eu abro no aplicativo do Claude no celular. Eu não escrevi uma linha dela: o agente escreveu a página e as conferências que a validam, tudo a partir de conversa.
+
+Uma vez por mês, um agente atualiza essa página. Parte dos números vem do TradingView, por um servidor MCP. O resto vem de prints que eu tiro dos aplicativos no próprio celular. A sessão do agente roda na nuvem, na parte cloud do Claude Cowork, e trabalha junto com um Mac mini, onde o TradingView fica aberto. Eu acompanho tudo pelo aplicativo do Claude no celular.
+
+Você consegue montar um desses só conversando. Montar é a parte fácil. A difícil aparece na primeira atualização: como você sabe que o que o agente leu é o que estava lá, e que o que ele devolveu está certo?
 
 A primeira cotação depois que o aplicativo de mercado abriu veio com o símbolo errado.
 
 Nada quebrou. A chamada devolveu um preço. O agente percebeu porque não leu o preço primeiro. Ele leu o campo `symbol`, viu que não batia com o que tinha pedido, e pediu de novo.
 
-Essa troca é o artigo inteiro. Todo o resto aqui é o que eu construí em volta desse hábito.
+Esse hábito é o que faz o app merecer confiança. O resto deste texto é o app por dentro, e o que eu construí em volta desse hábito para nunca precisar acreditar na palavra do agente sobre um número.
 
-O exemplo é pessoal: uma vez por mês, um agente atualiza um controle dos meus investimentos. O assunto não é dinheiro. É uma pergunta que toda pessoa que roda agentes encontra, cedo ou tarde: como você sabe que o que o agente leu é o que estava lá, e que o que ele devolveu está certo?
-
-Um limite antes que você chegue nele por conta própria: o controle é privado, então nada aqui embaixo abre um arquivo que você possa inspecionar. O que vem a seguir é testemunho. O que eu consigo te dar é o formato das conferências, e os momentos em que elas se pagaram.
+Um limite antes que você chegue nele por conta própria: o app é privado, então nada aqui embaixo abre um arquivo que você possa inspecionar. O que vem a seguir é testemunho. O que eu consigo te dar é o formato das conferências, e os momentos em que elas se pagaram.
 
 ## Vários aplicativos, nenhuma API, uma tela cada
 
@@ -90,11 +94,11 @@ Um agente lendo um print está lendo pixels. Um agente chamando uma ferramenta e
 
 **A fonte se confere sozinha.** Antes de um número de um print contar, ele tem que bater com outro número da mesma tela. O saldo de um fundo tem que ser igual ao custo mais o rendimento que o aplicativo mostra, no centavo. Uma linha de ação tem que ser igual à quantidade vezes o preço que o TradingView acabou de devolver. O total de um fundo administrado pelo governo tem que ser igual à soma das suas subcontas. Se o modelo lê um dígito errado, a soma para de fechar, e a execução para junto.
 
-**Algo que não é o agente faz a conta.** Um script Node separado recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
+**Algo que não é o agente faz a conta.** Um script Node separado, que o agente escreveu a meu pedido, recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
 
 **O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Então ele roda duas vezes — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
 
-**A página tem que carregar.** Uma checagem de renderização no jsdom, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
+**A página tem que carregar.** Uma checagem de renderização no jsdom, também escrita pelo agente a meu pedido, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
 
 ```mermaid
 flowchart TB
@@ -140,13 +144,15 @@ O pipeline depende do Mac estar acordado com o TradingView aberto. Na execução
 
 Os prints ainda são manuais. O item em aberto é uma caixa de entrada que o celular alimenta sozinho. Levar os dados para o armazenamento do próprio Artifact também ficou para depois, porque isso significa reescrever a renderização.
 
-E o estado inteiro vive como código, num arquivo HTML. É tosco. Nesta escala — uma pessoa escrevendo, uma linha por mês — ganha de um banco de dados: cada mês é um diff que eu leio linha por linha, o arquivo abre em qualquer lugar sem instalar nada, e um script valida tudo só lendo três constantes.
+E o estado inteiro vive como código, num arquivo HTML que o agente escreve e eu não. É tosco. Nesta escala — uma pessoa escrevendo, uma linha por mês — ganha de um banco de dados: cada mês é um diff que eu leio linha por linha, o arquivo abre em qualquer lugar sem instalar nada, e um script valida tudo só lendo três constantes.
 
 ## O que levar daqui
 
-> **Três coisas para levar daqui:** faça a fonte se conferir antes de a leitura do modelo contar; tenha algo que não é o agente fazendo a conta, e prove esse algo contra uma resposta conhecida antes; ajuste a regra de human-in-the-loop a uma execução de verdade, em vez de chutar ela de antemão.
+O app é a parte que dá vontade de montar. As conferências são o que deixa você abrir ele no celular sem desconfiar do que está vendo.
 
-Esta semana, escolha um número que um agente te deu e recalcule com alguma coisa que não seja o agente. Se você não conseguir, essa é a primeira conferência a construir.
+> **Quatro conferências para confiar num app que um agente atualiza:** faça a fonte se conferir antes de a leitura do modelo contar; tenha algo que não é o agente fazendo a conta; prove esse algo contra uma resposta conhecida antes de acreditar nele; confira que a página ainda carrega. E ajuste a regra de human-in-the-loop a uma execução de verdade, em vez de chutar ela de antemão.
+
+Esta semana, escolha um número que hoje você só vê abrindo um aplicativo no celular, peça para um agente colocar ele numa página, e recalcule com alguma coisa que não seja o agente. Se você não conseguir recalcular, essa é a primeira conferência a construir.
 
 Um abraço, e até a próxima.
 

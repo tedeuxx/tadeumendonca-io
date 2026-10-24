@@ -1,24 +1,28 @@
 ---
-title: "Your agent says the numbers add up. Four checks to know if they do."
-slug: your-agent-says-the-numbers-add-up
+title: "Build your first AI app: track your investments on your phone using only natural language."
+slug: build-your-first-ai-app
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
 track: engenharia
 draft: true
 contentIssue: 712
-excerpt: "Once a month an agent reads screenshots of apps that have no API, pulls market prices from a desktop app, and updates a private tracker of my investments. The tracker is not the interesting part. The interesting part is everything I built so I never have to take the agent's word for a number."
-takeaway: 'how to check what an agent read and returned without trusting it — make the source check itself, have something that is not the agent add it up, prove that something against a known answer first, check that the page still loads — and why the human-in-the-loop rule gets tuned to a real run instead of guessed upfront.'
+excerpt: "Your first AI app can be an investment app on your phone, built only by conversing: an HTML page published as a private Claude Artifact, which an agent wrote and updates once a month from TradingView prices and screenshots of the phone's apps. I wrote no code. What makes the numbers worth trusting is four checks, which the agent wrote too."
+takeaway: 'how to build a first AI app only by conversing — an investment app on your phone, published as a Claude Artifact, that an agent writes and updates — and the four checks that make its numbers worth trusting: the source checks itself, something that is not the agent adds it up, that something proves itself against a known answer, the page has to load; plus a human-in-the-loop rule tuned to a real run instead of guessed upfront.'
 ---
+
+There is an investment app on my phone that sits in no app store. It shows the whole portfolio on one screen: the consolidated view, the month-by-month history, the breakdown by asset class. It is an HTML page, published as a private Claude Artifact, that I open in the Claude app on the phone. I did not write a line of it: the agent wrote the page and the checks that validate it, all from conversation.
+
+Once a month, an agent updates that page. Part of the numbers come from TradingView, through an MCP server. The rest come from screenshots I take of the apps on the phone itself. The agent's session runs in the cloud, on Claude Cowork's cloud side, and works together with a Mac mini where TradingView stays open. I follow all of it from the Claude app on the phone.
+
+You can build one of these only by conversing. Building it is the easy part. The hard part shows up on the first update: how do you know that what the agent read is what was there, and that what it returned is right?
 
 The first price after the market-data app launched came back for the wrong symbol.
 
 Nothing crashed. The call returned a price. The agent caught it because it did not read the price first. It read the `symbol` field, saw that it did not match what it had asked for, and asked again.
 
-That exchange is the whole article. Everything else here is what I built around that habit.
+That habit is what makes the app worth trusting. The rest of this piece is the app from the inside, and what I built around that habit so I never have to take the agent's word for a number.
 
-The example is personal: once a month, an agent updates a tracker of my investments. The subject is not money. It is a question everyone running agents hits sooner or later: how do you know that what the agent read is what was there, and that what it returned is right?
-
-One limit before you reach it on your own: the tracker is private, so nothing below opens a file you can inspect. What follows is testimony. What I can give you is the shape of the checks, and the moments they paid for themselves.
+One limit before you reach it on your own: the app is private, so nothing below opens a file you can inspect. What follows is testimony. What I can give you is the shape of the checks, and the moments they paid for themselves.
 
 ## Several apps, no API, one screen each
 
@@ -90,11 +94,11 @@ An agent reading a screenshot is reading pixels. An agent calling a tool is rece
 
 **The source checks itself.** Before a number from a screenshot counts, it has to agree with another number on the same screen. A fund's balance must equal its cost plus the yield the app reports, to the cent. A stock line must equal quantity times the price TradingView just returned. A government-run fund's total must equal the sum of its sub-accounts. If the model misreads one digit, the sum stops closing, and the run stops with it.
 
-**Something that is not the agent adds it up.** A separate Node script recomputes the totals and the per-class figures from the data constants and compares them with the new history row the agent wrote. The agent writes the row; something else does the arithmetic.
+**Something that is not the agent adds it up.** A separate Node script, which the agent wrote when I asked, recomputes the totals and the per-class figures from the data constants and compares them with the new history row the agent wrote. The agent writes the row; something else does the arithmetic.
 
 **The validator proves itself.** The same script then runs against last month's version of the file and has to reproduce the total recorded then. If it cannot, its answer for this month means nothing: a check that has never been seen agreeing with a known answer is an opinion with a script attached. So it runs twice — once on this month, and once on a month whose answer I already know.
 
-**The page has to load.** A render check in jsdom, with the canvas stubbed out, opens the file: no script errors, and the expected number of charts and table rows.
+**The page has to load.** A render check in jsdom, also written by the agent when I asked, with the canvas stubbed out, opens the file: no script errors, and the expected number of charts and table rows.
 
 ```mermaid
 flowchart TB
@@ -140,13 +144,15 @@ The pipeline depends on the Mac being awake with TradingView open. On the run th
 
 The screenshots are still manual. The open item is an inbox the phone feeds on its own. Moving the data into the Artifact's own storage is deferred too, because it means rewriting the rendering.
 
-And the whole state lives as code, in one HTML file. It is crude. At this scale — one writer, one row a month — it beats a database: every month is a diff I can read line by line, the file opens anywhere with nothing installed, and a script validates it by simply reading three constants.
+And the whole state lives as code, in one HTML file that the agent writes and I do not. It is crude. At this scale — one writer, one row a month — it beats a database: every month is a diff I can read line by line, the file opens anywhere with nothing installed, and a script validates it by simply reading three constants.
 
 ## What to take with you
 
-> **Three things to carry out of here:** make the source check itself before the model's reading counts; have something that is not the agent add it up, and prove that something against a known answer first; tune the human-in-the-loop rule to a real run instead of guessing it upfront.
+The app is the part that makes you want to build one. The checks are what let you open it on your phone without doubting what you see.
 
-This week, pick one number an agent gave you and recompute it with something that is not the agent. If you cannot, that is the first check to build.
+> **Four checks to trust an app an agent updates:** make the source check itself before the model's reading counts; have something that is not the agent add it up; prove that something against a known answer before you believe it; check that the page still loads. And tune the human-in-the-loop rule to a real run instead of guessing it upfront.
+
+This week, pick a number you only see today by opening an app on your phone, ask an agent to put it on a page, and recompute it with something that is not the agent. If you cannot recompute it, that is the first check to build.
 
 A hug, and see you next time.
 
