@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "sprint": "sprint-07",
+  "timezone": "America/Sao_Paulo",
+  "starts_at": null,
+  "ends_at": null,
+  "repositories": [
+    {
+      "repository": "tedeuxx/tadeumendonca-io",
+      "milestone_number": 5
+    }
+  ],
+  "counting_units": [
+    {
+      "issue": "tedeuxx/tadeumendonca-io#712",
+      "planned_points": 8,
+      "work_type": "content",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 8,
+        "owner_commitment": "committed to sprint-07 before this re-plan; the owner selected the piece on 2026-10-19 (picker answer «Selecionar o #712»); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "f9436d35dd0dd8aa931f12f826a17769344a4a15"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#663",
+      "planned_points": null,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "pending": "no sp:N at re-plan; the product estimation pass is running",
+        "owner_commitment": "the owner admitted both eligible items («Admitir as duas (Recommended)», 2026-10-24)"
+      },
+      "source_revision": "f9436d35dd0dd8aa931f12f826a17769344a4a15"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#765",
+      "planned_points": null,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "pending": "no sp:N at re-plan; the product estimation pass is running",
+        "owner_commitment": "the owner admitted both eligible items («Admitir as duas (Recommended)», 2026-10-24)"
+      },
+      "source_revision": "f9436d35dd0dd8aa931f12f826a17769344a4a15"
+    }
+  ]
+}
