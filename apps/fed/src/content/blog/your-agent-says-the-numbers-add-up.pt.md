@@ -1,5 +1,5 @@
 ---
-title: "Seu agente diz que a conta fecha. Faça ele provar duas vezes."
+title: "Seu agente diz que a conta fecha. Quatro conferências para saber se fecha mesmo."
 slug: seu-agente-diz-que-a-conta-fecha
 date: '2026-10-19T12:00:00.000Z'
 tag: ai
@@ -7,7 +7,7 @@ track: engenharia
 draft: true
 contentIssue: 712
 excerpt: "Uma vez por mês, um agente lê prints de aplicativos que não têm API, puxa cotações de um aplicativo de desktop e atualiza um controle privado dos meus investimentos. O controle não é a parte interessante. A parte interessante é tudo o que eu construí para nunca precisar acreditar na palavra do agente sobre um número."
-takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
+takeaway: 'como conferir o que um agente leu e devolveu sem confiar nele — fazer a fonte se conferir sozinha, ter algo que não é o agente fazendo a conta, provar esse algo contra uma resposta conhecida antes, conferir se a página ainda carrega — e por que a regra de human-in-the-loop se ajusta a uma execução de verdade em vez de ser chutada de antemão.'
 ---
 
 A primeira cotação depois que o aplicativo de mercado abriu veio com o símbolo errado.
@@ -92,7 +92,7 @@ Um agente lendo um print está lendo pixels. Um agente chamando uma ferramenta e
 
 **Algo que não é o agente faz a conta.** Um script Node separado recalcula os totais e os números por classe a partir das constantes de dados e compara com a linha nova de histórico que o agente escreveu. O agente escreve a linha; outra coisa faz a aritmética.
 
-**O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Esse é o «duas vezes» do título — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
+**O validador se prova.** O mesmo script roda depois contra a versão do mês passado do arquivo e tem que reproduzir o total registrado naquela época. Se não conseguir, a resposta dele para este mês não vale nada: uma conferência que nunca foi vista concordando com uma resposta conhecida é uma opinião com um script do lado. Então ele roda duas vezes — uma vez neste mês, e uma vez num mês cuja resposta eu já sei.
 
 **A página tem que carregar.** Uma checagem de renderização no jsdom, com o canvas substituído por um stub, abre o arquivo: nenhum erro de script, e o número esperado de gráficos e de linhas de tabela.
 
