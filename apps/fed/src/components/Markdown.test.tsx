@@ -3,6 +3,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { Markdown } from './Markdown';
 import { diagramSources } from '../content/diagrams';
 import { renderWithLocale } from '../test-utils';
+import { SITE_URL } from '../lib/site';
 
 describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
   it('turns a paragraph that is only a curated repo URL into a RepoCard', () => {
@@ -167,6 +168,48 @@ describe('Markdown — site-internal links are localized (#166)', () => {
     const link = container.querySelector('a');
     expect(link).toHaveTextContent('Biblioteca');
     expect(link).toHaveAttribute('href', '/pt/library');
+  });
+});
+
+// External links open in a new tab (#712). The owner, reading a held preview, followed an article's link
+// to a worked example and lost the article. Every case below has a CONTROL in the same describe: an
+// internal path, an anchor and a mailto rendered by the same component must carry no target, so a rule
+// that put `_blank` on every anchor fails here rather than passing the positive case.
+describe('Markdown — external links open in a new tab (#712)', () => {
+  const linkOf = (markdown: string) =>
+    renderWithLocale(<Markdown>{markdown}</Markdown>, { locale: 'en' }).container.querySelector('a');
+
+  it('opens an inline external link in a new tab, with noopener noreferrer', () => {
+    const link = linkOf('See [the example app](https://claude.ai/artifact/example-id) for the result.');
+    expect(link).toHaveAttribute('href', 'https://claude.ai/artifact/example-id');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('opens a GFM-autolinked bare external URL in a new tab too', () => {
+    const link = linkOf('Read more at https://example.com/page today.');
+    expect(link).toHaveAttribute('href', 'https://example.com/page');
+    expect(link).toHaveAttribute('target', '_blank');
+  });
+
+  it('keeps a site-internal path in the same tab', () => {
+    const link = linkOf('[Library](/library)');
+    expect(link).toHaveAttribute('href', '/en/library');
+    expect(link).not.toHaveAttribute('target');
+    expect(link).not.toHaveAttribute('rel');
+  });
+
+  it('keeps an in-page anchor and a mailto in the same tab', () => {
+    for (const md of ['[articles](#articles)', '[mail](mailto:someone@example.com)']) {
+      const link = linkOf(md);
+      expect(link).not.toHaveAttribute('target');
+      expect(link).not.toHaveAttribute('rel');
+    }
+  });
+
+  it('keeps an absolute link back to this site in the same tab', () => {
+    const link = linkOf(`[home](${SITE_URL}/en/library)`);
+    expect(link).not.toHaveAttribute('target');
   });
 });
 

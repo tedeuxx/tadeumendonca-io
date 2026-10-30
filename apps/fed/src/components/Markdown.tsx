@@ -27,7 +27,7 @@ import { PhotoFigure } from './PhotoFigure';
 import { repoCardFor } from '../data/repoCards';
 import { photoFor } from '../data/photos';
 import { useLocalePath } from '../i18n';
-import { isInternalHref } from '../lib/markdownLinks';
+import { isExternalHref, isInternalHref } from '../lib/markdownLinks';
 
 /**
  * A link markdown authored, with SITE-INTERNAL ones localized and routed (#166).
@@ -46,7 +46,8 @@ import { isInternalHref } from '../lib/markdownLinks';
  * guard compares.
  *
  * SCOPE, narrow on purpose: only `/`-rooted paths, and not `//host` (protocol-relative, an external URL
- * wearing a leading slash). Absolute URLs, `mailto:` and in-page `#anchor` links are untouched.
+ * wearing a leading slash). Absolute URLs, `mailto:` and in-page `#anchor` links are not localized; an
+ * absolute URL on another origin does gain `target="_blank"` (#712, see `isExternalHref`).
  *
  * THE PREDICATE ITSELF NOW LIVES IN `lib/markdownLinks` (#387) — the copy-as-markdown payload has to make
  * exactly this set of links absolute, and two places deciding one rule is how the renderer and the
@@ -77,8 +78,12 @@ function MarkdownLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnc
       </RouterLink>
     );
   }
+  // An external destination opens in a new tab (#712), so following an article's example link does not
+  // replace the article. `noopener noreferrer`: the opened page gets no `window.opener` handle on this
+  // one. Spread AFTER `props` so the rule wins over anything the AST hands through.
+  const external = isExternalHref(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   return (
-    <a href={href} {...props}>
+    <a href={href} {...props} {...external}>
       {children}
     </a>
   );
