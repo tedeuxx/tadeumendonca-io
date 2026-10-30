@@ -742,6 +742,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
       pt: `${SITE}/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa`,
       en: `${SITE}/en/blog/ai-answers-in-seconds-you-dont-have-to`,
     },
+    { pt: `${SITE}/pt/blog/crie-seu-primeiro-ai-app`, en: `${SITE}/en/blog/build-your-first-ai-app` },
   ];
   // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
   // below, the article is still live — at a different address — so these must stay reachable via redirect

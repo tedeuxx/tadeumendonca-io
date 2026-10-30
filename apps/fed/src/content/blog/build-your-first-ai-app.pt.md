@@ -1,12 +1,12 @@
 ---
 title: "Crie seu primeiro AI app: acompanhe seus investimentos no celular apenas em linguagem natural."
 slug: crie-seu-primeiro-ai-app
-date: '2026-10-19T12:00:00.000Z'
+date: '2026-10-30T12:00:00.000Z'
 tag: ai
 track: engenharia
-draft: true
+draft: false
 contentIssue: 712
-excerpt: "Dinheiro espalhado em vários aplicativos, e nenhum deles responde quanto você tem ao todo. Eu resolvi isso com um app de investimentos no celular feito só conversando: uma página que um agente escreveu e atualiza uma vez por mês, publicada como um Artifact do Claude. Tem um exemplo com dados inventados para você abrir, quatro conferências que fazem os números merecerem confiança, e um prompt para você montar o seu."
+excerpt: "Dinheiro espalhado em vários aplicativos, e nenhum deles responde quanto você tem ao todo. Eu resolvi isso com um app de investimentos no celular feito só conversando: uma página que um agente escreveu e atualiza uma vez por mês, publicada como um Artifact do Claude. Tem um exemplo com tickers reais e valores inventados para você abrir, quatro conferências que fazem os números merecerem confiança, e um prompt para você montar o seu."
 takeaway: 'um app de investimentos no celular, feito só conversando, que responde numa tela só quanto você tem, como isso mudou e onde está — com um exemplo para abrir, as quatro conferências que fazem os números merecerem confiança, e um prompt pronto para montar o seu.'
 ---
 
@@ -30,7 +30,7 @@ Três perguntas, uma tela: quanto eu tenho, como isso mudou mês a mês, e onde 
 
 **Confiança.** Um número bonito na tela não vale nada se estiver errado. O que faz esse app merecer ser aberto são quatro conferências, que eu explico já já, e que o agente também escreveu.
 
-**Quer ver como fica?** Eu montei uma versão de exemplo, com o mesmo visual do meu, e um portfólio inventado — uma parte no Brasil, uma parte fora:
+**Quer ver como fica?** Eu montei uma versão de exemplo, com o mesmo visual do meu, e um portfólio de tickers reais com valores inventados — uma parte no Brasil, uma parte fora:
 
 **[Abra o app de exemplo →](https://claude.ai/artifact/DEdZjPSNRGYXA2UdbcPMzn)**
 
@@ -185,7 +185,7 @@ O prompt abaixo é para quem nunca programou. Copie, cole numa conversa nova no 
 - **Ela lê pixels.** O modelo pode ler um dígito errado. As conferências existem para parar a atualização quando isso acontece; elas não deixam a leitura perfeita.
 - **Ela nunca mexe no seu dinheiro.** Só lê e atualiza a página: nenhuma compra, nenhuma transferência, e ela nunca pede senha nem login.
 - **O link do exemplo vive no claude.ai**, e esse link pode mudar.
-- **Deixe o seu privado.** O seu app guarda os seus números de verdade. Não compartilhe o link dele; o único que eu compartilhei é o exemplo, com dados inventados.
+- **Deixe o seu privado.** O seu app guarda os seus números de verdade. Não compartilhe o link dele; o único que eu compartilhei é o exemplo, com tickers reais e valores inventados.
 
 **Para reproduzir exatamente a minha montagem**, com cotações e uma execução mensal que começa sozinha, o prompt não basta. Você precisa também do que *Por dentro* descreve: o aplicativo desktop do Claude num computador que fica ligado (no meu caso, um Mac mini), liberando uma pasta por sessão; uma sessão de agente na parte cloud do Claude Cowork; o TradingView Desktop aberto nesse computador, atrás de um servidor MCP local que controla ele sobre CDP (o meu é o [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), um projeto aberto de terceiros); e uma tarefa agendada. **Esta precisa do Claude Pro, no mínimo**: tarefas agendadas no Cowork só existem nos planos pagos (Pro, Max, Ultra, Team, Enterprise), segundo [a página da Anthropic sobre elas](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). O TradingView Desktop está disponível no plano gratuito do TradingView, segundo [o blog do próprio TradingView](https://www.tradingview.com/blog/en/multi-monitor-support-free-on-desktop-app-31209/). Ela carrega os limites de *O que quebrou*: o Mac precisa estar acordado com o TradingView aberto, uma execução agendada já deixou de rodar, e os prints ainda são manuais.
 
