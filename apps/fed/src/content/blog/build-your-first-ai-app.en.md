@@ -1,12 +1,12 @@
 ---
 title: "Build your first AI app: track your investments on your phone using only natural language."
 slug: build-your-first-ai-app
-date: '2026-10-19T12:00:00.000Z'
+date: '2026-10-30T12:00:00.000Z'
 tag: ai
 track: engenharia
-draft: true
+draft: false
 contentIssue: 712
-excerpt: "Money spread across several apps, and not one of them tells you how much you have in total. I solved that with an investment app on my phone built only by conversing: a page an agent wrote and updates once a month, published as a Claude Artifact. There is a sample with made-up data for you to open, four checks that make the numbers worth trusting, and a prompt to build your own."
+excerpt: "Money spread across several apps, and not one of them tells you how much you have in total. I solved that with an investment app on my phone built only by conversing: a page an agent wrote and updates once a month, published as a Claude Artifact. There is a sample with real tickers and made-up amounts for you to open, four checks that make the numbers worth trusting, and a prompt to build your own."
 takeaway: 'an investment app on your phone, built only by conversing, that answers on one screen how much you have, how it changed and where it sits — with a sample to open, the four checks that make the numbers worth trusting, and a ready prompt to build your own.'
 ---
 
@@ -30,7 +30,7 @@ Three questions, one screen: how much I have, how it changed month by month, and
 
 **Trust.** A nice number on screen is worth nothing if it is wrong. What makes this app worth opening is four checks, which I explain in a moment, and which the agent wrote too.
 
-**Want to see what it looks like?** I put together a sample version, with the same look as mine and a made-up portfolio — part in Brazil, part abroad:
+**Want to see what it looks like?** I put together a sample version, with the same look as mine and a portfolio of real tickers with made-up amounts — part in Brazil, part abroad:
 
 **[Open the sample app →](https://claude.ai/artifact/DEdZjPSNRGYXA2UdbcPMzn)**
 
@@ -185,7 +185,7 @@ The prompt below is for someone who has never programmed. Copy it, paste it into
 - **It reads pixels.** The model can misread a digit. The checks exist to stop the update when that happens; they do not make the reading perfect.
 - **It never touches your money.** It only reads and updates the page: no purchases, no transfers, and it never asks for a password or a login.
 - **The sample link lives on claude.ai**, and that link may change.
-- **Keep yours private.** Your app holds your real numbers. Do not share its link; the only one I shared is the sample, with made-up data.
+- **Keep yours private.** Your app holds your real numbers. Do not share its link; the only one I shared is the sample, with real tickers and made-up amounts.
 
 **To reproduce my exact setup instead**, with prices and a monthly run that starts by itself, the prompt is not enough. You also need what *Under the hood* describes: the Claude desktop app on a computer that stays on (in my case a Mac mini), granting one folder per session; an agent session on Claude Cowork's cloud side; TradingView Desktop open on that computer, behind a local MCP server that drives it over CDP (mine is [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), an open project by a third party); and a scheduled task. **This one needs Claude Pro at minimum**: scheduled tasks in Cowork are on paid plans only (Pro, Max, Ultra, Team, Enterprise), per [Anthropic's page on them](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). TradingView Desktop is available on TradingView's free plan, per [TradingView's own blog](https://www.tradingview.com/blog/en/multi-monitor-support-free-on-desktop-app-31209/). It carries the limits in *What broke*: the Mac has to be awake with TradingView open, a scheduled run has already failed to execute, and the screenshots are still manual.
 

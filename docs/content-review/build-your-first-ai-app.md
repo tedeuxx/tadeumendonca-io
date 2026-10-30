@@ -269,3 +269,5 @@ editions:
   app there, and that sharing by link depends on the plan. Prompt step 1 and the monthly-update
   bullet no longer say "publish", which a Free reader cannot do for a new artifact.
 - A2: TradingView Desktop on the free plan now cites TradingView's own blog post (2022).
+
+Release, 2026-10-30: the owner approved publication after reading the #786 preview ([issuecomment-6533864052](https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6533864052)); `draft: false`, date 2026-10-30, and the demo described as real tickers with made-up amounts, both editions.
