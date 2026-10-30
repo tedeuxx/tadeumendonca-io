@@ -171,6 +171,23 @@ O app é a parte que dá vontade de montar. As conferências são o que deixa vo
 
 O prompt abaixo é para quem nunca programou. Copie, cole numa conversa nova no Claude, e troque o que está entre colchetes. Ele começa com dados inventados, então você vê o app antes de mostrar qualquer número seu. Ele não usa o TradingView: tudo vem dos seus prints. E quando for mandar um print, corte o número da conta e o seu nome; o agente só precisa do saldo.
 
+**Antes de colar, o que você precisa:**
+
+- **Uma conta no Claude**, para a conversa que monta o app.
+- **O aplicativo do Claude no celular**, para abrir o app depois que ele for publicado como um Artifact.
+- **Prints das telas de saldo** dos seus aplicativos, tirados no celular. Eles são o único dado que o prompt usa.
+- **Nenhum código.** Você não escreve nada; o agente escreve a página e as conferências, como escreveu as minhas.
+
+**O que esta versão não faz, dito antes de você descobrir:**
+
+- **Nenhuma cotação automática.** Ela não se conecta a nenhum serviço de cotações. Todo número vem de um print que você manda.
+- **Nenhuma atualização sozinha.** O prompt não agenda nada. O app muda quando você manda os prints do mês.
+- **Ela lê pixels.** O modelo pode ler um dígito errado. As conferências existem para parar a atualização quando isso acontece; elas não deixam a leitura perfeita.
+- **Ela nunca mexe no seu dinheiro.** Só lê e atualiza a página: nenhuma compra, nenhuma transferência, e ela nunca pede senha nem login.
+- **O link do exemplo vive no claude.ai**, e esse link pode mudar.
+
+**Para reproduzir exatamente a minha montagem**, com cotações e uma execução mensal que começa sozinha, o prompt não basta. Você precisa também do que *Por dentro* descreve: o aplicativo desktop do Claude num Mac mini, liberando uma pasta por sessão; uma sessão de agente na parte cloud do Claude Cowork; o TradingView Desktop aberto nesse Mac, atrás de um servidor MCP local que controla ele sobre CDP; e uma tarefa agendada. Ela carrega os limites de *O que quebrou*: o Mac precisa estar acordado com o TradingView aberto, uma execução agendada já deixou de rodar, e os prints ainda são manuais.
+
 > Quero criar um app simples para acompanhar meus investimentos no celular. Eu não sei programar, então faça tudo por mim e me explique só o que eu precisar decidir.
 >
 > **O que o app mostra, numa tela só:** o total de tudo o que eu tenho, somando todas as contas; um histórico mês a mês; e a divisão por tipo de investimento, por exemplo [renda fixa, ações, previdência, caixa]. Valores em [reais].

@@ -218,3 +218,27 @@ and the image line excluded, up from about 1,580 (pt) on `origin/main`. The incr
 the outcome section and the reader's-problem opening, all three asked for, while deleting the
 technical material was ruled out. Counted with a Python whitespace split over the body minus those
 two elements.
+
+## Second revision after the owner's preview read — 2026-10-30 (not a review round)
+
+Still not a `## Round`: the cap is spent and `content-reviewer` did not read this. Its specification
+is comments 2 and 3 of the owner's second preview read, after #784:
+https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6532954722
+
+Comment 1 (the sample link opening in a new tab) is a code change on another branch and is not
+touched here.
+
+What changed, in both editions, inside "Build your own" and before the prompt (no new heading, so
+the piece stays at six sections):
+
+- **What you need**: a Claude account, the Claude app on the phone, screenshots of the balance
+  screens, no code.
+- **What this version does not do**: no automatic prices, no update on its own, it reads pixels, it
+  never touches money or credentials, and the sample link lives on claude.ai and may change.
+- **To reproduce the exact setup**: the pieces "Under the hood" names (Claude desktop app on a Mac
+  mini, Claude Cowork's cloud side, TradingView Desktop with a local MCP server over CDP, a scheduled
+  task), and the limits "What broke" already states.
+
+Every item is sourced to the Issue body, the owner's comments on #712, or the article as merged.
+Which Claude plan, which TradingView plan, and the other open points are not written; they are
+questions back to the owner.

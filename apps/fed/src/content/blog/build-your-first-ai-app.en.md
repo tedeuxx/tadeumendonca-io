@@ -171,6 +171,23 @@ The app is the part that makes you want to build one. The checks are what let yo
 
 The prompt below is for someone who has never programmed. Copy it, paste it into a new conversation with Claude, and replace what sits in square brackets. It starts with made-up data, so you see the app before you show it any number of yours. It does not use TradingView: everything comes from your screenshots. And when you send a screenshot, crop out the account number and your name; the agent only needs the balance.
 
+**Before you paste it, what you need:**
+
+- **A Claude account**, for the conversation that builds the app.
+- **The Claude app on your phone**, to open the app once it is published as an Artifact.
+- **Screenshots of the balance screens** of your apps, taken on the phone. They are the only data the prompt uses.
+- **No code.** You write none of it; the agent writes the page and the checks, the way it wrote mine.
+
+**What this version does not do, said before you find out:**
+
+- **No automatic prices.** It connects to no market-data service. Every number comes from a screenshot you send.
+- **No update on its own.** The prompt sets up no schedule. The app changes when you send the month's screenshots.
+- **It reads pixels.** The model can misread a digit. The checks exist to stop the update when that happens; they do not make the reading perfect.
+- **It never touches your money.** It only reads and updates the page: no purchases, no transfers, and it never asks for a password or a login.
+- **The sample link lives on claude.ai**, and that link may change.
+
+**To reproduce my exact setup instead**, with prices and a monthly run that starts by itself, the prompt is not enough. You also need what *Under the hood* describes: the Claude desktop app on a Mac mini, granting one folder per session; an agent session on Claude Cowork's cloud side; TradingView Desktop open on that Mac, behind a local MCP server that drives it over CDP; and a scheduled task. It carries the limits in *What broke*: the Mac has to be awake with TradingView open, a scheduled run has already failed to execute, and the screenshots are still manual.
+
 > I want to build a simple app to track my investments on my phone. I do not know how to program, so do all of it for me and only explain what I need to decide.
 >
 > **What the app shows, on one screen:** the total of everything I have, adding up all my accounts; a month-by-month history; and the split by type of investment, for example [fixed income, stocks, pension, cash]. Amounts in [US dollars].
