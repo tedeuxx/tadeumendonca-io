@@ -4,8 +4,12 @@ Article: https://tadeumendonca.io/en/blog/build-your-first-ai-app · https://tad
 
 Content Issue: #712 · release: #787
 
-**DRAFT — DO NOT POST.** Post only after the owner approves this copy explicitly. Record both live post
-URLs on #712 once posted.
+**Posted 2026-10-30**, both networks, the text below verbatim as the owner approved it:
+
+- LinkedIn: https://www.linkedin.com/feed/update/urn:li:activity:7522059323364151296/
+- X: https://x.com/tedeuxx/status/2116293893910094119
+
+Recorded on #712: https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6534703775
 
 Share URL: `https://tadeumendonca.io/blog/build-your-first-ai-app` — the locale-neutral address
 (`published-voice` rule 21). Its precondition was checked on 2026-10-30 against production by comparing
@@ -22,17 +26,19 @@ The card was checked the same day: the neutral URL declares
 `og:image` = `https://tadeumendonca.io/og/build-your-first-ai-app.en.png`, which returns `200 image/png`.
 Re-run both checks at posting time.
 
-**Open at posting time, not decided here:**
+**Open at posting time, not decided here** (each outcome recorded below its item):
 
 - **UTM tag.** Whether to tag the URL per network
   (`utm_source=linkedin|x&utm_medium=social&utm_campaign=author-post`). `content-publishing` asks for the
   tag, and also asks that the tagged form be confirmed to unfurl with the right card first; that check has
   not been run for this address. Same open item as the previous pair.
+  **Outcome:** both posts went out with the untagged URL, no UTM tag.
 - **The sample app link.** The posts name the sample (real tickers, made-up amounts, not investment
   advice) but do not carry its URL, https://claude.ai/artifact/DEdZjPSNRGYXA2UdbcPMzn. A second link in
   the body may change which link the network unfurls into the card, and that has not been measured. It
   also keeps the click on the article, where the sample sits beside the four checks and the
   prerequisites. If the owner wants it in the post, add it below the article link, never above it.
+  **Outcome:** both posts went out without the sample app link, verbatim as the owner approved.
 
 ## LinkedIn — DIGEST — bilingual, English first
 
