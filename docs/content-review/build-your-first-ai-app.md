@@ -251,3 +251,8 @@ Desktop is available on the free plan with no claim about data tier, the monthly
 to the same conversation, "a computer that stays on (in my case a Mac mini)", and keep your own
 Artifact private. Which local TradingView MCP server is used is still open with the owner and is
 not written.
+
+**Second follow-up, same day:** the owner allowed naming the server
+(https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6533335216). Both editions now
+name it as tradingview-mcp, linked to https://github.com/tradesdontlie/tradingview-mcp, in the
+exact-setup list.
