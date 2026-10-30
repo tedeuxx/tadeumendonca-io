@@ -256,3 +256,16 @@ not written.
 (https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6533335216). Both editions now
 name it as tradingview-mcp, linked to https://github.com/tradesdontlie/tradingview-mcp, in the
 exact-setup list.
+
+**Gate fix, same day:** the gate's REQUEST-CHANGES on #786
+(https://github.com/tedeuxx/tadeumendonca-io/pull/786#issuecomment-6533459570) and the correction on
+#712 (https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6533472379), in both
+editions:
+
+- B1: "on by default" is gone. The reader is told to turn the setting on (named "Create and edit
+  files" in the newer layout) and to check it before starting.
+- A1: the scheduled-tasks plan list now includes Ultra. "Pro at minimum" stays.
+- A3: the sharing page moved off the Free bullet. The phone bullet says the reader opens their own
+  app there, and that sharing by link depends on the plan. Prompt step 1 and the monthly-update
+  bullet no longer say "publish", which a Free reader cannot do for a new artifact.
+- A2: TradingView Desktop on the free plan now cites TradingView's own blog post (2022).

@@ -173,21 +173,21 @@ O prompt abaixo é para quem nunca programou. Copie, cole numa conversa nova no 
 
 **Antes de colar, o que você precisa:**
 
-- **Uma conta no Claude. O plano Free basta.** Artifacts funcionam em todos os planos, Free incluído. Eles precisam de "code execution and file creation" ligado em Settings > Capabilities, e no Free, no Pro e no Max isso já vem ligado. As páginas da própria Anthropic: [o que são Artifacts](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them) e [como compartilhar](https://support.claude.com/en/articles/9547008-share-artifacts).
-- **O aplicativo do Claude no celular**, para abrir o app depois que ele for publicado como um Artifact.
+- **Uma conta no Claude. O plano Free basta.** Artifacts funcionam em todos os planos, Free incluído. Eles precisam de "code execution and file creation" (chamado "Create and edit files" no layout novo de Settings) ligado em Settings > Capabilities; confira antes de começar. A página da própria Anthropic: [o que são Artifacts](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them).
+- **O aplicativo do Claude no celular**, onde você abre o seu próprio app depois que o agente montar ele como um Artifact. Compartilhar por link é outra coisa, e depende do seu plano: veja [a página da Anthropic sobre compartilhar](https://support.claude.com/en/articles/9547008-share-artifacts).
 - **Prints das telas de saldo** dos seus aplicativos, tirados no celular. Eles são o único dado que o prompt usa.
 - **Nenhum código.** Você não escreve nada; o agente escreve a página e as conferências, como escreveu as minhas.
 
 **O que esta versão não faz, dito antes de você descobrir:**
 
 - **Nenhuma cotação automática.** Ela não se conecta a nenhum serviço de cotações. Todo número vem de um print que você manda.
-- **Nenhuma atualização sozinha.** O prompt não agenda nada, e o Artifact publicado não se atualiza sozinho. Todo mês, volte para a mesma conversa e mande os prints novos.
+- **Nenhuma atualização sozinha.** O prompt não agenda nada, e o seu Artifact não se atualiza sozinho. Todo mês, volte para a mesma conversa e mande os prints novos.
 - **Ela lê pixels.** O modelo pode ler um dígito errado. As conferências existem para parar a atualização quando isso acontece; elas não deixam a leitura perfeita.
 - **Ela nunca mexe no seu dinheiro.** Só lê e atualiza a página: nenhuma compra, nenhuma transferência, e ela nunca pede senha nem login.
 - **O link do exemplo vive no claude.ai**, e esse link pode mudar.
 - **Deixe o seu privado.** O seu app guarda os seus números de verdade. Não compartilhe o link dele; o único que eu compartilhei é o exemplo, com dados inventados.
 
-**Para reproduzir exatamente a minha montagem**, com cotações e uma execução mensal que começa sozinha, o prompt não basta. Você precisa também do que *Por dentro* descreve: o aplicativo desktop do Claude num computador que fica ligado (no meu caso, um Mac mini), liberando uma pasta por sessão; uma sessão de agente na parte cloud do Claude Cowork; o TradingView Desktop aberto nesse computador, atrás de um servidor MCP local que controla ele sobre CDP (o meu é o [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), um projeto aberto de terceiros); e uma tarefa agendada. **Esta precisa do Claude Pro, no mínimo**: tarefas agendadas no Cowork só existem nos planos pagos (Pro, Max, Team, Enterprise), segundo [a página da Anthropic sobre elas](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). O TradingView Desktop está disponível no plano gratuito do TradingView. Ela carrega os limites de *O que quebrou*: o Mac precisa estar acordado com o TradingView aberto, uma execução agendada já deixou de rodar, e os prints ainda são manuais.
+**Para reproduzir exatamente a minha montagem**, com cotações e uma execução mensal que começa sozinha, o prompt não basta. Você precisa também do que *Por dentro* descreve: o aplicativo desktop do Claude num computador que fica ligado (no meu caso, um Mac mini), liberando uma pasta por sessão; uma sessão de agente na parte cloud do Claude Cowork; o TradingView Desktop aberto nesse computador, atrás de um servidor MCP local que controla ele sobre CDP (o meu é o [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), um projeto aberto de terceiros); e uma tarefa agendada. **Esta precisa do Claude Pro, no mínimo**: tarefas agendadas no Cowork só existem nos planos pagos (Pro, Max, Ultra, Team, Enterprise), segundo [a página da Anthropic sobre elas](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). O TradingView Desktop está disponível no plano gratuito do TradingView, segundo [o blog do próprio TradingView](https://www.tradingview.com/blog/en/multi-monitor-support-free-on-desktop-app-31209/). Ela carrega os limites de *O que quebrou*: o Mac precisa estar acordado com o TradingView aberto, uma execução agendada já deixou de rodar, e os prints ainda são manuais.
 
 > Quero criar um app simples para acompanhar meus investimentos no celular. Eu não sei programar, então faça tudo por mim e me explique só o que eu precisar decidir.
 >
@@ -195,7 +195,7 @@ O prompt abaixo é para quem nunca programou. Copie, cole numa conversa nova no 
 >
 > **Como ele funciona:**
 >
-> 1. Monte uma página só e publique como um Artifact, para eu abrir no aplicativo do Claude no celular.
+> 1. Monte uma página só como um Artifact, para eu abrir no aplicativo do Claude no celular.
 > 2. Deixe os dados separados do visual. De um mês para o outro, só os dados mudam.
 > 3. Comece com dados inventados para [três contas de exemplo, como Banco Exemplo, Corretora Exemplo e Previdência Exemplo], para eu ver como fica.
 > 4. Uma vez por mês eu vou te mandar prints das telas de saldo dos meus aplicativos. Leia os números de cada print.

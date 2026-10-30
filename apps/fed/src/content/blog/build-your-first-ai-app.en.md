@@ -173,21 +173,21 @@ The prompt below is for someone who has never programmed. Copy it, paste it into
 
 **Before you paste it, what you need:**
 
-- **A Claude account. The Free plan is enough.** Artifacts work on every plan, Free included. They need "code execution and file creation" turned on in Settings > Capabilities, and on Free, Pro and Max it is on by default. Anthropic's own pages: [what Artifacts are](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them) and [sharing them](https://support.claude.com/en/articles/9547008-share-artifacts).
-- **The Claude app on your phone**, to open the app once it is published as an Artifact.
+- **A Claude account. The Free plan is enough.** Artifacts work on every plan, Free included. They need "code execution and file creation" (called "Create and edit files" in the newer Settings layout) turned on in Settings > Capabilities; check it before you start. Anthropic's own page: [what Artifacts are](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them).
+- **The Claude app on your phone**, where you open your own app once the agent has built it as an Artifact. Sharing it by link is a different thing, and it depends on your plan: see [Anthropic's page on sharing](https://support.claude.com/en/articles/9547008-share-artifacts).
 - **Screenshots of the balance screens** of your apps, taken on the phone. They are the only data the prompt uses.
 - **No code.** You write none of it; the agent writes the page and the checks, the way it wrote mine.
 
 **What this version does not do, said before you find out:**
 
 - **No automatic prices.** It connects to no market-data service. Every number comes from a screenshot you send.
-- **No update on its own.** The prompt sets up no schedule, and the published Artifact does not update itself. Each month, go back to the same conversation and send the new screenshots.
+- **No update on its own.** The prompt sets up no schedule, and your Artifact does not update itself. Each month, go back to the same conversation and send the new screenshots.
 - **It reads pixels.** The model can misread a digit. The checks exist to stop the update when that happens; they do not make the reading perfect.
 - **It never touches your money.** It only reads and updates the page: no purchases, no transfers, and it never asks for a password or a login.
 - **The sample link lives on claude.ai**, and that link may change.
 - **Keep yours private.** Your app holds your real numbers. Do not share its link; the only one I shared is the sample, with made-up data.
 
-**To reproduce my exact setup instead**, with prices and a monthly run that starts by itself, the prompt is not enough. You also need what *Under the hood* describes: the Claude desktop app on a computer that stays on (in my case a Mac mini), granting one folder per session; an agent session on Claude Cowork's cloud side; TradingView Desktop open on that computer, behind a local MCP server that drives it over CDP (mine is [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), an open project by a third party); and a scheduled task. **This one needs Claude Pro at minimum**: scheduled tasks in Cowork are on paid plans only (Pro, Max, Team, Enterprise), per [Anthropic's page on them](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). TradingView Desktop is available on TradingView's free plan. It carries the limits in *What broke*: the Mac has to be awake with TradingView open, a scheduled run has already failed to execute, and the screenshots are still manual.
+**To reproduce my exact setup instead**, with prices and a monthly run that starts by itself, the prompt is not enough. You also need what *Under the hood* describes: the Claude desktop app on a computer that stays on (in my case a Mac mini), granting one folder per session; an agent session on Claude Cowork's cloud side; TradingView Desktop open on that computer, behind a local MCP server that drives it over CDP (mine is [tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp), an open project by a third party); and a scheduled task. **This one needs Claude Pro at minimum**: scheduled tasks in Cowork are on paid plans only (Pro, Max, Ultra, Team, Enterprise), per [Anthropic's page on them](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork). TradingView Desktop is available on TradingView's free plan, per [TradingView's own blog](https://www.tradingview.com/blog/en/multi-monitor-support-free-on-desktop-app-31209/). It carries the limits in *What broke*: the Mac has to be awake with TradingView open, a scheduled run has already failed to execute, and the screenshots are still manual.
 
 > I want to build a simple app to track my investments on my phone. I do not know how to program, so do all of it for me and only explain what I need to decide.
 >
@@ -195,7 +195,7 @@ The prompt below is for someone who has never programmed. Copy it, paste it into
 >
 > **How it works:**
 >
-> 1. Build a single page and publish it as an Artifact, so I can open it in the Claude app on my phone.
+> 1. Build a single page as an Artifact, so I can open it in the Claude app on my phone.
 > 2. Keep the data separate from the look. From one month to the next, only the data changes.
 > 3. Start with made-up data for [three sample accounts, such as Example Bank, Example Brokerage and Example Pension], so I can see how it looks.
 > 4. Once a month I will send you screenshots of the balance screens in my apps. Read the numbers in each screenshot.
