@@ -182,3 +182,39 @@ gate and the owner's preview read can find it.
 whatever happens next. The next step is the gate, then the owner's preview read of the new title.
 
 CONTENT-REVIEW-FINDINGS
+
+## Revision after the owner's preview read — 2026-10-30 (not a review round)
+
+The pair's two rounds are spent, so this is **not** a third `## Round`, and `content-reviewer` did
+not read it. The revision is driven by the owner's own preview read and goes to the gate and back to
+his preview. Its specification is his two comments on #712:
+
+- the preview read: https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6532308225
+- how the reader tries the result: https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6532368142
+
+What changed, in both editions:
+
+- **An illustration before the first paragraph**
+  (`/illustrations/build-your-first-ai-app-cover.{pt,en}.jpg`): before (six apps with invented names,
+  balances hidden) and after (one screen). Every name and number in it is fictional, and the image
+  says so. It is not registered in `photos.json`, like the other `/illustrations/` files, so it renders
+  as a plain image with its alt text.
+- **A link to the sample Artifact** with a fictional portfolio, presented as something to open and
+  try. The link was not opened from this branch; the owner shares it before release.
+- **Lower technical density, layered** (`published-voice` rule 22): the opening states the reader's
+  problem; a new "What you get" section carries the business outcome (time, clarity, trust); the four
+  checks are numbered and each ends with what the reader gains. The architecture list, the
+  monthly-run diagram and the tool names moved to a late "Under the hood" section that nothing earlier
+  depends on. Nothing was deleted: every fact of the previous draft is still in the piece.
+- **A copyable prompt** for a non-engineer, in natural language, with bracketed fictional
+  placeholders, no account, broker or credential, and an explicit no-transactions, no-password rule.
+  It is a blockquote rather than a fenced block, because `.markdown pre` scrolls sideways on a phone
+  and a blockquote wraps.
+- **Spine surfaces** (rule 15): excerpt and takeaway rewritten to name the outcome, the sample and the
+  prompt. Title and slug unchanged.
+
+Length (rule 10, a reason owed): the body is about 2,290 words (pt) and 2,270 (en), Mermaid fences
+and the image line excluded, up from about 1,580 (pt) on `origin/main`. The increase is the prompt,
+the outcome section and the reader's-problem opening, all three asked for, while deleting the
+technical material was ruled out. Counted with a Python whitespace split over the body minus those
+two elements.
