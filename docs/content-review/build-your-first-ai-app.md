@@ -242,3 +242,12 @@ the piece stays at six sections):
 Every item is sourced to the Issue body, the owner's comments on #712, or the article as merged.
 Which Claude plan, which TradingView plan, and the other open points are not written; they are
 questions back to the owner.
+
+**Follow-up, same day:** the answers recorded at
+https://github.com/tedeuxx/tadeumendonca-io/issues/712#issuecomment-6533156563 are now in both
+editions: the Free plan is enough for the reader's version (with the setting and the two vendor help
+pages), the exact setup needs Pro at minimum for scheduled tasks (with its vendor page), TradingView
+Desktop is available on the free plan with no claim about data tier, the monthly update is a return
+to the same conversation, "a computer that stays on (in my case a Mac mini)", and keep your own
+Artifact private. Which local TradingView MCP server is used is still open with the owner and is
+not written.
