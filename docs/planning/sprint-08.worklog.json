@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "sprint": "sprint-08",
+  "timezone": "America/Sao_Paulo",
+  "starts_at": null,
+  "ends_at": null,
+  "repositories": [
+    {
+      "repository": "tedeuxx/tadeumendonca-io",
+      "milestone_number": 6
+    }
+  ],
+  "counting_units": [
+    {
+      "issue": "tedeuxx/tadeumendonca-io#790",
+      "planned_points": 2,
+      "work_type": "loop",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 2,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#456",
+      "planned_points": 13,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 13,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#575",
+      "planned_points": 3,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 3,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#635",
+      "planned_points": 2,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 2,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#640",
+      "planned_points": 8,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 8,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#662",
+      "planned_points": 8,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 8,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#669",
+      "planned_points": 8,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 8,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#710",
+      "planned_points": 3,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 3,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#783",
+      "planned_points": 5,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 5,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#788",
+      "planned_points": 5,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 5,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    },
+    {
+      "issue": "tedeuxx/tadeumendonca-io#789",
+      "planned_points": 5,
+      "work_type": "product",
+      "parent": null,
+      "estimate_provenance": {
+        "recorded": 5,
+        "owner_commitment": "the owner confirmed the whole composition at /sprint-planning sprint-08 («Confirmar os 11», 2026-10-31); the per-estimator values were not re-read for this snapshot"
+      },
+      "source_revision": "cd51cf53d90fbe1eac611170f5b56bf90a6b2ad5"
+    }
+  ]
+}

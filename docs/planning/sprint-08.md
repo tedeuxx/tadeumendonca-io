@@ -89,11 +89,46 @@ No ratified rule bounds iteration size. This is 62 sp against sprint-07's 12 sp.
 
 ## The activation log
 
-(appended after the owner answers)
+**Activation 1** (2026-10-31): one structured picker. The question said: Sprint-08: 11 items, 62 sp
+(#790 loop + 10 product); 12 retrospective findings, none becomes an Issue by default; funnel
+candidates: 0. Confirm? To change something, write it in the free-text field. It offered three
+options: confirm without #790 (10 product, 60 sp; #790 is already done and the owner closes it),
+confirm all 11 (loop-first applied exactly), and stop (nothing is created).
+The owner answered: **«Confirmar os 11»**. There was no second activation.
+
+Retrospective findings: none named, so none becomes an Issue. Funnel candidates: 0, so no `Ruled:` line is owed.
 
 ## The composition as confirmed
 
-(appended after the owner answers)
+Milestone `sprint-08` was created in `tedeuxx/tadeumendonca-io` as number 6 (2026-10-31T19:01:29Z),
+by `milestone-create.py` with `--description-file`. The 11 items were admitted with
+`gh issue edit <n> --milestone "sprint-08"`, and each was verified by issue:
+`milestone-read.py 6` reports `open_issues: 11`. No milestone was created in `-skills`, because
+nothing there was admitted.
+
+Ordered body, as written into the milestone description:
+
+```
+1. #790 (loop, sp:2), loop before product (#339)
+2. #456 (product, sp:13)
+3. #575 (product, sp:3)
+4. #635 (product, sp:2)
+5. #640 (product, sp:8)
+6. #662 (product, sp:8)
+7. #669 (product, sp:8)
+8. #710 (product, sp:3)
+9. #783 (product, sp:5)
+10. #788 (product, sp:5)
+11. #789 (product, sp:5)
+```
+
+Positions 2 to 11 follow the filing-order tiebreak, not a ranking. The total is 62 sp.
+
+## Worklog snapshot
+
+`docs/planning/sprint-08.worklog.json`: repository `tedeuxx/tadeumendonca-io`, milestone 6, eleven
+counting units with their recorded `sp:N`. The start and end boundaries are `null`, because the
+owner set none.
 
 ## Estimation pendency this leaves
 
