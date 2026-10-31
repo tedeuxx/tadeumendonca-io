@@ -1,0 +1,67 @@
+collected: yes 2026-10-31 claude-code-root-claude-in-chrome
+internal-traffic: testing-excluded-by-query 2026-10-15 a temporary, unsaved GA4 comparison for test data filter name exactly "Internal Traffic" returned 0 sessions and 0 events in the window, so every all-users figure below equals the external value
+# Window (site): 2026-10-17 through 2026-10-30, the complete days after sprint-06's window ended.
+# GA4 property: tadeumendonca.io (p547026762). The Internal Traffic filter is still in Testing.
+# The comparison was applied on the traffic-acquisition report. The events, pages and event-detail
+# reports were read without it. Because the comparison returned 0 for both sessions and events over
+# the same window, those reads lose nothing.
+# Corpus in the window: build-your-first-ai-app, released in both editions on 2026-10-30 (6346bf1).
+# Before release it was a held draft under the retired slugs seu-agente-diz-que-a-conta-fecha /
+# your-agent-says-the-numbers-add-up (renamed in f609911, 2026-10-24), so reads under the retired slug
+# are reads of the held draft, which is reachable only through preview. Who read it is not observable.
+# The piece was public for about one day of this window.
+# LinkedIn figures are cumulative from posting (2026-10-30) to the read on 2026-10-31, about 18h after.
+# They fall partly outside the site window. X analytics are out of scope by name and were not read.
+figure: ga4 sessions 18 18
+figure: ga4 marked_internal_sessions 0 18
+figure: ga4 marked_internal_events 0 77
+figure: ga4 engaged_sessions 10 18
+figure: ga4 sessions_channel_direct 8 18
+figure: ga4 sessions_channel_instagram 3 18
+figure: ga4 sessions_channel_linkedin 3 18
+figure: ga4 sessions_channel_whatsapp 3 18
+figure: ga4 sessions_channel_x 1 18
+figure: ga4 engaged_sessions_channel_linkedin 1 3
+figure: ga4 engaged_sessions_channel_whatsapp 2 3
+figure: ga4 event_count 77 77
+figure: ga4 event_page_view 23 77
+figure: ga4 event_session_start 18 77
+figure: ga4 event_article_progress 12 77
+figure: ga4 event_user_engagement 11 77
+figure: ga4 event_scroll 4 77
+figure: ga4 event_click 2 77
+figure: ga4 event_first_visit 2 77
+figure: ga4 event_outbound_click 2 77
+figure: ga4 event_article_end_reached 1 77
+figure: ga4 event_share_complete 1 77
+figure: ga4 event_share_open 1 77
+figure: ga4 event_contact_click 0 77
+figure: ga4 event_contact_reach 0 77
+figure: ga4 key_events 0 77
+figure: ga4 total_users 6 6
+figure: ga4 views_path_pt_blog_crie-seu-primeiro-ai-app 9 23
+figure: ga4 views_path_pt_blog_seu-agente-diz-que-a-conta-fecha 4 23
+figure: ga4 views_path_root 3 23
+figure: ga4 views_path_pt_library 3 23
+figure: ga4 views_path_en 2 23
+figure: ga4 views_path_neutral_blog_build-your-first-ai-app 1 23
+figure: ga4 views_path_pt 1 23
+figure: ga4 views_path_en_blog_build-your-first-ai-app 0 23
+figure: ga4 article_progress_users:build-your-first-ai-app:pt 2 2
+figure: ga4 article_progress_events:build-your-first-ai-app:pt 12 12
+figure: ga4 article_progress_events:build-your-first-ai-app:en 0 12
+figure: ga4 article_progress_events_released_slug:build-your-first-ai-app:pt 10 12
+figure: ga4 article_progress_events_retired_slug:build-your-first-ai-app:pt 2 12
+figure: ga4 article_progress_25_users:build-your-first-ai-app:pt 2 2
+figure: ga4 article_progress_50_users:build-your-first-ai-app:pt 1 2
+figure: ga4 article_progress_75_users:build-your-first-ai-app:pt 1 2
+figure: ga4 article_end_reached_users:build-your-first-ai-app:pt 1 2
+figure: ga4 share_open_events:build-your-first-ai-app:pt 1 1
+figure: linkedin post_impressions 200 200
+figure: linkedin post_members_reached 126 200
+figure: linkedin post_reactions 1 126
+figure: linkedin post_comments 0 126
+figure: linkedin post_reposts 0 126
+figure: linkedin post_link_visits 1 126
+figure: linkedin post_profile_viewers 1 126
+# The LinkedIn post analytics list the visited link as the neutral share address /blog/build-your-first-ai-app (1 visit).
