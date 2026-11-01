@@ -1,6 +1,7 @@
 # 0027. Backend link-unfurl / OG preview cards
 
 - **Status:** superseded by [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (2026-07)
+- **Capability:** `site-platform`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 

@@ -4,6 +4,7 @@
   [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — and the withdrawal consequence
   below is **discharged**: emission is now gated on the reader's current choice, so `gtag` staying
   injected no longer means the reader keeps being reported)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-24
 - **Deciders:** the owner
 - **Driven by:** [ADR-0023](./0023-observability-static-site.md) (which chose "GA" as the analytics tool in

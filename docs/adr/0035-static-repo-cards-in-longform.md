@@ -1,6 +1,7 @@
 # 0035. Curated repos render as static cards in long-form — a lone-URL facade + a leaf-bilingual field
 
 - **Status:** accepted
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-25
 - **Deciders:** the owner
 - **Driven by:** [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0008](./0008-brutalist-mono-identity.md), [ADR-0012](./0012-snake-case-content-no-mapping.md)

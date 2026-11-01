@@ -1,6 +1,7 @@
 # 0046. A video-derived article earns its place by receipt, stands without the video, and never runs in a streak
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-08-08
 - **Deciders:** the owner (ratified 2026-08-08; proposed by `product-lead`)
 - **Supersedes / superseded by:** —

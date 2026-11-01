@@ -1,6 +1,7 @@
 # 0044. Version digits carry content meaning — major and minor are a deliberate dispatch, patch stays automatic
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-08-08
 - **Deciders:** the owner
 - **Driven by:** [ADR-0022](./0022-numeric-semver-auto-release.md) (which decided the automatic patch and

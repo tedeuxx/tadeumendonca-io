@@ -1,6 +1,7 @@
 # 0012. snake_case in content/data, no mapping layer
 
 - **Status:** accepted · **amended 2026-07-30** (the casing split: camelCase in frontmatter and the catalog modules, snake_case in `profile.ts`; the no-mapping-layer decision is unchanged)
+- **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)

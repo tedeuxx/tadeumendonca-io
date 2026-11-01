@@ -1,6 +1,7 @@
 # 0049. A held article is isolated, not private — its text ships in the public bundle
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-08-25
 - **Deciders:** **the orchestrator**, 2026-08-25 —
   [#510 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/510#issuecomment-5410347789).

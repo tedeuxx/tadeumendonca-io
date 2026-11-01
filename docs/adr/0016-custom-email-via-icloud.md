@@ -1,6 +1,7 @@
 # 0016. Custom-domain email via iCloud+, not a mail service
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)

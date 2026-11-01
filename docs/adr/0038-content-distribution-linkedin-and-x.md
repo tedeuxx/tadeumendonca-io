@@ -1,6 +1,7 @@
 # 0038. Published content is distributed to LinkedIn **and** X, in the same batch
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0005](./0005-og-coverage-every-public-url.md)

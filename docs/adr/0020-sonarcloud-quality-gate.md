@@ -1,6 +1,7 @@
 # 0020. SonarCloud quality gate, blocking
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)

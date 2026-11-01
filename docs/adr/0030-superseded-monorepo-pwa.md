@@ -1,6 +1,7 @@
 # 0030. Monorepo `tadeumendonca-pwa` consolidation
 
 - **Status:** superseded by the `-io` rename + static pivot (2026-07)
+- **Capability:** `hosting-and-trust`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 

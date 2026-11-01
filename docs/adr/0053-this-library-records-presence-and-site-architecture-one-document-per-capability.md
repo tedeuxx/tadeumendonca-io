@@ -3,6 +3,7 @@
 - **Status:** proposed (the shape is the owner's, ruled on Issue
   [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) on 2026-08-25, 2026-09-11 and
   2026-10-31; this record writes it down and becomes `accepted` only on his ratification)
+- **Capability:** `decision-library`
 - **Date:** 2026-11-01
 - **Deciders:** the owner · written by `tech-lead` in the first slice of #456
 - **Supersedes / superseded by:** —
@@ -185,5 +186,6 @@ library).
   in a later slice of #456, under the `decision-library` capability.
 - [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) — the pilot: the downloadable-CV record was
   absorbed into it in the same merge request as this record.
-- [The decision library's index](./README.md) — the History table and, from the next slice, the
-  capability table.
+- [The decision library's index](./README.md) — the History table and the capability table. The table
+  was added by the second slice of #456, together with the `Capability:` field every record carries and
+  the test that checks the two agree (`apps/fed/scripts/adr-capabilities.test.mjs`).
