@@ -10,11 +10,15 @@ import { buildEditions, buildRevisions, revisionFor, getRevision, getPostBySlug,
 const fm = (slug: string, title: string, extra = '') =>
   `---\nslug: ${slug}\ntitle: ${title}\ndate: "2026-07-01T00:00:00Z"\ntag: ai\n${extra}---\n`;
 
+// Every host carries `contentIssue` except `bare`: since #575 a revision on a host without it is refused
+// (refusal 6), and a held article without it is refused by `buildEditions` before any revision is read.
 const PUBLISHED = {
-  '../content/blog/fixed.en.md': `${fm('fixed', 'Fixed')}\nThe published English body.\n`,
-  '../content/blog/fixed.pt.md': `${fm('corrigido', 'Corrigido')}\nO corpo publicado em português.\n`,
-  '../content/blog/held.en.md': `${fm('held', 'Held', 'draft: true\n')}\nHeld body.\n`,
-  '../content/blog/held.pt.md': `${fm('retido', 'Retido', 'draft: true\n')}\nCorpo retido.\n`,
+  '../content/blog/fixed.en.md': `${fm('fixed', 'Fixed', 'contentIssue: 741\n')}\nThe published English body.\n`,
+  '../content/blog/fixed.pt.md': `${fm('corrigido', 'Corrigido', 'contentIssue: 741\n')}\nO corpo publicado em português.\n`,
+  '../content/blog/held.en.md': `${fm('held', 'Held', 'draft: true\ncontentIssue: 510\n')}\nHeld body.\n`,
+  '../content/blog/held.pt.md': `${fm('retido', 'Retido', 'draft: true\ncontentIssue: 510\n')}\nCorpo retido.\n`,
+  '../content/blog/bare.en.md': `${fm('bare', 'Bare')}\nA published body with no review Issue.\n`,
+  '../content/blog/bare.pt.md': `${fm('sem-issue', 'Sem issue')}\nUm corpo publicado sem Issue de revisão.\n`,
 };
 const editions = buildEditions(PUBLISHED);
 
@@ -45,7 +49,7 @@ describe('buildRevisions — the accepting case every refusal is measured agains
   });
 });
 
-describe('buildRevisions — the five refusals', () => {
+describe('buildRevisions — the six refusals', () => {
   it('1 · refuses an ORPHAN: a revision whose key names no article', () => {
     const orphan = {
       '../content/revisions/renamed.en.md': VALID['../content/revisions/fixed.en.md'],
@@ -87,6 +91,19 @@ describe('buildRevisions — the five refusals', () => {
   it('5 · refuses a body EQUAL to the published one — a leftover after a release by copy', () => {
     const leftover = { ...VALID, ...revisionOf('fixed', 'pt', 'O corpo publicado em português.') };
     expect(() => build(leftover)).toThrow(/revision "fixed" \(pt\) has the same body as the published edition/);
+  });
+
+  // #575. Paired with the accepting case at the top, which differs by ONE thing — its host names an Issue.
+  // The message must send the author to the PUBLISHED files: told only that "the revision lacks the field",
+  // they would add it to the revision and hit refusal 4.
+  it('6 · refuses a revision whose PUBLISHED host has no contentIssue, naming the blog/ files to edit', () => {
+    const onBare = {
+      ...revisionOf('bare', 'en', 'A corrected body.'),
+      ...revisionOf('bare', 'pt', 'Um corpo corrigido.'),
+    };
+    expect(() => build(onBare)).toThrow(/revision "bare" corrects an article with no contentIssue/);
+    expect(() => build(onBare)).toThrow(/add `contentIssue: <number>` to blog\/bare\.pt\.md and blog\/bare\.en\.md/);
+    expect(() => build(onBare)).toThrow(/copy the same frontmatter into the revision/);
   });
 
   it('refuses a filename that is not <key>.<locale>.md, and a locale outside LOCALES', () => {

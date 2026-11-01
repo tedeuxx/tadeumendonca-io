@@ -352,7 +352,9 @@ later means deleting a test on purpose.
 and not the PR — a PR is transient, merges, and a second round needs a second thread, while the Issue
 outlives every PR the article travels through. The carrier is frontmatter and the field is a **shared
 fact**, so the two editions cannot name two Issues and split one review. **The degradation is asymmetric
-on purpose:** an article that omits the field renders **no link** (every article published before #506
+on purpose:** ~~an article that omits the field renders **no link**~~ **struck 2026-11-01 for held drafts
+and pending revisions, and kept for published articles — see the 2026-11-01 amendment below (#575)**
+(every article published before #506
 omits it, and a link to the tracker's front page is a control that appears to work and lands the reviewer
 somewhere he did not ask to be), while a field that is *present and unusable* **throws at module load and
 fails the build** — an author who meant to name an Issue and mistyped it must not silently get the
@@ -505,6 +507,85 @@ holds against his comment, and nothing holds it mechanically.
   frontmatter cannot move. The card set, the neutral address and its canonical are the published
   article's.
 
+## Amendment (2026-11-01) — an item rendered under `?preview` must name its content Issue; only a published article may omit it
+
+Implemented by [#575](https://github.com/tedeuxx/tadeumendonca-io/issues/575) in the same merge request
+as this amendment. **It reverses point 2 of the 2026-08-29 amendment for two of the three cases that
+point covered, and keeps it for the third.** Point 2 is struck in place above, at the clause it reverses;
+its reasoning about a link to the tracker's front page still holds and is not repeated here.
+
+### The decision, in the owner's words
+
+After opening his own held draft at `?preview` and finding the copy button and no Issue link
+(2026-08-30):
+
+> «todo item publicado em modo preview precisa ter o botao»
+
+And asked, at the 2026-10-31 planning intake, whether pending revisions are in scope:
+
+> «Sim, revisões também»
+
+**So omitting `contentIssue` now fails the build for every item whose review happens under `?preview`,
+and stays allowed where it always was:**
+
+| item | `contentIssue` absent | enforced in `apps/fed/src/lib/content.ts` |
+|---|---|---|
+| **held draft** (`draft: true` in both editions) | **build fails** — the message names the edition and both `blog/` files | `assertHeldDraftNamesItsIssue`, called from `buildEditions` before the fact-parity check |
+| **pending revision** under `content/revisions/` | **build fails** — on the **published host**, never on the revision | `buildRevisions`, refusal 6 |
+| **published article** | **builds**, and the review bar renders no Issue button — unchanged | nothing; every article published before #506 omits the field, and none may start failing |
+
+A present-but-unusable value (`0`, `-3`, `506.5`, `abc`, `''`) still throws for every item, exactly as
+point 2 decided. Before this amendment a typo was loud and an omission silent; for a preview item both are
+loud now.
+
+### Why the revision check is on the host
+
+A revision's frontmatter is locked byte-equal to the published edition's (this record's 2026-10-16
+amendment, refusal 4), so a revision cannot carry its own `contentIssue`. **The field lives on the
+published `blog/` file and the revision inherits it.** Refusal 6 therefore checks the host, and its
+message sends the author to `blog/<key>.{pt,en}.md` first and then tells them to copy the same frontmatter
+into the revision. An author told only "the revision lacks the field" would add it to the revision and hit
+refusal 4.
+
+**A cost, stated:** adding `contentIssue` to a published article in order to open a revision on it renders
+nothing to a reader — the bar is gated on the parameter alone (point 1 of the 2026-08-29 amendment) — so
+the edit is invisible on the live page and only the build sees it.
+
+### Considered options
+
+1. **Require the field on held drafts and pending revisions, keep it optional on published articles
+   (chosen).** *Trade-off:* the rule depends on an item's state, so the same front matter builds as a
+   published article and fails as a held draft; promotion can never trip it, because promotion
+   flips `draft` and leaves `contentIssue` in place.
+2. **Require the field on every article.** *Rejected:* every article published before #506 omits it, so
+   the build would fail on articles nobody is reviewing, and the fix would be inventing an Issue number for
+   each — a control that appears to work and points nowhere, which point 2 already refused.
+3. **Keep the omission silent and add a warning.** *Rejected:* the owner's rule is that the button is not
+   optional in preview, and a warning nothing fails on is the silent state with more output.
+4. **Assert it a second time in `routes.mjs` or the prerender.** *Rejected at intake:* `content.ts` is
+   evaluated by the unit suite, the build and the prerender alike, so its module-load throw already fails
+   all three; a second copy would be one rule in two wordings that can drift.
+
+### Consequences
+
+**Good.** No held draft or pending revision can reach the preview without a working Issue button, and the
+failure arrives at build time with the file to edit named, not when the owner opens the page.
+
+**Bad, and named rather than solved.**
+- **A valid number naming a deleted Issue still 404s.** `contentIssue` is not checked against GitHub;
+  unchanged since #506. A **closed** Issue's page still resolves, which is why the held-draft fixture, which
+  names a closed Issue, is a fair fixture.
+- **The rule has no live subject at the time of writing.** The only held article is the test fixture, which
+  already declares the field, and no revision is pending — this is a guard, not a repair.
+
+### Where it is pinned
+
+`apps/fed/src/lib/content.test.ts` — *throws when the PT edition of a held draft lacks contentIssue…*, the
+EN and both-editions cases, *accepts the control…* and *still builds a PUBLISHED article with no
+contentIssue, leaving it undefined*; `apps/fed/src/lib/content.revisions.test.ts` — *6 · refuses a revision
+whose PUBLISHED host has no contentIssue, naming the blog/ files to edit*. The author-facing wording is
+`apps/fed/CLAUDE.md`.
+
 ## Links
 
 - [#510](https://github.com/tedeuxx/tadeumendonca-io/issues/510) — the Issue, its intake and its
@@ -522,3 +603,6 @@ holds against his comment, and nothing holds it mechanically.
   amendment · [tedeuxx/mhw#180](https://github.com/tedeuxx/mhw/issues/180) — the owner's decision and
   the method side · `apps/fed/CLAUDE.md`, the *"A PUBLISHED article is corrected through a PENDING
   REVISION"* paragraph — the operative wording for an author
+- [#575](https://github.com/tedeuxx/tadeumendonca-io/issues/575) ·
+  [PR #794](https://github.com/tedeuxx/tadeumendonca-io/pull/794) — a preview item must name its content
+  Issue, the 2026-11-01 amendment

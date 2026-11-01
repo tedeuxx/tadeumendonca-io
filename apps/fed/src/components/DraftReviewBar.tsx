@@ -68,6 +68,9 @@ export function DraftReviewBar({
    * the other half — a frontmatter value that is present and unusable fails the build rather than
    * arriving here as `undefined`, so this branch means "no Issue was named", never "an Issue was named
    * badly".
+   *
+   * Since #575 only a PUBLISHED article reaches this branch: `content.ts` fails the build for a held draft
+   * or a pending revision with no Issue, so on those two preview items the button is always present.
    */
   contentIssue?: number;
   /**

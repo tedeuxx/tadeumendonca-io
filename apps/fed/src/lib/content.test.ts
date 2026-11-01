@@ -581,8 +581,10 @@ describe('a held article (draft: true) leaves the public enumeration and stays r
 // exists to make impossible. Exercised through `buildEditions` with synthetic input, because the real
 // corpus always agrees and could therefore never reach the throw.
 describe('draft is a shared fact, not per-locale prose', () => {
+  // `contentIssue` is present because a held pair without it is refused since #575 (asserted in its own
+  // block below); this block is about `draft` agreeing, and must not trip that rule instead.
   const fm = (draft: string) =>
-    `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\ndraft: ${draft}\n---\nbody`;
+    `---\nslug: demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\ndraft: ${draft}\ncontentIssue: 575\n---\nbody`;
 
   it('throws when one edition is held and the other is not', () => {
     expect(() =>
@@ -660,11 +662,13 @@ describe('contentIssue (the review Issue, #506)', () => {
     expect(() => both(value)).toThrow(/unusable contentIssue/);
   });
 
-  // The error has to be actionable: an author reading it must learn the shape AND that omitting the field
-  // is legal, or the obvious fix is to delete the article's frontmatter until the build goes green.
-  it('names the shape and the omit-it option in the message', () => {
+  // The error has to be actionable: an author reading it must learn the shape AND when omitting the field
+  // is legal — for a published article only since #575, so the message must not tell a held-draft author
+  // that omission is an option.
+  it('names the shape and that only a PUBLISHED article may omit the field', () => {
     expect(() => both('contentIssue: abc\n')).toThrow(/positive integer/);
-    expect(() => both('contentIssue: abc\n')).toThrow(/Omit the field/);
+    expect(() => both('contentIssue: abc\n')).toThrow(/Only a PUBLISHED article may omit the field/);
+    expect(() => both('contentIssue: abc\n')).not.toThrow(/Omit the field entirely/);
   });
 
   // A FACT: one article, one review thread. Two editions naming two Issues would split one review across
@@ -684,5 +688,59 @@ describe('contentIssue (the review Issue, #506)', () => {
   it('reads the committed held fixture’s Issue, identically in both editions', () => {
     expect(getPostBySlug(HELD_SLUGS.en, 'en')?.contentIssue).toBe(HELD_CONTENT_ISSUE);
     expect(getPostBySlug(HELD_SLUGS.pt, 'pt')?.contentIssue).toBe(HELD_CONTENT_ISSUE);
+  });
+});
+
+// #575 — every held draft and pending revision rendered under `?preview` must name its content Issue.
+// The held draft is tested here (the pending revision is in `content.revisions.test.ts`). A PUBLISHED
+// article may still omit it.
+//
+// Each refusal is paired with a control differing by ONE thing, and each message is asserted on the words
+// only the new guard writes: without the guard, the one-edition cases still throw — but with the fact
+// parity message ("disagrees on the fact"), which also names the key and the field, so asserting only those
+// two would stay green with the guard removed.
+describe('a held draft must declare its content Issue (#575)', () => {
+  const edition = (draft: boolean, issue: string) =>
+    `---\nslug: held-demo\ntitle: T\ndate: '2026-01-01T00:00:00.000Z'\ntag: aws\ntrack: engenharia\ndraft: ${draft}\n${issue}---\nbody`;
+  const pair = (draft: boolean, pt: string, en: string) =>
+    buildEditions({
+      '../content/blog/held-demo.pt.md': edition(draft, pt),
+      '../content/blog/held-demo.en.md': edition(draft, en),
+    });
+
+  it('throws when the PT edition of a held draft lacks contentIssue, naming the key, the field and the edition', () => {
+    expect(() => pair(true, '', 'contentIssue: 575\n')).toThrow(
+      /held draft "held-demo" has no contentIssue in its pt edition/,
+    );
+  });
+
+  it('throws when the EN edition of a held draft lacks contentIssue, naming the key, the field and the edition', () => {
+    expect(() => pair(true, 'contentIssue: 575\n', '')).toThrow(
+      /held draft "held-demo" has no contentIssue in its en edition/,
+    );
+  });
+
+  it('throws when BOTH editions of a held draft lack it, and tells the author which files to edit', () => {
+    expect(() => pair(true, '', '')).toThrow(/held draft "held-demo" has no contentIssue/);
+    expect(() => pair(true, '', '')).toThrow(/blog\/held-demo\.pt\.md and blog\/held-demo\.en\.md/);
+  });
+
+  it('accepts the control: the same held draft naming its Issue in both editions', () => {
+    expect(pair(true, 'contentIssue: 575\n', 'contentIssue: 575\n')['held-demo'].en.contentIssue).toBe(575);
+  });
+
+  it('still builds a PUBLISHED article with no contentIssue, leaving it undefined', () => {
+    const built = pair(false, '', '');
+    expect(built['held-demo'].pt.contentIssue).toBeUndefined();
+    expect(built['held-demo'].en.contentIssue).toBeUndefined();
+  });
+
+  it('leaves a draft-disagreement to the fact parity check, under its own name', () => {
+    expect(() =>
+      buildEditions({
+        '../content/blog/held-demo.pt.md': edition(true, ''),
+        '../content/blog/held-demo.en.md': edition(false, ''),
+      }),
+    ).toThrow(/disagrees on the fact "draft"/);
   });
 });

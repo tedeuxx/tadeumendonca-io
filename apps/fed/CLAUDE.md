@@ -130,9 +130,11 @@ in `iac/`.
   **Reviewing a held draft is two controls, and they are gated by the PARAMETER and not by the flag**
   (#506): behind `?preview` an article renders a review bar with **a link to its `content` Issue** and
   **a button that copies the whole article to the clipboard**. The Issue is named in frontmatter —
-  `contentIssue: <number>`, a **shared fact**, so both editions must agree; **omit it and no link is
-  rendered** (a button opening the wrong Issue is worse than none), while a value that is present and not
-  a positive integer **fails the build** rather than degrading silently. Copy and never a prefilled
+  `contentIssue: <number>`, a **shared fact**, so both editions must agree; ~~**omit it and no link is
+  rendered**~~ **only a PUBLISHED article may omit it, and then no link is rendered** (a button opening
+  the wrong Issue is worse than none). **A held draft or a pending revision without it fails the build**
+  (#575): every held draft and pending revision rendered under `?preview` must link to its review Issue. A value that is present and
+  not a positive integer **fails the build** rather than degrading silently. Copy and never a prefilled
   `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
   the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means
   a PUBLISHED article reached with `?preview` renders the bar too — that is what makes promotion rebuild
@@ -155,8 +157,9 @@ in `iac/`.
   bar says **Pending revision**; every other visitor and every prerendered snapshot gets the published
   text. `?preview` on an article with no revision says **Published text, no pending revision**.
   `lib/content.ts` refuses, at module load: an orphan key, a half pair, a held host (edit a held draft in
-  place), frontmatter that is not byte-equal (title and slug changes are an ordinary edit), and a body
-  equal to the published one. Routes, the sitemap, the OG cards and the social kit read `blog/` flat and
+  place), a host with no `contentIssue` (#575: add it to the published `blog/` pair first, then copy that
+  frontmatter into the revision), frontmatter that is not byte-equal (title and slug changes are an
+  ordinary edit), and a body equal to the published one. Routes, the sitemap, the OG cards and the social kit read `blog/` flat and
   never see a revision. The diagram and video-poster walkers are recursive and do see it, so run
   `npm run gen-diagrams` when a revision edits a mermaid fence. **Release is the SECOND merge, never the
   first:** the merge that adds the revision deploys it, the owner reads it at `?preview` on the live site,
