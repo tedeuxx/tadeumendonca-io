@@ -16,7 +16,7 @@ export const LOCALES = ['pt', 'en'];
 // source of truth: compare it against the `<Route>` set in src/App.tsx, which is the only other place
 // a route exists.
 //
-// `App.tsx` declares twelve `<Route>`s and this list holds six of them. The other six, accounted for
+// `App.tsx` declares thirteen `<Route>`s and this list holds seven of them. The other six, accounted for
 // so the comparison closes:
 //   - `blog/:slug` (inside `LocaleApp`) — a destination, and prerendered: the article half of
 //     `localizedRoutes()` below adds it per locale, from the markdown, because its slug is content
@@ -45,7 +45,11 @@ export const LOCALES = ['pt', 'en'];
 // asking why /cv is excluded would go looking for a /cv to exclude. The counts in the first paragraph
 // are the same class of prose and go stale the same way, so they are asserted in routes.test.mjs
 // rather than trusted.)
-const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
+// `/analytics` (#640) is the first public route that is NOT in the nav (`AppShell`'s `NAV`): it is
+// linked from `/architecture` and from nowhere else, by the owner's decision on that Issue. It is listed
+// here exactly like the six above it — off-menu is a property of the nav, not of the route table, so it
+// is prerendered, advertised in the sitemap and given hreflang alternates like any other page.
+const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library', '/analytics'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
 // src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).

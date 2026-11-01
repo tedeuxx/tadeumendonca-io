@@ -2,6 +2,7 @@
 
 - **Status:** accepted · **amended 2026-11-01** (absorbs the downloadable-CV decision, formerly record
   0034, as the section *The downloadable edition — `/cv.pdf`*; the decision is unchanged, #456)
+- **Capability:** `presence-and-cv`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0006](./0006-react-vite-typescript.md); the

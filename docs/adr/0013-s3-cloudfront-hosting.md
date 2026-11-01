@@ -1,6 +1,7 @@
 # 0013. S3 + CloudFront hosting with a URL-rewrite function
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)

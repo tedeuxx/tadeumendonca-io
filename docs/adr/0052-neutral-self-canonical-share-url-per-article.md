@@ -1,6 +1,7 @@
 # 0052. A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-09-20
 - **Deciders:** **the owner** — the specification
   ([#660 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/660#issuecomment-5743437953)) and the

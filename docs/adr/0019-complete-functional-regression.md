@@ -1,6 +1,7 @@
 # 0019. Complete automated functional regression
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0003](./0003-trunk-based-single-environment.md), [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)

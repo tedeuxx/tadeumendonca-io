@@ -60,14 +60,18 @@ describe('message catalog', () => {
       // Guards the derivation itself: if `title` were renamed catalog-wide, `titled` would silently go
       // empty and every assertion below would vacuously pass. `/` and `/blog/:slug` are deliberate
       // exceptions (see LandingPage/ArticlePage) and `/me` composes its title from data, so five section
-      // routes minus /me leaves four.
-      expect(titled.map(([name]) => name).sort()).toEqual(['architecture', 'library', 'portfolio', 'rampup']);
+      // routes minus /me leaves four — plus the off-menu /analytics (#640), which makes five.
+      expect(titled.map(([name]) => name).sort()).toEqual(['analytics', 'architecture', 'library', 'portfolio', 'rampup']);
     });
 
     it.each(LOCALES)('leads every section title with its own nav label (%s)', (locale) => {
       for (const [name, group] of titled) {
-        const label = navLabels[name]?.[locale];
-        expect(label, `nav.${name} must exist — a titled section is one the reader navigates to`).toBeTruthy();
+        // An OFF-MENU section (/analytics, #640) carries its label in its own group rather than in `nav`,
+        // because a `nav` leaf with no nav entry would misdescribe the menu. The rule is unchanged: the
+        // title still leads with the word the reader clicked.
+        const own = (group as Record<string, Entry | undefined>).label;
+        const label = navLabels[name]?.[locale] ?? own?.[locale];
+        expect(label, `nav.${name} or ${name}.label must exist — a titled section is one the reader navigates to`).toBeTruthy();
         expect(
           group.title[locale].startsWith(label),
           `${name}.title (${locale}) is "${group.title[locale]}" — it must lead with "${label}", the word the reader clicked`,

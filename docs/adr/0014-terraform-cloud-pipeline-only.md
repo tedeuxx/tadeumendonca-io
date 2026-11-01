@@ -1,6 +1,7 @@
 # 0014. Terraform + Terraform Cloud, apply pipeline-only
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0003](./0003-trunk-based-single-environment.md)

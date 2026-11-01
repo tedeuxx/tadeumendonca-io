@@ -1,6 +1,7 @@
 # 0050. A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`
 
 - **Status:** accepted
+- **Capability:** `presence-and-cv`
 - **Date:** 2026-08-25
 - **Deciders:** **`tech-lead`**, 2026-08-25, in its slice-2 design comment on
   [#516](https://github.com/tedeuxx/tadeumendonca-io/issues/516) — under the owner's explicit

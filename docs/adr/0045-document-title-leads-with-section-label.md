@@ -6,6 +6,7 @@
   to merge under [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment — with the
   one qualifier below, which is why the slice was still handled as boundary: the same strings are
   `og:title`, and a scraper pins what it fetches first ([ADR-0041](./0041-per-article-og-cards.md)).)
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -154,8 +155,11 @@ shaped by that asymmetry.
 ### How the rule is enforced
 Chosen: **derived from the catalog, not listed.** `messages.test.ts` takes every top-level group that
 owns a `title` leaf and asserts it leads with the matching `nav.*` label **in both locales**, so a
-section added later is covered the moment it exists. It carries a guard against its own false green —
-the derived set is asserted to be exactly `architecture, library, portfolio, rampup`, because renaming
+section added later is covered the moment it exists. *(Since 2026-11-01 it reads `nav.<group>` first
+and the group's own `label` leaf second; see the amendment of that date below.)* It carries a guard
+against its own false green — the derived set is asserted to be exactly ~~`architecture, library,
+portfolio, rampup`~~ `analytics, architecture, library, portfolio, rampup` *(struck 2026-11-01, #640:
+the off-menu `/analytics` joined the set)*, because renaming
 the `title` convention would empty the list and make every assertion pass having compared nothing. That
 guard is [ADR-0040](./0040-build-time-mermaid-diagrams.md)'s lesson applied at authoring time.
 *Rejected — a hand-written table of route → expected title:* it has to be remembered, and this is the
@@ -289,3 +293,44 @@ it is priced in option 2 above, not something to resolve inside the record.
   `apps/fed/src/pages/LibraryPage.tsx`, `apps/fed/src/pages/LandingPage.tsx`,
   `apps/fed/src/pages/ArticlePage.tsx` (the two in-diff exceptions),
   `apps/fed/src/pages/ArchitecturePage.test.tsx`.
+
+## Amendment, 2026-11-01 (#640) — an off-menu section leads with its own `label`, read second
+
+**What changed.** `/analytics`
+([ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md)) is the first
+section with a `title` leaf that is **not in the menu**, by the owner's ruling on #640 (*«Rota fora do
+menu»*). This record's rule is *the title leads with the word the reader clicked*, and it names `nav.*`
+as where that word lives. For an off-menu section the word the reader clicked is the text of the link
+that reaches it — here, the link in `/architecture`'s body, whose text opens with *Analytics* in both
+editions — and there is no `nav.*` leaf to read.
+
+**The decision.** An off-menu section carries its lead word in **its own group**, as a `label` leaf
+(`analytics.label`), and the derived check in `messages.test.ts` reads `nav.<group>` first and
+`<group>.label` second. The rule is unchanged; its source gains a second place, used only where the
+first does not exist. The served-bytes check in `e2e/seo.spec.ts` covers both `/analytics` editions,
+with the lead word spelled out as before.
+
+**Rejected — a `nav.analytics` leaf with no menu entry.** It would satisfy the check as written and
+put a word in the group a reader of `messages.ts` takes for the menu's vocabulary, where it reads as
+half a menu promotion. A later context finding *"the title leads with its `nav.*` label"* here and no
+`nav.analytics` would add one; this amendment exists so it does not.
+
+**What this does not change.** The *"nav-label edit moves five document titles"* cost above stays
+true: `/analytics` does not read `nav.*`, so a nav rename does not move it. The four exceptions are
+untouched.
+
+**Accepted costs.**
+- **The fallback is order-sensitive.** A **menu** section that lost its `nav.<group>` leaf would still
+  pass if its group also carried a `label` leaf. None does today: the only other `label` leaf at
+  top-level group depth is in the `review` group, which owns no `title` leaf and so is outside the
+  derived set (`grep -nE "^\s{4}label:" apps/fed/src/i18n/messages.ts`).
+- **The word the reader clicked and the title's lead are held by separate literals.** `analytics.label`
+  is checked against the spelled-out `Analytics` in `e2e/seo.spec.ts`; the link text in
+  `architecture.en.md` and `architecture.pt.md` is checked against a literal `/^Analytics:/` in
+  `ArchitecturePage.test.tsx`. Nothing derives one from the other, so relabelling the section and
+  updating its E2E literal, without touching the link, leaves every check green while the title stops
+  leading with the word the reader clicked. This is a judgement from reading the three files, not a
+  measured mutation.
+- **On promotion to the menu**, the section gains a `nav.<group>` leaf, which the check reads first.
+  Delete the group's `label` leaf in the same change, or the two can disagree with nothing reading the
+  second.

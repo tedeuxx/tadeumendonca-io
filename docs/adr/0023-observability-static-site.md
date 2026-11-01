@@ -1,6 +1,7 @@
 # 0023. Observability scoped to a static site
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md)
@@ -47,3 +48,23 @@ the served HTML, and how it is used, all without a server.
   fired on that change, and asserting from `deploy` would race the apply. The general form: **a
   post-deploy assertion belongs to the workflow that performs the change it observes**, not to whichever
   workflow already had a browser.
+
+## Amendment, 2026-11-01 (#640) — the site now publishes a description of its own telemetry
+
+This record scoped observability to what a static site can produce **for its owner**: usage, client
+errors, a render smoke. It said nothing about publishing any of it, because nothing was published. Since
+[ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md), `/analytics`
+describes the GA4 half to readers, in both editions: each event the browser emits, its parameters, and
+what it can and cannot establish. The decision, its rejected options (a page of GA4 figures among them)
+and its costs are recorded there; this amendment only points at it.
+
+**Nothing decided above changes**: the same things are observed, with the same tools. Two consequences
+for this record:
+
+- **The analytics half now has a public reader.** What it observes is described outside the repository,
+  so a change to the event schema is also a change to a published page. The fidelity test that holds
+  the two together covers event and parameter **names** only; the page's prose is held by review.
+- **The accepted cost *"usage numbers are a floor, not exact"* is now a published claim**, and its cause
+  is wider than this record states. Ad-blockers and privacy tools are one half; the hard consent gate of
+  [ADR-0033](./0033-ga4-consent-gated-analytics.md) is the other, and it is the one the page names: a
+  reader who declines is never counted.

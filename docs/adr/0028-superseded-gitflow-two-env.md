@@ -1,6 +1,7 @@
 # 0028. GitFlow, staging + production two-environment
 
 - **Status:** superseded by [ADR-0003](./0003-trunk-based-single-environment.md) (2026-07)
+- **Capability:** `delivery-and-gates`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 

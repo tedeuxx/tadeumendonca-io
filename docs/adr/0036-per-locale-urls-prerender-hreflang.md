@@ -1,6 +1,7 @@
 # 0036. Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)

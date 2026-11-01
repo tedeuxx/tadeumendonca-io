@@ -1,6 +1,7 @@
 # 0011. UI in pt-BR; bilingual i18n deferred
 
 - **Status:** superseded by [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (2026-07)
+- **Capability:** `locale-and-routing`
 - **Date:** decided 2026-07-22 · superseded 2026-07-23
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)

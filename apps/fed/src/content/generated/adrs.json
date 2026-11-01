@@ -158,7 +158,7 @@
     "title": "Observability scoped to a static site",
     "file": "0023-observability-static-site.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0024",
@@ -305,7 +305,7 @@
     "title": "A document title is an address — it leads with the section's `nav.*` label, never with the page's heading",
     "file": "0045-document-title-leads-with-section-label.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0046",
@@ -364,9 +364,9 @@
     "amended": false
   },
   {
-    "id": "0055",
-    "title": "The release job authenticates as a GitHub App, and `main` is governed by a ruleset with that App as its only bypass actor",
-    "file": "0055-release-job-authenticates-as-a-github-app-main-ruleset-bypass.md",
+    "id": "0054",
+    "title": "The analytics schema page — a published description of the event schema, derived from the emitting code, carrying no figure, served off the menu",
+    "file": "0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md",
     "status": "accepted",
     "amended": false
   }

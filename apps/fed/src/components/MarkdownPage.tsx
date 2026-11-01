@@ -1,4 +1,4 @@
-// Shared shell for the long-form markdown content pages (/ramp-up, /architecture). Both surfaces are the
+// Shared shell for the long-form markdown content pages (/ramp-up, /architecture, /analytics). All three are the
 // same object: a document head (canonical + OG + Article JSON-LD), a header with a kicker + ShareButton +
 // H1, and a markdown body rendered by the shared <Markdown>. Only the resolved copy, the canonical path,
 // the JSON-LD type and the already-resolved body string differ — so those are props, and the shell is

@@ -1,6 +1,7 @@
 # 0008. Brutalist mono visual identity, single theme
 
 - **Status:** accepted
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the earlier Borussia-Dortmund identity (History index)
