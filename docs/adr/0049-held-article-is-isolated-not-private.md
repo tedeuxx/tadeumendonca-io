@@ -644,8 +644,19 @@ The same run also reddens the held-state assertions in `content.test.ts`, `route
 *"found articles at all"*, whose card count must equal the article count times the locales. They fire
 on any promoted article, not on the fixture alone.
 
-**What follows for the author.** The build stays green with the cards missing and serves an `og:image`
-that 404s. A scraper pins that miss, and [ADR-0041](./0041-per-article-og-cards.md) calls the card the
+**What follows for the author.** The build stays green with the cards missing, and the page's
+`og:image` URL then answers **`200 text/html`, not a 404**: `iac/frontend.tf`'s `custom_error_response`
+maps 403 and 404 to `/index.html` with a 200, so a missing card is served the SPA fallback. A check on
+it must read the content type, not the status. Measured on the live apex on 2026-11-01:
+
+```
+curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' https://tadeumendonca.io/og/no-such-card-probe.en.png
+# -> 200 text/html
+curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' https://tadeumendonca.io/og/my-commitment.en.png
+# -> 200 image/png (control: an existing card)
+```
+
+A scraper pins that miss, and [ADR-0041](./0041-per-article-og-cards.md) calls the card the
 least reversible artifact on this site. The unit suite is what turns it red, so the cards belong in the
 promotion merge request. **Nothing at all fails when the kit is not generated.** That matches
 [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s own accepted cost: distribution is *"still

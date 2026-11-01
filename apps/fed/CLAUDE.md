@@ -122,7 +122,10 @@ in `iac/`.
   the sitemap and the prerendered locale and neutral addresses on its own. Two artifacts come from
   scripts the build does not run: **the OG cards** — run `npm --prefix apps/fed run gen-og-articles` and
   commit `public/og/<key>.{pt,en}.png` in the same merge request, because without them the build still
-  passes and serves an `og:image` that 404s, and only `scripts/og-cards.test.mjs` goes red — and **the
+  passes, its `og:image` answers `200 text/html` (the SPA fallback, not a 404, so a check must read the
+  content type: `curl -sS -o /dev/null -w '%{http_code} %{content_type}\n'
+  https://tadeumendonca.io/og/no-such-card-probe.en.png` → `200 text/html`, while an existing card
+  answers `200 image/png`, measured 2026-11-01), and only `scripts/og-cards.test.mjs` goes red — and **the
   distribution kit**, `npm --prefix apps/fed run gen-distribution`, run by hand; its output is gitignored
   and nothing checks that it ran. Nothing gates that these sentences stay true either.
   **An explicit flag, never a future `date`**: a wall-clock comparison would make the same
