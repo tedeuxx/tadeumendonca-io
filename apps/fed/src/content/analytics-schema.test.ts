@@ -41,10 +41,17 @@ function spineOf(source: string): string[] {
 /**
  * Event name → parameter names, read from the emitting module's source.
  *
- * Two shapes are recognised, and they are the two the module uses: a named emitter
+ * Three shapes are recognised, and they are the three the module uses: a named emitter
  * (`function trackX(params: EventParams & { … }) … trackEvent('<name>', params)`), whose parameters are
- * the spine plus the intersected members; and a direct gtag call (`'event', '<name>', { … }`), whose
- * parameters are the object literal's keys. Anything else that names an event throws.
+ * the spine plus the intersected members; a direct gtag call (`'event', '<name>', { … }`), whose
+ * parameters are the object literal's keys; and the `config` call (`gtag('config', id, { … })`).
+ *
+ * THE THIRD SHAPE IS #797's COPY-LENS FINDING, and it is why this parser once let a wrong page through
+ * green. `config` sends the FIRST `page_view` of a page load (GA4 sends it by default), and this site sets
+ * `page_location` on it explicitly — so that key is a parameter this site's code sends on `page_view`,
+ * merged with the `page_path` the route-change call sends. Reading only `'event'` calls pinned
+ * `page_view` to `page_path` alone, and the page that agreed with it omitted a field the site sets.
+ * Anything else that names an event, and any `config` call whose object this cannot read, throws.
  */
 function emittedSchema(source: string): Schema {
   const spine = spineOf(source);
@@ -53,6 +60,9 @@ function emittedSchema(source: string): Schema {
     if (schema.has(name)) throw new Error(`analytics.ts: event \`${name}\` is emitted from two places`);
     schema.set(name, sorted(params));
   };
+  const merge = (name: string, params: string[]) => {
+    schema.set(name, sorted(new Set([...(schema.get(name) ?? []), ...params])));
+  };
 
   const emitter =
     /export function \w+\(params: EventParams(?: & \{([^}]*)\})?\)[^{]*\{\s*(?:return )?trackEvent\('([a-z_]+)', params\)/g;
@@ -60,6 +70,11 @@ function emittedSchema(source: string): Schema {
 
   const direct = /'event', '([a-z_]+)', \{([^}]*)\}/g;
   for (const m of source.matchAll(direct)) add(m[1], keysOf(m[2]));
+
+  const configCalls = [...source.matchAll(/gtag\('config'/g)].length;
+  const configs = [...source.matchAll(/gtag\('config', \w+, \{([^}]*)\}\)/g)];
+  if (configs.length !== configCalls) throw new Error('analytics.ts: a `config` call this parser does not read');
+  for (const m of configs) merge('page_view', keysOf(m[1]));
 
   // The bound: every literal event name in the module must have been claimed by one of the two shapes.
   const literals = [
@@ -105,7 +120,7 @@ describe('the /analytics page presents exactly the schema the code emits (#640)'
   it('reads the emitting module, not an empty set', () => {
     expect(spineOf(analyticsSource)).toEqual(['locale']);
     expect(emitted.size).toBeGreaterThanOrEqual(9);
-    expect(emitted.get('page_view')).toEqual(['page_path']);
+    expect(emitted.get('page_view')).toEqual(['page_location', 'page_path']);
     expect(emitted.get('contact_reach')).toEqual(['locale']);
   });
 
@@ -151,6 +166,13 @@ describe('the parsers themselves', () => {
   it('rejects an emitter written in a shape it cannot read', () => {
     const src = `export interface EventParams {\n  locale: string;\n}\nfunction odd() { trackEvent('odd_event', { locale: 'x' }); }`;
     expect(() => emittedSchema(src)).toThrow(/odd_event/);
+  });
+
+  it('reads the config hit into page_view, and refuses a config call it cannot read', () => {
+    const spine = 'export interface EventParams {\n  locale: string;\n}\n';
+    const ok = `${spine}gtag('config', id, { page_location: x });\nwindow.gtag!('event', 'page_view', { page_path: p });`;
+    expect(emittedSchema(ok).get('page_view')).toEqual(['page_location', 'page_path']);
+    expect(() => emittedSchema(`${spine}gtag('config', id, opts);\nwindow.gtag!('event', 'page_view', { page_path: p });`)).toThrow(/config/);
   });
 
   it('rejects a page entry with no parameters line', () => {

@@ -1,22 +1,22 @@
 ## Before any number, what the number can see
 
-When I read the analytics of a digital product, the first question I ask is not how many. It is what each signal is able to miss. A count is only as good as the observation underneath it, and most dashboards show the count and hide the observation.
+When I read the analytics of a digital product, the first question I ask is not how many. It is what each signal is able to miss. A count is only as good as the observation underneath it, so I want to see the observation before I read the count.
 
 So this page does the opposite for this site. It carries no figure from GA4 and no chart. It lists every event the site's own browser code sends, the parameters each one carries, what it can establish and what it cannot. The list is read off the code, not off my memory: a test compares the events presented here with the ones [`analytics.ts`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/analytics.ts) emits, in both directions, so an event added to the code without this page, or an entry here with no code behind it, breaks the build.
 
 ## Every count is a floor
 
-Nothing reaches Google until you accept analytics. Before a choice, on decline, and on a build with no measurement id, the tag is never loaded, no cookie is set and no request is made. If you accept and later withdraw, the tag is already loaded, but nothing more is sent from then on. That gate is a decision with its reasons written down in [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
+Nothing reaches Google until you accept analytics. Before a choice, on decline, and on a build with no measurement id, the tag is never loaded, no cookie is set and no request is made. If you accept and later withdraw, this site's code sends nothing more from then on. The tag itself stays loaded, though, and what it collects on its own, such as the automatic measurement GA4 can switch on for a property, depends on a console setting this repository cannot observe. That gate is a decision with its reasons written down in [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
 
-The consequence is that whoever declines is never counted, and neither is whoever blocks the tag. Every number GA4 holds about this site is therefore a floor, never a total ([ADR-0023](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0023-observability-static-site.md)). That is the price of the gate, and I would rather pay it than count people who said no.
+The consequence is that whoever declines is never counted, and neither is whoever blocks the tag. Every number GA4 holds about the events this site's code sends is therefore a floor, never a total, unless that automatic collection counts the same thing a second time ([ADR-0023](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0023-observability-static-site.md)). That is the price of the gate, and I would rather pay it than count people who said no.
 
 ## Emitted is not the same as queryable
 
-This page describes what the site **emits**. That part is known to this repository, because it is the code. What can be **queried** in GA4 is a different fact: a parameter only becomes something you can segment by once it is registered as a custom dimension in the GA4 console, and registration does not backfill. A parameter emitted before its registration is unqueryable for that period, permanently.
+This page describes what the site **emits**. That part is known to this repository, because it is the code. What can be **queried** in GA4 is a different fact: a parameter only becomes something you can segment by once it is registered as a custom dimension in the GA4 console, and registration does not backfill. A parameter emitted before its registration cannot be queried in GA4 for that period, permanently.
 
 That console step sits outside every check this repository runs, and nothing here can observe whether it was done. So this page makes no claim about what is queryable. The reasoning, and the obligation, are in [ADR-0051](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0051-ga4-event-schema-is-immutable-once-shipped.md).
 
-GA4 also attaches fields of its own to every hit, such as the page address. Those are not listed here: this page covers what this site's code sends, not everything the tool records.
+GA4 also attaches fields of its own to every hit that this site does not set, such as the browser's language and the screen size. Those are not listed here: this page covers what this site's code sends, not everything the tool records.
 
 ## The events
 
@@ -24,17 +24,17 @@ Every custom event carries `locale`, the edition the reader is on. Each name is 
 
 ### `page_view`
 
-**Parameters:** `page_path`
+**Parameters:** `page_location` on the first hit of a page load · `page_path` on each later route change
 
-**What it establishes:** that a page was displayed to a reader who had accepted analytics. The first one of a visit is sent by the GA4 tag when it loads, with the address the reader arrived on, captured before consent so that a shared link's campaign tags survive a late accept. Each later one is sent on a route change inside the site, with the path and its query string.
+**What it establishes:** that a page was displayed to a reader who had accepted analytics. The first one of a page load is sent when the GA4 tag starts, and this site's code sets its `page_location` explicitly: the address the reader arrived on, captured before consent so that a shared link's campaign tags survive a late accept. Each later one is sent by this site's code on a route change inside the site, carrying `page_path`: the path and its query string.
 
-**What it cannot establish:** that anything on the page was read. And one reader is recorded wrongly by design: someone who lands on one page, moves to a second and only then accepts is recorded on the first, and the second is never counted.
+**What it cannot establish:** that anything on the page was read. And one reader is recorded wrongly, as an accepted cost of keeping those campaign tags: someone who lands on one page, moves to a second and only then accepts is recorded on the first, and the second is never counted.
 
 ### `article_progress`
 
 **Parameters:** `locale` · `slug` · `percent`
 
-**What it establishes:** that the block of an article sitting at 25%, 50% or 75% of its block count entered the viewport. At most once per article and milestone in a browser tab's session.
+**What it establishes:** that the block that marks 25%, 50% or 75% of the article, counted in blocks, entered the viewport. At most once per article and milestone in a browser tab's session.
 
 **What it cannot establish:** reading. On a large screen the 25% block is often visible at load, before the reader does anything. Its job is to be a precondition for the next event, not a measure of its own.
 
@@ -44,7 +44,7 @@ Every custom event carries `locale`, the edition the reader is on. Each name is 
 
 **What it establishes:** that the last block of the article's prose entered the viewport, that the 75% block had already done so, and that enough time had passed for the words to have been possible to read. That time is derived from the article's length at 1,000 words per minute, with a five-second minimum: not an average reading speed, the edge of the physically implausible.
 
-**What it cannot establish:** a read. It is a proxy, which is why it is not called `read`. A reader who scrolls through at a plausible pace with the tab in the background is counted; one who reads carefully and leaves a paragraph before the end is not.
+**What it cannot establish:** a read. It is a proxy, which is why it is not called `read`. A reader who reaches the end past the milestones and leaves the tab open until the time floor passes is counted without having read; one who reads carefully and leaves a paragraph before the end is not.
 
 ### `share_open`
 
