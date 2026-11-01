@@ -2,6 +2,7 @@
 
 - **Status:** accepted (each of its three shapes is the owner's ruling on Issue
   [#640](https://github.com/tedeuxx/tadeumendonca-io/issues/640), 2026-10-31)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-11-01
 - **Deciders:** **the owner** — *«Página de esquema»*, *«Rota»* and *«Rota fora do menu»*, each a comment
   on #640. Written by `tech-lead` in the implementing merge request
