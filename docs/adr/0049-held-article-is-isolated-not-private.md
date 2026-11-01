@@ -639,8 +639,10 @@ npm --prefix apps/fed test
 ```
 
 The same run also reddens the held-state assertions in `content.test.ts`, `routes.test.mjs` and
-`og-cards.test.mjs`, as this record's rule 2 says it must. Only the card-set assertion is generic: it
-fires on any promoted article, not on the fixture alone.
+`og-cards.test.mjs`, as this record's rule 2 says it must. Two tests are generic, both in the
+*"the card set matches the article set"* group: *"has a card for every article in every locale"* and
+*"found articles at all"*, whose card count must equal the article count times the locales. They fire
+on any promoted article, not on the fixture alone.
 
 **What follows for the author.** The build stays green with the cards missing and serves an `og:image`
 that 404s. A scraper pins that miss, and [ADR-0041](./0041-per-article-og-cards.md) calls the card the
@@ -650,9 +652,11 @@ promotion merge request. **Nothing at all fails when the kit is not generated.**
 manual, therefore still skippable"*, and no gate enforces it.
 Wiring either script into `npm run build` is a separate decision and is not taken here.
 
-**What this amendment does not claim.** Nothing gates that this record, `apps/fed/CLAUDE.md` and the
-comment on `draft` in `apps/fed/src/lib/content.ts` agree with the generators, and nothing new does
-after this correction. The three were corrected together by reading them, and they can drift again.
+**What this amendment does not claim.** Nothing gates that this record, `apps/fed/CLAUDE.md`, the
+comment on `draft` in `apps/fed/src/lib/content.ts`, and the review-bar gate comments in
+`apps/fed/src/components/DraftReviewBar.tsx` and `apps/fed/src/pages/ArticlePage.tsx` agree with the
+generators, and nothing new does after this correction. All five were corrected together by reading
+them, and they can drift again.
 The *"one-word promotion"* in the 2026-10-16 amendment is left as written: it names the edit that
 publishes, and the gap it describes, that nothing checks the published body is the one the owner read,
 is unchanged.
