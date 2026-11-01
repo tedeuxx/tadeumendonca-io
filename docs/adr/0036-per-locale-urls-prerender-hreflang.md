@@ -511,9 +511,9 @@ and what the wrong-locale slug does), **not** a table entry — and the green su
 
 **Added 2026-11-01 by [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669) (slice B1, the edge
 half), written by `tech-lead` in [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803).
-This section is `proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR,
-and the consent question under *Open* below is answered in the same ratification, because one of its
-answers reverses the delivery shape.** It is a section here rather than a record of its own because it is
+This section is `proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.
+Its consent question is already his, answered on 2026-11-01 («Antes, e divulgar»,
+[#669 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6564678895)).** It is a section here rather than a record of its own because it is
 behaviour of this capability, locale resolution, and
 [0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md)'s
 capability limb puts such a decision in the capability's document. The owner decided IP geolocation
@@ -624,8 +624,9 @@ to the owner, as #669's planning note says. B2 does not start until the check is
 
 - **A separate uncached endpoint** that the client fetches. Every unprefixed-path visit would wait one
   more round-trip before it can redirect, and it needs a new cache behavior. **Its one advantage is
-  real**: nothing is stored, so the consent question does not arise. **It is the reopening route if the
-  owner rules the cookie into the consent gate.**
+  real**: nothing is stored, so the consent question does not arise. It is the route the
+  behind-the-consent-gate position would have forced; the owner ruled against that position (see
+  *Consent* below), so it stays rejected.
 - **The header in the cache policy** — rejected unless the spike forces it. The country becomes part of
   the cache key, so every HTML document is cached once per viewer country, lowering the hit rate on
   every page for a value one function reads. Stated here so a no-go needs no new decision about whether
@@ -643,37 +644,41 @@ to the owner, as #669's planning note says. B2 does not start until the check is
   advertised URL ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)'s rejected edge
   redirect, #660's constraint; a scraper obeys a redirect too), and it would put resolution at the edge.
 
-### Open — the owner's call: does the cookie need the consent gate?
+### Consent — the owner's ruling: set before any choice, and disclosed
 
-**This section does not decide it.** #669 put the question to the owner at the boundary-class
-ratification, and it stays his.
+**The owner decided it on 2026-11-01, in session, in three words: «Antes, e divulgar»**
+([#669 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6564678895)).
+The cookie stays set before any consent choice, so the hint exists on the first visit; and `/analytics`,
+in both editions, discloses it.
 
-**The question.** The site now stores `locale_hint` on the reader's device on the first HTML response,
-before any consent choice. It carries one of three values, no identifier and no location, lives for an
-hour, and is read only by this site's own script. Does it go behind the consent gate
-([ADR-0033](./0033-ga4-consent-gated-analytics.md)), or is it set before a choice as built?
+**The question he was asked.** The site stores `locale_hint` on the reader's device on the first HTML
+response, before any consent choice. It carries one of three values, no identifier and no location,
+lives for an hour, and is read only by this site's own script. Does it go behind the consent gate
+([ADR-0033](./0033-ga4-consent-gated-analytics.md)), or is it set before a choice?
 
-**The three positions:**
+**Chosen: set before a choice, and disclosed.** The feature works on a first visit, which is the visit it
+exists for, and the reader is told what is stored, what it carries and how long it lives.
 
-- **Set before a choice, as built.** The feature works on a first visit, which is the visit it exists
-  for. The site's published sentence about cookies may read as false (below).
-- **Behind the consent gate.** Nothing is stored before a choice. But on a first visit the hint does not
-  exist when the client decides, so step 3 never fires on the visit it was ruled for. In practice this
-  means **replacing the cookie with the endpoint**, which stores nothing and pays one round-trip on each
-  unprefixed visit.
-- **Set before a choice, and disclosed.** As built, plus the `/analytics` copy names the cookie, what it
-  carries and how long it lives. Content work in both locales, outside this slice.
+**The two positions that lost, and why:**
 
-**The copy that may read as site-wide.** `apps/fed/src/content/analytics.en.md`: *"Before a choice, on
+- **Set before a choice, undisclosed** — the delivery as first built. *Lost because* the site's own
+  published sentence about cookies would then read as false (below): a reader could find a cookie the
+  page appears to deny.
+- **Behind the consent gate.** Nothing would be stored before a choice. *Lost because* on a first visit
+  the hint would not exist when the client decides, so step 3 would never fire on the visit it was ruled
+  for. In practice it meant **replacing the cookie with the endpoint**, which stores nothing and pays one
+  round-trip on each unprefixed visit — the endpoint stays listed above as the rejected delivery shape.
+
+**The copy the disclosure corrects.** `apps/fed/src/content/analytics.en.md`: *"Before a choice, on
 decline, and on a build with no measurement id, the tag is never loaded, no cookie is set and no request
 is made."* Its pt-BR edition, `apps/fed/src/content/analytics.pt.md`: *"Antes de escolher, se você
 recusar, e num build sem identificador de medição, a tag nunca é carregada, nenhum cookie é gravado e
 nenhuma requisição é feita."* In context the paragraph is about Google's tag, but *"no cookie is set"*
-stands on its own, and once this ships a reader can find a cookie the sentence appears to deny. PR #803
-does not change that copy.
+stands on its own. The disclosure lands in both editions in the same MR as the cookie (PR #803), so the
+cookie never ships with that sentence uncorrected.
 
-This is not legal advice and the section claims no legal position; it states the engineering consequence
-of each answer.
+The ruling is the owner's and this section claims no legal position; it records the engineering
+consequence of each answer.
 
 ### Consequences still being paid
 
@@ -688,7 +693,7 @@ of each answer.
 - **The origin request policy changes what reaches the S3 origin.** If OAC signing rejected the forwarded
   header every page would fail; the plan on the MR and the post-deploy suite are where that shows, and
   the suite runs after the apply, not before.
-- **Something is stored before consent**, with the question open above.
+- **Something is stored before consent**, on the owner's ruling, and the site says so on `/analytics`.
 - **IP is not language.** A Brazilian abroad, a corporate VPN and a reader in Portugal (who gets pt-BR)
   resolve wrongly; the owner accepted this trade on #669.
 - **On a no-go, the HTML cache fragments by country.**
