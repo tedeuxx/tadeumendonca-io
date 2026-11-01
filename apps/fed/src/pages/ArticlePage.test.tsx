@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import type { BlogPost } from '../lib/content';
 import { LocaleProvider } from '../i18n';
+import { strings } from '../i18n/messages';
 
 const { getPostBySlug, getEditions } = vi.hoisted(() => ({ getPostBySlug: vi.fn(), getEditions: vi.fn() }));
 // `getRevision` (#741) answers "no pending revision" here; the revision cases are `ArticlePage.revision.test.tsx`.
@@ -187,6 +188,27 @@ describe('ArticlePage', () => {
     expect(alternateHref('x-default')).toBe('https://tadeumendonca.io/blog/building');
     expect(alternateHref('en')).toBe('https://tadeumendonca.io/en/blog/building');
     expect(alternateHref('pt')).toBe('https://tadeumendonca.io/pt/blog/construindo');
+  });
+
+  // #710. A COVER-DERIVED card is the title over the article's AI-generated cover, so its alt says that,
+  // in the page's locale. The expectation is built from the catalog entry (the coupling); the words
+  // themselves are pinned against the card's mark in scripts/og-copy.test.mjs.
+  describe('og:image:alt', () => {
+    const alt = () => document.head.querySelector('meta[property="og:image:alt"]')?.getAttribute('content');
+
+    it.each(['pt', 'en'] as const)('names the AI-generated cover on a cover card (%s)', (locale) => {
+      getPostBySlug.mockReturnValue(post({ cover: '/illustrations/c.jpg', ogImage: `/og/building.${locale}.png` }));
+      renderAt('building', locale);
+      expect(alt()).toBe(`Building Serverless — ${strings.article.aiCover[locale]}`);
+    });
+
+    // The control: the same article without `cover` keeps the title alone, so the suffix above is
+    // caused by the selector and nothing else.
+    it('keeps the title alone on a title-only card', () => {
+      getPostBySlug.mockReturnValue(post({ ogImage: '/og/building.pt.png' }));
+      renderAt('building');
+      expect(alt()).toBe('Building Serverless');
+    });
   });
 
   // #510 — the weaker half of the hold, and it is written as the weaker half deliberately.
