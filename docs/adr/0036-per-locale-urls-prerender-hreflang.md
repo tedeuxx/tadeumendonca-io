@@ -4,7 +4,7 @@
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)
-- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md), [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)
+- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
 
 ## Context & problem
 [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) internationalized the site with a light in-repo
@@ -107,11 +107,11 @@ Chosen: **option 1 — symmetric per-locale URL prefixes, per-locale prerender, 
 - **`iac/` is untouched.** The CloudFront Function remains the locale-agnostic clean-URL rewrite; the prefixes
   are just more static object paths in the bucket. No DNS, no cert, no edge change.
 
-**CV-PDF source route note (for [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)):** the build-time CV
+**CV-PDF source route note (for the downloadable-CV decision, now [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s *The downloadable edition*; it was record 0034 until #456):** the build-time CV
 PDF is printed from the CV route, whose string moves `/me` → **`/en/me`** under this scheme (English is the
-canonical print edition per ADR-0034/ADR-0024). The `/cv.pdf` output path and the "printed from the English
+canonical print edition per ADR-0024). The `/cv.pdf` output path and the "printed from the English
 edition" decision are unchanged — only the source route string shifts to carry the `/en` prefix. Recorded here
-so the PDF-source path is not left stale; a matching one-line note is added to ADR-0034.
+so the PDF-source path is not left stale; a matching one-line note was added to the downloadable-CV record (since absorbed into ADR-0024).
 
 ## Consequences
 **Good**
@@ -158,7 +158,7 @@ so the PDF-source path is not left stale; a matching one-line note is added to A
   > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
   > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
 - **No edge / Accept-Language logic** — the client-side redirect covers the negotiation; `iac/` stays closed.
-- **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)
+- **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (its downloadable-edition section)
   already books — this ADR only shifts the *source route string* to `/en/me`, it does not add the pt edition.
 
 ## Amendment (2026-07-27) — x-default is the **prefixed English canonical** everywhere but the root; a URL may be advertised only if the build prerenders it
@@ -543,7 +543,7 @@ and what the wrong-locale slug does), **not** a table entry — and the green su
   + x-default; the route-count doubling is the accepted build cost ADR-0005 anticipates.
 - **Consistent with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)** — English stays the canonical
   edition; x-default = English; the CV PDF still prints from the English edition (route string `/en/me`).
-- **Touches [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)** — the CV-PDF source route string moves
-  `/me` → `/en/me`; a matching one-line note is added to ADR-0034.
+- **Touches the downloadable-CV decision** (now [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s *The downloadable edition*; record 0034 until #456) — the CV-PDF source route string moves
+  `/me` → `/en/me`; a matching one-line note was added to that record.
 - **`iac/` untouched** ([ADR-0013](./0013-s3-cloudfront-hosting.md)) — the CloudFront Function is
   locale-agnostic; the prefixes are static object paths.

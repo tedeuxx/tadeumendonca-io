@@ -36,7 +36,7 @@ export interface ExperienceItem {
    *
    * SET ON THE CURRENT ROLE SINCE #542 (2026-08-27), AT INDEX 4 SINCE #566 (2026-08-28).
    * It was unset on every role between #522 and #542 for the measured reason
-   * below, and what changed is not the measurement but the ceiling: the owner lifted ADR-0034's
+   * below, and what changed is not the measurement but the ceiling: the owner lifted ADR-0024's
    * two-page budget («pode aumentar sem problemas»), the artifact is three pages, and a printed bullet
    * fits. Read the next paragraph as the record of the constraint, which still binds at its own number.
    *

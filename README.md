@@ -20,7 +20,7 @@ Six surfaces:
 
 1. **Landing** (`/`) — the storefront; it also hosts the articles list (`#artigos`).
 2. **Interactive CV** (`/me`) — canonical reference of the owner's experience, and the only CV surface.
-   `/cv.pdf` is the two-page recruiter edition printed from it at build time, in the site's own dark palette.
+   `/cv.pdf` is the three-page recruiter edition printed from it at build time, in the site's own dark palette.
 3. **Portfolio** (`/portfolio`) — a curated catalog of public repos (automations, agents, MCP servers, AI-native tools) that stay public as evidence of the work.
 4. **Ramp-up** (`/ramp-up`) — the depth still being built, planned in the open with its sources.
 5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and both public repos.

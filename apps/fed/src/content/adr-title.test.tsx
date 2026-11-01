@@ -56,9 +56,15 @@ describe('renderAdrTitle', () => {
   // title naming it in prose would be a title about something vaguer. The loop below is what makes the
   // bump safe — the eighth title is asserted to render as an element like the other seven, so the number
   // is never the only thing the case checks.
+  //
+  // EIGHT to SEVEN on 2026-11-01 (#456), the first move DOWN, and for the same kind of reason: the
+  // downloadable-CV record, whose heading carried `/me` as a code span, was absorbed into ADR-0024 and
+  // left the library, so one fewer title carries markup. Measured with this test's own filter over the
+  // regenerated `adrs.json` rather than inferred; the record added in the same slice carries none. The
+  // fold slices of #456 will move this again, each in the merge request that removes a titled record.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(8);
+    expect(withMarkup).toHaveLength(7);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

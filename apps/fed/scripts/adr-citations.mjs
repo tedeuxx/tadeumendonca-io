@@ -16,12 +16,12 @@
 // `harness-source.mjs` / `check-harness-drift.mjs` — everything that DECIDES lives here, pure and
 // unit-testable; the live assertion over the real tree is one call in `adr-citations.test.mjs`.
 //
-// NOT BUILT YET, deliberately: the `row 00N must not cite ADR-00N` arm — a record citing itself,
-// which is what a cross-record citation BECOMES once its target is folded into it. That arm has
-// nothing to catch until a fold has happened (nothing is folded in this repo today), and an arm with
-// no possible subject is an assertion that cannot fail. **It comes with the first fold slice**, and
-// `selfCitations()` below is the seam it hangs on — already computed, already reported, not yet
-// promoted to a failure.
+// THE FOLD ARM — `row 00N must not cite ADR-00N` — IS LIVE since the first fold slice of #456 (the
+// pilot that absorbed record 0034 into 0024). A record citing itself is what a cross-record citation
+// BECOMES once its target is folded into it, and every dangling-link check is blind to it because the
+// target still resolves. Until the first fold there was nothing for it to catch, so it was computed and
+// reported only; with a fold in the tree it fails, on any self-citation outside the pre-fold baseline
+// (`PRE_FOLD_SELF_CITATIONS`), which is excused by exact count and reported, never dropped.
 import { execFileSync } from 'node:child_process';
 import { accessSync, constants, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -31,8 +31,8 @@ import { recordFiles } from './adr-source.mjs';
  * The two citation spellings, and why BOTH are matched.
  *
  * The sister job in `tadeumendonca-skills` found citation defects that one spelling missed and the
- * other caught, which is the whole argument for not picking one: `ADR-0034` is how prose names a
- * decision, `](./0034-build-time-cv-pdf-static-artifact.md)` is how a record links its neighbour, and
+ * other caught, which is the whole argument for not picking one: `ADR-0036` is how prose names a
+ * decision, `](./0036-per-locale-urls-prerender-hreflang.md)` is how a record links its neighbour, and
  * they fail differently. A number citation survives a RENAME (the number is still right) and dies on
  * a REMOVAL. A path citation dies on both — it carries the filename, so a record renamed without its
  * citations updated is a 404 that the number form cannot see.
@@ -310,9 +310,8 @@ export function libraryIndex(adrDir) {
  *
  * Absorption turns a citation between two records into a citation inside one, and that is invisible
  * to every dangling-link check ever written, because the target still exists. It is the defect class
- * the sister job manufactured and then had to go back for. Computed and reported now so the arm is a
- * one-line promotion in the first fold slice rather than a new instrument; **not a failure yet**,
- * because nothing in this repo is folded and an assertion with no possible subject cannot fail.
+ * the sister job manufactured and then had to go back for. Every self-citation is returned here; which
+ * of them are fatal is `manufacturedSelfCitations()`'s call, below.
  */
 export function selfCitations(citations) {
   return citations.filter((c) => {
@@ -321,6 +320,48 @@ export function selfCitations(citations) {
     const target = c.kind === 'token' ? c.target : c.target.slice(0, 4);
     return source[1] === target;
   });
+}
+
+/**
+ * The three self-citations that predate any fold, written as authored prose ("ADR-0012 and it is
+ * intact", inside 0012) rather than produced by absorption. They are EXCUSED, not exempt from the
+ * arm: each entry excuses exactly one occurrence, keyed by file and cited number WITHOUT the line (the
+ * same reason the excused-list pins drop it — an edit above the line must not fail a gate about
+ * something else). A second self-citation in the same file is not covered by its entry, and an entry
+ * whose occurrence has gone is reported as stale so the excuse cannot outlive its subject.
+ *
+ * Expected to SHRINK as the fold slices run: 0012 and 0035 are folded into capability documents later
+ * in #456, and the slice that moves one removes its entry in the same merge request.
+ */
+export const PRE_FOLD_SELF_CITATIONS = [
+  'docs/adr/0012-snake-case-content-no-mapping.md cites ADR-0012',
+  'docs/adr/0021-application-security-posture.md cites ADR-0021',
+  'docs/adr/0035-static-repo-cards-in-longform.md cites ADR-0035',
+];
+
+const lineFree = (c) => describeCitation(c).replace(/:\d+ cites /, ' cites ');
+
+/**
+ * The fatal half of the fold arm: every self-citation the baseline does not account for, plus every
+ * baseline entry that no longer has an occurrence to excuse.
+ *
+ * Matching consumes the baseline as a multiset, so the excuse is exactly as wide as what was there
+ * before the first fold — a fold that drops a second `ADR-0012` into 0012 is caught, not absorbed by
+ * the existing entry.
+ */
+export function manufacturedSelfCitations(selfCites, baseline = PRE_FOLD_SELF_CITATIONS) {
+  const remaining = [...baseline];
+  const manufactured = [];
+  const excused = [];
+  for (const c of selfCites) {
+    const at = remaining.indexOf(lineFree(c));
+    if (at === -1) manufactured.push(c);
+    else {
+      remaining.splice(at, 1);
+      excused.push(c);
+    }
+  }
+  return { manufactured, excused, staleExcuses: remaining };
 }
 
 /**
@@ -358,6 +399,7 @@ export function auditFiles(repoRoot, files, adrDir) {
     struck: unresolved.filter((c) => c.struck && !isCrossRepo(c)),
     quoted: unresolved.filter((c) => c.quoted && !c.struck && !isCrossRepo(c)),
     selfCitations: selfCitations(citations),
+    selfCitationArm: manufacturedSelfCitations(selfCitations(citations)),
   };
 }
 

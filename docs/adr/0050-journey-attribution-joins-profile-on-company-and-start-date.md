@@ -13,7 +13,7 @@
 - **Driven by:** [#516](https://github.com/tedeuxx/tadeumendonca-io/issues/516) ·
   [PR #517](https://github.com/tedeuxx/tadeumendonca-io/pull/517) (slice 1, which authored the
   attribution as a bare employer name and measured that shape failing) · **cites**
-  [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md) (the printed CV is built from `profile.ts`,
+  [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s downloadable edition, record 0034 until #456 (the printed CV is built from `profile.ts`,
   which is why nothing here edits that file) · **cites**
   [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md) (the photograph budget, unchanged and
   deliberately not restated here)
@@ -57,7 +57,7 @@ pointer; it is a label that happens to read like one.
 - **And it must stay checkable by a HUMAN, against the owner's own sentences.** The whole slice's thesis
   is *authored, sourced, checkable*; a key whose meaning is recoverable only by dereferencing defeats the
   third of those.
-- **`profile.ts` is what `/cv.pdf` is printed from** ([ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)),
+- **`profile.ts` is what `/cv.pdf` is printed from** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md), its downloadable edition),
   and `journey.ts` exists as a separate module specifically to keep photograph concerns out of it.
 - **#416 is open against `profile.ts`.** A slice editing the same file buys a conflict for nothing.
 - **Drift must fail loudly.** Whatever the key is, the failure mode of a `profile.ts` edit has to be a red

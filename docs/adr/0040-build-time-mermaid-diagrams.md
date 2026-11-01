@@ -286,7 +286,7 @@ again.** `apps/fed/src/styles/index.css:134-135` **inverts** the identity tokens
 (near-black ink on an off-white sheet), while the diagram SVG's colours are **baked at build time** and
 cannot invert with it. On a printed `/architecture`, the off-white strokes land on a white sheet — the same
 mistake as above, with the canvas assumed rather than the colour. **Nothing shipping today is affected:**
-`/cv.pdf` prints from `/en/me` (ADR-0034), which carries no diagram, and no other print path exists. So this
+`/cv.pdf` prints from `/en/me` (ADR-0024, its downloadable-edition section; record 0034 until #456), which carries no diagram, and no other print path exists. So this
 is **accepted, not fixed** — but it is now *latent and named* rather than unknown, which is the difference
 that matters if a diagram ever reaches a printed surface.
 
@@ -309,7 +309,7 @@ assertion green. Two of the five items in this amendment are the same failure, f
 - **Narrows the conformance claim made to [ADR-0008](./0008-brutalist-mono-identity.md)** — the identity is
   still asserted on generated output; the assertions cover palette membership, presence and
   background-equality, not legibility.
-- **Interacts with [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)** for item 4 — the print path is
+- **Interacts with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)** (its downloadable-edition section, absorbed from record 0034 by #456) for item 4 — the print path is
   unaffected today only because the PDF prints from `/en/me`.
 - Implementation added by this slice: `apps/fed/e2e/routes.spec.ts` (the stroke-vs-canvas assertion),
   `apps/fed/scripts/architecture-diagrams.test.mjs` (the dev-loop claims and the `H`-prefix rule),

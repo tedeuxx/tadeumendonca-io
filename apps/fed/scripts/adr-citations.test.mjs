@@ -3,12 +3,14 @@ import { existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import {
   GIT_CANDIDATES,
+  PRE_FOLD_SELF_CITATIONS,
   SELF_EXCLUDED,
   auditFiles,
   auditRepo,
   describeCitation,
   gitBinary,
   libraryIndex,
+  manufacturedSelfCitations,
   quotedRanges,
   resolves,
   scanText,
@@ -129,20 +131,26 @@ describe('adr citations — the gate', () => {
     expect(trackedTextFiles(repoRoot).some((f) => SELF_EXCLUDED.includes(f))).toBe(false);
   });
 
-  // NOT A FAILURE YET, and the assertion says so out loud rather than being absent. Absorption turns a
-  // citation BETWEEN two records into a citation INSIDE one, which every dangling-link check on earth
-  // is blind to because the target still resolves — the defect class the sister job manufactured and
-  // had to go back for. `row 00N must not cite ADR-00N` is the arm that catches it; it has nothing to
-  // catch until a fold has happened, and an assertion with no possible subject cannot fail.
+  // THE FOLD ARM, LIVE since the first fold slice of #456. Absorption turns a citation BETWEEN two
+  // records into a citation INSIDE one, which every dangling-link check is blind to because the target
+  // still resolves — the defect class the sister job manufactured and had to go back for. With a fold
+  // in the tree (record 0034 absorbed into 0024) the arm has a subject, so it fails.
   //
-  // THE ARM COMES WITH THE FIRST FOLD SLICE. What is pinned here is the pre-fold baseline, so that
-  // slice can tell a self-citation it MANUFACTURED from the three that were already here.
-  it('pins the pre-fold self-citation baseline (the fold arm hangs on this)', () => {
-    expect(audit.selfCitations.map(describeCitation)).toEqual([
-      'docs/adr/0012-snake-case-content-no-mapping.md:64 cites ADR-0012',
-      'docs/adr/0021-application-security-posture.md:54 cites ADR-0021',
-      'docs/adr/0035-static-repo-cards-in-longform.md:60 cites ADR-0035',
-    ]);
+  // CALIBRATED BEFORE IT WAS TRUSTED, on the subject and not on this file: a planted `ADR-0024` in
+  // `0024-profile-canonical-cv-cross-surface.md` turned this red naming that line, and removing it
+  // turned it green again. Without that, an empty list here would read the same as a broken scan.
+  it('has no self-citation a fold manufactured (row 00N must not cite ADR-00N)', () => {
+    expect(audit.selfCitationArm.manufactured.map(describeCitation)).toEqual([]);
+  });
+
+  // The pre-fold baseline, excused by exact count and still REPORTED. Pinned as contents so a new
+  // excuse has to be looked at by a person, and asserted to have no stale entry so the excuse cannot
+  // outlive the prose it was written for.
+  it('excuses exactly the pre-fold self-citations, and none of them is stale', () => {
+    expect(audit.selfCitationArm.excused.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '))).toEqual(
+      PRE_FOLD_SELF_CITATIONS,
+    );
+    expect(audit.selfCitationArm.staleExcuses).toEqual([]);
   });
 });
 
@@ -317,5 +325,26 @@ describe('selfCitations', () => {
       { kind: 'token', file: 'CLAUDE.md', target: '0007' },
     ];
     expect(selfCitations(cites).map((c) => c.target)).toEqual(['0007', '0007-x.md']);
+  });
+});
+
+describe('manufacturedSelfCitations', () => {
+  const cite = (file, target, line) => ({ kind: 'token', file, target, line });
+
+  it('excuses one baseline occurrence per entry and fails a second one in the same file', () => {
+    const baseline = ['docs/adr/0007-x.md cites ADR-0007'];
+    const arm = manufacturedSelfCitations(
+      [cite('docs/adr/0007-x.md', '0007', 3), cite('docs/adr/0007-x.md', '0007', 9)],
+      baseline,
+    );
+    expect(arm.excused.map(describeCitation)).toEqual(['docs/adr/0007-x.md:3 cites ADR-0007']);
+    expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:9 cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([]);
+  });
+
+  it('reports a baseline entry whose occurrence is gone as stale', () => {
+    const arm = manufacturedSelfCitations([], ['docs/adr/0007-x.md cites ADR-0007']);
+    expect(arm.manufactured).toEqual([]);
+    expect(arm.staleExcuses).toEqual(['docs/adr/0007-x.md cites ADR-0007']);
   });
 });

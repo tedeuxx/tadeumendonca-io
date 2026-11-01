@@ -1,0 +1,189 @@
+# 0053. This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule
+
+- **Status:** proposed (the shape is the owner's, ruled on Issue
+  [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) on 2026-08-25, 2026-09-11 and
+  2026-10-31; this record writes it down and becomes `accepted` only on his ratification)
+- **Date:** 2026-11-01
+- **Deciders:** the owner · written by `tech-lead` in the first slice of #456
+- **Supersedes / superseded by:** —
+- **Driven by:** Issue [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456); the method's
+  `documentation-standard` skill, Part II (what an ADR is, the four dispositions of a record that
+  leaves a library, absorption); `tadeumendonca-skills#283`, which applied the same definition to the
+  methodology library first
+
+## Context & problem
+
+The owner, 2026-08-15, after a record of how one term is typeset reached a merge request:
+
+> *"acho que estamos criando adrs de mais / precisamos ancorar o que sao adrs"*
+
+The library had no stated scope and no entry rule beyond the method's significance test, which is
+elastic: almost any convention can be described as *"a cross-cutting pattern"*. Measured at `a215edd`,
+the head this record was written on, by the month each record present there first arrived — per path,
+because a `--full-history` walk over the glob counts re-additions on merged branches and inflates the
+first month roughly twofold:
+
+```
+for f in $(git ls-tree --name-only origin/main docs/adr/ | grep -E '/[0-9]{4}-'); do
+  git log origin/main --diff-filter=A --follow --date=format:%Y-%m --format=%ad -- "$f" | tail -1
+done | sort | uniq -c
+# -> 41 2026-07 · 9 2026-08 · 2 2026-09
+```
+
+The library's stock and its inflow have different causes. The 41 records of 2026-07 came from one
+reverse-engineering pass that documented an existing site; no entry rule was applied to them because
+none existed. The inflow since is smaller and, on the 2026-08-25 intake's reading recorded on #456,
+mostly **conventions** — rules about how a string is
+spelled or typeset, several of them already refused by a test. The first cause produced a large
+library of one-decision files; the second keeps growing it with records that no isolated context needed
+in order not to diverge.
+
+The practice the library follows also changed underneath it. *Supersede, never delete* was replaced in
+the method by *a record earns its place by explaining the current codebase*, with four dispositions for
+a record that leaves a library (delete with a History row, fold into the superseding record, keep, or
+absorb into the document that governs it). This library's README still promised *"never deleted"*.
+
+So three things need deciding together, because each one is meaningless without the others: what this
+library records, the unit a record is, and the rule a new decision passes to get in.
+
+## Decision drivers
+
+- **The reader is an agent with a fresh context.** A record exists so that an isolated context does not
+  re-decide something and diverge. A record that prevents no re-decision costs reading time on every
+  load and buys nothing.
+- **One document should answer one question a reader arrives with.** The owner's words:
+  *"a leitura de um documento adr é autosuficiente para entender aquele comportamento"*.
+- **Folding must not tear the largest records.** Several records here cite records from many areas at
+  once; a partition that splits them into pieces defeats the self-sufficiency it exists for.
+- **The entry rule has to refuse something.** A rule that only says *where* a decision goes makes the
+  library smaller in file count and the same in content.
+- **Size per document stays loadable.** Folding relocates reading cost; it does not remove it.
+
+## Considered options
+
+### What the library is scoped to
+
+1. **The owner's two halves, with the decision library itself admitted as a consequence of the first
+   (chosen).** His words: *"decisoes sobre a minha comunicacao de presenca online e decisoes sobre a
+   arquitetura tecnica do site."* How this repository records decisions is **presence communication**
+   here, not internal bookkeeping: `/architecture` publishes the library and argues its recording rule
+   to the reader, in both editions. *Trade-off:* the admission rests on a fact about one page; if that
+   page stops publishing the library and its rule, the reading lapses (see *Falsifier* below).
+2. **The two halves, with an explicit exception clause for "how this repository records decisions."**
+   *Rejected:* it would record that the site's own published argument is out of scope for the site.
+3. **No stated scope; the significance test alone decides.** *Rejected:* that is the state that let a
+   typesetting rule reach a merge request as a record.
+
+### The unit a record is
+
+1. **One document per capability, partitioned by the reader-visible surface a question arrives from
+   (chosen).** Each capability has one anchor record; decisions about that capability live in it as
+   sections. *Trade-off:* things that share code split across documents (the build pipeline appears in
+   more than one), so each document has to say what does not belong in it.
+2. **Partition by code layer (hosting, build, application, content).** *Rejected:* the per-locale URL
+   record cites records from every candidate layer at once; under a layer partition it tears into
+   pieces on the first fold, and a torn record is not self-sufficient.
+3. **Keep one file per decision.** *Rejected:* it is the shape that produced the stock above, and a
+   fresh context has to open many files to understand one behaviour.
+4. **Six capabilities rather than the working eight.** *Rejected on size:* the sister fold in
+   `tadeumendonca-skills` grew its library's total bytes while cutting its file count, so the reading
+   cost moved into fewer, larger documents. At six, this library's largest document would plausibly
+   exceed the point where a fresh context can afford to load it. The working partition keeps the
+   harness self-description record alone for that reason.
+
+### The entry rule
+
+1. **Two limbs, both applied to every new decision (chosen).**
+   - **Capability limb:** is this a new capability, or behaviour of one that already has a document? If
+     a document exists, the decision is a section of it, never a new file.
+   - **Re-decision limb:** without a record, would an isolated context re-decide this and diverge? **If
+     a mechanism (a test, a constant, a configuration) already refuses the alternative, that mechanism
+     is the record**, and the reasoning goes beside it as a comment. The limb is applied **to each
+     still-live rejected option, not to the rule as a whole**: a mechanism that holds the rule but
+     passes a rejected option leaves that option unrefused, and the record is still owed.
+   *Trade-off:* the second limb is a judgement. It is checkable — a refusal cites the file and the
+   assertion — but nothing gates it.
+2. **The capability limb alone.** *Rejected:* it does not refuse a typesetting rule; such a rule is
+   trivially behaviour of the design-system capability and lands there as a section. The library gets
+   fewer files and the same content.
+3. **A gate that decides admission.** *Rejected:* whether a mechanism refuses an alternative is a
+   reading of what the mechanism asserts, which no string check performs. A gate here would read as
+   enforcement and decide nothing.
+
+## Decision outcome
+
+**An ADR in this repository records one architecturally-significant decision about the owner's online
+presence or the site's technical architecture — its context, the options weighed, the choice and its
+consequences — that an isolated context would otherwise re-decide and get wrong.**
+
+**The library is organised as one document per capability**, on the reader-visible-surface axis. A
+capability's anchor record keeps its number and filename; decisions that belong to it are sections
+inside it. The working partition is the one ruled on #456 on 2026-10-31 (*«Ratificar e validar»*),
+adjustable by the pilot fold before the capability table is published in the library's README. The
+table, not this record, is where the partition lives, so a change to it is an edit to one table and one
+field per record rather than an amendment here.
+
+**A new decision passes both limbs of the entry rule above before it becomes a file.** Most will not
+become one: they become a section of an existing capability document, or a comment beside the
+mechanism that already refuses the alternative.
+
+**A record that leaves the library takes one of the four dispositions**, never a silent absence: a
+reversed record whose replacement is a record folds its decision into that record's
+`## What this replaced`; a reversed record replaced by a pivot rather than a record is deleted with a
+History row; a record still in force is absorbed into the document that governs it, with a History row
+whose third column begins with the relative link to the destination; a proposed or unexercised record
+stays. The README's History table is the marker, and it names every number this library has issued
+that no longer has a file.
+
+**A number is never reissued silently.** Where a number was issued, removed and then issued again, the
+History table says so in one line, so git history holding two decisions under one number is visible in
+the tree.
+
+### Falsifier
+
+The admission of *"how this repository records decisions"* rests on `/architecture` publishing the
+library and arguing its recording rule. **If the page stops publishing the library and its rule, this
+reading lapses and the scope must be revisited.** The page's paragraph is checkable in both editions
+(`apps/fed/src/content/architecture.en.md` and `architecture.pt.md`, the section that links the decision
+library).
+
+## Consequences
+
+**Good**
+- A fresh context loads one document to understand one behaviour, instead of following citations
+  across many one-decision files.
+- The inflow has a rule that refuses: a convention a test already holds gets a comment beside the test,
+  not a record.
+- Anchors keep their numbers, so citations to anchors from outside the library survive every fold
+  untouched; only citations to folded records are rewritten.
+- The library's own README stops promising something its practice no longer does.
+
+**Bad / accepted costs**
+- **Folding is lossy by instruction.** Superseded narrative, struck archaeology and round-by-round
+  measurement leave the library at each fold; only the decision as it binds, its still-live rejected
+  options and its remaining consequences arrive. Git history keeps the rest, and a reader has to go
+  there for it.
+- **Documents get larger.** Each fold slice reports the byte size of the documents it touched, and a
+  capability document over 150 KB is raised as a finding before merge.
+- **Nothing enforces the entry rule.** Both limbs are instructions. The citation gate
+  (`apps/fed/scripts/adr-citations.mjs`) can say that every citation resolves and that a fold did not
+  leave a record citing itself; it cannot say whether a new file should have been a section.
+- **The re-decision limb can refuse only what a mechanism actually refuses.** Measured on its first
+  application, in this record's own slice: the document-title convention's tests refuse a title that
+  does not lead with its navigation label, and they pass the *equality* option that record rejects, and
+  nothing refuses rewriting a title that already conforms. So that record stays a record. The limb is a
+  question about each rejected option, and answering it about the rule as a whole would have deleted a
+  live argument.
+
+## Links
+
+- Issue [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) — the reconciliation, the
+  owner's rulings and the working partition.
+- The method's `documentation-standard` skill, Part II — the definition, the significance test this
+  record narrows for this repository, and the four dispositions.
+- [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md) — the keystone; it folds into this record
+  in a later slice of #456, under the `decision-library` capability.
+- [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) — the pilot: the downloadable-CV record was
+  absorbed into it in the same merge request as this record.
+- [The decision library's index](./README.md) — the History table and, from the next slice, the
+  capability table.

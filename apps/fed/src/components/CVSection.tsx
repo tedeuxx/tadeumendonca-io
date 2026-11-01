@@ -83,8 +83,9 @@ function LevelMeter({ level }: { level: number }) {
 }
 
 // Does the credential's own NAME already identify who issued it? "AWS Certified Solutions Architect"
-// does; "AI-DLC Ambassador" does not. The print edition suppresses the issuer line to fit one page
-// (#161), which is free for the seven names carrying "AWS" and a real loss for the one that doesn't —
+// does; "AI-DLC Ambassador" does not. The print edition suppresses the issuer line to fit its page
+// budget (one page at #161, three pages today), which is free for the seven names carrying "AWS" and
+// a real loss for the one that doesn't —
 // unattributed, the credential closest to the AI-Engineer positioning reads as a self-styled title.
 // So the issuer is dropped by MEANING rather than in bulk: matched on the acronym in parentheses
 // ("Amazon Web Services (AWS)" → AWS), falling back to the issuer's first word.
@@ -273,7 +274,8 @@ export function CVSection({ profile, journey = [] }: { profile: Profile; journey
         {/* Print-only contact line. The PDF used to hide the whole metadata row on the reasoning that
             "the PDF is generated FROM this page, so it must not carry a link back to itself" — sound
             while the PDF was a print of a page the reader was already standing on, and exactly wrong
-            now that it is a one-page edition (#161) designed to be detached, attached to an email and
+            now that it is an edition (one page at #161, three pages today) designed to be
+            detached, attached to an email and
             dropped into an ATS. That artifact carried no email, no profile, and no URL: it made the
             AI-Engineer claim and stripped every pointer to the proof, on the surface that travels
             furthest. A self-link is redundant on screen and is the only route home on paper.

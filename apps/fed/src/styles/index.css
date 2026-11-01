@@ -117,7 +117,7 @@ body {
    - THE PALETTE IS THE PAGE'S OWN (#317, owner asked 2026-07-31). It used to be inverted — the off-white
      became the sheet, the near-black the ink — which made the PDF a *paper* treatment of a *screen*
      design. The owner asked for the opposite: near-black ground, off-white text, safety orange, so the
-     download looks like the site it came from. That is closer to ADR-0034's argument than the
+     download looks like the site it came from. That is closer to ADR-0024's downloadable-edition argument than the
      inversion was: the reason for printing from the real page is that the PDF cannot layout-drift from
      the on-screen CV, and a swapped palette was the one deviation from it.
    - printBackground is on, so the ground actually renders, along with the filled LevelMeter squares

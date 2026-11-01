@@ -33,7 +33,7 @@ Routes (`scripts/routes.mjs` is the build-time source of truth):
 - `/` — the **landing**: a content-first shop window (hero + articles + portfolio shortlist + contact).
   It also hosts the articles list under `#artigos` — there is no separate blog index.
 - `/me` — the **interactive CV**, and the only CV surface. `/cv.pdf` is the one-page recruiter edition
-  printed from it at build time (ADR-0034).
+  printed from it at build time (ADR-0024).
 - `/portfolio` — the full curated catalog.
 - `/ramp-up` — the depth still being built, planned in the open with its sources.
 - `/architecture` — how the site is built, linking the ADRs and both public repos.
