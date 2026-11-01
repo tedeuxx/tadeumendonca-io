@@ -359,10 +359,13 @@ checks with *require branches to be up to date* **off**: `build-test`, `actionli
 `terraform-plan`. Those are **job names, not workflow names**, so the three job names are fixed by the
 ruleset and renaming one silently un-gates it.
 
-**The ruleset's bypass list holds exactly one actor: the release GitHub App.** That is how `release`
-pushes its `bump:` commit and tag straight to `main` without a pull request. `GITHUB_TOKEN` cannot,
-and neither can an administrator's own credential: under the ruleset an admin no longer skips the rules,
-so every merge, the gate's included, needs the three checks green. The App holds Contents read and write
+**The ruleset's bypass list holds exactly one actor: the release GitHub App** (from section C of #783
+on; until then the Repository admin role is also on the bypass list, and an admin still skips the rules
+— see ADR-0003, section [*The release job writes to `main` as a GitHub App, under a ruleset that only
+that App bypasses*](../../docs/adr/0003-trunk-based-single-environment.md#the-release-job-writes-to-main-as-a-github-app-under-a-ruleset-that-only-that-app-bypasses-2026-11-01)).
+That is how `release` pushes its `bump:` commit and tag straight to `main` without a pull request.
+`GITHUB_TOKEN` cannot. Once the admin entry is removed, neither can an administrator's own credential:
+an admin no longer skips the rules, so every merge, the gate's included, needs the three checks green. The App holds Contents read and write
 and Metadata read only, is installed on this repository only, and its token is minted per run and lives
 one hour at most. The App's private key is a standing credential with no expiry; the two secrets are in
 the root README's secrets table.
