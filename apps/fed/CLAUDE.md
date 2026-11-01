@@ -133,7 +133,7 @@ in `iac/`.
   `contentIssue: <number>`, a **shared fact**, so both editions must agree; ~~**omit it and no link is
   rendered**~~ **only a PUBLISHED article may omit it, and then no link is rendered** (a button opening
   the wrong Issue is worse than none). **A held draft or a pending revision without it fails the build**
-  (#575): every item rendered under `?preview` must link to its review Issue. A value that is present and
+  (#575): every held draft and pending revision rendered under `?preview` must link to its review Issue. A value that is present and
   not a positive integer **fails the build** rather than degrading silently. Copy and never a prefilled
   `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
   the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means

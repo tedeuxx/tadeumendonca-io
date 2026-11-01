@@ -94,7 +94,7 @@ export interface BlogPost {
    * load (see `asIssueNumber`): an author who meant to name an Issue and mistyped it must not silently get
    * the no-button state, which is indistinguishable from never having tried.
    *
-   * REQUIRED FOR EVERY ITEM RENDERED UNDER `?preview` (#575, the owner: «todo item publicado em modo preview
+   * REQUIRED FOR EVERY HELD DRAFT AND PENDING REVISION RENDERED UNDER `?preview` (#575, the owner: «todo item publicado em modo preview
    * precisa ter o botao»): a held draft without it throws in `buildEditions`, and a pending revision whose
    * published host lacks it throws in `buildRevisions`. Before #575 an omission was silent while a typo was
    * loud; for a preview item both are loud now.
@@ -349,8 +349,8 @@ function assertHeldDraftNamesItsIssue(fileSlug: string, editions: Editions): voi
   for (const locale of LOCALES) {
     if (editions[locale].contentIssue !== undefined) continue;
     throw new Error(
-      `content: held draft "${fileSlug}" has no contentIssue in its ${locale} edition — every item rendered ` +
-        'under ?preview must name the content Issue its review happens on, so the review bar can link to it. ' +
+      `content: held draft "${fileSlug}" has no contentIssue in its ${locale} edition — a held draft renders ` +
+        'under ?preview, so it must name the content Issue its review happens on, for the review bar to link to. ' +
         `Add \`contentIssue: <number>\` to both blog/${fileSlug}.pt.md and blog/${fileSlug}.en.md.`,
     );
   }

@@ -691,8 +691,9 @@ describe('contentIssue (the review Issue, #506)', () => {
   });
 });
 
-// #575 — every item rendered under `?preview` must name its content Issue. A HELD draft is one of them
-// (the other, a pending revision, is in `content.revisions.test.ts`). A PUBLISHED article may still omit it.
+// #575 — every held draft and pending revision rendered under `?preview` must name its content Issue.
+// The held draft is tested here (the pending revision is in `content.revisions.test.ts`). A PUBLISHED
+// article may still omit it.
 //
 // Each refusal is paired with a control differing by ONE thing, and each message is asserted on the words
 // only the new guard writes: without the guard, the one-edition cases still throw — but with the fact
