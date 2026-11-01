@@ -550,12 +550,31 @@ credential*; it was *which actor may push to `main` without a pull request, and 
 **Option 3.** `release` writes to `main` as the GitHub App and as nothing else: the checkout that
 pushes the commit and tag, `gh release list` and `gh release create` all use the minted token, and the
 job's own `GITHUB_TOKEN` is `contents: read`. `main` is governed by a repository ruleset whose bypass
-list holds **the App and no other actor**, and classic branch protection is removed.
+list holds **the App and no other actor from section C of #783 on**, and classic branch protection is
+removed.
 
-**The order is part of the decision.** The ruleset is active and the classic protection removed
-before this merge, and nothing else merges in between: once the ruleset is active, the old token can
-no longer push the `bump:` commit, so any other merge in that window breaks `release`. If the classic
-protection were removed before the ruleset existed, `main` would be ungated in between.
+**Until section C, the bypass list also holds the Repository admin role.** The owner decided this on
+2026-11-01, *«Admin temporário»*
+([#783](https://github.com/tedeuxx/tadeumendonca-io/issues/783#issuecomment-6565399247)). His reason:
+if the App key fails on the first release, a revert does not help, because an App-only ruleset also
+bars the old token. The admin entry is removed in section C of #783, after the first green `release`
+job authenticated as the App, alongside deleting `VERSION_BUMP_TOKEN` and revoking it. **What holds
+until then:** an administrator still skips the rules. The old token is an administrator credential, so a
+merge in that window does not break `release`; its push still succeeds as it does today. And the
+brief's floor rule against pushing to the trunk is still held only by instruction, because the forge
+does not refuse a push from the owner's credential while the admin role is on the list.
+
+**The order is part of the decision, and this is the order adopted** (recorded on #783 from the
+`agents-lead` lens on PR #799):
+1. The ruleset is created with enforcement **Disabled**, so it changes nothing yet.
+2. The gate approves the Definition of Done at a fixed head.
+3. As the last act before the merge, someone confirms that no `deploy` run is in progress. Then the
+   ruleset is switched to **Active** and the classic protection is removed.
+4. The merge.
+5. Section C: the first green App `release`; then the admin entry, the secret and the token go.
+
+Removing the classic protection only after the ruleset is Active means `main` is never ungated in
+between.
 
 **The `bump:` loop guard stays.** A push made with an App token does start workflows, as the personal
 access token's did, so the `bump:` commit re-enters `deploy` and the job's `if:` is still what stops
@@ -587,14 +606,17 @@ carries a discharged gap: ADR-0021's *"Not verified by me: the contents of branc
 **Good**
 - **The release path no longer expires on a calendar.** The credential that runs it is a token minted
   per run, valid one hour at most.
-- **The push bypass is narrowed from "every administrator" to one App** whose only repository
-  permission is Contents. Before, the bypass followed a person's role; now it follows one named actor.
-- **A direct push to `main` from the owner's credential is refused by the forge.** The brief's floor
-  rule against pushing to the trunk was held by instruction alone, because agents act through an
-  administrator credential and administrators skipped the rules. Under the ruleset that credential is
-  no longer exempt, so the rule gains a layer that holds it. This follows from the configuration in
-  *Decision outcome*; it is verified only when the ruleset is read live after the merge, as the Issue's
-  acceptance criteria require.
+- **From section C of #783 on, the push bypass is narrowed from "every administrator" to one App**,
+  whose only repository permission is Contents. Before, the bypass followed a person's role; then it
+  follows one named actor. Until section C, both are on the list (*Decision outcome*).
+- **From section C on, a direct push to `main` from the owner's credential is refused by the forge.**
+  The brief's floor rule against pushing to the trunk was held by instruction alone, because agents act
+  through an administrator credential and administrators skipped the rules. Once the admin role leaves
+  the bypass list, that credential is no longer exempt, so the rule gains a layer that holds it. **Until
+  then it is still held only by instruction.** This follows from the configuration in *Decision
+  outcome*. It is verified only by reading the ruleset live, and the Issue's acceptance criterion
+  *"the ruleset's bypass list holds the App and no other actor"* is read **after section C**. Read
+  straight after the merge, it would fail on a correct configuration.
 - **Less is exposed in the `release` job.** Before, the token persisted by `actions/checkout` in that
   job was a 90-day credential that skipped every rule. Now it is a one-hour, Contents-only token. The
   job still runs `pip install bump-my-version` unpinned after that checkout. That residual is named
@@ -616,8 +638,9 @@ carries a discharged gap: ADR-0021's *"Not verified by me: the contents of branc
   *"Use 'client-id' instead."* The stored secret is the numeric App ID, so the workflow uses `app-id`.
   Moving to `client-id` needs a new secret holding the App's client ID, which is the owner's act. Until
   then every run logs a deprecation warning, and a future major version may drop the input.
-- **Administrators no longer skip the rules.** Any merge or push made with the owner's credential,
-  the gate's `gh pr merge` included, now needs the three checks green. This is stricter than before and
+- **From section C of #783 on, administrators no longer skip the rules.** Any merge or push made with
+  the owner's credential, the gate's `gh pr merge` included, then needs the three checks green. Until
+  section C an administrator still skips them. This is stricter than before and
   intended: the loop already requires green checks before a merge. The cost lands in an emergency,
   where a fix that cannot pass its checks can no longer be forced through by an administrator. The way
   out then is a ruleset change, which is the owner's act and is visible in the repository's settings.
