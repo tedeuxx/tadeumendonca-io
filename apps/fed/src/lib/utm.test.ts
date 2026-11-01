@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { withShareUtm, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN } from './utm';
+import { withShareUtm, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, STORY_CAMPAIGN, STORY_SOURCE } from './utm';
 
 const ARTICLE = 'https://tadeumendonca.io/pt/blog/meu-compromisso';
 
@@ -38,6 +38,21 @@ describe('withShareUtm', () => {
   it('accepts the reserved owner campaign, so owner posts stay separable from reader shares', () => {
     const url = new URL(withShareUtm(ARTICLE, 'linkedin', AUTHOR_CAMPAIGN));
     expect(url.searchParams.get('utm_campaign')).toBe('author-post');
+  });
+
+  // #662. The Story card's QR is printed into a PNG that outlives every post and cannot be re-tagged, so
+  // both strings are pinned as literals here — the generator and its decode-back gate read them from the
+  // module, which means a rename would regenerate cards silently "consistent" with the new spelling and
+  // split the series. Only this assertion objects. `social` is NOT varied for the Story: ADR-0039 fixes
+  // the medium, and a `story` medium would drop the session out of GA4's Organic Social grouping.
+  it('pins the Story card source and campaign, on the unchanged medium', () => {
+    expect(STORY_SOURCE).toBe('instagram');
+    expect(STORY_CAMPAIGN).toBe('story-card');
+    const url = new URL(withShareUtm('https://tadeumendonca.io/blog/my-commitment', STORY_SOURCE, STORY_CAMPAIGN));
+    expect(url.searchParams.get('utm_source')).toBe('instagram');
+    expect(url.searchParams.get('utm_medium')).toBe('social');
+    expect(url.searchParams.get('utm_campaign')).toBe('story-card');
+    expect([...url.searchParams.keys()]).toHaveLength(3);
   });
 
   it('is idempotent — tagging twice does not duplicate a parameter', () => {
