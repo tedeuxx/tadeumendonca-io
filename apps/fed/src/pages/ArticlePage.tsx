@@ -127,7 +127,11 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           // The card IS the title, set over the site's art (ADR-0041) — so the title is what the alt
           // says. Not the default card's alt: that describes a different picture, and a screen-reader
           // user is the one reader who cannot notice the substitution.
-          imageAlt: article.title,
+          //
+          // A COVER-DERIVED card (#710, ADR-0041's 2026-11-01 amendment) is the title over the article's
+          // AI-generated cover, so its alt says so, in the reader's locale. Every other article keeps the
+          // title alone.
+          imageAlt: article.cover ? `${article.title} — ${t('article.aiCover')}` : article.title,
           type: 'article',
           publishedTime: article.date,
           // A HELD article is reachable at its final URL and out of the sitemap (#510). Nothing links it,
