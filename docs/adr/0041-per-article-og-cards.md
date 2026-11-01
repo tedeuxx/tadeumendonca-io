@@ -398,7 +398,7 @@ no card for the held article.
 |---|---|---|
 | `qrcode-generator` 2.0.4 | the QR encoder the generator runs in Node; no dependencies | MIT |
 | `pngjs` 7.0.0 | reads the committed PNG in the gate; no dependencies | MIT |
-| `@zxing/library` 0.23.0 | the QR decoder in the gate, a different codebase from the encoder; one dependency, `ts-custom-error` (MIT) | Apache-2.0 |
+| `@zxing/library` 0.21.3 | the QR decoder in the gate, a different codebase from the encoder; one dependency, `ts-custom-error` (MIT). Pinned below the latest on purpose: 0.22.0 and 0.23.0 declare `engines.node >= 24`, and this repository's floor and CI run Node 22 | Apache-2.0 |
 
 All three are pinned exactly in `apps/fed/package.json`, carry no install script, and install under
 `npm ci --ignore-scripts`. The dependency audit gate
