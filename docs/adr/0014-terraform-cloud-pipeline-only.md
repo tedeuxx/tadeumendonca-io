@@ -4,7 +4,7 @@
 - **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0003](./0003-trunk-based-single-environment.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0003](./0003-trunk-based-single-environment.md)
 
 ## Context & problem
 The frontend infrastructure (ADR-0013 and the rest) is code. That code needs somewhere to keep state and
@@ -264,7 +264,7 @@ rewrite. **Do not pay it by default.** The question is the owner's and is record
 die with a dispatch.
 
 ## Links
-- Driven by ADR-0001, ADR-0003 · relies on ADR-0015 (OIDC, no stored keys) · IaC is pipeline-only, part
+- Driven by ADR-0053 (lean by design), ADR-0003 · relies on ADR-0015 (OIDC, no stored keys) · IaC is pipeline-only, part
   of the permission floor · **the one exception to the APPLY floor is [ADR-0042](./0042-trust-root-bootstrapped-out-of-band.md)**
   (the trust root is bootstrapped out of band). **The one exception to the PLAN-IS-READ claim is the
   2026-09-14 amendment above** — a Dependabot-triggered PR produces no plan at all. Two different

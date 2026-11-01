@@ -15,7 +15,7 @@
   compiled-and-listed nor prerendered) · **does not reach**
   [ADR-0005](./0005-og-coverage-every-public-url.md) (a held URL is not a public URL) · **applies**
   [ADR-0041](./0041-per-article-og-cards.md)'s bidirectional guard to a set that is now smaller than the
-  article set · reads through [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+  article set · reads through [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 

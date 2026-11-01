@@ -5,7 +5,7 @@
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the earlier Borussia-Dortmund identity (History index)
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 The site needs a visual identity that reads as *an engineer's* — "engineering on display" — and that
@@ -15,7 +15,7 @@ palette: black/graphite + gold, Archivo/Inter) didn't express the positioning an
 ## Decision drivers
 - The look should signal engineering rigor and be memorable, not generic.
 - One committed identity, not a themeable system — a personal site has one voice.
-- ADR-0001: the design is owned and is part of the argument.
+- ADR-0053 (lean by design): the design is owned and is part of the argument.
 
 ## Considered options
 1. **Modern brutalist mono, single theme** (chosen) — near-black `#0A0A0A` on warm off-white `#F5F4EF`,
@@ -26,7 +26,7 @@ palette: black/graphite + gold, Archivo/Inter) didn't express the positioning an
    not:* generic; reads as a template, not an engineer's own; and it's what a component library gives by
    default (the reason for ADR-0007).
 3. **Dark/light themeable system** — *Why not:* two themes to design and maintain for one personal voice;
-   the single committed identity is stronger and simpler (ADR-0001).
+   the single committed identity is stronger and simpler (ADR-0053, lean by design).
 
 ## Decision outcome
 Chosen: **brutalist mono, one accent, radius-0, single theme.** This is a **fixed decision**; it drives
@@ -104,7 +104,7 @@ This is a *widening of scope*, not an exception like the portrait: nothing is ca
 of this ADR applies to the diagrams as written.
 
 ## Links
-- Driven by ADR-0001 · drives ADR-0007 (own components) and ADR-0009 (fonts) · supersedes the
+- Driven by ADR-0053 (lean by design) · drives ADR-0007 (own components) and ADR-0009 (fonts) · supersedes the
   Borussia-Dortmund identity (History index) · a fixed decision (see repo ~~`CLAUDE.md`~~ `AGENTS.md`, #721) · amended above
   for the portrait, within the same guard · amended (2026-07-30) for the **generated** surface introduced
   by [ADR-0040](./0040-build-time-mermaid-diagrams.md) — same rule, wider reach, conformance asserted

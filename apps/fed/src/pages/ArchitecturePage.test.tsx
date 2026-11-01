@@ -123,10 +123,11 @@ describe('ArchitecturePage', () => {
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io');
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-skills');
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md');
-    // And the ADR record is reachable — the keystone plus its README index.
+    // And the ADR record is reachable — the record holding the keystone (ADR-0053, which absorbed record
+    // 0001 in #456) plus its README index.
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md');
     expect(hrefs).toContain(
-      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md',
+      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md',
     );
   });
 

@@ -5,7 +5,7 @@
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the shared regional WAF (History index)
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md)
 
 ## Context & problem
 At the infrastructure level, a security/encryption posture has to be chosen: a WAF in front of the CDN,
@@ -15,7 +15,7 @@ real control with real cost — and for a static site with **no dynamic endpoint
 
 ## Decision drivers
 - ADR-0002: the attack surface is minimal — no server, no auth, no database, no request-time compute.
-- ADR-0001: don't pay for controls with no threat or compliance driver.
+- ADR-0053 (lean by design): don't pay for controls with no threat or compliance driver.
 - Keep the config bus non-sensitive by construction, so encryption isn't needed for it.
 
 ## Considered options
@@ -42,11 +42,11 @@ the application half (Sonar SAST + package-vulnerability scanning) is its own AD
 
 **Bad / accepted costs**
 - The posture is **calibrated, not permanent**: adding a dynamic or authenticated surface re-introduces
-  WAF / CMK / Secrets Manager (ADR-0001's gradual-evolution path).
+  WAF / CMK / Secrets Manager (the lean-by-design gradual-evolution path in ADR-0053).
 - Relies on the discipline that SSM holds only non-sensitive config — a secret placed there by mistake
   would be unencrypted (mitigated: nothing sensitive belongs on the bus by policy).
 
 ## Links
-- Driven by ADR-0001, ADR-0002 · supersedes the shared regional WAF (History index) · the application
+- Driven by ADR-0053 (lean by design), ADR-0002 · supersedes the shared regional WAF (History index) · the application
   security posture (Sonar SAST + package-vuln) is a separate ADR — **[ADR-0021](./0021-application-security-posture.md),
   accepted the same day this was written and amended since** (this line read "(pending)" until #234).

@@ -14,7 +14,7 @@ A backend-ful product with real users would want a staging tier to validate auth
 production, and a promotion gate to control production releases.
 
 ## Why it was superseded
-For a static personal site with one maintainer and no blast radius beyond a CDN (ADR-0001/0002), a second
+For a static personal site with one maintainer and no blast radius beyond a CDN (ADR-0053 (lean by design) and ADR-0002), a second
 environment and a promotion pipeline are ceremony without payoff — a `develop` branch nothing needs and a
 promotion with no independent approver. Adopted **trunk-based, single environment** (ADR-0003): the PR
 carries the full gate, the merge is the deploy and the go/no-go.

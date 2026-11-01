@@ -7,7 +7,7 @@
 - **Driven by:** [ADR-0022](./0022-numeric-semver-auto-release.md) (which decided the automatic patch and
   nothing else) · constrained by [ADR-0003](./0003-trunk-based-single-environment.md) (the merge is the
   deploy) · serves [ADR-0038](./0038-content-distribution-linkedin-and-x.md) (the announcement that may
-  carry the tag) · cost-tested against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+  carry the tag) · cost-tested against [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 > **Every strike below is from this record's own MR, before the record had ever been in force.** Two
 > things moved during the review of the branch that ships it: the owner settled `1.0.0`, and a clause an
@@ -73,7 +73,7 @@ N %" can never fire.** A percentage against a moving denominator is theatre.
   later reader inherits it as settled.
 - **The tag is or will be reader-facing copy** (ADR-0038), and copy that is permanent must be derived
   rather than typed.
-- **Cost per merge** (ADR-0001). A rule requiring a human judgement on every merge is priced differently
+- **Cost per merge** (ADR-0053, lean by design). A rule requiring a human judgement on every merge is priced differently
   from one requiring it a few times a year, and the difference has to be stated before it is discovered.
 
 ## Considered options
@@ -293,7 +293,7 @@ one is a revision of it.
 ## Links
 
 - ADR-0022 (the automatic patch, left standing) · ADR-0003 (the merge is the deploy, which option 4 turns
-  on) · ADR-0038 (the announcement) · ADR-0001 (the per-merge cost test that rejected option 2)
+  on) · ADR-0038 (the announcement) · ADR-0053 (lean by design; the per-merge cost test that rejected option 2)
 - The plugin's `/workflow/versioning` describes a `semver:` label read by a `version-main.yml` — a
   workflow this repo absorbed into `deploy.yml` and a label set this repo does not have. **The skill's
   description of this consumer is stale on both counts**, and this record does not fix it.

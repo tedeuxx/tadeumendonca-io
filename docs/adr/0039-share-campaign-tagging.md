@@ -33,7 +33,7 @@ reporting. These strings get chosen once.
 - **Land in GA4's *Organic Social* channel**, so the sessions aggregate with the rest of social rather than
   sitting in *Unassigned* where nobody reads them.
 - **Choose values that never need renaming**, because renaming is not available — see above.
-- **Measure only what will inform a decision** (ADR-0001, lean by design): every parameter is a permanent
+- **Measure only what will inform a decision** (ADR-0053, lean by design): every parameter is a permanent
   obligation carried in every shared link, so a parameter that changes no decision is pure cost.
 - **Do not weaken [ADR-0033](./0033-ga4-consent-gated-analytics.md)'s hard consent gate** by one byte,
   whatever it costs the measurement.
@@ -175,7 +175,7 @@ share before, so the first reading *is* the baseline.
   per-locale `utm_content` a manual cross-edition mapping; dropping the parameter removes the problem.
 - **Consistent with [ADR-0013](./0013-s3-cloudfront-hosting.md)** — `CachingOptimized` ignores query
   strings, so tagged and clean URLs share one cache object; `iac/` untouched.
-- **Consistent with [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — three parameters, not
+- **Consistent with [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — three parameters, not
   four; the dropped one is the whole argument.
 - Implementation: `apps/fed/src/lib/utm.ts`, `apps/fed/src/lib/analytics.ts`,
   `apps/fed/src/components/ShareLinks.tsx`, `apps/fed/src/components/ShareButton.tsx`.
