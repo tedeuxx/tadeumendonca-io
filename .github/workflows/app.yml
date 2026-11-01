@@ -2,7 +2,7 @@ name: app
 
 # PR gate for apps/** — named after the top-level directory it guards, not after what it does to it.
 # (Formerly `build-test.yml`. The WORKFLOW was renamed; the terminal JOB is still `build-test`, because
-# that name is what branch protection requires — see the aggregator at the bottom of this file.)
+# that name is what the ruleset on `main` requires — see the aggregator at the bottom of this file.)
 #
 # trunk-single-env: main IS production, so there is no downstream tier to defer a check to — the full
 # regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys.
@@ -598,12 +598,12 @@ jobs:
           args: -Dsonar.qualitygate.wait=true
 
   # ---------------------------------------------------------------------------------------------
-  # THE REQUIRED CHECK. The name `build-test` is fixed by branch protection and must not change.
+  # THE REQUIRED CHECK. The name `build-test` is fixed by the ruleset on `main` and must not change.
   #
   # `if: always()` is load-bearing twice over:
   #
   #  (1) A bare `needs:` aggregator is SKIPPED when any dependency fails — and a skipped required check
-  #      satisfies branch protection. The monolith could not have this bug (one job, one status); the
+  #      satisfies the ruleset on `main`. The monolith could not have this bug (one job, one status); the
   #      split introduces it, and this is where it is paid for. The job must RUN and decide.
   #  (2) On a PR that touches nothing here, every job above is skipped and this one still has to report,
   #      or the required check never arrives.
