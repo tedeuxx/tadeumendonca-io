@@ -332,7 +332,10 @@ card built from that cover: the title, the rule and the signature in a 640px lef
 right column with a solid-block AI-generated mark in the reader's locale (`Ilustração de capa gerada por
 IA` / `AI-generated cover illustration`), and the unchanged `META_LINE` in a full-width bottom row. Same
 canvas, palette, mark and type as every other card; no radius, no shadow, no gradient
-([ADR-0008](./0008-brutalist-mono-identity.md)). **Every article without `cover` keeps the title-only card,
+([ADR-0008](./0008-brutalist-mono-identity.md)). That holds for the card's **frame** — its panels,
+rule, mark block and borders. The cover inside it is a picture and keeps its own colours and tones,
+because the surface rules do not govern an image (ADR-0008's 2026-07-23 amendment: *"Applying the
+surface rule to a photograph was over-reach"*). **Every article without `cover` keeps the title-only card,
 byte-identical.** Today that is one article, the #687 one, in both locales; `/articles` carries two card
 families until a second cover article exists, which «Card estreito» accepts.
 
