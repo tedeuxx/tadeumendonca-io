@@ -230,7 +230,7 @@ test.describe('the journey photographs on /me', () => {
   // CV budgeted at two.
   //
   // `e2e/cv-pdf.spec.ts` would eventually catch it via the page count, which is the belt to this brace —
-  // but it would report "the CV PDF must stay within two pages" and say nothing about a photograph, on a
+  // but it would report "the CV PDF must stay within three pages" and say nothing about a photograph, on a
   // guard whose comment explicitly warns against raising the number to go green. This assertion names the
   // cause.
   test('/en/me — the photographs are absent from the print edition', async ({ page }) => {

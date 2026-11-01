@@ -6,7 +6,7 @@
 // same file buys a conflict for nothing. The lasting one is the reason this file will still be here after
 // that lands — `profile.ts` is the CV, and the CV is the thing `/cv.pdf` is PRINTED from. Everything in it
 // is a claim a recruiter reads on paper, and these five photographs are kept OUT of that data so the
-// two-page budget in `e2e/cv-pdf.spec.ts` never depends on decoration. They are suppressed in the print
+// three-page budget in `e2e/cv-pdf.spec.ts` never depends on decoration. They are suppressed in the print
 // edition through `data-print="hide"` (see `CVSection`), which is the owner's ruling of 2026-08-25 and the
 // reason the printed CV is unchanged by the layout that renders them.
 //
