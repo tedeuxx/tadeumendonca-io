@@ -54,7 +54,8 @@ card, and the `app` workflow's `harness-drift` job compares what `/architecture`
   **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
   translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
 - **Infra** (`iac`): Terraform for the frontend infra **plus one account-wide guardrail** — S3 + CloudFront
-  (with a viewer-request URL-rewrite function), custom email via iCloud, the GitHub OIDC deploy roles, and
+  (with a viewer-request URL-rewrite function and a viewer-response function that sets a locale-hint
+  cookie), custom email via iCloud, the GitHub OIDC deploy roles, and
   an **account-level cost budget** (`budget.tf`) deliberately *not* scoped to this project's tags, so it
   catches spend this repo did not create. State in Terraform Cloud, **local** execution; `apply`/`destroy`
   are **pipeline-only**.
