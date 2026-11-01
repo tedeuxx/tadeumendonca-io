@@ -7,20 +7,16 @@ import { test, expect, type APIResponse } from '@playwright/test';
 // function, that the viewer-response association exists, or that CloudFront delivers the
 // CloudFront-Viewer-Country header to it on the origin-request-policy route. Only a live request can.
 //
-// THE EXPECTED VALUE IS `other`, because the post-deploy runner is assumed to sit outside the CPLP. That
-// is a premise, not a measurement: run from a CPLP country, this goes red with `pt`, which is the
-// function working, not failing.
-//
-// WHAT THIS CANNOT TELL APART, said so a green is not over-read: the function gives `other` both for a
-// non-CPLP country AND for a missing header. So from a non-CPLP runner this proves the function is
-// attached, running and HTML-scoped; it does not by itself prove the header reached it. Only a request
-// from a CPLP country (`pt`) proves that.
+// THE VERDICT IS THE VALUE. `pt` or `other` means the header reached the function: GO. `unknown` means
+// the function ran and read no country, so the header did not reach it on this route: NO-GO, and the
+// header moves to the cache policy (ADR-0036's edge-locale-hint section). No cookie at all means the
+// function is detached, stale or rejected.
 //
 // POST-DEPLOY ONLY, like edge-rewrite.spec.ts: `vite preview` runs no CloudFront Function, so locally
 // there is no cookie for a harness reason rather than a site reason. Playwright reports the skip as
 // SKIPPED, not passed.
 const COOKIE = 'locale_hint';
-const EXPECTED = 'other';
+const GO = ['pt', 'other'];
 
 function hintCookies(res: APIResponse): string[] {
   return res
@@ -37,7 +33,7 @@ test.describe('locale-hint CloudFront Function, at the edge', () => {
   );
 
   for (const path of ['/', '/en/', '/pt/']) {
-    test(`an HTML response at ${path} carries ${COOKIE}=${EXPECTED} with the fixed attributes`, async ({
+    test(`an HTML response at ${path} carries a readable ${COOKIE} with the fixed attributes`, async ({
       request,
     }) => {
       const res = await request.get(path);
@@ -48,7 +44,14 @@ test.describe('locale-hint CloudFront Function, at the edge', () => {
       expect(cookies, `no ${COOKIE} cookie: the function is detached, stale or rejected — NO-GO`).toHaveLength(1);
 
       const [pair, ...attrs] = cookies[0].split(';').map((p) => p.trim());
-      expect(pair).toBe(`${COOKIE}=${EXPECTED}`);
+      const [name, value] = pair.split('=');
+      expect(name).toBe(COOKIE);
+      expect(
+        GO,
+        value === 'unknown'
+          ? `${COOKIE}=unknown: CloudFront-Viewer-Country did not reach the function — NO-GO`
+          : `${COOKIE}=${value} is outside the contract (pt · other · unknown)`,
+      ).toContain(value);
       expect(attrs).toEqual(expect.arrayContaining(['Path=/', 'Secure', 'SameSite=Lax']));
       expect(attrs.map((a) => a.toLowerCase())).not.toContain('httponly');
     });

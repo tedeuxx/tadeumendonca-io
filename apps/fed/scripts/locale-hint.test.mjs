@@ -42,21 +42,35 @@ describe('locale-hint (CloudFront viewer-response)', () => {
     for (const code of ['US', 'ES', 'FR', 'GB', 'DE', 'AR']) {
       it(`${code} → other`, () => expect(hint(code)).toBe('other'));
     }
+  });
 
-    it('a missing header gives other and does not throw', () => {
+  // `unknown` is the spike's NO-GO signal: the header never reached the function. It must never collapse
+  // into `other`, or the post-deploy smoke cannot tell a non-CPLP runner from a missing header.
+  describe('no readable country gives unknown', () => {
+    it('a missing header gives unknown and does not throw', () => {
       expect(() => run()).not.toThrow();
-      expect(run().cookies.locale_hint.value).toBe('other');
+      expect(run().cookies.locale_hint.value).toBe('unknown');
     });
 
-    it('a request with no headers object at all gives other and does not throw', () => {
+    it('a request with no headers object at all gives unknown and does not throw', () => {
       const out = loadHandler()({
         request: { uri: '/index.html' },
         response: { statusCode: 200, headers: HTML, cookies: {} },
       });
-      expect(out.cookies.locale_hint.value).toBe('other');
+      expect(out.cookies.locale_hint.value).toBe('unknown');
     });
 
-    it('an empty header value gives other', () => expect(hint('')).toBe('other'));
+    it('an empty header value gives unknown', () => expect(hint('')).toBe('unknown'));
+
+    it('a non-string header value gives unknown', () => expect(hint(42)).toBe('unknown'));
+
+    it('a header entry with no value gives unknown', () => {
+      const out = loadHandler()({
+        request: { uri: '/index.html', headers: { 'cloudfront-viewer-country': {} } },
+        response: { statusCode: 200, headers: HTML, cookies: {} },
+      });
+      expect(out.cookies.locale_hint.value).toBe('unknown');
+    });
   });
 
   it('the country code is matched case-insensitively', () => {

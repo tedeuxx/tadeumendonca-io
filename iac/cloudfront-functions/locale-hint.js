@@ -1,8 +1,13 @@
 // CloudFront Function (viewer-response). Exposes ONE fact to the client: whether the viewer's country,
 // as CloudFront geolocates it, is a Portuguese-speaking (CPLP) member state. It sets a short,
 // script-readable cookie on every HTML response:
-//   locale_hint=pt     the CloudFront-Viewer-Country header names a CPLP member state
-//   locale_hint=other  any other country, or the header is absent
+//   locale_hint=pt       the CloudFront-Viewer-Country header names a CPLP member state
+//   locale_hint=other    the header names any other country
+//   locale_hint=unknown  the header is absent, empty or not a string
+//
+// `unknown` is kept apart from `other` on purpose: it is what the function returns when the header never
+// reached it, so the post-deploy smoke can tell "the edge read a non-CPLP country" from "the edge read
+// nothing", and the second is the spike's NO-GO. The contract is ADR-0036's edge-locale-hint section.
 //
 // WHAT IT DOES NOT DO (#669): it never routes, never redirects and never rewrites the body. The cached
 // HTML stays byte-identical for every viewer, so a client without JavaScript, a crawler and a social
@@ -14,7 +19,7 @@
 // (iac/frontend.tf); whether a function can read it on that route is the spike this function ships with,
 // and the post-deploy smoke (apps/fed/e2e/edge-locale-hint.spec.ts) is its verdict.
 //
-// The value is a hint, not the country: one bit leaves the edge, not a location.
+// The value is a hint, not the country: no location leaves the edge beyond whether it is a CPLP country.
 //
 // Runtime: cloudfront-js-2.0. Kept to `var` and plain functions, like spa-rewrite.js, because the unit
 // test evaluates these exact bytes under Node and a construct Node accepts can still be rejected at the
@@ -40,8 +45,10 @@ var COOKIE_ATTRIBUTES = 'Path=/; Secure; SameSite=Lax; Max-Age=3600';
 
 function localeHint(headers) {
   var header = headers ? headers['cloudfront-viewer-country'] : undefined;
-  var country = header && typeof header.value === 'string' ? header.value.toUpperCase() : '';
-  return LUSOPHONE[country] === true ? 'pt' : 'other';
+  if (!header || typeof header.value !== 'string' || header.value === '') {
+    return 'unknown';
+  }
+  return LUSOPHONE[header.value.toUpperCase()] === true ? 'pt' : 'other';
 }
 
 function isHtml(response) {
