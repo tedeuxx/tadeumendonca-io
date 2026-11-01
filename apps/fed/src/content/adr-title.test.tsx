@@ -62,9 +62,12 @@ describe('renderAdrTitle', () => {
   // left the library, so one fewer title carries markup. Measured with this test's own filter over the
   // regenerated `adrs.json` rather than inferred; the record added in the same slice carries none. The
   // fold slices of #456 will move this again, each in the merge request that removes a titled record.
+  //
+  // SEVEN to EIGHT on 2026-11-01 (#783): ADR-0055's title carries `main` as a code span. Measured with
+  // this test's own filter over the regenerated `adrs.json`.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(7);
+    expect(withMarkup).toHaveLength(8);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

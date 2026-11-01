@@ -362,5 +362,12 @@
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
     "status": "proposed",
     "amended": false
+  },
+  {
+    "id": "0055",
+    "title": "The release job authenticates as a GitHub App, and `main` is governed by a ruleset with that App as its only bypass actor",
+    "file": "0055-release-job-authenticates-as-a-github-app-main-ruleset-bypass.md",
+    "status": "accepted",
+    "amended": false
   }
 ]
