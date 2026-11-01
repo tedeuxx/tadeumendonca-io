@@ -159,7 +159,11 @@ on every route, never merely left unwritten — a `noindex` lingering from a pre
 would de-index the next article the reader navigates to, a client-side-navigation-only defect invisible
 on every hard load.
 
-**Promotion is one edit** — `draft: false` plus the real date — and rebuilds nothing else.
+~~**Promotion is one edit** — `draft: false` plus the real date — and rebuilds nothing else.~~ **Struck
+2026-11-01 (#635): the source edit is one change made in both editions, and it is not self-contained.**
+Promotion brings OG cards and a distribution kit into existence, and both come from scripts `npm run
+build` does not run. See the 2026-11-01 amendment *"promotion is one source edit, and not
+self-contained"* below for the measurement.
 
 ## The consequence, stated plainly
 
@@ -330,8 +334,10 @@ were made inside the ratified spec that a later reader would otherwise have to r
 **1 · The gate is the PARAMETER ALONE, not `draft && parameter`.** The owner's refinement, verbatim:
 *"esse argumento de query string pode permitir esses dois botoes visualizados tbm"*. So a **published**
 article reached with `?preview` renders the review bar as well. Three reasons, in the order they weighed:
-it is what he asked for; it is what makes promotion **rebuild nothing** — the date moves, the article
-enters the index, and this page is not rebuilt, because the mode was never in the build, which is this
+it is what he asked for; it is what makes promotion ~~**rebuild nothing**~~ **leave the review bar
+unchanged** — the date moves, the article enters the index, and ~~this page is not rebuilt~~ **the bar's
+code is not touched** (struck 2026-11-01, #635: promotion does produce new derived artifacts, including
+this page's first snapshot; the claim that holds is about the bar), because the mode was never in the build, which is this
 record's *"the same page in two modes"* property applied to the affordances; and a second review round on an already-published piece
 is a real case that a `draft` gate would take the affordance away from. **What it costs, stated rather
 than hidden, and stated LARGER than the first draft of this paragraph did:** a visitor who arrives at a
@@ -493,8 +499,9 @@ holds against his comment, and nothing holds it mechanically.
 
 **What this amendment does not alter.**
 
-- **The held draft**: its mechanism, the hold's readers, promotion by one edit, the isolation-not-privacy
-  consequence and the upgrade path. A held article is still corrected in place, and refusal 3 keeps it
+- **The held draft**: its mechanism, the hold's readers, ~~promotion by one edit,~~ the isolation-not-privacy
+  consequence and the upgrade path. (*Promotion by one edit* struck 2026-11-01, #635: see the amendment
+  of that date.) A held article is still corrected in place, and refusal 3 keeps it
   that way.
 - **The 2026-08-29 amendment**: the gate is still the parameter alone, and the copy payload is still the
   rendered body, which is now the revision when one is shown.
@@ -585,6 +592,70 @@ EN and both-editions cases, *accepts the control…* and *still builds a PUBLISH
 contentIssue, leaving it undefined*; `apps/fed/src/lib/content.revisions.test.ts` — *6 · refuses a revision
 whose PUBLISHED host has no contentIssue, naming the blog/ files to edit*. The author-facing wording is
 `apps/fed/CLAUDE.md`.
+
+## Amendment (2026-11-01) — promotion is one source edit, and not self-contained
+
+Implemented by [#635](https://github.com/tedeuxx/tadeumendonca-io/issues/635), split out of
+[#479](https://github.com/tedeuxx/tadeumendonca-io/issues/479). **A correction of a stated consequence,
+not a new decision**: no promotion mechanism changes, and the hold, its readers and the ratification
+ruling of 2026-08-25 are untouched. Two sentences of this record are struck in place above, at the
+decision outcome and in the 2026-10-16 amendment's *"What this amendment does not alter"*; a third
+phrase, in the 2026-08-29 amendment, is narrowed to the claim it could make.
+
+**The struck sentence had two readings, and they are answered separately.**
+
+**(a) The author's act.** The source edit is one change made in both editions: `draft: false` plus the
+real date, in the `.pt.md` and the `.en.md` front matter (the flag is a shared fact, so both must
+move). It is **not** the only thing the author must do. Two manual steps follow:
+
+- **`npm --prefix apps/fed run gen-og-articles`**, then commit `public/og/<key>.{pt,en}.png`. The cards
+  are committed files, not build output.
+- **`npm --prefix apps/fed run gen-distribution`**, by hand. `buildDrafts` skips a key only while
+  `draft === true`, so after the flip it emits the article's LinkedIn and X kit. The output goes to the
+  gitignored `.brand/distribution/`.
+
+**(b) Derived artifacts.** What changes because of the flip, and what produces it:
+
+| artifact | produced by |
+|---|---|
+| index, feed, track filters, landing list and card | the bundle (`content.ts`'s `byLocale`), so `npm run build` |
+| sitemap | `npm run build` (`gen-sitemap`) |
+| prerendered locale addresses and the neutral share address | `npm run build:static` (`prerender`) |
+| per-article OG cards | **`gen-og-articles`**, a separate script, committed |
+| distribution kit | **`gen-distribution`**, a separate script, gitignored |
+
+**Measured on this branch**, with the committed fixture pair's flag flipped to `false` in both editions,
+uncommitted, and restored afterwards:
+
+```
+npm --prefix apps/fed run build:static
+# held:     "Wrote dist/sitemap.xml with 34 URLs"; "Prerendered 26 localized routes + 7 neutral share URLs"
+# promoted: "Wrote dist/sitemap.xml with 37 URLs"; "Prerendered 28 localized routes + 8 neutral share URLs"
+grep -o 'og:image" content="[^"]*"' apps/fed/dist/en/blog/held-draft-fixture/index.html
+# promoted: https://tadeumendonca.io/og/held-draft-fixture.en.png, a file absent from dist/og/
+npm --prefix apps/fed test
+# promoted: scripts/og-cards.test.mjs reddens on "has a card for every article in every locale",
+# naming /og/held-draft-fixture.{pt,en}.png and telling the author to run gen-og-articles
+```
+
+The same run also reddens the held-state assertions in `content.test.ts`, `routes.test.mjs` and
+`og-cards.test.mjs`, as this record's rule 2 says it must. Only the card-set assertion is generic: it
+fires on any promoted article, not on the fixture alone.
+
+**What follows for the author.** The build stays green with the cards missing and serves an `og:image`
+that 404s. A scraper pins that miss, and [ADR-0041](./0041-per-article-og-cards.md) calls the card the
+least reversible artifact on this site. The unit suite is what turns it red, so the cards belong in the
+promotion merge request. **Nothing at all fails when the kit is not generated.** That matches
+[ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s own accepted cost: distribution is *"still
+manual, therefore still skippable"*, and no gate enforces it.
+Wiring either script into `npm run build` is a separate decision and is not taken here.
+
+**What this amendment does not claim.** Nothing gates that this record, `apps/fed/CLAUDE.md` and the
+comment on `draft` in `apps/fed/src/lib/content.ts` agree with the generators, and nothing new does
+after this correction. The three were corrected together by reading them, and they can drift again.
+The *"one-word promotion"* in the 2026-10-16 amendment is left as written: it names the edit that
+publishes, and the gap it describes, that nothing checks the published body is the one the owner read,
+is unchanged.
 
 ## Links
 

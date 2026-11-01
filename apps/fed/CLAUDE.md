@@ -116,8 +116,16 @@ in `iac/`.
   `custom_error_response` maps 404 → `/index.html` with a 200 and the SPA routes client-side. **`?preview`
   is what distinguishes reading it from not finding it** (`lib/preview.ts`): without it, `ArticleRoute`
   redirects to the locale home; with it, the article renders in the real chrome and declares
-  `robots: noindex, nofollow`. Promotion is one edit — `draft: false` plus the real date — and rebuilds
-  nothing else. **An explicit flag, never a future `date`**: a wall-clock comparison would make the same
+  `robots: noindex, nofollow`. **Promotion is one source edit, made in both editions** — `draft: false`
+  plus the real date in the `.pt.md` and the `.en.md` front matter — **but it is not self-contained**
+  (#635, ADR-0049's 2026-11-01 amendment). `npm run build:static` derives the index, the landing list,
+  the sitemap and the prerendered locale and neutral addresses on its own. Two artifacts come from
+  scripts the build does not run: **the OG cards** — run `npm --prefix apps/fed run gen-og-articles` and
+  commit `public/og/<key>.{pt,en}.png` in the same merge request, because without them the build still
+  passes and serves an `og:image` that 404s, and only `scripts/og-cards.test.mjs` goes red — and **the
+  distribution kit**, `npm --prefix apps/fed run gen-distribution`, run by hand; its output is gitignored
+  and nothing checks that it ran. Nothing gates that these sentences stay true either.
+  **An explicit flag, never a future `date`**: a wall-clock comparison would make the same
   commit build differently tomorrow, breaking *rebuild the tag to reproduce production*.
   **It buys isolation, not privacy, and the difference is not cosmetic:** while a held draft is deployed
   its full body — both editions — ships inside `dist/assets/index-*.js` and is fetchable by anyone with no
@@ -137,8 +145,8 @@ in `iac/`.
   not a positive integer **fails the build** rather than degrading silently. Copy and never a prefilled
   `?body=` URL: browsers and servers cut around 8 KB and the articles run 6–12 KB, so a URL would work on
   the short pieces and truncate the long ones invisibly. **The gate is the parameter alone**, which means
-  a PUBLISHED article reached with `?preview` renders the bar too — that is what makes promotion rebuild
-  nothing, and it is why **none of these strings (~~four~~ six since #741) is ever seen at a URL that does not carry the
+  a PUBLISHED article reached with `?preview` renders the bar too — that is why promotion needs no change
+  to the review bar (it does need the OG cards and the kit above), and it is why **none of these strings (~~four~~ six since #741) is ever seen at a URL that does not carry the
   parameter**. ~~is ever seen by a reader who did not type the parameter~~ — **struck: a reader who
   CLICKS such a link did not type it**, and the copy payload's citation carries `?preview` into the public
   `content` Issue every review round, so links carrying it are published deliberately. The claim that
