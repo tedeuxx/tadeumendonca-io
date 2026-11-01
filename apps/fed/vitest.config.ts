@@ -52,6 +52,10 @@ export default defineConfig({
         // (gen-og-default.mjs) is excluded from the Sonar metric on the same terms as the other two —
         // browser harness, no unit-testable surface left once the decisions moved here.
         'scripts/og-copy.mjs',
+        // #662. The decision half of the vertical Instagram Story card — the set, the path slice B fetches,
+        // the QR payload, its geometry and the title fit. gen-story-cards.mjs is excluded from the Sonar
+        // metric on the same terms as gen-og-articles.mjs: it drives a browser and has nothing left to test.
+        'scripts/story-cards.mjs',
         // #318 / ADR-0043. The decision half of the harness inventory — what a component IS, which
         // enforcement class it may claim, and whether the committed manifest still matches the plugin
         // tree. Added here for the reason the `docs/adr/**` note two entries up spells out: this list is

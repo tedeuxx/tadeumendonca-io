@@ -1,6 +1,6 @@
 # 0038. Published content is distributed to LinkedIn **and** X, in the same batch
 
-- **Status:** accepted
+- **Status:** accepted · **amended 2026-11-01** (Instagram Stories is a third channel, owner-posted from his own device, carrying the generated Story card; [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662))
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0005](./0005-og-coverage-every-public-url.md)
@@ -909,6 +909,51 @@ admits for the fan-out, the cadence, the hashtags and the campaign tag.
 `published-voice`'s **rule 19** in `tedeuxx/tadeumendonca-skills` carries the wording a drafter is
 judged against. They are in two repositories with independent pipelines.
 
+## Amendment (2026-11-01) — Instagram Stories is the third channel, and a Story is a 24-hour artifact carrying a generated card
+
+**Decided by the owner** on Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662) at
+sprint-planning intake, 2026-10-31, in one word: *«Adotar»*. Written in the merge request that builds
+the card. Its scope is the channel; the card itself is [ADR-0041](./0041-per-article-og-cards.md)'s
+2026-11-01 amendment and the tag on it is [ADR-0039](./0039-share-campaign-tagging.md)'s.
+
+### What changes
+
+- **Instagram Stories is a distribution channel beside LinkedIn and X.** The title of this record
+  names the original two and is left as written; this amendment is where the third is recorded.
+- **What a Story is in this lane:** an owner-posted, 24-hour artifact carrying the vertical Story card
+  for one article (`apps/fed/public/story/<key>.<locale>.png`, generated, one per locale, the article's
+  title in the card's language). It carries no digest and no new copy: the owner ruled *«Título no
+  idioma»*, so the card holds the title and nothing written for the format.
+- **The link is the QR on the card**, encoding the locale-neutral URL (the 2026-09-20 amendment above,
+  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)) tagged `utm_source=instagram`,
+  `utm_medium=social`, `utm_campaign=story-card`. A QR is the one link on this channel that is ours end
+  to end and survives a screenshot of an expired Story.
+- **The piece's `docs/social/<slug>.md` record notes that a Story was posted**, and when. It holds no
+  permanent link: a Story expires after 24 hours, so a URL to it would be a dead reference by design.
+
+### What does not change
+
+- **Posting stays the owner's act, from his own device.** Option 4 of this record (automate the fan-out)
+  stays rejected: nothing in the repository posts, schedules or holds an Instagram credential. The
+  generator writes a PNG; it publishes nothing.
+- **The "same batch" rule is not re-scoped here.** The ruling adopted the channel; it did not say
+  whether every publication's batch must now include a Story. That is left to the owner, and until he
+  rules, the batch obligation and "partial publication" read as written above: LinkedIn and X.
+
+### What it does not settle
+
+- **Whether the audience is on Instagram.** Nothing measures it today; the QR's campaign tag is what
+  will. Read the first `story-card` sessions as existence-class, never as a channel ranking.
+- **The reader's share-to-Story** from inside an article is slice B,
+  [#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789). It consumes the same card and adds no
+  second design.
+
+### What enforces it
+
+Nothing, as for the rest of this record. Whether a Story was posted, and whether its record was noted,
+are manual and unobserved. What is mechanical is the card: its set, its QR payload and its physical
+floor are gated in `apps/fed/scripts/story-cards.test.mjs` (ADR-0041's amendment).
+
 ## Links
 - Cross-surface coherence obligation for the CV: [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) ·
   OG card pinned on first fetch: [ADR-0005](./0005-og-coverage-every-public-url.md) ·
@@ -927,3 +972,7 @@ judged against. They are in two repositories with independent pipelines.
   record that carries the route's own decisions. The wording a drafter is judged against is
   `published-voice`'s **rule 21** in `tedeuxx/tadeumendonca-skills`, merged in that repository's
   PR #472, which states the same precondition.
+- **Since 2026-11-01 Instagram Stories is a third channel** (the amendment above, issue
+  [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662)); the card is
+  [ADR-0041](./0041-per-article-og-cards.md)'s 2026-11-01 amendment, its tag
+  [ADR-0039](./0039-share-campaign-tagging.md)'s.

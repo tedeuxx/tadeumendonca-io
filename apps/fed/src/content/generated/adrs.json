@@ -277,7 +277,7 @@
     "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
     "file": "0041-per-article-og-cards.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0042",

@@ -81,6 +81,13 @@ consumer the second ratio had. *Rejected — emitting it anyway "since the layou
 would double the committed binary per article to serve a surface nobody publishes to, and a second layout
 is a second thing that can overflow, silently, on a card nobody looks at.
 
+**Amended 2026-11-01 (#662): two card classes.** The premise above — *"Instagram is not a distribution
+surface"* — became false when the owner adopted Stories as a channel
+([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-11-01 amendment). The 1200×630 class is
+unchanged; the 1080×1920 Story class is recorded in the amendment at the end of this record. The
+rejection's second argument (*"a second layout is a second thing that can overflow, silently"*) is kept
+and answered there: the Story layout refuses an overflowing title like this one does.
+
 ### What the card file is named after
 1. **The article KEY plus the locale — `/og/<key>.<locale>.png`** (chosen). The key is the filename base,
    the identity `lib/content.ts` already treats as stable and never exposes as a URL. *Trade-off:* the
@@ -271,8 +278,9 @@ names the URL.
   bucket is gone. What made the middle step possible is the part worth keeping: **a supersession that
   removes the *consumer* but leaves the *plumbing* is not finished**, and the plumbing was invisible
   precisely because it was doing nothing — until a new feature was named into the same path.
-- One aspect ratio only; nothing here decides whether a Story-format card ever returns, and #270 removed
-  the surface that wanted one.
+- ~~One aspect ratio only; nothing here decides whether a Story-format card ever returns, and #270 removed the
+  surface that wanted one.~~ **Struck 2026-11-01 (#662): a Story-format card returned, as a second class
+  with its own generator and gate; see the amendment at the end of this record.**
 
 ## Links
 - **Implements** Issue [#269](https://github.com/tedeuxx/tadeumendonca-io/issues/269); scope narrowed by
@@ -308,3 +316,102 @@ names the URL.
 - Implementation: `apps/fed/scripts/gen-og-articles.mjs`, `apps/fed/scripts/og-cards.mjs`,
   `apps/fed/scripts/og-cards.test.mjs`, `apps/fed/src/lib/content.ts` (the derivation in
   `buildEditions`), `apps/fed/e2e/seo.spec.ts`, `apps/fed/public/og/`.
+
+## Amendment (2026-11-01) — a second card class: the vertical Instagram Story card, with a QR that is decoded back from the committed PNG
+
+**Driven by** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662) (slice A). The owner
+adopted Instagram Stories as a channel (*«Adotar»*), ruled the brand mark is the domain wordmark as on
+these cards (*«Domínio»*), and ruled the card carries the title in the shared link's locale with no new
+copy (*«Título no idioma»*), all on 2026-10-31. Slice B,
+[#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789), lets a reader send the same card to
+their own Story and consumes this class without a second design.
+
+### Decision
+
+`npm run gen-story-cards` (`apps/fed/scripts/gen-story-cards.mjs`) renders **one 1080×1920 PNG per
+published article per locale** into `apps/fed/public/story/<key>.<locale>.png`, committed, in the same
+Playwright Chromium as the landscape cards; never rendered at runtime or in CI. The decisions sit in the
+pure half, `apps/fed/scripts/story-cards.mjs`, and are unit-tested there.
+
+- **Same naming argument, separate directory.** Keyed by the article KEY and locale, never the slug,
+  for this record's orphaning reason. `/story/` rather than `/og/` so neither class's set-equality gate
+  reads the other's files as orphans. `storyCardPath(key, locale)` is the one helper slice B fetches.
+- **Content, and nothing else:** the `tadeumendonca.io` wordmark with the mark and the accent, exactly as
+  on the landscape card; the article title in the card's locale, read from its frontmatter; and a QR.
+  No meta line, no call to action. The palette is [ADR-0008](./0008-brutalist-mono-identity.md)'s
+  (near-black field, off-white title, one accent on the mark, the `.io` and the rule); zero radius, no
+  shadow, no gradient. **ADR-0008 is not amended.**
+- **The QR payload is derived:** the neutral article URL from `routes.mjs`
+  (`neutralArticleRouteFor(key)`, [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)),
+  tagged through `utm.ts`'s `withShareUtm` with `STORY_SOURCE` and `STORY_CAMPAIGN`
+  ([ADR-0039](./0039-share-campaign-tagging.md)'s 2026-11-01 amendment). Both locale cards of one
+  article encode the same URL. An English-slug rename is covered by ADR-0052's retired-slug intercept
+  for QRs already printed, and by the decode-back gate below for the committed card.
+- **The QR's physical targets:** error correction **Q**; **12 px modules**, whole pixels, `crispEdges`,
+  at integer offsets; a **4-module** quiet zone in the light field; dark `#0A0A0A` modules on `#F5F4EF`,
+  never inverted, nothing overlaid. The panel is at most 800 px wide and sits 30 px above the bottom
+  overlay inset; a payload that would need more refuses rather than shrinking its modules.
+- **The overlay insets:** nothing is drawn in the top or bottom 270 px, where Instagram draws its own
+  interface. **That figure is a premise, not a measurement**; the owner's device scan is what checks it.
+- **Title fit:** a fixed title box; the generator measures the title in the browser at each size of a
+  ladder (112 to 56 px) and takes the largest with no overflow on either axis and at most six lines. If
+  none fits, the generator throws, naming the article and locale.
+
+### Why Q and a fixed 12 px module, rather than M and the largest module that fits
+
+Measured, not preferred. The first build used M and the largest whole module that fit (13–15 px). Its
+gate decoded every card at 100% and 50%, and failed `blast-radius-supernova` at 33% with a checksum
+error. A probe rendered every current payload at 12–16 px under M and Q, with 4- and 6-module quiet
+zones, and decoded each at 100%, 50% and 33% with the gate's decoder: **12 px was the only size that
+decoded every payload at every scale in all four combinations**; 13, 14 and 16 px each failed at least
+one. 12 divides by 2 and by 3, so a downscaled module stays whole pixels. Q then costs nothing the
+layout cannot afford (57 modules, 780 px, for the longest current payload) and leaves 25% of the code
+for the camera and Instagram's recompression.
+
+**What the probe does not show:** that a real phone reads the card. A box-filtered downscale is a proxy
+for distance and recompression; it is not a camera looking at a screen. The issue's real-phone protocol
+(criteria 10 and 11) is the evidence for that, performed by the owner, and the merge waits on it.
+
+### The gates — stronger than this record's, in one direction
+
+In `apps/fed/scripts/story-cards.test.mjs`, against the **committed** PNGs:
+
+1. **Set equality both ways**, with the false-green guard, and no card for a held article.
+2. **Decode-back:** every card is decoded with an independent decoder and must equal the derived
+   payload. This catches a stale card after a slug rename or a campaign change, which this record's
+   landscape gate does not catch for titles.
+3. **Reduced scale:** the same decode on the card downscaled to 50% and 33%.
+4. **Determinism, stated exactly:** two encodings of one payload give equal matrices, and a different
+   payload a different matrix. **PNG bytes are not asserted identical across machines**, for this
+   record's font-environment reason. Regenerating on the same machine with unchanged inputs leaves
+   `git status` clean; that is a local check the builder reports, not a CI gate.
+5. **The physical floor, read off the PNG:** the panel contains exactly two colours, every module and
+   the quiet-zone ring match the matrix at their corners, and the two overlay bands are untouched
+   background.
+
+`apps/fed/e2e/story-card.spec.ts` checks the build serves a published card as a 1080×1920 PNG and serves
+no card for the held article.
+
+### New dependencies — development only, nothing ships to the browser
+
+| package | role | licence |
+|---|---|---|
+| `qrcode-generator` 2.0.4 | the QR encoder the generator runs in Node; no dependencies | MIT |
+| `pngjs` 7.0.0 | reads the committed PNG in the gate; no dependencies | MIT |
+| `@zxing/library` 0.21.3 | the QR decoder in the gate, a different codebase from the encoder; one dependency, `ts-custom-error` (MIT). Pinned below the latest on purpose: 0.22.0 and 0.23.0 declare `engines.node >= 24`, and this repository's floor and CI run Node 22 | Apache-2.0 |
+
+All three are pinned exactly in `apps/fed/package.json`, carry no install script, and install under
+`npm ci --ignore-scripts`. The dependency audit gate
+([ADR-0021](./0021-application-security-posture.md)) skips development dependencies by design; it
+passes. *Rejected:* a hand-rolled encoder (unreviewed code on a permanent artifact); `qrcode`, the more
+common encoder (it pulls a command-line parser, `yargs`, into the tree for a feature the generator does
+not use); `jsqr` as the decoder (no release since 2021); generating the QR at runtime in the page (a
+runtime dependency on a site where nothing third-party loads, and nothing for the owner's own Story); an
+external QR or shortener service (a third-party redirect breaks "ours end to end", ADR-0039).
+
+### Accepted costs
+
+- **Fourteen more committed binaries** (seven articles × two locales), regenerated with every new article.
+- **The title can still be stale:** as on the landscape card, a title edit without a regeneration is not
+  caught. The QR, which is the part that cannot be taken back, is.
+- **The overlay inset and the scan distance are unmeasured here.** Both rest on the owner's device scan.
