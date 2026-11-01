@@ -165,7 +165,7 @@ test.describe('content detail', () => {
   }
 
   // COPY-LINK MOVING TO THE FRONT CHANGES WHAT WRAPS. This is an inline `flex-wrap` row and the article
-  // page is NOT in `responsive-overflow.spec.ts`'s sweep — that spec drives six routes and no article —
+  // page is NOT in `responsive-overflow.spec.ts`'s sweep — that spec drives seven routes and no article —
   // so nothing measured this block at a phone width at all, before or after the move.
   for (const width of [320, 375, 390]) {
     test(`the footer share block fits at ${width}px`, async ({ page }) => {
