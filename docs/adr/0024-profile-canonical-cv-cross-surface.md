@@ -1,7 +1,9 @@
 # 0024. `profile.ts` is the canonical structured CV; cross-surface coherence
 
 - **Status:** accepted · **amended 2026-11-01** (absorbs the downloadable-CV decision, formerly record
-  0034, as the section *The downloadable edition — `/cv.pdf`*; the decision is unchanged, #456)
+  0034, as the section *The downloadable edition — `/cv.pdf`*; the decision is unchanged, #456) ·
+  **amended 2026-11-01** (absorbs the natural-pair join, formerly record 0050, as the section
+  *Attribution from outside the CV*; the decision is unchanged, #456)
 - **Capability:** `presence-and-cv`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
@@ -279,6 +281,112 @@ meters and badges back), #522 / PR #523 (no printed highlight; the budget record
 selection), #542 / PR #552 (three pages; the hands-on bullet back) and #566 / PR #567 (the bullet is the
 internal knowledge platform; the completed-artefact preference overridden). Absorbed here by #456.
 
+## Attribution from outside the CV — the natural-pair join
+
+**Absorbed 2026-11-01 (#456) from the record that held it, 0050, decided 2026-08-25.** The decision is
+unchanged and still binds; it moved here because it is behaviour of this capability — how another
+module points into the canonical CV — rather than a capability of its own. What arrived: the decision
+as it binds, the rejected options a future reader must not relitigate, and the consequences still being
+paid. What was left in git history on purpose: slice 1's measurement narrative argued step by step. The
+full record is in git history: `git log --diff-filter=D -- 'docs/adr/0050-*'` names the commit that
+removed it, and its parent holds the file.
+
+### Context
+
+`apps/fed/src/data/journey.ts` holds photographs placed **inside** the work-experience entries
+`profile.ts` authors. Placement is an **attribution**: a frame under a dated employer heading reads as
+evidence *of that engagement*. The attribution is the owner's and is not derivable — on the first frame
+both available heuristics (nearest date, what the frame shows) pointed at one employer and the owner
+placed it at another. So the attribution is **authored data**, and the question is how that datum points
+at an experience entry.
+
+The first shape authored an employer **name**. Measured against the CV's five entries, three of the four
+strings matched no entry and the fourth matched two: a label that reads like a pointer, not a pointer.
+
+Drivers: the attribution must be **checkable by a machine at build time**, before a reader is told the
+wrong employer on the page a recruiter reads; it must stay **checkable by a human** against the owner's
+own sentences; `profile.ts` is what `/cv.pdf` is printed from (*The downloadable edition* above), and
+`journey.ts` exists as a separate module to keep photograph concerns out of it; and drift must fail as a
+red build, never as a frame quietly rendered against the wrong role.
+
+Decided by `tech-lead` on the owner's explicit delegation of exactly this question, in its slice-2
+design comment on [#516](https://github.com/tedeuxx/tadeumendonca-io/issues/516). **The owner decided
+the content of every key** (six rulings, 2026-08-25) and none of its shape.
+
+### The decision, as it binds
+
+**A module outside the CV attributes its data to a CV experience entry by the natural pair
+`{ company, start_date }`.** `journey.ts` authors `engagement: { company, start_date }`, both fields
+spelled **exactly** as `profile.ts` spells them, and resolves it against `profileSource.experience` at
+module load. This is the first foreign key into `profile.ts`, and the pattern the next one copies:
+*join on the natural pair, resolve at load, refuse ambiguity*, not *add an id*.
+
+- **The pair, not `start_date` alone.** A date unique across today's entries is an accident of this CV,
+  not a rule, and a bare date carries nothing a reviewer can check against the owner's sentence.
+- **Exact string equality**, never trimmed, normalised or case-folded. Every softening turns a red build
+  into a plausible-looking wrong answer, and a wrong answer here is a false attribution.
+- **`profileSource.experience`, not a locale-resolved edition.** The join is on facts the source authors
+  once and shares across both editions.
+- **`assertJourneyShape` takes the experience array as an argument** rather than reading the shipped
+  data, so a test can feed it a drifted CV and watch each refusal fire. It refuses, at module load,
+  before any render:
+
+| refusal | the failure it replaces |
+|---|---|
+| a key matching **zero** entries | a frame silently orphaned by a `profile.ts` edit — a company renamed, a date corrected, the em dash retyped |
+| a key matching **more than one** | what a bare employer name produced; two candidate entries is not a placement |
+| **two frames on one entry** | silent stacking of a second figure inside one experience block, which no layout defines |
+
+- **`profile.ts` is not edited by this decision**, which is what keeps `dist/cv.pdf` byte-identical to
+  its merge-base as a free falsifier.
+- **The dependency edge is one-way and must stay so:** `journey.ts` imports `profile.ts`; `profile.ts`
+  never imports `journey.ts`. The reverse edge puts a photograph's placement into the module `/cv.pdf`
+  prints from.
+- **The owner's own sentences stay verbatim in `journey.ts`'s module comment.** The pair is a
+  normalisation of what he said, and normalisation launders provenance.
+
+The photograph budget is [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)'s, deliberately
+not restated here.
+
+### Rejected options that are still live
+
+No test refuses options 1 and 2, so their reasoning stays here. Option 3 is refused by the
+`EngagementKey` type in `journey.ts`, which requires both fields; its one line stays because it is the
+shape a reader reaches for first.
+
+1. **An opaque id on each experience entry (`experience_id`).** Not a content change — it renders,
+   prints and translates nowhere — but it leaks placement into the module `/cv.pdf` prints from, it
+   edits `profile.ts`, and it is unverifiable on sight: a reviewer holding the owner's sentence can
+   check a company and a start date, and cannot check an id.
+2. **The array index.** Reordering the CV — ordinary editorial work — silently re-attributes every
+   photograph while every index still resolves. A key that survives the edit that invalidates it is the
+   worst available shape.
+3. **The employer name alone.** Measured failing: `company` is not unique in this CV and will be less
+   unique over time.
+
+### Consequences still being paid
+
+- **Two files carry the same employer strings.** A correction in `profile.ts` — an employer renamed, a
+  start date fixed — reddens the build until `journey.ts` follows. The intended failure direction, and
+  still a cost: someone editing the CV is stopped by a module about photographs.
+- **The AWS employer string carries a U+2014 em dash**, easy to retype as a hyphen. It is spelled once
+  in `journey.ts` as a named constant; a hyphen produces a zero-match refusal, loud but only at build
+  time.
+- **Nothing enforces pair-uniqueness inside `profile.ts`.** Two entries sharing a company and a start
+  date would be legal CV data and would make one frame unplaceable; the guard refuses rather than
+  guesses, so the CV edit is blocked by the photograph module.
+- **The test map spells every key a second time**, deliberately, so it asserts something about the
+  source instead of agreeing with it by construction. Correcting an attribution is two edits, and
+  adding a frame is two authorings (#548 paid exactly that when it added a fifth frame).
+
+### Where it came from
+
+[#516](https://github.com/tedeuxx/tadeumendonca-io/issues/516) — the Issue, the owner's six rulings and
+`tech-lead`'s slice-2 design comment; [PR #517](https://github.com/tedeuxx/tadeumendonca-io/pull/517),
+slice 1, which authored the employer-name shape and measured it failing; #548, the fifth frame. The
+code: `apps/fed/src/data/journey.ts` (the ATTRIBUTION, JOIN and TWO HAZARDS paragraphs) and
+`apps/fed/src/data/journey.test.ts` (the three refusals, each watched to fire). Absorbed here by #456.
+
 ## Links
 - Driven by ADR-0053 (lean by design), ADR-0006 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
   prefixes; the `/cv` this line used to name was renamed to `/me`, and its back-compat redirect separately dropped, in two 2026-07-24 amendments to ADR-0010 (#234) · the sync process itself is private
@@ -294,3 +402,5 @@ internal knowledge platform; the completed-artefact preference overridden). Abso
 - *The downloadable edition* absorbed from record 0034 on 2026-11-01 under
   [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md)'s
   entry rule (Issue #456); the decision is unchanged, and the library's History table carries the row.
+- *Attribution from outside the CV* absorbed from record 0050 on 2026-11-01 under the same entry rule
+  (Issue #456); the decision is unchanged, and the library's History table carries the row.
