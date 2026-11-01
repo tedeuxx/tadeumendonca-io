@@ -87,12 +87,17 @@ export interface BlogPost {
    * thread. The Issue outlives every PR the article travels through, so one address holds the whole
    * review history.
    *
-   * OPTIONAL, and the degradation is the design. Every article published before #506 has no such field,
-   * and the review bar renders NO issue button for one — a button that opened the wrong Issue, or the
-   * tracker's front page, is worse than no button, because it looks like it worked. A present-but-
-   * unusable value is the opposite case and throws at module load (see `asIssueNumber`): an author who
-   * meant to name an Issue and mistyped it must not silently get the no-button state, which is
-   * indistinguishable from never having tried.
+   * ~~OPTIONAL, and the degradation is the design.~~ OPTIONAL FOR A PUBLISHED ARTICLE ONLY, since #575.
+   * Every article published before #506 has no such field, and the review bar renders NO issue button for
+   * one — a button that opened the wrong Issue, or the tracker's front page, is worse than no button,
+   * because it looks like it worked. A present-but-unusable value is the opposite case and throws at module
+   * load (see `asIssueNumber`): an author who meant to name an Issue and mistyped it must not silently get
+   * the no-button state, which is indistinguishable from never having tried.
+   *
+   * REQUIRED FOR EVERY ITEM RENDERED UNDER `?preview` (#575, the owner: «todo item publicado em modo preview
+   * precisa ter o botao»): a held draft without it throws in `buildEditions`, and a pending revision whose
+   * published host lacks it throws in `buildRevisions`. Before #575 an omission was silent while a typo was
+   * loud; for a preview item both are loud now.
    *
    * A FACT (`FACT_KEYS`), so the two editions cannot disagree. One article is reviewed on one Issue in
    * both languages — the owner reads the pair together and comments in one place — so two editions naming
@@ -160,8 +165,9 @@ const asIssueNumber = (fileSlug: string, value: unknown): number | undefined => 
   if (!Number.isInteger(parsed) || parsed <= 0) {
     throw new Error(
       `content: article "${fileSlug}" has an unusable contentIssue "${String(value)}" — it becomes a link ` +
-        'to a GitHub Issue, so it must be a positive integer (e.g. `contentIssue: 506`). Omit the field ' +
-        'entirely for an article with no review Issue; the review affordance then renders no button.',
+        'to a GitHub Issue, so it must be a positive integer (e.g. `contentIssue: 506`). Only a PUBLISHED ' +
+        'article may omit the field (it then renders no Issue button); a held draft or a pending revision ' +
+        'must name its content Issue.',
     );
   }
   return parsed;
@@ -328,6 +334,28 @@ function assertRetiredSlugsAreNotLive(resolved: Record<string, Editions>): void 
   }
 }
 
+/**
+ * A held draft must name its content Issue (#575). Every item rendered under `?preview` carries the review
+ * bar, and the owner's rule is that the bar's Issue button is not optional there: «todo item publicado em
+ * modo preview precisa ter o botao». A PUBLISHED article may still omit the field — every article published
+ * before #506 does, and none of them may start failing.
+ *
+ * Applies only when BOTH editions are held. A pair that disagrees on `draft` is a different defect, and the
+ * fact parity check after this one reports it under its own name; checking here first would mislabel it.
+ * Per edition rather than once, so the message can say which file to edit.
+ */
+function assertHeldDraftNamesItsIssue(fileSlug: string, editions: Editions): void {
+  if (!LOCALES.every((locale) => editions[locale].draft)) return;
+  for (const locale of LOCALES) {
+    if (editions[locale].contentIssue !== undefined) continue;
+    throw new Error(
+      `content: held draft "${fileSlug}" has no contentIssue in its ${locale} edition — every item rendered ` +
+        'under ?preview must name the content Issue its review happens on, so the review bar can link to it. ' +
+        `Add \`contentIssue: <number>\` to both blog/${fileSlug}.pt.md and blog/${fileSlug}.en.md.`,
+    );
+  }
+}
+
 // Group the raw glob by slug and enforce the unpublishable contract. Exported so tests can feed it a
 // synthetic set (one locale missing, a locale outside LOCALES, disagreeing facts) and assert it throws
 // — the real glob below is always a complete, agreeing pair, so the throws never fire in production.
@@ -356,6 +384,9 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
           'every article must be authored in both languages (<slug>.pt.md and <slug>.en.md).',
       );
     }
+    // BEFORE the fact parity check, so a held pair missing the field in ONE edition gets the actionable
+    // message (which edition, and why the field is required) rather than "disagrees on contentIssue".
+    assertHeldDraftNamesItsIssue(fileSlug, editions as Editions);
     // Facts are authored once: assert they agree across the two editions, else it's an error.
     const [first, ...rest] = LOCALES;
     for (const locale of rest) {
@@ -427,14 +458,19 @@ const rawFrontmatterOf = (raw: string): string | undefined => FRONTMATTER.exec(r
  * frontmatter keeps each of them correct while it reads the published file. So the revision `BlogPost` is
  * the published one with ONLY the body replaced — nothing else can differ by construction.
  *
- * FIVE REFUSALS, each a build failure, in the order they are checked:
+ * ~~FIVE~~ SIX REFUSALS (the sixth since #575), each a build failure, checked in this order — 1, 2, 3, 6,
+ * then 4 and 5 per locale (the sixth is numbered last so the earlier numbers keep their meaning):
  *  1. an ORPHAN — a revision whose key names no article (a key renamed after the revision was written);
  *  2. a HALF PAIR — one locale only, the same unpublishable rule `buildEditions` enforces;
  *  3. a HELD host — releasing a held article flips `draft` on the `blog/` file, which would publish the
  *     committed body and not the revision that was read. A held article is reviewed in place;
  *  4. frontmatter NOT BYTE-EQUAL to the published edition's;
  *  5. a body EQUAL to the published one — a leftover, which is what a release done by copy instead of
- *     move leaves behind.
+ *     move leaves behind;
+ *  6. a host with NO `contentIssue` (#575) — a revision renders under `?preview`, so its review bar must
+ *     link to the content Issue. The revision cannot carry the field itself (refusal 4 locks its
+ *     frontmatter to the published edition's), so the check is on the HOST, and the message sends the
+ *     author to the published `blog/` files first.
  *
  * Exported so tests feed it synthetic sets; the real glob below is empty whenever no correction is
  * pending, so in production none of the throws fire.
@@ -476,6 +512,15 @@ export function buildRevisions(
       throw new Error(
         `content: revision "${key}" targets a HELD article. A held article is not published yet, so edit its ` +
           'blog/ file directly — releasing it flips draft in blog/ and would publish that body, not this revision.',
+      );
+    }
+    if (host[LOCALES[0]].contentIssue === undefined) {
+      // One locale suffices: `contentIssue` is a FACT, so `buildEditions` already made both editions agree.
+      throw new Error(
+        `content: revision "${key}" corrects an article with no contentIssue — a revision renders under ` +
+          '?preview, so it must name the content Issue its review happens on. The field lives on the ' +
+          `PUBLISHED article: add \`contentIssue: <number>\` to blog/${key}.pt.md and blog/${key}.en.md, then ` +
+          'copy the same frontmatter into the revision (its frontmatter must stay byte-equal to the published one).',
       );
     }
     const revised = {} as Editions;
