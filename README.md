@@ -266,7 +266,7 @@ amount of preparation makes faster. Everything in
 apps/
   fed/    # the static SPA (React + Vite + Tailwind, no PWA)
 docs/
-  adr/    # the decision library — the architecture documentation; start at 0001
+  adr/    # the decision library — the architecture documentation; start at 0053
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
           # plus one account-wide cost budget, deliberately not scoped to this project
 LICENSE   # the MIT grant, exact text so GitHub can classify it
