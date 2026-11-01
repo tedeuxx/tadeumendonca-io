@@ -34,6 +34,9 @@ written, not a change of mind.
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)): whatever resolves a locale must do so at
   **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0004's
   no-SSR/edge invariant is load-bearing and must survive untouched.
+  > **Narrowed 2026-11-01** by [ADR-0056](./0056-edge-exposes-a-locale-hint-never-a-locale-decision.md)
+  > (#669): the edge may now **expose a fact** (a viewer-response `locale_hint` cookie); it still never
+  > **resolves** a locale, routes or redirects. See this record's 2026-11-01 amendment.
 - **OG/SEO completeness per surface** ([ADR-0005](./0005-og-coverage-every-public-url.md)): every public URL
   is OG/crawler-complete — and once each surface exists in two locales, that contract now spans **both**,
   plus an x-default.
@@ -159,6 +162,8 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
   > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
   > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
 - **No edge / Accept-Language logic** — the client-side redirect covers the negotiation; `iac/` stays closed.
+  > **Narrowed 2026-11-01** by [ADR-0056](./0056-edge-exposes-a-locale-hint-never-a-locale-decision.md):
+  > still no edge negotiation, but `iac/` now carries a function that exposes a locale hint to the client.
 - **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (its downloadable-edition section)
   already books — this ADR only shifts the *source route string* to `/en/me`, it does not add the pt edition.
 
@@ -501,8 +506,36 @@ to say nobody currently needs. What it must not be is a surprise: a future pair 
 change with four crossings to guard (the toggle, the unprefixed redirect, hreflang/sitemap reciprocity,
 and what the wrong-locale slug does), **not** a table entry — and the green suite will not tell you that.
 
+## Amendment (2026-11-01) — the edge may expose a fact; it never resolves a locale
+
+**Driven by** [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669), the owner's ruling that IP
+geolocation comes before the browser language. **Recorded in full in**
+[ADR-0056](./0056-edge-exposes-a-locale-hint-never-a-locale-decision.md); this section states only what
+it changes here.
+
+**What is narrowed.** The decision driver *"never a request-time / Accept-Language edge function"* read as
+*no locale-related code at the edge at all*. That no longer holds: a viewer-response CloudFront Function
+now sets a `locale_hint` cookie (`pt`, `other` or `unknown`) on each HTML response, from the
+`CloudFront-Viewer-Country` header. The driver's operative half is unchanged and now reads: **the edge
+never resolves a locale, never routes and never redirects.**
+
+**What is unchanged.** Resolution stays client-side, in the precedence the client already runs, with one
+new step that reads the hint. The path stays authoritative, and the persisted override outranks the hint.
+Rejected option 4 stays rejected: the edge reads no `Accept-Language` and makes no routing decision. The
+HTML is byte-identical for every viewer, so the 2026-07-28 amendment's *"the prerender is not a visitor"*
+invariant and every advertised URL's behaviour for a non-JS client are untouched.
+
+**Why this is an amendment and not a reversal.** The driver existed to keep request-time locale
+**compute** out of the edge, the thing [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) removed.
+Reading one header and copying one of three values into a cookie decides nothing; the decision is still
+made where this record put it.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
+- **Amended 2026-11-01** (Issue [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669)) by
+  [ADR-0056](./0056-edge-exposes-a-locale-hint-never-a-locale-decision.md) — the no-edge driver is narrowed
+  to *the edge never resolves a locale*; a viewer-response function exposes a locale hint, and resolution
+  stays client-side.
 - **Amended 2026-08-05** (Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166)) — the
   "NOT dual localized slugs" clause is **reaffirmed, not revised**. Separates the two benefits argued
   under one name (language-pinning, shipped here via the prefix · slug readability, delivered only by a
