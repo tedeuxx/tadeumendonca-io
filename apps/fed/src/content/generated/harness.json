@@ -179,7 +179,7 @@
     "kind": "skill-library",
     "id": "skills",
     "file": "skills",
-    "skills": 15,
+    "skills": 19,
     "enforcement": "documents"
   },
   {
@@ -198,6 +198,24 @@
     "kind": "command",
     "id": "funnel-review",
     "file": "commands/funnel-review.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "handoff",
+    "file": "commands/handoff.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "idea-to-issues",
+    "file": "commands/idea-to-issues.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "new-idea",
+    "file": "commands/new-idea.md",
     "enforcement": "documents"
   },
   {
@@ -222,6 +240,12 @@
     "kind": "command",
     "id": "sprint-review",
     "file": "commands/sprint-review.md",
+    "enforcement": "documents"
+  },
+  {
+    "kind": "command",
+    "id": "what-else",
+    "file": "commands/what-else.md",
     "enforcement": "documents"
   }
 ]
