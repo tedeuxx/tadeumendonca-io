@@ -15,7 +15,7 @@ installability were real UX wins — queue an action offline, sync when back onl
 
 ## Why it was superseded
 The static pivot (ADR-0002) removed the user actions the outbox existed for; there is nothing to queue. An
-offline shell for read-only content is machinery without a matching need (ADR-0001). The PWA was removed —
+offline shell for read-only content is machinery without a matching need (ADR-0053, lean by design). The PWA was removed —
 no service worker, no manifest, no offline shell.
 
 ## Consequences of the reversal

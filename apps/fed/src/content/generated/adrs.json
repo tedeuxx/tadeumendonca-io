@@ -1,12 +1,5 @@
 [
   {
-    "id": "0001",
-    "title": "Lean by design — architecture calibrated to the strategic priority",
-    "file": "0001-lean-by-design-calibrated-to-strategy.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0002",
     "title": "Fully static SPA, no backend",
     "file": "0002-fully-static-spa-no-backend.md",
@@ -360,7 +353,7 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
-    "status": "proposed",
+    "status": "accepted",
     "amended": false
   },
   {

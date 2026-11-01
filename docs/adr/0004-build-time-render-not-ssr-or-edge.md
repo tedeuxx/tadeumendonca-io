@@ -5,7 +5,7 @@
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature (recorded in the History index)
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md)
 
 ## Context & problem
 A static SPA (ADR-0002) renders in the browser, so a bot or a link-unfurler that reads only the raw HTML
@@ -16,7 +16,7 @@ with OG injected per request). That second path is precisely what would make an 
 necessary again — and this ADR settles which side we are on.
 
 ## Decision drivers
-- ADR-0001/0002: no server, near-zero cost — request-time compute is exactly what was cut.
+- ADR-0053 (lean by design) and ADR-0002: no server, near-zero cost — request-time compute is exactly what was cut.
 - SEO/OG only needs the tags to be *in the served HTML*, not freshly computed per request.
 - A personal blog publishes at low cadence — instant, no-rebuild publishing is not a requirement.
 
@@ -28,7 +28,7 @@ necessary again — and this ADR settles which side we are on.
 2. **Runtime — markdown from the bucket, OG at the edge** — keep the `.md` as S3 objects fetched live
    (by the client, or by an edge function), and inject OG per request at **Lambda@Edge**. Publishing
    becomes "drop a file in the bucket", no rebuild. *Why not:* reintroduces **edge compute** (for OG and
-   for unfurling) and its cost/ops — the exact request-time runtime ADR-0001/0002 removed — to buy a
+   for unfurling) and its cost/ops — the exact request-time runtime ADR-0053 (lean by design) and ADR-0002 removed — to buy a
    no-rebuild publish cadence the site does not need.
 
 ## Decision outcome
@@ -58,7 +58,7 @@ The site's *own* pages get rich, prerendered OG; *external* links do not, delibe
 - The build owns a headless-browser prerender step (Playwright), a build-time dependency and cost.
 
 ## Links
-- Driven by ADR-0001, ADR-0002 · supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature
+- Driven by ADR-0053 (lean by design), ADR-0002 · supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature
   · the surviving in-article embed is client-side (`VideoEmbed`).
 
 ## Amendment, 2026-08-15 — what was removed is request-time RENDERING, not request-time COMPUTE
