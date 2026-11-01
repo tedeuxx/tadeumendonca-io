@@ -141,3 +141,60 @@ Every proposed item already carries `sp:N`. None is pending.
 - The four -skills Issues with no routing label match no class.
 - Retrospective findings and sweep judgement items have no Issue, so none can be composed.
   They become Issues only where the owner names them.
+
+## Re-plan, 2026-11-01 — io-only
+
+commit: 683351fb3106585f4787a23f4c975de89b49377a (`origin/main`)
+
+**Why a re-plan and not a new iteration.** On 2026-11-01 the owner ruled that the sprint tracker covers
+`tedeuxx/tadeumendonca-io` product work only; loop work moved to the workstation repository's own
+tracker. The unmilestoned pool, assembled with step 1's predicate, holds no eligible item:
+
+```
+gh issue list --repo tedeuxx/tadeumendonca-io --state open --limit 200 --json number,labels,milestone \
+  --jq '[.[]|select(.milestone==null)|select((.labels|map(.name)|index("ready")) and ((.labels|map(.name)|index("product")) or (.labels|map(.name)|index("loop"))))|.number]'
+# -> []
+```
+
+The only unmilestoned `product` item, #691, is `blocked` and has no `ready`. Everything composable is
+carry-over already in `sprint-08`. Activation 1 put the choice to the owner: re-plan `sprint-08`, close
+it and open `sprint-09`, or open `sprint-09` without the closing rites. He answered **«Replanejar
+sprint-08»**.
+
+Loop mode: `scrum` (`grep -m1 '^loop-mode: ' docs/loop-mode.md`). The sibling repository was not
+compared, because it is outside the sprint tracker's scope since the same ruling.
+
+**No ranking dispatch.** The pool is the already-ranked one, minus what was delivered. Every position
+is the filing-order tiebreak, and a second dispatch could only return that tiebreak again. No
+retrospective has run since sprint-07, whose 12 findings were ruled at this file's activation 1.
+Funnel candidates: 0, because `grep -nE '^(Candidate rule|Evidence|Ruled):' docs/funnel-review/*.md`
+prints nothing.
+
+| # | item | in/out | why |
+|---|---|---|---|
+| — | #790 harness: drop the project chrome-devtools server | out | `loop`; delivered by PR #791, transferred to mhw#249 |
+| — | #575 A held draft must declare its content Issue | out | delivered by PR #794, closed 2026-11-01 |
+| 1 | #456 Reconcile every ADR against the capability definition | in | eligible; tiebreak only — no ratified rule orders within this class. S1 merged in PR #793 |
+| 2 | #635 «Promotion is one edit» at three sites | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 3 | #640 The analytics schema page | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 4 | #662 Instagram Stories card generator | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 5 | #669 Locale resolution: IP step at the edge | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 6 | #710 Slice B: per-article cover and OG | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 7 | #783 ci: release token expires on a calendar | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 8 | #788 Locale resolution: client IP step | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 9 | #789 Reader share-to-Story | in | eligible; tiebreak only — no ratified rule orders within this class |
+| 10 | #712 content: validating what an agent reads and returns | in | `content`, selected by the owner, outside the drain |
+
+**Activation log.** Activation 1 (2026-11-01) offered three options: re-plan `sprint-08`, close
+`sprint-08` and open `sprint-09`, or open `sprint-09` without the rites. He answered «Replanejar
+sprint-08». Activation 2 offered: confirm 10 including #712, confirm 9 with #712 removed, or stop. He
+answered **«Confirmar 10, com #712»**. That is the bound of two.
+
+**Confirmed composition.** 9 `product` items (57 sp) plus #712 (`content`, 8 sp); 65 sp open. The
+milestone description is rewritten by `milestone-update.py 6 --expect-file … --description-file …`.
+The worklog gains #712 as a counting unit. #790 and #575 stay in it as committed units.
+
+**Estimation pendency:** none. Every item carries `sp:N`.
+
+**What could not be assembled:** the closing rites of `sprint-08` have not run, so no sweep,
+funnel or retrospective input exists for this re-plan.
