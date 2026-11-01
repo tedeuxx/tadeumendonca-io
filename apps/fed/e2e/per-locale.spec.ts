@@ -723,7 +723,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // Shared-slug routes: the same logical path under both prefixes. `/library` (#166) joins them —
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
-  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
+  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library', '/analytics'];
   // Article slugs are per-locale (ADR-0037), so an article's two <loc>s USUALLY do not share a path.
   // `blast-radius-supernova` is the exception and it is deliberate: the title is a proper name and a
   // play on one, so there is nothing to localise, and the loader permits a shared slug explicitly. The

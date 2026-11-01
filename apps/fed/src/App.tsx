@@ -17,6 +17,7 @@ import { RampUpPage } from './pages/RampUpPage';
 import { ArchitecturePage } from './pages/ArchitecturePage';
 import { ArticlePage } from './pages/ArticlePage';
 import { LibraryPage } from './pages/LibraryPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 import { LocaleProvider } from './i18n';
 import { detectLocale, isLocale, localePath, pathWithoutLocale, type Locale } from './i18n/config';
 import { articlePathForLocale, getPostBySlug, supersededSlugTarget } from './lib/content';
@@ -146,6 +147,9 @@ function LocaleApp() {
           {/* The sixth public surface (#166). One English slug prefixed twice, bilingual label and page
               — the same shape as the four above it, so it needs no per-locale route resolution. */}
           <Route path="library" element={<LibraryPage />} />
+          {/* The analytics schema (#640) — off the menu by the owner's decision, linked from
+              /architecture. One English slug prefixed twice, like every page above. */}
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="blog/:slug" element={<ArticleRoute locale={locale} />} />
           {/* The retired /blog list still deep-links: send it to the landing's #artigos, in-locale. */}
           <Route path="blog" element={<Navigate to={localePath(locale, '/#artigos')} replace />} />

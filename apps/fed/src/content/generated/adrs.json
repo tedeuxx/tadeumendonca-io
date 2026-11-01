@@ -151,7 +151,7 @@
     "title": "Observability scoped to a static site",
     "file": "0023-observability-static-site.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0024",
@@ -298,7 +298,7 @@
     "title": "A document title is an address — it leads with the section's `nav.*` label, never with the page's heading",
     "file": "0045-document-title-leads-with-section-label.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0046",
@@ -353,6 +353,13 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0054",
+    "title": "The analytics schema page — a published description of the event schema, derived from the emitting code, carrying no figure, served off the menu",
+    "file": "0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md",
     "status": "accepted",
     "amended": false
   }
