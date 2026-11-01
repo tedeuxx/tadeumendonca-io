@@ -5,6 +5,7 @@
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment). **What the owner may want
   to overturn is named in Decision outcome** — whether a photograph belongs on `/architecture` at all is an
   editorial call this record does not make; it decides only what happens once one is there.
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-09
 - **Deciders:** `tech-lead`, on the design of the figure class; the builder declined to write the record and
   was right to — the decision is not the diff's

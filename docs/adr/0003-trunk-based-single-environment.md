@@ -1,6 +1,7 @@
 # 0003. Trunk-based delivery, single environment
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in the History index)

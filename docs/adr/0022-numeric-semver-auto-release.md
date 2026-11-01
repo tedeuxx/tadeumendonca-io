@@ -1,6 +1,7 @@
 # 0022. Numeric SemVer, auto-bump + release on merge
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0003](./0003-trunk-based-single-environment.md)

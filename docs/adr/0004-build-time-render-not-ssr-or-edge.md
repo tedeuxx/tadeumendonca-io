@@ -1,6 +1,7 @@
 # 0004. Content and OG resolved at build time — not SSR or edge
 
 - **Status:** accepted
+- **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature (recorded in the History index)

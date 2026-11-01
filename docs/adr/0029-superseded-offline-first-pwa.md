@@ -1,6 +1,7 @@
 # 0029. Offline-first installable PWA
 
 - **Status:** superseded by [ADR-0002](./0002-fully-static-spa-no-backend.md) (2026-07)
+- **Capability:** `site-platform`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 

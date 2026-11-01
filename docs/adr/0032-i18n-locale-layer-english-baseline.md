@@ -5,6 +5,7 @@
 > amendment at the foot before acting on anything here (#234).
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-23
 - **Deciders:** the owner
 - **Driven by:** [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (cross-surface CV coherence)

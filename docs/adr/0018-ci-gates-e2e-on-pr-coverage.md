@@ -1,6 +1,7 @@
 # 0018. CI gates on the PR — E2E included, unit coverage ≥85%
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0003](./0003-trunk-based-single-environment.md)

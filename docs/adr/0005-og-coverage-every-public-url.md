@@ -1,6 +1,7 @@
 # 0005. Every public URL is SEO- and OG-complete
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —

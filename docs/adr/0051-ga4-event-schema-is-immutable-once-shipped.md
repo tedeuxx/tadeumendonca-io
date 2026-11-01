@@ -1,6 +1,7 @@
 # 0051. The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-09-04
 - **Deciders:** **`tech-lead`**, at intake on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597)
   (2026-09-04, jointly with `product-lead`), which is where the record was called for and where findings

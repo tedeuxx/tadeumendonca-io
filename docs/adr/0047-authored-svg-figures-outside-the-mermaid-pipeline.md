@@ -5,6 +5,7 @@
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment). **The owner has not ruled
   on the second-path question and it is his to reverse** — see the "one-off or a convention" clause in
   **Decision outcome**, which is written to be the cheap thing to overturn.
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** `tech-lead`, on the gate's finding that the fence departed from ADR-0040 with no record
 - **Supersedes / superseded by:** —

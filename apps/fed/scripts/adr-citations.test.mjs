@@ -10,6 +10,7 @@ import {
   describeCitation,
   gitBinary,
   libraryIndex,
+  lineFree,
   manufacturedSelfCitations,
   quotedRanges,
   resolves,
@@ -147,8 +148,8 @@ describe('adr citations — the gate', () => {
   // excuse has to be looked at by a person, and asserted to have no stale entry so the excuse cannot
   // outlive the prose it was written for.
   it('excuses exactly the pre-fold self-citations, and none of them is stale', () => {
-    expect(audit.selfCitationArm.excused.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '))).toEqual(
-      PRE_FOLD_SELF_CITATIONS,
+    expect(audit.selfCitationArm.excused.map(lineFree)).toEqual(
+      PRE_FOLD_SELF_CITATIONS.map((e) => e.citation),
     );
     expect(audit.selfCitationArm.staleExcuses).toEqual([]);
   });
@@ -329,22 +330,49 @@ describe('selfCitations', () => {
 });
 
 describe('manufacturedSelfCitations', () => {
-  const cite = (file, target, line) => ({ kind: 'token', file, target, line });
+  const cite = (file, target, line, lineText = 'ADR-0007 was written this way') => ({
+    kind: 'token',
+    file,
+    target,
+    line,
+    lineText,
+  });
+  const entry = { citation: 'docs/adr/0007-x.md cites ADR-0007', line: 'ADR-0007 was written this way' };
 
   it('excuses one baseline occurrence per entry and fails a second one in the same file', () => {
-    const baseline = ['docs/adr/0007-x.md cites ADR-0007'];
     const arm = manufacturedSelfCitations(
       [cite('docs/adr/0007-x.md', '0007', 3), cite('docs/adr/0007-x.md', '0007', 9)],
-      baseline,
+      [entry],
     );
     expect(arm.excused.map(describeCitation)).toEqual(['docs/adr/0007-x.md:3 cites ADR-0007']);
     expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:9 cites ADR-0007']);
     expect(arm.staleExcuses).toEqual([]);
   });
 
+  // S1's advisory A5: keyed on file and number alone, the excuse went to whichever occurrence came
+  // FIRST, so a fold that planted one above the excused sentence had the new one excused and the old
+  // one reported. Keyed on the sentence, the planted line is the one named, whatever its position.
+  it('excuses the occurrence on the sentence it was written for, not the first one in the file', () => {
+    const planted = cite('docs/adr/0007-x.md', '0007', 2, 'a fold put ADR-0007 here');
+    const original = cite('docs/adr/0007-x.md', '0007', 9);
+    const arm = manufacturedSelfCitations([planted, original], [entry]);
+    expect(arm.excused.map(describeCitation)).toEqual(['docs/adr/0007-x.md:9 cites ADR-0007']);
+    expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:2 cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([]);
+  });
+
+  it('reports a baseline entry as stale when its sentence was reworded, even if the number stays', () => {
+    const arm = manufacturedSelfCitations(
+      [cite('docs/adr/0007-x.md', '0007', 3, 'ADR-0007 now says something else')],
+      [entry],
+    );
+    expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:3 cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([entry]);
+  });
+
   it('reports a baseline entry whose occurrence is gone as stale', () => {
-    const arm = manufacturedSelfCitations([], ['docs/adr/0007-x.md cites ADR-0007']);
+    const arm = manufacturedSelfCitations([], [entry]);
     expect(arm.manufactured).toEqual([]);
-    expect(arm.staleExcuses).toEqual(['docs/adr/0007-x.md cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([entry]);
   });
 });

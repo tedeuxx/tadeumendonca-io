@@ -40,6 +40,43 @@ So the library is **audited by reading**, and the moment is **when an ADR is ame
 where one record changes what another asserts, and every one of the thirteen findings originated exactly
 there. Same answer, and the same reason, as the root `CLAUDE.md` records for itself (#233).
 
+## Capabilities — where each decision lives
+
+One document per capability, on the reader-visible-surface axis. This table **is** the partition, as
+0053 sets out. Changing it means editing this table and one field per record, never amending a record.
+Every record carries a `- **Capability:**` line naming its row. Each record appears in exactly one
+cell of the four record columns. The anchor keeps its number and filename. The other records leave
+the library as the fold slices of [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) run,
+each by one of the dispositions at the foot of this README. The last column is commentary, not part of
+the partition.
+
+| Capability | Anchor | Folds in | Not an ADR | Deactivation records | How the others leave |
+|---|---|---|---|---|---|
+| `site-platform` | [0002](./0002-fully-static-spa-no-backend.md) | [0004](./0004-build-time-render-not-ssr-or-edge.md) · [0006](./0006-react-vite-typescript.md) · [0012](./0012-snake-case-content-no-mapping.md) | — | [0025](./0025-superseded-backend-platform.md) · [0026](./0026-superseded-lambda-edge-og.md) · [0027](./0027-superseded-backend-link-unfurl.md) · [0029](./0029-superseded-offline-first-pwa.md) | 0025 and 0029 fold into 0002's `## What this replaced`; 0026 and 0027 into the section 0004 becomes |
+| `hosting-and-trust` | [0013](./0013-s3-cloudfront-hosting.md) | [0014](./0014-terraform-cloud-pipeline-only.md) · [0015](./0015-oidc-immutable-subject-least-privilege.md) · [0016](./0016-custom-email-via-icloud.md) · [0017](./0017-no-waf-no-cmk-ssm-string-only.md) · [0042](./0042-trust-root-bootstrapped-out-of-band.md) | — | [0030](./0030-superseded-monorepo-pwa.md) · [0031](./0031-superseded-shared-regional-waf.md) | 0031 folds into the section 0017 becomes; 0030 leaves with a row only — a pivot superseded it, not a record, and its one live consequence (the OIDC-subject trap) is already in 0015 |
+| `delivery-and-gates` | [0003](./0003-trunk-based-single-environment.md) | [0018](./0018-ci-gates-e2e-on-pr-coverage.md) · [0019](./0019-complete-functional-regression.md) · [0020](./0020-sonarcloud-quality-gate.md) · [0021](./0021-application-security-posture.md) · [0022](./0022-numeric-semver-auto-release.md) · [0023](./0023-observability-static-site.md) · [0044](./0044-version-parts-deliberate-major-minor.md) | — | [0028](./0028-superseded-gitflow-two-env.md) | 0028 folds into 0003's `## What this replaced` |
+| `locale-and-routing` | [0036](./0036-per-locale-urls-prerender-hreflang.md) | [0010](./0010-routing-landing-cv-split-redirects.md) · [0032](./0032-i18n-locale-layer-english-baseline.md) · [0037](./0037-localized-article-slugs.md) · [0052](./0052-neutral-self-canonical-share-url-per-article.md) | — | [0011](./0011-ui-ptbr-i18n-deferred.md) | 0011 folds into the section 0032 becomes; folded last, as the largest external-citation load |
+| `design-system-and-figures` | [0008](./0008-brutalist-mono-identity.md) | [0007](./0007-tailwind-no-shadcn-own-components.md) · [0009](./0009-self-hosted-fonts.md) · [0035](./0035-static-repo-cards-in-longform.md) · [0040](./0040-build-time-mermaid-diagrams.md) · [0045](./0045-document-title-leads-with-section-label.md) · [0047](./0047-authored-svg-figures-outside-the-mermaid-pipeline.md) · [0048](./0048-content-photograph-is-a-captioned-figure.md) | — | — | 0045 is here because the first slice rejected the hypothesis that it is not an ADR: no mechanism refuses two of its rejected options |
+| `publication-and-distribution` | [0005](./0005-og-coverage-every-public-url.md) | [0033](./0033-ga4-consent-gated-analytics.md) · [0038](./0038-content-distribution-linkedin-and-x.md) · [0039](./0039-share-campaign-tagging.md) · [0041](./0041-per-article-og-cards.md) · [0049](./0049-held-article-is-isolated-not-private.md) · [0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) | [0046](./0046-video-derived-articles-earn-their-place-by-receipt.md) | — | 0046 moves beside the in-repo artifact that governs it; if none does, it folds here instead, and its slice says which |
+| `presence-and-cv` | [0024](./0024-profile-canonical-cv-cross-surface.md) | [0050](./0050-journey-attribution-joins-profile-on-company-and-start-date.md) | — | — | the downloadable-CV record was absorbed here by the first slice (see *Records that left the library*) |
+| `harness-self-description` | [0043](./0043-harness-inventory-derived-from-plugin-repo.md) | — | — | — | alone on purpose, because of its size |
+| `decision-library` | [0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md) | [0001](./0001-lean-by-design-calibrated-to-strategy.md) | — | — | 0001, the keystone, folds into the scope record |
+
+**Checked, not trusted.** `apps/fed/scripts/adr-capabilities.test.mjs` fails in each of these cases:
+
+- a record has no `Capability:` line, or more than one;
+- a record's line and its row here disagree;
+- a record sits in no cell, or in two;
+- a cell names a number that has no file;
+- a capability row has no single anchor;
+- a record in the deactivation column is not `superseded`, or a `superseded` record sits in any other column.
+
+It does not judge whether a record is in the *right* capability. That is a reading, and the fold slice
+that moves the record is where it happens.
+
+The reading groups below come from before the partition. They are presentation only, and they shrink
+as the fold slices empty them.
+
 ## Foundations
 | ADR | Title | Status |
 |---|---|---|
@@ -129,7 +166,7 @@ decision lives now. How a record gets here is the dispositions list at the foot 
 | Number | What was decided | Where it lives now |
 |---|---|---|
 | 0034 | The downloadable CV is a build-time PDF printed from the English CV page to a static `/cv.pdf` — an edition, not a faithful print; three pages, asserted | [0024 — *The downloadable edition*](./0024-profile-canonical-cv-cross-surface.md#the-downloadable-edition--cvpdf) — absorbed 2026-11-01 (#456, the pilot fold) under [0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md); the decision is unchanged |
-| 0049 *(first issue)* | How the practice's name is rendered per register — vetoed by the owner as never having been an ADR, because a test already refuses every alternative | [`vocabulary.test.ts` — the `SURFACES` table](../../apps/fed/src/data/vocabulary.test.ts) — removed 2026-08-15 (`6b98443`) with no row, which this row repairs. **The number was then reissued**: the 0049 on disk today is a different decision that landed 2026-08-25, so git history holds two decisions under one number and this row is what says so in the tree |
+| 0049 | *(The number's first issue.)* How the practice's name is rendered per register — vetoed by the owner as never having been an ADR, because a test already refuses every alternative | [`vocabulary.test.ts` — the `SURFACES` table](../../apps/fed/src/data/vocabulary.test.ts) — removed 2026-08-15 (`6b98443`) with no row, which this row repairs. **The number was then reissued**: the 0049 on disk today is a different decision that landed 2026-08-25, so git history holds two decisions under one number and this row is what says so in the tree |
 
 ## Known gaps (honest — surfaced by the reverse-engineering, tracked as follow-up Issues)
 - ~~**No `sitemap.xml` / `robots.txt`** (ADR-0005)~~ — **RESOLVED** ([#51](https://github.com/tedeuxx/tadeumendonca-io/issues/51)): build emits `sitemap.xml` + ships `robots.txt`; on-page SEO and discovery are both complete.
@@ -139,7 +176,8 @@ New ADRs: first apply the entry rule in
 [0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md) — most
 decisions become a section of an existing capability document, or a comment beside the mechanism that
 already refuses the alternative. Only then copy the method's `template.md` → `NNNN-kebab-title.md`, next
-number in sequence. ~~A reversed decision becomes `superseded by ADR-XXXX` and links forward — never
+number in sequence, add a `- **Capability:**` line naming its row in the table above, and add the
+record to that row. A new capability is a new row whose anchor is the new record. ~~A reversed decision becomes `superseded by ADR-XXXX` and links forward — never
 deleted.~~ **Struck 2026-11-01 (#456)**, on the owner's ruling of 2026-08-25 (option B on #456). A record
 leaves this library by one of four dispositions, never as a silent absence:
 

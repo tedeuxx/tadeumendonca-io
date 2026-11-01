@@ -2,6 +2,7 @@
 
 - **Status:** accepted (safe class — ratified by the `critical-reviewer` on merge, per
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment)
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
