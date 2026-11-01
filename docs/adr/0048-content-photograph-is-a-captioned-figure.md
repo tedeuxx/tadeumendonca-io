@@ -496,3 +496,14 @@ answer, and the decision is already made and is his.**
 **What is unchanged.** Everything the previous amendment left standing, plus the bound itself. This
 amendment corrects one count, records the first use of the three-route procedure, and records that the
 route the *next* slice can take is narrower than the one this slice took.
+
+## Amendment, 2026-11-01 — a generated cover is not a photograph (#710)
+
+A generated cover is not evidence photography, and this record does not govern it. This record's
+subject is a photograph as **evidence** — a thing that was in front of a camera; the #687 article's
+illustrations under `apps/fed/public/illustrations/` are AI-generated, say so in their `alt` and their
+caption, and **stay outside `data/photos.ts`** and its byte ceiling. Issue
+[#710](https://github.com/tedeuxx/tadeumendonca-io/issues/710) puts that article's cover onto its OG card
+([ADR-0041](./0041-per-article-og-cards.md), 2026-11-01 amendment) with a visible AI-generated mark, which
+is the card-side form of the same distinction: nothing on the card may present the scene as a record of a
+real one.
