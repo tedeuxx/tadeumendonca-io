@@ -120,8 +120,8 @@ on:
         type: boolean
         default: true
 
-# Read-only by DEFAULT. `contents: write` and `id-token: write` are granted per job, to the one job that
-# needs each, so no deciding job ever holds a credential.
+# Read-only by DEFAULT. No job is granted `contents: write`; `release` writes with its App token (#783).
+# `id-token: write` is granted per job, only to the jobs that reach AWS, so no deciding job holds one.
 permissions:
   contents: read
 
