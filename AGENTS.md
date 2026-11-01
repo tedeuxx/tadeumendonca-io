@@ -94,7 +94,7 @@ route exists, and keep no route list anywhere else.** The surfaces:
 - **Landing** — the storefront; it hosts the articles list, and the old blog index redirects there.
   Article slugs are **per locale** (ADR-0037).
 - **Interactive CV** — the only CV surface; a two-page edition is printed from it at build time
-  (ADR-0034). Both derive from `apps/fed/src/data/profile.ts`; nothing is re-typed.
+  (ADR-0024). Both derive from `apps/fed/src/data/profile.ts`; nothing is re-typed.
 - **Portfolio** — typed data in `apps/fed/src/data/catalog.ts`; the bar to be listed is
   `docs/catalog-ready.md`.
 - **Ramp-up plan and architecture page** — markdown, both locales.

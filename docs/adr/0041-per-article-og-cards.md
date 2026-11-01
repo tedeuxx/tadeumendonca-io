@@ -41,7 +41,7 @@ are simply this property applied; they are recorded together for that reason.
 - **Identity is the article KEY, not a URL** ([ADR-0037](./0037-localized-article-slugs.md)) — slugs are
   per-locale and expected to be corrected after publication.
 - **Nothing is re-typed** — the card's text is the article's own frontmatter title, like `/cv.pdf` is
-  printed from `profile.ts` ([ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)).
+  printed from `profile.ts` ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md), its downloadable-edition section; record 0034 until #456).
 - **Build time, not runtime** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — there is no renderer to call, and a scraper
   does not execute JavaScript.
@@ -294,7 +294,7 @@ names the URL.
   here too, and is restated above.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) /
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — build time, nothing rendered at runtime.
-- **Consistent with [ADR-0034](./0034-build-time-cv-pdf-static-artifact.md)** — the same principle as
+- **Consistent with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s downloadable edition** (record 0034 until #456) — the same principle as
   `/cv.pdf`: a published artifact is *printed from* the canonical source, never re-typed.
 - **Consistent with [ADR-0008](./0008-brutalist-mono-identity.md)** — the card is the identity's palette,
   mark and type, one line changed from `og-default.png`.

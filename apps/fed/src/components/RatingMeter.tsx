@@ -7,7 +7,7 @@
 // WHY THIS IS A COPY OF `LevelMeter`'s TOKENS AND NOT A SHARED `<Meter>`, which is the decision worth
 // reading before "cleaning this up":
 //
-//   `LevelMeter` is PRINT-BEARING. `/cv.pdf` is printed from `/en/me` at build time (ADR-0034,
+//   `LevelMeter` is PRINT-BEARING. `/cv.pdf` is printed from `/en/me` at build time (ADR-0024,
 //   scripts/prerender.mjs), with `printBackground: true` precisely so those filled squares survive onto
 //   paper. Generalising it into something this surface also renders would couple the recruiter PDF to a
 //   book card: a spacing tweak here would silently change a document nobody re-reads after the change.

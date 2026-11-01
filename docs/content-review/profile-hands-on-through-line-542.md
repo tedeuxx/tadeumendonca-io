@@ -150,7 +150,7 @@ what this sentence now does. Blocking a fix this round asked for, on a rule this
 is the failure mode the second round exists inside a bound to prevent.
 
 **What this round did NOT check, said so it is not read as coverage:** whether the three new claims are
-true, and whether the practice line still fits the printed budget now that ADR-0034's ceiling has moved.
+true, and whether the practice line still fits the printed budget now that ADR-0024's ceiling has moved (the downloadable-CV decision, then record 0034; absorbed into ADR-0024 by #456).
 Neither is mine.
 
 ### Advisory and droppable

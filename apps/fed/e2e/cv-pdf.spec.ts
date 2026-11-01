@@ -63,7 +63,7 @@ test.describe('CV PDF export', () => {
   // assumption. `npm run build:static` then this file's own regex over `dist/cv.pdf` → 3. The number
   // below is untouched, which is what a re-measurement that agrees is supposed to look like.
   //
-  // THE CEILING IS ADR-0034's AND THE AMENDMENT IS `tech-lead`'s, not this file's. This assertion is
+  // THE CEILING IS ADR-0024's (its downloadable-edition section) AND THE AMENDMENT IS `tech-lead`'s, not this file's. This assertion is
   // the mechanism, never the record. It is deliberately still a NUMBER rather than an upper bound or a
   // deleted test: a budget that is simply removed removes the measurement with it, and the artifact
   // then grows one honest slice at a time until someone reads it and is surprised.
@@ -79,7 +79,7 @@ test.describe('CV PDF export', () => {
     );
   });
 
-  // ADR-0034's 2026-07-28 amendment gave up "the PDF cannot disagree with /me" and replaced it with a
+  // The downloadable-CV decision's 2026-07-28 amendment (now in ADR-0024) gave up "the PDF cannot disagree with /me" and replaced it with a
   // narrower promise: every ROLE, every CERTIFICATION and every SKILL keyword survives into print —
   // what the one-page edition drops is elaboration and decoration, never a claim. That invariant was
   // unguarded, and it is the more dangerous of the two: the page-count test would happily pass on a
