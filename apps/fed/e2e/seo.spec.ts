@@ -192,6 +192,9 @@ test.describe('SEO discovery', () => {
       // The reported defect: the tab said "Como este site é construído" and never said "Arquitetura".
       { path: '/pt/architecture/', lead: 'Arquitetura' },
       { path: '/en/architecture/', lead: 'Architecture' },
+      // Off the menu (#640), so the word the reader clicked is the link on /architecture, not a nav label.
+      { path: '/pt/analytics/', lead: 'Analytics' },
+      { path: '/en/analytics/', lead: 'Analytics' },
     ];
 
     const offenders: string[] = [];

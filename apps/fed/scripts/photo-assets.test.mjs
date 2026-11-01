@@ -12,7 +12,7 @@
 // (`architecture-diagrams.test.mjs`), so this is the existing seam rather than a new one.
 //
 // The dimensions are read from the JPEG's own SOF marker rather than from an image library: this is a
-// static site with a deliberate dependency floor (ADR-0001), and a twenty-line header walk is a smaller
+// static site with a deliberate dependency floor (ADR-0053, lean by design), and a twenty-line header walk is a smaller
 // thing to own than a decoder.
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
@@ -116,7 +116,7 @@ describe('the photograph registry describes the files that shipped', () => {
   });
 
   // The page is served to phones on mobile data and there is deliberately NO build-time optimiser — a new
-  // dependency and tool class against ADR-0001, to compress a handful of files. That trade is only
+  // dependency and tool class against ADR-0053 (lean by design), to compress a handful of files. That trade is only
   // defensible while the files stay small, so the bound is asserted rather than remembered: an
   // unoptimised export dropped into this directory is caught here instead of in someone's data allowance.
   //

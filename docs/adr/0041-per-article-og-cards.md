@@ -5,6 +5,7 @@
   `proposed` the wrong status here: the amendment that made reader-facing `product` work safe to decide
   without the owner is the same one that removed it from their queue, so leaving it `proposed` would
   assign the flip to nobody. Same call, same reasoning, as ADR-0039 and ADR-0040.)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -46,7 +47,7 @@ are simply this property applied; they are recorded together for that reason.
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — there is no renderer to call, and a scraper
   does not execute JavaScript.
 - **Per locale, because the title is per locale** ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — the smallest card that
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)) — the smallest card that
   fixes the problem, not the most informative one.
 - ~~**`iac/` untouched** — cards are static objects like every other, served by the existing behaviour.~~
   **Wrong; see Consequences → Neutral.** `/og/*` had its own cache behaviour pointing at a different

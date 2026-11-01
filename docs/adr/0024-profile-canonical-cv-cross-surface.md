@@ -2,9 +2,10 @@
 
 - **Status:** accepted · **amended 2026-11-01** (absorbs the downloadable-CV decision, formerly record
   0034, as the section *The downloadable edition — `/cv.pdf`*; the decision is unchanged, #456)
+- **Capability:** `presence-and-cv`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0006](./0006-react-vite-typescript.md); the
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0006](./0006-react-vite-typescript.md); the
   downloadable edition also by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)
 
@@ -15,7 +16,7 @@ site's CV and LinkedIn undermines the credibility the presence exists to build. 
 decision about *where its CV lives* and *how it stays coherent* with the other surfaces.
 
 ## Decision drivers
-- Presence is only as strong as its consistency across surfaces (ADR-0001 — the site is the storefront).
+- Presence is only as strong as its consistency across surfaces (ADR-0053 (lean by design) — the site is the storefront).
 - The site's CV should be **versioned data**, styleable to the brutalist identity, not an opaque import.
 - Coherence across surfaces is an ongoing obligation, not a one-time copy.
 
@@ -279,7 +280,7 @@ selection), #542 / PR #552 (three pages; the hands-on bullet back) and #566 / PR
 internal knowledge platform; the completed-artefact preference overridden). Absorbed here by #456.
 
 ## Links
-- Driven by ADR-0001, ADR-0006 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
+- Driven by ADR-0053 (lean by design), ADR-0006 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
   prefixes; the `/cv` this line used to name was renamed to `/me`, and its back-compat redirect separately dropped, in two 2026-07-24 amendments to ADR-0010 (#234) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23

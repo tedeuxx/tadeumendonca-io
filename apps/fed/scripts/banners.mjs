@@ -362,7 +362,7 @@ export const withinSafeArea = (box, surface) => contains(safeAreaPx(surface), bo
  * A PNG's real pixel dimensions, read from its IHDR chunk.
  *
  * Same reasoning as `jpegSize` in photo-assets.test.mjs: this is a static site with a deliberate
- * dependency floor (ADR-0001), and a header read is a smaller thing to own than a decoder. IHDR is
+ * dependency floor (ADR-0053, lean by design), and a header read is a smaller thing to own than a decoder. IHDR is
  * mandated by the spec to be the FIRST chunk, so this is a fixed-offset read and not a scan — a scan for
  * a byte pattern finds a plausible, wrong answer, which is the worst failure available to a check whose
  * only job is detecting a wrong number.

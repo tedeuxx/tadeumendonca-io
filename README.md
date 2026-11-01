@@ -204,7 +204,8 @@ amount of preparation makes faster. Everything in
 [What you need before you fork](#what-you-need-before-you-fork) is assumed in place.
 
 1. **Fork both repos.** Read the ADRs first, starting at
-   [0001](./docs/adr/0001-lean-by-design-calibrated-to-strategy.md) — the decisions are the part worth
+   [0053](./docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md), which says what the library records and holds its keystone, *lean by
+   design* — the decisions are the part worth
    taking, and several of them will not fit your context. If you only want the loop, stop after
    [`mhw`](https://github.com/tedeuxx/mhw): it installs the method with no cloud account, no domain and
    nothing to deploy, and its README is self-contained.
@@ -265,7 +266,7 @@ amount of preparation makes faster. Everything in
 apps/
   fed/    # the static SPA (React + Vite + Tailwind, no PWA)
 docs/
-  adr/    # the decision library — the architecture documentation; start at 0001
+  adr/    # the decision library — the architecture documentation; start at 0053
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
           # plus one account-wide cost budget, deliberately not scoped to this project
 LICENSE   # the MIT grant, exact text so GitHub can classify it

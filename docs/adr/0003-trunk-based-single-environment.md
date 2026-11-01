@@ -1,13 +1,14 @@
 # 0003. Trunk-based delivery, single environment
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in the History index)
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
-Applying ADR-0001 to delivery: how many branches and environments does a one-person static site need?
+Applying ADR-0053 (lean by design) to delivery: how many branches and environments does a one-person static site need?
 The earlier platform ran GitFlow — a `develop` integration branch, a `main` release branch, and a
 staging + production environment pair with a promotion gate. For a static personal site with one
 maintainer and no blast radius beyond a CDN, that ceremony is cost without payoff.
@@ -16,7 +17,7 @@ This is the `trunk-single-env` model the dev-loop plugin defines (`/principles/d
 records the product's decision to adopt it.
 
 ## Decision drivers
-- ADR-0001: the fewest moving parts that work.
+- ADR-0053 (lean by design): the fewest moving parts that work.
 - One maintainer, one destination — a promotion pipeline has no second reviewer and no separate
   environment to protect.
 - The merge should be the single, visible go/no-go.
@@ -478,7 +479,7 @@ release path, which #402 was scoped not to do.
 - A fast forward-fix discipline (revert-on-`main` + re-deploy) replaces a promotion rollback.
 
 ## Links
-- Driven by ADR-0001 · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
+- Driven by ADR-0053 (lean by design) · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
   · relies on the CI-gate ADR (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
 - **2026-08-09 amendment evidence:** PR #402 (`fix/dispatch-cannot-apply-infra`, at `130b98a8`) for the
   change and its four mutation-checked assertions in `apps/fed/scripts/deploy-workflow.test.mjs`;

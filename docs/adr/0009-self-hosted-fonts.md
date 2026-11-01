@@ -1,9 +1,10 @@
 # 0009. Self-hosted fonts — Space Grotesk + JetBrains Mono
 
 - **Status:** accepted
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0008](./0008-brutalist-mono-identity.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0008](./0008-brutalist-mono-identity.md)
 
 ## Context & problem
 The brutalist mono identity (ADR-0008) needs a type pairing: a geometric display/body face and a true
@@ -12,7 +13,7 @@ monospace for labels/code. Web fonts can be loaded from a third-party CDN (Googl
 ## Decision drivers
 - ADR-0008: a display face with engineering character + a real monospace.
 - No third-party request on page load (privacy, a blocked-CDN failure mode, and a self-contained bundle).
-- ADR-0001: minimal external dependencies.
+- ADR-0053 (lean by design): minimal external dependencies.
 
 ## Considered options
 1. **Self-hosted Space Grotesk + JetBrains Mono via `@fontsource`** (chosen) — the font files are bundled
@@ -38,5 +39,5 @@ origin; the type identity is part of the shipped bundle.
 - Font updates are a dependency bump, not automatic from a CDN.
 
 ## Links
-- Driven by ADR-0001, serves ADR-0008 · self-hosting keeps the bundle self-contained (no external hosts,
+- Driven by ADR-0053 (lean by design), serves ADR-0008 · self-hosting keeps the bundle self-contained (no external hosts,
   aligning with the static model).

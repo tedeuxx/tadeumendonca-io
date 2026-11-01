@@ -1,6 +1,7 @@
 # 0051. The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-09-04
 - **Deciders:** **`tech-lead`**, at intake on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597)
   (2026-09-04, jointly with `product-lead`), which is where the record was called for and where findings
@@ -20,7 +21,7 @@
   [ADR-0039](./0039-share-campaign-tagging.md) · **stands alongside
   [ADR-0039](./0039-share-campaign-tagging.md)**, which rejected a share-click event *as a substitute for
   UTM* — see *The ADR-0039 reconciliation* below, which is not optional reading · spends
-  [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md).
+  [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design).
 
 ## Context & problem
 
@@ -65,7 +66,7 @@ people who were not present, and it cannot be corrected without destroying the s
 - **Do not weaken [ADR-0033](./0033-ga4-consent-gated-analytics.md)'s hard consent gate by one byte** —
   and, here, repair the place where it was already weaker in fact than on paper.
 - **Every parameter is a permanent obligation and a scarce registration slot**
-  ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — a parameter that informs no decision,
+  ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)) — a parameter that informs no decision,
   or that duplicates one GA4 already derives, is pure cost. This is exactly the trade ADR-0039 made when
   it dropped `utm_content`.
 - **Carry no free-form URL and no identifier.** A query string is where PII eventually appears.
@@ -740,7 +741,7 @@ here rather than quietly deleted because the ask it produced was a false premise
   two moments and neither divides the other.
 - **Applies [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)** — the locale is a path prefix,
   which is why `locale` is a duplicate GA4 only *contains* rather than one it *derives*.
-- **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — five events and four
+- **Spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — five events and four
   dimensions, each a permanent obligation; `path` is the one that was refused.
 - Implementation: `apps/fed/src/lib/analytics.ts` (the schema, the named emitters and the two-condition
   consent gate), `apps/fed/src/hooks/useArticleProgress.ts`, `apps/fed/src/hooks/useContactClicks.ts`,

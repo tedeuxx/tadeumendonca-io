@@ -1,6 +1,7 @@
 # 0043. The dev-loop inventory is derived from the plugin repo — a committed manifest plus a cross-repo drift check, and the manifest may not say "denies" about a thing that only advises
 
 - **Status:** accepted
+- **Capability:** `harness-self-description`
 - **Date:** 2026-08-03
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —

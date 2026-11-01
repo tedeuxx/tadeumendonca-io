@@ -1,9 +1,10 @@
 # 0020. SonarCloud quality gate, blocking
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)
 
 ## Context & problem
 Beyond tests, the code needs an objective, enforced quality bar — bugs, code smells, security hotspots
@@ -128,5 +129,5 @@ what a fourth candidate has to clear. A file whose entries are data but whose du
   fourth is written there too, because a list like this decays into a habit if it is only ever added to.
 
 ## Links
-- Driven by ADR-0001, ADR-0018 · it is the quality half; the security posture is ADR-0021 · scope
+- Driven by ADR-0053 (lean by design), ADR-0018 · it is the quality half; the security posture is ADR-0021 · scope
   expansion is a dev-loop follow-up.

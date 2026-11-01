@@ -4,6 +4,7 @@
   [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — and the withdrawal consequence
   below is **discharged**: emission is now gated on the reader's current choice, so `gtag` staying
   injected no longer means the reader keeps being reported)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-24
 - **Deciders:** the owner
 - **Driven by:** [ADR-0023](./0023-observability-static-site.md) (which chose "GA" as the analytics tool in
@@ -31,7 +32,7 @@ Two questions had to be answered honestly:
 - The site argues for **restraint**; whatever ships must not quietly contradict that argument.
 - The consent surface must be **valid in every geography** without geo-detection branching — the strictest
   opt-in applied globally, not "a banner only where the law forces one."
-- Low cost / no infra (ADR-0023, ADR-0001): the tracker must stay client-side, scale-to-zero.
+- Low cost / no infra (ADR-0023, ADR-0053 lean by design): the tracker must stay client-side, scale-to-zero.
 
 ## Considered options
 

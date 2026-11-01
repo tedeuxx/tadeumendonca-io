@@ -1,6 +1,7 @@
 # 0037. Article slugs are localized — a locale-matched slug per edition
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (supersedes, for the **blog surface only**, [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s "one English slug, prefixed per locale — NOT dual localized slugs" clause; resolves the dual-slug question [ADR-0010](./0010-routing-landing-cv-split-redirects.md) deferred on 2026-07-25)

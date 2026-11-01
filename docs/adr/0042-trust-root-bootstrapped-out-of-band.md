@@ -1,6 +1,7 @@
 # 0042. The trust root is bootstrapped out of band — Terraform never manages the OIDC provider, nor the role that runs Terraform
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-08-03
 - **Deciders:** the owner
 - **Driven by:** [ADR-0014](./0014-terraform-cloud-pipeline-only.md), [ADR-0015](./0015-oidc-immutable-subject-least-privilege.md)

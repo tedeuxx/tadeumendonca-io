@@ -65,7 +65,7 @@ export function ShareButton({
   url: string;
   /**
    * What is being shared, for `share_open` (#597) — an article slug, or the page's own logical slug on
-   * the two markdown surfaces (`ramp-up`, `architecture`).
+   * the markdown surfaces (`ramp-up`, `architecture`, and `analytics` since #640).
    *
    * REQUIRED, AND RESOLVED BY THE CALLER rather than sliced off `url` here. `url` is a locale-prefixed
    * path and the article slug is per-locale (ADR-0037), so deriving one from the other is a guess this
@@ -75,7 +75,7 @@ export function ShareButton({
    * compile.
    *
    * IT REUSES THE `slug` DIMENSION slice A registered for the article events, and the reuse is priced:
-   * `slug` will hold `architecture` and `ramp-up` alongside real article slugs. They stay separable
+   * `slug` will hold `architecture`, `ramp-up` and `analytics` alongside real article slugs. They stay separable
    * because the EVENT is what distinguishes them — no `article_progress` is ever emitted for a markdown
    * page — and the alternative was a second registration slot for the same kind of value.
    */

@@ -1,6 +1,7 @@
 # 0031. Shared regional WAF
 
 - **Status:** superseded by [ADR-0017](./0017-no-waf-no-cmk-ssm-string-only.md) (2026-07)
+- **Capability:** `hosting-and-trust`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 

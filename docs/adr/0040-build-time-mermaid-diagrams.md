@@ -2,6 +2,7 @@
 
 - **Status:** accepted (safe class — ratified by the `critical-reviewer` on merge, per
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment)
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
@@ -39,7 +40,7 @@ without anyone noticing.
   clause of it.
 - **CI installs with `npm ci --ignore-scripts`** (ADR-0021's 2026-07-27 amendment). Any tool whose browser
   arrives via a postinstall script cannot work here, by construction.
-- **Lean by design** (ADR-0001): no bytes shipped to a reader to draw something that never changes.
+- **Lean by design** (ADR-0053): no bytes shipped to a reader to draw something that never changes.
 
 ## Considered options
 

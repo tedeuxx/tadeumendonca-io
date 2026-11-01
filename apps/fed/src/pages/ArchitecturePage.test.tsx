@@ -95,7 +95,11 @@ describe('ArchitecturePage', () => {
       // written to refuse.
       expect(body, 'the markdown body did not resolve — the seam went stale').not.toBeNull();
       return {
-        links: [...body!.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+        // The locale prefix is stripped, since #640 put the body's first SITE-INTERNAL link here
+        // (`/analytics`): the renderer resolves it per edition (`/pt/analytics`, `/en/analytics`), which is
+        // correct and must differ — the same reason the end matter is scoped out above. What must agree is
+        // the logical destination, and that is what remains after the prefix.
+        links: [...body!.querySelectorAll('a')].map((a) => a.getAttribute('href')?.replace(/^\/(pt|en)(?=\/)/, '')),
         sections: body!.querySelectorAll('h2').length,
       };
     };
@@ -123,10 +127,11 @@ describe('ArchitecturePage', () => {
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io');
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-skills');
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/catalog-ready.md');
-    // And the ADR record is reachable — the keystone plus its README index.
+    // And the ADR record is reachable — the record holding the keystone (ADR-0053, which absorbed record
+    // 0001 in #456) plus its README index.
     expect(hrefs).toContain('https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/README.md');
     expect(hrefs).toContain(
-      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0001-lean-by-design-calibrated-to-strategy.md',
+      'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md',
     );
   });
 
@@ -258,5 +263,15 @@ describe('ArchitecturePage', () => {
     // The canonical URL of the edition being copied, clean.
     expect(payload).toContain(`https://tadeumendonca.io/${locale}/architecture`);
     expect(payload).not.toContain('utm_');
+  });
+
+  // #640, acceptance 6. /analytics is OFF THE MENU (owner's decision 3), so this link is the only door
+  // to it and losing it would leave a page reachable by sitemap and direct URL alone. Asserted per
+  // edition, on the RENDERED href: the body writes `/analytics` and the renderer prefixes the locale, so
+  // a pt reader must land on the pt edition — the property a hard-coded `/en/...` link would break.
+  it.each(['pt', 'en'] as const)('links the analytics schema page in its own edition (%s)', (locale) => {
+    renderPage(locale);
+    const link = screen.getByRole('link', { name: /^Analytics:/ });
+    expect(link).toHaveAttribute('href', `/${locale}/analytics`);
   });
 });

@@ -1,6 +1,7 @@
 # 0036. Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)
@@ -44,7 +45,7 @@ written, not a change of mind.
 - **`iac/` is untouched, deliberately** ([ADR-0013](./0013-s3-cloudfront-hosting.md)): the CloudFront Function
   is locale-agnostic (clean-URL rewrite only); a URL scheme that needs no edge locale logic keeps the infra
   boundary closed and this slice code-only.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): two locales on a static
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): two locales on a static
   SPA get an addressing scheme, not an i18n-routing framework.
 
 ## Considered options

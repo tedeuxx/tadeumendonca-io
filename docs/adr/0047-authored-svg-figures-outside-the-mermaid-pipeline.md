@@ -5,6 +5,7 @@
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment). **The owner has not ruled
   on the second-path question and it is his to reverse** — see the "one-off or a convention" clause in
   **Decision outcome**, which is written to be the cheap thing to overturn.
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** `tech-lead`, on the gate's finding that the fence departed from ADR-0040 with no record
 - **Supersedes / superseded by:** —
@@ -62,7 +63,7 @@ without something turning red"**.
 - **The body travels** — `shareMarkdown.ts` copies this page verbatim into the reader's clipboard (#387,
   ADR-0035), so what a fence looks like *as text* is a reader-facing property, not an implementation
   detail.
-- **Lean by design** (ADR-0001): ADR-0040 bought "zero additional bytes of JavaScript" for its diagrams,
+- **Lean by design** (ADR-0053): ADR-0040 bought "zero additional bytes of JavaScript" for its diagrams,
   and any second path spends some of that.
 
 ## Considered options
@@ -226,7 +227,7 @@ a gate, caught it.
   `VennDiagram.tsx` and `vennSpec.ts` are statically imported by `Markdown.tsx`, so they land in whatever
   chunk serves every long-form page, not only `/architecture`. **The delta is not measured and there is no
   bundle-size gate in this repo** (`apps/fed/package.json` has no size check) — so this is an unmeasured,
-  ungated cost, stated as one. It is small in absolute terms and it is not zero, and ADR-0001 is the
+  ungated cost, stated as one. It is small in absolute terms and it is not zero, and ADR-0053 (lean by design) is the
   record it is spent against.
 - **It carries runtime behaviour, which no other figure on this page does.** A `useEffect` positions the
   initial scroll on the intersection and a feature-detected `ResizeObserver` keeps it true across a
@@ -276,7 +277,7 @@ a gate, caught it.
 - **Conforms to [ADR-0008](./0008-brutalist-mono-identity.md)** — the figure paints from the identity
   tokens (`--primary`, `--foreground`, `--background`) rather than from literals, and the
   background-equality check that ADR-0040's amendment #3 installed applies to it.
-- **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — a small, unmeasured amount of
+- **Spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — a small, unmeasured amount of
   JavaScript, named above rather than implied.
 - **Scope note added 2026-08-09 by
   [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — see the amendment below: this record's

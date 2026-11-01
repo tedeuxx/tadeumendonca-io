@@ -1,13 +1,14 @@
 # 0005. Every public URL is SEO- and OG-complete
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)
 
 ## Context & problem
-The site's strategic job is **presence** (ADR-0001) — content and portfolio meant to be *found* and
+The site's strategic job is **presence** (ADR-0053, lean by design) — content and portfolio meant to be *found* and
 *shared*. **SEO (search crawlers) and OG (social unfurlers) are the same problem here:** both read the
 **served HTML** and neither reliably runs JS, so both need complete meta in the HTML that ships. When a
 site URL is dropped into LinkedIn/WhatsApp/Slack it must unfurl richly, and when a crawler indexes it, it
@@ -16,7 +17,7 @@ serves both an empty shell. So the site must decide **how completely** it expose
 URLs.
 
 ## Decision drivers
-- Shareability *is* presence — a URL that unfurls well is the point (ADR-0001).
+- Shareability *is* presence — a URL that unfurls well is the point (ADR-0053, lean by design).
 - Crawlers and unfurlers read the **served HTML** and do not reliably run JS.
 - The mechanism to produce it already exists: build-time prerender (ADR-0004).
 
@@ -57,4 +58,4 @@ maximally unfurlable.
   now both complete. An E2E journey (`e2e/seo.spec.ts`) guards both.
 
 ## Links
-- Driven by ADR-0001 (presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · discovery half (`sitemap.xml` + `robots.txt`) delivered by Issue #51.
+- Driven by ADR-0053 (lean by design: presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · discovery half (`sitemap.xml` + `robots.txt`) delivered by Issue #51.

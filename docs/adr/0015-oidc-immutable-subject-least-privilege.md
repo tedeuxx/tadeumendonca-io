@@ -1,9 +1,10 @@
 # 0015. GitHub OIDC deploy roles — immutable subject, least-privilege
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0014](./0014-terraform-cloud-pipeline-only.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0014](./0014-terraform-cloud-pipeline-only.md)
 
 ## Context & problem
 CI has to touch AWS — sync the site to S3, invalidate CloudFront, run `terraform apply`. That requires
@@ -11,7 +12,7 @@ credentials. Long-lived AWS access keys stored as repo secrets are a standing li
 rotate, and they grant more than any one job needs.
 
 ## Decision drivers
-- No long-lived secrets in the repo (ADR-0001: minimal attack surface).
+- No long-lived secrets in the repo (ADR-0053, lean by design: minimal attack surface).
 - Least-privilege — each job assumes only what it needs.
 - A trust that survives repo renames (learned the hard way, below).
 
@@ -43,5 +44,5 @@ repo.
 - Role/trust changes are pipeline-only (ADR-0014), so fixing a broken trust is itself a gated change.
 
 ## Links
-- Driven by ADR-0001, ADR-0014 · the immutable-subject trap is documented in project memory · role ARNs
+- Driven by ADR-0053 (lean by design), ADR-0014 · the immutable-subject trap is documented in project memory · role ARNs
   are environment secrets per the secret-scoping standard.

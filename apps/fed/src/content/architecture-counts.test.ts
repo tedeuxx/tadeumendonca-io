@@ -50,7 +50,7 @@ const BODY: Record<string, string> = { en: architectureEn, pt: architecturePt };
 //
 // WHY A SHAPE AND NOT A `toContain` OF THE EXPECTED LITERAL, which is what the accDescr half of this slice
 // uses. Scope. There the haystack is ONE LINE, so a literal built from the manifest is tight. Here it is
-// the whole 300-line document, where `toContain('There are 51 decisions')` is equally satisfied by the
+// the whole 300-line document, where `toContain('There are 51 decision records')` is equally satisfied by the
 // live sentence and by a struck quotation of a superseded figure — so a page whose live count had gone
 // false again would pass on its own history. Capturing the number and requiring exactly ONE occurrence
 // tells a declaration from a mention; `toContain` cannot.
@@ -66,8 +66,8 @@ const BODY: Record<string, string> = { en: architectureEn, pt: architecturePt };
 // the first just did, in the same paragraph.
 const ADR_SHAPE: Record<string, Record<string, RegExp>> = {
   total: {
-    en: /There are (\d+) decisions/g,
-    pt: /São (\d+) decisões/g,
+    en: /There are (\d+) decision records/g,
+    pt: /São (\d+) registros de decisão/g,
   },
   rowCopy: {
     en: /a (\d+)-row copy/g,
