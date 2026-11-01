@@ -436,8 +436,8 @@ jobs:
           # `adrs.json`, and the PR then touches `apps/fed/` — which this pathspec already matches.
           app_hits="$(git diff --name-only "$prev..HEAD" -- \
             apps/fed packages/shared .github/workflows/deploy.yml)"
-          # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds
-          # cloudfront-functions/spa-rewrite.js via file(), so an edit to it is a real Terraform diff.
+          # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds each file there
+          # (spa-rewrite.js, locale-hint.js) via file(), so an edit to one is a real Terraform diff.
           # Excluding it here would merge the change green and never apply it to the edge.
           iac_hits="$(git diff --name-only "$prev..HEAD" -- \
             iac .github/workflows/deploy.yml)"
@@ -553,7 +553,7 @@ jobs:
       # (a) DISTRIBUTION config changes (frontend.tf) are asynchronous, and `wait_for_deployment = false`
       #     in frontend.tf means terraform does not even wait for them. So this wait is required — but it
       #     covers the SECONDARY case.
-      # (b) A change to cloudfront-functions/spa-rewrite.js publishes a new function version and does NOT
+      # (b) A change to a file under cloudfront-functions/ publishes a new function version and does NOT
       #     touch the distribution at all: the association is by UNQUALIFIED ARN, so the distribution
       #     never leaves `Deployed` and this wait returns instantly. It synchronises nothing for the
       #     exact case #216/#237 exist for.
@@ -568,17 +568,28 @@ jobs:
       # Asserting that directly catches "stale association" and "never accepted" at their source, without
       # depending on how fast the edge propagates. It needs the terraform outputs, so it stays here
       # rather than moving to the shared e2e job.
+      #
+      # It covers EVERY function the distribution runs: the viewer-request rewrite and, since #669, the
+      # viewer-response locale hint. Each entry is `<terraform output>:<source file>`; a function added
+      # without an entry here would be applied and never compared.
       - name: Verify the LIVE function stage carries the repo's code
         run: |
-          name="$(terraform output -raw spa_rewrite_function_name)"
-          aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
-          if diff -q cloudfront-functions/spa-rewrite.js live-function.js >/dev/null; then
-            echo "LIVE stage of $name matches the repo."
-          else
-            echo "::error::the LIVE CloudFront Function does not match iac/cloudfront-functions/spa-rewrite.js"
-            diff cloudfront-functions/spa-rewrite.js live-function.js || true
-            exit 1
-          fi
+          set -euo pipefail
+          failed=0
+          for entry in spa_rewrite_function_name:spa-rewrite.js locale_hint_function_name:locale-hint.js; do
+            output="${entry%%:*}"
+            source="${entry#*:}"
+            name="$(terraform output -raw "$output")"
+            aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
+            if diff -q "cloudfront-functions/$source" live-function.js >/dev/null; then
+              echo "LIVE stage of $name matches the repo."
+            else
+              echo "::error::the LIVE CloudFront Function $name does not match iac/cloudfront-functions/$source"
+              diff "cloudfront-functions/$source" live-function.js || true
+              failed=1
+            fi
+          done
+          exit "$failed"
 
   # ---------------------------------------------------------------------------------------------
   # Build the SPA and publish: S3 sync with split cache headers + CloudFront invalidation.
