@@ -6,6 +6,7 @@ tag: ai
 track: pessoal
 hasVideo: true
 contentIssue: 687
+cover: /illustrations/ai-answers-in-seconds-cover.jpg
 excerpt: "Large language models (LLMs) encurtaram o tempo entre formular uma pergunta e receber uma resposta. O meu aprendizado agora é sobre o intervalo seguinte: como perceber o que a resposta mudou em mim antes de pedir outra."
 takeaway: 'um experimento de um minuto para observar a sua atenção entre duas respostas, e uma forma visual de marcar os ambientes em que você pensa com IA.'
 ---
