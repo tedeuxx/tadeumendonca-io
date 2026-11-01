@@ -1,6 +1,7 @@
 # 0015. GitHub OIDC deploy roles — immutable subject, least-privilege
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0014](./0014-terraform-cloud-pipeline-only.md)

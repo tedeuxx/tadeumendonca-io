@@ -6,6 +6,7 @@
   to merge under [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment — with the
   one qualifier below, which is why the slice was still handled as boundary: the same strings are
   `og:title`, and a scraper pins what it fetches first ([ADR-0041](./0041-per-article-og-cards.md)).)
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —

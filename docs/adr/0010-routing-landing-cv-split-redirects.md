@@ -1,6 +1,7 @@
 # 0010. Client-side routing, landing/CV split, back-compat redirects
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0005](./0005-og-coverage-every-public-url.md)

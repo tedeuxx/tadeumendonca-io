@@ -5,6 +5,7 @@
   `proposed` the wrong status here: the amendment that made reader-facing `product` work safe to decide
   without the owner is the same one that removed it from their queue, so leaving it `proposed` would
   assign the flip to nobody. Same call, same reasoning, as ADR-0039 and ADR-0040.)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —

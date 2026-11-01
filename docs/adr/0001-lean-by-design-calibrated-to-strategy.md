@@ -1,6 +1,7 @@
 # 0001. Lean by design — architecture calibrated to the strategic priority
 
 - **Status:** accepted
+- **Capability:** `decision-library`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (this is the driver the retired-platform ADRs are superseded *toward*)

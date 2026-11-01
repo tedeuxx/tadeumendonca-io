@@ -65,8 +65,10 @@ export interface BlogPost {
    *
    * An explicit flag rather than a future `date`, deliberately (ADR-0049): a wall-clock comparison makes
    * the SAME COMMIT build differently tomorrow, which breaks "rebuild the tag to reproduce production".
-   * Promotion is one edit — `draft: false` plus the real date — and a scheduled publication becomes a
-   * scheduled COMMIT, which is strictly more auditable than a time-dependent build.
+   * Promotion is one source edit in both editions — `draft: false` plus the real date — and a scheduled
+   * publication becomes a scheduled COMMIT, which is strictly more auditable than a time-dependent build.
+   * It is not self-contained: the OG cards (`gen-og-articles`, committed) and the distribution kit
+   * (`gen-distribution`, gitignored) are separate scripts the build does not run (#635, ADR-0049).
    *
    * WHAT IT DOES NOT DO, stated here because the field name invites the opposite reading: it is
    * ISOLATION, not privacy. While a held draft is deployed its full body — both locales — ships inside

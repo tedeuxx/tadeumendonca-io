@@ -1,6 +1,7 @@
 # 0023. Observability scoped to a static site
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md)

@@ -277,16 +277,23 @@ export function scanText(text, file) {
   // is the difference between one pass and two over the whole tree.
   const quoted = isMarkdown ? quotedRanges(text) : [];
   const struck = isMarkdown ? struckRanges(text, quoted) : [];
-  const push = (kind, match, target) =>
+  let lines; // split once per file, and only for a file that cites something
+  const push = (kind, match, target) => {
+    lines ??= text.split('\n');
+    const line = lineOf(text, match.index);
     found.push({
       kind,
       file,
       target,
-      line: lineOf(text, match.index),
+      line,
+      // The whole source line, so an excuse can name the sentence it was written for (see
+      // `PRE_FOLD_SELF_CITATIONS`) instead of a line number that any edit above it moves.
+      lineText: lines[line - 1],
       lead: text.slice(Math.max(0, match.index - LEAD_WINDOW), match.index),
       struck: within(struck, match.index),
       quoted: within(quoted, match.index),
     });
+  };
 
   for (const m of text.matchAll(TOKEN_RE)) push('token', m, m[1]);
   for (const m of text.matchAll(RELATIVE_PATH_RE)) push('path', m, m[1]);
@@ -325,21 +332,32 @@ export function selfCitations(citations) {
 /**
  * The three self-citations that predate any fold, written as authored prose ("ADR-0012 and it is
  * intact", inside 0012) rather than produced by absorption. They are EXCUSED, not exempt from the
- * arm: each entry excuses exactly one occurrence, keyed by file and cited number WITHOUT the line (the
- * same reason the excused-list pins drop it — an edit above the line must not fail a gate about
- * something else). A second self-citation in the same file is not covered by its entry, and an entry
- * whose occurrence has gone is reported as stale so the excuse cannot outlive its subject.
+ * arm: each entry excuses exactly one occurrence, keyed by file and cited number WITHOUT the line
+ * number (the same reason the excused-list pins drop it — an edit above the line must not fail a gate
+ * about something else). A second self-citation in the same file is not covered by its entry, and an
+ * entry whose occurrence has gone is reported as stale so the excuse cannot outlive its subject.
+ *
+ * Each entry also carries `line`, a VERBATIM fragment of the sentence it was written for, and only an
+ * occurrence whose source line contains that fragment is excused (#456 S2, advisory A5 of S1's gate).
+ * Keyed on file and number alone, the excuse was consumed in scan order: a fold that planted a
+ * self-citation ABOVE an excused one had the new occurrence excused and the old one reported. The arm
+ * still went red, but it named the wrong line. Text-keyed, the planted occurrence is the one reported,
+ * and rewording the excused sentence turns the entry stale, so the excuse cannot follow a sentence that
+ * changed meaning. The one case left: a second self-citation planted on the excused line itself.
  *
  * Expected to SHRINK as the fold slices run: 0012 and 0035 are folded into capability documents later
  * in #456, and the slice that moves one removes its entry in the same merge request.
  */
 export const PRE_FOLD_SELF_CITATIONS = [
-  'docs/adr/0012-snake-case-content-no-mapping.md cites ADR-0012',
-  'docs/adr/0021-application-security-posture.md cites ADR-0021',
-  'docs/adr/0035-static-repo-cards-in-longform.md cites ADR-0035',
+  { citation: 'docs/adr/0012-snake-case-content-no-mapping.md cites ADR-0012', line: 'ADR-0012 and it is intact' },
+  { citation: 'docs/adr/0021-application-security-posture.md cites ADR-0021', line: 'The floor ADR-0021 named' },
+  {
+    citation: 'docs/adr/0035-static-repo-cards-in-longform.md cites ADR-0035',
+    line: 'Why that touches ADR-0035 rather than passing under it',
+  },
 ];
 
-const lineFree = (c) => describeCitation(c).replace(/:\d+ cites /, ' cites ');
+export const lineFree = (c) => describeCitation(c).replace(/:\d+ cites /, ' cites ');
 
 /**
  * The fatal half of the fold arm: every self-citation the baseline does not account for, plus every
@@ -354,7 +372,9 @@ export function manufacturedSelfCitations(selfCites, baseline = PRE_FOLD_SELF_CI
   const manufactured = [];
   const excused = [];
   for (const c of selfCites) {
-    const at = remaining.indexOf(lineFree(c));
+    const at = remaining.findIndex(
+      (e) => e.citation === lineFree(c) && (c.lineText ?? '').includes(e.line),
+    );
     if (at === -1) manufactured.push(c);
     else {
       remaining.splice(at, 1);

@@ -1,6 +1,7 @@
 # 0002. Fully static SPA, no backend
 
 - **Status:** accepted
+- **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the backend-era architecture (recorded in the History index)

@@ -1,6 +1,7 @@
 # 0021. Application security posture — SAST + package-vulnerability scanning
 
 - **Status:** accepted
+- **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)

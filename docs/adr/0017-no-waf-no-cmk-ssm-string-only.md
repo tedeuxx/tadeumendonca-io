@@ -1,6 +1,7 @@
 # 0017. Minimal infra security posture — no WAF, no CMK, SSM String-only
 
 - **Status:** accepted
+- **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the shared regional WAF (History index)

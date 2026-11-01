@@ -1,6 +1,7 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
 - **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —

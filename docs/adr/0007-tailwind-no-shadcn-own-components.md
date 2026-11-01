@@ -1,6 +1,7 @@
 # 0007. Tailwind with own components — no shadcn/ui
 
 - **Status:** accepted
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0008](./0008-brutalist-mono-identity.md)
