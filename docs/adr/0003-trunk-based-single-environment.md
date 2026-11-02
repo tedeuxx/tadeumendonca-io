@@ -515,7 +515,7 @@ credential*; it was *which actor may push to `main` without a pull request, and 
 - **The actor that may push to `main` without a pull request must be named and narrow.** Today it is
   "any administrator", which is broader than the one job that needs it.
 - **Least privilege for the job's own token** ([ADR-0021](./0021-application-security-posture.md)'s
-  supply-chain lever; [ADR-0015](./0015-oidc-immutable-subject-least-privilege.md)'s posture for
+  supply-chain lever; [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s posture for
   pipeline identity).
 - **The three required checks and the pull-request requirement stay exactly as they are.** The
   migration must not open a window where `main` is ungated.
@@ -586,7 +586,7 @@ Four places describe branch protection as the mechanism of their time:
   `deploy` is rejected because a compromised dependency would hold *"the bump PAT"* with
   `workflows: write`. That argument still holds, because the App token is a repository write credential
   too;
-- [ADR-0014](./0014-terraform-cloud-pipeline-only.md) and
+- [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) and
   [ADR-0021](./0021-application-security-posture.md): *"a skipped required check satisfies branch
   protection"*, and why that forces `if: always()` on a required aggregator;
 - [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md): a workflow with a top-level `paths:` filter
