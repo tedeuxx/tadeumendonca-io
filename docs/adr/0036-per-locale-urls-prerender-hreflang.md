@@ -611,14 +611,19 @@ The absent-cookie case is real and not only a fault: a response without a `text/
 after the hour lapses with no fresh HTML response has none. Treating absent as `unknown` keeps those cases
 correct.
 
-**How the spike becomes conclusive.** The post-deploy check requests HTML at the live apex and asserts
-the value is **`pt` or `other`**. Either proves the header reached the function, since only a present
-header produces one; **`unknown` is the NO-GO** on the origin-request-policy route. Accepting either
-geographic value also removes the unmeasured premise that the runner sits outside the CPLP. A missing
-cookie is a separate red: the function is detached, stale or rejected. **On a no-go** the header moves to
+**How the spike becomes conclusive.** The go/no-go is `apps/fed/e2e/edge-locale-hint.spec.ts`, tagged
+`@spike-669`, and it runs in **its own step** of `deploy.yml`'s post-deploy `e2e` job, apart from the smoke:
+the smoke runs with `--grep-invert @spike-669`, the spike step with `--grep @spike-669` and
+`continue-on-error`, and the `report` job prints the spike's outcome on its own line (GO or NO-GO). **A
+NO-GO is therefore not a site-broken red**: the site is intact on a no-go, because nothing reads the
+cookie until B2. The spec requests HTML at the live apex and asserts the value is **`pt` or `other`**.
+Either proves the header reached the function, since only a present header produces one; **`unknown` is
+the NO-GO** on the origin-request-policy route. Accepting either geographic value also removes the
+unmeasured premise that the runner sits outside the CPLP. A missing cookie fails the same step with its
+own message: the function is detached, stale or rejected. **On a no-go** the header moves to
 the cache policy (rejected option 2 below, its cost stated in advance), the HTML cache fragments by
-country, and the check runs again. If that cost is judged not worth the feature, the question goes back
-to the owner, as #669's planning note says. B2 does not start until the check is green.
+country, and the spike step runs again on that deploy. If that cost is judged not worth the feature, the
+question goes back to the owner, as #669's planning note says. B2 does not start until `report` prints GO.
 
 ### Rejected options that are still live
 
@@ -674,8 +679,11 @@ decline, and on a build with no measurement id, the tag is never loaded, no cook
 is made."* Its pt-BR edition, `apps/fed/src/content/analytics.pt.md`: *"Antes de escolher, se você
 recusar, e num build sem identificador de medição, a tag nunca é carregada, nenhum cookie é gravado e
 nenhuma requisição é feita."* In context the paragraph is about Google's tag, but *"no cookie is set"*
-stands on its own. The disclosure lands in both editions in the same MR as the cookie (PR #803), so the
-cookie never ships with that sentence uncorrected.
+stands on its own. The disclosure lands in both editions in the same MR as the cookie (PR #803), but
+**not at the same moment**: in `deploy.yml`, `deploy-app` depends on `terraform-apply`, so the cookie goes
+live at the edge minutes before the corrected copy publishes. During that window the old sentence is
+live beside the cookie, and **if `deploy-app` fails the window stays open until a fix ships**. The order
+is deliberate and stays: the edge applies first, the app publishes after.
 
 The ruling is the owner's and this section claims no legal position; it records the engineering
 consequence of each answer.
