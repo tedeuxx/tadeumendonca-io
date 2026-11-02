@@ -1,6 +1,8 @@
 # 0003. Trunk-based delivery, single environment
 
-- **Status:** accepted
+- **Status:** accepted · **amended 2026-11-01** (adds the section *The release job writes to `main` as
+  a GitHub App, under a ruleset that only that App bypasses*, #783; that section is `proposed` until the
+  owner ratifies PR #799, and nothing above it changes)
 - **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
@@ -466,6 +468,197 @@ scoped to the bucket and the distribution, and bad content is one revert-and-rep
 The under-scoped main-only refusal inside `release` is **left alone on purpose**. It is still narrower
 than a reader would guess; this change makes its gap harmless, and widening it would mean touching the
 release path, which #402 was scoped not to do.
+
+## The release job writes to `main` as a GitHub App, under a ruleset that only that App bypasses (2026-11-01)
+
+**Added 2026-11-01 by [#783](https://github.com/tedeuxx/tadeumendonca-io/issues/783), written by
+`tech-lead` in [PR #799](https://github.com/tedeuxx/tadeumendonca-io/pull/799). This section is
+`proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.** The decision
+itself is his, *«Ruleset + App»*, recorded on #783 on 2026-10-31; the narrowing of the token, the job's
+own permissions and the wording here are `tech-lead`'s. It is a section here rather than a record of
+its own because it is behaviour of this capability, delivery and its gates, and
+[0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md)'s
+capability limb puts such a decision in the capability's document. The re-decision limb was applied
+per rejected option: `apps/fed/scripts/deploy-workflow.test.mjs` refuses the old secret's **name** and
+asserts the job token is `contents: read`, which refuses a `GITHUB_TOKEN` write. Nothing refuses a
+renewed personal access token stored under another name, and nothing in the repository can refuse
+anything about the ruleset, which lives in repository settings. So the record is owed.
+
+**One decision:** the `release` job authenticates as a GitHub App, and `main` is governed by a
+repository ruleset with that App as its only bypass actor. It serves
+[ADR-0022](./0022-numeric-semver-auto-release.md) (the automatic release) and
+[ADR-0044](./0044-version-parts-deliberate-major-minor.md) (the same job, dispatched by hand).
+
+### Context
+
+The `release` job in `deploy.yml` bumps `VERSION`, pushes the `bump:` commit and its tag straight to
+`main`, and creates the GitHub Release the site's footer links to. Under this record's 2026-07-30
+amendment the deploy fires on the `bump:` commit, so a `release` that cannot push stops the site from
+shipping, not only from tagging.
+
+It pushed with a fine-grained personal access token, `VERSION_BUMP_TOKEN`. That token expired, and the
+job failed at checkout (`could not read Username`) from 2026-10-24 to 2026-10-30: deploy runs
+40107669946, 40111086740, 40130367868 and 40131223563, as listed on the Issue. The token was renewed
+for 90 days. **GitHub has no way for a personal access token to rotate itself**, so the same outage is
+scheduled for around 2027-01-28 and every 90 days after.
+
+**Why the token could push at all is the fact that shaped the decision.** The owner read the protection
+on 2026-10-31 (`gh api repos/tedeuxx/tadeumendonca-io/branches/main/protection`, recorded on the Issue):
+classic branch protection; a pull request required (zero approvals); required checks `build-test`,
+`actionlint`, `terraform-plan`, not strict; **`enforce_admins: false`**. The token pushed because it
+acted as an administrator, and administrators skipped the rules. So the question was never only *which
+credential*; it was *which actor may push to `main` without a pull request, and how is that stated*.
+
+### Decision drivers
+
+- **No credential in the release path may expire on a calendar.** That is the outage being fixed.
+- **The actor that may push to `main` without a pull request must be named and narrow.** Today it is
+  "any administrator", which is broader than the one job that needs it.
+- **Least privilege for the job's own token** ([ADR-0021](./0021-application-security-posture.md)'s
+  supply-chain lever; [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s posture for
+  pipeline identity).
+- **The three required checks and the pull-request requirement stay exactly as they are.** The
+  migration must not open a window where `main` is ungated.
+
+### Considered options
+
+1. **Renew the personal access token (the status quo).** Nothing to build, and the loop guard, the
+   protection and every workflow stay as they are. *Trade-off:* the job breaks again every 90 days,
+   or whenever the token's lifetime is set, and is fixed only by the owner noticing a red deploy and
+   renewing by hand. A non-expiring token is not an escape: it is a long-lived credential that keeps
+   the administrator bypass, which is the option-3 cost without the narrowing. **Rejected:** it is the
+   outage on a timer.
+2. **`GITHUB_TOKEN`.** No stored secret at all; the token is minted per run and dies with the job; and
+   because GitHub does not start workflows from a `GITHUB_TOKEN` push, the `bump:` loop guard would
+   have nothing to do. *Trade-off, and it is fatal:* under the measured protection a pull request is
+   required, and `GITHUB_TOKEN` is not an administrator and cannot be put on a bypass list, so its push
+   of the `bump:` commit is refused. **Ruled out by the owner's measurement**, not by preference.
+3. **A GitHub App for the release job, and a repository ruleset on `main` with that App as its only
+   bypass actor (chosen).** The ruleset keeps the pull-request requirement (zero approvals), the three
+   required checks with *require branches to be up to date* off, and blocks force-push and deletion.
+   The App has Contents read and write and Metadata read only, is installed on this repository only,
+   and has its webhook off. The job mints a token from the App's ID and key with
+   `actions/create-github-app-token`, narrowed to `permission-contents: write`; the token lives one
+   hour at most and the action revokes it at the end of the job. *Trade-off:* a private key that never
+   expires, a new third-party action, and administrators losing their skip (see *Consequences* below).
+   Classic protection cannot express this: an App cannot be an administrator, and classic protection
+   has no per-actor bypass for a push, which is why the protection object changes along with the
+   credential.
+
+### Decision outcome
+
+**Option 3.** `release` writes to `main` as the GitHub App and as nothing else: the checkout that
+pushes the commit and tag, `gh release list` and `gh release create` all use the minted token, and the
+job's own `GITHUB_TOKEN` is `contents: read`. `main` is governed by a repository ruleset whose bypass
+list holds **the App and no other actor from section C of #783 on**, and classic branch protection is
+removed.
+
+**Until section C, the bypass list also holds the Repository admin role.** The owner decided this on
+2026-11-01, *«Admin temporário»*
+([#783](https://github.com/tedeuxx/tadeumendonca-io/issues/783#issuecomment-6565399247)). His reason:
+if the App key fails on the first release, a revert does not help, because an App-only ruleset also
+bars the old token. The admin entry is removed in section C of #783, after the first green `release`
+job authenticated as the App, alongside deleting `VERSION_BUMP_TOKEN` and revoking it. **What holds
+until then:** an administrator still skips the rules. The old token is an administrator credential, so a
+merge in that window does not break `release`; its push still succeeds as it does today. And the
+brief's floor rule against pushing to the trunk is still held only by instruction, because the forge
+does not refuse a push from the owner's credential while the admin role is on the list.
+
+**The order is part of the decision, and this is the order adopted** (recorded on #783 from the
+`agents-lead` lens on PR #799):
+1. The ruleset is created with enforcement **Disabled**, so it changes nothing yet.
+2. The gate approves the Definition of Done at a fixed head.
+3. As the last act before the merge, someone confirms that no `deploy` run is in progress. Then the
+   ruleset is switched to **Active** and the classic protection is removed.
+4. The merge.
+5. Section C: the first green App `release`; then the admin entry, the secret and the token go.
+
+Removing the classic protection only after the ruleset is Active means `main` is never ungated in
+between.
+
+**The `bump:` loop guard stays.** A push made with an App token does start workflows, as the personal
+access token's did, so the `bump:` commit re-enters `deploy` and the job's `if:` is still what stops
+it.
+
+**What the passages that say "branch protection" mean now, and why none is superseded or amended.**
+Four places describe branch protection as the mechanism of their time:
+- this record's 2026-07-30 amendment, *Alternatives rejected, and why each lost*: folding the bump into
+  `deploy` is rejected because a compromised dependency would hold *"the bump PAT"* with
+  `workflows: write`. That argument still holds, because the App token is a repository write credential
+  too;
+- [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) and
+  [ADR-0021](./0021-application-security-posture.md): *"a skipped required check satisfies branch
+  protection"*, and why that forces `if: always()` on a required aggregator;
+- [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md): a workflow with a top-level `paths:` filter
+  *"cannot be a required status check"*.
+
+What those passages decide is about **required status checks**, and a ruleset carries required status
+checks with the same semantics as classic protection. GitHub's documentation treats a skipped required
+check as passing and a never-reported one as pending in both. **That is read from GitHub's
+documentation, not measured on this repository's ruleset.** On that reading every decision in them
+still binds; only the noun naming where the requirement lives has changed. Their wording is left as a
+record of its time, and a reader maps "branch protection" to *the ruleset on `main`*. One of them also
+carries a discharged gap: ADR-0021's *"Not verified by me: the contents of branch protection on
+`main`"* is answered by the owner's 2026-10-31 read above, and that record is not edited for it.
+
+### Consequences
+
+**Good**
+- **The release path no longer expires on a calendar.** The credential that runs it is a token minted
+  per run, valid one hour at most.
+- **From section C of #783 on, the push bypass is narrowed from "every administrator" to one App**,
+  whose only repository permission is Contents. Before, the bypass followed a person's role; then it
+  follows one named actor. Until section C, both are on the list (*Decision outcome*).
+- **From section C on, a direct push to `main` from the owner's credential is refused by the forge.**
+  The brief's floor rule against pushing to the trunk was held by instruction alone, because agents act
+  through an administrator credential and administrators skipped the rules. Once the admin role leaves
+  the bypass list, that credential is no longer exempt, so the rule gains a layer that holds it. **Until
+  then it is still held only by instruction.** This follows from the configuration in *Decision
+  outcome*. It is verified only by reading the ruleset live, and the Issue's acceptance criterion
+  *"the ruleset's bypass list holds the App and no other actor"* is read **after section C**. Read
+  straight after the merge, it would fail on a correct configuration.
+- **Less is exposed in the `release` job.** Before, the token persisted by `actions/checkout` in that
+  job was a 90-day credential that skipped every rule. Now it is a one-hour, Contents-only token. The
+  job still runs `pip install bump-my-version` unpinned after that checkout. That residual is named
+  here and not fixed; it was there before this change.
+
+**Bad / accepted costs**
+- **The App's private key is a standing credential with no expiry.** Whoever holds it can mint a token
+  that pushes to `main` with no pull request and no checks, and the next merge deploys that tree. Its
+  blast radius equals the old token's, without the expiry that at least bounded a leak. The key lives
+  only as the `RELEASE_APP_PRIVATE_KEY` repository secret, and only the `release` job reads it.
+  Rotation is by hand: generate a new key in the App's settings, store it, delete the old key. Nothing
+  reminds anyone to do it, and nothing detects a leaked key.
+- **A new third-party action enters the pipeline.** It is `actions/create-github-app-token`, pinned to
+  `64ab729a6294000f5aa4a4bc0b73d1f32bc45510` (v3.3.0; `git ls-remote` on the action's repository
+  resolves the tag to that commit). It handles the private key directly, so a compromise of the action
+  at a future pin is a compromise of the bypass. The pin is the control, and moving it is a reviewed
+  change like any other dependency bump.
+- **The action's `app-id` input is deprecated.** v3.3.0's `action.yml` marks it with
+  *"Use 'client-id' instead."* The stored secret is the numeric App ID, so the workflow uses `app-id`.
+  Moving to `client-id` needs a new secret holding the App's client ID, which is the owner's act. Until
+  then every run logs a deprecation warning, and a future major version may drop the input.
+- **From section C of #783 on, administrators no longer skip the rules.** Any merge or push made with
+  the owner's credential, the gate's `gh pr merge` included, then needs the three checks green. Until
+  section C an administrator still skips them. This is stricter than before and
+  intended: the loop already requires green checks before a merge. The cost lands in an emergency,
+  where a fix that cannot pass its checks can no longer be forced through by an administrator. The way
+  out then is a ruleset change, which is the owner's act and is visible in the repository's settings.
+- **The protection of `main` is not in the repository.** It was not before either. Nothing in this
+  tree can check that the ruleset exists, holds these rules or lists only the App. That is a live read
+  (`gh api repos/tedeuxx/tadeumendonca-io/rules/branches/main`), outside every gate. A required job
+  renamed in a workflow still un-gates `main` silently, exactly as under classic protection.
+- **The `bump:` loop guard stays load-bearing.** Option 2 would have made it vestigial. Option 3 keeps
+  an App-token push starting workflows, so the guard and the message format it matches must stay
+  aligned.
+
+### Links
+
+- Issue [#783](https://github.com/tedeuxx/tadeumendonca-io/issues/783): the outage, the owner's
+  protection read, his decisions and the ordered settings acts.
+- `.github/workflows/README.md`, *Rules the design has to obey*: the operative description of the
+  ruleset.
+- The twin for the method's own repository: tedeuxx/mhw#251.
 
 ## Consequences
 **Good**

@@ -290,7 +290,7 @@ Workflows are named after the directory they gate; the map is `.github/workflows
 
 - **`app`** — dependency audit (blocks high and critical production advisories, ADR-0021), lint,
   types, unit tests with coverage, build, end-to-end, SonarCloud, harness drift, behind one aggregator
-  whose name branch protection fixes.
+  whose name the ruleset on `main` fixes.
 - **`iac`** — credential-free policy scan and format check, then the plan, the only job with a cloud
   token.
 - **`github`** — workflow and shell linting, separate so another workflow's syntax error cannot stop it.
