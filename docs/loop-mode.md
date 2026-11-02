@@ -502,7 +502,7 @@ different record entirely** (`0004-build-time-render-not-ssr-or-edge.md`). A bar
 pass this repository's dangling-citation gate — the number resolves — while pointing at the wrong
 document, which is worse than a citation that fails. **Quote the clause, name the library, skip the
 number** is the general form. *(Since 2026-11-01 the product library has no `0004`: #456 absorbed
-it into ADR-0002. a bare citation of that number here now fails the gate instead of resolving to the wrong record;
+it into ADR-0002. A bare citation of that number here now fails the gate instead of resolving to the wrong record;
 the general form stands.)*
 
 **The affordable form, and it is the drain's rather than a hook's:** `/autonomy on` already reads both
