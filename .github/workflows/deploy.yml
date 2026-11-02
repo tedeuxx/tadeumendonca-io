@@ -430,7 +430,7 @@ jobs:
           # filter costs runner minutes. THIS file's gate outputs are the predicate that decides whether
           # a CREDENTIALED job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
           # `terraform-apply` (the infra role, strictly more powerful). Two edits that look identical;
-          # only one widens the credential surface — ADR-0015, applied to a filter.
+          # only one widens the credential surface — ADR-0013's OIDC decision, applied to a filter.
           #
           # Nothing is lost by the asymmetry: an ADR-only PR reddens in `app.yml`, the author regenerates
           # `adrs.json`, and the PR then touches `apps/fed/` — which this pathspec already matches.
@@ -504,7 +504,7 @@ jobs:
         # DEPENDABOT PR whose run read an EMPTY Dependabot secret store, and its failing step shows
         # `role-to-assume` absent from the `with:` block — a cause that alone reproduces the identical
         # failure, proved by #414/#534/#587, which carry no such flag. The evidence is CONFOUNDED and
-        # #101 cannot establish the attribution. ADR-0014's 2026-09-14 amendment is the record of
+        # #101 cannot establish the attribution. ADR-0013's Dependabot-exception subsection is the record of
         # authority for that history; do not restate it here. THIS SITE WAS MISSED BY #639/#645, which
         # corrected the identical sentence in iac.yml and dependabot.yml in the same slice and left this
         # file — the one carrying the apply — stating the other cause, so the repository asserted two

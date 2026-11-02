@@ -81,35 +81,7 @@
     "title": "S3 + CloudFront hosting with a URL-rewrite function",
     "file": "0013-s3-cloudfront-hosting.md",
     "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0014",
-    "title": "Terraform + Terraform Cloud, apply pipeline-only",
-    "file": "0014-terraform-cloud-pipeline-only.md",
-    "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0015",
-    "title": "GitHub OIDC deploy roles — immutable subject, least-privilege",
-    "file": "0015-oidc-immutable-subject-least-privilege.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0016",
-    "title": "Custom-domain email via iCloud+, not a mail service",
-    "file": "0016-custom-email-via-icloud.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0017",
-    "title": "Minimal infra security posture — no WAF, no CMK, SSM String-only",
-    "file": "0017-no-waf-no-cmk-ssm-string-only.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0018",
@@ -271,13 +243,6 @@
     "file": "0041-per-article-og-cards.md",
     "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0042",
-    "title": "The trust root is bootstrapped out of band — Terraform never manages the OIDC provider, nor the role that runs Terraform",
-    "file": "0042-trust-root-bootstrapped-out-of-band.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0043",

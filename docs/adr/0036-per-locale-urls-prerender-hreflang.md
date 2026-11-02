@@ -713,8 +713,8 @@ consequence of each answer.
 ### Where it came from
 
 Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
-[ADR-0013](./0013-s3-cloudfront-hosting.md)'s distribution, applied pipeline-only per
-[ADR-0014](./0014-terraform-cloud-pipeline-only.md). Consistent with
+[ADR-0013](./0013-s3-cloudfront-hosting.md)'s distribution, applied pipeline-only per its
+[*Pipeline-only apply*](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) section. Consistent with
 [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) — nothing here renders.
 
 ## Links
