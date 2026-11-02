@@ -199,7 +199,7 @@ credentials rather than noise.** `app.yml` declares `contents: read` and holds `
 so widening *its* filter costs runner minutes. `deploy.yml`'s gate outputs are the predicate deciding
 whether a **credentialed** job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
 `terraform-apply` (the infra role, strictly more powerful). Two edits that look identical; only one
-widens the credential surface — ADR-0015 applied to a filter. Nothing is lost: an ADR-only PR reddens
+widens the credential surface — ADR-0013's OIDC decision applied to a filter. Nothing is lost: an ADR-only PR reddens
 here, the author regenerates, and the PR then touches `apps/fed/`, which the deploy pathspec already
 matches.
 

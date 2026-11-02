@@ -10,7 +10,7 @@
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (nothing fetched, at build time or at runtime)
   · follows the drift shape of [ADR-0040](./0040-build-time-mermaid-diagrams.md) and of the decision
   index (`apps/fed/scripts/adr-source.mjs`) · applies
-  [ADR-0015](./0015-oidc-immutable-subject-least-privilege.md)'s reasoning to a CI path filter
+  [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s OIDC reasoning to a CI path filter
 
 ## Context & problem
 `/architecture` already carries a **flow** diagram — how work moves through the loop, and where the human
@@ -55,7 +55,7 @@ date on which those three wrong numbers were copied.
   ships in the artifact, and the artifact is built from files in this repo.
 - **A path added to the deploy gate's filter widens a credential surface.** `deploy`'s gate outputs
   decide whether an OIDC-credentialed job runs; `.github/workflows/README.md` treats every entry there as
-  a security decision, which is ADR-0015 applied to a filter. This mechanism must not go near it.
+  a security decision, which is ADR-0013's OIDC decision applied to a filter. This mechanism must not go near it.
 - **Drift must be red, in a build, naming the thing** — the shape both `diagram-source.mjs` and
   `adr-source.mjs` already use.
 - **The claim the picture makes must be no stronger than the mechanism behind it.** Hooks deny before a
@@ -102,7 +102,7 @@ date on which those three wrong numbers were copied.
    actually hurts.
 3. **`repository_dispatch` from the plugin to this repo on merge** — *Why not:* it needs a cross-repo
    **write** token held in the plugin, which today holds no credential of any kind. It buys timeliness by
-   creating exactly the standing secret ADR-0015 exists to avoid, in the repo that currently has the
+   creating exactly the standing secret ADR-0013's OIDC decision exists to avoid, in the repo that currently has the
    smallest surface of the two.
 4. **A scheduled run in this repo** — cron, tokenless, same check. *Why not now:* a scheduled red has no
    PR to land on and no author to act, so it converts "a stranger's PR goes red" into "a notification
@@ -369,7 +369,7 @@ stale. It buys leaving the manifest's schema and its equality check exactly as t
 
 **This adds nothing to `deploy`'s `gate` filter, and the distinction must not be conflated.** That filter's
 outputs decide *whether an OIDC-credentialed job runs* — the reason this record already keeps the harness
-mechanism away from it, which is ADR-0015 applied to a path filter. Adding a **step to a job the gate has
+mechanism away from it, which is ADR-0013's OIDC decision applied to a path filter. Adding a **step to a job the gate has
 already decided to run** changes nothing about that decision: `deploy-app` still runs if and only if
 `gate.outputs.app == 'true'`, on the same pathspec as before. A *path* in the filter widens what can cause a
 credentialed job to start; a *step* inside it cannot.
@@ -1826,7 +1826,7 @@ repository receives.
   guarantees.
 - **Follows the decision index** (`apps/fed/scripts/adr-source.mjs`, `gen-adrs.mjs`, #318) — authored
   source → committed artifact → red build on drift, three ways.
-- **Applies [ADR-0015](./0015-oidc-immutable-subject-least-privilege.md)** to a CI path filter: this
+- **Applies [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s OIDC decision** to a CI path filter: this
   mechanism stays out of `deploy`'s gate because that gate's outputs decide whether a credentialed job
   runs. See `.github/workflows/README.md`.
 - ~~**Related record:** [ADR-0044](./0044-committed-permission-floor-local-overlay-ephemeral.md) — the other

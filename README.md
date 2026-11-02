@@ -193,8 +193,8 @@ Two entries left this list rather than being dropped from it. The **fork-to-live
 directly below, moved off `/architecture` because a page that links canonical detail should not also be a
 setup guide — and the copy that lived there had gone stale describing renamed workflows, which is the
 argument rather than a coincidence. The **ADR for the hand-bootstrapped trust root** is
-[ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also narrows
-[ADR-0014](./docs/adr/0014-terraform-cloud-pipeline-only.md)'s "no irreversible cloud mutation in the
+[ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also narrows the
+[pipeline-only apply](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-only-apply)'s "no irreversible cloud mutation in the
 inner loop" claim to what is actually true.
 
 ## Fork to live
@@ -237,14 +237,14 @@ amount of preparation makes faster. Everything in
    **Two decisions are doing the work here, and neither is setup trivia.** *Why the trust root is
    permanently out of band* — bootstrap circularity, and the permanent one, that a role able to rewrite
    its own trust policy has no ceiling — is
-   [ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also states its accepted
+   [ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also states its accepted
    costs: no `plan` detects drift on any of it, and the hand path **reopens every time that policy
    changes** rather than being a one-time act.
    [`docs/iac-deploy-policy.md`](./docs/iac-deploy-policy.md) is the standing runbook for exactly that,
    and [`docs/iac-deploy-policy.json`](./docs/iac-deploy-policy.json) is the desired document to apply.
    *Why the role's trust names an **immutable** subject* — `repo:<org>@<org_id>/<repo>@<repo_id>:*`, by
    numeric ID rather than by name, since a name can be transferred and the IDs cannot — is
-   [ADR-0015](./docs/adr/0015-oidc-immutable-subject-least-privilege.md). Its cost is that the safer form
+   [ADR-0013 — *Pipeline credentials by OIDC*](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc). Its cost is that the safer form
    is not copy-pasteable: you have to look your own IDs up.
 5. **Wire the GitHub secrets.** All seven are in
    [GitHub secrets and variables](#github-secrets-and-variables) above, with the scope each one takes and
