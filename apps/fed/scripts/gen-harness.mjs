@@ -4,7 +4,7 @@
 // Run: npm run gen-harness (from apps/fed)
 //
 // THE BUILD NEVER RUNS THIS. `npm run build` reads the committed manifest and nothing else, exactly as
-// it reads adrs.json and diagrams.json — ADR-0002 and ADR-0004 hold unchanged, and a clone of this repo
+// it reads adrs.json and diagrams.json — ADR-0002 holds unchanged, and a clone of this repo
 // with no sibling checkout still builds and still ships. The sibling repo is read by this generator and
 // by check-harness-drift.mjs, and by nothing else.
 import { writeFileSync, mkdirSync } from 'node:fs';

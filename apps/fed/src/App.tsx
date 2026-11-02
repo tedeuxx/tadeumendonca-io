@@ -4,7 +4,7 @@
 // and `/en/…` — so each locale has its own crawlable, prerendered, self-canonical URL. The bare `/` and
 // any unprefixed or invalid-locale path client-side redirects (path → persisted → navigator → en) to the
 // prefixed equivalent, PRESERVING the sub-path (`/me` → `/en/me` for an English browser). There is no
-// edge/Accept-Language logic — the redirect is pure client-side React (ADR-0004 holds). The bare `/`
+// edge/Accept-Language logic — the redirect is pure client-side React (ADR-0002 holds). The bare `/`
 // snapshot stays an x-default English page for the JS-less crawler (scripts/prerender.mjs).
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

@@ -107,7 +107,7 @@ rather than struck, per this library's rule for a reference whose only job is to
 ## Links
 - Refines [ADR-0023](./0023-observability-static-site.md) (GA as the observability tool) · shares the
   "nothing third-party until the reader asks" property with [ADR-0002](./0002-fully-static-spa-no-backend.md)
-  (VideoEmbed facade) · inertness supports the ADR-0004 build-time prerender staying hit-free.
+  (VideoEmbed facade) · inertness supports the ADR-0002 build-time prerender staying hit-free.
 - Implemented on branch `feat/ga4-consent-banner`
   (`apps/fed/src/lib/analytics.ts`, `apps/fed/src/lib/consent.tsx`,
   `apps/fed/src/components/ConsentBanner.tsx`).

@@ -7,7 +7,7 @@ import { HELD_SLUGS } from '../src/content/heldFixture';
 // alternates. The bare/unprefixed URL client-side redirects to the detected locale (path → persisted →
 // navigator → en), preserving the sub-path; the bare-root snapshot is an x-default English page for the
 // JS-less crawler. There is NO edge/Accept-Language logic — the redirect is pure client-side React
-// (ADR-0004 holds).
+// (ADR-0002 holds — its section on build-time render).
 //
 // These journeys fold in the plan-reviewer's extra assertions. The served-HTML checks inspect the raw HTTP
 // BODY (request.get, no JS) so they prove the PRERENDERED per-locale file was served, not the generic SPA

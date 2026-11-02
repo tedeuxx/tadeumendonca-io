@@ -5,7 +5,7 @@
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (supersedes, for the **blog surface only**, [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s "one English slug, prefixed per locale — NOT dual localized slugs" clause; resolves the dual-slug question [ADR-0010](./0010-routing-landing-cv-split-redirects.md) deferred on 2026-07-25)
-- **Driven by:** Issue [#182](https://github.com/tedeuxx/tadeumendonca-io/issues/182); consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md), [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)
+- **Driven by:** Issue [#182](https://github.com/tedeuxx/tadeumendonca-io/issues/182); consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md), its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md), [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)
 
 ## Context & problem
 [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) made language an address (symmetric `/pt` · `/en`
@@ -25,7 +25,7 @@ would itself break that principle. The slug must be **in the language of the rou
   `/pt/blog/meu-compromisso`); first-class pt-BR discovery on the slug itself, and a coherent English URL for
   the English LinkedIn publication standard (Issue #178).
 - **Consistency over workaround** — no per-URL redirect hacks; do the real routing change.
-- **Static invariant, no edge** ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — resolution stays
+- **Static invariant, no edge** ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — resolution stays
   build-time + client-side; the CloudFront Function remains the locale-agnostic clean-URL rewrite. `iac/` untouched.
 - **English stays canonical** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)) — x-default points at
   the **English** slug; article identity is keyed on the canonical English slug.
@@ -93,7 +93,7 @@ with external links), that will need a redirect mechanism decided then — expli
 - **Resolves the dual-slug question deferred in [ADR-0010](./0010-routing-landing-cv-split-redirects.md)** —
   its 2026-07-25 `/architecture` amendment set aside a dual localized-slug pair as "a bigger routing decision…
   not adopted by default." That decision is made here, scoped to the blog surface.
-- **Consistent with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — resolution stays build-time +
+- **Consistent with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — resolution stays build-time +
   client-side; no SSR/edge, no Accept-Language logic; `iac/` and the CloudFront Function untouched.
 - **Consistent with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) / [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)** —
   English stays canonical; the filename key and x-default are the canonical English slug.

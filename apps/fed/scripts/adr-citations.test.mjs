@@ -105,7 +105,19 @@ describe('adr citations — the gate', () => {
     // the line makes an edit anywhere earlier in a 1,400-line record fail a gate about something
     // else. Still exact CONTENTS, so a genuinely new excuse still has to be looked at by a person.
     const excused = (list) => list.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '));
-    expect(excused(audit.crossRepo)).toEqual([]);
+    expect(excused(audit.crossRepo)).toEqual([
+      // Citations of the METHODOLOGY library (`tadeumendonca-skills`), which used the same numbers. They
+      // resolved here by accident until the sixth fold slice of #456 absorbed this library's 0004 and
+      // 0006 into 0002; from then on they fail to resolve locally and are excused as cross-repo, which is
+      // what CROSS_REPO_RE exists for. Each names that library in the text before the token.
+      'apps/fed/scripts/harness-source.mjs cites ADR-0006',
+      'docs/adr/0003-trunk-based-single-environment.md cites ADR-0004',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
+      'docs/adr/README.md cites ADR-0004',
+      'docs/iteration-sweep/sprint-04.md cites ADR-0004',
+      'docs/loop-mode.md cites ADR-0004',
+    ]);
     expect(excused(audit.quoted)).toEqual([
       // The round-3 repair notes in the content review cite the SIBLING library by path, because the
       // repair they justify was derived from those two records. `docs/adr/0002` here is
@@ -114,6 +126,11 @@ describe('adr citations — the gate', () => {
       // than `dangling` only because the review record wraps them in backticks.
       'docs/content-review/what-my-agents-do.md cites 0020-an-adr-earns-its-place-by-explaining-the-current-codebase.md',
       'docs/content-review/what-my-agents-do.md cites 0002-roster-and-dev-loop.md',
+      // `docs/loop-mode.md` quotes the methodology library's number in backticks to explain why it
+      // is NOT written as a citation here. It resolved to this library's 0004 by accident until the
+      // sixth fold slice of #456 absorbed that record into 0002.
+      'docs/loop-mode.md cites ADR-0004',
+      'docs/loop-mode.md cites ADR-0004',
     ]);
     expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own

@@ -7,7 +7,7 @@
 - **Supersedes / superseded by:** —
 - **Driven by:** Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) (the dev-loop
   components diagram) · constrained-by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (nothing fetched, at build time or at runtime)
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (nothing fetched, at build time or at runtime)
   · follows the drift shape of [ADR-0040](./0040-build-time-mermaid-diagrams.md) and of the decision
   index (`apps/fed/scripts/adr-source.mjs`) · applies
   [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s OIDC reasoning to a CI path filter
@@ -51,7 +51,7 @@ date on which those three wrong numbers were copied.
   reader can open. An inventory that resolves to "someone typed this once" is the one paragraph running
   on a different rule than the rest of the page — and ADR-0040 already records the general form: a stale
   diagram is *worse* than an absent one, because a picture reads as current in a way prose does not.
-- **Nothing is fetched, at build time or at runtime** (ADR-0002, ADR-0004). Whatever the reader gets
+- **Nothing is fetched, at build time or at runtime** (ADR-0002). Whatever the reader gets
   ships in the artifact, and the artifact is built from files in this repo.
 - **A path added to the deploy gate's filter widens a credential surface.** `deploy`'s gate outputs
   decide whether an OIDC-credentialed job runs; `.github/workflows/README.md` treats every entry there as
@@ -78,7 +78,7 @@ date on which those three wrong numbers were copied.
    page's own standard, which is why `/architecture` links canonical detail instead of restating it.
 3. **Read the sibling repo at build time** — a git submodule, an npm dependency on the plugin, or the
    GitHub API. *Why not:* it puts a network or a second working tree into `npm run build`, against
-   ADR-0002/ADR-0004, and it makes the **deploy** fail for a reason that has nothing to do with this
+   ADR-0002, and it makes the **deploy** fail for a reason that has nothing to do with this
    repo. A submodule is the subtlest of the three and the worst: it pins a commit, so the page goes stale
    *silently* at whatever revision the pointer last moved to — the failure mode this decision exists to
    remove, wearing the clothes of a solution.
@@ -219,8 +219,8 @@ in its mechanical form, and it is why the next section is not a formality.
   retired or renamed in the plugin either updates this page or turns this repo's build red.
 - **No credential surface.** The plugin is public, the second checkout is tokenless, and nothing touches
   the deploy gate.
-- **No runtime and no build-time fetch.** The reader gets bytes from a committed file; ADR-0002 and
-  ADR-0004 hold unchanged.
+- **No runtime and no build-time fetch.** The reader gets bytes from a committed file; ADR-0002, build-time render
+  included, holds unchanged.
 - The diagram is permitted to distinguish a mechanism from a convention, which is the most credible thing
   it can say — and stronger than the inventory itself.
 - The generator gives the plugin's hook inventory its **first** external check of any kind. Nothing in
@@ -306,7 +306,7 @@ than as a list to pick from:
   authenticated quota to exhaust — the property that made the API route able to redden a healthy `main` on
   somebody else's traffic is absent, not mitigated.
 - **The application never reads it.** `npm run build` reads a committed file and an environment variable,
-  exactly as it already reads `VITE_GA_MEASUREMENT_ID`. ADR-0002 and ADR-0004 hold verbatim: nothing is
+  exactly as it already reads `VITE_GA_MEASUREMENT_ID`. ADR-0002 holds verbatim: nothing is
   fetched at build time or at runtime *by the app*, and a clone with no sibling still builds and still
   ships.
 - **There is no "when the call fails" branch to answer for**, because a failure resolves to the committed
@@ -671,7 +671,7 @@ Measured on 2026-08-08:
 | the file was ever added, on any branch | `git log --all --diff-filter=A -- "docs/adr/0044-*"` | three commits, and **every one of them adds a *different* record** — `0044-version-parts-deliberate-major-minor.md`. **That is the load-bearing half: no `0044-committed-…` file was ever added, anywhere.** The attribution matters less but must be right: only **two** (`c3ba407`, `a177227`) belong to PR #393; the third, `1dd9b39` (2026-08-08 01:50), is on the **unmerged draft branch** `docs/adr-version-digits-publication-counter` and was never part of that PR. `--all` is deliberately broad — it spans branches that were never merged — and that breadth is exactly why "the three commits of PR #393" was the wrong sentence |
 | when the pointer was written | `git log -S "0044-committed-permission-floor-local-overlay-ephemeral" --all --reverse` — **`--reverse`, and take the FIRST hit** | `4e32d6f`, 2026-08-03 — the commit that created *this* record. The pointer was forward-looking from the moment it was written and was never valid, not for a minute. **The `--reverse` is not decoration:** this amendment quotes the dead filename, so the commit carrying *this table* is itself a later hit. Written without it, the row would have been falsified by the act of writing it — the exact defect class the MR this rides in exists to remove |
 | a matching record in this library | **every record in `docs/adr/`** — deliberately not written as a numeric range, which would under-cover the library the moment the next record lands (it did: 0044 and 0045 both arrived while this amendment was in review, and both were checked) | none decides the committed-floor/local-overlay question |
-| a matching record in the methodology library | `tadeumendonca-skills/docs/adr/` 0001–0008 | none. The two nearest are **ADR-0004** *Autonomy and permission model* (2026-07-22, amended 2026-08-03) and **ADR-0008** *Which layer carries a control* (2026-08-04). Both are about permissions; **neither decides which settings belong in the committed floor and which may live only in an untracked local overlay** |
+| a matching record in the methodology library | `tadeumendonca-skills/docs/adr/` 0001–0008 | none. The two nearest are the methodology's **ADR-0004** *Autonomy and permission model* (2026-07-22, amended 2026-08-03) and **ADR-0008** *Which layer carries a control* (2026-08-04). Both are about permissions; **neither decides which settings belong in the committed floor and which may live only in an untracked local overlay** |
 | whether the gap is otherwise recorded | Issue [#384](https://github.com/tedeuxx/tadeumendonca-io/issues/384), 2026-08-08 | states it independently: *"No ADR says which class a setting belongs to."* |
 
 **So the honest reading is: the author intended a companion record, and it was not written.** The subject
@@ -1818,7 +1818,7 @@ repository receives.
   [ADR-0040](./0040-build-time-mermaid-diagrams.md)'s 2026-07-30 amendment. The two are not merged, for
   the reason recorded above: one diagram trying to be both would blur `denies` and `advises`.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — the build reads the manifest, never the
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — the build reads the manifest, never the
   sibling repo.
 - **Follows [ADR-0040](./0040-build-time-mermaid-diagrams.md)** for the diagram itself (Mermaid in the
   markdown body, compiled to committed inline SVG, per-locale `accTitle`/`accDescr`, palette assertions

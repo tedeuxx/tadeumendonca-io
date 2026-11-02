@@ -44,7 +44,7 @@ are simply this property applied; they are recorded together for that reason.
 - **Nothing is re-typed** — the card's text is the article's own frontmatter title, like `/cv.pdf` is
   printed from `profile.ts` ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md), its downloadable-edition section; record 0034 until #456).
 - **Build time, not runtime** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — there is no renderer to call, and a scraper
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — there is no renderer to call, and a scraper
   does not execute JavaScript.
 - **Per locale, because the title is per locale** ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
 - **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)) — the smallest card that
@@ -141,7 +141,7 @@ from the key and locale; two mechanical gates assert the set is right.
 Chromium the prerender already installs, committed to the repo, guarded by a **bidirectional set-equality
 test** in Node. It is not re-derived here. The precedent is followed on purpose: the alternatives (a
 runtime renderer, an uncommitted artifact regenerated in CI, a new browser toolchain) were argued and
-rejected in 0040 against ADR-0002/0004 and ADR-0021's `--ignore-scripts` floor, and none of those
+rejected in 0040 against ADR-0002 and ADR-0021's `--ignore-scripts` floor, and none of those
 constraints changed. `scripts/og-cards.mjs` is the pure half, split from the generator for 0040's reason:
 everything that decides *which* cards must exist is decision logic and belongs where a test reaches it
 without a browser.
@@ -297,8 +297,8 @@ names the URL.
   artifact, committed, guarded by a bidirectional set-equality test with a false-green guard. Followed as
   precedent rather than re-derived; its "the artifact is not proven to come from the source" cost applies
   here too, and is restated above.
-- **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) /
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — build time, nothing rendered at runtime.
+- **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — build time, nothing rendered at runtime.
 - **Consistent with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s downloadable edition** (record 0034 until #456) — the same principle as
   `/cv.pdf`: a published artifact is *printed from* the canonical source, never re-typed.
 - **Consistent with [ADR-0008](./0008-brutalist-mono-identity.md)** — the card is the identity's palette,

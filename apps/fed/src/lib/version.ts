@@ -10,7 +10,7 @@
 // Read from the file rather than restated as a constant, because a version string that can disagree
 // with the git tag is worse than no version string at all: it looks authoritative while being wrong.
 //
-// Resolved at BUILD time and baked into the prerendered HTML (ADR-0002/ADR-0004 — nothing is fetched at
+// Resolved at BUILD time and baked into the prerendered HTML (ADR-0002 — nothing is fetched at
 // runtime), so it moves on deploy and only on deploy.
 import raw from '../../../../VERSION?raw';
 

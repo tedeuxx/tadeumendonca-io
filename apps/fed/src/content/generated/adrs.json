@@ -4,7 +4,7 @@
     "title": "Fully static SPA, no backend",
     "file": "0002-fully-static-spa-no-backend.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0003",
@@ -14,23 +14,9 @@
     "amended": true
   },
   {
-    "id": "0004",
-    "title": "Content and OG resolved at build time — not SSR or edge",
-    "file": "0004-build-time-render-not-ssr-or-edge.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0005",
     "title": "Every public URL is SEO- and OG-complete",
     "file": "0005-og-coverage-every-public-url.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0006",
-    "title": "React + Vite + TypeScript",
-    "file": "0006-react-vite-typescript.md",
     "status": "accepted",
     "amended": false
   },
@@ -68,13 +54,6 @@
     "file": "0011-ui-ptbr-i18n-deferred.md",
     "status": "superseded",
     "amended": false
-  },
-  {
-    "id": "0012",
-    "title": "snake_case in content/data, no mapping layer",
-    "file": "0012-snake-case-content-no-mapping.md",
-    "status": "accepted",
-    "amended": true
   },
   {
     "id": "0013",

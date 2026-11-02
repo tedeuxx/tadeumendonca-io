@@ -12,7 +12,7 @@
 - **Driven by:** PR [#411](https://github.com/tedeuxx/tadeumendonca-io/pull/411) · **narrows the scope
   claim of** [ADR-0040](./0040-build-time-mermaid-diagrams.md) (amended there, pointing here) ·
   constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (nothing fetched, resolved before it is served)
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (nothing fetched, resolved before it is served)
   · touches [ADR-0035](./0035-static-repo-cards-in-longform.md)'s copy-as-markdown payload · conforms to
   [ADR-0008](./0008-brutalist-mono-identity.md) · per locale, per
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
@@ -48,7 +48,7 @@ without something turning red"**.
 
 ## Decision drivers
 - **Nothing may be fetched at runtime, and the reader with JS off must get the figure** (ADR-0002,
-  ADR-0004, ADR-0005). This is non-negotiable and it is the first thing a second path could break.
+  ADR-0005). This is non-negotiable and it is the first thing a second path could break.
 - **Labels must be real text** — crawlable, selectable, translatable, screen-readable. ADR-0040's
   strongest argument against a checked-in asset was that an `<img>` makes every label a picture of a word.
   A second path that ships a raster reproduces exactly the liability that record rejected.
@@ -266,7 +266,7 @@ a gate, caught it.
   point here. That record's mechanism, guards and defaults are unchanged and still govern every figure
   mermaid can draw.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — the figure is in the artifact, resolved
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — the figure is in the artifact, resolved
   before it is served; the runtime behaviour is an enhancement on top of a complete prerendered figure.
 - **Consistent with [ADR-0005](./0005-og-coverage-every-public-url.md)** — it is in the prerendered HTML,
   asserted over HTTP.

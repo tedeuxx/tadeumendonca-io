@@ -7,9 +7,9 @@
 - **Capability:** `presence-and-cv`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0006](./0006-react-vite-typescript.md); the
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md#the-frontend-toolchain); the
   downloadable edition also by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)
 
 ## Context & problem
 The owner's professional presence spans several surfaces — this site, LinkedIn, and a designed CV (Canva).
@@ -167,7 +167,7 @@ compute) and in the site's own identity ([ADR-0008](./0008-brutalist-mono-identi
 The prerender pass (`apps/fed/scripts/prerender.mjs`) renders `/en/me` and calls Playwright
 `page.pdf()`; a `@media print` stylesheet formats it; the result ships as the static object `/cv.pdf`,
 linked from the CV page with `<a href="/cv.pdf" download>`. Playwright is already a build-time cost
-([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)), so this adds no dependency.
+([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)), so this adds no dependency.
 
 **The PDF is an EDITION of the CV page, not a faithful print of it.** The print stylesheet *selects* what
 the edition carries, so it is content-bearing: an edit to it is an editorial change to what a recruiter
@@ -270,7 +270,7 @@ pipeline, not designed out.
 - **A sweep for what this section asserts must key on the identifier, not the prose**:
   `grep -rn 'print_highlight_index' docs/ apps/fed/src` finds every claim about the lever; a sweep by the
   copy that moved does not, and missed this decision once.
-- [ADR-0012](./0012-snake-case-content-no-mapping.md)'s convention table names `print_highlight_index` as a
+- [ADR-0002](./0002-fully-static-spa-no-backend.md#data-keys-as-authored-no-mapping-layer)'s convention table names `print_highlight_index` as a
   `profile.ts` snake_case example; if the field is ever removed, that table moves in the same merge
   request.
 
@@ -388,7 +388,7 @@ code: `apps/fed/src/data/journey.ts` (the ATTRIBUTION, JOIN and TWO HAZARDS para
 `apps/fed/src/data/journey.test.ts` (the three refusals, each watched to fire). Absorbed here by #456.
 
 ## Links
-- Driven by ADR-0053 (lean by design), ADR-0006 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
+- Driven by ADR-0053 (lean by design), ADR-0002 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
   prefixes; the `/cv` this line used to name was renamed to `/me`, and its back-compat redirect separately dropped, in two 2026-07-24 amendments to ADR-0010 (#234) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23
