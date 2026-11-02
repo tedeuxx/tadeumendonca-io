@@ -186,7 +186,7 @@ that ages out of sync.
 ## Amendment (2026-07-30) — `/architecture` now makes a statement, not only pointers; the orientation claim is narrowed, not withdrawn
 The 2026-07-25 amendment above ends with *"the page points at them, so it cannot drift from them."* That
 sentence is now **too strong, and it has to be narrowed rather than left standing**, because
-[ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a **diagram** on the page ([#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170)).
+[ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time) puts a **diagram** on the page ([#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170)).
 
 **State the objection at full strength first, because it is a real one.** Every other element on
 `/architecture` is a pointer — a link to an ADR, to a repo, to `docs/catalog-ready.md` — and a pointer
@@ -212,7 +212,7 @@ change spends part of it.
    `scripts/architecture-diagrams.test.mjs` asserts a *directed path* from the reader, through the rewrite,
    to the origin, and that the answer returns. A labelled box list has nodes and no path, and fails. The
    rule the owner stated in prose is a red test, not an intention.
-3. **The residual drift is named and owned by ADR-0040, not left implicit here.** It is recorded there as
+3. **The residual drift is named and owned by ADR-0008 (*Diagrams compiled from Mermaid at build time*), not left implicit here.** It is recorded there as
    a first-class accepted cost: the diagram is a *third* place every infrastructure change must land
    (prose, ADR, diagram), and a stale diagram is worse than an absent one. Staleness of the *artifact*
    against the *source* is caught at build time; staleness of the *source* against **reality** is not
@@ -331,7 +331,7 @@ exactly the edit it exists to catch.
   unmade decision" note in that amendment is **now made** in
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (symmetric `/pt` · `/en` prefixes on one slug;
   dual localized slugs still deferred) · amended (2026-07-30) to **narrow** that amendment's
-  "it cannot drift from them" claim, now that [ADR-0040](./0040-build-time-mermaid-diagrams.md) puts a
+  "it cannot drift from them" claim, now that [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time) puts a
   diagram — the page's first statement about the system rather than a pointer to one — on
   `/architecture` · **amended (2026-08-06)** to discharge `/library`'s deferred nav entry and `/ramp-up`
   cross-link, and to record that markdown now resolves site-internal links to the active locale ·

@@ -13,7 +13,7 @@ describe('RepoCard', () => {
     expect(container).toHaveTextContent('Python');
 
     // Exactly one anchor per card (the whole card is the single control), to the canonical URL, opened
-    // safely. More than one would violate the card contract (ADR-0035) and double-count in the parity test.
+    // safely. More than one would violate the card contract (ADR-0008 (*Curated repositories as static cards in long-form*)) and double-count in the parity test.
     const anchors = [...container.querySelectorAll('a')];
     expect(anchors).toHaveLength(1);
     expect(anchors[0]).toHaveAttribute('href', 'https://github.com/karpathy/nanoGPT');

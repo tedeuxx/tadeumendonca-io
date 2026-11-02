@@ -345,7 +345,7 @@ module load. This is the first foreign key into `profile.ts`, and the pattern th
 - **The owner's own sentences stay verbatim in `journey.ts`'s module comment.** The pair is a
   normalisation of what he said, and normalisation launders provenance.
 
-The photograph budget is [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)'s, deliberately
+The photograph budget is [ADR-0008, *Content photographs as captioned figures*](./0008-brutalist-mono-identity.md#content-photographs-as-captioned-figures)'s, deliberately
 not restated here.
 
 ### Rejected options that are still live
