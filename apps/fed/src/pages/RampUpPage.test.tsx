@@ -109,7 +109,7 @@ describe('RampUpPage', () => {
     expect(ptSources.sections).toBeGreaterThan(0);
   });
 
-  // The GitHub sources render as static repo cards (#122 / #157, ADR-0035) — Pocock, then Tan's two, then
+  // The GitHub sources render as static repo cards (#122 / #157, ADR-0008 (*Curated repositories as static cards in long-form*)) — Pocock, then Tan's two, then
   // Karpathy's four — in both editions, each card showing ITS locale's description, not the other's. The
   // cards embed per-locale prose inside a per-locale page, so ADR-0032's "each edition renders without the
   // other's text" invariant must reach the descriptions, not just the section headings.

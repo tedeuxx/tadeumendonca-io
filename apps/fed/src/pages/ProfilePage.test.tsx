@@ -21,7 +21,7 @@ describe('ProfilePage', () => {
     expect(await screen.findByRole('heading', { level: 1, name: profile.name })).toBeInTheDocument();
   });
 
-  // ADR-0045, and the one section the catalog-wide check in messages.test.ts cannot reach: /me composes
+  // ADR-0008 (*A document title leads with the section label*), and the one section the catalog-wide check in messages.test.ts cannot reach: /me composes
   // its title from the nav label plus DATA (the personal name), so there is no `profile.title` leaf to
   // derive from. `toContain` was too weak for the convention — it passes on a title that merely mentions
   // the label somewhere — so this pins the LEAD and the composed whole.
