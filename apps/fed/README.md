@@ -72,7 +72,7 @@ the two editions cannot disagree.
 
 ## Conventions
 
-- **The key convention is split, and the split is real** (ADR-0012's 2026-07-30 amendment). Blog
+- **The key convention is split, and the split is real** (ADR-0002, *Data keys as authored, no mapping layer*). Blog
   frontmatter and the catalog modules are **camelCase** — `linkedinUrl`, `hasVideo`, `ogImage` in
   `src/lib/content.ts`; `repoUrl`, `liveUrl` in `src/data/catalog.ts`. `src/data/profile.ts` is still
   **snake_case** — `profile_id`, `start_date`, `print_highlight_index`. Follow the file you are in, and

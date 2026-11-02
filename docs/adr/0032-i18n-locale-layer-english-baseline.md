@@ -30,7 +30,7 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
 - **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): two locales on a static
   SPA don't justify an i18n framework or a new dependency-class.
 - **Static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) and **build-time OG/SEO**
-  ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md)):
+  ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md)):
   whatever we build must not add a server and must keep the crawlable/unfurlable baseline intact.
 
 ## Considered options
@@ -76,7 +76,7 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   prerender.
 - ~~**Slice 2 (deferred):** route-prefixed `/en` · `/pt` + **per-locale prerender** + `hreflang` / per-locale
   canonical + per-locale OG. This interacts with [ADR-0005](./0005-og-coverage-every-public-url.md)
-  (OG coverage) and [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) — it is the
+  (OG coverage) and [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (build-time render) — it is the
   slice that makes **pt-BR discovery** first-class.~~
   **SHIPPED 2026-07-26 as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md).** Not deferred work.
 - ~~**Slice 3 (deferred):** a translated pt-BR `profile` object, so PT mode wraps a pt-BR CV instead of the
@@ -205,14 +205,14 @@ not an oversight in any one test. The seam that can express it is `page.addInitS
 `scripts/prerender.mjs` and `e2e/per-locale.spec.ts`.
 
 **Explicitly NOT in scope, and not stubbed:** the IP-geolocation step (`#669`). It touches `iac/`, it is
-a decision against [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), and it gets its own record.
+a decision against [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), and it gets its own record.
 
 ## Links
 - **Supersedes** [ADR-0011](./0011-ui-ptbr-i18n-deferred.md) (UI in pt-BR; i18n deferred) — this is the i18n
   phase ADR-0011 named.
 - **Driven by / consistent with** [ADR-0024](./0024-profile-canonical-cv-cross-surface.md): the English CV
   stays canonical — no contradiction; only chrome localizes.
-- **Interacts with** [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) and
+- **Interacts with** [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (build-time render) and
   [ADR-0005](./0005-og-coverage-every-public-url.md) (OG coverage on every public URL) — ~~the deferred Slice 2
   makes~~ **Slice 2 shipped as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) and made** per-locale
   prerender + `hreflang` first-class. #234

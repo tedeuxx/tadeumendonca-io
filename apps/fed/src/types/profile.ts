@@ -6,7 +6,7 @@
 // CV shares its structure instead of mirroring it — a parallel pt/en copy of the whole object would
 // duplicate every date and employer and trip the duplication gate (the lesson from `i18n/messages.ts`).
 //
-// snake_case at the data boundary is ADR-0012.
+// snake_case at the data boundary is ADR-0002, section *Data keys as authored, no mapping layer*.
 
 /** A value authored in both locales; `resolveProfile` flattens it to the active one. */
 export type Localized<T> = { pt: T; en: T };

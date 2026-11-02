@@ -8,7 +8,7 @@
 - **Supersedes / superseded by:** —
 - **Driven by:** Issue [#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170) · constrained-by
   [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (no backend, no runtime XHR, resolve at build
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (no backend, no runtime XHR, resolve at build
   time) · collides-with [ADR-0021](./0021-application-security-posture.md)'s `--ignore-scripts`
   amendment (which is what decided the toolchain) · conforms-to
   [ADR-0008](./0008-brutalist-mono-identity.md) (amended below) · amends
@@ -30,7 +30,7 @@ without anyone noticing.
 
 ## Decision drivers
 - **The diagram must survive JS being off** — `/architecture` is an exhibit, and the crawler and the
-  no-JS reader are part of its audience (ADR-0004, ADR-0005).
+  no-JS reader are part of its audience (ADR-0002, ADR-0005).
 - **Nothing may be fetched at runtime** (ADR-0002): whatever the reader gets, ships in the artifact.
 - **Diagram labels must be real text** — crawlable, selectable, translatable, screen-readable. A picture
   of words is not words.
@@ -55,7 +55,7 @@ without anyone noticing.
    of truth is a tool outside the repo (or nothing at all), so it drifts silently and no check can even
    observe the drift. And an `<img>` makes every label a picture of a word — invisible to the crawler, to
    the screen reader, to selection and to translation, which is most of what the diagram is for here.
-3. **Client-side mermaid, rendering in the browser** — *Why not:* it violates ADR-0002/ADR-0004 head-on.
+3. **Client-side mermaid, rendering in the browser** — *Why not:* it violates ADR-0002 head-on.
    It would ship roughly 500kB to every reader to draw a picture that never changes, and a JS-less
    crawler on `/architecture` would get an empty box on the one page whose job is to be legible.
 
@@ -205,7 +205,7 @@ rendered draft rather than in the abstract.
   the mechanism plus the infrastructure diagram; the dev-loop diagram and the layout question are slice
   two).
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — build time, not runtime; nothing fetched.
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — build time, not runtime; nothing fetched.
 - **Decided by [ADR-0021](./0021-application-security-posture.md)'s `--ignore-scripts` amendment** — the
   collision with Puppeteer's postinstall browser download is what ruled out mermaid-cli.
 - **Conforms to [ADR-0008](./0008-brutalist-mono-identity.md)**, amended by this decision: the identity

@@ -11,7 +11,7 @@
 - **Supersedes / superseded by:** —
 - **Driven by:** [#510](https://github.com/tedeuxx/tadeumendonca-io/issues/510) ·
   [PR #511](https://github.com/tedeuxx/tadeumendonca-io/pull/511) · **scopes**
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (the first content deliberately neither
+  [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (the first content deliberately neither
   compiled-and-listed nor prerendered) · **does not reach**
   [ADR-0005](./0005-og-coverage-every-public-url.md) (a held URL is not a public URL) · **applies**
   [ADR-0041](./0041-per-article-og-cards.md)'s bidirectional guard to a set that is now smaller than the
@@ -37,7 +37,7 @@ knows where to look. The decision this record fixes is **where an unpublished ar
 what is guaranteed about who can read it** — one decision, and the guarantee is half of it.
 
 **The measurement that forces the question.** Under
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) *"the markdown is compiled into the bundle and
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) *"the markdown is compiled into the bundle and
 each route is prerendered to static HTML"*. Compilation and prerendering are **separable**, and only the
 second is a per-route decision. A runtime filter can remove an article from every list the site renders
 and cannot remove its body from the bytes the site ships, because the Vite glob has already resolved it
@@ -293,7 +293,7 @@ holds **by construction** rather than by a filter. A build step emits them plus 
 why the prefix exists at all, since a static rule needs no per-article state — validating the token
 against a CloudFront **KeyValueStore** written by the deploy job and never committed.
 
-This partially adopts [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s rejected option 2, and
+This partially adopts [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s rejected runtime-from-bucket option (option 2 in the record that held it, 0004), and
 narrowly: no Lambda@Edge, no OG at the edge, still rebuild-and-redeploy per draft — so none of that
 option's stated reasons against it apply.
 
@@ -307,7 +307,7 @@ change**, which is a permanent cost on cadence, not a one-time build cost.
 
 **Scoped, not reversed** — all three of the following stay in force and none is superseded.
 
-- **[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** decides *"the markdown is compiled into the
+- **[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** decides *"the markdown is compiled into the
   bundle and each route is prerendered to static HTML"*. A held article is **the first content
   deliberately neither listed nor prerendered** — and the clause is narrowed on exactly one of its two
   halves. The markdown is still **compiled in**; that is the whole of the exposure recorded above. Only
@@ -506,7 +506,7 @@ holds against his comment, and nothing holds it mechanically.
   that way.
 - **The 2026-08-29 amendment**: the gate is still the parameter alone, and the copy payload is still the
   rendered body, which is now the revision when one is shown.
-- **[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s narrowing is unchanged.** The revision is
+- **[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s narrowing is unchanged.** The revision is
   compiled in and never prerendered, the same exception, bounded the same way.
 - **[ADR-0005](./0005-og-coverage-every-public-url.md) is not reached.** A revision is not the text of a
   public URL until the release merge, and no snapshot can carry it.

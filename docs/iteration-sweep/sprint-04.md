@@ -22,7 +22,7 @@ No observation is promoted to a blocking truth finding.
 
 The browser server this harness ships bounds navigation with
 `--allowedUrlPattern ${HARNESS_SWEEP_ORIGIN:-http://127.0.0.1:9/*}`. The fallback points at the discard
-port on purpose, so the bound fails closed (ADR-0004 in `tadeumendonca-skills`). In this session the
+port on purpose, so the bound fails closed (the methodology ADR-0004, in `tadeumendonca-skills`). In this session the
 variable was not set:
 
 ```sh

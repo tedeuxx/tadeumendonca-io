@@ -5,7 +5,7 @@
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)
-- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
+- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
 
 ## Context & problem
 [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) internationalized the site with a light in-repo
@@ -31,8 +31,8 @@ written, not a change of mind.
 - **First-class pt-BR discovery** (the Slice-2 driver): the pt-BR edition must be a real, crawlable,
   unfurlable **address**, not a runtime toggle a bot never sees.
 - **Static invariant, no edge** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)): whatever resolves a locale must do so at
-  **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0004's
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)): whatever resolves a locale must do so at
+  **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0002's
   no-SSR/edge invariant is load-bearing and must survive untouched.
   > **Narrowed 2026-11-01** (#669, ~~`proposed` until the owner ratifies PR #803~~ **`accepted`
   > 2026-11-01**: the owner merged PR #803 himself, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)): the edge may now
@@ -75,7 +75,7 @@ written, not a change of mind.
    origin/one cert/one analytics property.
 4. **Edge Accept-Language negotiation** (a CloudFront Function reading `Accept-Language` to route/redirect) —
    *Why not:* it reintroduces **request-time locale compute at the edge**, the precise thing
-   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) removed, and puts locale logic in `iac/`. The
+   [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) removed, and puts locale logic in `iac/`. The
    **client-side bare-root redirect below makes it unnecessary** — see Decision outcome.
 
 ## Decision outcome
@@ -108,7 +108,7 @@ Chosen: **option 1 — symmetric per-locale URL prefixes, per-locale prerender, 
   `<Navigate replace>`s to the matching locale prefix, **preserving the sub-path** (`/portfolio` →
   `/en/portfolio` or `/pt/portfolio`). **This client-side redirect is the deliberate reason no edge
   Accept-Language logic is needed** — the one place a reader might assume an edge negotiation, made explicit:
-  detection is React's, at first paint, so `iac/` and ADR-0004's no-edge invariant both stay closed. The
+  detection is React's, at first paint, so `iac/` and ADR-0002's no-edge invariant both stay closed. The
   bare-root English snapshot exists so a crawler/unfurler hitting `/` before JS runs still sees a complete
   x-default page.
 - **`iac/` is untouched.** The CloudFront Function remains the locale-agnostic clean-URL rewrite; the prefixes
@@ -128,7 +128,7 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
 - **The OG/SEO-completeness contract ([ADR-0005](./0005-og-coverage-every-public-url.md)) now holds across
   both locales + x-default**, with correct `hreflang` telling search engines the editions are the same page
   in two languages (no duplicate-content penalty; the right edition surfaces per searcher).
-- **The static, no-edge story is intact** ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — locale
+- **The static, no-edge story is intact** ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — locale
   is resolved at **build** (the two snapshots) and **client-side** (the bare-root redirect), never at the
   edge. `iac/` did not move.
 - **The static-shell flash for pt-BR visitors is removed** — ADR-0032's residual "non-baseline flash until
@@ -419,7 +419,7 @@ must be about **who** is rendering, not **when** — hence `window.__PRERENDER__
 via `addInitScript` and checked by the component. *Trade-off:* a build-only global is a seam between the
 snapshot harness and app code, and any future visitor-dependent component must remember to check it; the
 alternative (making the prerender a non-hydrating render) would be a much larger change to
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s build-time-render mechanism for one component's sake.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s build-time-render mechanism for one component's sake.
 Enforced rather than written down: `e2e/per-locale.spec.ts` asserts the **shipped** HTML for both editions
 carries no offer — asserted against the artifact because every unit test passed while `dist/pt/**` was wrong.
 Verified by mutation.
@@ -435,7 +435,7 @@ Verified by mutation.
 **Nothing in the decision above changes.** Per-locale prefixes, per-locale prerender, hreflang, OG-per-locale
 and x-default all stand; this amendment adds a client-side **offer** on top of an unchanged URL contract, and
 records the prerender invariant it exposed. `iac/` is untouched — the negotiation is still client-side, so
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s no-edge invariant holds.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s no-edge invariant holds.
 
 ## Amendment (2026-08-05) — why the dual-slug question keeps coming back, and the separation that ends it
 
@@ -565,7 +565,7 @@ reversed.** It read as *no locale-related code at the edge at all*, and that no 
 viewer-response CloudFront Function now sets a `locale_hint` cookie on each HTML response. Its operative
 half is unchanged and now reads: **the edge never resolves a locale, never routes and never redirects.**
 The driver existed to keep request-time locale **compute** out of the edge, the thing
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) removed; reading one header and copying one of
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) removed; reading one header and copying one of
 three values into a cookie decides nothing. The *"No edge / Accept-Language logic"* consequence is
 narrowed the same way: still no edge negotiation, but `iac/` now carries a function that exposes a hint.
 Rejected option 4 stays rejected — the edge reads no `Accept-Language` and makes no routing decision —
@@ -726,7 +726,7 @@ consequence of each answer.
 Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
 [ADR-0013](./0013-s3-cloudfront-hosting.md)'s distribution, applied pipeline-only per its
 [*Pipeline-only apply*](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) section. Consistent with
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) — nothing here renders.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) — nothing here renders.
 
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
@@ -763,14 +763,14 @@ Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
   not a visitor** — `window.__PRERENDER__`, not a post-mount flag, is what keeps visitor-dependent rendering
   out of the shipped HTML. Consistent with
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (the persisted toggle overriding detection) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (still no edge negotiation).
+  [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (still no edge negotiation).
 - **Completes [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s deferred Slice 2** — retires that
   ADR's "prerender baseline pinned to English" clause and its "single-locale-prerender accepted cost." Not a
   reversal: Slice 2 was always the named successor to the interim English-pinned baseline.
 - **Resolves the deferred question in [ADR-0010](./0010-routing-landing-cv-split-redirects.md)** — its
   2026-07-25 amendment left "localized URL prefixes… a separate, unmade decision"; that decision is made here
   (prefixes yes, dual-slugs still deferred). ADR-0010 is amended with a forward-link to this ADR.
-- **Consistent with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — per-locale prerender is more
+- **Consistent with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — per-locale prerender is more
   build-time render, still no SSR/edge; the client-side bare-root redirect is why no Accept-Language edge
   logic is needed.
 - **Extends [ADR-0005](./0005-og-coverage-every-public-url.md)** — OG/SEO completeness now spans both locales

@@ -18,7 +18,7 @@
   no-third-path bound governs **drawn** figures, and its copy-payload finding no longer holds) · changes
   the behaviour of [ADR-0035](./0035-static-repo-cards-in-longform.md)'s copy-as-markdown payload (#387) ·
   constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) · spends
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) · spends
   [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design) · per locale, per
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
 
@@ -92,7 +92,7 @@ $ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
 - **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): no new dependency and
   no new tool class to put four JPEGs on a page.
 - **Nothing fetched at runtime** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — the assets are committed and served from the
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — the assets are committed and served from the
   origin, like everything else.
 
 ## Considered options
@@ -359,7 +359,7 @@ it exists.
 - **Changes [ADR-0035](./0035-static-repo-cards-in-longform.md)'s payload behaviour** (#387) — image
   targets are absolutized to the origin; links are unchanged.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — committed assets, nothing fetched, everything
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — committed assets, nothing fetched, everything
   resolved before it is served.
 - **Consistent with [ADR-0005](./0005-og-coverage-every-public-url.md)** — the figures and the quotation are
   in the prerendered HTML like everything else on a public URL.

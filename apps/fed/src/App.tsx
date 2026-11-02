@@ -5,7 +5,7 @@
 // any unprefixed or invalid-locale path client-side redirects (path → persisted → edge hint → navigator →
 // en) to the prefixed equivalent, PRESERVING the sub-path (`/me` → `/en/me` for an English browser). The
 // edge only EXPOSES a hint (the `locale_hint` cookie, #669/#788); it never routes or redirects, and the
-// redirect is pure client-side React (ADR-0004 holds; ADR-0036's edge-locale-hint section). The bare `/`
+// redirect is pure client-side React (ADR-0002 holds; ADR-0036's edge-locale-hint section). The bare `/`
 // snapshot stays an x-default English page for the JS-less crawler (scripts/prerender.mjs).
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

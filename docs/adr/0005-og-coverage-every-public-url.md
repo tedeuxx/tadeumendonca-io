@@ -5,7 +5,7 @@
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
-- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)
 
 ## Context & problem
 The site's strategic job is **presence** (ADR-0053, lean by design) — content and portfolio meant to be *found* and
@@ -19,7 +19,7 @@ URLs.
 ## Decision drivers
 - Shareability *is* presence — a URL that unfurls well is the point (ADR-0053, lean by design).
 - Crawlers and unfurlers read the **served HTML** and do not reliably run JS.
-- The mechanism to produce it already exists: build-time prerender (ADR-0004).
+- The mechanism to produce it already exists: build-time prerender (ADR-0002).
 
 ## Considered options
 1. **Full coverage — every public route is OG/crawler-complete** (chosen) — each route is prerendered
@@ -33,13 +33,13 @@ URLs.
    crawlers/unfurlers don't run JS reliably, so the tags aren't there when it counts.
 
 ## Decision outcome
-Chosen: **full OG/crawler coverage on every public route**. This is the *policy* that ADR-0004's
+Chosen: **full OG/crawler coverage on every public route**. This is the *policy* that ADR-0002's
 build-time prerender exists to satisfy — the prerender must snapshot **every** public route ~~(`/`, `/cv`,
 `/portfolio`, each `/blog/:slug`)~~ with complete meta in the served HTML. *(The enumeration is struck
 because it drifted, #234: the CV route was renamed `/cv` → `/me` and the `/cv` REDIRECT dropped, in two separate 2026-07-24 amendments to ADR-0010; and every public URL is now
 locale-prefixed (ADR-0036). **`STATIC_ROUTES` / `localizedRoutes()` in `apps/fed/scripts/routes.mjs` is the
 source of truth** — cite the module, do not re-list here, or this line drifts again.)* It is the inverse of the
-external-link unfurl we gave up (ADR-0004): we cannot unfurl *other* people's URLs, but we make *ours*
+external-link unfurl we gave up (ADR-0002): we cannot unfurl *other* people's URLs, but we make *ours*
 maximally unfurlable.
 
 ## Consequences
@@ -50,7 +50,7 @@ maximally unfurlable.
 **Bad / accepted costs**
 - Every public route must be prerendered; build time and the prerender's coverage list grow with the
   route count (a missed route silently ships blank — the build/prerender smoke guards this).
-- OG/meta values are build-frozen (inherited from ADR-0004).
+- OG/meta values are build-frozen (inherited from ADR-0002).
 - ~~**Known SEO gap:** the site has **no `sitemap.xml` and no `robots.txt`** today.~~ **RESOLVED (Issue
   #51):** build now emits `sitemap.xml` (one `<loc>` per canonical route, generated from the same
   `scripts/routes.mjs` enumeration the prerender walks, so the two can't drift) and ships a static
@@ -58,4 +58,4 @@ maximally unfurlable.
   now both complete. An E2E journey (`e2e/seo.spec.ts`) guards both.
 
 ## Links
-- Driven by ADR-0053 (lean by design: presence) · implemented by ADR-0004 (build-time prerender) · guarded by the prerender-smoke check · discovery half (`sitemap.xml` + `robots.txt`) delivered by Issue #51.
+- Driven by ADR-0053 (lean by design: presence) · implemented by ADR-0002 (build-time prerender) · guarded by the prerender-smoke check · discovery half (`sitemap.xml` + `robots.txt`) delivered by Issue #51.

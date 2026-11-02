@@ -5,7 +5,7 @@
 // around it. It is exported so `e2e/diagram-determinism.spec.ts` can render twice into scratch paths and
 // require byte-identical output without touching the committed artifact (#758).
 //
-// WHY BUILD TIME AND NOT RUNTIME. The site is fully static with no runtime XHR (ADR-0004), and the
+// WHY BUILD TIME AND NOT RUNTIME. The site is fully static with no runtime XHR (ADR-0002), and the
 // /architecture page has to be readable by a crawler with JavaScript off — a client-side mermaid would
 // ship ~500kB to every reader to draw a picture that never changes. Inline SVG rather than an <img>, so
 // the labels are real text: crawlable, selectable, and readable by a screen reader.

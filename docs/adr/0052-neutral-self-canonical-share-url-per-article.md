@@ -60,7 +60,7 @@ feature**, and nothing in the request distinguishes the two consumers.
   invariant breaking, and five of six advertised x-defaults answering 200 with the home page's card.
 - **[ADR-0005](./0005-og-coverage-every-public-url.md): a scraper PINS the card on first fetch.** A wrong
   card at a shared address is the least reversible thing this repository can ship.
-- **[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md): build-time render, no SSR and no edge
+- **[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time): build-time render, no SSR and no edge
   compute.** A solution requiring either is a different architecture, not a feature.
 - **[ADR-0002](./0002-fully-static-spa-no-backend.md): there is no request-time code** to put a decision
   in, other than the CloudFront Function this repository has kept deliberately trivial.
@@ -93,7 +93,7 @@ crawler's own headers, pin **that** card, and the one-stable-card-per-article pr
 feature is *serve the two consumers differently*, and a redirect is the one mechanism that cannot tell
 them apart. It also puts negotiation logic at the edge, which
 [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) already rejected and
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) rules out as an architecture.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) rules out as an architecture.
 
 ### 3 · Leave the convention inert and keep sharing `/en/` links — **REJECTED**
 

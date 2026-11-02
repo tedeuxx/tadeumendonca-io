@@ -520,7 +520,7 @@ jobs:
   # /architecture publishes an inventory of the dev-loop harness — personas, hooks, command families —
   # whose source of truth is `tadeumendonca-skills`. The build never reads it: a committed manifest
   # (apps/fed/src/content/generated/harness.json) is what ships, exactly like adrs.json and diagrams.json,
-  # so ADR-0002 and ADR-0004 hold and a clone of this repo alone still builds. THIS job is the only place
+  # so ADR-0002 holds and a clone of this repo alone still builds. THIS job is the only place
   # the two are compared, three ways — missing, orphaned, changed.
   #
   # It needs no npm install and no browser: the script is dependency-free Node reading two trees.
