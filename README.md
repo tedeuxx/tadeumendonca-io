@@ -54,7 +54,8 @@ card, and the `app` workflow's `harness-drift` job compares what `/architecture`
   **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
   translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
 - **Infra** (`iac`): Terraform for the frontend infra **plus one account-wide guardrail** — S3 + CloudFront
-  (with a viewer-request URL-rewrite function), custom email via iCloud, the GitHub OIDC deploy roles, and
+  (with a viewer-request URL-rewrite function and a viewer-response function that sets a locale-hint
+  cookie), custom email via iCloud, the GitHub OIDC deploy roles, and
   an **account-level cost budget** (`budget.tf`) deliberately *not* scoped to this project's tags, so it
   catches spend this repo did not create. State in Terraform Cloud, **local** execution; `apply`/`destroy`
   are **pipeline-only**.
@@ -195,8 +196,8 @@ Two entries left this list rather than being dropped from it. The **fork-to-live
 directly below, moved off `/architecture` because a page that links canonical detail should not also be a
 setup guide — and the copy that lived there had gone stale describing renamed workflows, which is the
 argument rather than a coincidence. The **ADR for the hand-bootstrapped trust root** is
-[ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also narrows
-[ADR-0014](./docs/adr/0014-terraform-cloud-pipeline-only.md)'s "no irreversible cloud mutation in the
+[ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also narrows the
+[pipeline-only apply](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-only-apply)'s "no irreversible cloud mutation in the
 inner loop" claim to what is actually true.
 
 ## Fork to live
@@ -206,7 +207,8 @@ amount of preparation makes faster. Everything in
 [What you need before you fork](#what-you-need-before-you-fork) is assumed in place.
 
 1. **Fork both repos.** Read the ADRs first, starting at
-   [0001](./docs/adr/0001-lean-by-design-calibrated-to-strategy.md) — the decisions are the part worth
+   [0053](./docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md), which says what the library records and holds its keystone, *lean by
+   design* — the decisions are the part worth
    taking, and several of them will not fit your context. If you only want the loop, stop after
    [`mhw`](https://github.com/tedeuxx/mhw): it installs the method with no cloud account, no domain and
    nothing to deploy, and its README is self-contained.
@@ -238,14 +240,14 @@ amount of preparation makes faster. Everything in
    **Two decisions are doing the work here, and neither is setup trivia.** *Why the trust root is
    permanently out of band* — bootstrap circularity, and the permanent one, that a role able to rewrite
    its own trust policy has no ceiling — is
-   [ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also states its accepted
+   [ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also states its accepted
    costs: no `plan` detects drift on any of it, and the hand path **reopens every time that policy
    changes** rather than being a one-time act.
    [`docs/iac-deploy-policy.md`](./docs/iac-deploy-policy.md) is the standing runbook for exactly that,
    and [`docs/iac-deploy-policy.json`](./docs/iac-deploy-policy.json) is the desired document to apply.
    *Why the role's trust names an **immutable** subject* — `repo:<org>@<org_id>/<repo>@<repo_id>:*`, by
    numeric ID rather than by name, since a name can be transferred and the IDs cannot — is
-   [ADR-0015](./docs/adr/0015-oidc-immutable-subject-least-privilege.md). Its cost is that the safer form
+   [ADR-0013 — *Pipeline credentials by OIDC*](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc). Its cost is that the safer form
    is not copy-pasteable: you have to look your own IDs up.
 5. **Wire the GitHub secrets.** All eight are in
    [GitHub secrets and variables](#github-secrets-and-variables) above, with the scope each one takes and
@@ -270,7 +272,7 @@ amount of preparation makes faster. Everything in
 apps/
   fed/    # the static SPA (React + Vite + Tailwind, no PWA)
 docs/
-  adr/    # the decision library — the architecture documentation; start at 0001
+  adr/    # the decision library — the architecture documentation; start at 0053
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
           # plus one account-wide cost budget, deliberately not scoped to this project
 LICENSE   # the MIT grant, exact text so GitHub can classify it

@@ -47,7 +47,7 @@ are simply this property applied; they are recorded together for that reason.
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — there is no renderer to call, and a scraper
   does not execute JavaScript.
 - **Per locale, because the title is per locale** ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — the smallest card that
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)) — the smallest card that
   fixes the problem, not the most informative one.
 - ~~**`iac/` untouched** — cards are static objects like every other, served by the existing behaviour.~~
   **Wrong; see Consequences → Neutral.** `/og/*` had its own cache behaviour pointing at a different
@@ -71,6 +71,8 @@ are simply this property applied; they are recorded together for that reason.
    **owner's voice**, and a boundary class the reviewer does not merge (ADR-0003's 2026-07-30 amendment).
    Putting it here would couple a mechanical slice to a decision that has not been made and cannot be made
    by this slice.
+   **Reversed for cover-derived cards only, 2026-11-01** — see *Amendment, 2026-11-01* below. The
+   rejection stands for every title-only card.
 
 ### How many aspect ratios the generator emits
 Chosen: **one — 1200×630.** [#183](https://github.com/tedeuxx/tadeumendonca-io/issues/183) originally
@@ -283,6 +285,8 @@ names the URL.
 - **Deliberately does not couple to** the campaign-signature decision (issue
   [#271](https://github.com/tedeuxx/tadeumendonca-io/issues/271)) — `content` backlog, the owner's voice,
   a boundary class per [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment.
+  **Coupled since 2026-11-01 for cover-derived cards only** (#710): the card places the string #271 already
+  published; the words stay #271's. See the amendment below.
 - **Constrained by [ADR-0037](./0037-localized-article-slugs.md)** — per-locale, editable slugs are the
   reason the card is keyed by the article key.
 - **Constrained by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)** — one card per locale,
@@ -309,3 +313,63 @@ names the URL.
 - Implementation: `apps/fed/scripts/gen-og-articles.mjs`, `apps/fed/scripts/og-cards.mjs`,
   `apps/fed/scripts/og-cards.test.mjs`, `apps/fed/src/lib/content.ts` (the derivation in
   `buildEditions`), `apps/fed/e2e/seo.spec.ts`, `apps/fed/public/og/`.
+
+## Amendment, 2026-11-01 — a cover-derived card carries the signature; option 3 is reversed for it alone (#710)
+
+**Driven by** Issue [#710](https://github.com/tedeuxx/tadeumendonca-io/issues/710) · the owner's decisions
+of 2026-10-02 on #271 (*«Dividir»*) and of 2026-10-31 at sprint-planning intake (*«Card estreito»*) ·
+merge class **boundary** (it reverses a recorded decision and puts the owner's signature on a public card
+that scrapers keep once fetched).
+
+**What changed.** Option 3 under *What goes on the card* — *"Title + the campaign signature — rejected"* —
+is **reversed for cover-derived cards, and only for them.** Its reason was that the signature was an
+undecided `content` decision, and it no longer is: the #687 article publishes the bold line
+`THIS IS WHAT I THOUGHT · tadeumendonca.io` in both editions, and the owner split ownership on #271
+(*«Dividir»*) — #271 owns the words and their place in prose, this card only places the published
+string. The struck rejection is kept above, with a pointer here, rather than rewritten.
+
+**The narrow card («Card estreito»).** An article whose frontmatter sets the existing `cover` key gets a
+card built from that cover: the title, the rule and the signature in a 640px left column, the cover in the
+right column with a solid-block AI-generated mark in the reader's locale (`Ilustração de capa gerada por
+IA` / `AI-generated cover illustration`), and the unchanged `META_LINE` in a full-width bottom row. Same
+canvas, palette, mark and type as every other card; no radius, no shadow, no gradient
+([ADR-0008](./0008-brutalist-mono-identity.md)). That holds for the card's **frame** — its panels,
+rule, mark block and borders. The cover inside it is a picture and keeps its own colours and tones,
+because the surface rules do not govern an image (ADR-0008's 2026-07-23 amendment: *"Applying the
+surface rule to a photograph was over-reach"*). **Every article without `cover` keeps the title-only card,
+byte-identical.** Today that is one article, the #687 one, in both locales; `/articles` carries two card
+families until a second cover article exists, which «Card estreito» accepts.
+
+**The selector is the article's existing `cover` frontmatter key** — already declared, parsed and in
+`FACT_KEYS` in `content.ts`, so the two editions must agree on it. No new field, no mode, no slug named in a
+script. The generator reads it through `frontmatterOf` in `apps/fed/scripts/og-cards.mjs`, the same js-yaml
+parse that decides `draft`, not through the generator's own title line regex, so the field this slice adds
+a reader to has one parser. Deferred to their own item, to be opened when a second cover article exists:
+a `visualMode` contract, and the `cover`/`ogImage` schema cleanup (the `ogImage` overwrite in
+`buildEditions` is unchanged).
+
+**The alt.** A cover-derived card is no longer *only* the title, so `og:image:alt` is the title plus the
+catalog's `article.aiCover` in the page's locale. Title-only cards keep `imageAlt: article.title`. The card's
+printed mark and the alt suffix are one fact told twice, so `og-copy.test.mjs` asserts they are the same
+words.
+
+**The provenance check, and the gap it closes — for this field only.** *Bad / accepted costs* above says
+*"Nothing verifies the card's CONTENT matches the article's current title"*, because CI never runs the
+generator. A cover card adds a second input that can go stale the same way, and a worse one: a binary that
+can be replaced under the same name. So the generator writes, beside each cover-derived card, a sidecar
+`apps/fed/public/og/<key>.<locale>.cover.json` holding the cover path and the SHA-256 of the cover file it
+read, and `og-cards.test.mjs` recomputes the hash of the cover the article names now. A missing sidecar, a
+different cover path, a changed cover file, or a sidecar no cover card needs is a red unit test. Calibrated
+by changing the cover file (the subject), seeing red, restoring, seeing green. **The title gap is
+unchanged**: a cover card rendered from an older title is still green everywhere, exactly as a title-only
+card is.
+
+**What this does NOT cover.** That the card does not visibly read as a real photograph is not checkable by
+any gate; the AI-generated mark is its anchor, and the reviewer's look at the card is the check. The next
+cover article can ship without setting `cover`, and nothing objects — the price of deferring the mode,
+accepted by the owner. Social scrapers that already fetched the #687 article's title-only card keep it.
+
+**Unchanged.** One aspect ratio; naming by the article key; the wholesale regeneration (it now also removes
+the sidecars before writing); the overflow refusal (it now also measures the cover card's text column,
+because a long word there would run under the image without widening the body); the bidirectional card-set
+test; `META_LINE`.

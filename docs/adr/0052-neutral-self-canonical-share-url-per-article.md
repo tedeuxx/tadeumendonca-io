@@ -18,7 +18,7 @@
   [ADR-0037](./0037-localized-article-slugs.md) governs · **applies**
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s 2026-07-28 *"the prerender is not a visitor"*
   invariant · **inherits** [ADR-0005](./0005-og-coverage-every-public-url.md)'s pinned-card cost · reads
-  through [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+  through [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 

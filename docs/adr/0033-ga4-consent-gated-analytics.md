@@ -32,7 +32,7 @@ Two questions had to be answered honestly:
 - The site argues for **restraint**; whatever ships must not quietly contradict that argument.
 - The consent surface must be **valid in every geography** without geo-detection branching — the strictest
   opt-in applied globally, not "a banner only where the law forces one."
-- Low cost / no infra (ADR-0023, ADR-0001): the tracker must stay client-side, scale-to-zero.
+- Low cost / no infra (ADR-0023, ADR-0053 lean by design): the tracker must stay client-side, scale-to-zero.
 
 ## Considered options
 

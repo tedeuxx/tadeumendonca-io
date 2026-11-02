@@ -457,14 +457,14 @@ jobs:
           # filter costs runner minutes. THIS file's gate outputs are the predicate that decides whether
           # a CREDENTIALED job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
           # `terraform-apply` (the infra role, strictly more powerful). Two edits that look identical;
-          # only one widens the credential surface — ADR-0015, applied to a filter.
+          # only one widens the credential surface — ADR-0013's OIDC decision, applied to a filter.
           #
           # Nothing is lost by the asymmetry: an ADR-only PR reddens in `app.yml`, the author regenerates
           # `adrs.json`, and the PR then touches `apps/fed/` — which this pathspec already matches.
           app_hits="$(git diff --name-only "$prev..HEAD" -- \
             apps/fed packages/shared .github/workflows/deploy.yml)"
-          # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds
-          # cloudfront-functions/spa-rewrite.js via file(), so an edit to it is a real Terraform diff.
+          # iac/ IN FULL, cloudfront-functions/ included: iac/frontend.tf embeds each file there
+          # (spa-rewrite.js, locale-hint.js) via file(), so an edit to one is a real Terraform diff.
           # Excluding it here would merge the change green and never apply it to the edge.
           iac_hits="$(git diff --name-only "$prev..HEAD" -- \
             iac .github/workflows/deploy.yml)"
@@ -531,7 +531,7 @@ jobs:
         # DEPENDABOT PR whose run read an EMPTY Dependabot secret store, and its failing step shows
         # `role-to-assume` absent from the `with:` block — a cause that alone reproduces the identical
         # failure, proved by #414/#534/#587, which carry no such flag. The evidence is CONFOUNDED and
-        # #101 cannot establish the attribution. ADR-0014's 2026-09-14 amendment is the record of
+        # #101 cannot establish the attribution. ADR-0013's Dependabot-exception subsection is the record of
         # authority for that history; do not restate it here. THIS SITE WAS MISSED BY #639/#645, which
         # corrected the identical sentence in iac.yml and dependabot.yml in the same slice and left this
         # file — the one carrying the apply — stating the other cause, so the repository asserted two
@@ -580,7 +580,7 @@ jobs:
       # (a) DISTRIBUTION config changes (frontend.tf) are asynchronous, and `wait_for_deployment = false`
       #     in frontend.tf means terraform does not even wait for them. So this wait is required — but it
       #     covers the SECONDARY case.
-      # (b) A change to cloudfront-functions/spa-rewrite.js publishes a new function version and does NOT
+      # (b) A change to a file under cloudfront-functions/ publishes a new function version and does NOT
       #     touch the distribution at all: the association is by UNQUALIFIED ARN, so the distribution
       #     never leaves `Deployed` and this wait returns instantly. It synchronises nothing for the
       #     exact case #216/#237 exist for.
@@ -595,17 +595,30 @@ jobs:
       # Asserting that directly catches "stale association" and "never accepted" at their source, without
       # depending on how fast the edge propagates. It needs the terraform outputs, so it stays here
       # rather than moving to the shared e2e job.
+      #
+      # It covers EVERY function the distribution runs: the viewer-request rewrite and, since #669, the
+      # viewer-response locale hint. The list is DERIVED from cloudfront-functions/*.js by convention:
+      # `<x-y>.js` is compared against the output `<x_y>_function_name`. A function added without that
+      # output fails `terraform output` and goes red, instead of being applied and never compared.
       - name: Verify the LIVE function stage carries the repo's code
         run: |
-          name="$(terraform output -raw spa_rewrite_function_name)"
-          aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
-          if diff -q cloudfront-functions/spa-rewrite.js live-function.js >/dev/null; then
-            echo "LIVE stage of $name matches the repo."
-          else
-            echo "::error::the LIVE CloudFront Function does not match iac/cloudfront-functions/spa-rewrite.js"
-            diff cloudfront-functions/spa-rewrite.js live-function.js || true
-            exit 1
-          fi
+          set -euo pipefail
+          failed=0
+          for path in cloudfront-functions/*.js; do
+            source="${path##*/}"
+            base="${source%.js}"
+            output="${base//-/_}_function_name"
+            name="$(terraform output -raw "$output")"
+            aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
+            if diff -q "cloudfront-functions/$source" live-function.js >/dev/null; then
+              echo "LIVE stage of $name matches the repo."
+            else
+              echo "::error::the LIVE CloudFront Function $name does not match iac/cloudfront-functions/$source"
+              diff "cloudfront-functions/$source" live-function.js || true
+              failed=1
+            fi
+          done
+          exit "$failed"
 
   # ---------------------------------------------------------------------------------------------
   # Build the SPA and publish: S3 sync with split cache headers + CloudFront invalidation.
@@ -827,6 +840,12 @@ jobs:
   # Post-deploy smoke against the real apex. NOT A GATE — it runs after the publish and cannot revert
   # anything. Its worth rests on what its RED means, so a red must mean the SITE is broken.
   #
+  # ONE STEP HERE IS NOT THAT SIGNAL, and it is a separate step precisely so the contract above stays
+  # true: the #669 spike's go/no-go (`e2e/edge-locale-hint.spec.ts`, tag `@spike-669`). On a NO-GO the site
+  # is intact, because nothing reads the locale_hint cookie yet, so its red must not land in the smoke's
+  # result. The smoke runs with `--grep-invert @spike-669`; the spike step runs `--grep @spike-669` with
+  # `continue-on-error`, exposes its outcome as the job output `spike`, and `report` prints it apart.
+  #
   # It runs after EITHER publishing job, which is the reachability #237/#299 lacked: an iac/-only merge
   # now gets a smoke. `e2e/edge-rewrite.spec.ts` is part of this suite and is the only check that proves
   # the edge is running the repo's rewrite function (detached · stale association · rejected by the JS
@@ -849,6 +868,9 @@ jobs:
     # No AWS. It drives the public apex like any reader, so it holds no credential at all.
     permissions:
       contents: read
+    outputs:
+      # `outcome`, not `conclusion`: under continue-on-error the conclusion of a red step is success.
+      spike: ${{ steps.spike.outcome }}
     defaults:
       run:
         working-directory: apps/fed
@@ -886,7 +908,17 @@ jobs:
           E2E_ENV: production
         run: |
           sleep 10 # let the CloudFront invalidation propagate before driving the browser
-          npm run e2e
+          npm run e2e -- --grep-invert @spike-669
+
+      # The #669 spike, apart from the smoke: its red is a NO-GO verdict, not a broken site (see the job
+      # header). It runs whatever the smoke concluded, so both outcomes are always reported.
+      - name: "Spike go/no-go (#669): locale hint reaches the edge — red is NO-GO, not a broken site"
+        id: spike
+        if: ${{ !cancelled() && steps.setup-browser.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          E2E_ENV: production
+        run: npm run e2e -- --grep @spike-669
 
   # ---------------------------------------------------------------------------------------------
   # The three-case notice, as a terminal job because there is no single step every path reaches.
@@ -906,8 +938,25 @@ jobs:
           R_TF: ${{ needs.terraform-apply.result }}
           R_APP: ${{ needs.deploy-app.result }}
           R_E2E: ${{ needs.e2e.result }}
+          R_SPIKE: ${{ needs.e2e.outputs.spike }}
         run: |
           set -euo pipefail
+          # The #669 spike's verdict, printed apart from the site's (see the e2e job header). Empty when
+          # the e2e job did not run or never reached the step. A red spike is a NO-GO only while the site
+          # smoke ($R_E2E, which the spike's continue-on-error keeps out of) is green: the spike also
+          # requires a 200 text/html page, so on a broken site it goes red for the site's reason, and
+          # calling that a NO-GO beside a red smoke would say "not a broken site" about a broken one.
+          case "$R_SPIKE" in
+            success) echo "::notice::spike go/no-go (#669): GO — the locale hint reached the edge" ;;
+            failure)
+              if [ "$R_E2E" = "success" ]; then
+                echo "::warning::spike go/no-go (#669): NO-GO — the locale hint did not reach the edge. This is NOT a broken site; read the e2e job's spike step."
+              else
+                echo "::warning::spike go/no-go (#669): spike verdict unreadable: the site smoke is red too"
+              fi
+              ;;
+            *) ;;
+          esac
           if [ "$R_GATE" != "success" ]; then
             echo "::notice::the deploy did NOT get past its gate — nothing was published and nothing was verified. Read the gate job."
             exit 0
@@ -917,7 +966,7 @@ jobs:
             exit 0
           fi
           if [ "$R_TF" = "failure" ] || [ "$R_APP" = "failure" ] || [ "$R_E2E" = "failure" ]; then
-            echo "::notice::the deploy did NOT complete — terraform-apply: $R_TF · deploy-app: $R_APP · e2e: $R_E2E. Read the failing job, not this line."
+            echo "::notice::the deploy did NOT complete — terraform-apply: $R_TF · deploy-app: $R_APP · e2e (site smoke, spike excluded): $R_E2E. Read the failing job, not this line."
             exit 1
           fi
-          echo "::notice::published v$VERSION — terraform-apply: $R_TF · deploy-app: $R_APP · post-deploy e2e: $R_E2E"
+          echo "::notice::published v$VERSION — terraform-apply: $R_TF · deploy-app: $R_APP · post-deploy e2e (site smoke, spike excluded): $R_E2E"

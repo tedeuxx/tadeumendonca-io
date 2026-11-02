@@ -1,12 +1,5 @@
 [
   {
-    "id": "0001",
-    "title": "Lean by design — architecture calibrated to the strategic priority",
-    "file": "0001-lean-by-design-calibrated-to-strategy.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0002",
     "title": "Fully static SPA, no backend",
     "file": "0002-fully-static-spa-no-backend.md",
@@ -88,35 +81,7 @@
     "title": "S3 + CloudFront hosting with a URL-rewrite function",
     "file": "0013-s3-cloudfront-hosting.md",
     "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0014",
-    "title": "Terraform + Terraform Cloud, apply pipeline-only",
-    "file": "0014-terraform-cloud-pipeline-only.md",
-    "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0015",
-    "title": "GitHub OIDC deploy roles — immutable subject, least-privilege",
-    "file": "0015-oidc-immutable-subject-least-privilege.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0016",
-    "title": "Custom-domain email via iCloud+, not a mail service",
-    "file": "0016-custom-email-via-icloud.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0017",
-    "title": "Minimal infra security posture — no WAF, no CMK, SSM String-only",
-    "file": "0017-no-waf-no-cmk-ssm-string-only.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0018",
@@ -277,14 +242,7 @@
     "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
     "file": "0041-per-article-og-cards.md",
     "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0042",
-    "title": "The trust root is bootstrapped out of band — Terraform never manages the OIDC provider, nor the role that runs Terraform",
-    "file": "0042-trust-root-bootstrapped-out-of-band.md",
-    "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0043",
@@ -336,13 +294,6 @@
     "amended": true
   },
   {
-    "id": "0050",
-    "title": "A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`",
-    "file": "0050-journey-attribution-joins-profile-on-company-and-start-date.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0051",
     "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
     "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
@@ -360,7 +311,7 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
-    "status": "proposed",
+    "status": "accepted",
     "amended": false
   },
   {

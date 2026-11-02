@@ -16,7 +16,7 @@ import architectureEn from './architecture.en.md?raw';
 import architecturePt from './architecture.pt.md?raw';
 
 // The real repo trees this page links into, enumerated at build time. Keys are relative to THIS file
-// (apps/fed/src/content/ → four levels up to the repo root), e.g. '../../../../docs/adr/0001-….md'.
+// (apps/fed/src/content/ → four levels up to the repo root), e.g. '../../../../docs/adr/0053-….md'.
 //
 // `docs/` was the only tree until the cost section linked `iac/budget.tf` (#171). That link made the
 // guard go RED rather than skip — which is the behaviour to keep: an in-repo URL this test cannot
@@ -70,7 +70,7 @@ const localTargetsIn = (markdown: string): string[] =>
 describe('architecture page — outbound file links resolve in the repo (#153)', () => {
   // The glob itself must have found the docs tree — otherwise every assertion below passes vacuously.
   it('sees the real docs/ and iac/ trees', () => {
-    expect(existingDocPaths.has('docs/adr/0001-lean-by-design-calibrated-to-strategy.md')).toBe(true);
+    expect(existingDocPaths.has('docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md')).toBe(true);
     expect(existingDocPaths.has('docs/adr/README.md')).toBe(true);
     expect(existingDocPaths.has('iac/budget.tf')).toBe(true);
     // One per tree added in #170 — a glob that silently matched nothing would make every link into it

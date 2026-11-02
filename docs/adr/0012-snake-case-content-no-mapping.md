@@ -4,7 +4,7 @@
 - **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 Content and data — markdown frontmatter, the profile/catalog data modules — need a field-naming
@@ -12,7 +12,7 @@ convention. JavaScript/TypeScript idiom is camelCase; data/serialization idiom i
 choice at the boundary determines whether a mapping layer is needed.
 
 ## Decision drivers
-- ADR-0001: avoid layers that don't earn their keep — a camel↔snake mapper is pure overhead if avoidable.
+- ADR-0053 (lean by design): avoid layers that don't earn their keep — a camel↔snake mapper is pure overhead if avoidable.
 - Consistency between frontmatter authored by hand and the typed data the app reads.
 - The convention predates the static pivot (it was the API contract style); keeping it avoids a churn.
 
@@ -22,7 +22,7 @@ choice at the boundary determines whether a mapping layer is needed.
    app reads the data as authored with **no transformation**. *Trade-off:* snake_case keys sit inside
    otherwise-camelCase TS, a mild idiom mismatch.
 2. **camelCase everywhere + a mapping layer at the content boundary** — *Why not:* a mapper to convert
-   frontmatter → camelCase is a layer with no payoff here; it's the over-engineering ADR-0001 forbids.
+   frontmatter → camelCase is a layer with no payoff here; it's the over-engineering ADR-0053 (lean by design) forbids.
 3. **camelCase in frontmatter too** — *Why not:* less natural for hand-authored YAML frontmatter, and it
    would churn the existing convention for no real gain.
 
@@ -78,5 +78,5 @@ different claim that was true of the code and contradicted this ADR — a correc
 overturned a fixed decision without recording it.
 
 ## Links
-- Driven by ADR-0001 · applies to markdown frontmatter and the `src/data` modules, with the casing split
+- Driven by ADR-0053 (lean by design) · applies to markdown frontmatter and the `src/data` modules, with the casing split
   recorded in the 2026-07-30 amendment above.

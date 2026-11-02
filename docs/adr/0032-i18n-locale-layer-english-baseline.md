@@ -27,7 +27,7 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
 - **Cross-surface CV coherence** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)): the English CV
   must render in English chrome so the site matches LinkedIn + Canva. This is the driving requirement.
 - **Native-language reach:** a pt-BR visitor should still get the site in their language, live.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): two locales on a static
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): two locales on a static
   SPA don't justify an i18n framework or a new dependency-class.
 - **Static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) and **build-time OG/SEO**
   ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md)):
@@ -40,7 +40,7 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
    repo's "simplest thing, no unnecessary deps, no shadcn" floor. Two locales don't need a framework.
 2. **An i18n library** (react-i18next / react-intl / lingui) — *Why not:* a new dependency/tool-class plus
    bundle weight for little gain at exactly two locales. The pluralization/interpolation machinery these
-   bring is unearned at this scale (ADR-0001).
+   bring is unearned at this scale (ADR-0053, lean by design).
 
 ## Decision outcome
 Chosen: **the light in-repo locale layer**, with the following specifics.
@@ -117,7 +117,7 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   reader's locale (both editions are authored and prerendered); English remains the **canonical** edition
   ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)), and the Canva CV was retired 2026-07-28. #234
 - **Native-language visitors still get their language live** (auto-detect + persisted manual toggle).
-- **No new dependency** — a typed catalog + two hooks; the "simplest thing" floor ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) holds.
+- **No new dependency** — a typed catalog + two hooks; the "simplest thing" floor ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)) holds.
 - The **static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) is intact — no server, no
   Accept-Language edge logic.
 

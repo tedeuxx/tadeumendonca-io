@@ -528,7 +528,7 @@ jobs:
   # WHY THE SECOND CHECKOUT IS SAFE, and this is the property the decision turns on: the plugin is a
   # PUBLIC repository, so `actions/checkout` needs no token, no secret and no `id-token`. This widens no
   # credential surface. Nothing here goes near deploy.yml's gate filter, whose outputs decide whether an
-  # OIDC-credentialed job runs — that is ADR-0015 applied to a path filter, and the manifest already sits
+  # OIDC-credentialed job runs — that is ADR-0013's OIDC decision applied to a path filter, and the manifest already sits
   # under apps/fed/, which the `code` filter matches.
   #
   # WHAT THIS JOB CANNOT DO, said here because it is the accepted cost rather than a gap to fix later: it

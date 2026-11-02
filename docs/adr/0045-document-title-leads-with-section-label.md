@@ -85,7 +85,7 @@ shaped by that asymmetry.
   satisfied.
 - **The catalog string is a PREFIX, not the title.** `useDocumentHead` appends `" · tadeumendonca.io"`
   unless it is already present, so any check that stops at the key is not checking what a tab shows.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — a convention, not a
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)) — a convention, not a
   title framework.
 
 ## Considered options

@@ -4,23 +4,23 @@
 - **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md)
 
 ## Context & problem
-The infra security posture (ADR-0017) is minimal because the surface is minimal. The same question at the
+The infra security posture (ADR-0013, *The minimal infrastructure security posture*) is minimal because the surface is minimal. The same question at the
 **application** level: what security controls does a static SPA with no server, no auth and no user data
 actually need? Being backendless removes whole classes of concern (injection into a DB, auth bypass,
 server RCE, secrets at runtime) — what remains is the client bundle and its **dependencies**.
 
 ## Decision drivers
 - ADR-0002: no server-side attack surface — most AppSec controls have nothing to act on.
-- ADR-0001: apply only the controls with a real threat here.
+- ADR-0053 (lean by design): apply only the controls with a real threat here.
 - The realistic risks for a static bundle are code-level defects (SAST) and vulnerable dependencies.
 
 ## Considered options
 1. **SAST + package-vulnerability scanning** (chosen) — SonarCloud (ADR-0020) covers SAST/security
    hotspots; a dependency-vulnerability scan (Dependabot / `npm audit`) covers vulnerable packages.
-   Together with the infra floor (OIDC least-privilege ADR-0015, no secrets in the repo, the `PreToolUse`
+   Together with the infra floor (OIDC least-privilege, ADR-0013's *Pipeline credentials by OIDC*, no secrets in the repo, the `PreToolUse`
    guard hook) this is the whole posture — ~~two levers~~ **three, see the amendment (2026-07-27): the
    enumeration was incomplete, install-time script execution is a distinct lever.** *Trade-off:* scoped
    to a static bundle; a future dynamic surface needs more.
@@ -38,7 +38,7 @@ This is calibrated to what a backendless site can actually be attacked through: 
   `npm run audit`), placed right after `Install` so a vulnerable dep aborts before the E2E + Sonar steps.
   **Threshold: block on HIGH + CRITICAL advisories in PRODUCTION dependencies only** (`skip-dev`). A static
   site ships only its prod deps in the bundle; a build-tool devDependency advisory never reaches a user, so
-  it is reported (Dependabot) but does not block the deploy — controls calibrated to the real threat (ADR-0001).
+  it is reported (Dependabot) but does not block the deploy — controls calibrated to the real threat (ADR-0053, lean by design).
 - **Hygiene** — **Dependabot** (`.github/dependabot.yml`, npm ecosystem on `apps/fed`, weekly, grouped
   minor/patch) for scheduled update PRs plus GitHub-native vulnerability alerts / security-update PRs.
 - **Triage** — a genuine unreachable / false-positive advisory goes into the checked-in `audit-ci.jsonc`
@@ -150,8 +150,8 @@ owner's, not this record's, and adopting it would be a new decision with its own
 amendment to this one.
 
 ## Links
-- Driven by ADR-0001, ADR-0002 · SAST is ADR-0020 · infra floor is ADR-0015, ADR-0017 · package-vulnerability
+- Driven by ADR-0053 (lean by design), ADR-0002 · SAST is ADR-0020 · infra floor is ADR-0013 (its OIDC and minimal-posture sections) · package-vulnerability
   scanning (Dependabot + `audit-ci`) delivered by Issue #52 · the `--ignore-scripts` amendment delivered by
-  Issue #192 (PR #194); the deploy role it protects is ADR-0015, the gates it runs in are ADR-0018.
+  Issue #192 (PR #194); the deploy role it protects is in ADR-0013's OIDC section, the gates it runs in are ADR-0018.
 - The 2026-08-07 mechanism amendment rides with Issue #374 / PR #377 (the architecture page that cites this
   record); the workflow split it describes is `b9ef46d`, and the aggregator shape it depends on is ADR-0018.

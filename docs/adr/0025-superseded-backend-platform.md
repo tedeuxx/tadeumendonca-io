@@ -16,7 +16,7 @@ The direction at the time was a full product — an interactive, authenticated, 
 DynamoDB + Cognito is a reasonable stack for that, and it exercised real distributed-systems engineering.
 
 ## Why it was superseded
-The strategy narrowed to **presence through content and portfolio** (ADR-0001). Against that priority, the
+The strategy narrowed to **presence through content and portfolio** (ADR-0053, lean by design). Against that priority, the
 entire backend was cost, operational surface, and attack surface serving capabilities the strategy no
 longer needed — no audience whose needs justified auth, a database, or a feed. The whole tier was retired
 and the site became fully static (ADR-0002).
@@ -24,7 +24,7 @@ and the site became fully static (ADR-0002).
 ## Consequences of the reversal
 - Near-zero cost and a minimal attack surface (ADR-0002); whole classes of security concern disappeared.
 - Lost: dynamic/authenticated capabilities (feed, comments, accounts, newsletter). Recorded as history, not
-  as a gap — they can return via ADR-0001's gradual-evolution path if the strategy ever calls for them
+  as a gap — they can return via the lean-by-design gradual-evolution path in ADR-0053 if the strategy ever calls for them
   (the dev-loop plugin still catalogs the backend personas for that day).
 
 ## Links

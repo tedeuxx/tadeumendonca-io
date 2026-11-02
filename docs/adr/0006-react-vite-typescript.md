@@ -4,7 +4,7 @@
 - **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md)
 
 ## Context & problem
 The static site (ADR-0002) needs a frontend toolchain: a component model, a build tool, and a language.
@@ -41,4 +41,4 @@ glob and prerender; React models the interactive CV/portfolio/blog; TypeScript t
 - The bundle grows with features (a bundle-size concern the performance work watches).
 
 ## Links
-- Driven by ADR-0001, ADR-0002 · Vite enables ADR-0004 (build-time content + prerender).
+- Driven by ADR-0053 (lean by design), ADR-0002 · Vite enables ADR-0004 (build-time content + prerender).

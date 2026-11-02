@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 import {
@@ -9,6 +10,14 @@ import {
   diffCards,
   cardPath,
   LOCALES,
+  coverOf,
+  coverFile,
+  coverCardsFrom,
+  coverCardsIn,
+  coverSidecarName,
+  coverSidecarProblems,
+  coverSidecarsIn,
+  hashBytes,
 } from './og-cards.mjs';
 import { HELD_KEY } from '../src/content/heldFixture';
 
@@ -137,5 +146,135 @@ describe('articleKeysFrom — the held-key decision, without a filesystem', () =
   it('ignores files that are not per-locale articles, and never reads them', () => {
     const files = { 'README.md': live, 'a.xx.md': live, 'notes.txt': live };
     expect(articleKeysFrom(Object.keys(files), read(files))).toEqual([]);
+  });
+});
+
+// #710 — the COVER-DERIVED card, and the provenance gap it closes for the one field it adds.
+//
+// CI never runs the generator (ADR-0041), so a committed card is whatever the last local run wrote. For a
+// title-only card that was an accepted cost; for a card drawn from a binary that can be replaced under
+// the same name it is not, so the generator records the cover's hash in a sidecar and this recomputes it.
+// Calibrated by changing the cover FILE (the subject), never this test.
+describe('a cover-derived card was built from the cover the article names now', () => {
+  const publicDir = join(root, 'public');
+  const hashCover = (cover) => hashBytes(readFileSync(coverFile(publicDir, cover)));
+  const readSidecar = (name) => {
+    try {
+      return readFileSync(join(ogDir, name), 'utf8');
+    } catch {
+      return undefined;
+    }
+  };
+
+  it('has a sidecar for every cover card, matching the cover file’s current hash, and no orphan', () => {
+    const problems = coverSidecarProblems(coverCardsIn(blogDir), {
+      readSidecar,
+      hashCover,
+      sidecarNames: coverSidecarsIn(ogDir),
+    });
+    expect(problems, 'run `npm run gen-og-articles`').toEqual([]);
+  });
+
+  // The false green: with no cover article found, the check above compares nothing. The #687 article is
+  // the one cover article today, in both editions — named here so a lost selector is a red, not a pass.
+  it('finds the cover article at all, in both locales', () => {
+    expect(coverCardsIn(blogDir).map((c) => `${c.key}.${c.locale}`)).toEqual([
+      'ai-answers-in-seconds-you-dont-have-to.en',
+      'ai-answers-in-seconds-you-dont-have-to.pt',
+    ]);
+  });
+});
+
+describe('coverOf — the variant selector', () => {
+  it('reads `cover` through the YAML parse, trailing comment and quotes included', () => {
+    expect(coverOf('---\ncover: /illustrations/a.jpg # the cover\n---\nbody')).toBe('/illustrations/a.jpg');
+    expect(coverOf("---\ncover: '/illustrations/a.jpg'\n---\nbody")).toBe('/illustrations/a.jpg');
+  });
+
+  it('is undefined with no cover, an empty one, a non-string one, or no frontmatter', () => {
+    expect(coverOf('---\ntitle: x\n---\nbody')).toBeUndefined();
+    expect(coverOf('---\ncover: "  "\n---\nbody')).toBeUndefined();
+    expect(coverOf('---\ncover: 3\n---\nbody')).toBeUndefined();
+    expect(coverOf('no frontmatter')).toBeUndefined();
+    expect(coverOf('---\njust a string\n---\nbody')).toBeUndefined();
+  });
+});
+
+describe('coverFile — a cover must be a site path inside public/', () => {
+  it('resolves an absolute site path under the public directory', () => {
+    expect(coverFile('/pub', '/illustrations/a.jpg')).toBe(join('/pub', 'illustrations', 'a.jpg'));
+  });
+
+  it('refuses a relative path and a path that climbs out', () => {
+    expect(() => coverFile('/pub', 'illustrations/a.jpg')).toThrow(/absolute site path/);
+    expect(() => coverFile('/pub', '/illustrations/../../etc/passwd')).toThrow(/absolute site path/);
+  });
+});
+
+describe('coverCardsFrom — which cards are cover-derived, without a filesystem', () => {
+  const read = (files) => (f) => files[f];
+  const withCover = '---\ncover: /illustrations/c.jpg\n---\nbody';
+  const plain = '---\ntag: ai\n---\nbody';
+
+  it('selects only the editions that set a cover, per locale', () => {
+    const files = { 'a.en.md': withCover, 'a.pt.md': withCover, 'b.en.md': plain, 'b.pt.md': plain };
+    expect(coverCardsFrom(Object.keys(files), read(files))).toEqual([
+      { key: 'a', locale: 'en', cover: '/illustrations/c.jpg' },
+      { key: 'a', locale: 'pt', cover: '/illustrations/c.jpg' },
+    ]);
+  });
+
+  // A held article gets no card, so it gets no cover card either — and no sidecar the check would demand.
+  it('skips a held article even when it sets a cover', () => {
+    const held = '---\ndraft: true\ncover: /illustrations/c.jpg\n---\nbody';
+    const files = { 'a.en.md': held, 'a.pt.md': withCover, 'notes.md': withCover };
+    expect(coverCardsFrom(Object.keys(files), read(files))).toEqual([]);
+  });
+});
+
+describe('coverSidecarProblems — every way a cover card can stop matching its cover', () => {
+  const cards = [{ key: 'a', locale: 'en', cover: '/c.jpg' }];
+  const sidecar = (over = {}) => JSON.stringify({ cover: '/c.jpg', sha256: 'H', ...over });
+  const check = (sidecars, hash = 'H') =>
+    coverSidecarProblems(cards, {
+      readSidecar: (name) => sidecars[name],
+      hashCover: () => hash,
+      sidecarNames: Object.keys(sidecars),
+    });
+
+  it('is clean when the sidecar names the cover and its current hash', () => {
+    expect(check({ 'a.en.cover.json': sidecar() })).toEqual([]);
+  });
+
+  it('reports a missing sidecar', () => {
+    expect(check({})).toEqual([expect.stringMatching(/a\.en\.cover\.json is missing/)]);
+  });
+
+  it('reports a cover changed since the card was built', () => {
+    expect(check({ 'a.en.cover.json': sidecar() }, 'OTHER')).toEqual([expect.stringMatching(/changed since/)]);
+  });
+
+  it('reports a card built from a different cover path', () => {
+    expect(check({ 'a.en.cover.json': sidecar({ cover: '/old.jpg' }) })).toEqual([
+      expect.stringMatching(/built from \/old\.jpg/),
+    ]);
+  });
+
+  it('reports a sidecar that is not JSON', () => {
+    expect(check({ 'a.en.cover.json': 'not json' })).toEqual([expect.stringMatching(/not valid JSON/)]);
+  });
+
+  it('reports a sidecar no cover card needs', () => {
+    expect(check({ 'a.en.cover.json': sidecar(), 'gone.pt.cover.json': sidecar() })).toEqual([
+      expect.stringMatching(/gone\.pt\.cover\.json is orphaned/),
+    ]);
+  });
+
+  it('names the sidecar after the key and locale', () => {
+    expect(coverSidecarName('k', 'pt')).toBe('k.pt.cover.json');
+  });
+
+  it('lists no sidecars for a directory that does not exist', () => {
+    expect(coverSidecarsIn(join(root, 'no-such-dir'))).toEqual([]);
   });
 });
