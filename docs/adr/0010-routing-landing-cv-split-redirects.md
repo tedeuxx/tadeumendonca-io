@@ -321,7 +321,7 @@ carries its own non-vacuity assertion, because an intersection-scoped check stop
 exactly the edit it exists to catch.
 
 ## Links
-- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
+- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0003, *Complete functional regression*) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
   rename + "Perfil / Profile" label, using this ADR's own redirect pattern · amended again (2026-07-24)
   to drop the back-compat redirects for the pre-launch window (premise "URLs already in the world" not yet

@@ -1,4 +1,4 @@
-# Dependency hygiene (ADR-0021). The continuous half of the package-vulnerability floor: scheduled
+# Dependency hygiene (ADR-0003, security posture). The continuous half of the package-vulnerability floor: scheduled
 # update PRs + GitHub-native vulnerability alerts / security-update PRs. The *enforcement* half — a
 # blocking gate that fails a PR on a high/critical prod advisory — lives in build-test.yml (audit-ci).
 #

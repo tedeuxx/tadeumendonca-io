@@ -70,7 +70,7 @@ so a bare *"held to more"* would be flattery. Where the comparison **is** like-f
 checkable: this bar accepts *"green on its own basics **or a documented 'how I verified it'"*** — a prose
 claim — where the platform is held to blocking CI. The substitutes are an ADR library recording every
 **load-bearing** decision and the trade-off it cost, those gates (see
-[ADR-0018](./adr/0018-ci-gates-e2e-on-pr-coverage.md) — enumerating them here would be a fourth copy of a
+[ADR-0003](./adr/0003-trunk-based-single-environment.md#ci-gates-on-the-pull-request), *CI gates on the pull request* — enumerating them here would be a fourth copy of a
 list that has already drifted once), and `/architecture`, which publishes how the site is built including
 its own honest limitation. The ADRs are public and so is the CI config, so none of that has to be taken
 on trust.

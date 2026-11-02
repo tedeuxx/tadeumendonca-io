@@ -63,48 +63,6 @@
     "amended": true
   },
   {
-    "id": "0018",
-    "title": "CI gates on the PR — E2E included, unit coverage ≥85%",
-    "file": "0018-ci-gates-e2e-on-pr-coverage.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0019",
-    "title": "Complete automated functional regression",
-    "file": "0019-complete-functional-regression.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0020",
-    "title": "SonarCloud quality gate, blocking",
-    "file": "0020-sonarcloud-quality-gate.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0021",
-    "title": "Application security posture — SAST + package-vulnerability scanning",
-    "file": "0021-application-security-posture.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0022",
-    "title": "Numeric SemVer, auto-bump + release on merge",
-    "file": "0022-numeric-semver-auto-release.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0023",
-    "title": "Observability scoped to a static site",
-    "file": "0023-observability-static-site.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0024",
     "title": "`profile.ts` is the canonical structured CV; cross-surface coherence",
     "file": "0024-profile-canonical-cv-cross-surface.md",
@@ -229,13 +187,6 @@
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
     "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0044",
-    "title": "Version digits carry content meaning — major and minor are a deliberate dispatch, patch stays automatic",
-    "file": "0044-version-parts-deliberate-major-minor.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0045",

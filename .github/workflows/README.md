@@ -163,7 +163,7 @@ not prove that.
 | `actionlint` | `.github/**` |
 
 **Four entries carry the whole rule, and they are the same rule four times: a gate belongs to what a
-file IS, not to the directory it sits in** (ADR-0018's amendment). *It said three until 2026-08-05;
+file IS, not to the directory it sits in** (ADR-0003, *CI gates on the pull request*). *It said three until 2026-08-05;
 `CLAUDE.md` is the fourth, and the count is kept as a count rather than softened to "several" because a
 number is the thing a reader can check against the filter.*
 

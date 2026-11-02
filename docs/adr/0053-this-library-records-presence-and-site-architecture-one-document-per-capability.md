@@ -251,7 +251,7 @@ Its drivers, as they stand since the 2026-10-16 re-reading:
   out of it unchanged.
 - **Left as history, deliberately.** Records dated before 2026-10-16 that describe the site as a
   proof-of-engineering site ([ADR-0010](./0010-routing-landing-cv-split-redirects.md),
-  [ADR-0020](./0020-sonarcloud-quality-gate.md) and [ADR-0033](./0033-ga4-consent-gated-analytics.md)) keep that
+  [ADR-0003, *The SonarCloud quality gate*](./0003-trunk-based-single-environment.md#the-sonarcloud-quality-gate) and [ADR-0033](./0033-ga4-consent-gated-analytics.md)) keep that
   wording: it records why each decision was taken when it was. Read *proof-of-engineering* in any record
   dated before 2026-10-16 as the mission of that time. No record exists for the mission itself: a mission
   is positioning, not an architecture decision.

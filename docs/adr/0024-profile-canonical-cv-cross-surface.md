@@ -226,7 +226,7 @@ grep -ao "/Type /Page[s]*" apps/fed/dist/cv.pdf | sort | uniq -c
 `apps/fed/scripts/routes.mjs` and the sitemap, and [ADR-0005](./0005-og-coverage-every-public-url.md)'s
 every-public-URL coverage does not reach it. The `build-test` gate builds with `build:static`, so the
 artifact is produced and exercised on the merge request, not only at deploy
-([ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md)). **English only, by choice of source route**: both
+([ADR-0003, *CI gates on the pull request*](./0003-trunk-based-single-environment.md#ci-gates-on-the-pull-request)). **English only, by choice of source route**: both
 locales prerender ([ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)), and the PDF prints from
 the canonical English edition; a pt-BR `cv.pt.pdf` from `/pt/me` is a deferred follow-on on the same
 pipeline, not designed out.

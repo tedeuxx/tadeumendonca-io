@@ -115,14 +115,22 @@ describe('adr citations — the gate', () => {
       'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
       'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
       'docs/adr/README.md cites ADR-0004',
+      // The content review cites the methodology library's 0021, which resolved to this library's
+      // security-posture record by accident until the seventh fold slice absorbed it into 0003.
+      'docs/content-review/what-my-agents-do.md cites ADR-0021',
       'docs/iteration-sweep/sprint-04.md cites ADR-0004',
       'docs/loop-mode.md cites ADR-0004',
     ]);
     expect(excused(audit.quoted)).toEqual([
+      // 0043 quotes the label `ADR-0044` as a string in its 2026-08-08 amendment, which explains why a
+      // dead pointer could not be left standing once this library's 0044 existed. That record left
+      // with the seventh fold slice of #456 (into 0003), so the label is quoted rather than cited.
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
       // The round-3 repair notes in the content review cite the SIBLING library by path, because the
       // repair they justify was derived from those two records. `docs/adr/0002` here is
-      // `0002-fully-static-spa-no-backend.md` and `0020` is `0020-sonarcloud-quality-gate.md` - both
-      // different records - so neither citation can resolve in this tree. They land in `quoted` rather
+      // `0002-fully-static-spa-no-backend.md`, and `0020` was `0020-sonarcloud-quality-gate.md` until the
+      // seventh fold slice of #456 absorbed it into 0003 - different records either way - so neither
+      // citation can resolve in this tree. They land in `quoted` rather
       // than `dangling` only because the review record wraps them in backticks.
       'docs/content-review/what-my-agents-do.md cites 0020-an-adr-earns-its-place-by-explaining-the-current-codebase.md',
       'docs/content-review/what-my-agents-do.md cites 0002-roster-and-dev-loop.md',
@@ -135,6 +143,11 @@ describe('adr citations — the gate', () => {
     expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own
       // struck text says the target "was never written". Not a defect; not silently ignored either.
+      // The two `ADR-0044` tokens resolved to this library's version-parts record until the seventh
+      // fold slice of #456 absorbed it into 0003: one is the struck pointer's label, the other the
+      // struck claim "ADR-0044 in this library is …", corrected beside the strike.
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
       'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites 0044-committed-permission-floor-local-overlay-ephemeral.md',
     ]);
   });
@@ -300,7 +313,9 @@ describe('auditFiles', () => {
       adrDir,
     );
     expect(one.citations.length).toBeGreaterThan(0);
-    expect(one.struck).toHaveLength(1);
+    // Three since the seventh fold slice of #456: the struck dead path, and two `ADR-0044` tokens that
+    // stopped resolving when this library's 0044 was absorbed into 0003 (see the struck list above).
+    expect(one.struck).toHaveLength(3);
     expect(one.dangling).toEqual([]);
   });
 

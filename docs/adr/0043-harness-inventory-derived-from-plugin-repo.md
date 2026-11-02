@@ -705,12 +705,17 @@ and the correction is dated next to it.
 
 ### The number, and why it must not be re-used here
 
-**ADR-0044 in this library is `0044-version-parts-deliberate-major-minor.md`** — the record about which
-SemVer part a change takes. It is a different decision and it keeps the number; nothing is renumbered by
+~~**ADR-0044 in this library is `0044-version-parts-deliberate-major-minor.md`**~~ **Record 0044 in
+this library was `0044-version-parts-deliberate-major-minor.md`** — the record about which
+SemVer part a change takes. *(Corrected 2026-11-02, #456: that record was absorbed into
+[ADR-0003, *Version parts: major and minor are deliberate*](./0003-trunk-based-single-environment.md#version-parts-major-and-minor-are-deliberate),
+and the decision index lists 0044 under *Records that left the library*. The number resolves to no
+file again, and a reader who looks it up finds that row; what follows is the reasoning as it stood on
+2026-08-08.)* It is a different decision and it keeps the number; nothing is renumbered by
 this amendment. That is precisely why the struck line could not be left standing, and the distinction is
 worth stating exactly. **The `href` 404s either way** — it names
 `0044-committed-permission-floor-local-overlay-ephemeral.md`, a filename that exists at no head. What
-changes on that record's merge is the **label**: *"ADR-0044"* stops naming nothing and starts naming the
+changes on that record's merge is the **label**: *"`ADR-0044`"* stops naming nothing and starts naming the
 version-parts decision, so a reader who resolves the number — via `docs/adr/README.md`, via
 `/architecture`, or by listing the directory — lands on a real record about version digits that this line
 introduces as *"how permissions are governed"*. **A 404 tells the reader something is wrong; a resolving
