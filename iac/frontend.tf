@@ -29,15 +29,15 @@ resource "aws_cloudfront_function" "spa_rewrite" {
 }
 
 # CloudFront Function (viewer-response) — the edge half of IP-based locale resolution (#669). It sets a
-# short, script-readable `locale_hint` cookie (`pt` for a CPLP country, `other` for everything else) on
-# each HTML response. It runs AFTER the cache, so the shared cached HTML stays byte-identical for every
+# short, script-readable `locale_hint` cookie on each HTML response: `pt` for a CPLP country, `other` for
+# any other country, `unknown` when no country header reached it. It runs AFTER the cache, so the shared cached HTML stays byte-identical for every
 # viewer: it never routes, never redirects and never rewrites the body. The client step that reads the
 # cookie is a separate slice.
 resource "aws_cloudfront_function" "locale_hint" {
   provider = aws.us_east_1
   name     = "${var.project}-locale-hint-${var.environment}"
   runtime  = "cloudfront-js-2.0"
-  comment  = "Set the locale_hint cookie (pt for a CPLP viewer country, other otherwise) on HTML responses."
+  comment  = "Set the locale_hint cookie on HTML responses: pt (CPLP country), other (any other), unknown (no country)."
   publish  = true
   code     = file("${path.module}/cloudfront-functions/locale-hint.js")
 }

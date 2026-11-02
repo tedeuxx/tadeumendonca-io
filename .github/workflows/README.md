@@ -62,10 +62,10 @@ flowchart TD
     subgraph deploywf["deploy — push to main, skips its own bump: commit"]
         RE["release<br/><i>bump-my-version · tag · GitHub Release</i>"]
         RE --> DG["gate<br/><i>no credentials</i>"]
-        DG -->|"iac/**"| TA["terraform-apply<br/><i>+ verify live function</i>"]
+        DG -->|"iac/**"| TA["terraform-apply<br/><i>+ verify every live function</i>"]
         DG -->|"app surface"| DA["deploy-app<br/><i>build-static · s3 sync · invalidation</i>"]
         TA -.->|"blocks only if it RAN and failed"| DA
-        TA --> E2["e2e vs the live apex<br/><i>no credentials</i>"]
+        TA --> E2["e2e vs the live apex<br/><i>site smoke · then the #669 spike step</i>"]
         DA --> E2
         E2 --> RP["report<br/><i>the three-case notice</i>"]
     end
@@ -376,6 +376,14 @@ depend on the file it verifies.
 revert anything. Putting the apply and the publish in one workflow makes it *reachable for
 infrastructure changes* — which it is not today — but it does not make it blocking. A red e2e means
 the site is broken and someone has to act.
+
+**One step in that job is not that signal, and it is a step of its own for exactly that reason.**
+*Spike go/no-go (#669): locale hint reaches the edge — red is NO-GO, not a broken site* runs
+`e2e/edge-locale-hint.spec.ts` (tag `@spike-669`) with `continue-on-error`, after the site smoke, which
+runs everything else with `--grep-invert @spike-669`. On a NO-GO the site is intact — nothing reads the
+cookie yet — so its red stays out of the job's result. The job exposes the step's outcome as `spike`,
+and `report` prints it on its own line: a notice on GO, a warning on NO-GO that says the site is not
+broken. The `e2e` result in `report` is the site smoke alone.
 
 **Pushing to a feature branch runs nothing.** The local loop is the only gate until the PR exists:
 `npm test`, `npm run lint`, `npm run typecheck`, `npm run e2e:local`. The last runs the same

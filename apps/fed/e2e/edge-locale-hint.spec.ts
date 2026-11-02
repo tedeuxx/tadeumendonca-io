@@ -12,6 +12,10 @@ import { test, expect, type APIResponse } from '@playwright/test';
 // header moves to the cache policy (ADR-0036's edge-locale-hint section). No cookie at all means the
 // function is detached, stale or rejected.
 //
+// ITS OWN STEP IN THE DEPLOY (#669), selected by the `@spike-669` tag. The main post-deploy smoke runs
+// with `--grep-invert @spike-669`, so a NO-GO here never reads as a broken site: the site is intact on a
+// NO-GO, because nothing reads the cookie yet. `deploy.yml`'s `report` job prints the two outcomes apart.
+//
 // POST-DEPLOY ONLY, like edge-rewrite.spec.ts: `vite preview` runs no CloudFront Function, so locally
 // there is no cookie for a harness reason rather than a site reason. Playwright reports the skip as
 // SKIPPED, not passed.
@@ -26,7 +30,7 @@ function hintCookies(res: APIResponse): string[] {
     .filter((v) => v.startsWith(`${COOKIE}=`));
 }
 
-test.describe('locale-hint CloudFront Function, at the edge', () => {
+test.describe('locale-hint CloudFront Function, at the edge', { tag: '@spike-669' }, () => {
   test.skip(
     ({ baseURL }) => ['localhost', '127.0.0.1', '[::1]', '::1'].includes(new URL(baseURL!).hostname),
     'the locale hint is set by a CloudFront Function; vite preview runs none',

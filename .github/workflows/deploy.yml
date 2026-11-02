@@ -570,15 +570,17 @@ jobs:
       # rather than moving to the shared e2e job.
       #
       # It covers EVERY function the distribution runs: the viewer-request rewrite and, since #669, the
-      # viewer-response locale hint. Each entry is `<terraform output>:<source file>`; a function added
-      # without an entry here would be applied and never compared.
+      # viewer-response locale hint. The list is DERIVED from cloudfront-functions/*.js by convention:
+      # `<x-y>.js` is compared against the output `<x_y>_function_name`. A function added without that
+      # output fails `terraform output` and goes red, instead of being applied and never compared.
       - name: Verify the LIVE function stage carries the repo's code
         run: |
           set -euo pipefail
           failed=0
-          for entry in spa_rewrite_function_name:spa-rewrite.js locale_hint_function_name:locale-hint.js; do
-            output="${entry%%:*}"
-            source="${entry#*:}"
+          for path in cloudfront-functions/*.js; do
+            source="${path##*/}"
+            base="${source%.js}"
+            output="${base//-/_}_function_name"
             name="$(terraform output -raw "$output")"
             aws cloudfront get-function --name "$name" --stage LIVE live-function.js >/dev/null
             if diff -q "cloudfront-functions/$source" live-function.js >/dev/null; then
@@ -811,6 +813,12 @@ jobs:
   # Post-deploy smoke against the real apex. NOT A GATE — it runs after the publish and cannot revert
   # anything. Its worth rests on what its RED means, so a red must mean the SITE is broken.
   #
+  # ONE STEP HERE IS NOT THAT SIGNAL, and it is a separate step precisely so the contract above stays
+  # true: the #669 spike's go/no-go (`e2e/edge-locale-hint.spec.ts`, tag `@spike-669`). On a NO-GO the site
+  # is intact, because nothing reads the locale_hint cookie yet, so its red must not land in the smoke's
+  # result. The smoke runs with `--grep-invert @spike-669`; the spike step runs `--grep @spike-669` with
+  # `continue-on-error`, exposes its outcome as the job output `spike`, and `report` prints it apart.
+  #
   # It runs after EITHER publishing job, which is the reachability #237/#299 lacked: an iac/-only merge
   # now gets a smoke. `e2e/edge-rewrite.spec.ts` is part of this suite and is the only check that proves
   # the edge is running the repo's rewrite function (detached · stale association · rejected by the JS
@@ -833,6 +841,9 @@ jobs:
     # No AWS. It drives the public apex like any reader, so it holds no credential at all.
     permissions:
       contents: read
+    outputs:
+      # `outcome`, not `conclusion`: under continue-on-error the conclusion of a red step is success.
+      spike: ${{ steps.spike.outcome }}
     defaults:
       run:
         working-directory: apps/fed
@@ -870,7 +881,17 @@ jobs:
           E2E_ENV: production
         run: |
           sleep 10 # let the CloudFront invalidation propagate before driving the browser
-          npm run e2e
+          npm run e2e -- --grep-invert @spike-669
+
+      # The #669 spike, apart from the smoke: its red is a NO-GO verdict, not a broken site (see the job
+      # header). It runs whatever the smoke concluded, so both outcomes are always reported.
+      - name: "Spike go/no-go (#669): locale hint reaches the edge — red is NO-GO, not a broken site"
+        id: spike
+        if: ${{ !cancelled() && steps.setup-browser.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          E2E_ENV: production
+        run: npm run e2e -- --grep @spike-669
 
   # ---------------------------------------------------------------------------------------------
   # The three-case notice, as a terminal job because there is no single step every path reaches.
@@ -890,8 +911,16 @@ jobs:
           R_TF: ${{ needs.terraform-apply.result }}
           R_APP: ${{ needs.deploy-app.result }}
           R_E2E: ${{ needs.e2e.result }}
+          R_SPIKE: ${{ needs.e2e.outputs.spike }}
         run: |
           set -euo pipefail
+          # The #669 spike's verdict, printed apart from the site's (see the e2e job header). Empty when
+          # the e2e job did not run or never reached the step.
+          case "$R_SPIKE" in
+            success) echo "::notice::spike go/no-go (#669): GO — the locale hint reached the edge" ;;
+            failure) echo "::warning::spike go/no-go (#669): NO-GO — the locale hint did not reach the edge. This is NOT a broken site; read the e2e job's spike step." ;;
+            *) ;;
+          esac
           if [ "$R_GATE" != "success" ]; then
             echo "::notice::the deploy did NOT get past its gate — nothing was published and nothing was verified. Read the gate job."
             exit 0
@@ -901,7 +930,7 @@ jobs:
             exit 0
           fi
           if [ "$R_TF" = "failure" ] || [ "$R_APP" = "failure" ] || [ "$R_E2E" = "failure" ]; then
-            echo "::notice::the deploy did NOT complete — terraform-apply: $R_TF · deploy-app: $R_APP · e2e: $R_E2E. Read the failing job, not this line."
+            echo "::notice::the deploy did NOT complete — terraform-apply: $R_TF · deploy-app: $R_APP · e2e (site smoke, spike excluded): $R_E2E. Read the failing job, not this line."
             exit 1
           fi
-          echo "::notice::published v$VERSION — terraform-apply: $R_TF · deploy-app: $R_APP · post-deploy e2e: $R_E2E"
+          echo "::notice::published v$VERSION — terraform-apply: $R_TF · deploy-app: $R_APP · post-deploy e2e (site smoke, spike excluded): $R_E2E"
