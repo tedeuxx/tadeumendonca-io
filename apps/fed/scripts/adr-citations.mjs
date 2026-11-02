@@ -331,7 +331,7 @@ export function selfCitations(citations) {
 
 /**
  * The self-citations that predate any fold, written as authored prose ("The floor ADR-0021 named",
- * inside 0021) rather than produced by absorption. There were three; 0012's left with its record. They are EXCUSED, not exempt from the
+ * inside 0021) rather than produced by absorption. There were three; 0012's and 0021's left with their records. They are EXCUSED, not exempt from the
  * arm: each entry excuses exactly one occurrence, keyed by file and cited number WITHOUT the line
  * number (the same reason the excused-list pins drop it — an edit above the line must not fail a gate
  * about something else). A second self-citation in the same file is not covered by its entry, and an
@@ -347,10 +347,10 @@ export function selfCitations(citations) {
  *
  * Expected to SHRINK as the fold slices run: the slice that moves one of these records removes its entry
  * in the same merge request. The sixth slice of #456 absorbed 0012 into 0002 and removed its entry (the
- * excused sentence was not carried into 0002); 0035 and 0021 are folded later.
+ * excused sentence was not carried into 0002); the seventh absorbed 0021 into 0003 and removed its entry
+ * (that sentence was not carried into 0003 either); 0035 is folded later.
  */
 export const PRE_FOLD_SELF_CITATIONS = [
-  { citation: 'docs/adr/0021-application-security-posture.md cites ADR-0021', line: 'The floor ADR-0021 named' },
   {
     citation: 'docs/adr/0035-static-repo-cards-in-longform.md cites ADR-0035',
     line: 'Why that touches ADR-0035 rather than passing under it',
@@ -364,7 +364,7 @@ export const lineFree = (c) => describeCitation(c).replace(/:\d+ cites /, ' cite
  * baseline entry that no longer has an occurrence to excuse.
  *
  * Matching consumes the baseline as a multiset, so the excuse is exactly as wide as what was there
- * before the first fold — a fold that drops a second `ADR-0021` into 0021 is caught, not absorbed by
+ * before the first fold — a fold that drops a second `ADR-0035` into 0035 is caught, not absorbed by
  * the existing entry.
  */
 export function manufacturedSelfCitations(selfCites, baseline = PRE_FOLD_SELF_CITATIONS) {

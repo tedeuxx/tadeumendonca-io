@@ -206,7 +206,7 @@ depends on.** Concretely, three conditions, and they are the decision:
    `alt` must **differ** between the editions.
 
    **Why the strike is kept rather than the line quietly rewritten.** This library has already done exactly
-   this once — [ADR-0044](./0044-version-parts-deliberate-major-minor.md) struck two clauses inside its own
+   this once — the version-parts record, now [ADR-0003, *Version parts: major and minor are deliberate*](./0003-trunk-based-single-environment.md#version-parts-major-and-minor-are-deliberate), struck two clauses inside its own
    MR, before they had ever been in force, and kept the strikes. The reason applies unchanged here: the
    deleted version is *evidence*, and this particular deletion is the most instructive sentence in the
    record. What is deliberately **not** done is add an `## Amendment` heading, which would publish

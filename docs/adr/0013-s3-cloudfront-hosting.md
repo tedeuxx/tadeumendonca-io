@@ -481,7 +481,7 @@ customer-managed keys. SSM parameters are **`String` only**, holding non-sensiti
 (the config bus) — never secrets. Runtime secrets, if any ever existed, would go to Secrets Manager; there
 are none. Security at the infrastructure level is deliberately minimal *because the architecture made the
 surface minimal*. This is the infrastructure half of the security posture; the application half (Sonar
-SAST and package-vulnerability scanning) is [ADR-0021](./0021-application-security-posture.md).
+SAST and package-vulnerability scanning) is [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture).
 
 **The `String`-only rule has a mechanism beside it.** `iac/.checkov.yaml` skips `CKV2_AWS_34` ("SSM
 Parameter should be Encrypted") with the policy written as its comment; that skip is what keeps the
@@ -510,5 +510,5 @@ policy scan green on this choice. It does not refuse a `SecureString` — nothin
 - Absorbed by #456 (2026-11-01): the pipeline-only apply (formerly record 0014), the OIDC credentials
   (0015), the trust root (0042), the custom-domain email (0016) and the minimal security posture (0017).
   Each section above says where it came from and how to recover the original from git history.
-- The application security posture is [ADR-0021](./0021-application-security-posture.md) · the cost of
+- The application security posture is [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture) · the cost of
   this infrastructure is argued on `/architecture` · runbook: `docs/iac-deploy-policy.md`.

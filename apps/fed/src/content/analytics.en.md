@@ -8,7 +8,7 @@ So this page does the opposite for this site. It carries no figure from GA4 and 
 
 Nothing reaches Google until you accept analytics. Before a choice, on decline, and on a build with no measurement id, the tag is never loaded, so Google sets no cookie and receives no request. If you accept and later withdraw, this site's code sends nothing more from then on. The tag itself stays loaded, though, and what it collects on its own, such as the automatic measurement GA4 can switch on for a property, depends on a console setting this repository cannot observe. That gate is a decision with its reasons written down in [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
 
-The consequence is that whoever declines is never counted, and neither is whoever blocks the tag. Every number GA4 holds about the events this site's code sends is therefore a floor, never a total, unless that automatic collection counts the same thing a second time ([ADR-0023](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0023-observability-static-site.md)). That is the price of the gate, and I would rather pay it than count people who said no.
+The consequence is that whoever declines is never counted, and neither is whoever blocks the tag. Every number GA4 holds about the events this site's code sends is therefore a floor, never a total, unless that automatic collection counts the same thing a second time ([ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), section *Observability scoped to a static site*). That is the price of the gate, and I would rather pay it than count people who said no.
 
 ## The one cookie set before any choice
 

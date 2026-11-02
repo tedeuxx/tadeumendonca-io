@@ -141,7 +141,7 @@ from the key and locale; two mechanical gates assert the set is right.
 Chromium the prerender already installs, committed to the repo, guarded by a **bidirectional set-equality
 test** in Node. It is not re-derived here. The precedent is followed on purpose: the alternatives (a
 runtime renderer, an uncommitted artifact regenerated in CI, a new browser toolchain) were argued and
-rejected in 0040 against ADR-0002 and ADR-0021's `--ignore-scripts` floor, and none of those
+rejected in 0040 against ADR-0002 and the `--ignore-scripts` floor of ADR-0003's security-posture section, and none of those
 constraints changed. `scripts/og-cards.mjs` is the pure half, split from the generator for 0040's reason:
 everything that decides *which* cards must exist is decision logic and belongs where a test reaches it
 without a browser.

@@ -90,7 +90,7 @@ optional and the app builds and serves without either.
 ```bash
 npm run dev            # vite dev server (localhost:5173)
 npm test               # vitest run --coverage — ≥85% is a gate, as a GLOBAL AVERAGE, not per file
-                       # (ADR-0018 amendment): a weak file passes if the whole clears it
+                       # (ADR-0003, CI gates): a weak file passes if the whole clears it
 npm run lint           # eslint
 npm run typecheck      # tsc --noEmit
 npm run build          # tsc --noEmit + vite build + gen-sitemap (the sitemap is a published artifact,

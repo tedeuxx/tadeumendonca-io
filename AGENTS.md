@@ -118,14 +118,14 @@ hydrated page. The exemption is *identical for every visitor*, not *does not ren
   and an account-wide cost budget scoped wider than this project on purpose. State in Terraform Cloud,
   local execution, one environment at the apex; the web firewall was retired. **`iac/cloudfront-functions/`
   is application logic**, gated by both `app` (behaviour) and `iac` (the edge running it): a gate
-  follows what a file is, not its directory (ADR-0018).
+  follows what a file is, not its directory (ADR-0003).
 - **`docs/adr/`** — the decision library and **the architecture documentation**. Its README is the
   index and the count; write no count elsewhere. **Read the relevant record before changing anything
   it decides.** Also `docs/catalog-ready.md` and `docs/iac-deploy-policy.md`.
 - **`.github/workflows/README.md`** — the pipeline map. **Read it before changing a workflow.**
 - **`VERSION`** — numeric SemVer, no suffix. The deploy's first job bumps the patch on every merge,
   tags and releases, because the footer renders it. A deliberate minor or major is the same job run by
-  hand with its part input (ADR-0044). The `bump:` commit is loop-guarded.
+  hand with its part input (ADR-0003). The `bump:` commit is loop-guarded.
 
 ## The private layer
 
@@ -288,7 +288,7 @@ Each is true on a harness with no hooks. Mode values are in `docs/loop-mode.md`.
 
 Workflows are named after the directory they gate; the map is `.github/workflows/README.md`.
 
-- **`app`** — dependency audit (blocks high and critical production advisories, ADR-0021), lint,
+- **`app`** — dependency audit (blocks high and critical production advisories, ADR-0003), lint,
   types, unit tests with coverage, build, end-to-end, SonarCloud, harness drift, behind one aggregator
   whose name the ruleset on `main` fixes.
 - **`iac`** — credential-free policy scan and format check, then the plan, the only job with a cloud

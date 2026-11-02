@@ -10,7 +10,7 @@
   intake.
 - **Supersedes / superseded by:** —
 - **Driven by:** [#640](https://github.com/tedeuxx/tadeumendonca-io/issues/640) · **amends**
-  [ADR-0023](./0023-observability-static-site.md) (see its 2026-11-01 amendment) · **reads, never
+  [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) (see its 2026-11-01 amendment) · **reads, never
   changes** [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) · **qualifies**
   [ADR-0045](./0045-document-title-leads-with-section-label.md) for an off-menu section (see its
   2026-11-01 amendment)
@@ -26,7 +26,7 @@ The owner's ask, 2026-09-11, quoted from #640:
 The site already measures itself: GA4 behind a hard consent gate
 ([ADR-0033](./0033-ga4-consent-gated-analytics.md)), a custom event schema that is immutable once it
 collects ([ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)), and a scope for
-observability on a site with no server ([ADR-0023](./0023-observability-static-site.md)). None of that
+observability on a site with no server ([ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)). None of that
 was published. The question #640 answers is **what the site says in public about its own measurement**,
 and in what form.
 
@@ -89,7 +89,7 @@ says whether this file should exist.
   owed for those three.
 - **Capability limb.** No capability table is published yet. On the working partition recorded on
   [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456), the GA4 records sit with
-  publication-and-distribution and ADR-0023 with delivery-and-gates. This record is a file of its own
+  publication-and-distribution and the observability record (now ADR-0003, *Observability scoped to a static site*) with delivery-and-gates. This record is a file of its own
   until that fold runs, and then it goes wherever ADR-0051 goes.
 
 ## Decision outcome
@@ -150,7 +150,7 @@ says whether this file should exist.
 
 - Issue [#640](https://github.com/tedeuxx/tadeumendonca-io/issues/640) — the ask and the three rulings ·
   [PR #797](https://github.com/tedeuxx/tadeumendonca-io/pull/797) — the implementation.
-- [ADR-0023](./0023-observability-static-site.md) — amended by this record: the site now publishes a
+- [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) — amended by this record: the site now publishes a
   description of its own telemetry.
 - [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — the schema the page renders; not
   amended.

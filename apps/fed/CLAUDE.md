@@ -196,7 +196,7 @@ in `iac/`.
 npm run dev        # vite dev server (localhost:5173)
 npm test           # vitest run --coverage — coverage ≥85% (lines/funcs/branches/stmts) is a gate.
                    # It is a GLOBAL AVERAGE, not a per-file floor: a file below 85 passes if the whole
-                   # clears it (ADR-0018's 2026-07-29 amendment, #228). Read the per-file table when
+                   # clears it (ADR-0003, CI gates section, 2026-07-29, #228). Read the per-file table when
                    # adding tooling — the green does not say what it looks like it says.
 npm run lint       # eslint
 npm run typecheck  # tsc --noEmit

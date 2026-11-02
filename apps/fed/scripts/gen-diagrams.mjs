@@ -12,7 +12,7 @@
 //
 // WHY PLAYWRIGHT AND NOT @mermaid-js/mermaid-cli. Mermaid has no pure-Node renderer — it needs a DOM
 // either way — so the choice is only WHICH browser. mermaid-cli brings Puppeteer, which downloads its
-// browser in a POSTINSTALL script, and ADR-0021's amendment mandates `npm ci --ignore-scripts` in CI.
+// browser in a POSTINSTALL script, and ADR-0003's security-posture section mandates `npm ci --ignore-scripts` in CI.
 // It would therefore install without a browser here by construction: not a preference, a policy
 // collision. Playwright's Chromium is already installed for the prerender, /cv.pdf and the E2E, and
 // gen-og-default.mjs is the working precedent for driving it as a build tool.

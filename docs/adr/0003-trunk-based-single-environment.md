@@ -1,13 +1,26 @@
 # 0003. Trunk-based delivery, single environment
 
 - **Status:** accepted · **amended 2026-11-01** (adds the section *The release job writes to `main` as
-  a GitHub App, under a ruleset that only that App bypasses*, #783; that section is `proposed` until the
-  owner ratifies PR #799, and nothing above it changes)
+  a GitHub App, under a ruleset that only that App bypasses*, #783; the owner ratified it on PR #799 on
+  2026-11-02, so that section is `accepted`, and nothing above it changes) · **amended 2026-11-02**
+  (absorbs the rest of the `delivery-and-gates` capability, formerly records 0018, 0019, 0020, 0021,
+  0022, 0023 and 0044, as the sections *CI gates on the pull request*, *Complete functional regression*,
+  *The SonarCloud quality gate*, *The application security posture*, *Numeric SemVer, released on every
+  merge*, *Version parts: major and minor are deliberate* and *Observability scoped to a static site*;
+  every decision is unchanged, #456)
 - **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in the History index)
 - **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
+
+**This document is the whole `delivery-and-gates` capability.** The first half is the delivery model
+itself, trunk-based with one environment, and the amendments that decided who holds the merge and how
+the deploy fires. The seven sections after its *Consequences* are the decisions that make a model with
+no staging tier safe to ship on: the gates on the pull request, the regression they run, the quality
+gate, the security posture, how a ship is versioned, what the deliberate version parts mean, and what a
+static site observes. Each section was a record of its own until #456 folded it here; each says where it
+came from.
 
 ## Context & problem
 Applying ADR-0053 (lean by design) to delivery: how many branches and environments does a one-person static site need?
@@ -36,7 +49,7 @@ records the product's decision to adopt it.
 ## Decision outcome
 Chosen: **trunk-based, single environment**. `main` is the only branch and the working branch; merging
 to it deploys the live site. Because there is no downstream tier to defer a check to, the **full
-regression gates the PR** (see the CI-gate ADR). ~~The merge is production, so it is the go/no-go a
+regression gates the PR** (see *CI gates on the pull request* below). ~~The merge is production, so it is the go/no-go a
 human confirms.~~ **Amended 2026-07-23:** the merge is still the go/no-go — what changed is **who holds
 it**. The `critical-reviewer` subagent does, per methodology ADR-0004: it verifies the MR Definition of
 Done and then **merges the safe class itself** (docs, dependency bumps, tests, in-pattern work against an
@@ -268,7 +281,7 @@ becomes load-bearing"; this is the whole of what that sentence buys.
 
 *(An earlier revision of this paragraph attached the 2026-07-23 wedge to this second path. It does not
 belong to it: that push was non-atomic, so **the branch was rejected while the tag went through**
-([ADR-0022](./0022-numeric-semver-auto-release.md)) — the bump commit never reached `main`, `VERSION`
+(*Numeric SemVer, released on every merge* below) — the bump commit never reached `main`, `VERSION`
 never changed, and `deploy` would never have fired at all. That incident is the absent-bump path above.
 Removed rather than left, because a record that attaches a real mechanism to the wrong incident is the
 same defect this amendment opens by naming.)*
@@ -304,11 +317,11 @@ WIP=1 makes a 3-merge burst rare and `workflow_dispatch` recovers it in one clic
 4. **Fold the bump into `deploy`** — rejected on **supply-chain** grounds: `deploy` runs
    `npm run build:static` with the OIDC deploy role in the job env; adding `contents: write` plus the bump
    PAT there means one compromised build-time dependency holds both S3/CloudFront write **and** a repo-write
-   token with `workflows: write`. (ADR-0021's third lever exists for this class of reasoning.)
+   token with `workflows: write`. (The third lever of *The application security posture* below exists for this class of reasoning.)
 5. **Show the commit SHA instead of a version** — genuinely the **cheapest correct answer**: always exact,
    zero workflow change, zero coupling. It lost to the owner's ruling that the footer should carry the
    *version*, and that ruling has a reason rather than only a preference: a version resolves to a Release
-   page with categorised notes ([ADR-0022](./0022-numeric-semver-auto-release.md)), while a SHA resolves to a
+   page with categorised notes (*Numeric SemVer, released on every merge* below), while a SHA resolves to a
    diff — so the version is the form a reader can act on, which is the whole argument for putting an
    identifier in the chrome at all. The coupling in "the accepted cost" above is the price of that, and is
    recorded as bought rather than overlooked.
@@ -472,8 +485,12 @@ release path, which #402 was scoped not to do.
 ## The release job writes to `main` as a GitHub App, under a ruleset that only that App bypasses (2026-11-01)
 
 **Added 2026-11-01 by [#783](https://github.com/tedeuxx/tadeumendonca-io/issues/783), written by
-`tech-lead` in [PR #799](https://github.com/tedeuxx/tadeumendonca-io/pull/799). This section is
-`proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.** The decision
+`tech-lead` in [PR #799](https://github.com/tedeuxx/tadeumendonca-io/pull/799). ~~This section is
+`proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.~~** **Accepted
+2026-11-02:** the owner ratified it on PR #799, *«Ruleset ativo, proteção clássica removida; ratifico o
+#799 e a seção…»*
+([comment](https://github.com/tedeuxx/tadeumendonca-io/pull/799#issuecomment-6567021121)), and the PR
+merged as `92c6945`. Corrected as a record correction in #456's seventh slice. The decision
 itself is his, *«Ruleset + App»*, recorded on #783 on 2026-10-31; the narrowing of the token, the job's
 own permissions and the wording here are `tech-lead`'s. It is a section here rather than a record of
 its own because it is behaviour of this capability, delivery and its gates, and
@@ -485,9 +502,9 @@ renewed personal access token stored under another name, and nothing in the repo
 anything about the ruleset, which lives in repository settings. So the record is owed.
 
 **One decision:** the `release` job authenticates as a GitHub App, and `main` is governed by a
-repository ruleset with that App as its only bypass actor. It serves
-[ADR-0022](./0022-numeric-semver-auto-release.md) (the automatic release) and
-[ADR-0044](./0044-version-parts-deliberate-major-minor.md) (the same job, dispatched by hand).
+repository ruleset with that App as its only bypass actor. It serves *Numeric SemVer, released on
+every merge* (the automatic release) and *Version parts: major and minor are deliberate* (the same job,
+dispatched by hand), both below.
 
 ### Context
 
@@ -514,8 +531,8 @@ credential*; it was *which actor may push to `main` without a pull request, and 
 - **No credential in the release path may expire on a calendar.** That is the outage being fixed.
 - **The actor that may push to `main` without a pull request must be named and narrow.** Today it is
   "any administrator", which is broader than the one job that needs it.
-- **Least privilege for the job's own token** ([ADR-0021](./0021-application-security-posture.md)'s
-  supply-chain lever; [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s posture for
+- **Least privilege for the job's own token** (the supply-chain lever of *The application security
+  posture* below; [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s posture for
   pipeline identity).
 - **The three required checks and the pull-request requirement stay exactly as they are.** The
   migration must not open a window where `main` is ungated.
@@ -586,11 +603,11 @@ Four places describe branch protection as the mechanism of their time:
   `deploy` is rejected because a compromised dependency would hold *"the bump PAT"* with
   `workflows: write`. That argument still holds, because the App token is a repository write credential
   too;
-- [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) and
-  [ADR-0021](./0021-application-security-posture.md): *"a skipped required check satisfies branch
-  protection"*, and why that forces `if: always()` on a required aggregator;
-- [ADR-0018](./0018-ci-gates-e2e-on-pr-coverage.md): a workflow with a top-level `paths:` filter
-  *"cannot be a required status check"*.
+- [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) and *The application security
+  posture* below: *"a skipped required check satisfies branch protection"*, and why that forces
+  `if: always()` on a required aggregator;
+- *CI gates on the pull request* below: a workflow with a top-level `paths:` filter *"cannot be a
+  required status check"*.
 
 What those passages decide is about **required status checks**, and a ruleset carries required status
 checks with the same semantics as classic protection. GitHub's documentation treats a skipped required
@@ -598,8 +615,10 @@ check as passing and a never-reported one as pending in both. **That is read fro
 documentation, not measured on this repository's ruleset.** On that reading every decision in them
 still binds; only the noun naming where the requirement lives has changed. Their wording is left as a
 record of its time, and a reader maps "branch protection" to *the ruleset on `main`*. One of them also
-carries a discharged gap: ADR-0021's *"Not verified by me: the contents of branch protection on
-`main`"* is answered by the owner's 2026-10-31 read above, and that record is not edited for it.
+carries a discharged gap: the security-posture record's *"Not verified by me: the contents of branch
+protection on `main`"* is answered by the owner's 2026-10-31 read above. ~~and that record is not
+edited for it.~~ Since #456 folded that record into *The application security posture* below, the
+sentence did not travel; the section states the required context as read.
 
 ### Consequences
 
@@ -668,12 +687,391 @@ carries a discharged gap: ADR-0021's *"Not verified by me: the contents of branc
 
 **Bad / accepted costs**
 - No pre-production tier: a defect the PR gate misses reaches the live site directly, so the gate must
-  be comprehensive and blocking (the CI-gate ADR puts E2E on the PR for exactly this reason).
+  be comprehensive and blocking (*CI gates on the pull request* below puts E2E on the PR for exactly
+  this reason).
 - A fast forward-fix discipline (revert-on-`main` + re-deploy) replaces a promotion rollback.
+
+## CI gates on the pull request
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0018, decided 2026-07-22.** The decision is
+unchanged and still binds, and so are its three amendments (2026-07-23, 2026-07-28 and 2026-07-29),
+which are written below as the decision as it binds. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0018-*'`.
+
+### Context
+
+With no staging tier (the delivery model above), the merge is production. The pull request is therefore
+the only place verification happens: anything not checked there is not checked at all, and a route break
+has to fail before it deploys.
+
+### The decision, as it binds
+
+- **The full gate runs on every pull request, E2E included.** Lint, typecheck, unit tests with coverage
+  **≥85%**, build, **E2E against a preview of the build**, and the SonarCloud gate (*The SonarCloud
+  quality gate* below) for the application; a policy scan and a `plan` for `iac/`; `actionlint` and
+  `shellcheck` over `.github/workflows/**`. All blocking. Post-deploy E2E stays only as a smoke against
+  the real CDN (*Observability scoped to a static site* below).
+- **CI proves nothing broke; the reviewer judges whether the change is right.** A green pipeline is not
+  the review. Who holds the merge is decided in this record's 2026-07-23 amendment above.
+- **A required check must always report.** A workflow with a top-level `paths:` filter on
+  `pull_request` **cannot be a required status check**: on a pull request that does not match, it never
+  reports and stays pending, so branch protection can never require it. So every gate runs on every
+  pull request and applies its path filter **inside** the job.
+- **Each gate job ends with a `::notice::` naming which of three cases occurred:** nothing matched the
+  filter, so nothing was verified; a step failed, so the checks after it never ran; or the gate ran, with
+  the list of what it ran. A skipped run must not read as a verified one, and the notice on the failure
+  branch must not print the full list.
+- **`actionlint` silently disables `shellcheck` when the binary is absent** and still exits 0, and
+  `-shellcheck <path>` does not change that. The job asserts the executable itself before trusting the
+  result.
+- **A gate follows what a file is, not the directory it sits in.** Terraform is gated by the
+  infrastructure job. A **behaviour-bearing file under `iac/`**, today
+  `iac/cloudfront-functions/spa-rewrite.js`, is additionally unit-gated by the application job, whose
+  filter includes `iac/cloudfront-functions/**`. The two gates assert different properties of the same
+  file, and neither one's green covers the other's.
+- **The 85% is a global average** across everything in `vitest.config.ts`'s `include`, never a per-file
+  or per-directory floor. The owner's decision (2026-07-29) was to raise the tooling's coverage rather
+  than state a lower bar for it.
+
+### Rejected options that are still live
+
+- **Defer E2E to post-deploy**, the two-environment habit. On a single environment the change is already
+  live when E2E runs, so a break reaches production first.
+- **A minimal gate, lint and unit tests only.** Not enough with no staging net; route and integration
+  breaks would ship.
+- **A path-filtered workflow as a gate.** It can never be required, so it is permanently advisory: a gate
+  in name only.
+- **Per-directory coverage thresholds.** A lower stated bar for tooling is a second number to maintain.
+  **Accepting the gap with a note** was rejected with it, because it leaves the misreading in place.
+
+### Consequences still being paid
+
+- **Every pull request is slower**: a full E2E and Sonar run each time.
+- **The gate must stay comprehensive**, because a check dropped here has no downstream backstop
+  (*Complete functional regression* below).
+- **Two workflows fire on `iac/cloudfront-functions/**`**, and a reader has to know both gates exist to
+  know what covered a change.
+- **The unit test of the CloudFront Function proves behaviour under Node, not acceptance by the
+  CloudFront Functions JS 2.0 runtime.** A rewrite using `?.`, `??` or `const` passes green and is
+  rejected when the function is created, in the apply after the merge. The gate narrows that window; it
+  does not close it.
+- **A green coverage check means the average clears the bar, never that every file does.** A small,
+  hard-to-cover directory dilutes while the global barely moves, and nothing enforces a subtotal. The
+  only defence is reading the per-file table when tooling is added.
+
+## Complete functional regression
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0019, decided 2026-07-22.** The decision is
+unchanged and still binds. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0019-*'`.
+
+### Context
+
+With no staging tier and the whole gate on the pull request (*CI gates on the pull request* above), the
+regression suite is what proves that nothing already working broke. If it only samples, a regression in
+an un-sampled path ships silently.
+
+### The decision, as it binds
+
+**The regression suite functionally covers 100% of implemented features, and every feature ships with
+its own regression.** Which suites make up the regression is read from the repository: **E2E** wherever
+there is a UI, an API or contract suite **only where an API exists** (none today). This is the one gate
+that does not bend to blast radius. When a backend returns, its API suite joins the same invariant.
+
+"100%" is **functional** coverage, journeys over features. It is a different guarantee from the ≥85%
+unit line coverage above and must not be confused with it.
+
+### Rejected options that are still live
+
+- **Representative sampling.** The un-sampled tail regresses silently, which a repository with no
+  staging tier cannot afford.
+- **Demand an API regression regardless.** There is no API; requiring coverage of a surface that does
+  not exist is an unsatisfiable gate, and an unsatisfiable gate trains fabricated evidence.
+
+### Consequences still being paid
+
+- **Every feature must add its regression**: a real, ongoing discipline, held by the merge request's
+  Definition of Done.
+
+## The SonarCloud quality gate
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0020, decided 2026-07-22.** The decision is
+unchanged and still binds, and so are its two amendments (2026-07-28, #201, and 2026-08-27, #542). The
+full record is in git history: `git log --diff-filter=D -- 'docs/adr/0020-*'`.
+
+### Context
+
+Beyond tests, the code needs an objective, enforced bar for bugs, code smells, security hotspots (SAST)
+and coverage, one a human cannot wave through. On a public proof-of-engineering repo, "quality" must be
+provable by the harness, not asserted. (Wording of 2026-07-22, kept as history: read
+*proof-of-engineering* as the mission of that time, per ADR-0053.)
+
+### The decision, as it binds
+
+- **SonarCloud is a blocking gate on new code.** The scan runs inside the application job with
+  `sonar.qualitygate.wait=true`, so a failed gate fails the check and blocks the merge. It is the
+  authoritative quality and SAST check on the pull request.
+- **Scope: `apps/fed/src` and `apps/fed/scripts`.** The tooling joined on 2026-07-28 (#201), because
+  the most consequential build code (`routes.mjs`, `prerender.mjs`, `gen-sitemap.mjs`) was otherwise
+  analysed by nothing. `iac/` and `.github/workflows` are **not** scanned, and that gap is stated, never
+  claimed as covered.
+- **Three files are outside copy-paste detection (CPD):** `src/data/catalog.ts`, `src/data/repoCards.ts`
+  and, since 2026-08-27 (#542), `src/data/profile.ts`. The list stays file-enumerated, never a glob.
+  **A fourth candidate has to clear the rule written beside the config:** the file is authored content
+  under a type the compiler still enforces, **and** CPD is structurally unable to find the defect worth
+  catching there. CPD normalises string literals, so on a module of authored prose it cannot see two
+  entries carrying the same words and fires reliably on two entries carrying the same schema. A file
+  whose entries are data but whose duplication would be real does not qualify.
+
+### Rejected options that are still live
+
+- **No quality gate**, and **local-only linting**, which is bypassable and is not SAST.
+- **Loosening the duplication condition on the gate** instead of excluding a named file. It buys the
+  same green by lowering the bar for every file.
+- **Rewording authored entries until CPD stops matching.** The measurement on #542 showed the result
+  depends on where the formatter wraps sentences (the same file measured 0.0 on `main`), so the fix has
+  a negative half-life and is paid for in published copy.
+- **Moving the entries to JSON outside `sonar.sources`.** It removes the file from all analysis, not
+  from CPD alone, and loses the compile-time schema check.
+
+### Consequences still being paid
+
+- **`iac/` and `.github/workflows` are not scanned** by this gate.
+- **An external service sits in the gate**: SonarCloud's availability.
+- **Real copy-paste in the three excluded files is not caught.** The exclusion is permanent and silent,
+  and the list reads as a habit if it is only ever added to, which is why the entry rule above exists.
+- **`main`'s overall coverage figure dropped when untested scripts entered the index.** Every gate
+  condition is `new_*`, so nothing breaks; the lower number is the accurate one.
+
+## The application security posture
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0021, decided 2026-07-22.** The decision is
+unchanged and still binds, and so are its two amendments (2026-07-27 and 2026-08-07). The full record is
+in git history: `git log --diff-filter=D -- 'docs/adr/0021-*'`.
+
+### Context
+
+The infrastructure posture is minimal because the surface is minimal
+([ADR-0013](./0013-s3-cloudfront-hosting.md#the-minimal-infrastructure-security-posture)). At the
+application level the same question applies. A static SPA with no server, no auth and no user data
+([ADR-0002](./0002-fully-static-spa-no-backend.md)) removes whole classes of concern: injection into a
+database, auth bypass, server code execution, secrets at runtime. What remains is the client bundle and
+its **dependencies**, and the runner that builds them.
+
+### The decision, as it binds
+
+Three levers, on top of the infrastructure floor (OIDC least privilege, no secrets in the repository):
+
+1. **SAST**, by the SonarCloud gate above.
+2. **Package-vulnerability scanning** (Issue #52):
+   - **Enforcement:** `npm run audit` runs `audit-ci` with `apps/fed/audit-ci.jsonc` in its own job,
+     `npm-audit`, and **blocks on HIGH and CRITICAL advisories in production dependencies only**
+     (`skip-dev`). A build-tool advisory never reaches a reader, so it is reported, not blocking.
+   - **Hygiene:** Dependabot (`.github/dependabot.yml`), with GitHub's vulnerability alerts.
+   - **Triage:** an unreachable or false-positive advisory goes into the checked-in allowlist **with a
+     written justification and a review or expiry date**. Never a silent skip or `|| true`.
+   - **The block is derived, not direct.** As a separate job, the audit blocks only because the
+     required aggregator, `build-test`, lists it in `needs` **and** runs with `if: always()` and a
+     failure check over `needs.*.result`. A bare `needs:` aggregator is *skipped* when a dependency
+     fails, and a skipped required check satisfies branch protection, so a red audit would merge. An
+     edit to the aggregator is an edit to this control.
+3. **Supply-chain execution control:** **every dependency install in the pipeline runs
+   `npm ci --ignore-scripts`.** This is a different threat from the audit: a brand-new malicious release
+   has no advisory, and a development dependency never reaches a reader yet still runs code on the
+   runner. In `deploy.yml` the threat is persist-then-execute: a `postinstall` writes into
+   `node_modules`, and the later build runs that tree with the deploy role in the job's environment. In
+   the application workflow it is the dependency tree of a branch anyone can open, installed before any
+   gate has read the diff. The invariant is a property with a derivation, never a count:
+   `grep -rn "run: npm ci" .github/workflows/ | grep -cv -- "--ignore-scripts"` must be **0**.
+
+### Rejected options that are still live
+
+- **Heavier AppSec: DAST, a penetration test, runtime WAF rules.** There is no dynamic or authenticated
+  surface to test or protect; they would be controls without a target.
+- **SAST only.** It leaves the most realistic static-site risk uncovered: a known-vulnerable dependency
+  shipped in the bundle.
+- **`apps/fed/.npmrc` with `ignore-scripts=true`.** It would make the invariant true by construction and
+  cover Dependabot and local installs too. Not adopted, because it also silences install scripts in
+  local development, where a dependency that needs one fails far from its cause. **Its revisit condition
+  fired on 2026-08-07** (nine install sites, not two), and the choice is left open: adopting it would be
+  a new decision with its own trade-off, and it is the owner's.
+
+### Consequences still being paid
+
+- **The audit queries a live advisory database**, so a green required check can start blocking an
+  unrelated pull request the day a new advisory lands against an existing production dependency. The
+  allowlist with expiry is the relief valve; a real advisory is fixed by a dependency bump, never by
+  widening the gate.
+- **A future dependency that genuinely needs an install script** must get an explicit, reviewed step.
+- **`--ignore-scripts` is asserted, not enforced.** Nothing fails if a new install site omits the flag;
+  the derivation above is a command someone has to choose to run.
+- **Calibrated to a static surface.** A dynamic or authenticated surface reopens the concerns the
+  static decision closed.
+- **The required context is `build-test`**, as the owner's read of the protection on 2026-10-31 shows
+  (*The release job writes to `main` as a GitHub App* above); the protection now lives in a ruleset,
+  which nothing in this tree can read.
+
+## Numeric SemVer, released on every merge
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0022, decided 2026-07-22.** The decision is
+unchanged and still binds. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0022-*'`.
+
+### Context
+
+Trunk-based delivery ships on every merge. Each ship needs to be versioned and traceable, so that "what
+was live at vX.Y.Z" has an answer, without release ceremony a solo, merge-is-deploy model does not want.
+
+### The decision, as it binds
+
+**Purely numeric SemVer, released automatically on every merge to `main`.** The `release` job in
+`deploy.yml` bumps the patch, tags `vX.Y.Z`, and publishes a GitHub Release with categorised notes. The
+`bump:` commit is loop-guarded. Since this record's second 2026-07-30 amendment the deploy fires on that
+`bump:` commit, so the release path is load-bearing for deployment, not only for tagging. Since the
+2026-11-01 section above it pushes as a GitHub App. The deliberate parts are the next section.
+
+### Rejected options that are still live
+
+- **SemVer with `-dev` pre-releases.** Rejected by the owner: on a single environment every merge is the
+  real thing, and a pre-release suffix is noise.
+- **Manual tagging.** Ceremony the merge-is-deploy model does not want, and easy to forget.
+
+### Consequences still being paid
+
+- **The release automation is load-bearing and needs its own care.** Two incidents show the shape: an
+  empty notes category aborting under `bash -e` once tagged versions without a Release; and on
+  2026-07-23 a non-atomic `git push` let the tag through while the branch was rejected, orphaning
+  `v0.1.39` and wedging the next four merges. The push is `--atomic` with a fetch, reset and retry loop.
+  The workflow gate in *CI gates on the pull request* above (`actionlint` and `shellcheck`, #79) is
+  what now checks a change to this path before it runs.
+- **One Release per merge.** Accepted, because merges are deploys.
+
+## Version parts: major and minor are deliberate
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0044, decided 2026-08-08.** The decision is
+unchanged and still binds. The full record, including the strikes made in its own merge request before
+it was ever in force, is in git history: `git log --diff-filter=D -- 'docs/adr/0044-*'`.
+
+### Context
+
+Until 2026-08-08 every tag was `0.1.N`, because `deploy.yml` bumped the literal `patch` with no input
+anywhere, and the automatic release above said nothing about what a MAJOR or a MINOR would mean. The
+change that made a non-patch reachable, a `part` input on `deploy`'s `workflow_dispatch`, shipped with
+this meaning on purpose: **a tag is permanent and a published tag is unfixable**, so the mechanism and
+its meaning had to land together.
+
+One measurement shapes the model. Intake and delivery run at the same rate here by design (on
+2026-08-08: 22 `product` issues created and 21 closed in seven days), so **any MAJOR defined as "when
+enough is done" can never fire**. Only a cohort fixed when it opens can ever be complete. That a growing
+cohort never completes is this record's own argument, not a rule anyone stated.
+
+### The decision, as it binds
+
+- **PATCH stays automatic on every merge**, as the previous section decides. Nothing here narrows it.
+- **MINOR is a publication.** One published thing, one minor, cut deliberately at or after the merge
+  that publishes it.
+- **MAJOR, from `1.0.0` onward, is a milestone with a configured release plan behind it**, declared
+  before the work. The owner: *«depois disso, todo trabalho de features de produto devem estar
+  associados a um plano de release configurado.»* A publication may sit inside a milestone like any
+  other item; publishing never by itself closes one, and publishing more never accumulates toward a
+  major. The scoping *from `1.0.0` onward* is load-bearing: unscoped, the first major would fail the
+  definition of the thing it is.
+- **`1.0.0` was the publication of the architecture section** (the owner, verbatim: *«esse post do
+  arquitetura será o marco da versão tag major 1.0.0»*). It owed no cohort: the release-plan discipline
+  starts after it, which is a start line, not an exception. **`1.0.0` claims that the system is
+  describable as a whole and the description is public**, nothing more. It was cut on 2026-08-08
+  (`git log -1 --format='%h %ad %s' --date=short v1.0.0`); **`2.0.0` is the first cut the release-plan
+  rule reaches at all.**
+- **The mechanism is the `part` input on the existing `deploy` workflow's `workflow_dispatch`**,
+  defaulting to `none`, with the automatic push path unchanged. One workflow, because here releasing and
+  deploying are the same act.
+
+### Rejected options that are still live
+
+- **A publication counter with a required `semver:` label on every pull request, and reader-invisible
+  work bumping nothing.** It costs a judgement on every pull request to get a correct digit on fewer
+  than one in thirty, and the class it most needs to separate, a bugfix from a refactor, is not
+  derivable at all: same files, only intent between them. *What it would buy:* `/releases` as a
+  publication list rather than a merge log with a few meaningful tags in it.
+- **A separate `release.yml` carrying the `part`.** Here the bump commit is the tree that gets deployed.
+  A bump from a second workflow lands as a `bump:` commit that `deploy.yml` skips at both its guards, so
+  the minor would be tagged and never shipped.
+- **Deriving the part from changed paths.** Only a publication (a file added under the content path) is
+  derivable; a bugfix and a refactor touch the same paths, and a milestone is not in the tree at all.
+
+### Consequences still being paid
+
+- **"Reader-invisible work bumps nothing" is not in force**, and nothing here claims it. Every push to
+  `main` still bumps the patch, so the patch digit counts merges, not corrections. The version string
+  is legible on two digits and noise on the third.
+- **Nothing enforces the meaning.** The `part` input accepts `major` on any dispatch, and no check asks
+  whether a release plan exists; none could, since a plan is not in the tree. The rule is a convention
+  held by one person, defended only by the act being rare.
+- **A wrong cut is unfixable forward.** Tags are permanent and a Release is public; there is no dry run.
+- **A major resets the lower parts**, so the publication carrying a major does not also get a minor.
+
+### What is not decided here
+
+- **What a "configured release plan" is configured in.** Open, and it governs `2.0.0` and every later
+  major.
+- **Whether anything other than product features attaches to a plan.** The owner scoped the discipline
+  to *«features de produto»*; this does not widen it.
+- **Whether a distribution announcement carries the tag**, and how it is derived rather than typed
+  ([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s surface).
+- **Whether the automatic patch should stop.** No position is taken.
+
+## Observability scoped to a static site
+
+**Absorbed 2026-11-02 (#456) from the record that held it, 0023, decided 2026-07-22.** The decision is
+unchanged and still binds, and so are its two amendments (2026-07-29, #237, and 2026-11-01, #640). The
+full record is in git history: `git log --diff-filter=D -- 'docs/adr/0023-*'`.
+
+### Context
+
+"Observability is part of done": a change is not finished until it can be seen working where it runs. A
+static site ([ADR-0002](./0002-fully-static-spa-no-backend.md)) has no server to emit logs, metrics or
+traces, so observability has to be defined for what a static site can produce rather than borrowed from
+a backend playbook.
+
+### The decision, as it binds
+
+- **Client and build observability:** Google Analytics for usage (refined by
+  [ADR-0033](./0033-ga4-consent-gated-analytics.md), consent-gated GA4, and by
+  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md), an immutable event schema); a
+  client-side error surface for runtime errors; a build and prerender smoke (routes render, OG tags in
+  the served HTML, [ADR-0005](./0005-og-coverage-every-public-url.md)'s per-route coverage); and the
+  post-deploy E2E smoke against the real CDN.
+- **A post-deploy assertion belongs to the workflow that performs the change it observes**, not to
+  whichever workflow already has a browser (#237). The edge-rewrite assertion
+  (`e2e/edge-rewrite.spec.ts`) runs from the infrastructure apply, because that is the workflow that
+  changes the CloudFront Function; asserting from `deploy` would race the apply.
+- **The analytics half has a public reader since 2026-11-01.** `/analytics` describes the GA4 events
+  and their parameters to readers in both editions, decided in
+  [ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md). The same
+  things are observed with the same tools; a change to the event schema is now also a change to a
+  published page.
+
+### Rejected options that are still live
+
+- **Backend telemetry (structured logs, metrics, tracing).** There is no backend to emit it; that is the
+  retired platform's playbook.
+- **Nothing.** A broken deploy or a blank prerendered route would ship unseen.
+
+### Consequences still being paid
+
+- **No server-side insight**, because there is no server. A property of the static decision, not a gap.
+- **Usage numbers are a floor, not exact, and that is now a published claim.** Ad-blockers and privacy
+  tools are one cause; the hard consent gate of ADR-0033 is the other, and it is the one `/analytics`
+  names: a reader who declines is never counted.
+- **The fidelity test between the event schema and `/analytics` covers event and parameter names only**;
+  the page's prose is held by review.
 
 ## Links
 - Driven by ADR-0053 (lean by design) · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
-  · relies on the CI-gate ADR (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
+  · relies on *CI gates on the pull request* above (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
+- **Absorbed 2026-11-02 (#456, the seventh slice):** records 0018, 0019, 0020, 0021, 0022, 0023 and 0044,
+  as the seven sections above this list. Each names the `git log --diff-filter=D` command that finds its
+  full record. The decision index lists each number under *Records that left the library*.
 - **2026-08-09 amendment evidence:** PR #402 (`fix/dispatch-cannot-apply-infra`, at `130b98a8`) for the
   change and its four mutation-checked assertions in `apps/fed/scripts/deploy-workflow.test.mjs`;
   `.github/workflows/deploy.yml` at that branch for the two refusals (`gate`'s hardcoded `iac=false` and

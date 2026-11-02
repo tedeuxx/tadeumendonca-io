@@ -20,8 +20,8 @@ promotion with no independent approver. Adopted **trunk-based, single environmen
 carries the full gate, the merge is the deploy and the go/no-go.
 
 ## Consequences of the reversal
-- No staging tier to fund or keep in sync; the full regression moved onto the PR (ADR-0018).
+- No staging tier to fund or keep in sync; the full regression moved onto the PR (ADR-0003, *CI gates on the pull request*).
 - Lost: a pre-production environment. Accepted — the comprehensive PR gate + forward-fix discipline replace it.
 
 ## Links
-- Superseded by ADR-0003 · the gate that compensates is ADR-0018 (full gate on the PR).
+- Superseded by ADR-0003 · the gate that compensates is ADR-0003, *CI gates on the pull request* (full gate on the PR).

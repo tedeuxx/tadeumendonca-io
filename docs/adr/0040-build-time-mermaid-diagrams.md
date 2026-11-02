@@ -9,7 +9,7 @@
 - **Driven by:** Issue [#170](https://github.com/tedeuxx/tadeumendonca-io/issues/170) · constrained-by
   [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (no backend, no runtime XHR, resolve at build
-  time) · collides-with [ADR-0021](./0021-application-security-posture.md)'s `--ignore-scripts`
+  time) · collides-with [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture)'s `--ignore-scripts`
   amendment (which is what decided the toolchain) · conforms-to
   [ADR-0008](./0008-brutalist-mono-identity.md) (amended below) · amends
   [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s orientation-layer claim for `/architecture`
@@ -38,7 +38,7 @@ without anyone noticing.
   site a silent failure is not a moment, it is an artifact: the prerender bakes it into the served bytes.
 - **The identity applies to generated output too** (ADR-0008) — a default mermaid theme violates every
   clause of it.
-- **CI installs with `npm ci --ignore-scripts`** (ADR-0021's 2026-07-27 amendment). Any tool whose browser
+- **CI installs with `npm ci --ignore-scripts`** (ADR-0003, *The application security posture*, from its 2026-07-27 amendment). Any tool whose browser
   arrives via a postinstall script cannot work here, by construction.
 - **Lean by design** (ADR-0053): no bytes shipped to a reader to draw something that never changes.
 
@@ -63,7 +63,7 @@ without anyone noticing.
 1. **A Playwright/Chromium harness in `scripts/gen-diagrams.mjs`** (chosen).
 2. **`@mermaid-js/mermaid-cli`** — the obvious answer, and *the reason it loses is a policy collision, not
    a preference*. mermaid-cli brings **Puppeteer**, which downloads its browser in a **postinstall
-   script**; ADR-0021's amendment mandates `npm ci --ignore-scripts` in every CI install. It would
+   script**; ADR-0003's *The application security posture* mandates `npm ci --ignore-scripts` in every CI install. It would
    therefore install **without a browser, by construction** — a tool that cannot run under this repo's
    supply-chain floor is not a tool this repo has. Mermaid has no pure-Node renderer either way (it needs
    a DOM), so the only real question was *which* browser — and Playwright's Chromium is **already
@@ -151,7 +151,7 @@ which is what this replaces. It is not user input, not fetched, not reachable at
 no-handler / no-`foreignObject` tests are what make that a verified property instead of a comment.
 
 **`mermaid` is a new devDependency, dev-only — it never reaches the browser bundle.** The exposure worth
-recording: `audit-ci` gates **production** high/critical advisories only (ADR-0021), so a dev-tree advisory
+recording: `audit-ci` gates **production** high/critical advisories only (ADR-0003, *The application security posture*), so a dev-tree advisory
 here would **not** block CI. Verified at authoring time: `npm audit --omit=dev` shows no new advisory (the
 two pre-existing moderates are react-router).
 
@@ -206,7 +206,7 @@ rendered draft rather than in the abstract.
   two).
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — build time, not runtime; nothing fetched.
-- **Decided by [ADR-0021](./0021-application-security-posture.md)'s `--ignore-scripts` amendment** — the
+- **Decided by [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture)'s `--ignore-scripts` amendment** — the
   collision with Puppeteer's postinstall browser download is what ruled out mermaid-cli.
 - **Conforms to [ADR-0008](./0008-brutalist-mono-identity.md)**, amended by this decision: the identity
   now has a generated surface, and conformance on it is mechanical.

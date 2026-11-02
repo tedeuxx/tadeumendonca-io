@@ -16,7 +16,7 @@
 - **Driven by:** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) ·
   **constrained-by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** (the hard opt-in gate — every name
   below is silent for a reader who has not consented, and this slice repairs the one place that was not
-  true) · **refines [ADR-0023](./0023-observability-static-site.md)** — a **fourth** thing the static site
+  true) · **refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a **fourth** thing the static site
   observes, alongside pageviews, the client error surface and the campaign tagging of
   [ADR-0039](./0039-share-campaign-tagging.md) · **stands alongside
   [ADR-0039](./0039-share-campaign-tagging.md)**, which rejected a share-click event *as a substitute for
@@ -344,7 +344,7 @@ as a general caveat, because a caveat with no direction cannot be reasoned about
   period to be a rate at all, and the per-article cut is noise for at least a year. **Nobody should read
   three shares as a trend**, and acceptance criterion 4 of #597 as phrased is an invitation to publish
   exactly the figure criterion 5 exists to prevent.
-- **Every number here is a floor, twice over** — consent-gated (ADR-0033) and ad-blocked (ADR-0023). The
+- **Every number here is a floor, twice over** — consent-gated (ADR-0033) and ad-blocked (ADR-0003, *Observability scoped to a static site*). The
   consent repair *lowers* it further in the honest direction: a withdrawn reader now genuinely disappears
   rather than continuing to be counted.
 - **The `percent` dimension is computed over BLOCK COUNT, not reading length.** A 25% block in an article
@@ -735,7 +735,7 @@ here rather than quietly deleted because the ask it produced was a false premise
 - **Constrained by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** — and **repairs** the gap between
   that record's hard gate and what it delivered; 0033 is amended to point here, and its
   *"it cannot be un-injected"* consequence is struck there rather than rewritten.
-- **Refines [ADR-0023](./0023-observability-static-site.md)** — a fourth thing the static site observes.
+- **Refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a fourth thing the static site observes.
 - **Stands alongside [ADR-0039](./0039-share-campaign-tagging.md)** — which rejected a share-click event
   as a *substitute* for UTM. See *The ADR-0039 reconciliation* above; the two measure two populations at
   two moments and neither divides the other.

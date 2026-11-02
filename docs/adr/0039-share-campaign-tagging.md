@@ -8,7 +8,7 @@
 - **Driven by:** Issue [#272](https://github.com/tedeuxx/tadeumendonca-io/issues/272) (the observability
   [#267](https://github.com/tedeuxx/tadeumendonca-io/issues/267) deliberately shipped without) ·
   constrained-by [ADR-0033](./0033-ga4-consent-gated-analytics.md) (the consent gate) · refines
-  [ADR-0023](./0023-observability-static-site.md) · reserves a value for
+  [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) · reserves a value for
   [ADR-0038](./0038-content-distribution-linkedin-and-x.md)
 
 ## Context & problem
@@ -166,7 +166,7 @@ share before, so the first reading *is* the baseline.
   share affordances shipped by [#267](https://github.com/tedeuxx/tadeumendonca-io/issues/267).
 - **Constrained by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** — the hard opt-in gate is preserved
   exactly; the arrival-URL capture is what makes attribution survive the gate without weakening it.
-- **Refines [ADR-0023](./0023-observability-static-site.md)** — a third thing the static site observes,
+- **Refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a third thing the static site observes,
   alongside pageviews and the client error surface.
 - **Reserves `author-post` for [ADR-0038](./0038-content-distribution-linkedin-and-x.md)** — the author's
   LinkedIn/X drafts emit a clean URL today, so reader-vs-owner separation currently holds *by accident*;
