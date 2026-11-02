@@ -161,7 +161,8 @@ export async function renderDiagrams(outPath = outFile) {
         out[source] = svg;
       } catch (err) {
         // Loud, and it names the file — a diagram that fails to parse must not become a blank box on a
-        // published page. This is the whole reason the failure mode is build-time (see ADR-0008 (*Diagrams compiled from Mermaid at build time*)).
+        // published page. This is the whole reason the failure mode is build-time; see ADR-0008,
+        // section *Diagrams compiled from Mermaid at build time*.
         console.error(`✗ ${where}\n  ${err instanceof Error ? err.message : String(err)}`);
         failed += 1;
       }

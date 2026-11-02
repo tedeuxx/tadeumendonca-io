@@ -15,8 +15,9 @@
 // WHAT THIS MODULE READS AND WHAT IT DOES NOT. It reads IDENTITY — names, files, events, matchers,
 // counts. It does not read the `description` frontmatter, and the manifest carries no gloss: the short
 // label a diagram node shows is authored in the markdown fence, in each locale, and is NOT checked. That
-// is the same honest limit ADR-0008 (*Diagrams compiled from Mermaid at build time*) states about its own guard — the guarantee is "the source exists and
-// is unchanged", never "this artifact describes it correctly".
+// is the same honest limit ADR-0008 (*Diagrams compiled from Mermaid at build time*) states about its
+// own guard — "The source is the guarantee, not the SVG": a check proves the source, never that an
+// artifact describes it correctly.
 import { readFileSync, readdirSync, existsSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
