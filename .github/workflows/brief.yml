@@ -21,7 +21,7 @@ name: brief
 # `iac` and `github`, and for the same reason. A workflow-level `paths:` filter can never be a required
 # status check: on a PR that does not match, the check never reports and sits pending forever.
 #
-# IT IS NOT A REQUIRED CHECK YET. Promoting it is a branch-protection change, which is the owner's.
+# IT IS NOT A REQUIRED CHECK YET. Promoting it is a change to the ruleset on `main`, which is the owner's.
 # Until then it is advisory, and this comment is the honest statement of that rather than an omission.
 on:
   pull_request:

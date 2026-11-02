@@ -7,7 +7,9 @@ import {
   htmlLang,
   dateLocale,
   ogLocale,
+  localeFromHint,
   localeFromPath,
+  LOCALE_HINT_COOKIE,
   localePath,
   pathWithoutLocale,
   STORAGE_KEY,
@@ -228,5 +230,126 @@ describe('detectLocale', () => {
     setNavLanguages(['en-US', 'en', 'pt']);
     expect(detectLocale('/en/me')).toBe('en');
     expect(detectLocale('/pt/me')).toBe('pt');
+  });
+});
+
+// #788 — the EDGE HINT, step 3 of the ladder (ADR-0036, "The edge exposes a locale hint, never a locale
+// decision"). The parser is tested on its own, then through `detectLocale`, because the contract is
+// about WHERE it sits as much as what it reads.
+describe('localeFromHint', () => {
+  it('resolves pt from the pt hint, wherever the cookie sits in the header', () => {
+    expect(localeFromHint('locale_hint=pt')).toBe('pt');
+    expect(localeFromHint('a=1; locale_hint=pt; b=2')).toBe('pt');
+    expect(localeFromHint('a=1;locale_hint= pt ')).toBe('pt');
+  });
+
+  // `other` is NOT English: it means "not decided by geography", so it resolves nothing.
+  it('resolves nothing from other, unknown, an empty value or any value outside the set', () => {
+    for (const value of ['other', 'unknown', '', 'PT', 'pt-BR', 'en', 'ptx', '"pt"']) {
+      expect(localeFromHint(`locale_hint=${value}`), value).toBeNull();
+    }
+  });
+
+  it('resolves nothing when the cookie is absent or only a look-alike name is present', () => {
+    expect(localeFromHint('')).toBeNull();
+    expect(localeFromHint('a=1; b=2')).toBeNull();
+    expect(localeFromHint('xlocale_hint=pt; locale_hintx=pt; locale_hint')).toBeNull();
+  });
+
+  it('reads the cookie the edge function names', () => {
+    expect(LOCALE_HINT_COOKIE).toBe('locale_hint');
+  });
+});
+
+describe('detectLocale — the edge hint (#788)', () => {
+  const setNavLanguages = (languages: string[]) =>
+    vi.stubGlobal('navigator', { language: languages[0], languages });
+  const setHint = (value: string) => {
+    document.cookie = `locale_hint=${value}; path=/`;
+  };
+  const clearHint = () => {
+    document.cookie = 'locale_hint=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  };
+
+  beforeEach(() => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    clearHint();
+    delete window.__PRERENDER__;
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    clearHint();
+    delete window.__PRERENDER__;
+  });
+
+  // The browser says English throughout, so the ONLY reason any of these can resolve to pt is the hint.
+  it('resolves pt from the pt hint with no path and no override, above an English browser', () => {
+    setNavLanguages(['en-US', 'en']);
+    setHint('pt');
+    expect(detectLocale()).toBe('pt');
+    expect(detectLocale('/')).toBe('pt');
+    expect(detectLocale('/me')).toBe('pt'); // an unprefixed sub-path
+    expect(detectLocale('/blog/my-commitment')).toBe('pt'); // the bare article path
+  });
+
+  // The control: identical inputs, no hint. Without it the test above could pass on a resolver that
+  // ignored the cookie and returned pt for some other reason.
+  it('serves the browser language when the cookie is absent', () => {
+    setNavLanguages(['en-US', 'en']);
+    expect(detectLocale('/')).toBe('en');
+  });
+
+  it('keeps a persisted en override above the pt hint', () => {
+    setNavLanguages(['en-US', 'en']);
+    setHint('pt');
+    window.localStorage.setItem(STORAGE_KEY, 'en');
+    expect(detectLocale('/')).toBe('en');
+  });
+
+  it('keeps the path above the pt hint', () => {
+    setNavLanguages(['en-US', 'en']);
+    setHint('pt');
+    expect(detectLocale('/en/me')).toBe('en');
+    expect(detectLocale('/en')).toBe('en');
+  });
+
+  it('falls through to navigator.languages on other, in both directions', () => {
+    setHint('other');
+    setNavLanguages(['pt-BR']);
+    expect(detectLocale('/')).toBe('pt'); // other is NOT English
+    setNavLanguages(['en-US']);
+    expect(detectLocale('/')).toBe('en');
+  });
+
+  it('falls through to navigator.languages on unknown or a garbage value', () => {
+    setNavLanguages(['fr-FR', 'pt']);
+    for (const value of ['unknown', 'garbage', 'PT']) {
+      setHint(value);
+      expect(detectLocale('/'), value).toBe('pt');
+    }
+    setNavLanguages(['fr-FR']);
+    for (const value of ['unknown', 'garbage', 'PT']) {
+      setHint(value);
+      expect(detectLocale('/'), value).toBe('en');
+    }
+  });
+
+  // The prerender is not a visitor (ADR-0036, 2026-07-28): the bare-root snapshot must stay English.
+  it('ignores the hint in the snapshot browser', () => {
+    setNavLanguages(['en-US']);
+    setHint('pt');
+    window.__PRERENDER__ = true;
+    expect(detectLocale('/')).toBe('en');
+    window.__PRERENDER__ = false;
+    expect(detectLocale('/')).toBe('pt'); // a false flag is a visitor, not the snapshot browser
+  });
+
+  it('never writes the cookie', () => {
+    setNavLanguages(['en-US']);
+    setHint('other');
+    const before = document.cookie;
+    detectLocale('/');
+    detectLocale('/en/me');
+    expect(document.cookie).toBe(before);
   });
 });

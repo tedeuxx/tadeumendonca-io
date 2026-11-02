@@ -34,7 +34,8 @@ written, not a change of mind.
   its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)): whatever resolves a locale must do so at
   **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0002's
   no-SSR/edge invariant is load-bearing and must survive untouched.
-  > **Narrowed 2026-11-01** (#669, `proposed` until the owner ratifies PR #803): the edge may now
+  > **Narrowed 2026-11-01** (#669, ~~`proposed` until the owner ratifies PR #803~~ **`accepted`
+  > 2026-11-01**: the owner merged PR #803 himself, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)): the edge may now
   > **expose a fact** (a viewer-response `locale_hint` cookie); it still never **resolves** a locale,
   > routes or redirects. See *The edge exposes a locale hint, never a locale decision (2026-11-01)* below.
 - **OG/SEO completeness per surface** ([ADR-0005](./0005-og-coverage-every-public-url.md)): every public URL
@@ -101,7 +102,9 @@ Chosen: **option 1 — symmetric per-locale URL prefixes, per-locale prerender, 
   gap ADR-0032 left open. **Localized OG *image art* is deferred** (see scope boundaries); the OG text/meta
   ships now.
 - **Bare `/` (and any unprefixed path) auto-detect and redirect client-side.** React resolves the locale
-  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per ADR-0032) and
+  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per ADR-0032; since #661
+  the full `navigator.languages` list, and since #788 an edge hint above it — see *The edge exposes a
+  locale hint, never a locale decision* below) and
   `<Navigate replace>`s to the matching locale prefix, **preserving the sub-path** (`/portfolio` →
   `/en/portfolio` or `/pt/portfolio`). **This client-side redirect is the deliberate reason no edge
   Accept-Language logic is needed** — the one place a reader might assume an edge negotiation, made explicit:
@@ -162,7 +165,7 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
   > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
   > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
 - **No edge / Accept-Language logic** — the client-side redirect covers the negotiation; `iac/` stays closed.
-  > **Narrowed 2026-11-01** (#669, `proposed`): still no edge negotiation, but `iac/` now carries a
+  > **Narrowed 2026-11-01** (#669, ~~`proposed`~~ **`accepted`**, [the owner's merge of PR #803](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)): still no edge negotiation, but `iac/` now carries a
   > function that exposes a locale hint to the client. See *The edge exposes a locale hint, never a locale
   > decision (2026-11-01)* below.
 - **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (its downloadable-edition section)
@@ -511,7 +514,9 @@ and what the wrong-locale slug does), **not** a table entry — and the green su
 
 **Added 2026-11-01 by [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669) (slice B1, the edge
 half), written by `tech-lead` in [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803).
-This section is `proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.
+~~This section is `proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.~~
+**`accepted` 2026-11-01: the owner merged PR #803 himself (`993b3f9`), which is his ratification of
+that boundary-class MR, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759); the status changed in #788.**
 Its consent question is already his, answered on 2026-11-01 («Antes, e divulgar»,
 [#669 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6564678895)).** It is a section here rather than a record of its own because it is
 behaviour of this capability, locale resolution, and
@@ -705,10 +710,16 @@ consequence of each answer.
 - **IP is not language.** A Brazilian abroad, a corporate VPN and a reader in Portugal (who gets pt-BR)
   resolve wrongly; the owner accepted this trade on #669.
 - **On a no-go, the HTML cache fragments by country.**
-- **The `/architecture` claim that the edge function *"touches the URL, nothing else"* becomes
-  incomplete.** Correcting it is B2's scope (#788).
-- **Nothing observes the client honouring the contract** until B2 ships with its own regression; until
-  then the cookie is inert by construction.
+- ~~**The `/architecture` claim that the edge function *"touches the URL, nothing else"* becomes
+  incomplete.** Correcting it is B2's scope (#788).~~ **Paid in #788:** `/architecture` names both edge
+  functions in both editions, and `/analytics` states the cookie's one use, limited to addresses that
+  name no language.
+- ~~**Nothing observes the client honouring the contract** until B2 ships with its own regression; until
+  then the cookie is inert by construction.~~ **Since #788 the client reads it**, and three things observe
+  that: the unit tests on `detectLocale` in `apps/fed/src/i18n/config.test.ts`, the journeys in
+  `apps/fed/e2e/locale-hint.spec.ts` (the injected-cookie half runs locally only, because the live edge
+  overwrites an injected cookie; one coherence check runs post-deploy too), and `scripts/prerender.mjs`,
+  which sets `locale_hint=pt` in the snapshot browser so a broken opt-out fails the build.
 
 ### Where it came from
 
@@ -720,7 +731,8 @@ Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
 - **Section added 2026-11-01** (Issue [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669),
-  `proposed` until the owner ratifies [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803)) —
+  ~~`proposed` until the owner ratifies [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803)~~
+  **`accepted` 2026-11-01**, the owner's own merge of PR #803, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)) —
   *The edge exposes a locale hint, never a locale decision*: the no-edge driver is narrowed to *the edge
   never resolves a locale*; a viewer-response function exposes a three-valued locale hint, and resolution
   stays client-side. Consumed by [#788](https://github.com/tedeuxx/tadeumendonca-io/issues/788).

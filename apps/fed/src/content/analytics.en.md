@@ -12,7 +12,7 @@ The consequence is that whoever declines is never counted, and neither is whoeve
 
 ## The one cookie set before any choice
 
-One cookie is set on every page, whatever you choose about analytics, and it is this site's own, not Google's: `locale_hint`. It holds `pt` when the country your connection appears to come from speaks Portuguese, `other` when it does not, and `unknown` when no country arrived. It carries no identifier and no other location. Each page you open renews it for one hour.
+One cookie is set on every page, whatever you choose about analytics, and it is this site's own, not Google's: `locale_hint`. It holds `pt` when the country your connection appears to come from speaks Portuguese, `other` when it does not, and `unknown` when no country arrived. It is used for one thing: when you open an address that names no language, such as the bare tadeumendonca.io, `pt` opens the site in Portuguese, unless you have already chosen a language. An address with `/en/` or `/pt/` in it always decides by itself. It carries no identifier and no other location. Each page you open renews it for one hour.
 
 ## Emitted is not the same as queryable
 

@@ -107,6 +107,29 @@ export function browserLocale(languages: readonly string[] = declaredLanguages()
   return BASELINE_LOCALE;
 }
 
+/** The cookie the CDN's viewer-response function sets on every HTML response (ADR-0036, #669). */
+export const LOCALE_HINT_COOKIE = 'locale_hint';
+
+/**
+ * The locale the EDGE HINT resolves, or null when it resolves nothing (#788).
+ *
+ * The contract is ADR-0036's section *The edge exposes a locale hint, never a locale decision*: the
+ * cookie carries `pt` (the reader's country is a CPLP member state), `other` or `unknown`. Only `pt`
+ * decides anything. `other` does NOT mean English — it means "not decided by geography" — so it, an
+ * `unknown`, a missing cookie and any value outside the set all return null and the caller falls
+ * through to the browser's declared list.
+ *
+ * Read-only by design: nothing in the client writes, refreshes or deletes this cookie.
+ */
+export function localeFromHint(cookieHeader: string): Locale | null {
+  for (const pair of cookieHeader.split(';')) {
+    const eq = pair.indexOf('=');
+    if (eq < 0 || pair.slice(0, eq).trim() !== LOCALE_HINT_COOKIE) continue;
+    return pair.slice(eq + 1).trim() === 'pt' ? 'pt' : null;
+  }
+  return null;
+}
+
 /**
  * Resolve the active locale. Called SYNCHRONOUSLY before `createRoot` (see main.tsx) so React's
  * first render is already in the right locale — no post-mount flash — and by the bare-root redirect
@@ -115,17 +138,28 @@ export function browserLocale(languages: readonly string[] = declaredLanguages()
  * Precedence (ADR-0036 — per-locale URLs make the path authoritative):
  *   1. the locale in the URL path (`/pt/…`, `/en/…`) — a shared prefixed link wins over everything;
  *   2. else a persisted override (the manual toggle) — the bare-root default follows the last choice;
- *   3. else the browser's DECLARED LIST, in order (`navigator.languages`, pt* anywhere → pt);
- *   4. else English — the professional / prerender / x-default baseline.
+ *   3. else the EDGE HINT (`locale_hint=pt` → pt; anything else resolves nothing) — #788;
+ *   4. else the browser's DECLARED LIST, in order (`navigator.languages`, pt* anywhere → pt);
+ *   5. else English — the professional / prerender / x-default baseline.
  *
- * Steps 1 and 2 are untouched by #661 and must stay so. The path is authoritative because the
+ * Steps 1 and 2 are untouched by #661 and #788 and must stay so. The path is authoritative because the
  * prerender, the self-canonical + `hreflang` reciprocity and the sharer's contract all rest on it, and
- * an explicit persisted choice outranks any inference about the reader. Only step 3 widened.
+ * an explicit persisted choice outranks any inference about the reader. Step 3 therefore only ever acts
+ * on an address that names no language.
+ *
+ * STEP 3 NEVER RUNS IN THE SNAPSHOT BROWSER. The prerender is not a visitor (ADR-0036, 2026-07-28): its
+ * HTML is served to everyone, and the bare-root snapshot must stay the English page a crawler receives.
+ * A hint in the build environment must not move it, so the step is skipped under `window.__PRERENDER__`
+ * — and `scripts/prerender.mjs` sets the cookie on purpose, so every build is the regression.
  */
 export function detectLocale(pathname?: string): Locale {
   const fromPath = pathname ? localeFromPath(pathname) : null;
   if (fromPath) return fromPath;
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (isLocale(stored)) return stored;
+  if (window.__PRERENDER__ !== true) {
+    const hinted = localeFromHint(document.cookie);
+    if (hinted) return hinted;
+  }
   return browserLocale();
 }

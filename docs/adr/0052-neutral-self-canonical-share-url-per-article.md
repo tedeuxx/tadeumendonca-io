@@ -235,7 +235,8 @@ follow-up. The refusal semantics are untouched: a held article still has no shar
 
 - **The locale resolver.** This changes no line of `i18n/config.ts`. `#661` owns the resolver; this record
   owns the address. *"A pt-BR reader lands in Portuguese"* is **false for a returning reader**, correctly
-  — resolution is path → persisted toggle → navigator — so no assertion here may claim it.
+  — resolution is path → persisted toggle → navigator (since #788, path → persisted toggle → edge hint →
+  navigator; [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)) — so no assertion here may claim it.
 - **The title seam.** An English card headline against a Portuguese headline on arrival is a **ruler**
   question, not a UI one, and it is tracked as a `content` item in `tedeuxx/tadeumendonca-skills`.
 - **Whether the pinned link was costing readers.** A hypothesis on `#660`, with what would test it. This

@@ -52,6 +52,13 @@ await context.addInitScript(() => {
   // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
   window.__PRERENDER__ = true;
 });
+// THE EDGE HINT IS PRESENT IN THE BUILD, ON PURPOSE (#788). The CDN sets a `locale_hint` cookie on every
+// HTML response, and the client reads it as precedence step 3 — except in this browser, which must ignore
+// it (`detectLocale` skips the step under `__PRERENDER__`). Setting `pt` here makes every build the
+// regression: if the opt-out broke, the bare root would redirect to `/pt`, the snapshot below would wait
+// for the English canonical that never appears, and the build would fail instead of shipping a Portuguese
+// x-default to every crawler.
+await context.addCookies([{ name: 'locale_hint', value: 'pt', url: base }]);
 const page = await context.newPage();
 
 // Snapshot the page currently loaded once its canonical matches `expectedCanonical`, writing to `outDir`.
