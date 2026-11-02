@@ -15,6 +15,11 @@ output "spa_rewrite_function_name" {
   value       = aws_cloudfront_function.spa_rewrite.name
 }
 
+output "locale_hint_function_name" {
+  description = "CloudFront Function name, so CI can verify the LIVE stage carries the repo's code (#669)."
+  value       = aws_cloudfront_function.locale_hint.name
+}
+
 output "frontend_url" {
   description = "Public SPA URL (custom domain fronted by CloudFront)."
   value       = "https://${local.frontend_host}"
