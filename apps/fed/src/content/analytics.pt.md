@@ -6,9 +6,13 @@ Então esta página faz o contrário, para este site. Ela não traz nenhum núme
 
 ## Toda contagem é um piso
 
-Nada chega ao Google antes de você aceitar a analytics. Antes de escolher, se você recusar, e num build sem identificador de medição, a tag nunca é carregada, nenhum cookie é gravado e nenhuma requisição é feita. Se você aceitar e depois retirar o consentimento, o código deste site não envia mais nada a partir dali. A tag, porém, continua carregada, e o que ela coleta por conta própria, como a medição automática que o GA4 pode ligar numa propriedade, depende de uma configuração do console que este repositório não consegue observar. Essa trava é uma decisão com os motivos registrados na [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
+Nada chega ao Google antes de você aceitar a analytics. Antes de escolher, se você recusar, e num build sem identificador de medição, a tag nunca é carregada, então o Google não grava cookie nem recebe requisição. Se você aceitar e depois retirar o consentimento, o código deste site não envia mais nada a partir dali. A tag, porém, continua carregada, e o que ela coleta por conta própria, como a medição automática que o GA4 pode ligar numa propriedade, depende de uma configuração do console que este repositório não consegue observar. Essa trava é uma decisão com os motivos registrados na [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
 
 A consequência é que quem recusa nunca é contado, e quem bloqueia a tag também não. Todo número que o GA4 guarda sobre os eventos que o código deste site envia é, portanto, um piso, nunca um total, a menos que essa coleta automática conte a mesma coisa uma segunda vez ([ADR-0023](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0023-observability-static-site.md)). Esse é o preço da trava, e eu prefiro pagá-lo a contar quem disse não.
+
+## O único cookie gravado antes de qualquer escolha
+
+Um cookie é gravado em toda página, seja qual for a sua escolha sobre a analytics, e é deste site, não do Google: o `locale_hint`. Guarda `pt` quando o país de onde a sua conexão parece vir fala português, `other` quando não fala, e `unknown` quando nenhum país chegou. Não carrega identificador nem outra localização. Cada página aberta renova o cookie por uma hora.
 
 ## Emitido não é o mesmo que consultável
 
