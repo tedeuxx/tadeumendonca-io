@@ -92,7 +92,7 @@ export function storeDismissal(): void {
 
 /**
  * Persist a locale CHOICE without navigating — the same store and key the PT/EN toggle writes, so it
- * outranks detection from here on (`detectLocale`: path → stored → navigator).
+ * outranks detection from here on (`detectLocale`: path → stored → edge hint → navigator).
  *
  * Separate from the toggle's `setLocale` on purpose: that one persists AND navigates, which is right
  * when the reader is changing edition and wrong when they are staying put. Calling it with the locale
