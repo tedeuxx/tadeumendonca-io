@@ -12,7 +12,7 @@ A consequência é que quem recusa nunca é contado, e quem bloqueia a tag tamb�
 
 ## O único cookie gravado antes de qualquer escolha
 
-Um cookie é gravado em toda página, seja qual for a sua escolha sobre a analytics, e é deste site, não do Google: o `locale_hint`. Guarda `pt` quando o país de onde a sua conexão parece vir fala português, `other` quando não fala, e `unknown` quando nenhum país chegou. Não carrega identificador nem outra localização. Cada página aberta renova o cookie por uma hora.
+Um cookie é gravado em toda página, seja qual for a sua escolha sobre a analytics, e é deste site, não do Google: o `locale_hint`. Guarda `pt` quando o país de onde a sua conexão parece vir fala português, `other` quando não fala, e `unknown` quando nenhum país chegou. Serve para uma coisa só: quando você abre um endereço que não nomeia idioma, como o tadeumendonca.io puro, `pt` abre o site em português, a menos que você já tenha escolhido um idioma. Um endereço com `/en/` ou `/pt/` sempre decide sozinho. Não carrega identificador nem outra localização. Cada página aberta renova o cookie por uma hora.
 
 ## Emitido não é o mesmo que consultável
 
