@@ -120,8 +120,8 @@ on:
         type: boolean
         default: true
 
-# Read-only by DEFAULT. `contents: write` and `id-token: write` are granted per job, to the one job that
-# needs each, so no deciding job ever holds a credential.
+# Read-only by DEFAULT. No job is granted `contents: write`; `release` writes with its App token (#783).
+# `id-token: write` is granted per job, only to the jobs that reach AWS, so no deciding job holds one.
 permissions:
   contents: read
 
@@ -153,8 +153,12 @@ jobs:
       (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'bump:')) ||
       (github.event_name == 'workflow_dispatch' && inputs.part != 'none')
     runs-on: ubuntu-latest
+    # `contents: read` and no wider (#783). Every write this job makes — the bump commit, the tag, the
+    # GitHub Release — is made with the GitHub App's token minted below, not with GITHUB_TOKEN, so the
+    # job token only needs what the runner itself reads. GITHUB_TOKEN could not push the bump anyway: the
+    # ruleset on `main` requires a pull request, and only the App is on its bypass list.
     permissions:
-      contents: write # push the bump commit + tag, create the Release
+      contents: read
     # Job-scoped, NOT workflow-scoped. A workflow-level group would queue the next merge's bump behind
     # the previous merge's entire deploy. This keeps the former version-main serialisation exactly.
     concurrency:
@@ -182,10 +186,33 @@ jobs:
           echo "::error::a deliberate $PART bump was dispatched from $REF, but a version is only ever cut from main. Re-dispatch from main."
           exit 1
 
+      # The release credential (#783). It replaces a fine-grained personal access token, which expired
+      # on a calendar and broke this job from 2026-10-24 to 2026-10-30. The token is minted per
+      # run from the App's key, lives one hour at most, and the action revokes it in its post step.
+      #
+      # WHY AN APP AND NOT GITHUB_TOKEN: the ruleset on `main` requires a pull request and three checks,
+      # and the App is the only actor on its bypass list. A push with GITHUB_TOKEN is refused there.
+      #
+      # THE LOOP GUARD ABOVE STILL HAS WORK TO DO. Unlike GITHUB_TOKEN, a push made with an App token
+      # DOES trigger workflows, as the PAT did, so the `bump:` commit re-enters `deploy` and this job's
+      # `if:` is what stops it.
+      #
+      # `app-id`, not `client-id`: the stored secret is the numeric App ID. The action marks `app-id`
+      # deprecated in favour of `client-id` and still accepts it; moving needs a new secret, which is
+      # the owner's act.
+      - name: Mint the release App token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          # Narrow the token to the one permission this job uses, whatever else the App is ever granted.
+          permission-contents: write
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
           ref: main
 
@@ -252,7 +279,7 @@ jobs:
 
       - name: Build categorized release notes (commits since the previous release)
         env:
-          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW: v${{ steps.version.outputs.version }}
           REPO: ${{ github.repository }}
         run: |
@@ -282,7 +309,7 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW: v${{ steps.version.outputs.version }}
         run: gh release create "$NEW" --title "$NEW" --notes-file RELEASE_NOTES.md
 

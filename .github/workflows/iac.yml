@@ -110,13 +110,13 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   # THE REQUIRED CHECK for iac PRs.
   #
-  # ⚠️ RENAMED from `plan` to `terraform-plan`. Branch protection requires the JOB name `plan`, so this
-  # rename does not take effect on its own — the protection must be resequenced by the owner:
-  # remove `plan` from required → merge this → add `terraform-plan`. There is a window in between where
-  # iac PRs are ungated. Nothing in this repo's agent loop touches branch protection.
+  # RENAMED from `plan` to `terraform-plan`, and the required checks were resequenced to match (the
+  # owner's read of 2026-10-31 listed `terraform-plan`). Since #783 the requirement lives in the ruleset
+  # on `main`, which names this JOB, so renaming it silently un-gates iac PRs. Changing the ruleset is
+  # the owner's act; nothing in this repo's agent loop edits repository settings.
   #
   # `if: always()` rather than a bare `needs:`, for the same two reasons as app.yml's `build-test`:
-  # a skipped required check satisfies branch protection, and this job must produce a definite status
+  # a skipped required check satisfies the ruleset on `main`, and this job must produce a definite status
   # both when its dependencies were skipped (a non-iac PR) and when one of them failed.
   #
   # DEPENDABOT (#639): GitHub gives a Dependabot-triggered run its OWN secret store, and this repository
@@ -138,7 +138,7 @@ jobs:
   #
   # THE CONDITION SITS ON THE STEPS, AND THAT PLACEMENT IS THE WHOLE DESIGN:
   #   * NOT on the job — `terraform-plan` is the required check, and the line directly above says why
-  #     that is fatal: a SKIPPED required check satisfies branch protection. A job-level actor test
+  #     that is fatal: a SKIPPED required check satisfies the ruleset on `main`. A job-level actor test
   #     would conclude the check SKIPPED and unblock the merge with nothing having reported, which is
   #     the defect, delivered by the fix.
   #   * NOT on the `changes` filter — that filter answers *what changed*; the actor is *who*. Flipping

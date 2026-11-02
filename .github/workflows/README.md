@@ -5,8 +5,10 @@ of truth — this file describes it. Four points where the design did not surviv
 are recorded in *[Where the drawing was wrong](#where-the-drawing-was-wrong)* at the bottom; the
 original claims are left standing there rather than edited out.
 
-**One thing is not done and cannot be done from here: branch protection still requires the job name
-`plan`, which no longer exists.** See *[Rules the design has to obey](#rules-the-design-has-to-obey)*.
+~~**One thing is not done and cannot be done from here: branch protection still requires the job name
+`plan`, which no longer exists.**~~ **Struck (#783): it was done.** The owner's read of the classic
+protection on 2026-10-31 listed `terraform-plan`, not `plan`, and `main` is now governed by a
+repository ruleset instead. See *[Rules the design has to obey](#rules-the-design-has-to-obey)*.
 
 Four workflows. Three gate the merge, one publishes. **Jobs are named after the command they run**,
 in kebab-case; a job that runs a pipeline of several commands is named after the script instead.
@@ -114,10 +116,11 @@ commands:
 - **`build-static`** runs `tsc --noEmit && vite build && gen-sitemap && prerender` — four commands.
   `vite-build` would name a quarter of it and hide the part that matters most: the prerender launches
   Chromium and snapshots every route, which is what puts the OG tags in the served HTML.
-- **`build-test`** is the aggregator, and its name is **fixed by branch protection** (below).
+- **`build-test`** is the aggregator, and its name is **fixed by the ruleset on `main`** (below).
 - **`release`** bumps with `bump-my-version`, tags, and publishes the GitHub Release — three things,
   and the Release is the one the site's footer links to. The tool is in the node description so the
-  graph shows both.
+  graph shows both. It does all three as a GitHub App, the one actor the ruleset lets push to `main`
+  (below).
 
 ---
 
@@ -350,12 +353,32 @@ this merge did touch infra and the app change may depend on it. Note the Actions
 `needs:` dependency skips the dependent too, so this requires
 `if: always() && needs.terraform-apply.result != 'failure'` rather than a bare `needs:`.
 
-**Job names are fixed by branch protection.** It requires `build-test`, `plan`, `actionlint` — job
+**`main` is governed by a repository ruleset, not by classic branch protection (#783).** The ruleset
+requires a pull request (zero approvals), blocks force-pushes and deletion, and requires three status
+checks with *require branches to be up to date* **off**: `build-test`, `actionlint` and
+`terraform-plan`. Those are **job names, not workflow names**, so the three job names are fixed by the
+ruleset and renaming one silently un-gates it.
+
+**The ruleset's bypass list holds exactly one actor: the release GitHub App** (from section C of #783
+on; until then the Repository admin role is also on the bypass list, and an admin still skips the rules
+— see ADR-0003, section [*The release job writes to `main` as a GitHub App, under a ruleset that only
+that App bypasses*](../../docs/adr/0003-trunk-based-single-environment.md#the-release-job-writes-to-main-as-a-github-app-under-a-ruleset-that-only-that-app-bypasses-2026-11-01)).
+That is how `release` pushes its `bump:` commit and tag straight to `main` without a pull request.
+`GITHUB_TOKEN` cannot. Once the admin entry is removed, neither can an administrator's own credential:
+an admin no longer skips the rules, so every merge, the gate's included, needs the three checks green. The App holds Contents read and write
+and Metadata read only, is installed on this repository only, and its token is minted per run and lives
+one hour at most. The App's private key is a standing credential with no expiry; the two secrets are in
+the root README's secrets table.
+
+~~**Job names are fixed by branch protection.** It requires `build-test`, `plan`, `actionlint` — job
 names, not workflow names. `build-test` and `actionlint` survive verbatim. `plan` is now
 `terraform-plan`, so **the protection is out of step with the YAML until the owner resequences it**:
 remove `plan` from required → merge → add `terraform-plan`. There is a window in between where iac PRs
 are ungated. Nothing in the agent loop touches branch protection, so this is a human step and it did
-not happen as part of the build.
+not happen as part of the build.~~ **Struck (#783), and false twice over.** The resequencing had
+already happened: the owner's read of the classic protection on 2026-10-31 listed `terraform-plan`.
+And the classic protection is gone, replaced by the ruleset above. Changing the ruleset is still the
+owner's act; nothing in the agent loop edits repository settings.
 
 **Every required check must RUN, not merely be needed.** A required job with a bare `needs:` is
 *skipped* when a dependency fails — and GitHub counts a skipped required check as satisfied. The
