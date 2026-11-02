@@ -15,7 +15,7 @@ But a "repo card" pulls two decisions the site has not yet made in *long-form* c
 
 ## Decision drivers
 - **No runtime third-party request** — a card must cost the reader zero network (ADR-0004, ADR-0033). A frozen fact is acceptable; a live fetch is not.
-- **In-pattern over new mechanism** — the shared `Markdown` renderer already turns a lone YouTube URL into a `VideoEmbed` facade; the curated catalog is already a typed owner-authored list (`catalog.ts`). Prefer a second instance of each over a new abstraction ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)).
+- **In-pattern over new mechanism** — the shared `Markdown` renderer already turns a lone YouTube URL into a `VideoEmbed` facade; the curated catalog is already a typed owner-authored list (`catalog.ts`). Prefer a second instance of each over a new abstraction ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)).
 - **Facts once, prose per locale** — the ADR-0024 split: a repo's name/owner/language are the same in every edition (author once); only the description is prose (author per locale).
 - **Brand fidelity** — the card obeys the fixed identity, it does not invent a new one ([ADR-0008](./0008-brutalist-mono-identity.md)).
 
@@ -44,7 +44,7 @@ The card's **description is a leaf-level `{pt,en}` field** living in the registr
 
 **Scope boundaries (deliberate)**
 - **Only the four Karpathy repos** get cards in this slice. The other GitHub links in the same section (Matt Pocock, Garry Tan) stay plain links — a filed follow-on, not folded in (WIP=1).
-- **Not a general provider registry.** One concrete `githubRepoUrl`-style match beside `youtubeId`, not a pluggable abstraction for a single provider (ADR-0001).
+- **Not a general provider registry.** One concrete `githubRepoUrl`-style match beside `youtubeId`, not a pluggable abstraction for a single provider (ADR-0053, lean by design).
 - **Prerender/OG unchanged.** The cards are in the served HTML (the anchors prerender in **both** locales — [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md);
   this cited ADR-0032's English baseline, retired 2026-07-26, #234); no new route, no sitemap change.
 

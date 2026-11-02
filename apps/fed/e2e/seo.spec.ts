@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { strings } from '../src/i18n/messages';
 
 // SEO discovery regression (Issue #51, ADR-0005). The site ships complete on-page OG/meta; these journeys
 // prove the *discovery* half — a served robots.txt with a sitemap pointer, and a sitemap.xml listing every
@@ -303,6 +304,35 @@ test.describe('SEO discovery', () => {
     // so a negative against it could not fail.
     expect(alt).not.toContain('vamos aprender em público');
   });
+
+  // #710. The #687 article's card is COVER-DERIVED, in both locales: the served HTML advertises that
+  // locale's own card, and its alt tells the reader the picture is an AI-generated cover — in the
+  // reader's language, from the catalog entry the page appends. The legacy-article assertion above is
+  // untouched: a title-only card is still described by its title alone.
+  //
+  // Read from the SERVED HTML, because that is what a scraper reads: the prerender snapshots the head,
+  // and a JS-less fetch never sees what the client would have written afterwards.
+  for (const { path, locale } of [
+    { path: '/en/blog/ai-answers-in-seconds-you-dont-have-to/', locale: 'en' },
+    { path: '/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa/', locale: 'pt' },
+  ] as const) {
+    test(`the cover article advertises its ${locale} cover card, described as AI-generated`, async ({ request }) => {
+      const html = await (await request.get(path)).text();
+      const card = /property="og:image" content="([^"]+)"/.exec(html)?.[1];
+      expect(card, `${path} must advertise its own ${locale} card`).toMatch(
+        new RegExp(`/og/ai-answers-in-seconds-you-dont-have-to\\.${locale}\\.png$`),
+      );
+      const res = await request.get(new URL(card!).pathname);
+      expect(res.status(), `${card} must resolve`).toBe(200);
+      expect(res.headers()['content-type']).toContain('image/png');
+
+      const alt = /property="og:image:alt" content="([^"]+)"/.exec(html)?.[1];
+      const title = /property="og:title" content="([^"]+)"/.exec(html)?.[1];
+      expect(alt, `${path} must describe its card`).toContain(strings.article.aiCover[locale]);
+      // Still THIS article's card: the alt opens with the article's own title, which og:title also opens with.
+      expect(title?.startsWith(alt!.split(' — ')[0]), `og:image:alt "${alt}" must open with the title`).toBe(true);
+    });
+  }
 
   // #272. The canonical is built from the ROUTE constant (useDocumentHead), never from the live URL, so
   // it is query-free by construction. This slice is what makes that load-bearing: until now no URL on

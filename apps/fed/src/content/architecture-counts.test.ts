@@ -10,13 +10,13 @@
 // WHAT WENT WRONG, because the page predicted it in its own prose and that is the whole argument. The ADR
 // section used to say that the count was typed by hand and held up by nothing but the link below. It was
 // written on the morning of 2026-08-25 (fe5ceed, 10:25) with 49 records on disk, so it was true — and
-// ADR-0050 landed THE SAME EVENING (07046b8, 21:09), so it was false before the day was out. ADR-0051
+// record 0050 landed THE SAME EVENING (07046b8, 21:09), so it was false before the day was out. ADR-0051
 // landed 2026-09-04 (394cb63, 17:38). The page published `49` against a library of 50 and then of 51
 // until this file landed. Predicting a failure in prose is not a control.
 //
 // AND THE FIRST VERSION OF THIS COMMENT GOT THOSE DATES WRONG, in the permissive direction, which is
 // worth more to the next reader than the dates are. It said the count "went false on 2026-09-04 when
-// records 0050 and 0051 landed" — dating ADR-0050 ten days late and making the page look as though it
+// records 0050 and 0051 landed" — dating record 0050 ten days late and making the page look as though it
 // rotted slowly, when it rotted in under eleven hours. TWO defects in one published falsifier,
 // `git log -1 … -- docs/adr/0050-*.md docs/adr/0051-*.md`:
 //
@@ -24,7 +24,7 @@
 //      about the other. The earlier landing is CONCEALED rather than reported — it emits one plausible
 //      line, which is worse than emitting nothing.
 //   2. `-1` answers "last TOUCHED", not "LANDED", so it is the wrong question even per path: that form
-//      dates ADR-0050 to 2026-08-28 (cf4583c), a later edit, not to its arrival.
+//      dates record 0050 to 2026-08-28 (cf4583c), a later edit, not to its arrival.
 //
 // The instrument that does answer it is `--diff-filter=A` per path, cross-checked against a walk over
 // every commit touching `docs/adr/` reading the record count at each. The walk is not belt-and-braces:
@@ -50,7 +50,7 @@ const BODY: Record<string, string> = { en: architectureEn, pt: architecturePt };
 //
 // WHY A SHAPE AND NOT A `toContain` OF THE EXPECTED LITERAL, which is what the accDescr half of this slice
 // uses. Scope. There the haystack is ONE LINE, so a literal built from the manifest is tight. Here it is
-// the whole 300-line document, where `toContain('There are 51 decisions')` is equally satisfied by the
+// the whole 300-line document, where `toContain('There are 51 decision records')` is equally satisfied by the
 // live sentence and by a struck quotation of a superseded figure — so a page whose live count had gone
 // false again would pass on its own history. Capturing the number and requiring exactly ONE occurrence
 // tells a declaration from a mention; `toContain` cannot.
@@ -66,8 +66,8 @@ const BODY: Record<string, string> = { en: architectureEn, pt: architecturePt };
 // the first just did, in the same paragraph.
 const ADR_SHAPE: Record<string, Record<string, RegExp>> = {
   total: {
-    en: /There are (\d+) decisions/g,
-    pt: /São (\d+) decisões/g,
+    en: /There are (\d+) decision records/g,
+    pt: /São (\d+) registros de decisão/g,
   },
   rowCopy: {
     en: /a (\d+)-row copy/g,

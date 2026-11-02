@@ -741,6 +741,11 @@ const strings = {
     notFoundTitle: { pt: 'Artigo não encontrado', en: 'Article not found' },
     notFoundBody: { pt: 'Este artigo não existe ou não está publicado.', en: 'This article does not exist or is not published.' },
     allArticles: { pt: '← Todos os artigos', en: '← All articles' },
+    // #710. What a COVER-DERIVED OG card is, appended to its `og:image:alt` after the title — the card
+    // is no longer only the title, so the title alone would describe a picture the reader is not shown.
+    // The same words are printed on the card itself (scripts/og-copy.mjs `COVER_MARK`, joined to this
+    // entry by og-copy.test.mjs): the sighted reader and the screen-reader user learn the same fact.
+    aiCover: { pt: 'Ilustração de capa gerada por IA', en: 'AI-generated cover illustration' },
   },
   share: {
     share: { pt: 'Compartilhar', en: 'Share' },

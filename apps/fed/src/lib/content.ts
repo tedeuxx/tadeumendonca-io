@@ -106,7 +106,12 @@ export interface BlogPost {
    * two Issues would split one review across two threads with nothing pointing at the other.
    */
   contentIssue?: number;
-  /** Optional cover image path. */
+  /**
+   * Optional cover image path. Not rendered by the page (the article body carries its own cover image);
+   * it is the selector for the COVER-DERIVED OG card (#710, ADR-0041's 2026-11-01 amendment): set, the
+   * card generator builds the card from this image and the page appends the AI-generated note to
+   * `og:image:alt`.
+   */
   cover?: string;
   /** Optional OG image path (defaults handled by the prerender pipeline). */
   ogImage?: string;

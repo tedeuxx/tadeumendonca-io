@@ -4,15 +4,15 @@
 - **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 The domain needs a professional inbox (`me@tadeumendonca.io`) for contact. Running or renting mail
-infrastructure to do that would be cost and operational surface — the opposite of ADR-0001 — for a
+infrastructure to do that would be cost and operational surface — the opposite of ADR-0053 (lean by design) — for a
 single personal mailbox.
 
 ## Decision drivers
-- ADR-0001: no infra, no recurring cost that an existing subscription already covers.
+- ADR-0053 (lean by design): no infra, no recurring cost that an existing subscription already covers.
 - Email must be **independent of the site** — the inbox should work whether or not the site is deployed.
 
 ## Considered options
@@ -39,4 +39,4 @@ the mailboxes are Apple's. Email is fully decoupled from the site's deploy.
   transactional mail path (that was SES, retired with the backend — History).
 
 ## Links
-- Driven by ADR-0001 · DNS records in Route53 (`iac/email.tf`), independent of the CloudFront distribution.
+- Driven by ADR-0053 (lean by design) · DNS records in Route53 (`iac/email.tf`), independent of the CloudFront distribution.

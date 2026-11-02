@@ -49,7 +49,7 @@ description of code checked against that code.
 - **Emitted is not queryable.** What the browser sends is known to this repository; what GA4 can segment
   by depends on custom-dimension registration, which ADR-0051 places outside every gate. The page can
   state the first and must not claim the second.
-- **Lean** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): no new dependency, no network
+- **Lean** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): no new dependency, no network
   call, no credential.
 - **Two editions, always** ([ADR-0032](./0032-i18n-locale-layer-english-baseline.md),
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)).

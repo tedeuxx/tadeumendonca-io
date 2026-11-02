@@ -4,7 +4,7 @@
 - **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0002](./0002-fully-static-spa-no-backend.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0002](./0002-fully-static-spa-no-backend.md)
 
 ## Context & problem
 A fully static site (ADR-0002) is a set of objects that need hosting with HTTPS, a global CDN, and
@@ -15,7 +15,7 @@ must map the directory route to its prerendered file. *(Written before ADR-0036 
 which is ADR-0036's own point. #234.)*
 
 ## Decision drivers
-- ADR-0001: near-zero cost, own the AWS/Terraform engineering (the argument is the code).
+- ADR-0053 (lean by design): near-zero cost, own the AWS/Terraform engineering (the argument is the code).
 - HTTPS + global edge caching for a content site meant to be shared.
 - Clean URLs for the prerendered routes.
 
@@ -28,7 +28,7 @@ which is ADR-0036's own point. #234.)*
 2. **S3 static website hosting alone** — *Why not:* no HTTPS, no CDN, no edge rewrite; not viable for a
    shared, SEO-facing site.
 3. **A managed platform (Vercel/Netlify)** — simpler DX. *Why not:* a third-party runtime dependency and
-   less control, and it forfeits the AWS/Terraform engineering that is part of the proof (ADR-0001).
+   less control, and it forfeits the AWS/Terraform engineering that is part of the proof (ADR-0053, lean by design).
 
 ## Decision outcome
 Chosen: **S3 + CloudFront (`PriceClass_100`) + a viewer-request CloudFront Function** for clean URLs. A
@@ -48,5 +48,5 @@ this replaces.
 - CloudFront config changes propagate slowly.
 
 ## Links
-- Driven by ADR-0001, ADR-0002 · the deploy publishes to S3 + invalidates CloudFront (see the SDLC ADRs)
+- Driven by ADR-0053 (lean by design), ADR-0002 · the deploy publishes to S3 + invalidates CloudFront (see the SDLC ADRs)
   · the CloudFront Function replaces the retired Lambda@Edge OG renderer (History index).

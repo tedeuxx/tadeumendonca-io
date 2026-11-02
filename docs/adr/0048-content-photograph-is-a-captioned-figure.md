@@ -19,7 +19,7 @@
   the behaviour of [ADR-0035](./0035-static-repo-cards-in-longform.md)'s copy-as-markdown payload (#387) ·
   constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) · spends
-  [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md) · per locale, per
+  [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design) · per locale, per
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
 
 ## Context & problem
@@ -89,7 +89,7 @@ $ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
   layout shift on the page whose argument is that the machine is shown rather than claimed.
 - **Two editions, always** ([ADR-0032](./0032-i18n-locale-layer-english-baseline.md)) — the file does not
   translate, the words beside it must.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): no new dependency and
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): no new dependency and
   no new tool class to put four JPEGs on a page.
 - **Nothing fetched at runtime** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — the assets are committed and served from the
@@ -172,7 +172,7 @@ $ grep -Fn ':where(.markdown) img {' apps/fed/src/styles/index.css
    something compares them to the binary. A recrop that changes a shape would leave the `<img>` reserving
    the old proportions with a green suite standing next to it.
 4. **A build-time image optimiser** (sharp, an imagetools plugin, a CDN transform) — *why not:* a new
-   dependency and a new tool class, against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), to
+   dependency and a new tool class, against [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), to
    compress four files. The trade is only defensible while the files stay small, so **the bound is asserted
    rather than remembered**: the ~~four~~ ~~seven (2026-08-25, #127)~~ **eight (2026-08-27, #548)** photographs are held under
    ~~1 MB~~ **1 MiB** in total by a test that names the weight when it fails. An unoptimised export dropped
@@ -330,7 +330,7 @@ it exists.
   fired, and the bound was ruled to STAND with 193.0 KiB left — see the 2026-08-25 amendment**.
 - **The assets have no in-repo producer.** They were cropped by hand with a tool that silently no-opped
   once; the repo checks the artifact and cannot check the recipe. A future recrop repeats the hand path.
-- **It spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), unmeasured.** `PhotoFigure.tsx`
+- **It spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), unmeasured.** `PhotoFigure.tsx`
   and `data/photos.ts` are statically imported by `Markdown.tsx`, so they land in whatever chunk serves
   every long-form page, not only `/architecture`. **There is still no bundle-size gate in this repo**, so
   this is an unmeasured, ungated cost, stated as one — the same residual ADR-0047 recorded, now with one
@@ -365,7 +365,7 @@ it exists.
   in the prerendered HTML like everything else on a public URL.
 - **Consistent with [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)** — one file, two sets of
   words: the alt and the caption are authored per edition, with parity and non-identity both asserted.
-- **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — no optimiser, no image library,
+- **Spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — no optimiser, no image library,
   a twenty-line JPEG header walk instead of a decoder; and a small, unmeasured amount of component
   JavaScript, named above rather than implied.
 - Implementation: `apps/fed/src/components/PhotoFigure.tsx`, `apps/fed/src/components/PhotoFigure.test.tsx`,
@@ -417,7 +417,7 @@ into the clauses above.
 declined to raise it and was right, for the reason the test states in its own comment — *"a ceiling that
 tracks the payload it is meant to cap can never be exceeded, which is the shape of a gate that verifies
 nothing."* Raising it now would spend the only mechanism this record retained: the build-time optimiser
-was refused against [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), so the asserted total is
+was refused against [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), so the asserted total is
 the whole of the remaining control on image payload, and a control retuned to whatever it just failed to
 constrain is not a control. **The trade being accepted, stated plainly: photographs are a scarce resource
 on this site, and the scarcity is the intended effect, not a side effect.**
@@ -428,7 +428,7 @@ more frames of that class** — and `may-week-montage.jpg` alone is 404,534 B (3
 entire remaining headroom**. One more journey-class frame fits; a second montage does not, and no pair of
 the two does. **The next photograph is therefore a real decision, and it arrives with one of three things
 named in its Issue: a frame that fits the measured remainder, a re-encode of an existing raster that pays
-for it, or an explicit reopening of ADR-0001's refused optimiser.** *"There is room"* is not a safe
+for it, or an explicit reopening of the optimiser refused under lean by design (ADR-0053).** *"There is room"* is not a safe
 default at 81% and must not be inferred from the struck clauses above.
 
 **A wording correction the measurement forced.** Both clauses said *1 MB*; the assertion is
@@ -456,8 +456,8 @@ corrects two counts, rules on the bound, and records one re-encode hazard.
 
 **The 2026-08-25 amendment set a procedure and this is the first slice to walk it.** It required the next
 photograph to arrive with one of three things named in its Issue — *a frame that fits the measured
-remainder, a re-encode of an existing raster that pays for it, or an explicit reopening of ADR-0001's
-refused optimiser.* [#548](https://github.com/tedeuxx/tadeumendonca-io/issues/548) took the **first**, and
+remainder, a re-encode of an existing raster that pays for it, or an explicit reopening of the optimiser refused under lean by
+design (ADR-0053).* [#548](https://github.com/tedeuxx/tadeumendonca-io/issues/548) took the **first**, and
 it is recorded here because a procedure nobody is ever seen following is indistinguishable from one nobody
 follows.
 
@@ -497,3 +497,14 @@ answer, and the decision is already made and is his.**
 **What is unchanged.** Everything the previous amendment left standing, plus the bound itself. This
 amendment corrects one count, records the first use of the three-route procedure, and records that the
 route the *next* slice can take is narrower than the one this slice took.
+
+## Amendment, 2026-11-01 — a generated cover is not a photograph (#710)
+
+A generated cover is not evidence photography, and this record does not govern it. This record's
+subject is a photograph as **evidence** — a thing that was in front of a camera; the #687 article's
+illustrations under `apps/fed/public/illustrations/` are AI-generated, say so in their `alt` and their
+caption, and **stay outside `data/photos.ts`** and its byte ceiling. Issue
+[#710](https://github.com/tedeuxx/tadeumendonca-io/issues/710) puts that article's cover onto its OG card
+([ADR-0041](./0041-per-article-og-cards.md), 2026-11-01 amendment) with a visible AI-generated mark, which
+is the card-side form of the same distinction: nothing on the card may present the scene as a record of a
+real one.

@@ -1,12 +1,5 @@
 [
   {
-    "id": "0001",
-    "title": "Lean by design — architecture calibrated to the strategic priority",
-    "file": "0001-lean-by-design-calibrated-to-strategy.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0002",
     "title": "Fully static SPA, no backend",
     "file": "0002-fully-static-spa-no-backend.md",
@@ -277,7 +270,7 @@
     "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
     "file": "0041-per-article-og-cards.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0042",
@@ -336,13 +329,6 @@
     "amended": true
   },
   {
-    "id": "0050",
-    "title": "A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`",
-    "file": "0050-journey-attribution-joins-profile-on-company-and-start-date.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0051",
     "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
     "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
@@ -360,7 +346,7 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
-    "status": "proposed",
+    "status": "accepted",
     "amended": false
   },
   {
