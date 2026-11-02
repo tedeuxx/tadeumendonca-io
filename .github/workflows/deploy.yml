@@ -915,10 +915,19 @@ jobs:
         run: |
           set -euo pipefail
           # The #669 spike's verdict, printed apart from the site's (see the e2e job header). Empty when
-          # the e2e job did not run or never reached the step.
+          # the e2e job did not run or never reached the step. A red spike is a NO-GO only while the site
+          # smoke ($R_E2E, which the spike's continue-on-error keeps out of) is green: the spike also
+          # requires a 200 text/html page, so on a broken site it goes red for the site's reason, and
+          # calling that a NO-GO beside a red smoke would say "not a broken site" about a broken one.
           case "$R_SPIKE" in
             success) echo "::notice::spike go/no-go (#669): GO — the locale hint reached the edge" ;;
-            failure) echo "::warning::spike go/no-go (#669): NO-GO — the locale hint did not reach the edge. This is NOT a broken site; read the e2e job's spike step." ;;
+            failure)
+              if [ "$R_E2E" = "success" ]; then
+                echo "::warning::spike go/no-go (#669): NO-GO — the locale hint did not reach the edge. This is NOT a broken site; read the e2e job's spike step."
+              else
+                echo "::warning::spike go/no-go (#669): spike verdict unreadable: the site smoke is red too"
+              fi
+              ;;
             *) ;;
           esac
           if [ "$R_GATE" != "success" ]; then

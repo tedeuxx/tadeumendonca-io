@@ -382,8 +382,9 @@ the site is broken and someone has to act.
 `e2e/edge-locale-hint.spec.ts` (tag `@spike-669`) with `continue-on-error`, after the site smoke, which
 runs everything else with `--grep-invert @spike-669`. On a NO-GO the site is intact — nothing reads the
 cookie yet — so its red stays out of the job's result. The job exposes the step's outcome as `spike`,
-and `report` prints it on its own line: a notice on GO, a warning on NO-GO that says the site is not
-broken. The `e2e` result in `report` is the site smoke alone.
+and `report` prints it on its own line: a notice on GO, and on a red spike a warning that says NO-GO,
+not a broken site, only when the site smoke is green. With the smoke red too, it says the spike verdict
+is unreadable, because the spike also needs a working page. The `e2e` result in `report` is the site smoke alone.
 
 **Pushing to a feature branch runs nothing.** The local loop is the only gate until the PR exists:
 `npm test`, `npm run lint`, `npm run typecheck`, `npm run e2e:local`. The last runs the same
