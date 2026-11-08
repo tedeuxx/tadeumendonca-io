@@ -42,13 +42,13 @@ describe('message catalog', () => {
     }
   });
 
-  // ADR-0045 — the document-title convention, asserted rather than reviewed.
+  // ADR-0008 (*A document title leads with the section label*) — the document-title convention, asserted rather than reviewed.
   //
   // DERIVED, not listed: the pairs come from the catalog itself (every top-level group that owns a
   // `title` leaf), so a section added later is covered the moment it exists. A hand-written table would
   // have to be remembered, and the failure it is guarding against — a title that stops naming its own
   // section — is exactly the kind nobody remembers to add a row for.
-  describe('document titles (ADR-0045)', () => {
+  describe('document titles (ADR-0008 (*A document title leads with the section label*))', () => {
     const navLabels = strings.nav as Record<string, Entry>;
     // A group with a `title` leaf is a section route's document title.
     const titled = Object.entries(strings).filter(([, group]) => 'title' in group) as [
@@ -86,7 +86,7 @@ describe('message catalog', () => {
       expect(translate('en', 'architecture.title')).toContain('Architecture');
     });
 
-    // The seam ADR-0045 refuses to cross: a title is an address, a heading is an argument. If these ever
+    // The seam ADR-0008 (*A document title leads with the section label*) refuses to cross: a title is an address, a heading is an argument. If these ever
     // become equal the convention has been "satisfied" by collapsing the two objects, which is the
     // failure mode the record exists to prevent.
     it('keeps the document title distinct from the visible heading', () => {

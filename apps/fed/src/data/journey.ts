@@ -136,7 +136,7 @@
 // its own fixtures. Do not "simplify" it on the grounds that every entry currently has a photograph.
 //
 // THE BUDGET IS STILL A CONSTRAINT RATHER THAN A CAPACITY, and the arithmetic behind that wording lives in
-// ADR-0048's 2026-08-25 amendment, deliberately NOT restated here — a measured number copied into a second
+// the 2026-08-25 amendment in ADR-0008 (*Content photographs as captioned figures*), deliberately NOT restated here — a measured number copied into a second
 // place is a number that goes stale in one of them silently. What IS enforced here is the total payload
 // bound in `scripts/photo-assets.test.mjs`, which this frame consumed 77 KB of. There is still no `<= 5`
 // assertion anywhere, on purpose: the set lock in `journey.test.ts` already refuses a sixth frame, and a

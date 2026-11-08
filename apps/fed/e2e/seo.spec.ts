@@ -158,7 +158,7 @@ test.describe('SEO discovery', () => {
     expect([...seen]).toHaveLength(1);
   });
 
-  // ADR-0045 — a document title is an ADDRESS, and it must carry the name of the section the reader
+  // ADR-0008 (*A document title leads with the section label*) — a document title is an ADDRESS, and it must carry the name of the section the reader
   // clicked. Asserted on the SERVED bytes of every prerendered route in both locales, which is the only
   // place the two halves of the rule meet: the catalog holds a PREFIX (useDocumentHead appends
   // " · tadeumendonca.io"), and a unit test that stops at the key never sees the composed string a tab,
@@ -173,7 +173,7 @@ test.describe('SEO discovery', () => {
   // that reads it from the same catalog the page reads cannot fail when the catalog is wrong.
   //
   // `/blog/:slug` is absent on purpose — an article is a document, not a section, so its own name IS its
-  // address (ADR-0045). Its title is already pinned by the og:image:alt test below, which asserts the
+  // address (ADR-0008 (*A document title leads with the section label*)). Its title is already pinned by the og:image:alt test below, which asserts the
   // og:title starts with the article's own alt.
   test('every route titles itself with the section the reader clicked, in both locales', async ({ request }) => {
     const routes = [

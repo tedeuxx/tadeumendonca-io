@@ -8,13 +8,13 @@
 - **Driven by:** Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) (the dev-loop
   components diagram) · constrained-by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (nothing fetched, at build time or at runtime)
-  · follows the drift shape of [ADR-0040](./0040-build-time-mermaid-diagrams.md) and of the decision
+  · follows the drift shape of [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time) and of the decision
   index (`apps/fed/scripts/adr-source.mjs`) · applies
   [ADR-0013](./0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc)'s OIDC reasoning to a CI path filter
 
 ## Context & problem
 `/architecture` already carries a **flow** diagram — how work moves through the loop, and where the human
-sits (ADR-0040's 2026-07-30 amendment). What the page has never carried is the **inventory**: what the
+sits (ADR-0008 (*Diagrams compiled from Mermaid at build time*)'s 2026-07-30 amendment). What the page has never carried is the **inventory**: what the
 loop is *made of*. That inventory is the strongest evidence for the page's hardest claim — that this is a
 methodology someone else could adopt rather than something bespoke — and today the page asserts it in
 prose and shows none of it.
@@ -49,7 +49,7 @@ date on which those three wrong numbers were copied.
 ## Decision drivers
 - **The page's thesis is checkability.** Every other claim on `/architecture` resolves to something a
   reader can open. An inventory that resolves to "someone typed this once" is the one paragraph running
-  on a different rule than the rest of the page — and ADR-0040 already records the general form: a stale
+  on a different rule than the rest of the page — and ADR-0008 (*Diagrams compiled from Mermaid at build time*) already records the general form: a stale
   diagram is *worse* than an absent one, because a picture reads as current in a way prose does not.
 - **Nothing is fetched, at build time or at runtime** (ADR-0002). Whatever the reader gets
   ships in the artifact, and the artifact is built from files in this repo.
@@ -169,7 +169,7 @@ downstream of that file behaves exactly as it does for `adrs.json`.
 - **Authored in this repo:** the short label a diagram node can carry. The plugin gives personas a
   `description` in frontmatter, but they run to a paragraph — `tech-lead`'s is six lines — and hooks
   carry no description field at all, because `hooks.json` is a wiring file. So the gloss is written here.
-  **The check compares identity, never description**, which is the same honest limit ADR-0040 records
+  **The check compares identity, never description**, which is the same honest limit ADR-0008 (*Diagrams compiled from Mermaid at build time*) records
   about its own guard: the guarantee is *"the source exists and is unchanged"*, not *"this artifact
   describes it correctly"*.
 
@@ -244,10 +244,10 @@ in its mechanical form, and it is why the next section is not a formality.
   a previously-green PR here red with no change on this side. Pinning a plugin commit would remove that
   and reintroduce silent staleness, which is worse; this is the deliberate side of the trade.
 - **Identity is checked, description is not.** A hook whose behaviour changes without changing its name
-  publishes a stale gloss under a green check. Bounded, named, and the same class as ADR-0040's
+  publishes a stale gloss under a green check. Bounded, named, and the same class as ADR-0008 (*Diagrams compiled from Mermaid at build time*)'s
   hand-editable SVG.
 - **A third place a harness change has to land** — the plugin, this manifest, and the diagram fences in
-  both locale editions (ADR-0040's per-locale duplication cost applies unchanged).
+  both locale editions (ADR-0008 (*Diagrams compiled from Mermaid at build time*)'s per-locale duplication cost applies unchanged).
 
 **Neutral**
 - **`iac/` untouched.** No edge, cache, bucket or Terraform change; this is content pipeline and CI only.
@@ -1544,8 +1544,8 @@ It is rejected on two counts:
    pinned fences and leaves this one silently stale, which is the failure shape this whole record
    exists to remove. Deriving it is the alternative and it is **not** taken here; stating the gap is.
 
-2. **It would make a local exception to [ADR-0040](./0040-build-time-mermaid-diagrams.md)**, whose
-   *"Decision outcome"* section states in as many words that **"The accessible name is authored on the
+2. **It would make a local exception to [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time)**, whose
+   *"The decision, as it binds"* subsection states in as many words that **"The accessible name is authored on the
    fence."** One diagram opting out of the authored-fence model, on the page whose whole subject is that
    its claims are checkable, buys convenience and spends the model.
 
@@ -1820,12 +1820,12 @@ repository receives.
 ## Links
 - **Implements** part of Issue [#318](https://github.com/tedeuxx/tadeumendonca-io/issues/318) — the
   dev-loop **components** diagram, complementing the **flow** diagram shipped by
-  [ADR-0040](./0040-build-time-mermaid-diagrams.md)'s 2026-07-30 amendment. The two are not merged, for
+  [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time)'s 2026-07-30 amendment. The two are not merged, for
   the reason recorded above: one diagram trying to be both would blur `denies` and `advises`.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
   its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — the build reads the manifest, never the
   sibling repo.
-- **Follows [ADR-0040](./0040-build-time-mermaid-diagrams.md)** for the diagram itself (Mermaid in the
+- **Follows [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time)** for the diagram itself (Mermaid in the
   markdown body, compiled to committed inline SVG, per-locale `accTitle`/`accDescr`, palette assertions
   that check membership and never legibility) and for the shape of its own honesty about what a guard
   guarantees.

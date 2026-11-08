@@ -216,7 +216,7 @@ test.describe('routes', () => {
     );
 
     // #318. The two repos are no longer inline links in a bulleted list — they are the section's closing
-    // CALL TO ACTION, rendered as <RepoCard>s by the lone-URL facade (ADR-0035). Located by testid and
+    // CALL TO ACTION, rendered as <RepoCard>s by the lone-URL facade (ADR-0008 (*Curated repositories as static cards in long-form*)). Located by testid and
     // asserted on href rather than by accessible name, because a card's name is its whole body (owner/name
     // + language + description + "view on GitHub") and pinning that string would make this journey go red
     // on a copy edit — a check somebody deletes, not a check that caught something.

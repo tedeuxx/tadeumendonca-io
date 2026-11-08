@@ -128,7 +128,7 @@ describe('the photographs are the same set, in the same order, in both editions'
   // string as the image. In the pt edition it was worse still: an English paragraph delivered by a pt-BR
   // voice, the only English block in that edition.
   //
-  // So the alt now DESCRIBES the frame, which is what an alt is for and what ADR-0048's second condition
+  // So the alt now DESCRIBES the frame, which is what an alt is for and what the second condition of ADR-0008 (*Content photographs as captioned figures*)
   // already said, and the assertion is inverted rather than deleted. Deleting it would leave the drift it
   // was aimed at unwatched in the other direction: the realistic regression now is somebody "helpfully"
   // pasting the quotation back into the alt, which is exactly the redundancy this ruling refuses.

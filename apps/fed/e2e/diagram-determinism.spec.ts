@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { renderDiagrams } from '../scripts/gen-diagrams.mjs';
 
 // The diagram generator is deterministic: two runs over the same sources write byte-identical output
-// (#758, ADR-0040's 2026-10-17 amendment).
+// (#758, the 2026-10-17 amendment in ADR-0008 (*Diagrams compiled from Mermaid at build time*)).
 //
 // It was not. mermaid 11 draws node outlines through roughjs, whose jitter falls back to Math.random
 // when `handDrawnSeed` is 0 (the default), so every regeneration rewrote the outer `<path d=…>` of

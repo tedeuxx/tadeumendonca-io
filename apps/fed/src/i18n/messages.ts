@@ -12,7 +12,7 @@ export interface Entry {
   en: string;
 }
 
-// DOCUMENT TITLES (ADR-0045). A section group's `title` leaf is its document title, and it must LEAD with
+// DOCUMENT TITLES (ADR-0008 (*A document title leads with the section label*)). A section group's `title` leaf is its document title, and it must LEAD with
 // that section's `nav.*` label — the exact word the reader clicked. Anything after the label is optional
 // and secondary. `nav` below is therefore the source of truth for the first words of five tabs, not just
 // for the header bar; `messages.test.ts` asserts the relationship for every group that has a `title`, in
@@ -185,7 +185,7 @@ const strings = {
   // language — the parity rule, not an interim.
   rampup: {
     heading: { pt: 'Ramp-Up — Virando AI Engineer', en: 'Ramp-Up — Becoming an AI Engineer' },
-    // Document title (ADR-0045; the site name is appended by useDocumentHead). Already compliant before
+    // Document title (ADR-0008 (*A document title leads with the section label*); the site name is appended by useDocumentHead). Already compliant before
     // the convention existed — it leads with `nav.rampup` ("Ramp-up") and qualifies after — so it is left
     // alone deliberately. Rewriting a conforming title would have regenerated an OG card scrapers have
     // already pinned (ADR-0041), for no reader gain.
@@ -202,13 +202,13 @@ const strings = {
   // (the ADRs, the two public repos, catalog-ready) rather than restating it.
   architecture: {
     heading: { pt: 'Arquitetura — a planta, em aberto', en: 'Architecture — the blueprint, in the open' },
-    // Document title (ADR-0045; the site name is appended by useDocumentHead). This is the defect the
+    // Document title (ADR-0008 (*A document title leads with the section label*); the site name is appended by useDocumentHead). This is the defect the
     // convention was written for: the tab said "Como este site é construído" and the word the reader
     // clicked — Arquitetura — appeared nowhere in it, so with several tabs open the page could not be
     // found by the name it was opened under. The tail is the OLD title, kept rather than dropped: this
     // string is also the og:title, the ShareButton title and the JSON-LD headline (MarkdownPage), and a
     // bare "Arquitetura" would have made an unfurled card thinner than the one it replaces.
-    // The HEADING is untouched and stays editorial. Different objects, different jobs — see ADR-0045.
+    // The HEADING is untouched and stays editorial. Different objects, different jobs — see ADR-0008 (*A document title leads with the section label*).
     title: { pt: 'Arquitetura — como este site é construído', en: 'Architecture — how this site is built' },
     kicker: { pt: 'A planta · aberta', en: 'The blueprint · open' },
     metaDescription: {
@@ -305,7 +305,7 @@ const strings = {
     //      leading with the owner contradicts a sentence on the screen it sits on.
     //
     // These three leaves stay in the `architecture` group for the same reason the band's two did:
-    // `messages.test.ts` derives ADR-0045 coverage from every TOP-LEVEL group carrying a `title` leaf and
+    // `messages.test.ts` derives ADR-0008 (*A document title leads with the section label*) coverage from every TOP-LEVEL group carrying a `title` leaf and
     // pins the set to ['architecture','library','portfolio','rampup'], so a new `home`/`teaser` group
     // would either red that test or need a title it has no business having. And semantically, copy ABOUT
     // this destination belongs beside the destination's own `heading`/`kicker`, where a drift between
@@ -330,7 +330,7 @@ const strings = {
     // written for rather than rewritten for a surface it already fits.
     //
     // Its two sourcing notes travel with it and are not re-derived here: the reader must meet the
-    // DESTINATION'S OWN NAME first (the word the click lands on is "Arquitetura" — the same rule ADR-0045
+    // DESTINATION'S OWN NAME first (the word the click lands on is "Arquitetura" — the same rule ADR-0008 (*A document title leads with the section label*)
     // applies to document titles, and a card that renames the section is that defect one screen earlier),
     // and neither noun is invented — "a máquina" is the site's own word for this page
     // (architecture.pt.md:60 and :211 say it of itself — a third citation, to
@@ -397,7 +397,7 @@ const strings = {
   // `label` IS THIS GROUP'S, NOT `nav`'s, AND THAT IS THE OWNER'S DECISION MADE STRUCTURAL. The route is
   // off the menu (#640, decision 3: «Rota fora do menu»), so a `nav.analytics` leaf would be a nav label
   // with no nav entry — a word the menu does not show, sitting in the group a reader of this file takes
-  // for the menu's vocabulary. ADR-0045 still applies: the document title leads with the word the reader
+  // for the menu's vocabulary. ADR-0008 (*A document title leads with the section label*) still applies: the document title leads with the word the reader
   // clicked, and on this route that click is the link on /architecture, whose text opens with this label.
   // `messages.test.ts` reads `nav.<group>` first and falls back to `<group>.label`, so the convention is
   // asserted here exactly as it is for the five menu sections. The word is the same in both editions:
@@ -428,9 +428,9 @@ const strings = {
   // ADR-0010, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
   library: {
     heading: { pt: 'Biblioteca — o que eu leio, e o que ficou', en: 'Library — what I read, and what stuck' },
-    // Document title (ADR-0045; the site name is appended by useDocumentHead). The bare noun, not the
+    // Document title (ADR-0008 (*A document title leads with the section label*); the site name is appended by useDocumentHead). The bare noun, not the
     // heading: a <title> is read in a tab and in a SERP, where the subtitle is what gets truncated away
-    // anyway. This key is where the convention was already being followed by instinct — ADR-0045 only
+    // anyway. This key is where the convention was already being followed by instinct — ADR-0008 (*A document title leads with the section label*) only
     // wrote down what it was doing and made it checkable.
     title: { pt: 'Biblioteca', en: 'Library' },
     // `em montagem` / `being put together`, not `em curadoria` / `being curated`. Two reasons, and the
@@ -506,7 +506,7 @@ const strings = {
   },
   portfolio: {
     heading: { pt: 'Portfólio', en: 'Portfolio' },
-    // Document title (ADR-0045). Identical to `heading` TODAY, and that coincidence is precisely why it
+    // Document title (ADR-0008 (*A document title leads with the section label*)). Identical to `heading` TODAY, and that coincidence is precisely why it
     // is now its own key: the page used to pass `portfolio.heading`, so the day the heading grows a
     // subtitle — every other section's already has one — the tab would silently stop being the word the
     // reader clicked. Same string, a source that cannot drift.
