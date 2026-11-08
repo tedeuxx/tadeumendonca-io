@@ -119,7 +119,7 @@ describe('loadAnalytics', () => {
   });
 
   // #272. GA4 reads utm_* from `page_location` on the FIRST hit of a session, and here that hit is this
-  // `config` call — which by ADR-0033 fires only after the reader accepts. Without an explicit
+  // `config` call — which by ADR-0005 (*Consent-gated GA4 analytics*) fires only after the reader accepts. Without an explicit
   // page_location, gtag.js reads document.location AT CONSENT TIME, and a new reader who arrived from a
   // shared link, read, navigated within the SPA and only then accepted is attributed `(direct)`. That
   // reader is precisely the population the campaign tagging exists to count, so the under-count would
@@ -254,7 +254,7 @@ describe('trackEvent and the named emitters', () => {
     ]);
 
     // `page_path`/`page_location` are GA4's own, attached to every hit; a custom `path` would duplicate
-    // a free dimension and spend a registration slot on the duplicate (ADR-0039's `utm_content` call).
+    // a free dimension and spend a registration slot on the duplicate (the `utm_content` call in ADR-0005's *Campaign tagging of shared links*).
     for (const [, , params] of pushed) {
       expect(params).not.toHaveProperty('path');
       expect(params).toHaveProperty('locale');

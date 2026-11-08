@@ -9,7 +9,7 @@
 // THE BOUND IS `hostname + pathname`, BUILT BY RECONSTRUCTION RATHER THAN BY STRIPPING. The value is
 // assembled from two fields of a parsed `URL`; nothing is removed from the original string. A stripping
 // rule is a blocklist — `?`, `#`, `user:pass@`, `:port`, and whatever the next URL feature is — and a
-// blocklist has to be kept complete by someone. Reading two fields cannot be incomplete. ADR-0051 set
+// blocklist has to be kept complete by someone. Reading two fields cannot be incomplete. ADR-0005 (*The GA4 event schema is immutable once it collects*) set
 // this rule for slice B by name, because `contact_click` discharged it with a closed union and this
 // event has no closed union available: an article links wherever its author linked.
 //
@@ -67,7 +67,7 @@ const SHARE_ENDPOINTS: ReadonlySet<string> = new Set(
  *
  * THIS IS DELIBERATELY WIDER THAN `contact_click`'s OWN RULE, and the asymmetry is the point.
  * `useContactClicks` classifies by EXACT href, so a contact link written with a differently-spelled href
- * emits nothing — ADR-0051 records that silence as the intended failure direction. Excluding by the
+ * emits nothing — ADR-0005 (*The GA4 event schema is immutable once it collects*) records that silence as the intended failure direction. Excluding by the
  * bounded form here means such a link is silent in BOTH series rather than silent in one and reported as
  * an outbound click in the other. Silence over a wrong attribution, in the same direction the record
  * already chose, and it makes double-counting impossible rather than merely unlikely: this set is a

@@ -257,9 +257,9 @@ a gate, caught it.
   reason the grammar is line-oriented and readable rather than a JSON blob. Recorded as neutral because
   **nothing about #387's behaviour changes**; the gate's concern here was a real question with, on
   inspection, an equal-treatment answer.
-- **`iac/` untouched, and stated with the caution ADR-0041 earned:** no cache behaviour, no origin, no
+- **`iac/` untouched, and stated with the caution ADR-0005 (*Per-article OG cards*) earned:** no cache behaviour, no origin, no
   Terraform resource is involved — not merely that the output happens to be static.
-- **No `og:title`, no URL and no OG card changes**, so nothing here is pinned by a scraper (ADR-0041).
+- **No `og:title`, no URL and no OG card changes**, so nothing here is pinned by a scraper (ADR-0005, *Per-article OG cards*).
 
 ## Links
 - **Narrows the scope claim of [ADR-0040](./0040-build-time-mermaid-diagrams.md)**, which is amended to

@@ -4,7 +4,7 @@ The **catalog** is the "além do SPA" surface of the public presence: a curated 
 repos — automations, agents, MCP servers, AI-native tools — that back the **AI Engineer / agentic
 development** positioning with real code. The portfolio on `tadeumendonca.io` links to them
 (`apps/fed/src/data/catalog.ts`), and each graduated project seeds a **newsletter edition, distributed to
-LinkedIn and X together** (ADR-0038).
+LinkedIn and X together** (ADR-0005, *Distribution to LinkedIn and X*).
 
 Most raw material starts as a Claude cowork project. This doc is the bar it must clear to **graduate**
 from cowork to a public catalog repo. The gate is deliberately about *proof of engineering*, not polish
@@ -211,7 +211,7 @@ what stands on its own.
       compile** (#235). `proof` is the reader-first payoff line rendered under *"What you take away"*,
       and it is the field most worth writing carefully.
 5. **Distribute it** — the newsletter edition written from the README's story, published to **LinkedIn
-      *and* X in the same batch** with the repo as the canonical link (ADR-0038). One surface is not the
+      *and* X in the same batch** with the repo as the canonical link (ADR-0005, *Distribution to LinkedIn and X*). One surface is not the
       standard: the rule is both, together, or the distribution is half-done.
 6. Keep the list **curated** — a short shelf of strong items beats a long shelf of weak ones.
 

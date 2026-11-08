@@ -5,13 +5,12 @@ import { renderWithLocale } from '../test-utils';
 import { translate } from '../i18n/messages';
 import { dateLocale, type Locale } from '../i18n';
 import { getAllPosts } from '../lib/content';
-// The two records that DATE the section's publication, imported as text so this suite can read the
+// The record whose two sections DATE the section's publication, imported as text so this suite can read the
 // date back out of them. `?raw` rather than `node:fs` — the app's tsconfig carries no Node types, so
 // `readFileSync` typechecks red while vitest (which does not run tsc) stays green; that exact trap is
 // documented at `src/data/vocabulary.test.ts:3`. Out-of-root raw imports are already the idiom here
 // (`src/lib/version.ts:15` reads the repo's `VERSION` the same way).
-import adr0038 from '../../../../docs/adr/0038-content-distribution-linkedin-and-x.md?raw';
-import adr0039 from '../../../../docs/adr/0039-share-campaign-tagging.md?raw';
+import adr0005 from '../../../../docs/adr/0005-og-coverage-every-public-url.md?raw';
 
 // The date the card must show, derived from the exported constant rather than typed as a literal: a
 // literal here would keep passing after someone edited the constant, which is the one thing this suite
@@ -118,7 +117,7 @@ describe('ArchitectureCard', () => {
   // published article is dated at or after the section*, justified as a LAW: "nothing can be published
   // before the site was public, and this constant IS launch day". The constant was launch day because
   // nothing in the repo recorded the section's own publication, so the date was a reasoned decision.
-  // It is recorded now (ADR-0038 and ADR-0039, both 2026-08-16), the section turns out to postdate
+  // It is recorded now (records 0038 and 0039, both 2026-08-16, and since #456 two sections of ADR-0005), the section turns out to postdate
   // `my-commitment` by three weeks, and the premise of that law is simply false: the section has a real
   // publication date, articles have theirs, and either may be the older. The old rule does not need a
   // weaker threshold — it needed to stop existing, because what it asserted is not true of this corpus
@@ -141,15 +140,15 @@ describe('ArchitectureCard', () => {
   // should be re-examined. A silent pass on an unmatched pattern would be the strictly worse trade.
   it.each([
     {
-      adr: 'docs/adr/0038-content-distribution-linkedin-and-x.md',
-      source: adr0038,
+      adr: 'docs/adr/0005-og-coverage-every-public-url.md (section *Distribution to LinkedIn and X*)',
+      source: adr0005,
       // Wraps across a newline in the file, hence `\s+` rather than a literal space.
       pattern: /`\/architecture` launch pair went out on both surfaces on\s+(\d{4}-\d{2}-\d{2})/,
       clause: 'the `/architecture` launch pair went out on both surfaces on <DATE>',
     },
     {
-      adr: 'docs/adr/0039-share-campaign-tagging.md',
-      source: adr0039,
+      adr: 'docs/adr/0005-og-coverage-every-public-url.md (section *Campaign tagging of shared links*)',
+      source: adr0005,
       pattern: /amended (\d{4}-\d{2}-\d{2})\*\*[^)]*`\/architecture` launch is tagged/,
       clause: '**amended <DATE>** (`author-post` is exercised — the `/architecture` launch is tagged …)',
     },

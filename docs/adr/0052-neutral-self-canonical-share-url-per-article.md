@@ -13,7 +13,7 @@
   2026-07-27 amendment for the article class only; that record's clauses are struck in place there)
 - **Driven by:** [#660](https://github.com/tedeuxx/tadeumendonca-io/issues/660) ·
   [PR #667](https://github.com/tedeuxx/tadeumendonca-io/pull/667) · **makes usable**
-  [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-09-20 amendment (which states the
+  [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-09-20 amendment (which states the
   convention and names its own precondition) · **keyed on** the slug
   [ADR-0037](./0037-localized-article-slugs.md) governs · **applies**
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s 2026-07-28 *"the prerender is not a visitor"*
@@ -28,7 +28,7 @@ article in English.** His words, opening it:
 > *«o link que vc tem compartilhado no linkedin nao é o slug nao regionalizado idioma. entao quando abro
 > ele carrega em ingles para mim ao inves de portugues.»* · *«isso é um erro»*
 
-[ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-09-20 amendment reversed the convention —
+[ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-09-20 amendment reversed the convention —
 a post carries the locale-neutral URL — **and recorded that the rule was correct and inert**, because the
 neutral URL was a soft-404: `200`, serving the English landing page's card, because `iac/frontend.tf` maps
 404 to `/index.html` with response code 200 and the build snapshotted nothing at that address. That record
@@ -99,7 +99,7 @@ them apart. It also puts negotiation logic at the edge, which
 
 Costs nothing to build and is what shipped before this record. Rejected because it is the defect the
 owner reported, and because
-[ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s amendment has already reversed the convention
+[ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s amendment has already reversed the convention
 in the record a drafter reads — so the repository would carry a rule that every post is written against
 and that the site cannot honour.
 
@@ -204,7 +204,7 @@ follow-up. The refusal semantics are untouched: a held article still has no shar
 
 **Good**
 
-- The convention [ADR-0038](./0038-content-distribution-linkedin-and-x.md) records becomes usable, and the
+- The convention [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) records becomes usable, and the
   defect the owner reported cannot recur from a link the generator produces.
 - **ADR-0036's invariant gains a second, independent consumer** — the neutral URLs are generated from the
   same enumeration the prerender walks and the sitemap advertises, so snapshot and sitemap cannot drift.
@@ -253,7 +253,7 @@ follow-up. The refusal semantics are untouched: a held article still has no shar
 | the served document is self-canonical | **`e2e/per-locale.spec.ts`** — `canonical == requested URL` on the served document, with a **nonsense-slug control**, because a nonexistent path also answers 200 and a status code yields a green that cannot go red |
 | the snapshot is actually WRITTEN | **only the E2E arm.** The unit layer compares two enumerations and never reads the filesystem — measured: deleting the neutral loop from `prerender.mjs` leaves `routes.test.mjs` at 41 passed |
 | the opt-out stays correct | **the build itself** — inverting it times out `build:static` rather than shipping a wrong canonical |
-| the share CONVENTION is followed in an actual post | **nobody.** No layer observes a draft, a post or a published URL — the same honest limit [ADR-0038](./0038-content-distribution-linkedin-and-x.md) already records |
+| the share CONVENTION is followed in an actual post | **nobody.** No layer observes a draft, a post or a published URL — the same honest limit [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) already records |
 
 **One advisory the gate raised and this record carries rather than fixes:** the prerender summary line
 counts the enumeration's length rather than what it wrote, so under the one mutation the unit layer is
@@ -263,7 +263,7 @@ person reading that log knows what it is counting.
 
 ## Links
 
-- Convention and its precondition: [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-09-20
+- Convention and its precondition: [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-09-20
   amendment · the wording a drafter is judged against is `published-voice`'s **rule 21** in
   `tedeuxx/tadeumendonca-skills`.
 - Amended in place by this record: [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) — four clauses
@@ -272,8 +272,8 @@ person reading that log knows what it is counting.
   clarification), each struck in place rather than rewritten.
 - Per-locale article slugs: [ADR-0037](./0037-localized-article-slugs.md) · OG card pinned on first fetch:
   [ADR-0005](./0005-og-coverage-every-public-url.md) · campaign tagging is a query string on whatever the
-  share target is and is untouched: [ADR-0039](./0039-share-campaign-tagging.md) · a held article has no
-  share URL: [ADR-0049](./0049-held-article-is-isolated-not-private.md).
+  share target is and is untouched: [ADR-0005, *Campaign tagging of shared links*](./0005-og-coverage-every-public-url.md#campaign-tagging-of-shared-links) · a held article has no
+  share URL: [ADR-0005, *A held article is isolated, not private*](./0005-og-coverage-every-public-url.md#a-held-article-is-isolated-not-private).
 - Issues: [#660](https://github.com/tedeuxx/tadeumendonca-io/issues/660) (this route and this record) ·
   [#665](https://github.com/tedeuxx/tadeumendonca-io/issues/665) (the convention, closed) ·
   [#661](https://github.com/tedeuxx/tadeumendonca-io/issues/661) (the resolver) ·

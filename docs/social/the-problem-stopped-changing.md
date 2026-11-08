@@ -14,7 +14,7 @@ hold its current text.
 ## Links, as shipped
 
 The X link is recorded as rendered and is not normalised. It predates the share-link convention of
-2026-09-19 (`published-voice` rule 21, recorded in ADR-0038 by the amendment merged in #666), which makes
+2026-09-19 (`published-voice` rule 21, recorded in record 0038 by the amendment merged in #666, since #456 in ADR-0005's *Distribution to LinkedIn and X*), which makes
 the shared link the locale-neutral URL.
 
 - X renders the link as the `t.co` URL `https://t.co/3kcqkjxukj` with a link card titled "From cloud to

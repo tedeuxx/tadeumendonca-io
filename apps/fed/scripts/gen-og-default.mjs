@@ -73,7 +73,7 @@ for (const locale of LOCALES) {
   // eslint-disable-next-line no-undef -- this callback is serialized and runs in the browser page
   await page.evaluate(() => document.fonts.ready);
 
-  // The same refusal ADR-0041 put on the article cards, here for the same reason: the hook's first
+  // The same refusal ADR-0005 (*Per-article OG cards*) put on the article cards, here for the same reason: the hook's first
   // line WRAPS (the pt edition renders in three lines, not the two its `<br>` authors), so the layout
   // depends on how wide the words come out — and `overflow:hidden` turns "too long" into a valid PNG
   // with the words sliced off rather than into an error. Both axes: the ladder that catches a tall

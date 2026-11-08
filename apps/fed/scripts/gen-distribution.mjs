@@ -1,6 +1,6 @@
-// Distribution draft kit (#178, ADR-0038 + its amendment).
+// Distribution draft kit (#178, ADR-0005's *Distribution to LinkedIn and X*).
 //
-// ADR-0038 makes a publication "not done until it exists on both LinkedIn and X", and it deliberately
+// ADR-0005 (*Distribution to LinkedIn and X*) makes a publication "not done until it exists on both LinkedIn and X", and it deliberately
 // REJECTED automating the fan-out (option 4: credentials to hold, a class of unattended public writes).
 // So this posts nothing and holds no secret. It attacks the cost the ADR actually named — "two drafts
 // per publication… real per-article work in a weekends-only cadence" — by scaffolding both drafts from
@@ -87,7 +87,7 @@ export function shareUrlFor(routes, enSlug) {
  * `track` is deliberately EXCLUDED even though it is right there in the frontmatter: it is an internal
  * pt-BR taxonomy used for on-site filtering (e.g. `engenharia`), and both surfaces post in English
  * (ADR-0024). Deriving from it emitted `#engenharia` under English copy — a Portuguese hashtag on an
- * English post reads as machine-generated, which is the exact impression ADR-0038 says to avoid.
+ * English post reads as machine-generated, which is the exact impression ADR-0005 (*Distribution to LinkedIn and X*) says to avoid.
  */
 export function hashtagsFor(frontmatter) {
   const tags = [frontmatter.tag]
@@ -131,10 +131,10 @@ export const PT_SIGNPOST = '🇧🇷 Versão em português abaixo.';
 export const LANGUAGE_SEPARATOR = '— — —';
 
 /**
- * The LinkedIn post body: signpost, English block, separator, Portuguese block (#562, ADR-0038).
+ * The LinkedIn post body: signpost, English block, separator, Portuguese block (#562, ADR-0005 (*Distribution to LinkedIn and X*)).
  *
  * WHY THIS EXISTS AT ALL. Until this function the LinkedIn skeleton was MONOLINGUAL — one excerpt, one
- * takeaway, one link, hashtags — while ADR-0038 has required a bilingual post since 2026-08-16. The
+ * takeaway, one link, hashtags — while ADR-0005 (*Distribution to LinkedIn and X*) has required a bilingual post since 2026-08-16. The
  * generator was not disagreeing with the ruler; it was SILENT where the ruler speaks, which is worse in
  * one specific way: every bilingual post was assembled by hand from a monolingual scaffold, so the
  * language ORDER was re-decided from memory each time, and it was decided wrongly at least twice.
@@ -171,7 +171,7 @@ export function linkedInPost({ frontmatter, url }) {
     if (!value) {
       throw new Error(
         `article has no "${field}" — refusing to scaffold a bilingual LinkedIn post whose English ` +
-          `block is empty under a signpost promising it (#562, ADR-0038)`,
+          `block is empty under a signpost promising it (#562, ADR-0005 (*Distribution to LinkedIn and X*))`,
       );
     }
   }
@@ -212,7 +212,7 @@ export function linkedInPost({ frontmatter, url }) {
  * shape (signpost first line, English block, separator, Portuguese placeholder) and for why the order
  * being emitted rather than remembered is the whole point.
  *
- * This emits a SCAFFOLD, not a finished post. ADR-0038 rejects syndicated identical copy because
+ * This emits a SCAFFOLD, not a finished post. ADR-0005 (*Distribution to LinkedIn and X*) rejects syndicated identical copy because
  * "automation-shaped presence undercuts the 'written by a peer' claim" — that obligation is the
  * owner's to meet in the voicing, which is why every section is marked for rewriting rather than
  * pretending a generator can satisfy it.
@@ -224,13 +224,13 @@ export function renderDraft({ key, frontmatter, headings, url }) {
   return `# Distribution draft — ${frontmatter.title ?? key}
 
 Generated from the article frontmatter. **Voice both sections before posting** — this is a scaffold,
-not copy. ADR-0038: the two surfaces carry the same positioning, adapted to the medium, never
+not copy. ADR-0005 (*Distribution to LinkedIn and X*): the two surfaces carry the same positioning, adapted to the medium, never
 re-argued and never byte-identical.
 
 Canonical URL (resolved from the prerendered route list, do not retype):
 ${url}
 
-The LinkedIn link is NOT tagged here — this generator holds no UTM logic (ADR-0039). The
+The LinkedIn link is NOT tagged here — this generator holds no UTM logic (ADR-0005, *Campaign tagging of shared links*). The
 utm_content=en / utm_content=pt split approved on #562 assumed one link PER BLOCK, and the ruled
 shape carries one link at the foot of the whole post, so that split needs the owner before it can be
 emitted at all.

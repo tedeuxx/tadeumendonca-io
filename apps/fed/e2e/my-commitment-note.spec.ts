@@ -6,7 +6,7 @@ import { readRevisions } from '../scripts/revision-lines.mjs';
 // and at the neutral share address (ADR-0052), because that is what a crawler, a JS-less reader and a
 // social unfurl receive. A raw request, not `page.goto`, for that reason.
 //
-// TWO STATES, ONE FILE. The note ships as a PENDING REVISION (#741, ADR-0049 as amended 2026-10-16).
+// TWO STATES, ONE FILE. The note ships as a PENDING REVISION (#741, ADR-0005's *A held article is isolated, not private*, as amended 2026-10-16).
 // While `src/content/revisions/` holds a revision for this key (merge 1 landed, merge 2 not), the served
 // bytes are the PUBLISHED text, so they must NOT carry the note, and `?preview` must render it. Once no
 // revision is pending (merge 2 moved it onto `blog/`), the served bytes carry it, above the original. The
@@ -68,7 +68,7 @@ for (const [path, t] of ADDRESSES) {
   });
 }
 
-// On the RENDERED page, never on the prerender over HTTP (ADR-0049 rule 1).
+// On the RENDERED page, never on the prerender over HTTP (ADR-0005's *A held article is isolated, not private*, rule 1).
 for (const [path, t] of ADDRESSES.slice(0, 2)) {
   test(`${path}?preview renders the pending note`, async ({ page }) => {
     test.skip(!PENDING, 'no pending revision for this key — the note is released; the served-bytes test covers it');

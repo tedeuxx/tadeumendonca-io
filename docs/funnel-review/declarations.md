@@ -65,10 +65,10 @@ What each line means:
 
 1. **`share_complete` carries no `slug`.** Its call sites pass only `locale` and `target`. It can be
    split by piece only through the page path, mapped to a key; it cannot be split through the `slug`
-   dimension. ADR-0051 makes the event schema immutable, and this declaration changes no emission. The
+   dimension. ADR-0005 (*The GA4 event schema is immutable once it collects*) makes the event schema immutable, and this declaration changes no emission. The
    `piece-parameter-absent:` line states this, and the test turns red if it stops being true.
 2. **`share_open`'s `slug` also takes non-article values**, such as `architecture` and `ramp-up`
-   (ADR-0051, slice-B amendment). A per-piece reading keeps only the slugs that map to a key returned
+   (ADR-0005 (*The GA4 event schema is immutable once it collects*), slice-B amendment). A per-piece reading keeps only the slugs that map to a key returned
    by `buildBlogEditions`, and drops the rest.
 
 ## GA-side
@@ -85,7 +85,7 @@ internal-traffic-filter: verified 2026-10-24 owner-ga-ui Internal Traffic Testin
 saved-exploration: verified 2026-10-24 owner-ga-ui none
 
 - **`ga4-dimension:`** is the display name the property registers for each event parameter (Admin,
-  Custom definitions). ADR-0051 records that both are registered, and the property confirms it: on
+  Custom definitions). ADR-0005's *The GA4 event schema is immutable once it collects* records the obligation to register both, and the property confirms it: on
   2026-10-24 each was read as an event-scoped dimension whose display name equals its parameter.
   The read was made by the agent inside the owner's GA browser session, not by the owner's own eyes
   (#765).

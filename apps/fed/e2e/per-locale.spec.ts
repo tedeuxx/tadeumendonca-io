@@ -546,7 +546,7 @@ test.describe('the neutral share URL', () => {
     await expect(page.locator('article h1')).toBeVisible();
   });
 
-  // A held article must not gain a public neutral address (ADR-0049 isolation, #510). Asserted on the
+  // A held article must not gain a public neutral address (ADR-0005's *A held article is isolated, not private*, #510). Asserted on the
   // SERVED HTML, because that is where the hold would leak: the route still answers 200 through the SPA
   // fallback, so the discriminator is again the canonical rather than the status.
   //

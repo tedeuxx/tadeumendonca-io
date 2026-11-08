@@ -18,7 +18,7 @@
     "title": "Every public URL is SEO- and OG-complete",
     "file": "0005-og-coverage-every-public-url.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0007",
@@ -126,13 +126,6 @@
     "amended": true
   },
   {
-    "id": "0033",
-    "title": "GA4, consent-gated — a hard opt-in gate, not Consent Mode v2",
-    "file": "0033-ga4-consent-gated-analytics.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0035",
     "title": "Curated repos render as static cards in long-form — a lone-URL facade + a leaf-bilingual field",
     "file": "0035-static-repo-cards-in-longform.md",
@@ -154,30 +147,9 @@
     "amended": false
   },
   {
-    "id": "0038",
-    "title": "Published content is distributed to LinkedIn **and** X, in the same batch",
-    "file": "0038-content-distribution-linkedin-and-x.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0039",
-    "title": "Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`",
-    "file": "0039-share-campaign-tagging.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0040",
     "title": "Diagrams are Mermaid in the markdown body, compiled to inline SVG at build time",
     "file": "0040-build-time-mermaid-diagrams.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0041",
-    "title": "Per-article OG cards — generated at build time, keyed by the article key, derived in code",
-    "file": "0041-per-article-og-cards.md",
     "status": "accepted",
     "amended": true
   },
@@ -196,13 +168,6 @@
     "amended": true
   },
   {
-    "id": "0046",
-    "title": "A video-derived article earns its place by receipt, stands without the video, and never runs in a streak",
-    "file": "0046-video-derived-articles-earn-their-place-by-receipt.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0047",
     "title": "A figure mermaid cannot draw is authored as a typed fence over fixed geometry — its arrangement asserted arithmetically, not pinned by a build artifact",
     "file": "0047-authored-svg-figures-outside-the-mermaid-pipeline.md",
@@ -217,20 +182,6 @@
     "amended": true
   },
   {
-    "id": "0049",
-    "title": "A held article is isolated, not private — its text ships in the public bundle",
-    "file": "0049-held-article-is-isolated-not-private.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0051",
-    "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
-    "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0052",
     "title": "A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution",
     "file": "0052-neutral-self-canonical-share-url-per-article.md",
@@ -241,13 +192,6 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0054",
-    "title": "The analytics schema page — a published description of the event schema, derived from the emitting code, carrying no figure, served off the menu",
-    "file": "0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md",
     "status": "accepted",
     "amended": false
   }

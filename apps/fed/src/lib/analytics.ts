@@ -93,14 +93,14 @@ export function loadAnalytics(): void {
   // campaign measurement (#272) silently under-counts exactly the population it exists to count.
   //
   // GA4 reads utm_* from `page_location` on the FIRST hit of a session. Here that hit is this `config`
-  // call, which by ADR-0033 fires only after the reader accepts. A RETURNING reader who already
+  // call, which by ADR-0005 (*Consent-gated GA4 analytics*) fires only after the reader accepts. A RETURNING reader who already
   // granted is fine — consent runs in the mount effect while the URL still carries the parameters. A
   // NEW reader arriving from a shared link is not: they see the banner, read, navigate within the SPA,
   // and accept later, by which point `document.location` is a different, untagged URL and the session
   // is attributed `(direct)`. That reader is the entire point of the tagging.
   //
   // Nothing is stored and nothing is transmitted before consent — the value sits in a module variable
-  // and is discarded if consent never arrives, so ADR-0033's hard gate is preserved exactly.
+  // and is discarded if consent never arrives, so the hard gate of ADR-0005's *Consent-gated GA4 analytics* is preserved exactly.
   gtag('config', id, { page_location: landingLocation });
 }
 
@@ -118,7 +118,7 @@ export function loadAnalytics(): void {
  * cost `contact_click`: a reader who withdraws consent and then clicks through to LinkedIn would still
  * be reported, which is the one thing this site's consent copy promises does not happen. Reading the
  * stored choice per call moves the property from "cannot be un-injected" to "loaded but SILENT", which
- * is what ADR-0033's hard gate implies and did not deliver.
+ * is what the hard gate of ADR-0005's *Consent-gated GA4 analytics* implies and did not deliver.
  *
  * Read per call rather than cached: the withdrawal happens in another component, in the same session,
  * with no event this module subscribes to. A cache here would be the same staleness one layer down.
@@ -137,7 +137,7 @@ function mayEmit(): boolean {
  * `path` IS DELIBERATELY ABSENT AND MUST NOT BE ADDED. GA4 attaches `page_location` to every hit and
  * derives `page_path` from it for free; a custom `path` would duplicate a dimension the property
  * already has AND spend one of its registration slots on the duplicate. That is the exact trade
- * ADR-0039 refused when it dropped `utm_content`.
+ * ADR-0005 (*Campaign tagging of shared links*) refused when it dropped `utm_content`.
  *
  * `locale` is typed `string` and not the i18n `Locale` union on purpose: this module has no imports
  * from the application layer, and the consent gate above is the last thing that should acquire a
@@ -231,7 +231,7 @@ export type ContactTarget = 'github' | 'linkedin' | 'x' | 'whatsapp' | 'email';
  * careful, but because there is no member of the type that could carry one. `to` is read from a literal
  * written into the nav table itself (`AppShell`'s `NAV`), never derived from an href at runtime; `from`
  * is produced by `navArea()` (`lib/navArea.ts`), a TOTAL function whose residual is `other`. That is the
- * same argument ADR-0051 records for `contact_click`'s closed `target` — the type forecloses the query
+ * same argument ADR-0005 (*The GA4 event schema is immutable once it collects*) records for `contact_click`'s closed `target` — the type forecloses the query
  * string rather than a convention discouraging it — and it is why `path` staying off the spine is not
  * quietly reintroduced here under two new names.
  *
@@ -243,7 +243,7 @@ export type ContactTarget = 'github' | 'linkedin' | 'x' | 'whatsapp' | 'email';
  *
  * NO SLUG, DELIBERATELY. `article` collapses every piece into one value; which article the reader left is
  * already in that page's own `page_view`, and spending a registered dimension's cardinality on a value
- * GA4 can already join is the trade ADR-0051 refused for `path`.
+ * GA4 can already join is the trade ADR-0005 (*The GA4 event schema is immutable once it collects*) refused for `path`.
  */
 export type NavArea =
   | 'home'
@@ -332,7 +332,7 @@ export function trackShareOpen(params: EventParams & { slug: string }): void {
  *
  * ONE-SHOT PER SESSION, not per mount, and the guard is UPSTREAM of this emitter in `useContactReach`
  * (`lib/sessionOnce`). ~~ONE-SHOT PER MOUNT~~ — struck, and struck rather than reworded because that
- * was the shipped behaviour and it is what ADR-0051's amendment described as *once per visit*: a
+ * was the shipped behaviour and it is what the slice-B amendment, now in ADR-0005's *The GA4 event schema is immutable once it collects*, described as *once per visit*: a
  * dependency change rebuilt the observer and re-armed the shot, so a PT/EN toggle or a consent
  * re-grant emitted a second, indistinguishable row. Owner's ruling, 2026-09-04: «Uma vez por sessão».
  *
@@ -352,7 +352,7 @@ export function trackContactReach(params: EventParams): boolean {
  * destination.
  *
  * `href` IS BOUNDED TO `hostname + pathname` AND CAN CARRY NOTHING ELSE — no scheme, no query, no
- * fragment, no credentials, no port. That is ADR-0051's rule, which `contact_click` satisfied by using a
+ * fragment, no credentials, no port. That is the rule in ADR-0005's *The GA4 event schema is immutable once it collects*, which `contact_click` satisfied by using a
  * closed union and explicitly deferred to this event, which cannot: the set of outbound destinations is
  * open by construction (an article links wherever its author linked). So the bound is enforced in the
  * ONE function that builds the value (`outboundHref`, `lib/outboundLinks.ts`) by reconstructing the
@@ -382,7 +382,7 @@ export function trackOutboundClick(params: EventParams & { href: string }): void
  * so reaching contact from `/architecture` is a FULL DOCUMENT LOAD. By the time anything on the landing
  * runs, the origin is gone and `window.dataLayer` has been discarded with it. An implementation that
  * emitted after navigation would report `from: 'home'` for every one of those journeys — a wrong answer
- * that reads as a right one, which is the class of defect ADR-0051 exists to prevent — and it would do
+ * that reads as a right one, which is the class of defect ADR-0005 (*The GA4 event schema is immutable once it collects*) exists to prevent — and it would do
  * it silently, because the event would still fire and still look well-formed.
  *
  * The owner ruled on this directly (#597, 2026-09-04) with the disputed fact measured rather than

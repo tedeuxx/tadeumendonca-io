@@ -140,7 +140,7 @@ test.describe('the architecture teaser card', () => {
     // WHAT MAKES IT SOUND, restated because the reason it used to give was false. It read: "nothing can
     // be published before the site was public, and the card is dated launch day, so it can never
     // legitimately be the newest row." The card is NOT dated launch day — the section was published
-    // 2026-08-16 (ADR-0038, ADR-0039), three weeks after `my-commitment` — so the section is not the
+    // 2026-08-16 (ADR-0005, sections *Distribution to LinkedIn and X* and *Campaign tagging of shared links*), three weeks after `my-commitment` — so the section is not the
     // oldest thing on the page and that argument does not hold.
     //
     // What holds instead is narrower and true: at least one published article postdates the section, so

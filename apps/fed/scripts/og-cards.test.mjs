@@ -151,7 +151,7 @@ describe('articleKeysFrom — the held-key decision, without a filesystem', () =
 
 // #710 — the COVER-DERIVED card, and the provenance gap it closes for the one field it adds.
 //
-// CI never runs the generator (ADR-0041), so a committed card is whatever the last local run wrote. For a
+// CI never runs the generator (ADR-0005, *Per-article OG cards*), so a committed card is whatever the last local run wrote. For a
 // title-only card that was an accepted cost; for a card drawn from a binary that can be replaced under
 // the same name it is not, so the generator records the cover's hash in a sidecar and this recomputes it.
 // Calibrated by changing the cover FILE (the subject), never this test.

@@ -56,7 +56,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   // the review bar unchanged — the date moves, the article enters the index, and nothing about the bar
   // changes, because the mode was never in the build. Promotion is not otherwise self-contained: this
   // page gets its first prerendered snapshot, and the OG cards and the distribution kit follow from
-  // separate scripts (#635, ADR-0049's 2026-11-01 amendment). (3) A second round on an already-published piece is
+  // separate scripts (#635, ADR-0005's *A held article is isolated, not private*, 2026-11-01 amendment). (3) A second round on an already-published piece is
   // a real case, and a `draft` gate would take the affordance away exactly there.
   //
   // WHAT IT COSTS, and this is larger than "a visitor who appends the parameter" — the enlargement is
@@ -75,7 +75,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   // Read from `useLocation`, not `window.location`, for the reason `ArticleRoute` gives one layer up: a
   // client-side navigation is the one moment the two disagree.
   const reviewing = isPreviewRequested(search);
-  // A PENDING REVISION of a published article (#741, ADR-0049's amendment) renders in place of the
+  // A PENDING REVISION of a published article (#741, ADR-0005's *A held article is isolated, not private*, as amended) renders in place of the
   // published text — under the parameter only, so every other visitor and every prerendered snapshot (no
   // snapshot URL can carry a query string, #506) gets the published text. A held article never has one:
   // `content.ts` refuses a revision on a held host at module load.
@@ -124,11 +124,11 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           // the artifact the build just produced.
           unprefixedCanonical: neutral,
           image: article.ogImage,
-          // The card IS the title, set over the site's art (ADR-0041) — so the title is what the alt
+          // The card IS the title, set over the site's art (ADR-0005, *Per-article OG cards*) — so the title is what the alt
           // says. Not the default card's alt: that describes a different picture, and a screen-reader
           // user is the one reader who cannot notice the substitution.
           //
-          // A COVER-DERIVED card (#710, ADR-0041's 2026-11-01 amendment) is the title over the article's
+          // A COVER-DERIVED card (#710, ADR-0005's *Per-article OG cards*, 2026-11-01 amendment) is the title over the article's
           // AI-generated cover, so its alt says so, in the reader's locale. Every other article keeps the
           // title alone.
           imageAlt: article.cover ? `${article.title} — ${t('article.aiCover')}` : article.title,
