@@ -96,9 +96,9 @@
 // Read the keys against those three sentences: `{ 'Accenture', '2015-01' }` is *na accenture no
 // 2015-2020*; the corridor at `2021-01` is *a entrada de caa* (Cloud Application Architect); the Summit
 // at `2023-04` is *senior delivery consultant*. A reviewer holding his sentences can verify every key on
-// sight, which is the whole reason the key is a legible pair rather than an opaque id — see ADR-0050.
+// sight, which is the whole reason the key is a legible pair rather than an opaque id — see ADR-0024.
 //
-// THE JOIN, AND THE DIRECTION IT MUST KEEP (#516 slice 2a, ADR-0050). `engagement` is a natural key into
+// THE JOIN, AND THE DIRECTION IT MUST KEEP (#516 slice 2a, ADR-0024). `engagement` is a natural key into
 // `profile.ts`'s experience array: `{ company, start_date }`, because `start_date` is unique across all
 // five entries while `company` is not — `Accenture` names two and the AWS ProServe string names two.
 // `assertJourneyShape` resolves every key at module load and REFUSES a key matching zero entries, a key
@@ -113,7 +113,7 @@
 // it with a hyphen produces a key that matches zero entries, so the mistake is a RED BUILD and never a
 // wrong attribution — the failure direction we want, and the reason the string is written once below.
 // And the duplication is real: two files now carry the same employer strings, so a correction in
-// `profile.ts` reddens this module until it follows. That is stated as a bad consequence in ADR-0050
+// `profile.ts` reddens this module until it follows. That is stated as a bad consequence in ADR-0024
 // rather than mitigated, because the alternative — resolving by anything softer than exact equality —
 // is the derivation this whole slice exists to forbid.
 //
@@ -163,7 +163,7 @@ import { photoFor, type PhotoAsset } from './photos';
 import { profileSource } from './profile';
 
 /**
- * The natural key into `profile.ts`'s experience array — see the JOIN paragraph above and ADR-0050.
+ * The natural key into `profile.ts`'s experience array — see the JOIN paragraph above and ADR-0024.
  *
  * BOTH FIELDS, NOT EITHER. `company` alone is ambiguous by measurement (`Accenture` names two entries,
  * the AWS ProServe string names two); `start_date` alone is unique today and is unique by accident

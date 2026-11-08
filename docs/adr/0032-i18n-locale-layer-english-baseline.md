@@ -5,6 +5,7 @@
 > amendment at the foot before acting on anything here (#234).
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-23
 - **Deciders:** the owner
 - **Driven by:** [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (cross-surface CV coherence)
@@ -26,10 +27,10 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
 - **Cross-surface CV coherence** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)): the English CV
   must render in English chrome so the site matches LinkedIn + Canva. This is the driving requirement.
 - **Native-language reach:** a pt-BR visitor should still get the site in their language, live.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): two locales on a static
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): two locales on a static
   SPA don't justify an i18n framework or a new dependency-class.
 - **Static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) and **build-time OG/SEO**
-  ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md)):
+  ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md)):
   whatever we build must not add a server and must keep the crawlable/unfurlable baseline intact.
 
 ## Considered options
@@ -39,7 +40,7 @@ LinkedIn + Canva, while still serving pt-BR visitors in their language.
    repo's "simplest thing, no unnecessary deps, no shadcn" floor. Two locales don't need a framework.
 2. **An i18n library** (react-i18next / react-intl / lingui) — *Why not:* a new dependency/tool-class plus
    bundle weight for little gain at exactly two locales. The pluralization/interpolation machinery these
-   bring is unearned at this scale (ADR-0001).
+   bring is unearned at this scale (ADR-0053, lean by design).
 
 ## Decision outcome
 Chosen: **the light in-repo locale layer**, with the following specifics.
@@ -75,7 +76,7 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   prerender.
 - ~~**Slice 2 (deferred):** route-prefixed `/en` · `/pt` + **per-locale prerender** + `hreflang` / per-locale
   canonical + per-locale OG. This interacts with [ADR-0005](./0005-og-coverage-every-public-url.md)
-  (OG coverage) and [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) — it is the
+  (OG coverage) and [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (build-time render) — it is the
   slice that makes **pt-BR discovery** first-class.~~
   **SHIPPED 2026-07-26 as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md).** Not deferred work.
 - ~~**Slice 3 (deferred):** a translated pt-BR `profile` object, so PT mode wraps a pt-BR CV instead of the
@@ -116,7 +117,7 @@ Chosen: **the light in-repo locale layer**, with the following specifics.
   reader's locale (both editions are authored and prerendered); English remains the **canonical** edition
   ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md)), and the Canva CV was retired 2026-07-28. #234
 - **Native-language visitors still get their language live** (auto-detect + persisted manual toggle).
-- **No new dependency** — a typed catalog + two hooks; the "simplest thing" floor ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) holds.
+- **No new dependency** — a typed catalog + two hooks; the "simplest thing" floor ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)) holds.
 - The **static invariant** ([ADR-0002](./0002-fully-static-spa-no-backend.md)) is intact — no server, no
   Accept-Language edge logic.
 
@@ -204,14 +205,14 @@ not an oversight in any one test. The seam that can express it is `page.addInitS
 `scripts/prerender.mjs` and `e2e/per-locale.spec.ts`.
 
 **Explicitly NOT in scope, and not stubbed:** the IP-geolocation step (`#669`). It touches `iac/`, it is
-a decision against [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), and it gets its own record.
+a decision against [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), and it gets its own record.
 
 ## Links
 - **Supersedes** [ADR-0011](./0011-ui-ptbr-i18n-deferred.md) (UI in pt-BR; i18n deferred) — this is the i18n
   phase ADR-0011 named.
 - **Driven by / consistent with** [ADR-0024](./0024-profile-canonical-cv-cross-surface.md): the English CV
   stays canonical — no contradiction; only chrome localizes.
-- **Interacts with** [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (build-time render) and
+- **Interacts with** [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (build-time render) and
   [ADR-0005](./0005-og-coverage-every-public-url.md) (OG coverage on every public URL) — ~~the deferred Slice 2
   makes~~ **Slice 2 shipped as [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) and made** per-locale
   prerender + `hreflang` first-class. #234

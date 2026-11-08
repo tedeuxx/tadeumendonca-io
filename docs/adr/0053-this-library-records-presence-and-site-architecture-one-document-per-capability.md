@@ -1,11 +1,17 @@
 # 0053. This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule
 
-- **Status:** proposed (the shape is the owner's, ruled on Issue
+- **Status:** accepted — ratified by the owner on 2026-11-01, *«Ratificar»*, recorded on
+  [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456#issuecomment-6564257323). ~~proposed (the shape is the owner's, ruled on Issue
   [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) on 2026-08-25, 2026-09-11 and
-  2026-10-31; this record writes it down and becomes `accepted` only on his ratification)
+  2026-10-31; this record writes it down and becomes `accepted` only on his ratification)~~ — struck
+  2026-11-01 by that ratification; the record was `proposed` from the first slice of #456 until then
+- **Capability:** `decision-library`
 - **Date:** 2026-11-01
 - **Deciders:** the owner · written by `tech-lead` in the first slice of #456
 - **Supersedes / superseded by:** —
+- **Absorbs:** the lean-by-design keystone, formerly record 0001 (accepted 2026-07-22, amended
+  2026-10-16), as the section *Lean by design — the keystone every record is read through*. That
+  decision is `accepted` and binds exactly as it did (#456, third slice)
 - **Driven by:** Issue [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456); the method's
   `documentation-standard` skill, Part II (what an ADR is, the four dispositions of a record that
   leaves a library, absorption); `tadeumendonca-skills#283`, which applied the same definition to the
@@ -175,15 +181,100 @@ library).
   question about each rejected option, and answering it about the rule as a whole would have deleted a
   live argument.
 
+## Lean by design — the keystone every record is read through
+
+**Absorbed 2026-11-01 (#456, third slice) from the record that held it, 0001, decided 2026-07-22 and
+amended 2026-10-16 (#688).** The decision is unchanged, `accepted`, and still binds. It moved here because it is the lens this whole
+library is read through — every other record names it as a driver — so it belongs to the capability
+that says what the library is, rather than standing as a capability of its own. What arrived: the
+decision as it binds today, the rejected options a future reader must not relitigate, the reason it
+rests on since 2026-10-16, and the consequences still being paid. What was left in git history on
+purpose: the original proof-of-engineering reasoning, struck in place by the 2026-10-16 amendment. The
+full record is in git history: `git log --diff-filter=D -- 'docs/adr/0001-*'` names the commit that
+removed it, and its parent holds the file.
+
+### Context
+
+`tadeumendonca.io` is a personal presence, not a product with users or scale. Its surfaces are
+content-shaped — an interactive CV, a curated portfolio of public work, a reading shelf and long-form
+writing. It is not a playground (it must work), but it has no audience whose needs justify standing
+infrastructure.
+
+The platform once carried far more: a Hono/Lambda BFF, DynamoDB, Cognito auth, SES, a Lambda@Edge OG
+renderer, an offline-first PWA, a regional WAF. Each of those is recurring **cost**, **operational
+surface** and **attack surface**, paid continuously to serve capabilities the site does not need. The
+question this decision settles: how much architecture should this site carry?
+
+### The decision, as it binds
+
+**Lean by design, calibrated to what the site's surfaces need today.** The architecture is
+deliberately minimal: carry only what the content and portfolio presence requires, cut everything
+else, and grow deliberately when a real need appears. This is the reason the **backend and much else
+were cut** (the superseded records in the README's *History* table), and it is the lens every other
+architectural decision in this library is read through: prefer the simplest thing that serves the
+presence, defer capability until a real need warrants the cost. Evolution is gradual — the fuller
+architecture is known and re-introducible, just not warranted now.
+
+Its drivers, as they stand since the 2026-10-16 re-reading:
+
+- **Cost.** The mission (#688) is the owner's personal, independent commitment to learn in public,
+  bounded by what he can personally sustain. A commitment whose duration is set by its running cost is
+  the strongest case this library has for near-zero, scale-to-zero infrastructure; standing compute
+  would shorten the commitment it serves.
+- **Simplicity** — the fewest moving parts that deliver the presence; every component must earn its
+  place.
+- **Gradual evolution** — add capability only when a real need calls for it, not speculatively.
+- **The workshop stays public.** The code is not the argument for a repositioning any more; it is the
+  public workshop the writing comes out of. A defensible, documented lean architecture still matters
+  because the repository stays public as evidence of the work.
+
+### Rejected options that are still live
+
+- **Keep the full backend-ful platform "just in case"** — the BFF, database, auth, PWA and WAF. It pays
+  cost, complexity and attack surface every day for capabilities no surface needs, and since #688 it
+  fails harder, on the cost driver: idle infrastructure shortens a commitment bounded by what it costs
+  to sustain.
+- **Go even leaner — a flat HTML site or an off-the-shelf template.** Rejected because the workshop is
+  part of what the writing is about and stays public as evidence of the work, and because the existing
+  surfaces (bilingual prerender, typed data, per-locale cards) already run at near-zero cost, so going
+  leaner would buy no saving the mission needs.
+
+### Consequences still being paid
+
+- **Good:** near-zero, scale-to-zero cost; minimal operational and attack surface; fast and low-risk to
+  change, with little to break and nothing to keep running; the leanness is a documented engineering
+  judgement, not an omission.
+- **Bad / accepted:** anything server-side (auth, dynamic data, an API, server telemetry) is **not**
+  available and needs infrastructure re-introduced when a surface calls for it. The lean choice is
+  *current*, not permanent: the architecture must be **revisited** when the mission or the surfaces
+  shift. The 2026-10-16 amendment was such a revisit — the mission changed, and the architecture came
+  out of it unchanged.
+- **Left as history, deliberately.** Records dated before 2026-10-16 that describe the site as a
+  proof-of-engineering site ([ADR-0010](./0010-routing-landing-cv-split-redirects.md),
+  [ADR-0003, *The SonarCloud quality gate*](./0003-trunk-based-single-environment.md#the-sonarcloud-quality-gate) and [ADR-0033](./0033-ga4-consent-gated-analytics.md)) keep that
+  wording: it records why each decision was taken when it was. Read *proof-of-engineering* in any record
+  dated before 2026-10-16 as the mission of that time. No record exists for the mission itself: a mission
+  is positioning, not an architecture decision.
+
+### Where it came from
+
+Decided 2026-07-22 by the owner, as the reverse-engineering pass's keystone. Amended 2026-10-16 by
+[#688](https://github.com/tedeuxx/tadeumendonca-io/issues/688): the stated reason changed, the decision
+did not. Absorbed here by #456.
+
 ## Links
 
 - Issue [#456](https://github.com/tedeuxx/tadeumendonca-io/issues/456) — the reconciliation, the
   owner's rulings and the working partition.
 - The method's `documentation-standard` skill, Part II — the definition, the significance test this
   record narrows for this repository, and the four dispositions.
-- [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md) — the keystone; it folds into this record
-  in a later slice of #456, under the `decision-library` capability.
+- The lean-by-design keystone — record 0001 until the third slice of #456 absorbed it here as *Lean by
+  design — the keystone every record is read through*. Applied by
+  [ADR-0002](./0002-fully-static-spa-no-backend.md) (fully static, no backend),
+  [ADR-0003](./0003-trunk-based-single-environment.md) (trunk-based, single environment) and the
+  infrastructure and delivery records, each an instance of it.
 - [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) — the pilot: the downloadable-CV record was
   absorbed into it in the same merge request as this record.
-- [The decision library's index](./README.md) — the History table and, from the next slice, the
-  capability table.
+- [The decision library's index](./README.md) — the History table and the capability table. The table
+  was added by the second slice of #456, together with the `Capability:` field every record carries and
+  the test that checks the two agree (`apps/fed/scripts/adr-capabilities.test.mjs`).

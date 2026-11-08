@@ -173,7 +173,7 @@ const ENFORCEMENT_BY_SHAPE = {
   // framing; if a second `Stop` or `SubagentStop` hook ever ships, re-read its script rather than
   // inheriting either row's class.
   //
-  // What the script actually is: a DETECTOR. It reads loop state (the ADR-0006 `gatekeeper-verdict`
+  // What the script actually is: a DETECTOR. It reads loop state (the methodology ADR-0006 `gatekeeper-verdict`
   // marker comment against the PR's current head) and, when a verdict is outstanding, emits
   // `additionalContext` so the NEXT turn opens with the fact. Its own header states the boundary —
   // "this is detection, not enforcement … every exit path is `exit 0` … never emits a `decision` field

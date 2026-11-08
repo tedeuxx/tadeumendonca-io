@@ -1,6 +1,7 @@
 # 0046. A video-derived article earns its place by receipt, stands without the video, and never runs in a streak
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-08-08
 - **Deciders:** the owner (ratified 2026-08-08; proposed by `product-lead`)
 - **Supersedes / superseded by:** —
@@ -10,7 +11,7 @@
   [#405](https://github.com/tedeuxx/tadeumendonca-io/issues/405) (2026-08-08) ·
   constrained by [ADR-0038](./0038-content-distribution-linkedin-and-x.md) (the distribution obligation,
   and the surface test 2 routes to) · reads through
-  [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+  [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 
@@ -63,7 +64,7 @@ that *"undercuts the 'written by a peer' claim the content makes."*
   preference loses the first argument it meets.
 - **Nothing here may weaken ADR-0038.** Everything published still fans out to LinkedIn and X in the same
   batch; test 2 *routes into* that obligation rather than around it.
-- **Lean (ADR-0001):** no new label, no new workflow, no gate, no tooling. A rule the owner applies in his
+- **Lean (ADR-0053):** no new label, no new workflow, no gate, no tooling. A rule the owner applies in his
   head is the cheapest instrument that can work here, and its weakness is priced below.
 
 ## Considered options
@@ -212,7 +213,7 @@ measurements, not the editorial judgements.
   *how often* a publication happens; its 2026-08-08 amendment says in terms that it is **not** an editorial
   production quota and that justifying article selection on its own merits *"is a different decision and
   gets its own record"*. This is that record.
-- **Reads through [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — the instrument chosen is
+- **Reads through [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — the instrument chosen is
   the cheapest one that can work: three questions in a document, no machinery.
 - **Private material cited by pointer only**, per [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
   and ADR-0038's 2026-07-27 amendment: the positioning source that carries the posture pillar stays outside

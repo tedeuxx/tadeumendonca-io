@@ -4,6 +4,7 @@
 // browser and cannot be unit tested, while everything that decides WHICH cards exist is decision logic and
 // belongs where a test can reach it without one.
 import { load } from 'js-yaml';
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -44,10 +45,13 @@ export function requiredCards(articleKeys) {
  * (js-yaml) rather than pattern-matched, so `draft: true # promote after review` reads as held — the
  * same parser `routes.mjs` and `content.ts` use, which is what keeps the three derivations agreeing.
  */
-const heldByFrontmatter = (raw) => {
+export function frontmatterOf(raw) {
   const fm = /^---\r?\n([^]*?)\r?\n---/.exec(raw);
-  return (fm ? load(fm[1]) : null)?.draft === true;
-};
+  const parsed = fm ? load(fm[1]) : null;
+  return parsed && typeof parsed === 'object' ? parsed : {};
+}
+
+const heldByFrontmatter = (raw) => frontmatterOf(raw).draft === true;
 
 export function articleKeysFrom(files, readFile) {
   const keys = new Set();
@@ -106,4 +110,124 @@ export function diffCards(required, generated) {
     missing: required.filter((c) => !have.has(c.path)),
     orphaned: generated.filter((p) => !want.has(p)),
   };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// The COVER-DERIVED card (#710, ADR-0041's 2026-11-01 amendment).
+//
+// An article whose frontmatter sets `cover` gets a card built from that image, carrying the title, the
+// published signature and an AI-generated mark; every other article keeps the title-only card. The
+// selector is the existing `cover` key — no new field and no slug named in a script — read through
+// `frontmatterOf`, the one YAML parse this file already uses for `draft`.
+//
+// What it adds that the title-only card never needed: PROVENANCE. A title-only card is drawn from words
+// the article carries, so a stale one is at least a stale rendering of the article's own text. A cover
+// card is drawn from a binary that can be replaced under the same name, and CI never runs the generator
+// (ADR-0041: the cards are committed). So the generator writes, next to each cover card, a sidecar
+// holding the hash of the cover it was built from, and a unit test recomputes it. It closes the "nothing
+// verifies the card's content" gap for THIS field only — the title can still go stale, as before.
+// ---------------------------------------------------------------------------------------------------
+
+/** The cover an article declares, or undefined — the selector between the two card variants. */
+export function coverOf(raw) {
+  const cover = frontmatterOf(raw).cover;
+  return typeof cover === 'string' && cover.trim() !== '' ? cover.trim() : undefined;
+}
+
+/** The sidecar beside a cover-derived card: `<key>.<locale>.cover.json`, in the card directory. */
+export const coverSidecarName = (key, locale) => `${key}.${locale}.cover.json`;
+
+/** SHA-256 of a file's bytes, hex. */
+export const hashBytes = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+/**
+ * The file a public cover path names, under `publicDir`.
+ *
+ * Refuses anything that is not an absolute site path, or that climbs out of the public directory: the
+ * cover is read at build time and published on a card, so a path that resolves outside `public/` would
+ * put a file the site does not serve onto an image a scraper keeps.
+ */
+export function coverFile(publicDir, cover) {
+  if (!cover.startsWith('/') || cover.split('/').includes('..')) {
+    throw new Error(`cover "${cover}" must be an absolute site path inside public/ (e.g. /illustrations/x.jpg)`);
+  }
+  return join(publicDir, cover);
+}
+
+/**
+ * Every cover-derived card the content requires, as `{ key, locale, cover }` — over an injected reader.
+ *
+ * Only PUBLISHED keys (`articleKeysFrom`): a held article gets no card at all, so it gets no cover card
+ * and no sidecar either. Per edition, because the card is per edition; `cover` is a `FACT_KEYS` member in
+ * `content.ts`, so the two editions cannot disagree without failing the build first.
+ */
+export function coverCardsFrom(files, readFile) {
+  const published = new Set(articleKeysFrom(files, readFile));
+  const cards = [];
+  for (const file of files) {
+    const m = /^(.+)\.([^.]+)\.md$/.exec(file);
+    if (!m || !LOCALES.includes(m[2]) || !published.has(m[1])) continue;
+    const cover = coverOf(readFile(file));
+    if (cover) cards.push({ key: m[1], locale: m[2], cover });
+  }
+  return cards.sort((a, b) => coverSidecarName(a.key, a.locale).localeCompare(coverSidecarName(b.key, b.locale)));
+}
+
+/** Every cover-derived card the content directory requires. */
+export function coverCardsIn(blogDir) {
+  return coverCardsFrom(readdirSync(blogDir), (file) => readFileSync(join(blogDir, file), 'utf8'));
+}
+
+/**
+ * Compare each cover card's sidecar with the cover as it is NOW, and report every disagreement.
+ *
+ * - `readSidecar(name)` returns the sidecar's text, or undefined when it does not exist;
+ * - `hashCover(cover)` returns the current hash of the cover file;
+ * - `sidecarNames` lists the sidecars present, so one left behind by an article that no longer has a
+ *   cover — or no longer exists — is reported too. It would break nothing, which is exactly why it would
+ *   accumulate unseen (ADR-0041's `orphaned` argument, applied to the sidecars).
+ *
+ * Returns human-readable problems; empty means every cover card was built from the cover it now names.
+ */
+export function coverSidecarProblems(cards, { readSidecar, hashCover, sidecarNames }) {
+  const problems = [];
+  const expected = new Set();
+  for (const { key, locale, cover } of cards) {
+    const name = coverSidecarName(key, locale);
+    expected.add(name);
+    const text = readSidecar(name);
+    if (text === undefined) {
+      problems.push(`${name} is missing — the ${key}.${locale} card has no record of the cover it was built from`);
+      continue;
+    }
+    let sidecar;
+    try {
+      sidecar = JSON.parse(text);
+    } catch {
+      problems.push(`${name} is not valid JSON`);
+      continue;
+    }
+    if (sidecar.cover !== cover) {
+      problems.push(`${name} was built from ${sidecar.cover}, but the article now names ${cover}`);
+      continue;
+    }
+    if (sidecar.sha256 !== hashCover(cover)) {
+      problems.push(`${name}: ${cover} changed since the ${key}.${locale} card was built`);
+    }
+  }
+  for (const name of sidecarNames) {
+    if (!expected.has(name)) problems.push(`${name} is orphaned — no published article with a cover needs it`);
+  }
+  return problems;
+}
+
+/** The sidecars actually present in the card directory. */
+export function coverSidecarsIn(ogDir) {
+  try {
+    return readdirSync(ogDir)
+      .filter((f) => f.endsWith('.cover.json'))
+      .sort((a, b) => a.localeCompare(b));
+  } catch {
+    return [];
+  }
 }

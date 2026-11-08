@@ -42,6 +42,9 @@ export default defineConfig({
         // off it reads as 0% on new code to SonarCloud while the local average stays comfortably high.
         // That has now turned Sonar red three times; this entry is the cost of not making it four.
         'scripts/adr-citations.mjs',
+        // #456 S2. The capability half: the README's capability table against each record's
+        // `Capability:` line. On the allowlist for the same reason as the two entries above.
+        'scripts/adr-capabilities.mjs',
         // #269. Same split as diagram-source: this is the half that decides WHICH cards must exist and
         // whether the committed set still matches the articles. gen-og-articles.mjs is excluded from the
         // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a

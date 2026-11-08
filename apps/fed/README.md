@@ -72,7 +72,7 @@ the two editions cannot disagree.
 
 ## Conventions
 
-- **The key convention is split, and the split is real** (ADR-0012's 2026-07-30 amendment). Blog
+- **The key convention is split, and the split is real** (ADR-0002, *Data keys as authored, no mapping layer*). Blog
   frontmatter and the catalog modules are **camelCase** — `linkedinUrl`, `hasVideo`, `ogImage` in
   `src/lib/content.ts`; `repoUrl`, `liveUrl` in `src/data/catalog.ts`. `src/data/profile.ts` is still
   **snake_case** — `profile_id`, `start_date`, `print_highlight_index`. Follow the file you are in, and
@@ -90,7 +90,7 @@ optional and the app builds and serves without either.
 ```bash
 npm run dev            # vite dev server (localhost:5173)
 npm test               # vitest run --coverage — ≥85% is a gate, as a GLOBAL AVERAGE, not per file
-                       # (ADR-0018 amendment): a weak file passes if the whole clears it
+                       # (ADR-0003, CI gates): a weak file passes if the whole clears it
 npm run lint           # eslint
 npm run typecheck      # tsc --noEmit
 npm run build          # tsc --noEmit + vite build + gen-sitemap (the sitemap is a published artifact,

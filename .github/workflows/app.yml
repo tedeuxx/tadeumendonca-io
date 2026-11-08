@@ -2,7 +2,7 @@ name: app
 
 # PR gate for apps/** — named after the top-level directory it guards, not after what it does to it.
 # (Formerly `build-test.yml`. The WORKFLOW was renamed; the terminal JOB is still `build-test`, because
-# that name is what branch protection requires — see the aggregator at the bottom of this file.)
+# that name is what the ruleset on `main` requires — see the aggregator at the bottom of this file.)
 #
 # trunk-single-env: main IS production, so there is no downstream tier to defer a check to — the full
 # regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys.
@@ -281,12 +281,12 @@ jobs:
         # --ignore-scripts: a PR gate installs the dependency tree of a branch anyone can open, so an
         # install hook here runs attacker-chosen code on the runner before any gate has looked at the
         # diff. It also keeps this install identical to deploy.yml's — the gate must exercise the same
-        # tree the deploy ships, or "green here" stops meaning "safe there" (ADR-0021). No dep needs a
+        # tree the deploy ships, or "green here" stops meaning "safe there" (ADR-0003, security posture). No dep needs a
         # hook: the only one whose install hook actually runs is esbuild, and it only validates the
         # @esbuild/<platform> binary; the Playwright browser is installed by an explicit step.
         run: npm ci --ignore-scripts
 
-  # Package-vulnerability gate (ADR-0021). HIGH/CRITICAL advisories in PRODUCTION deps block
+  # Package-vulnerability gate (ADR-0003, security posture). HIGH/CRITICAL advisories in PRODUCTION deps block
   # (audit-ci.jsonc: skip-dev + high/critical); devDep advisories surface via Dependabot but never block
   # a static-site deploy. It queries a live advisory DB, so a new advisory can start blocking an
   # otherwise-unrelated PR — the checked-in allowlist (justification + expiry) is the relief valve.
@@ -383,7 +383,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-  # Coverage >= 85% is a gate, as a GLOBAL AVERAGE (ADR-0018's 2026-07-29 amendment) — not a per-file
+  # Coverage >= 85% is a gate, as a GLOBAL AVERAGE (ADR-0003, CI gates section, 2026-07-29) — not a per-file
   # floor. The lcov report is handed to sonarqube-scan as an artifact, which is the ONLY reason that job
   # needs this one: Sonar re-reads the source itself, but it cannot recompute coverage.
   #
@@ -520,7 +520,7 @@ jobs:
   # /architecture publishes an inventory of the dev-loop harness — personas, hooks, command families —
   # whose source of truth is `tadeumendonca-skills`. The build never reads it: a committed manifest
   # (apps/fed/src/content/generated/harness.json) is what ships, exactly like adrs.json and diagrams.json,
-  # so ADR-0002 and ADR-0004 hold and a clone of this repo alone still builds. THIS job is the only place
+  # so ADR-0002 holds and a clone of this repo alone still builds. THIS job is the only place
   # the two are compared, three ways — missing, orphaned, changed.
   #
   # It needs no npm install and no browser: the script is dependency-free Node reading two trees.
@@ -528,7 +528,7 @@ jobs:
   # WHY THE SECOND CHECKOUT IS SAFE, and this is the property the decision turns on: the plugin is a
   # PUBLIC repository, so `actions/checkout` needs no token, no secret and no `id-token`. This widens no
   # credential surface. Nothing here goes near deploy.yml's gate filter, whose outputs decide whether an
-  # OIDC-credentialed job runs — that is ADR-0015 applied to a path filter, and the manifest already sits
+  # OIDC-credentialed job runs — that is ADR-0013's OIDC decision applied to a path filter, and the manifest already sits
   # under apps/fed/, which the `code` filter matches.
   #
   # WHAT THIS JOB CANNOT DO, said here because it is the accepted cost rather than a gap to fix later: it
@@ -598,12 +598,12 @@ jobs:
           args: -Dsonar.qualitygate.wait=true
 
   # ---------------------------------------------------------------------------------------------
-  # THE REQUIRED CHECK. The name `build-test` is fixed by branch protection and must not change.
+  # THE REQUIRED CHECK. The name `build-test` is fixed by the ruleset on `main` and must not change.
   #
   # `if: always()` is load-bearing twice over:
   #
   #  (1) A bare `needs:` aggregator is SKIPPED when any dependency fails — and a skipped required check
-  #      satisfies branch protection. The monolith could not have this bug (one job, one status); the
+  #      satisfies the ruleset on `main`. The monolith could not have this bug (one job, one status); the
   #      split introduces it, and this is where it is paid for. The job must RUN and decide.
   #  (2) On a PR that touches nothing here, every job above is skipped and this one still has to report,
   #      or the required check never arrives.

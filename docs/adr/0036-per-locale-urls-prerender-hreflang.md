@@ -1,10 +1,11 @@
 # 0036. Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
 - **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)
-- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
+- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
 
 ## Context & problem
 [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) internationalized the site with a light in-repo
@@ -30,9 +31,13 @@ written, not a change of mind.
 - **First-class pt-BR discovery** (the Slice-2 driver): the pt-BR edition must be a real, crawlable,
   unfurlable **address**, not a runtime toggle a bot never sees.
 - **Static invariant, no edge** ([ADR-0002](./0002-fully-static-spa-no-backend.md),
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)): whatever resolves a locale must do so at
-  **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0004's
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)): whatever resolves a locale must do so at
+  **build time** or **client-side** — never a request-time / Accept-Language edge function. ADR-0002's
   no-SSR/edge invariant is load-bearing and must survive untouched.
+  > **Narrowed 2026-11-01** (#669, ~~`proposed` until the owner ratifies PR #803~~ **`accepted`
+  > 2026-11-01**: the owner merged PR #803 himself, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)): the edge may now
+  > **expose a fact** (a viewer-response `locale_hint` cookie); it still never **resolves** a locale,
+  > routes or redirects. See *The edge exposes a locale hint, never a locale decision (2026-11-01)* below.
 - **OG/SEO completeness per surface** ([ADR-0005](./0005-og-coverage-every-public-url.md)): every public URL
   is OG/crawler-complete — and once each surface exists in two locales, that contract now spans **both**,
   plus an x-default.
@@ -44,7 +49,7 @@ written, not a change of mind.
 - **`iac/` is untouched, deliberately** ([ADR-0013](./0013-s3-cloudfront-hosting.md)): the CloudFront Function
   is locale-agnostic (clean-URL rewrite only); a URL scheme that needs no edge locale logic keeps the infra
   boundary closed and this slice code-only.
-- **Lean by design** ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)): two locales on a static
+- **Lean by design** ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)): two locales on a static
   SPA get an addressing scheme, not an i18n-routing framework.
 
 ## Considered options
@@ -70,7 +75,7 @@ written, not a change of mind.
    origin/one cert/one analytics property.
 4. **Edge Accept-Language negotiation** (a CloudFront Function reading `Accept-Language` to route/redirect) —
    *Why not:* it reintroduces **request-time locale compute at the edge**, the precise thing
-   [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) removed, and puts locale logic in `iac/`. The
+   [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) removed, and puts locale logic in `iac/`. The
    **client-side bare-root redirect below makes it unnecessary** — see Decision outcome.
 
 ## Decision outcome
@@ -97,11 +102,13 @@ Chosen: **option 1 — symmetric per-locale URL prefixes, per-locale prerender, 
   gap ADR-0032 left open. **Localized OG *image art* is deferred** (see scope boundaries); the OG text/meta
   ships now.
 - **Bare `/` (and any unprefixed path) auto-detect and redirect client-side.** React resolves the locale
-  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per ADR-0032) and
+  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per ADR-0032; since #661
+  the full `navigator.languages` list, and since #788 an edge hint above it — see *The edge exposes a
+  locale hint, never a locale decision* below) and
   `<Navigate replace>`s to the matching locale prefix, **preserving the sub-path** (`/portfolio` →
   `/en/portfolio` or `/pt/portfolio`). **This client-side redirect is the deliberate reason no edge
   Accept-Language logic is needed** — the one place a reader might assume an edge negotiation, made explicit:
-  detection is React's, at first paint, so `iac/` and ADR-0004's no-edge invariant both stay closed. The
+  detection is React's, at first paint, so `iac/` and ADR-0002's no-edge invariant both stay closed. The
   bare-root English snapshot exists so a crawler/unfurler hitting `/` before JS runs still sees a complete
   x-default page.
 - **`iac/` is untouched.** The CloudFront Function remains the locale-agnostic clean-URL rewrite; the prefixes
@@ -121,7 +128,7 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
 - **The OG/SEO-completeness contract ([ADR-0005](./0005-og-coverage-every-public-url.md)) now holds across
   both locales + x-default**, with correct `hreflang` telling search engines the editions are the same page
   in two languages (no duplicate-content penalty; the right edition surfaces per searcher).
-- **The static, no-edge story is intact** ([ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)) — locale
+- **The static, no-edge story is intact** ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — locale
   is resolved at **build** (the two snapshots) and **client-side** (the bare-root redirect), never at the
   edge. `iac/` did not move.
 - **The static-shell flash for pt-BR visitors is removed** — ADR-0032's residual "non-baseline flash until
@@ -158,6 +165,9 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
   > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
   > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
 - **No edge / Accept-Language logic** — the client-side redirect covers the negotiation; `iac/` stays closed.
+  > **Narrowed 2026-11-01** (#669, ~~`proposed`~~ **`accepted`**, [the owner's merge of PR #803](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)): still no edge negotiation, but `iac/` now carries a
+  > function that exposes a locale hint to the client. See *The edge exposes a locale hint, never a locale
+  > decision (2026-11-01)* below.
 - **A localized `cv.pt.pdf`** remains the deferred follow-on [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (its downloadable-edition section)
   already books — this ADR only shifts the *source route string* to `/en/me`, it does not add the pt edition.
 
@@ -409,7 +419,7 @@ must be about **who** is rendering, not **when** — hence `window.__PRERENDER__
 via `addInitScript` and checked by the component. *Trade-off:* a build-only global is a seam between the
 snapshot harness and app code, and any future visitor-dependent component must remember to check it; the
 alternative (making the prerender a non-hydrating render) would be a much larger change to
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s build-time-render mechanism for one component's sake.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s build-time-render mechanism for one component's sake.
 Enforced rather than written down: `e2e/per-locale.spec.ts` asserts the **shipped** HTML for both editions
 carries no offer — asserted against the artifact because every unit test passed while `dist/pt/**` was wrong.
 Verified by mutation.
@@ -425,7 +435,7 @@ Verified by mutation.
 **Nothing in the decision above changes.** Per-locale prefixes, per-locale prerender, hreflang, OG-per-locale
 and x-default all stand; this amendment adds a client-side **offer** on top of an unchanged URL contract, and
 records the prerender invariant it exposed. `iac/` is untouched — the negotiation is still client-side, so
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)'s no-edge invariant holds.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)'s no-edge invariant holds.
 
 ## Amendment (2026-08-05) — why the dual-slug question keeps coming back, and the separation that ends it
 
@@ -500,8 +510,232 @@ to say nobody currently needs. What it must not be is a surprise: a future pair 
 change with four crossings to guard (the toggle, the unprefixed redirect, hreflang/sitemap reciprocity,
 and what the wrong-locale slug does), **not** a table entry — and the green suite will not tell you that.
 
+## The edge exposes a locale hint, never a locale decision (2026-11-01)
+
+**Added 2026-11-01 by [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669) (slice B1, the edge
+half), written by `tech-lead` in [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803).
+~~This section is `proposed`: it becomes `accepted` only when the owner ratifies that boundary-class MR.~~
+**`accepted` 2026-11-01: the owner merged PR #803 himself (`993b3f9`), which is his ratification of
+that boundary-class MR, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759); the status changed in #788.**
+Its consent question is already his, answered on 2026-11-01 («Antes, e divulgar»,
+[#669 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6564678895)).** It is a section here rather than a record of its own because it is
+behaviour of this capability, locale resolution, and
+[0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md)'s
+capability limb puts such a decision in the capability's document. The owner decided IP geolocation
+above the browser language, the CPLP map («Países lusófonos») and the bare root included («Raiz
+também»), all on #669; the delivery shape, the cookie contract and the value set are `tech-lead`'s,
+inside the bounds the closed description set. Consumed by
+[#788](https://github.com/tedeuxx/tadeumendonca-io/issues/788) (slice B2, the client step).
+
+### Context
+
+The owner ruled that the reader's country, as the edge geolocates it, comes **before** the browser
+language, at the bare root as well. The precedence the whole feature implements:
+
+```
+1. the locale in the URL path        (unchanged — the path keeps winning)
+2. a persisted override              (unchanged — an explicit choice outranks any inference)
+3. IP geolocation                    <- NEW (client step: slice B2, #788)
+4. navigator.languages
+5. English
+```
+
+**The country is known only at the edge, and the document cannot carry it.** The HTML is one cached
+object per URL, identical for every viewer, and a viewer-request function can rewrite the request or
+answer it, never add to the response. So the fact reaches the browser by another channel, and that
+channel is what this section decides.
+
+**Three constraints are not tradeable.** A non-JavaScript client (a crawler, a social scraper) receives
+exactly what it receives today at every advertised URL —
+[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) rejected an edge redirect for that
+reason and [ADR-0005](./0005-og-coverage-every-public-url.md) pins a card on first fetch. The persisted
+override outranks the IP step. And locale **resolution** stays in the client, where this record put it.
+
+**What is not yet known is the slice's spike.** Whether a CloudFront Function reads
+`CloudFront-Viewer-Country` when the header is named only in an **origin request policy** (no cache-key
+cost), or only when it is in the **cache policy** (one cached object per country), is a premise read
+from vendor documentation and never measured here. Local work is read-only and the distribution changes
+only through the pipeline, so the slice's own deploy is the spike and the post-deploy check is its
+verdict.
+
+### What it changes in this record
+
+**The decision driver *"never a request-time / Accept-Language edge function"* is narrowed, not
+reversed.** It read as *no locale-related code at the edge at all*, and that no longer holds: a
+viewer-response CloudFront Function now sets a `locale_hint` cookie on each HTML response. Its operative
+half is unchanged and now reads: **the edge never resolves a locale, never routes and never redirects.**
+The driver existed to keep request-time locale **compute** out of the edge, the thing
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) removed; reading one header and copying one of
+three values into a cookie decides nothing. The *"No edge / Accept-Language logic"* consequence is
+narrowed the same way: still no edge negotiation, but `iac/` now carries a function that exposes a hint.
+Rejected option 4 stays rejected — the edge reads no `Accept-Language` and makes no routing decision —
+and the 2026-07-28 amendment's *"the prerender is not a visitor"* invariant is untouched, since the HTML
+is byte-identical for every viewer.
+
+### The decision, as it binds
+
+**A viewer-response function sets a short, script-readable cookie on every HTML response; the header it
+reads is enabled by a custom origin request policy naming only `CloudFront-Viewer-Country`; the cookie
+carries a three-valued hint; the client decides.**
+
+| attribute | value | why |
+|---|---|---|
+| name | `locale_hint` | names what it is (a hint for locale resolution), not where it comes from |
+| values | `pt` · `other` · `unknown` | a closed set; anything else is a defect |
+| `Path` | `/` | every route reads it |
+| `Secure` | set | HTTPS only |
+| `SameSite` | `Lax` | no cross-site use exists |
+| `HttpOnly` | **not** set | the client script must read it |
+| `Max-Age` | `3600` | every HTML response sets it again, so the lifetime only has to span client-side navigation within one visit; an hour does, and keeps storage short |
+| `Expires` | not set | `Max-Age` alone |
+| scope | HTML responses on the default behavior only | `content-type` beginning `text/html`; `/assets/*` carries no function and gets none |
+
+**The values:**
+
+- `pt` — the header is present and names a CPLP member state;
+- `other` — the header is present and names any other country;
+- `unknown` — the header is absent, empty or not a string.
+
+**The country map is the owner's, verbatim:** Angola `AO`, Brazil `BR`, Cabo Verde `CV`, Equatorial
+Guinea `GQ`, Guinea-Bissau `GW`, Mozambique `MZ`, Portugal `PT`, São Tomé and Príncipe `ST`, Timor-Leste
+`TL`, matched case-insensitively. It lives in the function only.
+
+**How the client (B2, #788) consumes it:**
+
+- **`pt`** — step 3 resolves to `pt`.
+- **`other`, `unknown`, an absent cookie, or any value outside the set** — step 3 resolves nothing and
+  falls through to step 4 (`navigator.languages`). **`other` does not mean English**; it means *not
+  decided by geography*.
+- Read synchronously from `document.cookie` at first script, before the bare-root redirect; under
+  `window.__PRERENDER__` the step does not run.
+- The client never writes, refreshes or deletes the cookie. The persisted override is a separate key and
+  stays above step 3.
+
+The absent-cookie case is real and not only a fault: a response without a `text/html` content type (a
+`304` revalidation may carry none; not measured here) is passed through without the cookie, and a visit
+after the hour lapses with no fresh HTML response has none. Treating absent as `unknown` keeps those cases
+correct.
+
+**How the spike becomes conclusive.** The go/no-go is `apps/fed/e2e/edge-locale-hint.spec.ts`, tagged
+`@spike-669`, and it runs in **its own step** of `deploy.yml`'s post-deploy `e2e` job, apart from the smoke:
+the smoke runs with `--grep-invert @spike-669`, the spike step with `--grep @spike-669` and
+`continue-on-error`, and the `report` job prints the spike's outcome on its own line (GO or NO-GO). **A
+NO-GO is therefore not a site-broken red**: the site is intact on a no-go, because nothing reads the
+cookie until B2. The spec requests HTML at the live apex and asserts the value is **`pt` or `other`**.
+Either proves the header reached the function, since only a present header produces one; **`unknown` is
+the NO-GO** on the origin-request-policy route. Accepting either geographic value also removes the
+unmeasured premise that the runner sits outside the CPLP. A missing cookie fails the same step with its
+own message: the function is detached, stale or rejected. **On a no-go** the header moves to
+the cache policy (rejected option 2 below, its cost stated in advance), the HTML cache fragments by
+country, and the spike step runs again on that deploy. If that cost is judged not worth the feature, the
+question goes back to the owner, as #669's planning note says. B2 does not start until `report` prints GO.
+
+### Rejected options that are still live
+
+- **A separate uncached endpoint** that the client fetches. Every unprefixed-path visit would wait one
+  more round-trip before it can redirect, and it needs a new cache behavior. **Its one advantage is
+  real**: nothing is stored, so the consent question does not arise. It is the route the
+  behind-the-consent-gate position would have forced; the owner ruled against that position (see
+  *Consent* below), so it stays rejected.
+- **The header in the cache policy** — rejected unless the spike forces it. The country becomes part of
+  the cache key, so every HTML document is cached once per viewer country, lowering the hit rate on
+  every page for a value one function reads. Stated here so a no-go needs no new decision about whether
+  to pay it.
+- **A managed all-viewer origin request policy** — it forwards `Host`, which an S3 origin behind OAC
+  rejects.
+- **Two values, `pt` and `other`, with an absent header folded into `other`** — the issue's
+  recommendation and the builder's first cut. From a runner outside the CPLP the post-deploy check is
+  green whether or not the header arrived, so the spike's one question has no observable answer.
+- **The raw country code** — it stores a location where a hint suffices, and moves the CPLP map into the
+  client.
+- **A value only for CPLP viewers** — a missing cookie would then mean *non-CPLP*, *header absent* and
+  *function detached* at once, and the check from a non-CPLP runner could not fail.
+- **An edge redirect to the resolved locale** — it changes what a non-JS client receives at an
+  advertised URL ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)'s rejected edge
+  redirect, #660's constraint; a scraper obeys a redirect too), and it would put resolution at the edge.
+
+### Consent — the owner's ruling: set before any choice, and disclosed
+
+**The owner decided it on 2026-11-01, in session, in three words: «Antes, e divulgar»**
+([#669 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6564678895)).
+The cookie stays set before any consent choice, so the hint exists on the first visit; and `/analytics`,
+in both editions, discloses it.
+
+**The question he was asked.** The site stores `locale_hint` on the reader's device on the first HTML
+response, before any consent choice. It carries one of three values, no identifier and no location,
+lives for an hour, and is read only by this site's own script. Does it go behind the consent gate
+([ADR-0033](./0033-ga4-consent-gated-analytics.md)), or is it set before a choice?
+
+**Chosen: set before a choice, and disclosed.** The feature works on a first visit, which is the visit it
+exists for, and the reader is told what is stored, what it carries and how long it lives.
+
+**The two positions that lost, and why:**
+
+- **Set before a choice, undisclosed** — the delivery as first built. *Lost because* the site's own
+  published sentence about cookies would then read as false (below): a reader could find a cookie the
+  page appears to deny.
+- **Behind the consent gate.** Nothing would be stored before a choice. *Lost because* on a first visit
+  the hint would not exist when the client decides, so step 3 would never fire on the visit it was ruled
+  for. In practice it meant **replacing the cookie with the endpoint**, which stores nothing and pays one
+  round-trip on each unprefixed visit — the endpoint stays listed above as the rejected delivery shape.
+
+**The copy the disclosure corrects.** `apps/fed/src/content/analytics.en.md`: *"Before a choice, on
+decline, and on a build with no measurement id, the tag is never loaded, no cookie is set and no request
+is made."* Its pt-BR edition, `apps/fed/src/content/analytics.pt.md`: *"Antes de escolher, se você
+recusar, e num build sem identificador de medição, a tag nunca é carregada, nenhum cookie é gravado e
+nenhuma requisição é feita."* In context the paragraph is about Google's tag, but *"no cookie is set"*
+stands on its own. The disclosure lands in both editions in the same MR as the cookie (PR #803), but
+**not at the same moment**: in `deploy.yml`, `deploy-app` depends on `terraform-apply`, so the cookie goes
+live at the edge minutes before the corrected copy publishes. During that window the old sentence is
+live beside the cookie, and **if `deploy-app` fails the window stays open until a fix ships**. The order
+is deliberate and stays: the edge applies first, the app publishes after.
+
+The ruling is the owner's and this section claims no legal position; it records the engineering
+consequence of each answer.
+
+### Consequences still being paid
+
+- **Good:** non-JS clients are untouched — the only response change is one `Set-Cookie` header on HTML;
+  the client decides at first script with no round-trip; the spike has a falsifiable verdict; the map
+  has one home, and the cookie carries a hint, not a location.
+- **A second function runs on every default-behavior response**, after the cache. `spa_rewrite` already
+  runs on every page request, so this is not edge compute returning where there was none; what is new is
+  a function whose output **varies per viewer**.
+- **A runtime error in a viewer-response function fails the response.** The unit test evaluates the
+  shipped bytes, but only the edge can say the runtime accepts them. Rollback is a revert and a merge.
+- **The origin request policy changes what reaches the S3 origin.** If OAC signing rejected the forwarded
+  header every page would fail; the plan on the MR and the post-deploy suite are where that shows, and
+  the suite runs after the apply, not before.
+- **Something is stored before consent**, on the owner's ruling, and the site says so on `/analytics`.
+- **IP is not language.** A Brazilian abroad, a corporate VPN and a reader in Portugal (who gets pt-BR)
+  resolve wrongly; the owner accepted this trade on #669.
+- **On a no-go, the HTML cache fragments by country.**
+- ~~**The `/architecture` claim that the edge function *"touches the URL, nothing else"* becomes
+  incomplete.** Correcting it is B2's scope (#788).~~ **Paid in #788:** `/architecture` names both edge
+  functions in both editions, and `/analytics` states the cookie's one use, limited to addresses that
+  name no language.
+- ~~**Nothing observes the client honouring the contract** until B2 ships with its own regression; until
+  then the cookie is inert by construction.~~ **Since #788 the client reads it**, and three things observe
+  that: the unit tests on `detectLocale` in `apps/fed/src/i18n/config.test.ts`, the journeys in
+  `apps/fed/e2e/locale-hint.spec.ts` (the injected-cookie half runs locally only, because the live edge
+  overwrites an injected cookie; one coherence check runs post-deploy too), and `scripts/prerender.mjs`,
+  which sets `locale_hint=pt` in the snapshot browser so a broken opt-out fails the build.
+
+### Where it came from
+
+Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
+[ADR-0013](./0013-s3-cloudfront-hosting.md)'s distribution, applied pipeline-only per its
+[*Pipeline-only apply*](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) section. Consistent with
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) — nothing here renders.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
+- **Section added 2026-11-01** (Issue [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669),
+  ~~`proposed` until the owner ratifies [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803)~~
+  **`accepted` 2026-11-01**, the owner's own merge of PR #803, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)) —
+  *The edge exposes a locale hint, never a locale decision*: the no-edge driver is narrowed to *the edge
+  never resolves a locale*; a viewer-response function exposes a three-valued locale hint, and resolution
+  stays client-side. Consumed by [#788](https://github.com/tedeuxx/tadeumendonca-io/issues/788).
 - **Amended 2026-08-05** (Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166)) — the
   "NOT dual localized slugs" clause is **reaffirmed, not revised**. Separates the two benefits argued
   under one name (language-pinning, shipped here via the prefix · slug readability, delivered only by a
@@ -529,14 +763,14 @@ and what the wrong-locale slug does), **not** a table entry — and the green su
   not a visitor** — `window.__PRERENDER__`, not a post-mount flag, is what keeps visitor-dependent rendering
   out of the shipped HTML. Consistent with
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (the persisted toggle overriding detection) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (still no edge negotiation).
+  [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (still no edge negotiation).
 - **Completes [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s deferred Slice 2** — retires that
   ADR's "prerender baseline pinned to English" clause and its "single-locale-prerender accepted cost." Not a
   reversal: Slice 2 was always the named successor to the interim English-pinned baseline.
 - **Resolves the deferred question in [ADR-0010](./0010-routing-landing-cv-split-redirects.md)** — its
   2026-07-25 amendment left "localized URL prefixes… a separate, unmade decision"; that decision is made here
   (prefixes yes, dual-slugs still deferred). ADR-0010 is amended with a forward-link to this ADR.
-- **Consistent with [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — per-locale prerender is more
+- **Consistent with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — per-locale prerender is more
   build-time render, still no SSR/edge; the client-side bare-root redirect is why no Accept-Language edge
   logic is needed.
 - **Extends [ADR-0005](./0005-og-coverage-every-public-url.md)** — OG/SEO completeness now spans both locales

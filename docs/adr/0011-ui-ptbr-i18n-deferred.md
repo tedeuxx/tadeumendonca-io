@@ -1,9 +1,10 @@
 # 0011. UI in pt-BR; bilingual i18n deferred
 
 - **Status:** superseded by [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (2026-07)
+- **Capability:** `locale-and-routing`
 - **Date:** decided 2026-07-22 · superseded 2026-07-23
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 The site's UI copy and content need a language. There is a real tension: everything *published on GitHub*
@@ -13,7 +14,7 @@ inconsistency worth naming.
 
 ## Decision drivers
 - The site's audience/content is pt-BR; the site's UI is *content*, not a GitHub publication.
-- ADR-0001: don't build an i18n framework before it earns its cost.
+- ADR-0053 (lean by design): don't build an i18n framework before it earns its cost.
 - A bilingual EN/PT site is a genuine future goal (reach), but a separate, larger effort.
 
 ## Considered options
@@ -22,7 +23,7 @@ inconsistency worth naming.
    built**. *Trade-off:* adding EN later is a real migration (extract strings, a locale layer), and the
    current UI-pt-BR / profile-data-EN inconsistency persists until then.
 2. **Build i18n now (EN + PT from the start)** — *Why not:* an i18n framework, duplicated content, and a
-   locale layer are significant cost for a reach goal that isn't the current priority (ADR-0001); it also
+   locale layer are significant cost for a reach goal that isn't the current priority (ADR-0053, lean by design); it also
    reverses the repo's prior "100% pt-BR, no i18n" fixed decision, which is a deliberate, planned change,
    not an incidental one.
 3. **English UI** — *Why not:* the content and audience are pt-BR; an English UI serves neither.
@@ -43,7 +44,7 @@ UI-pt-BR / profile-data-EN inconsistency — is a planned future phase, recorded
 - The current inconsistency — pt-BR UI with English profile data — stands until the i18n phase resolves it.
 
 ## Links
-- Driven by ADR-0001 · reverses the prior "100% pt-BR, no i18n" fixed decision as a *planned* future phase
+- Driven by ADR-0053 (lean by design) · reverses the prior "100% pt-BR, no i18n" fixed decision as a *planned* future phase
   (see `docs/redesign/redesign-plan.md`, Fase i18n).
 - **Superseded by [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)** — the deferred i18n phase this
   ADR named is now built: a light in-repo locale layer with native auto-detect + a manual toggle, and an

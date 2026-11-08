@@ -5,9 +5,9 @@ import { HELD_SLUGS } from '../src/content/heldFixture';
 // Per-locale URLs (ADR-0036). Every public route is served under a first-class locale prefix — /pt/… and
 // /en/… — each with its own prerendered, self-canonical, OG-complete HTML and reciprocal hreflang
 // alternates. The bare/unprefixed URL client-side redirects to the detected locale (path → persisted →
-// navigator → en), preserving the sub-path; the bare-root snapshot is an x-default English page for the
-// JS-less crawler. There is NO edge/Accept-Language logic — the redirect is pure client-side React
-// (ADR-0004 holds).
+// edge hint → navigator → en), preserving the sub-path; the bare-root snapshot is an x-default English
+// page for the JS-less crawler. The edge only exposes a hint cookie and never negotiates or redirects —
+// the redirect is pure client-side React (ADR-0002 holds; the hint's journeys are in locale-hint.spec.ts).
 //
 // These journeys fold in the plan-reviewer's extra assertions. The served-HTML checks inspect the raw HTTP
 // BODY (request.get, no JS) so they prove the PRERENDERED per-locale file was served, not the generic SPA
@@ -506,7 +506,7 @@ test.describe('the neutral share URL', () => {
   // The human's half. Deliberately asserts ONLY that the reader is resolved INTO an edition and reaches
   // the article — never WHICH language. That is `#661`'s subject, and "a pt-BR reader lands in
   // Portuguese" is false for a returning reader with a stored toggle (detectLocale: path → persisted →
-  // navigator), so an unqualified assertion here would pin the wrong behaviour and make the later fix
+  // edge hint → navigator), so an unqualified assertion here would pin the wrong behaviour and make the later fix
   // read as a regression.
   test('a human is resolved out of it into a locale-prefixed edition of the same article', async ({ page }) => {
     await page.goto('/blog/my-commitment');
@@ -723,7 +723,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // Shared-slug routes: the same logical path under both prefixes. `/library` (#166) joins them —
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
-  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library'];
+  const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library', '/analytics'];
   // Article slugs are per-locale (ADR-0037), so an article's two <loc>s USUALLY do not share a path.
   // `blast-radius-supernova` is the exception and it is deliberate: the title is a proper name and a
   // play on one, so there is nothing to localise, and the loader permits a shared slug explicitly. The

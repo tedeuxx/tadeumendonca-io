@@ -1,7 +1,7 @@
-// Package-vulnerability gate policy (ADR-0021). Run by `npm run audit`, blocking in build-test.
+// Package-vulnerability gate policy (ADR-0003, security posture). Run by `npm run audit`, blocking in build-test.
 //
 // Threshold: block the PR on HIGH + CRITICAL advisories in PRODUCTION dependencies only.
-// Rationale (ADR-0001 / ADR-0021): a static site's whole attack surface is the client bundle and its
+// Rationale (ADR-0053's lean-by-design section / ADR-0003's security posture): a static site's whole attack surface is the client bundle and its
 // deps; only PRODUCTION deps ship in that bundle. A build-tool devDependency advisory never reaches a
 // user, so `skip-dev` omits devDependencies here — those still surface via Dependabot alerts, but they
 // do not block the deploy. Controls calibrated to a real threat, not theatre.

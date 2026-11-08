@@ -168,3 +168,38 @@ describe('deploy.yml — infrastructure applies on a merge, never on a dispatch'
     expect(changes.env.DISPATCH_APP).toBe('${{ inputs.deploy_app }}');
   });
 });
+
+// The release credential (#783). A personal access token expired on a calendar and stopped `release`,
+// and with it every deploy, for six days. The job now authenticates as a GitHub App whose token is
+// minted per run. Each assertion below names one way to slide back: a step still reading the old
+// secret, a write made with a credential the ruleset on `main` refuses, or the action on a moving tag.
+describe('deploy.yml — the release job writes as the GitHub App, and only as it', () => {
+  const mint = () => step(release, 'Mint the release App token');
+  const APP_TOKEN = '${{ steps.app-token.outputs.token }}';
+
+  it('mints the token from the two App secrets, narrowed to contents write, on a full-SHA pin', () => {
+    const m = mint();
+    expect(m.id).toBe('app-token');
+    expect(m.uses).toMatch(/^actions\/create-github-app-token@[0-9a-f]{40}$/);
+    expect(m.with['app-id']).toBe('${{ secrets.RELEASE_APP_ID }}');
+    expect(m.with['private-key']).toBe('${{ secrets.RELEASE_APP_PRIVATE_KEY }}');
+    expect(m.with['permission-contents']).toBe('write');
+  });
+
+  it('mints after the main-only refusal and before the checkout that uses the token', () => {
+    const at = (name) => release.steps.indexOf(step(release, name));
+    expect(at('Refuse to cut a version')).toBeLessThan(at('Mint the release App token'));
+    expect(at('Mint the release App token')).toBeLessThan(at('Checkout'));
+  });
+
+  it('pushes, lists and creates releases with the App token in all three places', () => {
+    expect(step(release, 'Checkout').with.token).toBe(APP_TOKEN);
+    expect(step(release, 'Build categorized release notes').env.GH_TOKEN).toBe(APP_TOKEN);
+    expect(step(release, 'Create GitHub Release').env.GH_TOKEN).toBe(APP_TOKEN);
+  });
+
+  it('carries no trace of the expired token and asks GITHUB_TOKEN for read only', () => {
+    expect(source).not.toContain('VERSION_BUMP_TOKEN');
+    expect(release.permissions).toEqual({ contents: 'read' });
+  });
+});

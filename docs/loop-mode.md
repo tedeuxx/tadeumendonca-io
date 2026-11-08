@@ -474,7 +474,7 @@ here. Fixing that is not `#385`.
 - **It is not a target.** A composed set smaller than `wip` is a correct answer, and on items that
   converge on the same files it is the right one.
 - **`absent` was not the safe default it looks like.** A missing `wip` meant **unbounded**, not one —
-  ADR-0004's *"absent is not a state"*, on the field where the absent reading was the most permissive
+  methodology ADR-0004's *"absent is not a state"*, on the field where the absent reading was the most permissive
   available.
 ---
 
@@ -501,7 +501,9 @@ is the METHODOLOGY one; **this repository's `docs/adr/` is the PRODUCT library, 
 different record entirely** (`0004-build-time-render-not-ssr-or-edge.md`). A bare `ADR-0004` here would
 pass this repository's dangling-citation gate — the number resolves — while pointing at the wrong
 document, which is worse than a citation that fails. **Quote the clause, name the library, skip the
-number** is the general form.
+number** is the general form. *(Since 2026-11-01 the product library has no `0004`: #456 absorbed
+it into ADR-0002. A bare citation of that number here now fails the gate instead of resolving to the wrong record;
+the general form stands.)*
 
 **The affordable form, and it is the drain's rather than a hook's:** `/autonomy on` already reads both
 trees, so it compares the two records at entry and stops on a disagreement. **Price of what remains:**

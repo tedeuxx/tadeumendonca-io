@@ -1,6 +1,7 @@
 # 0010. Client-side routing, landing/CV split, back-compat redirects
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
 - **Driven by:** [ADR-0002](./0002-fully-static-spa-no-backend.md), [ADR-0005](./0005-og-coverage-every-public-url.md)
@@ -176,7 +177,7 @@ pre-launch amendment, no redirect is introduced: there is no `/arquitetura` (or 
 surface in the world to keep resolving. If an alternate slug is ever advertised externally, revisit at
 launch under that amendment's rule — a path that enters the world regains its redirect and its E2E guard.
 
-**Orientation over restatement (ADR-0001).** The page is deliberately an *orientation layer*: it **links**
+**Orientation over restatement (ADR-0053, lean by design).** The page is deliberately an *orientation layer*: it **links**
 the ADR library, the two public repos, and `docs/catalog-ready.md` rather than re-stating them. The ADRs
 are the single source of the architecture story; the page points at them, so it cannot drift from them —
 if the reader wants the load-bearing "why", the link takes them to the record itself, not a paraphrase
@@ -320,12 +321,12 @@ carries its own non-vacuity assertion, because an intersection-scoped check stop
 exactly the edit it exists to catch.
 
 ## Links
-- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0019) · amended above
+- Driven by ADR-0002, ADR-0005 · the redirects and routes are guarded by E2E (ADR-0003, *Complete functional regression*) · amended above
   for `/ramp-up`, within the same enumeration contract · amended (2026-07-24) for the `/cv → /me`
   rename + "Perfil / Profile" label, using this ADR's own redirect pattern · amended again (2026-07-24)
   to drop the back-compat redirects for the pre-launch window (premise "URLs already in the world" not yet
   true), to be re-introduced at launch · amended (2026-07-25) for `/architecture`, a fifth public surface
-  (single English slug, bilingual label + body; orientation-over-restatement per ADR-0001; OG/prerender-
+  (single English slug, bilingual label + body; orientation-over-restatement per ADR-0053 (lean by design); OG/prerender-
   complete per ADR-0005), within the same enumeration contract · the "localized URLs remain a separate,
   unmade decision" note in that amendment is **now made** in
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (symmetric `/pt` · `/en` prefixes on one slug;

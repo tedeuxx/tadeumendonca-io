@@ -1,6 +1,7 @@
 # 0051. The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation
 
 - **Status:** accepted
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-09-04
 - **Deciders:** **`tech-lead`**, at intake on [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597)
   (2026-09-04, jointly with `product-lead`), which is where the record was called for and where findings
@@ -15,12 +16,12 @@
 - **Driven by:** [#597](https://github.com/tedeuxx/tadeumendonca-io/issues/597) ·
   **constrained-by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** (the hard opt-in gate — every name
   below is silent for a reader who has not consented, and this slice repairs the one place that was not
-  true) · **refines [ADR-0023](./0023-observability-static-site.md)** — a **fourth** thing the static site
+  true) · **refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a **fourth** thing the static site
   observes, alongside pageviews, the client error surface and the campaign tagging of
   [ADR-0039](./0039-share-campaign-tagging.md) · **stands alongside
   [ADR-0039](./0039-share-campaign-tagging.md)**, which rejected a share-click event *as a substitute for
   UTM* — see *The ADR-0039 reconciliation* below, which is not optional reading · spends
-  [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md).
+  [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design).
 
 ## Context & problem
 
@@ -65,7 +66,7 @@ people who were not present, and it cannot be corrected without destroying the s
 - **Do not weaken [ADR-0033](./0033-ga4-consent-gated-analytics.md)'s hard consent gate by one byte** —
   and, here, repair the place where it was already weaker in fact than on paper.
 - **Every parameter is a permanent obligation and a scarce registration slot**
-  ([ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)) — a parameter that informs no decision,
+  ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)) — a parameter that informs no decision,
   or that duplicates one GA4 already derives, is pure cost. This is exactly the trade ADR-0039 made when
   it dropped `utm_content`.
 - **Carry no free-form URL and no identifier.** A query string is where PII eventually appears.
@@ -343,7 +344,7 @@ as a general caveat, because a caveat with no direction cannot be reasoned about
   period to be a rate at all, and the per-article cut is noise for at least a year. **Nobody should read
   three shares as a trend**, and acceptance criterion 4 of #597 as phrased is an invitation to publish
   exactly the figure criterion 5 exists to prevent.
-- **Every number here is a floor, twice over** — consent-gated (ADR-0033) and ad-blocked (ADR-0023). The
+- **Every number here is a floor, twice over** — consent-gated (ADR-0033) and ad-blocked (ADR-0003, *Observability scoped to a static site*). The
   consent repair *lowers* it further in the honest direction: a withdrawn reader now genuinely disappears
   rather than continuing to be counted.
 - **The `percent` dimension is computed over BLOCK COUNT, not reading length.** A 25% block in an article
@@ -734,13 +735,13 @@ here rather than quietly deleted because the ask it produced was a false premise
 - **Constrained by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** — and **repairs** the gap between
   that record's hard gate and what it delivered; 0033 is amended to point here, and its
   *"it cannot be un-injected"* consequence is struck there rather than rewritten.
-- **Refines [ADR-0023](./0023-observability-static-site.md)** — a fourth thing the static site observes.
+- **Refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a fourth thing the static site observes.
 - **Stands alongside [ADR-0039](./0039-share-campaign-tagging.md)** — which rejected a share-click event
   as a *substitute* for UTM. See *The ADR-0039 reconciliation* above; the two measure two populations at
   two moments and neither divides the other.
 - **Applies [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)** — the locale is a path prefix,
   which is why `locale` is a duplicate GA4 only *contains* rather than one it *derives*.
-- **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — five events and four
+- **Spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — five events and four
   dimensions, each a permanent obligation; `path` is the one that was refused.
 - Implementation: `apps/fed/src/lib/analytics.ts` (the schema, the named emitters and the two-condition
   consent gate), `apps/fed/src/hooks/useArticleProgress.ts`, `apps/fed/src/hooks/useContactClicks.ts`,

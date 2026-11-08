@@ -73,7 +73,7 @@ module "frontend_bucket" {
 }
 
 # 2. (was the generated OG images cache — DELETED, owner decision, follow-up to #302.)
-# It backed the Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0004) and nothing had written to
+# It backed the Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0002) and nothing had written to
 # it since that retirement; #302 then removed the CloudFront origin and /og/* behavior that were its
 # only reader, because they were misrouting every per-article og:image. That left a bucket with zero
 # objects and zero readers, and its 90-day lifecycle rule had been expiring nothing for just as long.

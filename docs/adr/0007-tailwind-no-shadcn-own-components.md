@@ -1,9 +1,10 @@
 # 0007. Tailwind with own components — no shadcn/ui
 
 - **Status:** accepted
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0008](./0008-brutalist-mono-identity.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0008](./0008-brutalist-mono-identity.md)
 
 ## Context & problem
 The SPA needs a styling approach and a component layer. The default modern path is Tailwind + a component
@@ -13,7 +14,7 @@ radius-0, no-shadow aesthetic more than they help.
 
 ## Decision drivers
 - ADR-0008: a committed, unusual identity that a generic component kit works against.
-- ADR-0001: own the design layer — it's part of the engineering argument.
+- ADR-0053 (lean by design): own the design layer — it's part of the engineering argument.
 - Keep the surface small: a personal site has few components.
 
 ## Considered options
@@ -47,5 +48,5 @@ no forms left to hand-build.).
 - No off-the-shelf accessibility/behavior from a component kit — a11y is the `ux` concern's job, done by hand.
 
 ## Links
-- Driven by ADR-0001, serves ADR-0008 (the identity) · `cn()` = clsx + tailwind-merge (shadcn convention,
+- Driven by ADR-0053 (lean by design), serves ADR-0008 (the identity) · `cn()` = clsx + tailwind-merge (shadcn convention,
   not its components) · a fixed decision (see repo ~~`CLAUDE.md`~~ `AGENTS.md`, #721).

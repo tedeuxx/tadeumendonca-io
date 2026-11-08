@@ -10,6 +10,7 @@ import {
   describeCitation,
   gitBinary,
   libraryIndex,
+  lineFree,
   manufacturedSelfCitations,
   quotedRanges,
   resolves,
@@ -104,19 +105,49 @@ describe('adr citations — the gate', () => {
     // the line makes an edit anywhere earlier in a 1,400-line record fail a gate about something
     // else. Still exact CONTENTS, so a genuinely new excuse still has to be looked at by a person.
     const excused = (list) => list.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '));
-    expect(excused(audit.crossRepo)).toEqual([]);
+    expect(excused(audit.crossRepo)).toEqual([
+      // Citations of the METHODOLOGY library (`tadeumendonca-skills`), which used the same numbers. They
+      // resolved here by accident until the sixth fold slice of #456 absorbed this library's 0004 and
+      // 0006 into 0002; from then on they fail to resolve locally and are excused as cross-repo, which is
+      // what CROSS_REPO_RE exists for. Each names that library in the text before the token.
+      'apps/fed/scripts/harness-source.mjs cites ADR-0006',
+      'docs/adr/0003-trunk-based-single-environment.md cites ADR-0004',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',
+      'docs/adr/README.md cites ADR-0004',
+      // The content review cites the methodology library's 0021, which resolved to this library's
+      // security-posture record by accident until the seventh fold slice absorbed it into 0003.
+      'docs/content-review/what-my-agents-do.md cites ADR-0021',
+      'docs/iteration-sweep/sprint-04.md cites ADR-0004',
+      'docs/loop-mode.md cites ADR-0004',
+    ]);
     expect(excused(audit.quoted)).toEqual([
+      // 0043 quotes the label `ADR-0044` as a string in its 2026-08-08 amendment, which explains why a
+      // dead pointer could not be left standing once this library's 0044 existed. That record left
+      // with the seventh fold slice of #456 (into 0003), so the label is quoted rather than cited.
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
       // The round-3 repair notes in the content review cite the SIBLING library by path, because the
       // repair they justify was derived from those two records. `docs/adr/0002` here is
-      // `0002-fully-static-spa-no-backend.md` and `0020` is `0020-sonarcloud-quality-gate.md` - both
-      // different records - so neither citation can resolve in this tree. They land in `quoted` rather
+      // `0002-fully-static-spa-no-backend.md`, and `0020` was `0020-sonarcloud-quality-gate.md` until the
+      // seventh fold slice of #456 absorbed it into 0003 - different records either way - so neither
+      // citation can resolve in this tree. They land in `quoted` rather
       // than `dangling` only because the review record wraps them in backticks.
       'docs/content-review/what-my-agents-do.md cites 0020-an-adr-earns-its-place-by-explaining-the-current-codebase.md',
       'docs/content-review/what-my-agents-do.md cites 0002-roster-and-dev-loop.md',
+      // `docs/loop-mode.md` quotes the methodology library's number in backticks to explain why it
+      // is NOT written as a citation here. It resolved to this library's 0004 by accident until the
+      // sixth fold slice of #456 absorbed that record into 0002.
+      'docs/loop-mode.md cites ADR-0004',
+      'docs/loop-mode.md cites ADR-0004',
     ]);
     expect(excused(audit.struck)).toEqual([
       // The library's supersede-never-rewrite convention, working as intended: this record's own
       // struck text says the target "was never written". Not a defect; not silently ignored either.
+      // The two `ADR-0044` tokens resolved to this library's version-parts record until the seventh
+      // fold slice of #456 absorbed it into 0003: one is the struck pointer's label, the other the
+      // struck claim "ADR-0044 in this library is …", corrected beside the strike.
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
+      'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0044',
       'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites 0044-committed-permission-floor-local-overlay-ephemeral.md',
     ]);
   });
@@ -147,8 +178,8 @@ describe('adr citations — the gate', () => {
   // excuse has to be looked at by a person, and asserted to have no stale entry so the excuse cannot
   // outlive the prose it was written for.
   it('excuses exactly the pre-fold self-citations, and none of them is stale', () => {
-    expect(audit.selfCitationArm.excused.map((c) => describeCitation(c).replace(/:\d+ cites /, ' cites '))).toEqual(
-      PRE_FOLD_SELF_CITATIONS,
+    expect(audit.selfCitationArm.excused.map(lineFree)).toEqual(
+      PRE_FOLD_SELF_CITATIONS.map((e) => e.citation),
     );
     expect(audit.selfCitationArm.staleExcuses).toEqual([]);
   });
@@ -282,7 +313,9 @@ describe('auditFiles', () => {
       adrDir,
     );
     expect(one.citations.length).toBeGreaterThan(0);
-    expect(one.struck).toHaveLength(1);
+    // Three since the seventh fold slice of #456: the struck dead path, and two `ADR-0044` tokens that
+    // stopped resolving when this library's 0044 was absorbed into 0003 (see the struck list above).
+    expect(one.struck).toHaveLength(3);
     expect(one.dangling).toEqual([]);
   });
 
@@ -329,22 +362,49 @@ describe('selfCitations', () => {
 });
 
 describe('manufacturedSelfCitations', () => {
-  const cite = (file, target, line) => ({ kind: 'token', file, target, line });
+  const cite = (file, target, line, lineText = 'ADR-0007 was written this way') => ({
+    kind: 'token',
+    file,
+    target,
+    line,
+    lineText,
+  });
+  const entry = { citation: 'docs/adr/0007-x.md cites ADR-0007', line: 'ADR-0007 was written this way' };
 
   it('excuses one baseline occurrence per entry and fails a second one in the same file', () => {
-    const baseline = ['docs/adr/0007-x.md cites ADR-0007'];
     const arm = manufacturedSelfCitations(
       [cite('docs/adr/0007-x.md', '0007', 3), cite('docs/adr/0007-x.md', '0007', 9)],
-      baseline,
+      [entry],
     );
     expect(arm.excused.map(describeCitation)).toEqual(['docs/adr/0007-x.md:3 cites ADR-0007']);
     expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:9 cites ADR-0007']);
     expect(arm.staleExcuses).toEqual([]);
   });
 
+  // S1's advisory A5: keyed on file and number alone, the excuse went to whichever occurrence came
+  // FIRST, so a fold that planted one above the excused sentence had the new one excused and the old
+  // one reported. Keyed on the sentence, the planted line is the one named, whatever its position.
+  it('excuses the occurrence on the sentence it was written for, not the first one in the file', () => {
+    const planted = cite('docs/adr/0007-x.md', '0007', 2, 'a fold put ADR-0007 here');
+    const original = cite('docs/adr/0007-x.md', '0007', 9);
+    const arm = manufacturedSelfCitations([planted, original], [entry]);
+    expect(arm.excused.map(describeCitation)).toEqual(['docs/adr/0007-x.md:9 cites ADR-0007']);
+    expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:2 cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([]);
+  });
+
+  it('reports a baseline entry as stale when its sentence was reworded, even if the number stays', () => {
+    const arm = manufacturedSelfCitations(
+      [cite('docs/adr/0007-x.md', '0007', 3, 'ADR-0007 now says something else')],
+      [entry],
+    );
+    expect(arm.manufactured.map(describeCitation)).toEqual(['docs/adr/0007-x.md:3 cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([entry]);
+  });
+
   it('reports a baseline entry whose occurrence is gone as stale', () => {
-    const arm = manufacturedSelfCitations([], ['docs/adr/0007-x.md cites ADR-0007']);
+    const arm = manufacturedSelfCitations([], [entry]);
     expect(arm.manufactured).toEqual([]);
-    expect(arm.staleExcuses).toEqual(['docs/adr/0007-x.md cites ADR-0007']);
+    expect(arm.staleExcuses).toEqual([entry]);
   });
 });

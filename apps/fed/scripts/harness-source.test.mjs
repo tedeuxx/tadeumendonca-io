@@ -111,15 +111,21 @@ describe('the committed manifest is a manifest at all', () => {
   // to publish six commands and name none of the seven. Extending the list is the whole remedy; the
   // page's own nodes and accDescr were corrected in the same commit, which is what the drift check's
   // error message prescribes.
+  // `handoff`, `idea-to-issues`, `new-idea` and `what-else` joined from the plugin at 2.0.110, absorbed by
+  // #797 under the owner's 2026-09-07 ruling, with the page's nodes and accDescr in the same commit.
   it('carries the un-namespaced commands instead of silently dropping them', () => {
     expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
       'autonomy',
       'blueprint',
       'funnel-review',
+      'handoff',
+      'idea-to-issues',
+      'new-idea',
       'new-issue',
       'sprint-planning',
       'sprint-retrospective',
       'sprint-review',
+      'what-else',
     ]);
   });
 

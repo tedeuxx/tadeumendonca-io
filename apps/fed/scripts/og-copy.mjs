@@ -84,3 +84,27 @@ export const CARD_COPY = {
  * x-default edition, so the bare name being the English one is true rather than merely convenient.
  */
 export const defaultCardFile = (locale) => (locale === 'en' ? 'og-default.png' : `og-default.${locale}.png`);
+
+/**
+ * The published signature, set on a COVER-DERIVED card (#710) and nowhere else.
+ *
+ * Not translated, and not authored here: it is the bold closing line the article already publishes in
+ * BOTH editions, word for word. The card places that string; it does not write it. Its words and their
+ * place in prose belong to #271 (owner, 2026-10-02: «Dividir»), which is why og-copy.test.mjs asserts
+ * this constant against the article files rather than the other way round — a card that drifted from
+ * the article would be a second signature nobody published.
+ */
+export const SIGNATURE = 'THIS IS WHAT I THOUGHT · tadeumendonca.io';
+
+/**
+ * The AI-generated mark on a cover-derived card, per locale (#710).
+ *
+ * The SAME words as the catalog's `article.aiCover`, which is what the page appends to the card's
+ * `og:image:alt`: the sighted reader and the screen-reader user are told the same fact about the same
+ * picture. A .mjs script cannot import the TypeScript catalog, so the copy lives here too and
+ * og-copy.test.mjs is the join — the #167 technique, one more pair of strings.
+ */
+export const COVER_MARK = {
+  pt: 'Ilustração de capa gerada por IA',
+  en: 'AI-generated cover illustration',
+};

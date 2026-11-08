@@ -5,8 +5,10 @@ of truth — this file describes it. Four points where the design did not surviv
 are recorded in *[Where the drawing was wrong](#where-the-drawing-was-wrong)* at the bottom; the
 original claims are left standing there rather than edited out.
 
-**One thing is not done and cannot be done from here: branch protection still requires the job name
-`plan`, which no longer exists.** See *[Rules the design has to obey](#rules-the-design-has-to-obey)*.
+~~**One thing is not done and cannot be done from here: branch protection still requires the job name
+`plan`, which no longer exists.**~~ **Struck (#783): it was done.** The owner's read of the classic
+protection on 2026-10-31 listed `terraform-plan`, not `plan`, and `main` is now governed by a
+repository ruleset instead. See *[Rules the design has to obey](#rules-the-design-has-to-obey)*.
 
 Four workflows. Three gate the merge, one publishes. **Jobs are named after the command they run**,
 in kebab-case; a job that runs a pipeline of several commands is named after the script instead.
@@ -62,10 +64,10 @@ flowchart TD
     subgraph deploywf["deploy — push to main, skips its own bump: commit"]
         RE["release<br/><i>bump-my-version · tag · GitHub Release</i>"]
         RE --> DG["gate<br/><i>no credentials</i>"]
-        DG -->|"iac/**"| TA["terraform-apply<br/><i>+ verify live function</i>"]
+        DG -->|"iac/**"| TA["terraform-apply<br/><i>+ verify every live function</i>"]
         DG -->|"app surface"| DA["deploy-app<br/><i>build-static · s3 sync · invalidation</i>"]
         TA -.->|"blocks only if it RAN and failed"| DA
-        TA --> E2["e2e vs the live apex<br/><i>no credentials</i>"]
+        TA --> E2["e2e vs the live apex<br/><i>site smoke · then the #669 spike step</i>"]
         DA --> E2
         E2 --> RP["report<br/><i>the three-case notice</i>"]
     end
@@ -114,10 +116,11 @@ commands:
 - **`build-static`** runs `tsc --noEmit && vite build && gen-sitemap && prerender` — four commands.
   `vite-build` would name a quarter of it and hide the part that matters most: the prerender launches
   Chromium and snapshots every route, which is what puts the OG tags in the served HTML.
-- **`build-test`** is the aggregator, and its name is **fixed by branch protection** (below).
+- **`build-test`** is the aggregator, and its name is **fixed by the ruleset on `main`** (below).
 - **`release`** bumps with `bump-my-version`, tags, and publishes the GitHub Release — three things,
   and the Release is the one the site's footer links to. The tool is in the node description so the
-  graph shows both.
+  graph shows both. It does all three as a GitHub App, the one actor the ruleset lets push to `main`
+  (below).
 
 ---
 
@@ -160,7 +163,7 @@ not prove that.
 | `actionlint` | `.github/**` |
 
 **Four entries carry the whole rule, and they are the same rule four times: a gate belongs to what a
-file IS, not to the directory it sits in** (ADR-0018's amendment). *It said three until 2026-08-05;
+file IS, not to the directory it sits in** (ADR-0003, *CI gates on the pull request*). *It said three until 2026-08-05;
 `CLAUDE.md` is the fourth, and the count is kept as a count rather than softened to "several" because a
 number is the thing a reader can check against the filter.*
 
@@ -199,7 +202,7 @@ credentials rather than noise.** `app.yml` declares `contents: read` and holds `
 so widening *its* filter costs runner minutes. `deploy.yml`'s gate outputs are the predicate deciding
 whether a **credentialed** job runs: `app` gates `deploy-app` (the deploy role), `iac` gates
 `terraform-apply` (the infra role, strictly more powerful). Two edits that look identical; only one
-widens the credential surface — ADR-0015 applied to a filter. Nothing is lost: an ADR-only PR reddens
+widens the credential surface — ADR-0013's OIDC decision applied to a filter. Nothing is lost: an ADR-only PR reddens
 here, the author regenerates, and the PR then touches `apps/fed/`, which the deploy pathspec already
 matches.
 
@@ -350,12 +353,32 @@ this merge did touch infra and the app change may depend on it. Note the Actions
 `needs:` dependency skips the dependent too, so this requires
 `if: always() && needs.terraform-apply.result != 'failure'` rather than a bare `needs:`.
 
-**Job names are fixed by branch protection.** It requires `build-test`, `plan`, `actionlint` — job
+**`main` is governed by a repository ruleset, not by classic branch protection (#783).** The ruleset
+requires a pull request (zero approvals), blocks force-pushes and deletion, and requires three status
+checks with *require branches to be up to date* **off**: `build-test`, `actionlint` and
+`terraform-plan`. Those are **job names, not workflow names**, so the three job names are fixed by the
+ruleset and renaming one silently un-gates it.
+
+**The ruleset's bypass list holds exactly one actor: the release GitHub App** (from section C of #783
+on; until then the Repository admin role is also on the bypass list, and an admin still skips the rules
+— see ADR-0003, section [*The release job writes to `main` as a GitHub App, under a ruleset that only
+that App bypasses*](../../docs/adr/0003-trunk-based-single-environment.md#the-release-job-writes-to-main-as-a-github-app-under-a-ruleset-that-only-that-app-bypasses-2026-11-01)).
+That is how `release` pushes its `bump:` commit and tag straight to `main` without a pull request.
+`GITHUB_TOKEN` cannot. Once the admin entry is removed, neither can an administrator's own credential:
+an admin no longer skips the rules, so every merge, the gate's included, needs the three checks green. The App holds Contents read and write
+and Metadata read only, is installed on this repository only, and its token is minted per run and lives
+one hour at most. The App's private key is a standing credential with no expiry; the two secrets are in
+the root README's secrets table.
+
+~~**Job names are fixed by branch protection.** It requires `build-test`, `plan`, `actionlint` — job
 names, not workflow names. `build-test` and `actionlint` survive verbatim. `plan` is now
 `terraform-plan`, so **the protection is out of step with the YAML until the owner resequences it**:
 remove `plan` from required → merge → add `terraform-plan`. There is a window in between where iac PRs
 are ungated. Nothing in the agent loop touches branch protection, so this is a human step and it did
-not happen as part of the build.
+not happen as part of the build.~~ **Struck (#783), and false twice over.** The resequencing had
+already happened: the owner's read of the classic protection on 2026-10-31 listed `terraform-plan`.
+And the classic protection is gone, replaced by the ruleset above. Changing the ruleset is still the
+owner's act; nothing in the agent loop edits repository settings.
 
 **Every required check must RUN, not merely be needed.** A required job with a bare `needs:` is
 *skipped* when a dependency fails — and GitHub counts a skipped required check as satisfied. The
@@ -376,6 +399,15 @@ depend on the file it verifies.
 revert anything. Putting the apply and the publish in one workflow makes it *reachable for
 infrastructure changes* — which it is not today — but it does not make it blocking. A red e2e means
 the site is broken and someone has to act.
+
+**One step in that job is not that signal, and it is a step of its own for exactly that reason.**
+*Spike go/no-go (#669): locale hint reaches the edge — red is NO-GO, not a broken site* runs
+`e2e/edge-locale-hint.spec.ts` (tag `@spike-669`) with `continue-on-error`, after the site smoke, which
+runs everything else with `--grep-invert @spike-669`. On a NO-GO the site is intact — nothing reads the
+cookie yet — so its red stays out of the job's result. The job exposes the step's outcome as `spike`,
+and `report` prints it on its own line: a notice on GO, and on a red spike a warning that says NO-GO,
+not a broken site, only when the site smoke is green. With the smoke red too, it says the spike verdict
+is unreadable, because the spike also needs a working page. The `e2e` result in `report` is the site smoke alone.
 
 **Pushing to a feature branch runs nothing.** The local loop is the only gate until the PR exists:
 `npm test`, `npm run lint`, `npm run typecheck`, `npm run e2e:local`. The last runs the same

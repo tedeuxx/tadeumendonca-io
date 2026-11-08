@@ -5,14 +5,14 @@
 // around it. It is exported so `e2e/diagram-determinism.spec.ts` can render twice into scratch paths and
 // require byte-identical output without touching the committed artifact (#758).
 //
-// WHY BUILD TIME AND NOT RUNTIME. The site is fully static with no runtime XHR (ADR-0004), and the
+// WHY BUILD TIME AND NOT RUNTIME. The site is fully static with no runtime XHR (ADR-0002), and the
 // /architecture page has to be readable by a crawler with JavaScript off — a client-side mermaid would
 // ship ~500kB to every reader to draw a picture that never changes. Inline SVG rather than an <img>, so
 // the labels are real text: crawlable, selectable, and readable by a screen reader.
 //
 // WHY PLAYWRIGHT AND NOT @mermaid-js/mermaid-cli. Mermaid has no pure-Node renderer — it needs a DOM
 // either way — so the choice is only WHICH browser. mermaid-cli brings Puppeteer, which downloads its
-// browser in a POSTINSTALL script, and ADR-0021's amendment mandates `npm ci --ignore-scripts` in CI.
+// browser in a POSTINSTALL script, and ADR-0003's security-posture section mandates `npm ci --ignore-scripts` in CI.
 // It would therefore install without a browser here by construction: not a preference, a policy
 // collision. Playwright's Chromium is already installed for the prerender, /cv.pdf and the E2E, and
 // gen-og-default.mjs is the working precedent for driving it as a build tool.

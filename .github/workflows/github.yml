@@ -35,7 +35,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # THE REQUIRED CHECK. The name `actionlint` is fixed by branch protection and must not change.
+  # THE REQUIRED CHECK. The name `actionlint` is fixed by the ruleset on `main` and must not change.
   # Deliberately a single job: it runs two seconds' worth of tooling and has no credential to split off.
   actionlint:
     runs-on: ubuntu-latest

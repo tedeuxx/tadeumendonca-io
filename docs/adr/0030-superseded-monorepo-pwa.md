@@ -1,6 +1,7 @@
 # 0030. Monorepo `tadeumendonca-pwa` consolidation
 
 - **Status:** superseded by the `-io` rename + static pivot (2026-07)
+- **Capability:** `hosting-and-trust`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 
@@ -21,7 +22,7 @@ monorepo with. The repo was renamed **`tadeumendonca-io`** and reduced to the st
 ## Consequences of the reversal
 - A single-purpose repo for a single app; simpler than a monorepo with one occupant.
 - The rename to immutable-ID OIDC caught a real trap (every assume-role broke on the plain-name subject —
-  see ADR-0015); and the Terraform Cloud workspace name still carries `-pwa-` history deliberately.
+  see ADR-0013, *Pipeline credentials by OIDC*); and the Terraform Cloud workspace name still carries `-pwa-` history deliberately.
 
 ## Links
-- Superseded by the `-io` rename + static pivot · the OIDC-subject trap it exposed is recorded in ADR-0015.
+- Superseded by the `-io` rename + static pivot · the OIDC-subject trap it exposed is recorded in ADR-0013, *Pipeline credentials by OIDC*.

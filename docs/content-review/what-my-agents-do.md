@@ -531,7 +531,7 @@ does not send a reader to a page that contradicts the piece.
   quote a clause this violates, and editing it would be taste. Flagged because it is the exact thing
   ruling 9 was about.
 - **`:34`, both — *"What those two decisions eventually produced is a file"*** asserts a causal origin
-  the source assigns elsewhere: ADR-0021 records the registry as occasioned by `/blueprint`'s
+  the source assigns elsewhere: the methodology library's ADR-0021 records the registry as occasioned by `/blueprint`'s
   portable-export requirement (`#313`), not by the persona criterion or the grinding rule. **Left
   alone** because the ruler's own carve-out covers it — a transition *"that carries no claim of its
   own … is craft"* — and because the substance is sourced: the disagreement principle is a registry

@@ -52,9 +52,11 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   //
   // NOT `article.draft && …`, deliberately, and the consequence is stated rather than left to be
   // discovered: a PUBLISHED article reached with `?preview` renders the bar too. Three reasons, in the
-  // order they weighed. (1) It is what he asked for, in those words. (2) It is what makes promotion
-  // rebuild nothing — the date moves, the article enters the index, and NOTHING about this page is
-  // rebuilt, because the mode was never in the build. (3) A second round on an already-published piece is
+  // order they weighed. (1) It is what he asked for, in those words. (2) It is what lets promotion leave
+  // the review bar unchanged — the date moves, the article enters the index, and nothing about the bar
+  // changes, because the mode was never in the build. Promotion is not otherwise self-contained: this
+  // page gets its first prerendered snapshot, and the OG cards and the distribution kit follow from
+  // separate scripts (#635, ADR-0049's 2026-11-01 amendment). (3) A second round on an already-published piece is
   // a real case, and a `draft` gate would take the affordance away exactly there.
   //
   // WHAT IT COSTS, and this is larger than "a visitor who appends the parameter" — the enlargement is
@@ -125,7 +127,11 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           // The card IS the title, set over the site's art (ADR-0041) — so the title is what the alt
           // says. Not the default card's alt: that describes a different picture, and a screen-reader
           // user is the one reader who cannot notice the substitution.
-          imageAlt: article.title,
+          //
+          // A COVER-DERIVED card (#710, ADR-0041's 2026-11-01 amendment) is the title over the article's
+          // AI-generated cover, so its alt says so, in the reader's locale. Every other article keeps the
+          // title alone.
+          imageAlt: article.cover ? `${article.title} — ${t('article.aiCover')}` : article.title,
           type: 'article',
           publishedTime: article.date,
           // A HELD article is reachable at its final URL and out of the sitemap (#510). Nothing links it,

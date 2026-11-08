@@ -1,9 +1,10 @@
 # 0038. Published content is distributed to LinkedIn **and** X, in the same batch
 
 - **Status:** accepted · **amended 2026-11-01** (Instagram Stories is a third channel, owner-posted from his own device, carrying the generated Story card; [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662))
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
-- **Driven by:** [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0005](./0005-og-coverage-every-public-url.md)
+- **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0005](./0005-og-coverage-every-public-url.md)
 
 ## Context & problem
 The site is the storefront, but nobody arrives at a static site by accident — **publishing an article and
@@ -36,7 +37,7 @@ consistent on one network and sporadic on another reads as sporadic. **Consisten
    as automation, and automation-shaped presence undercuts the "written by a peer" claim the content makes.
 4. **Automate the fan-out (scheduler / API)** — *Why not:* not now. It buys convenience at the cost of an
    integration, credentials to hold, and a class of unattended public writes — against the lean posture
-   (ADR-0001) and against the ask-first rule for external surfaces. Revisit if cadence ever justifies it.
+   (ADR-0053, lean by design) and against the ask-first rule for external surfaces. Revisit if cadence ever justifies it.
 
 ## Decision outcome
 Chosen: **a publication is not done until it exists on both LinkedIn and X.** Both carry the same
@@ -252,7 +253,7 @@ that the first candidate is the cheap one if that is ever to change.
 - **Automated posting stays rejected.** Option 4's "why not" ends *"Revisit if cadence ever justifies it"*
   — and this amendment is the first time "cadence" has a number, so a later reader could reasonably read
   the trigger as fired. **It is not.** One article per week is two manual publishing acts per week, and the
-  other two reasons option 4 was rejected — the lean posture (ADR-0001) and ask-first on external surfaces
+  other two reasons option 4 was rejected — the lean posture (ADR-0053) and ask-first on external surfaces
   — are independent of frequency and unchanged by it. The clause is touched, not met.
 - **The obligation is unchanged.** A publication is still not done until it exists on both surfaces, and a
   half-shipped pair is still *incomplete and tracked*, not tolerated.

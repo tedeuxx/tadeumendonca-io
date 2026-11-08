@@ -110,13 +110,13 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   # THE REQUIRED CHECK for iac PRs.
   #
-  # ⚠️ RENAMED from `plan` to `terraform-plan`. Branch protection requires the JOB name `plan`, so this
-  # rename does not take effect on its own — the protection must be resequenced by the owner:
-  # remove `plan` from required → merge this → add `terraform-plan`. There is a window in between where
-  # iac PRs are ungated. Nothing in this repo's agent loop touches branch protection.
+  # RENAMED from `plan` to `terraform-plan`, and the required checks were resequenced to match (the
+  # owner's read of 2026-10-31 listed `terraform-plan`). Since #783 the requirement lives in the ruleset
+  # on `main`, which names this JOB, so renaming it silently un-gates iac PRs. Changing the ruleset is
+  # the owner's act; nothing in this repo's agent loop edits repository settings.
   #
   # `if: always()` rather than a bare `needs:`, for the same two reasons as app.yml's `build-test`:
-  # a skipped required check satisfies branch protection, and this job must produce a definite status
+  # a skipped required check satisfies the ruleset on `main`, and this job must produce a definite status
   # both when its dependencies were skipped (a non-iac PR) and when one of them failed.
   #
   # DEPENDABOT (#639): GitHub gives a Dependabot-triggered run its OWN secret store, and this repository
@@ -127,7 +127,7 @@ jobs:
   # before any STS call is ever made — so this is NOT an OIDC trust or IAM problem. The runner says so
   # itself, in one line of its own log: `Secret source: Dependabot`, against `Secret source: Actions` on
   # a run triggered by anyone else. FOUR dependency PRs are confirmed dead on this and a fifth is
-  # unknown, the earliest being #101 on 2026-07-24 — but THE HISTORY IS NOT MAINTAINED HERE. ADR-0014's
+  # unknown, the earliest being #101 on 2026-07-24 — but THE HISTORY IS NOT MAINTAINED HERE. ADR-0013's
   # 2026-09-14 amendment is its record of authority: it carries the criterion that finds these PRs, the
   # command that evaluates it, and the per-PR evidence. This header carries the OPERATIVE RULE only,
   # because the same facts already live on three surfaces and a history maintained in three places is a
@@ -138,7 +138,7 @@ jobs:
   #
   # THE CONDITION SITS ON THE STEPS, AND THAT PLACEMENT IS THE WHOLE DESIGN:
   #   * NOT on the job — `terraform-plan` is the required check, and the line directly above says why
-  #     that is fatal: a SKIPPED required check satisfies branch protection. A job-level actor test
+  #     that is fatal: a SKIPPED required check satisfies the ruleset on `main`. A job-level actor test
   #     would conclude the check SKIPPED and unblock the merge with nothing having reported, which is
   #     the defect, delivered by the fix.
   #   * NOT on the `changes` filter — that filter answers *what changed*; the actor is *who*. Flipping
@@ -184,7 +184,7 @@ jobs:
   # a Dependabot PR here — every confirmed attempt died in the credential provider before any
   # AssumeRoleWithWebIdentity call. What this change surrenders is an ACCIDENTAL BLOCK (a structural red
   # that stopped the whole class, including a PR that would genuinely have broken assume-role) and not a
-  # gate that was ever proving anything. Nothing is owed a replacement safeguard. ADR-0014's 2026-09-14
+  # gate that was ever proving anything. Nothing is owed a replacement safeguard. ADR-0013's 2026-09-14
   # amendment carries that reasoning, the evidence and the residual nothing enforces.
   #
   # THE ROUTE TO A REAL PLAN when one is wanted: a maintainer pushes a commit to the Dependabot branch.
@@ -234,7 +234,7 @@ jobs:
         # conclusion. #101's run carried that flag AND read an empty Dependabot secret store, and its
         # step shows `role-to-assume` absent from the `with:` block — a cause that alone reproduces the
         # identical failure, proved by #414/#534/#587, which carry no such flag. So the evidence is
-        # CONFOUNDED and #101 cannot establish the attribution; it is the same misreading ADR-0014's
+        # CONFOUNDED and #101 cannot establish the attribution; it is the same misreading ADR-0013's
         # 2026-09-14 amendment records at two other sites. The conclusion stands on better evidence
         # anyway: the flag is gone everywhere, and the PREVIOUS pin — v6.2.3, SHA e6de0542 — assumed
         # this INFRA role cleanly on #645's own terraform-plan run 34891195229 (2026-09-14; `Secret
@@ -383,7 +383,7 @@ jobs:
             exit 0
           fi
           if [ "$DEPENDABOT" = "true" ]; then
-            echo "::warning::PARTIAL GATE — this is a Dependabot run. RAN: checkov, terraform fmt. DID NOT RUN: terraform init, validate, plan (Dependabot-isolated secrets — no AWS role ARN, no TFC token). NO PLAN WAS REVIEWED for this PR. A maintainer pushing a commit to this branch runs them; re-running this workflow does not. See the PR comment and ADR-0014's 2026-09-14 amendment."
+            echo "::warning::PARTIAL GATE — this is a Dependabot run. RAN: checkov, terraform fmt. DID NOT RUN: terraform init, validate, plan (Dependabot-isolated secrets — no AWS role ARN, no TFC token). NO PLAN WAS REVIEWED for this PR. A maintainer pushing a commit to this branch runs them; re-running this workflow does not. See the PR comment and ADR-0013's Dependabot-exception subsection."
             exit 0
           fi
           echo "::notice::the iac gate ran — checkov, terraform fmt, validate, plan"

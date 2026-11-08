@@ -179,12 +179,12 @@ describe('the route-count prose above STATIC_ROUTES is still true', () => {
 
   it('App.tsx declares exactly as many <Route>s as the comment claims', () => {
     const declared = (appSource.match(/<Route\b/g) ?? []).length;
-    expect(declared, 'update the comment above STATIC_ROUTES in routes.mjs').toBe(12);
+    expect(declared, 'update the comment above STATIC_ROUTES in routes.mjs').toBe(13);
   });
 
   it('STATIC_ROUTES holds exactly as many logical routes as the comment claims', () => {
     const statics = localizedRoutes().filter((r) => r.locale === 'en' && !r.route.startsWith('/blog/'));
-    expect(statics, 'update the comment above STATIC_ROUTES in routes.mjs').toHaveLength(6);
+    expect(statics, 'update the comment above STATIC_ROUTES in routes.mjs').toHaveLength(7);
   });
 });
 

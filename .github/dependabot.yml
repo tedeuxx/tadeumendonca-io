@@ -1,4 +1,4 @@
-# Dependency hygiene (ADR-0021). The continuous half of the package-vulnerability floor: scheduled
+# Dependency hygiene (ADR-0003, security posture). The continuous half of the package-vulnerability floor: scheduled
 # update PRs + GitHub-native vulnerability alerts / security-update PRs. The *enforcement* half — a
 # blocking gate that fails a PR on a high/critical prod advisory — lives in build-test.yml (audit-ci).
 #
@@ -57,7 +57,7 @@ updates:
   # a claim that later went stale — it was a SECRET-STORE FAILURE MISREAD AS A SUCCESSFUL SUPPLY-CHAIN
   # GATE, and that misreading is what has been justifying an entire update class here since day one.
   # The full history, the criterion that finds these PRs, and the four-confirmed-one-unknown table are
-  # in ADR-0014's 2026-09-14 amendment; this file carries the rule, not the record.
+  # in ADR-0013's section on the Dependabot exception (formerly record 0014's 2026-09-14 amendment); this file carries the rule, not the record.
   #
   # So the honest justification for admitting majors here never rested on what #101 was thought to
   # prove, and is narrower than this block claimed: an action major is small and isolated, and it is
@@ -65,7 +65,7 @@ updates:
   # `actions` bump moves configure-aws-credentials at all THREE call sites at once, and the two in
   # deploy.yml only ever execute on push to main. A break in that chain surfaces on the TRUNK now,
   # where before it surfaced NOWHERE AT ALL — the PR was red for the secret-store reason and never
-  # merged, so the block was accidental rather than protective. That cost is accepted, recorded in ADR-0014's 2026-09-14 amendment, and enforced by nothing:
+  # merged, so the block was accidental rather than protective. That cost is accepted, recorded in ADR-0013's Dependabot-exception subsection, and enforced by nothing:
   # whether such a PR is merged on a skipped plan or re-authored by hand (as #414 was, as 76f3910) is a
   # judgement the owner makes per PR. So majors still flow uniformly; no per-action exceptions.
   - package-ecosystem: "github-actions"

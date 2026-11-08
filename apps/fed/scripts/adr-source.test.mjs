@@ -70,9 +70,11 @@ describe('parseStatus', () => {
       // The filename is a REAL record, not a plausible-looking stand-in. It used to read
       // `./0004-build-time-render.md`, which no file has ever been called — harmless to this
       // assertion (it parses the status class and never opens the target) and exactly the kind of
-      // rot the citation gate added in #456 exists to catch. It found this one on its first run.
+      // rot the citation gate added in #456 exists to catch. It found this one on its first run. The
+      // sixth fold slice of #456 absorbed record 0004 into 0002, so the fixture now names the section
+      // 0026 and 0027 point at.
       parseStatus(
-        '- **Status:** superseded by [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (2026-07)',
+        '- **Status:** superseded by [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (2026-07)',
       ),
     ).toEqual({ status: 'superseded', statusLineAmended: false });
   });
@@ -103,7 +105,9 @@ describe('parseRecord', () => {
       title: 'Fully static SPA, no backend',
       file: '0002-fully-static-spa-no-backend.md',
       status: 'accepted',
-      amended: false,
+      // true since the sixth fold slice of #456: 0002's status line records that it absorbed the rest
+      // of `site-platform`. Read from the real record, so the fold had to move this deliberately.
+      amended: true,
     });
   });
 });

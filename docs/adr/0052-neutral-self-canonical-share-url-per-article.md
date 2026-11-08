@@ -1,6 +1,7 @@
 # 0052. A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution
 
 - **Status:** accepted
+- **Capability:** `locale-and-routing`
 - **Date:** 2026-09-20
 - **Deciders:** **the owner** — the specification
   ([#660 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/660#issuecomment-5743437953)) and the
@@ -17,7 +18,7 @@
   [ADR-0037](./0037-localized-article-slugs.md) governs · **applies**
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)'s 2026-07-28 *"the prerender is not a visitor"*
   invariant · **inherits** [ADR-0005](./0005-og-coverage-every-public-url.md)'s pinned-card cost · reads
-  through [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)
+  through [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 ## Context & problem
 
@@ -59,7 +60,7 @@ feature**, and nothing in the request distinguishes the two consumers.
   invariant breaking, and five of six advertised x-defaults answering 200 with the home page's card.
 - **[ADR-0005](./0005-og-coverage-every-public-url.md): a scraper PINS the card on first fetch.** A wrong
   card at a shared address is the least reversible thing this repository can ship.
-- **[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md): build-time render, no SSR and no edge
+- **[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time): build-time render, no SSR and no edge
   compute.** A solution requiring either is a different architecture, not a feature.
 - **[ADR-0002](./0002-fully-static-spa-no-backend.md): there is no request-time code** to put a decision
   in, other than the CloudFront Function this repository has kept deliberately trivial.
@@ -92,7 +93,7 @@ crawler's own headers, pin **that** card, and the one-stable-card-per-article pr
 feature is *serve the two consumers differently*, and a redirect is the one mechanism that cannot tell
 them apart. It also puts negotiation logic at the edge, which
 [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) already rejected and
-[ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) rules out as an architecture.
+[ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) rules out as an architecture.
 
 ### 3 · Leave the convention inert and keep sharing `/en/` links — **REJECTED**
 
@@ -234,7 +235,8 @@ follow-up. The refusal semantics are untouched: a held article still has no shar
 
 - **The locale resolver.** This changes no line of `i18n/config.ts`. `#661` owns the resolver; this record
   owns the address. *"A pt-BR reader lands in Portuguese"* is **false for a returning reader**, correctly
-  — resolution is path → persisted toggle → navigator — so no assertion here may claim it.
+  — resolution is path → persisted toggle → navigator (since #788, path → persisted toggle → edge hint →
+  navigator; [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)) — so no assertion here may claim it.
 - **The title seam.** An English card headline against a Portuguese headline on arrival is a **ruler**
   question, not a UI one, and it is tracked as a `content` item in `tedeuxx/tadeumendonca-skills`.
 - **Whether the pinned link was costing readers.** A hypothesis on `#660`, with what would test it. This

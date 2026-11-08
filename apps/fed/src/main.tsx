@@ -15,8 +15,9 @@ void unregisterServiceWorkers();
 
 // Seed <html lang> SYNCHRONOUSLY, before createRoot, so the served/prerendered HTML is already correct
 // (no post-mount flash). Per-locale URLs (ADR-0036): the path is authoritative — `/pt/…` seeds pt, `/en/…`
-// en; a bare/unprefixed URL falls through to persisted → navigator → en (the x-default baseline) until the
-// client-side redirect prefixes it. The LocaleProvider (inside the /:locale route) owns it thereafter.
+// en; a bare/unprefixed URL falls through to persisted → edge hint (#788) → navigator → en (the x-default
+// baseline) until the client-side redirect prefixes it. Both read the SAME `detectLocale`, so this lang and
+// the redirect agree. The LocaleProvider (inside the /:locale route) owns it thereafter.
 document.documentElement.lang = htmlLang(detectLocale(window.location.pathname));
 
 createRoot(document.getElementById('root')!).render(

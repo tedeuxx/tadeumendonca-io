@@ -391,6 +391,35 @@ const strings = {
     // accepted, not overlooked: the retired band carried exactly that repetition, shipped with it, and it
     // is what the one-word rule costs.
   },
+  // The analytics schema page (#640) — chrome only. Its BODY is markdown-in-repo, one file per locale
+  // (content/analytics.pt.md · content/analytics.en.md), the same parity rule as /architecture.
+  //
+  // `label` IS THIS GROUP'S, NOT `nav`'s, AND THAT IS THE OWNER'S DECISION MADE STRUCTURAL. The route is
+  // off the menu (#640, decision 3: «Rota fora do menu»), so a `nav.analytics` leaf would be a nav label
+  // with no nav entry — a word the menu does not show, sitting in the group a reader of this file takes
+  // for the menu's vocabulary. ADR-0045 still applies: the document title leads with the word the reader
+  // clicked, and on this route that click is the link on /architecture, whose text opens with this label.
+  // `messages.test.ts` reads `nav.<group>` first and falls back to `<group>.label`, so the convention is
+  // asserted here exactly as it is for the five menu sections. The word is the same in both editions:
+  // "Analytics" is the name a Portuguese reader of this site meets it under, the owner's own ask included.
+  analytics: {
+    label: { pt: 'Analytics', en: 'Analytics' },
+    title: {
+      pt: 'Analytics — o que este site emite e o que cada evento prova',
+      en: 'Analytics — what this site emits and what each event can prove',
+    },
+    heading: {
+      pt: 'O que cada evento consegue provar, e o que não consegue',
+      en: 'What each event can prove, and what it cannot',
+    },
+    kicker: { pt: 'Esquema de eventos · GA4', en: 'Event schema · GA4' },
+    // The ~160-character window is the ruler (see `architecture.metaDescription`): the two claims that
+    // make the page worth opening — read off the code, and every count is a floor — sit inside it.
+    metaDescription: {
+      pt: 'Os eventos GA4 que este site envia, lidos do próprio código: parâmetros, o que cada um prova e o que não prova. Só depois do consentimento, então toda contagem é um piso.',
+      en: 'The GA4 events this site sends, read off its own code: parameters, what each can prove and what it cannot. Sent only after consent, so every count is a floor.',
+    },
+  },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
   // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
   // words live here, including the empty state.
@@ -712,6 +741,11 @@ const strings = {
     notFoundTitle: { pt: 'Artigo não encontrado', en: 'Article not found' },
     notFoundBody: { pt: 'Este artigo não existe ou não está publicado.', en: 'This article does not exist or is not published.' },
     allArticles: { pt: '← Todos os artigos', en: '← All articles' },
+    // #710. What a COVER-DERIVED OG card is, appended to its `og:image:alt` after the title — the card
+    // is no longer only the title, so the title alone would describe a picture the reader is not shown.
+    // The same words are printed on the card itself (scripts/og-copy.mjs `COVER_MARK`, joined to this
+    // entry by og-copy.test.mjs): the sighted reader and the screen-reader user learn the same fact.
+    aiCover: { pt: 'Ilustração de capa gerada por IA', en: 'AI-generated cover illustration' },
   },
   share: {
     share: { pt: 'Compartilhar', en: 'Share' },

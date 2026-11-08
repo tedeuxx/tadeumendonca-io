@@ -1,6 +1,7 @@
 # 0026. Lambda@Edge OG renderer
 
-- **Status:** superseded by [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (2026-07)
+- **Status:** superseded by [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (2026-07; the superseding decision was record 0004, absorbed there by #456)
+- **Capability:** `site-platform`
 - **Date:** decided ~2026-06 · superseded 2026-07-22
 - **Deciders:** the owner
 
@@ -14,15 +15,15 @@ dynamic solution — it could reflect request-time state.
 
 ## Why it was superseded
 Going fully static (ADR-0002) removed the edge tier, and the OG requirement is satisfiable **at build
-time** (ADR-0004): prerender each route to static HTML with OG inlined. Edge compute is still request-time
+time** (ADR-0002, *Content and OG resolved at build time*): prerender each route to static HTML with OG inlined. Edge compute is still request-time
 compute to fund and operate; build-time prerender delivers the same served HTML with nothing running.
 
 ## Consequences of the reversal
-- No request-time compute for OG; the static/near-zero-cost story holds (ADR-0004).
+- No request-time compute for OG; the static/near-zero-cost story holds (ADR-0002).
 - Lost: request-time/dynamic OG. Accepted — the site's OG is static content, fine to freeze at build.
 
 ## Links
-- Superseded by ADR-0004 · the URL-rewrite that remains is a lightweight CloudFront Function (ADR-0013),
+- Superseded by ADR-0002's build-time-render section (formerly record 0004) · the URL-rewrite that remains is a lightweight CloudFront Function (ADR-0013),
   not Lambda@Edge.
 
 ## Amendment, 2026-08-15 — `:18`'s "with nothing running" is scoped by this document, and it travelled without the scope
@@ -39,7 +40,7 @@ corrected in [#452](https://github.com/tedeuxx/tadeumendonca-io/pull/452); this 
 `/architecture:186` points a reader straight at **this file**, so a reader following the page's own
 citation would otherwise land on the bare clause with the scope four and eight lines away.
 
-**The scoped statement lives in one place, not two:** ADR-0004's 2026-08-15 amendment — *build-time
+**The scoped statement lives in one place, not two:** the 2026-08-15 amendment inside ADR-0002's *Content and OG resolved at build time* (written as record 0004's) — *build-time
 prerender removed request-time **rendering**, not request-time **compute***. This record points there
-rather than repeating it, because ADR-0004 is the live record that holds the decision and this one is
+rather than repeating it, because ADR-0002 is the live record that holds the decision and this one is
 superseded.

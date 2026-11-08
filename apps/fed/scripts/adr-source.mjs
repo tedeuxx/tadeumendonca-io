@@ -28,7 +28,7 @@ export function recordFiles(adrDir) {
  *
  * The prose is unbounded and it drifts by design — this library carries statuses like
  * "accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies…)" and
- * "superseded by [ADR-0004](./0004-…) (2026-07)". Rendering that verbatim into a table column produces
+ * "superseded by [ADR-0002](./0002-…) (2026-07)". Rendering that verbatim into a table column produces
  * a column that is unreadable at a glance, which defeats the point of an index.
  *
  * So the class is the first word, and it is matched against a CLOSED set. An unrecognised status is an

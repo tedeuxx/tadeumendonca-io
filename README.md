@@ -54,7 +54,8 @@ card, and the `app` workflow's `harness-drift` job compares what `/architecture`
   **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
   translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
 - **Infra** (`iac`): Terraform for the frontend infra **plus one account-wide guardrail** — S3 + CloudFront
-  (with a viewer-request URL-rewrite function), custom email via iCloud, the GitHub OIDC deploy roles, and
+  (with a viewer-request URL-rewrite function and a viewer-response function that sets a locale-hint
+  cookie), custom email via iCloud, the GitHub OIDC deploy roles, and
   an **account-level cost budget** (`budget.tf`) deliberately *not* scoped to this project's tags, so it
   catches spend this repo did not create. State in Terraform Cloud, **local** execution; `apply`/`destroy`
   are **pipeline-only**.
@@ -156,7 +157,8 @@ rather than a standing fact, which is the framing the number needs and this tabl
 ### GitHub secrets and variables
 
 Read out of the workflows rather than from memory — `grep -o 'secrets\.[A-Z_]*' .github/workflows/*.yml`
-prints twelve lines for **seven distinct secrets**, and exactly three jobs declare `environment: staging`
+prints fifteen lines: fourteen name **eight distinct secrets**, and one is a bare `secrets.` inside a
+comment in `iac.yml`. Exactly three jobs declare `environment: staging`
 (`iac` → `terraform-plan`, `deploy` → `terraform-apply`, `deploy` → `deploy-app`).
 
 | secret | scope | consumed by | what it gates |
@@ -166,7 +168,8 @@ prints twelve lines for **seven distinct secrets**, and exactly three jobs decla
 | `BUDGET_ALERT_EMAIL` | **environment** (`staging`) | `iac` → `terraform-plan`, `deploy` → `terraform-apply` | the recipient of the account cost alert, passed to Terraform as a variable |
 | `TFC_API_TOKEN` | repository | `iac`, `deploy` | Terraform's access to its own state |
 | `SONAR_TOKEN` | repository | `app` → `sonarqube-scan` | the quality gate's authentication |
-| `VERSION_BUMP_TOKEN` | repository | `deploy` → `release` | a PAT distinct from `GITHUB_TOKEN` — **mint it fine-grained at `contents: write` and no wider**; a classic token cannot be narrowed that far, and `public_repo` is the closest it gets. It is the checkout token that pushes the bump commit and tag, and the `GH_TOKEN` that builds the notes and **creates the GitHub Release** — which the site's own footer links to, so without it that link 404s |
+| `RELEASE_APP_ID` | repository | `deploy` → `release` | the ID of the GitHub App the release job authenticates as (#783). With the key below, the job mints a one-hour token per run that pushes the bump commit and tag and **creates the GitHub Release** — which the site's own footer links to, so without it that link 404s. It replaced a personal access token that expired on a calendar and stopped the job for six days |
+| `RELEASE_APP_PRIVATE_KEY` | repository | `deploy` → `release` | that App's private key. The App holds **Contents: read and write** and Metadata read, nothing else, is installed on this repository only, and is the **only** actor on the `main` ruleset's bypass list — which is why it can push the bump and `GITHUB_TOKEN` cannot. The key does not expire, so it is a standing credential: rotate it by generating a new key in the App settings, storing it here, and deleting the old one |
 | `CLAUDE_CODE_OAUTH_TOKEN` | repository | `claude` | `@claude` on issues and PRs — it silently does not answer without one |
 
 **The scope column is what the job can read, not a preference.** An **environment**-scoped secret is
@@ -193,8 +196,8 @@ Two entries left this list rather than being dropped from it. The **fork-to-live
 directly below, moved off `/architecture` because a page that links canonical detail should not also be a
 setup guide — and the copy that lived there had gone stale describing renamed workflows, which is the
 argument rather than a coincidence. The **ADR for the hand-bootstrapped trust root** is
-[ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also narrows
-[ADR-0014](./docs/adr/0014-terraform-cloud-pipeline-only.md)'s "no irreversible cloud mutation in the
+[ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also narrows the
+[pipeline-only apply](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-only-apply)'s "no irreversible cloud mutation in the
 inner loop" claim to what is actually true.
 
 ## Fork to live
@@ -204,7 +207,8 @@ amount of preparation makes faster. Everything in
 [What you need before you fork](#what-you-need-before-you-fork) is assumed in place.
 
 1. **Fork both repos.** Read the ADRs first, starting at
-   [0001](./docs/adr/0001-lean-by-design-calibrated-to-strategy.md) — the decisions are the part worth
+   [0053](./docs/adr/0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md), which says what the library records and holds its keystone, *lean by
+   design* — the decisions are the part worth
    taking, and several of them will not fit your context. If you only want the loop, stop after
    [`mhw`](https://github.com/tedeuxx/mhw): it installs the method with no cloud account, no domain and
    nothing to deploy, and its README is self-contained.
@@ -236,21 +240,24 @@ amount of preparation makes faster. Everything in
    **Two decisions are doing the work here, and neither is setup trivia.** *Why the trust root is
    permanently out of band* — bootstrap circularity, and the permanent one, that a role able to rewrite
    its own trust policy has no ceiling — is
-   [ADR-0042](./docs/adr/0042-trust-root-bootstrapped-out-of-band.md), which also states its accepted
+   [ADR-0013 — *The trust root outside Terraform*](./docs/adr/0013-s3-cloudfront-hosting.md#the-trust-root-outside-terraform), which also states its accepted
    costs: no `plan` detects drift on any of it, and the hand path **reopens every time that policy
    changes** rather than being a one-time act.
    [`docs/iac-deploy-policy.md`](./docs/iac-deploy-policy.md) is the standing runbook for exactly that,
    and [`docs/iac-deploy-policy.json`](./docs/iac-deploy-policy.json) is the desired document to apply.
    *Why the role's trust names an **immutable** subject* — `repo:<org>@<org_id>/<repo>@<repo_id>:*`, by
    numeric ID rather than by name, since a name can be transferred and the IDs cannot — is
-   [ADR-0015](./docs/adr/0015-oidc-immutable-subject-least-privilege.md). Its cost is that the safer form
+   [ADR-0013 — *Pipeline credentials by OIDC*](./docs/adr/0013-s3-cloudfront-hosting.md#pipeline-credentials-by-oidc). Its cost is that the safer form
    is not copy-pasteable: you have to look your own IDs up.
-5. **Wire the GitHub secrets.** All seven are in
+5. **Wire the GitHub secrets.** All eight are in
    [GitHub secrets and variables](#github-secrets-and-variables) above, with the scope each one takes and
    the job that reads it — **that table, not a second copy of it here.** The one thing to carry forward
    while you work through it: anything naming AWS is **environment**-scoped, tooling tokens are
    **repository**-scoped, and the `staging` environment has to exist in repository settings before an
-   environment secret can be created at all.
+   environment secret can be created at all. The two `RELEASE_APP_*` secrets need a GitHub App to exist
+   first, and `main` needs a ruleset naming that App as its only bypass actor, or the release job cannot
+   push its bump: [the pipeline map](./.github/workflows/README.md#rules-the-design-has-to-obey) has the
+   ruleset.
 6. **Replace the content and the positioning.** [`apps/fed/src/content/`](./apps/fed/src/content) for the
    long-form, `src/data/profile.ts` for the CV, `src/data/catalog.ts` for the portfolio,
    `src/i18n/messages.ts` for the chrome. Every reader-facing module is typed so that a missing
@@ -265,7 +272,7 @@ amount of preparation makes faster. Everything in
 apps/
   fed/    # the static SPA (React + Vite + Tailwind, no PWA)
 docs/
-  adr/    # the decision library — the architecture documentation; start at 0001
+  adr/    # the decision library — the architecture documentation; start at 0053
 iac/      # Terraform for the frontend infra (S3, CloudFront, email, OIDC roles)
           # plus one account-wide cost budget, deliberately not scoped to this project
 LICENSE   # the MIT grant, exact text so GitHub can classify it

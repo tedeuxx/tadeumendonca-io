@@ -1,17 +1,10 @@
 [
   {
-    "id": "0001",
-    "title": "Lean by design — architecture calibrated to the strategic priority",
-    "file": "0001-lean-by-design-calibrated-to-strategy.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0002",
     "title": "Fully static SPA, no backend",
     "file": "0002-fully-static-spa-no-backend.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0003",
@@ -21,23 +14,9 @@
     "amended": true
   },
   {
-    "id": "0004",
-    "title": "Content and OG resolved at build time — not SSR or edge",
-    "file": "0004-build-time-render-not-ssr-or-edge.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0005",
     "title": "Every public URL is SEO- and OG-complete",
     "file": "0005-og-coverage-every-public-url.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0006",
-    "title": "React + Vite + TypeScript",
-    "file": "0006-react-vite-typescript.md",
     "status": "accepted",
     "amended": false
   },
@@ -77,88 +56,11 @@
     "amended": false
   },
   {
-    "id": "0012",
-    "title": "snake_case in content/data, no mapping layer",
-    "file": "0012-snake-case-content-no-mapping.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0013",
     "title": "S3 + CloudFront hosting with a URL-rewrite function",
     "file": "0013-s3-cloudfront-hosting.md",
     "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0014",
-    "title": "Terraform + Terraform Cloud, apply pipeline-only",
-    "file": "0014-terraform-cloud-pipeline-only.md",
-    "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0015",
-    "title": "GitHub OIDC deploy roles — immutable subject, least-privilege",
-    "file": "0015-oidc-immutable-subject-least-privilege.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0016",
-    "title": "Custom-domain email via iCloud+, not a mail service",
-    "file": "0016-custom-email-via-icloud.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0017",
-    "title": "Minimal infra security posture — no WAF, no CMK, SSM String-only",
-    "file": "0017-no-waf-no-cmk-ssm-string-only.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0018",
-    "title": "CI gates on the PR — E2E included, unit coverage ≥85%",
-    "file": "0018-ci-gates-e2e-on-pr-coverage.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0019",
-    "title": "Complete automated functional regression",
-    "file": "0019-complete-functional-regression.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0020",
-    "title": "SonarCloud quality gate, blocking",
-    "file": "0020-sonarcloud-quality-gate.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0021",
-    "title": "Application security posture — SAST + package-vulnerability scanning",
-    "file": "0021-application-security-posture.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0022",
-    "title": "Numeric SemVer, auto-bump + release on merge",
-    "file": "0022-numeric-semver-auto-release.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
-    "id": "0023",
-    "title": "Observability scoped to a static site",
-    "file": "0023-observability-static-site.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0024",
@@ -280,13 +182,6 @@
     "amended": true
   },
   {
-    "id": "0042",
-    "title": "The trust root is bootstrapped out of band — Terraform never manages the OIDC provider, nor the role that runs Terraform",
-    "file": "0042-trust-root-bootstrapped-out-of-band.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0043",
     "title": "The dev-loop inventory is derived from the plugin repo — a committed manifest plus a cross-repo drift check, and the manifest may not say \"denies\" about a thing that only advises",
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
@@ -294,18 +189,11 @@
     "amended": true
   },
   {
-    "id": "0044",
-    "title": "Version digits carry content meaning — major and minor are a deliberate dispatch, patch stays automatic",
-    "file": "0044-version-parts-deliberate-major-minor.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0045",
     "title": "A document title is an address — it leads with the section's `nav.*` label, never with the page's heading",
     "file": "0045-document-title-leads-with-section-label.md",
     "status": "accepted",
-    "amended": false
+    "amended": true
   },
   {
     "id": "0046",
@@ -336,13 +224,6 @@
     "amended": true
   },
   {
-    "id": "0050",
-    "title": "A module outside the CV attributes its data to a CV experience entry by the natural pair `{ company, start_date }`",
-    "file": "0050-journey-attribution-joins-profile-on-company-and-start-date.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0051",
     "title": "The GA4 custom event schema is immutable once shipped — names chosen for what the browser can observe, a two-part parameter spine, and a non-retroactive registration obligation",
     "file": "0051-ga4-event-schema-is-immutable-once-shipped.md",
@@ -360,7 +241,14 @@
     "id": "0053",
     "title": "This library records presence and site-architecture decisions, one document per capability, behind a two-limb entry rule",
     "file": "0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md",
-    "status": "proposed",
+    "status": "accepted",
+    "amended": false
+  },
+  {
+    "id": "0054",
+    "title": "The analytics schema page — a published description of the event schema, derived from the emitting code, carrying no figure, served off the menu",
+    "file": "0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md",
+    "status": "accepted",
     "amended": false
   }
 ]

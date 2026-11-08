@@ -1,13 +1,14 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
 - **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change) · **amended 2026-11-01** (a sixth `utm_source`, `instagram`, and a fourth `utm_campaign`, `story-card`, printed in the QR on the vertical Instagram Story card; the medium stays `social`; #662)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
 - **Driven by:** Issue [#272](https://github.com/tedeuxx/tadeumendonca-io/issues/272) (the observability
   [#267](https://github.com/tedeuxx/tadeumendonca-io/issues/267) deliberately shipped without) ·
   constrained-by [ADR-0033](./0033-ga4-consent-gated-analytics.md) (the consent gate) · refines
-  [ADR-0023](./0023-observability-static-site.md) · reserves a value for
+  [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) · reserves a value for
   [ADR-0038](./0038-content-distribution-linkedin-and-x.md)
 
 ## Context & problem
@@ -32,7 +33,7 @@ reporting. These strings get chosen once.
 - **Land in GA4's *Organic Social* channel**, so the sessions aggregate with the rest of social rather than
   sitting in *Unassigned* where nobody reads them.
 - **Choose values that never need renaming**, because renaming is not available — see above.
-- **Measure only what will inform a decision** (ADR-0001, lean by design): every parameter is a permanent
+- **Measure only what will inform a decision** (ADR-0053, lean by design): every parameter is a permanent
   obligation carried in every shared link, so a parameter that changes no decision is pure cost.
 - **Do not weaken [ADR-0033](./0033-ga4-consent-gated-analytics.md)'s hard consent gate** by one byte,
   whatever it costs the measurement.
@@ -165,7 +166,7 @@ share before, so the first reading *is* the baseline.
   share affordances shipped by [#267](https://github.com/tedeuxx/tadeumendonca-io/issues/267).
 - **Constrained by [ADR-0033](./0033-ga4-consent-gated-analytics.md)** — the hard opt-in gate is preserved
   exactly; the arrival-URL capture is what makes attribution survive the gate without weakening it.
-- **Refines [ADR-0023](./0023-observability-static-site.md)** — a third thing the static site observes,
+- **Refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site)** — a third thing the static site observes,
   alongside pageviews and the client error surface.
 - **Reserves `author-post` for [ADR-0038](./0038-content-distribution-linkedin-and-x.md)** — the author's
   LinkedIn/X drafts emit a clean URL today, so reader-vs-owner separation currently holds *by accident*;
@@ -174,7 +175,7 @@ share before, so the first reading *is* the baseline.
   per-locale `utm_content` a manual cross-edition mapping; dropping the parameter removes the problem.
 - **Consistent with [ADR-0013](./0013-s3-cloudfront-hosting.md)** — `CachingOptimized` ignores query
   strings, so tagged and clean URLs share one cache object; `iac/` untouched.
-- **Consistent with [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — three parameters, not
+- **Consistent with [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — three parameters, not
   four; the dropped one is the whole argument.
 - Implementation: `apps/fed/src/lib/utm.ts`, `apps/fed/src/lib/analytics.ts`,
   `apps/fed/src/components/ShareLinks.tsx`, `apps/fed/src/components/ShareButton.tsx`.

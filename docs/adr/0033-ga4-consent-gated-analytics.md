@@ -4,15 +4,16 @@
   [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — and the withdrawal consequence
   below is **discharged**: emission is now gated on the reader's current choice, so `gtag` staying
   injected no longer means the reader keeps being reported)
+- **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-24
 - **Deciders:** the owner
-- **Driven by:** [ADR-0023](./0023-observability-static-site.md) (which chose "GA" as the analytics tool in
+- **Driven by:** [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) (which chose "GA" as the analytics tool in
   the abstract) · refines it with the concrete tool, load model and consent gate.
 - **Shares a property with:** [ADR-0002](./0002-fully-static-spa-no-backend.md) — "nothing third-party
   until the reader asks" (the VideoEmbed facade).
 
 ## Context & problem
-ADR-0023 named **Google Analytics** as the usage-observability tool for the static site, but abstractly —
+ADR-0003, in what is now its section *Observability scoped to a static site*, named **Google Analytics** as the usage-observability tool for the static site, but abstractly —
 it did not fix *which* GA, *how* the tag is loaded, or *whether/how* the reader consents. Those are the
 load-bearing sub-decisions, and they carry weight beyond telemetry: this is a **proof-of-engineering** site
 whose argument is restraint (the ramp-up page, the YouTube-facade `VideoEmbed` that loads nothing until the
@@ -31,7 +32,7 @@ Two questions had to be answered honestly:
 - The site argues for **restraint**; whatever ships must not quietly contradict that argument.
 - The consent surface must be **valid in every geography** without geo-detection branching — the strictest
   opt-in applied globally, not "a banner only where the law forces one."
-- Low cost / no infra (ADR-0023, ADR-0001): the tracker must stay client-side, scale-to-zero.
+- Low cost / no infra (ADR-0003's observability section, ADR-0053 lean by design): the tracker must stay client-side, scale-to-zero.
 
 ## Considered options
 
@@ -88,7 +89,7 @@ rather than struck, per this library's rule for a reference whose only job is to
 
 **Bad / accepted costs**
 - **Thinner data than an unconsented tracker.** Many readers will Decline or never choose → GA sees only the
-  granting subset. This **compounds ADR-0023's existing ad-blocker caveat**: usage numbers were already a
+  granting subset. This **compounds the existing ad-blocker caveat of ADR-0003's observability section**: usage numbers were already a
   floor, and the consent gate lowers that floor further. The floor is not exact and now less exact.
 - **A standing Google client-side dependency** on a site that argues for restraint. A cookieless tracker
   would have avoided both the dependency and the banner entirely.
@@ -104,9 +105,9 @@ rather than struck, per this library's rule for a reference whose only job is to
   stood.
 
 ## Links
-- Refines [ADR-0023](./0023-observability-static-site.md) (GA as the observability tool) · shares the
+- Refines [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) (GA as the observability tool) · shares the
   "nothing third-party until the reader asks" property with [ADR-0002](./0002-fully-static-spa-no-backend.md)
-  (VideoEmbed facade) · inertness supports the ADR-0004 build-time prerender staying hit-free.
+  (VideoEmbed facade) · inertness supports the ADR-0002 build-time prerender staying hit-free.
 - Implemented on branch `feat/ga4-consent-banner`
   (`apps/fed/src/lib/analytics.ts`, `apps/fed/src/lib/consent.tsx`,
   `apps/fed/src/components/ConsentBanner.tsx`).

@@ -5,13 +5,14 @@
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment). **The owner has not ruled
   on the second-path question and it is his to reverse** — see the "one-off or a convention" clause in
   **Decision outcome**, which is written to be the cheap thing to overturn.
+- **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** `tech-lead`, on the gate's finding that the fence departed from ADR-0040 with no record
 - **Supersedes / superseded by:** —
 - **Driven by:** PR [#411](https://github.com/tedeuxx/tadeumendonca-io/pull/411) · **narrows the scope
   claim of** [ADR-0040](./0040-build-time-mermaid-diagrams.md) (amended there, pointing here) ·
   constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md) (nothing fetched, resolved before it is served)
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (nothing fetched, resolved before it is served)
   · touches [ADR-0035](./0035-static-repo-cards-in-longform.md)'s copy-as-markdown payload · conforms to
   [ADR-0008](./0008-brutalist-mono-identity.md) · per locale, per
   [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
@@ -47,7 +48,7 @@ without something turning red"**.
 
 ## Decision drivers
 - **Nothing may be fetched at runtime, and the reader with JS off must get the figure** (ADR-0002,
-  ADR-0004, ADR-0005). This is non-negotiable and it is the first thing a second path could break.
+  ADR-0005). This is non-negotiable and it is the first thing a second path could break.
 - **Labels must be real text** — crawlable, selectable, translatable, screen-readable. ADR-0040's
   strongest argument against a checked-in asset was that an `<img>` makes every label a picture of a word.
   A second path that ships a raster reproduces exactly the liability that record rejected.
@@ -62,7 +63,7 @@ without something turning red"**.
 - **The body travels** — `shareMarkdown.ts` copies this page verbatim into the reader's clipboard (#387,
   ADR-0035), so what a fence looks like *as text* is a reader-facing property, not an implementation
   detail.
-- **Lean by design** (ADR-0001): ADR-0040 bought "zero additional bytes of JavaScript" for its diagrams,
+- **Lean by design** (ADR-0053): ADR-0040 bought "zero additional bytes of JavaScript" for its diagrams,
   and any second path spends some of that.
 
 ## Considered options
@@ -226,7 +227,7 @@ a gate, caught it.
   `VennDiagram.tsx` and `vennSpec.ts` are statically imported by `Markdown.tsx`, so they land in whatever
   chunk serves every long-form page, not only `/architecture`. **The delta is not measured and there is no
   bundle-size gate in this repo** (`apps/fed/package.json` has no size check) — so this is an unmeasured,
-  ungated cost, stated as one. It is small in absolute terms and it is not zero, and ADR-0001 is the
+  ungated cost, stated as one. It is small in absolute terms and it is not zero, and ADR-0053 (lean by design) is the
   record it is spent against.
 - **It carries runtime behaviour, which no other figure on this page does.** A `useEffect` positions the
   initial scroll on the intersection and a feature-detected `ResizeObserver` keeps it true across a
@@ -265,7 +266,7 @@ a gate, caught it.
   point here. That record's mechanism, guards and defaults are unchanged and still govern every figure
   mermaid can draw.
 - **Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md) and
-  [ADR-0004](./0004-build-time-render-not-ssr-or-edge.md)** — the figure is in the artifact, resolved
+  its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — the figure is in the artifact, resolved
   before it is served; the runtime behaviour is an enhancement on top of a complete prerendered figure.
 - **Consistent with [ADR-0005](./0005-og-coverage-every-public-url.md)** — it is in the prerendered HTML,
   asserted over HTTP.
@@ -276,7 +277,7 @@ a gate, caught it.
 - **Conforms to [ADR-0008](./0008-brutalist-mono-identity.md)** — the figure paints from the identity
   tokens (`--primary`, `--foreground`, `--background`) rather than from literals, and the
   background-equality check that ADR-0040's amendment #3 installed applies to it.
-- **Spends [ADR-0001](./0001-lean-by-design-calibrated-to-strategy.md)** — a small, unmeasured amount of
+- **Spends [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)** — a small, unmeasured amount of
   JavaScript, named above rather than implied.
 - **Scope note added 2026-08-09 by
   [ADR-0048](./0048-content-photograph-is-a-captioned-figure.md)** — see the amendment below: this record's

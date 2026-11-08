@@ -4,7 +4,7 @@
 # the default behavior. Every behavior now targets the same single origin: the fed bucket.
 #
 # /og/* USED to have its own behavior pointing at the og-images bucket, a leftover of the retired
-# Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0004) that generated cards at request time into
+# Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0002) that generated cards at request time into
 # that bucket. Nothing has written to it since. ADR-0041 then shipped per-article cards as COMMITTED
 # static objects in apps/fed/public/og/, which deploy.yml syncs to the FED bucket only — so every
 # article's advertised og:image resolved to the og-images bucket, 403'd, hit the SPA custom_error_response
@@ -26,6 +26,45 @@ resource "aws_cloudfront_function" "spa_rewrite" {
   comment  = "Serve prerendered per-route index.html (append index.html to directory routes)."
   publish  = true
   code     = file("${path.module}/cloudfront-functions/spa-rewrite.js")
+}
+
+# CloudFront Function (viewer-response) — the edge half of IP-based locale resolution (#669). It sets a
+# short, script-readable `locale_hint` cookie on each HTML response: `pt` for a CPLP country, `other` for
+# any other country, `unknown` when no country header reached it. It runs AFTER the cache, so the shared cached HTML stays byte-identical for every
+# viewer: it never routes, never redirects and never rewrites the body. The client step that reads the
+# cookie is a separate slice.
+resource "aws_cloudfront_function" "locale_hint" {
+  provider = aws.us_east_1
+  name     = "${var.project}-locale-hint-${var.environment}"
+  runtime  = "cloudfront-js-2.0"
+  comment  = "Set the locale_hint cookie on HTML responses: pt (CPLP country), other (any other), unknown (no country)."
+  publish  = true
+  code     = file("${path.module}/cloudfront-functions/locale-hint.js")
+}
+
+# Origin request policy that adds ONLY the CloudFront-Viewer-Country header (#669), so the function
+# above can read the viewer's country. Custom rather than a managed "all viewer" policy, because those
+# forward `Host`, and an S3 origin behind OAC rejects a request signed for the wrong host. An origin
+# request policy is not part of the cache key, so the HTML stays one cached object per URL; the S3
+# origin ignores the header. Whether a viewer-response function can read a header that only an origin
+# request policy names is the spike's question, and the post-deploy smoke is its verdict
+# (apps/fed/e2e/edge-locale-hint.spec.ts). On a no-go the header moves to the cache policy instead.
+resource "aws_cloudfront_origin_request_policy" "viewer_country" {
+  name    = "${var.project}-viewer-country-${var.environment}"
+  comment = "Forward only CloudFront-Viewer-Country, for the locale-hint function (#669)."
+
+  cookies_config {
+    cookie_behavior = "none"
+  }
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = ["CloudFront-Viewer-Country"]
+    }
+  }
+  query_strings_config {
+    query_string_behavior = "none"
+  }
 }
 
 module "cloudfront" {
@@ -68,11 +107,16 @@ module "cloudfront" {
     compress                   = true
     use_forwarded_values       = false
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6" # managed CachingOptimized
+    origin_request_policy_id   = aws_cloudfront_origin_request_policy.viewer_country.id
     response_headers_policy_id = "67f7725c-6f97-4210-82d7-5512b31e9d03" # managed SecurityHeadersPolicy
-    # Serve prerendered per-route index.html (replaces the og-edge Lambda@Edge — see the function above).
     function_association = {
+      # Serve prerendered per-route index.html (replaces the og-edge Lambda@Edge — see the function above).
       viewer-request = {
         function_arn = aws_cloudfront_function.spa_rewrite.arn
+      }
+      # Set the locale_hint cookie on HTML responses (#669 — see the function above).
+      viewer-response = {
+        function_arn = aws_cloudfront_function.locale_hint.arn
       }
     }
   }
