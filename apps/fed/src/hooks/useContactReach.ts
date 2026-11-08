@@ -30,7 +30,7 @@
 // ONE PER SESSION, AND THE GUARD CANNOT LIVE IN THIS EFFECT — the repair of the defect PR #602's gate
 // measured, and the reason it is a module rather than a boolean here.
 //
-// ~~ONE PER MOUNT~~ was the shipped behaviour and it is not what ADR-0051 published (*once per visit*).
+// ~~ONE PER MOUNT~~ was the shipped behaviour and it is not what ADR-0005 (*The GA4 event schema is immutable once it collects*) published (*once per visit*).
 // `observer.disconnect()` scopes the one-shot to the OBSERVER, and this effect rebuilds its observer on
 // every change of `locale` or `status`. A fresh `IntersectionObserver` delivers an initial callback for
 // whatever is already on screen, so the shot was re-armed and fired again. Measured in a real browser

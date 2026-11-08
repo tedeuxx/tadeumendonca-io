@@ -30,7 +30,7 @@ export const LOCALES = ['pt', 'en'];
  * (all three the owner's; the third is #593). The first two fell inside three days and the third came a
  * month later — so the pattern is not "this line is unstable", it is "this line moves whenever the
  * positioning does", which is what it is FOR. Each edit REPUBLISHES all four cards, and
- * under ADR-0041 every regeneration republishes an artifact scrapers have pinned: a post that unfurled
+ * under ADR-0005 (*Per-article OG cards*) every regeneration republishes an artifact scrapers have pinned: a post that unfurled
  * before an edit keeps the old card forever, and is right on every post made after.
  *
  * So the cost is per-EDIT and bounded by how much has been shared, not by how many surfaces the term

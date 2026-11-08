@@ -10,17 +10,17 @@
 The ramp-up page's "sources" section lists Andrej Karpathy's teaching repos (nanoGPT, llm.c, nanochat, minGPT) as four inline markdown links crammed into one bullet — unscannable, and visually indistinguishable from the prose around them ([#122](https://github.com/tedeuxx/tadeumendonca-io/issues/122) item 3). They deserve the same scannable, on-brand card the portfolio catalog gives a project.
 
 But a "repo card" pulls two decisions the site has not yet made in *long-form* content:
-1. **Where do the card's facts come from?** GitHub's own OG-card image, or a live GitHub API call, would keep name/language/stars fresh — at the cost of a per-render request to a third party, which the site forbids ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time): content resolves at build, no runtime fetch; [ADR-0033](./0033-ga4-consent-gated-analytics.md): nothing third-party loads before consent).
+1. **Where do the card's facts come from?** GitHub's own OG-card image, or a live GitHub API call, would keep name/language/stars fresh — at the cost of a per-render request to a third party, which the site forbids ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time): content resolves at build, no runtime fetch; [ADR-0005, *Consent-gated GA4 analytics*](./0005-og-coverage-every-public-url.md#consent-gated-ga4-analytics): nothing third-party loads before consent).
 2. **How does a card — a rich component — appear inside markdown-in-repo prose**, and where does its one-line *description* live given the bilingual rule (everything the reader reads is authored in both locales, [ADR-0032](./0032-i18n-locale-layer-english-baseline.md))?
 
 ## Decision drivers
-- **No runtime third-party request** — a card must cost the reader zero network (ADR-0002, ADR-0033). A frozen fact is acceptable; a live fetch is not.
+- **No runtime third-party request** — a card must cost the reader zero network (ADR-0002, ADR-0005 (*Consent-gated GA4 analytics*)). A frozen fact is acceptable; a live fetch is not.
 - **In-pattern over new mechanism** — the shared `Markdown` renderer already turns a lone YouTube URL into a `VideoEmbed` facade; the curated catalog is already a typed owner-authored list (`catalog.ts`). Prefer a second instance of each over a new abstraction ([ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)).
 - **Facts once, prose per locale** — the ADR-0024 split: a repo's name/owner/language are the same in every edition (author once); only the description is prose (author per locale).
 - **Brand fidelity** — the card obeys the fixed identity, it does not invent a new one ([ADR-0008](./0008-brutalist-mono-identity.md)).
 
 ## Considered options
-1. **GitHub OG-card image per repo** (`opengraph.githubassets.com/…`) — one `<img>`, no JS. *Why not:* it is a **request to a GitHub CDN on every page load** — exactly the third-party fetch ADR-0002/0033 keep off the page — and the image bakes in a **star count that goes stale** and cannot be styled to the brutalist identity.
+1. **GitHub OG-card image per repo** (`opengraph.githubassets.com/…`) — one `<img>`, no JS. *Why not:* it is a **request to a GitHub CDN on every page load** — exactly the third-party fetch ADR-0002 and ADR-0005 (*Consent-gated GA4 analytics*) keep off the page — and the image bakes in a **star count that goes stale** and cannot be styled to the brutalist identity.
 2. **Live GitHub API at build (or runtime)** to populate cards. *Why not:* runtime is out (ADR-0002); build-time fetch adds a network dependency and a token to the build for data that barely changes, and still freezes stars at build. Not worth the moving part for four curated repos.
 3. **Static, owner-curated card via the lone-URL facade (chosen)** — a small allowlist (`data/repoCards.ts`) of repos with **owner-authored** fields; the shared `Markdown` renderer turns a paragraph that is nothing but a registered repo URL into a `<RepoCard>` (the same opt-in shape as `VideoEmbed`), and any unregistered URL falls through to a plain link. *Trade-off:* the fields are **owner-maintained, not fetched** — a repo renamed or re-languaged on GitHub won't update until the owner edits the registry. Accepted: the set is tiny and curated, and this is the same build-frozen bargain the whole site already makes (ADR-0002).
 
@@ -51,7 +51,7 @@ The card's **description is a leaf-level `{pt,en}` field** living in the registr
 ## Links
 - Driven by ADR-0002 (build-time, no runtime fetch — rules out the OG-image/API options), ADR-0032 (leaf `{pt,en}` shape + parity), ADR-0024 (facts-once / prose-per-locale), ADR-0008 (identity the card obeys), ADR-0002 again (typed data module read as authored, no mapping layer).
 - Second instance of the lone-URL facade first shipped for video (ADR-0002's `VideoEmbed`); second instance of the owner-curated typed list first shipped as `catalog.ts`.
-- Coherent with ADR-0033 (no third-party request before consent — the static card makes none at all).
+- Coherent with ADR-0005 (*Consent-gated GA4 analytics*) (no third-party request before consent — the static card makes none at all).
 - Implements Issue #122 (item 3). Items 1–2 (Karpathy on X; embed-strategy rationale) shipped earlier.
 
 ## Amendment, 2026-08-08 — the trigger now arrives as a GFM-autolinked element; the decision is unchanged, its mechanism is not what this record says

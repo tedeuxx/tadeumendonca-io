@@ -21,15 +21,15 @@ ContextEngineering e HarnessEngineering»*. It follows the rename decided the sa
 `Agent Harness Engineering` → **Context & Harness Engineering**): the new name *is* two things, and as
 keyword surfaces they index separately. It also survives the rename in both directions — neither tag
 is stale before the site ships the new name, and neither becomes stale after. **This supersedes
-ADR-0038 §D's shipped `#HarnessEngineering` (bare) as the practice tag**, and it is the owner's
+record 0038 §D's shipped (since #456 in ADR-0005's *Distribution to LinkedIn and X*) `#HarnessEngineering` (bare) as the practice tag**, and it is the owner's
 instruction rather than a drafting judgement, which §D's exception explicitly was not.
 
-**No hashtag on X.** ADR-0038 §C, applied rather than re-litigated: X indexes plain words in the body,
+**No hashtag on X.** Record 0038 §C, applied rather than re-litigated: X indexes plain words in the body,
 so a tag buys no indexing the sentence did not already buy and spends characters out of 280. The
 record labels that clause *the drafting context's judgement, not the owner's instruction*, and invites
 cheap reopening — reopened here, and it holds. It returned 25 characters to the teaser.
 
-**The link sits once, at the bottom, after the English half.** ADR-0038 fixes that the link is in the
+**The link sits once, at the bottom, after the English half.** Record 0038 fixed that the link is in the
 body and always `/en/`; it does not fix where in a bilingual body, so this is a choice and it has a
 one-sided cost: **a reader who stops at the Portuguese half sees no link.** The alternative — the same
 URL twice — reads as automation, which is the posture the whole record exists to avoid.

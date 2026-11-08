@@ -130,7 +130,7 @@ describe('neutralArticleRoutes — the unprefixed share address', () => {
     expect([...neutralSlugs].filter((slug) => retired.includes(slug))).toEqual([]);
   });
 
-  // A held article must not gain a public prerendered address (ADR-0049 isolation, #510). It leaves
+  // A held article must not gain a public prerendered address (ADR-0005's *A held article is isolated, not private*, #510). It leaves
   // `localizedRoutes()` at the source — `blogEditions()` drops the key — so this asserts the neutral set
   // inherits that rather than re-implementing the hold, which is the property that could silently break.
   it('omits a held article, the same way localizedRoutes() does', () => {
@@ -542,8 +542,8 @@ describe('a held article leaves the sitemap and the prerender together', () => {
 // #506 — the mechanism that keeps the review bar out of every prerendered snapshot, pinned rather than
 // argued.
 //
-// WHY THIS ASSERTION AND NOT THE OBVIOUS ONE. ADR-0049's amendment first gave the reason as "a held
-// article is already out of the sitemap and the prerender". That is TRUE of a held article and FALSE of
+// WHY THIS ASSERTION AND NOT THE OBVIOUS ONE. The 2026-08-29 amendment, now in ADR-0005's *A held article is isolated, not private*, first gave the
+// reason as "The bar is client-rendered on a page that is already out of the sitemap and the prerender." That is TRUE of a held article and FALSE of
 // a published one — `routes.mjs` drops a key only on `fm?.draft === true`, so every published article is
 // in this set — and the bar renders on a published article too, because the gate is the parameter alone.
 // The true reason is one layer down and holds for both: `prerender.mjs` navigates `base + navUrl` with

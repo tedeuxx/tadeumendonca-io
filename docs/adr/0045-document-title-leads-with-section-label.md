@@ -5,13 +5,13 @@
   wrote it, in the implementing MR. The *copy* it produces is reader-facing and therefore the reviewer's
   to merge under [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment — with the
   one qualifier below, which is why the slice was still handled as boundary: the same strings are
-  `og:title`, and a scraper pins what it fetches first ([ADR-0041](./0041-per-article-og-cards.md)).)
+  `og:title`, and a scraper pins what it fetches first ([ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)).)
 - **Capability:** `design-system-and-figures`
 - **Date:** 2026-08-08
 - **Deciders:** the owner
 - **Supersedes / superseded by:** —
 - **Driven by:** Issue [#395](https://github.com/tedeuxx/tadeumendonca-io/issues/395) · constrained by
-  [ADR-0041](./0041-per-article-og-cards.md) (an OG title is pinned on first fetch) and
+  [ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards) (an OG title is pinned on first fetch) and
   [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (every title exists twice, once per locale) ·
   touches the surfaces enumerated in [ADR-0010](./0010-routing-landing-cv-split-redirects.md)
 
@@ -71,7 +71,7 @@ comment in the very file it named, and was reached by generalising from the prop
 grepping the importers. Falsifier, one command: `grep -rn MarkdownPage apps/fed/src/pages/`.
 
 **The `og:title` half is the constraint, and it is universal.** It is pinned by scrapers on first fetch
-and cannot be taken back (ADR-0041) — on **every** route, not on a privileged few. Every clause below is
+and cannot be taken back (ADR-0005, *Per-article OG cards*) — on **every** route, not on a privileged few. Every clause below is
 shaped by that asymmetry.
 
 ## Decision drivers
@@ -79,7 +79,7 @@ shaped by that asymmetry.
 - **The rule must cover routes that do not exist yet**, since the failure — a section whose title stops
   naming it — is the kind nobody remembers to add a checklist row for.
 - **The editorial H1 is not in scope and must stay out of it.** Explicitly ruled out on the Issue.
-- **A title change is partly irreversible** (ADR-0041): the `og:title` half is pinned per URL. So the
+- **A title change is partly irreversible** (ADR-0005, *Per-article OG cards*): the `og:title` half is pinned per URL. So the
   cheapest correct change beats the most thorough one.
 - **Two locales, always** (ADR-0036) — a rule satisfied in one edition and not the other is not
   satisfied.
@@ -112,8 +112,8 @@ shaped by that asymmetry.
      `og:title` plus the domain and **drops `og:description`**, and `MarkdownPage` passes no `image`, so
      `/architecture` falls back to the default per-locale card. Under equality the entire page-specific
      text of that unfurl would be *"Arquitetura · tadeumendonca.io"* — generic art plus one word — on the
-     surface [ADR-0038](./0038-content-distribution-linkedin-and-x.md) names as a primary distribution
-     channel, and pinned per URL by the first scraper to fetch it (ADR-0041). SERP and X carry the
+     surface [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) names as a primary distribution
+     channel, and pinned per URL by the first scraper to fetch it (ADR-0005, *Per-article OG cards*). SERP and X carry the
      description alongside the title, so they absorb a bare label; LinkedIn is where the thin card is
      actually paid, and it is the least reversible of the three.
    - **As a *rule* it forces `/ramp-up` to become bare *"Ramp-up"*, which does not describe itself.**
@@ -201,7 +201,7 @@ heading. The visible H1 is a different object and stays editorial.**
 4. **A conforming title is not rewritten to fit the new phrasing.** This is the most transferable of the
    four and it is stated as a **rule**, not as a note about three pages: **a title that already complies
    is not touched.** Rewriting one regenerates an `og:title` that scrapers have already pinned
-   (ADR-0041) in exchange for nothing a reader can perceive. The convention's authority is over titles
+   (ADR-0005, *Per-article OG cards*) in exchange for nothing a reader can perceive. The convention's authority is over titles
    that **break** it, never over titles that satisfy it in a wording someone would have phrased
    differently.
 
@@ -242,7 +242,7 @@ it is priced in option 2 above, not something to resolve inside the record.
 - **The one-word section names are now load-bearing for SEO, and the exposure is total rather than
   partial.** `nav.*` was header chrome. Changing a nav label now moves **five document titles and all
   five of the corresponding `og:title`s**, across **ten** prerendered URLs (two locales, ADR-0036), and
-  **every one of them is pinned per URL** on first fetch (ADR-0041). There is no cheap subset: `og:title`
+  **every one of them is pinned per URL** on first fetch (ADR-0005, *Per-article OG cards*). There is no cheap subset: `og:title`
   is emitted unconditionally at `useDocumentHead.ts:167`, so no route's title is the tab alone.
 
   *An earlier draft of this line said "three OG titles, one of which is pinned per URL", and it is
@@ -267,7 +267,7 @@ it is priced in option 2 above, not something to resolve inside the record.
 
 **Neutral**
 - **No H1 is touched, and `iac/` is untouched.** Static strings in the bundle, served by the existing
-  behaviour ([ADR-0013](./0013-s3-cloudfront-hosting.md)) — and stated with the caution ADR-0041 earned
+  behaviour ([ADR-0013](./0013-s3-cloudfront-hosting.md)) — and stated with the caution ADR-0005 (*Per-article OG cards*) earned
   the hard way: what is asserted is that no cache behaviour, origin or Terraform resource is involved,
   not merely that the output is static.
 - Nothing here decides anything about **meta descriptions**, kickers or nav labels themselves. They are
@@ -275,7 +275,7 @@ it is priced in option 2 above, not something to resolve inside the record.
 
 ## Links
 - **Implements** Issue [#395](https://github.com/tedeuxx/tadeumendonca-io/issues/395).
-- **Constrained by [ADR-0041](./0041-per-article-og-cards.md)** — the `og:title` is pinned by the first
+- **Constrained by [ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)** — the `og:title` is pinned by the first
   scraper to fetch a URL. That single property is why a conforming title is left alone, why the old
   `/architecture` title survives as a tail, and why option 2 above was not taken for free.
 - **Constrained by [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)** — every title exists twice,
@@ -297,7 +297,7 @@ it is priced in option 2 above, not something to resolve inside the record.
 ## Amendment, 2026-11-01 (#640) — an off-menu section leads with its own `label`, read second
 
 **What changed.** `/analytics`
-([ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md)) is the first
+([ADR-0005, *The analytics schema page*](./0005-og-coverage-every-public-url.md#the-analytics-schema-page)) is the first
 section with a `title` leaf that is **not in the menu**, by the owner's ruling on #640 (*«Rota fora do
 menu»*). This record's rule is *the title leads with the word the reader clicked*, and it names `nav.*`
 as where that word lives. For an off-menu section the word the reader clicked is the text of the link

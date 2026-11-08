@@ -188,7 +188,7 @@ const strings = {
     // Document title (ADR-0045; the site name is appended by useDocumentHead). Already compliant before
     // the convention existed — it leads with `nav.rampup` ("Ramp-up") and qualifies after — so it is left
     // alone deliberately. Rewriting a conforming title would have regenerated an OG card scrapers have
-    // already pinned (ADR-0041), for no reader gain.
+    // already pinned (ADR-0005, *Per-article OG cards*), for no reader gain.
     title: { pt: 'Ramp-up para AI Engineer', en: 'Ramp-up to AI Engineer' },
     kicker: { pt: 'Plano aberto · em andamento', en: 'Open plan · in progress' },
     metaDescription: {
@@ -481,7 +481,7 @@ const strings = {
     // The empty state, and it is DELIBERATE COPY rather than a fallback nobody expected to render. The
     // surface ships before the books (#166 slice 1), because the alternative — a placeholder book — is
     // reader-facing prose in the owner's voice that ships and is then removed, and it is exactly what an
-    // OG scraper pins permanently (ADR-0005/0041). Chrome can say "not yet"; a fake book cannot.
+    // OG scraper pins permanently (ADR-0005, *Per-article OG cards*). Chrome can say "not yet"; a fake book cannot.
     // `Esta estante` / `This shelf`, with the demonstrative, because `/ramp-up` already uses the bare
     // definite noun for a DIFFERENT set — "Metade dessa estante ainda está saindo capítulo por capítulo"
     // / "Half of this shelf is still shipping chapter by chapter", over six named titles. A reader who
@@ -860,7 +860,7 @@ const strings = {
     // `DraftReviewBar` (#506) cites the same path with `?preview` appended, because the reviewer's article
     // is held while he is reviewing it and a clean citation would redirect him to the locale home from
     // inside the review he is writing. Stated as two shapes rather than corrected to one: the divergence
-    // is deliberate, and ADR-0049's amendment records the counter-argument it was taken against.
+    // is deliberate, and ADR-0005's *A held article is isolated, not private* records the counter-argument it was taken against.
     source: { pt: 'Fonte', en: 'Source' },
     // Stands in for the ` ```adr-index ` fence, which is EMPTY in source and expands into a live table
     // only in the renderer. Copied verbatim it is three backticks; copied through this it is the link the
@@ -878,7 +878,7 @@ const strings = {
   // ~~so no visitor arriving at any published URL sees any of them~~ — STRUCK. It was false, and false in
   // the direction that reads as safer: `/en/blog/<slug>?preview` IS a published URL, and `ArticlePage`'s
   // gate carries no `draft` term. The gate is the parameter ALONE, deliberately (the owner's refinement,
-  // recorded in ADR-0049's 2026-08-29 amendment) — so this comment was written against the narrower gate
+  // recorded in ADR-0005's *A held article is isolated, not private*, 2026-08-29 amendment) — so this comment was written against the narrower gate
   // that was considered and not built, which is the one way a safe-class claim can be wrong without
   // looking wrong.
   //

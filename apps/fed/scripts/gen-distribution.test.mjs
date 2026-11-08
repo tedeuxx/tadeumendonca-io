@@ -131,7 +131,7 @@ describe('hashtagsFor', () => {
 
   // `track` is an internal pt-BR taxonomy (e.g. `engenharia`) and both surfaces post in English
   // (ADR-0024). Emitting it produced `#engenharia` under English copy — machine-generated-looking,
-  // which is what ADR-0038 says to avoid. Guarded so a future "use every frontmatter field" tidy-up
+  // which is what ADR-0005 (*Distribution to LinkedIn and X*) says to avoid. Guarded so a future "use every frontmatter field" tidy-up
   // cannot quietly reintroduce it.
   it('never derives a hashtag from the internal pt-BR track field', () => {
     expect(hashtagsFor({ tag: 'manifesto', track: 'engenharia' })).not.toContain('#engenharia');
@@ -369,7 +369,7 @@ describe('formatResults', () => {
     expect(lines.at(-1)).toContain('0 new draft(s)');
     expect(lines.at(-1)).toContain('.brand/distribution');
     // "nothing is published" is part of the line, not a comment: it is the reassurance that the drafts
-    // stayed on the machine, and ADR-0038 makes that the generator's whole privacy claim.
+    // stayed on the machine, and ADR-0005 (*Distribution to LinkedIn and X*) makes that the generator's whole privacy claim.
     expect(lines.at(-1)).toContain('nothing is published');
   });
 

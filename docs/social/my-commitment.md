@@ -14,7 +14,7 @@ if one had been, only the current text would be recorded here.
 ## Links, as shipped
 
 The X link is recorded as it shipped and is not normalised. It predates the share-link convention of
-2026-09-19 (`published-voice` rule 21, recorded in ADR-0038 by the amendment merged in #666), which makes
+2026-09-19 (`published-voice` rule 21, recorded in record 0038 by the amendment merged in #666, since #456 in ADR-0005's *Distribution to LinkedIn and X*), which makes
 the shared link the locale-neutral URL. This one is the English edition URL.
 
 - X renders the link as the `t.co` URL `https://t.co/8NLqS5SnBc`, whose display text is
@@ -105,7 +105,7 @@ None of these has an artifact behind it, so none is answered:
 
 - whether a LinkedIn post for this article ever existed, and if so, where it is;
 - why the X launch went out as a thread of three rather than one post;
-- why the X thread carries two hashtags (ADR-0038 §C, as it reads today, records no hashtags on X; when
+- why the X thread carries two hashtags (record 0038 §C, as it read then, records no hashtags on X; when
   that judgement first applied relative to this thread is not checked here);
 - what was cut from the thread, and whether the 280-character limit forced any cut;
 - which article URL the `t.co` link resolves to (its display text is recorded above; it was not followed).

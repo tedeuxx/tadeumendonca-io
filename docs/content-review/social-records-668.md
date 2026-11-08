@@ -34,7 +34,7 @@ drafts, all at commit `50871651e0251e1d671bf5fbcc04b0101e44aa5c` on `content/668
    and the reasoning does not, and how an edited post is handled. The two LinkedIn posts the source marks
    edited are recorded as edited; the X posts are recorded with no edit marker, as the source says.
 4. **No gap is filled with plausible reasoning (AC 5).** Every *why* in the four files is either a listed
-   gap or points at an artifact: ADR-0038 §C (present at head) and the #666 amendment.
+   gap or points at an artifact: record 0038 §C (present at head then; since #456 in ADR-0005's *Distribution to LinkedIn and X*) and the #666 amendment.
 5. **Links are kept as shipped (AC 6).** In-body links match the source byte for byte (`lnkd.in`,
    `t.co`, and the one full `/en/` URL in the `my-commitment` thread). Nothing is normalised. Each file
    places its posts against the 2026-09-19 share-link convention; `what-my-agents-do` leaves the
@@ -64,7 +64,7 @@ Nothing. No edit was made to any record: no finding could be placed under either
   loaded range. The sentence matches the source word for word, so it is not a repair ground. The
   evidence that does carry the not-found finding is the slug and domain search, which the entry also
   states. Worth one look by the owner. Not edited.
-- `my-commitment`'s hashtag gap says when ADR-0038 §C first applied is "not checked here". It is
+- `my-commitment`'s hashtag gap says when record 0038 §C first applied is "not checked here". It is
   checkable: §C sits in the amendment dated 2026-08-16, after the 2026-07-27 thread. Saying so would
   answer the timing half of the gap. It would not answer why the thread carried hashtags.
 - The transcriptions also note the impressions LinkedIn showed on the read date. The records leave

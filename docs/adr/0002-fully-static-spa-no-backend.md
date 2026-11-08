@@ -148,13 +148,13 @@ ADR-0026's own 2026-08-15 amendment points here rather than repeating this.
 ### Amendment, 2026-08-25 — "each route is prerendered" is a claim about PUBLISHED routes
 
 *The decision, as it binds* states that *"the markdown is compiled into the bundle and each route is
-prerendered to static HTML"*. [ADR-0049](./0049-held-article-is-isolated-not-private.md) is the first
+prerendered to static HTML"*. [ADR-0005, *A held article is isolated, not private*](./0005-og-coverage-every-public-url.md#a-held-article-is-isolated-not-private) is the first
 content deliberately **neither listed nor prerendered**, so the universal reading of that clause no
 longer holds.
 
 **The two halves are separable, and only the second is scoped.** Compilation is resolved by the Vite glob
 at build time and is **unchanged** — a held article's markdown is still compiled into the bundle, and
-that half is not incidental to ADR-0049, it *is* the exposure that record exists to state: a runtime
+that half is not incidental to ADR-0005 (*A held article is isolated, not private*), it *is* the exposure that section exists to state: a runtime
 filter removes an article from every list the site renders and cannot remove its body from the bytes the
 site ships. Prerendering becomes a **per-route** decision: a held article gets no static HTML, no
 listing and no sitemap entry.
@@ -166,7 +166,7 @@ the quantifier *each*, nothing else.
 
 ### Where it came from
 
-Decided 2026-07-22; amended 2026-08-15 (#452) and 2026-08-25 (with ADR-0049). Code:
+Decided 2026-07-22; amended 2026-08-15 (#452) and 2026-08-25 (with ADR-0005 (*A held article is isolated, not private*)). Code:
 `apps/fed/scripts/` (the prerender), `iac/cloudfront-functions/spa-rewrite.js`. Absorbed here by #456.
 
 ## The frontend toolchain
@@ -270,6 +270,6 @@ split.
 - Absorbed by #456 (2026-11-01): the build-time render (formerly record 0004), the frontend toolchain
   (0006) and the data-key convention (0012). Each section above says where it came from and how to
   recover the original from git history.
-- Scoped by [ADR-0049](./0049-held-article-is-isolated-not-private.md) (a held article is compiled in but
+- Scoped by [ADR-0005, *A held article is isolated, not private*](./0005-og-coverage-every-public-url.md#a-held-article-is-isolated-not-private) (a held article is compiled in but
   neither listed nor prerendered) · the CloudFront Function that runs per page request is ADR-0013's ·
   own-URL OG coverage is ADR-0005.

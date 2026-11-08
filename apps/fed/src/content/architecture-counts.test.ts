@@ -10,7 +10,7 @@
 // WHAT WENT WRONG, because the page predicted it in its own prose and that is the whole argument. The ADR
 // section used to say that the count was typed by hand and held up by nothing but the link below. It was
 // written on the morning of 2026-08-25 (fe5ceed, 10:25) with 49 records on disk, so it was true — and
-// record 0050 landed THE SAME EVENING (07046b8, 21:09), so it was false before the day was out. ADR-0051
+// record 0050 landed THE SAME EVENING (07046b8, 21:09), so it was false before the day was out. Record 0051
 // landed 2026-09-04 (394cb63, 17:38). The page published `49` against a library of 50 and then of 51
 // until this file landed. Predicting a failure in prose is not a control.
 //

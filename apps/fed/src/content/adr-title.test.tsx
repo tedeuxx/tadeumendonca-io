@@ -66,9 +66,14 @@ describe('renderAdrTitle', () => {
   // SEVEN to SIX on 2026-11-01 (#456, the fourth slice): record 0050, the eighth title counted above,
   // was absorbed into ADR-0024 and left the library. Seen red at 7 with this filter over the regenerated
   // `adrs.json` before the number moved.
+  //
+  // SIX to FOUR on 2026-11-08 (#456, the ninth slice): records 0038 (bold in its heading) and 0039
+  // (`utm_content` as a code span) were absorbed into ADR-0005 and left the library. Measured with this
+  // test's own filter over `adrs.json` before and after regeneration: 0024 0030 0032 0038 0039 0045, then
+  // 0024 0030 0032 0045.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(6);
+    expect(withMarkup).toHaveLength(4);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

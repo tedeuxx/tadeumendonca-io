@@ -1017,7 +1017,7 @@ cohort never completes is this record's own argument, not a rule anyone stated.
 - **Whether anything other than product features attaches to a plan.** The owner scoped the discipline
   to *«features de produto»*; this does not widen it.
 - **Whether a distribution announcement carries the tag**, and how it is derived rather than typed
-  ([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s surface).
+  ([ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s surface).
 - **Whether the automatic patch should stop.** No position is taken.
 
 ## Observability scoped to a static site
@@ -1036,8 +1036,8 @@ a backend playbook.
 ### The decision, as it binds
 
 - **Client and build observability:** Google Analytics for usage (refined by
-  [ADR-0033](./0033-ga4-consent-gated-analytics.md), consent-gated GA4, and by
-  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md), an immutable event schema); a
+  [ADR-0005, *Consent-gated GA4 analytics*](./0005-og-coverage-every-public-url.md#consent-gated-ga4-analytics), consent-gated GA4, and by
+  [ADR-0005, *The GA4 event schema is immutable once it collects*](./0005-og-coverage-every-public-url.md#the-ga4-event-schema-is-immutable-once-it-collects), an immutable event schema); a
   client-side error surface for runtime errors; a build and prerender smoke (routes render, OG tags in
   the served HTML, [ADR-0005](./0005-og-coverage-every-public-url.md)'s per-route coverage); and the
   post-deploy E2E smoke against the real CDN.
@@ -1047,7 +1047,7 @@ a backend playbook.
   changes the CloudFront Function; asserting from `deploy` would race the apply.
 - **The analytics half has a public reader since 2026-11-01.** `/analytics` describes the GA4 events
   and their parameters to readers in both editions, decided in
-  [ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md). The same
+  [ADR-0005, *The analytics schema page*](./0005-og-coverage-every-public-url.md#the-analytics-schema-page). The same
   things are observed with the same tools; a change to the event schema is now also a change to a
   published page.
 
@@ -1061,7 +1061,7 @@ a backend playbook.
 
 - **No server-side insight**, because there is no server. A property of the static decision, not a gap.
 - **Usage numbers are a floor, not exact, and that is now a published claim.** Ad-blockers and privacy
-  tools are one cause; the hard consent gate of ADR-0033 is the other, and it is the one `/analytics`
+  tools are one cause; the hard consent gate of ADR-0005 (*Consent-gated GA4 analytics*) is the other, and it is the one `/analytics`
   names: a reader who declines is never counted.
 - **The fidelity test between the event schema and `/analytics` covers event and parameter names only**;
   the page's prose is held by review.

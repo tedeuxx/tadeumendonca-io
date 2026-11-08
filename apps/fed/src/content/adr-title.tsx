@@ -2,7 +2,7 @@
 //
 // WHY THIS EXISTS. ADR titles are authored markdown headings and several carry inline markup. Rendered
 // as flat text they publish their own syntax — cosmetic for most of them (backticks around a filename,
-// a route or a parameter name; bold in 0038) and NOT cosmetic for one:
+// a route or a parameter name; bold in record 0038 until #456 absorbed it into ADR-0005) and NOT cosmetic for one:
 //
 // No count here, deliberately. The first version said "five … cosmetic for four of them" and named
 // three; it is six and five. A number about the library, in the comment justifying the module, on a

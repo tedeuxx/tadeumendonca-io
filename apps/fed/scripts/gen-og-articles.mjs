@@ -8,7 +8,7 @@
 // rectangle that renders small in a feed.
 //
 // "Not the campaign signature" is REVERSED for cover-derived cards only (#710, owner 2026-10-31:
-// «Card estreito»; ADR-0041's 2026-11-01 amendment). An article whose frontmatter sets `cover` gets a
+// «Card estreito»; ADR-0005's *Per-article OG cards*, 2026-11-01 amendment). An article whose frontmatter sets `cover` gets a
 // card built from that cover, with its title, the published signature and an AI-generated mark. Every
 // other article keeps the title-only card below, unchanged.
 //
@@ -112,7 +112,7 @@ const cardHtml = (title) => `<!doctype html><html><head><meta charset="utf-8"><s
 </body></html>`;
 
 // ---------------------------------------------------------------------------------------------------
-// The COVER-DERIVED variant (#710, ADR-0041's 2026-11-01 amendment) — taken only when the article's
+// The COVER-DERIVED variant (#710, ADR-0005's *Per-article OG cards*, 2026-11-01 amendment) — taken only when the article's
 // frontmatter sets `cover`. Same canvas, palette, mark, type and footer meta as the card above; the
 // article's own cover takes the right-hand column, the title shares the left with the published
 // signature, and the cover carries a visible AI-generated mark so the card cannot pass as a photograph

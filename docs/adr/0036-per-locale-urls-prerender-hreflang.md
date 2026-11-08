@@ -208,7 +208,7 @@ ADR's own client-side redirect clause: an unprefixed path auto-detects and redir
 the home page. Per [ADR-0005](./0005-og-coverage-every-public-url.md) a scraper **pins** that card
 permanently, and CLAUDE.md names OG pinning the least reversible thing in this repo. A soft-404 that answers
 200 is worse than a 404: nothing fails, it just publishes the wrong page under five addresses.
-[ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment had already named this
+[ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-07-27 amendment had already named this
 hazard for the article case, and made the draft generator refuse any URL absent from the prerendered list;
 this amendment fixes the source rather than the one consumer that guarded against it.
 
@@ -664,7 +664,7 @@ in both editions, discloses it.
 **The question he was asked.** The site stores `locale_hint` on the reader's device on the first HTML
 response, before any consent choice. It carries one of three values, no identifier and no location,
 lives for an hour, and is read only by this site's own script. Does it go behind the consent gate
-([ADR-0033](./0033-ga4-consent-gated-analytics.md)), or is it set before a choice?
+([ADR-0005, *Consent-gated GA4 analytics*](./0005-og-coverage-every-public-url.md#consent-gated-ga4-analytics)), or is it set before a choice?
 
 **Chosen: set before a choice, and disclosed.** The feature works on a first visit, which is the visit it
 exists for, and the reader is told what is stored, what it carries and how long it lives.
@@ -749,7 +749,7 @@ Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
   fix pins x-default to the prefixed English canonical (root excepted) and adds the membership + own-canonical
   gates. Related: [ADR-0005](./0005-og-coverage-every-public-url.md) (OG pinned on first fetch),
   [ADR-0037](./0037-localized-article-slugs.md) (per-locale article slugs — the pt-BR dead end),
-  [ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-07-27 amendment (the same hazard, guarded
+  [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-07-27 amendment (the same hazard, guarded
   at one consumer). **Read *"root excepted"* as *"root and articles excepted"* since 2026-09-20 —
   [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660) moves an article's
   x-default to the neutral `/blog/<en-slug>` by making that URL a prerendered document, so #200's membership

@@ -339,11 +339,11 @@ it exists.
   unit and it is still a coupling: a change to the diagram caption silently restyles every photograph.
 
 **Neutral**
-- **`iac/` untouched**, and stated with the caution ADR-0041 earned: no cache behaviour, no origin, no
+- **`iac/` untouched**, and stated with the caution ADR-0005 (*Per-article OG cards*) earned: no cache behaviour, no origin, no
   Terraform resource is involved — not merely that the output happens to be static. The JPEGs are served
   from the existing bucket and distribution as ordinary build output.
 - **No `og:title`, no URL and no OG card changes**, so nothing here is pinned by a scraper
-  ([ADR-0041](./0041-per-article-og-cards.md)). The photographs are not OG images.
+  ([ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)). The photographs are not OG images.
 - **The prerender contract is unchanged** — the figures are static markup with no runtime behaviour at all,
   which is one thing this class does **not** cost that ADR-0047's did.
 
@@ -505,6 +505,6 @@ subject is a photograph as **evidence** — a thing that was in front of a camer
 illustrations under `apps/fed/public/illustrations/` are AI-generated, say so in their `alt` and their
 caption, and **stay outside `data/photos.ts`** and its byte ceiling. Issue
 [#710](https://github.com/tedeuxx/tadeumendonca-io/issues/710) puts that article's cover onto its OG card
-([ADR-0041](./0041-per-article-og-cards.md), 2026-11-01 amendment) with a visible AI-generated mark, which
+([ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards), 2026-11-01 amendment) with a visible AI-generated mark, which
 is the card-side form of the same distinction: nothing on the card may present the scene as a record of a
 real one.

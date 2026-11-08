@@ -31,7 +31,7 @@ describe('ArchitecturePage', () => {
     renderPage(locale);
     expect(document.title).toBe(expected);
     // og:title is the same string — one prop feeds four surfaces (MarkdownPage), and the OG half is the
-    // irreversible one: scrapers pin a card on first fetch (ADR-0041).
+    // irreversible one: scrapers pin a card on first fetch (ADR-0005, *Per-article OG cards*).
     expect(document.head.querySelector('meta[property="og:title"]')?.getAttribute('content')).toBe(expected);
   });
 

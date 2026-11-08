@@ -63,17 +63,17 @@ export interface BlogPost {
    * mechanism; see the `byLocale` / `getPostBySlug` pair below, which is the one place the two behaviours
    * must differ.
    *
-   * An explicit flag rather than a future `date`, deliberately (ADR-0049): a wall-clock comparison makes
+   * An explicit flag rather than a future `date`, deliberately (ADR-0005, *A held article is isolated, not private*): a wall-clock comparison makes
    * the SAME COMMIT build differently tomorrow, which breaks "rebuild the tag to reproduce production".
    * Promotion is one source edit in both editions — `draft: false` plus the real date — and a scheduled
    * publication becomes a scheduled COMMIT, which is strictly more auditable than a time-dependent build.
    * It is not self-contained: the OG cards (`gen-og-articles`, committed) and the distribution kit
-   * (`gen-distribution`, gitignored) are separate scripts the build does not run (#635, ADR-0049).
+   * (`gen-distribution`, gitignored) are separate scripts the build does not run (#635, ADR-0005 (*A held article is isolated, not private*)).
    *
    * WHAT IT DOES NOT DO, stated here because the field name invites the opposite reading: it is
    * ISOLATION, not privacy. While a held draft is deployed its full body — both locales — ships inside
    * `dist/assets/index-*.js` and is fetchable by anyone with no parameter at all. Nobody stumbles into
-   * it; anyone who knows to look will find it. ADR-0049 records that consequence with the command that
+   * it; anyone who knows to look will find it. ADR-0005 (*A held article is isolated, not private*) records that consequence with the command that
    * measures it.
    *
    * A FACT (`FACT_KEYS`), so the two editions cannot disagree: a held PT edition beside a published EN
@@ -108,7 +108,7 @@ export interface BlogPost {
   contentIssue?: number;
   /**
    * Optional cover image path. Not rendered by the page (the article body carries its own cover image);
-   * it is the selector for the COVER-DERIVED OG card (#710, ADR-0041's 2026-11-01 amendment): set, the
+   * it is the selector for the COVER-DERIVED OG card (#710, ADR-0005's *Per-article OG cards*, 2026-11-01 amendment): set, the
    * card generator builds the card from this image and the page appends the AI-generated note to
    * `og:image:alt`.
    */
@@ -449,7 +449,7 @@ function keyAndLocaleOf(path: string, kind: string): [string, Locale] {
 const rawFrontmatterOf = (raw: string): string | undefined => FRONTMATTER.exec(raw)?.[1];
 
 /**
- * PENDING REVISIONS of published articles (#741, ADR-0049's amendment) — `src/content/revisions/`.
+ * PENDING REVISIONS of published articles (#741, ADR-0005's *A held article is isolated, not private*, as amended) — `src/content/revisions/`.
  *
  * A revision is a full copy of each edition of a PUBLISHED article, keyed by the article KEY (the `blog/`
  * filename stem, never a slug — ADR-0037), with frontmatter byte-identical to the published edition and a
@@ -584,7 +584,7 @@ const raws = import.meta.glob('../content/blog/*.{pt,en}.md', {
 
 const editionsBySlug = buildEditions(raws);
 
-// EAGER, like the glob above, and the cost is named rather than hidden (ADR-0049's amendment): while a
+// EAGER, like the glob above, and the cost is named rather than hidden (ADR-0005's *A held article is isolated, not private*, as amended): while a
 // revision is pending its body — both locales — ships in the main bundle every visitor downloads, and is
 // fetchable without the parameter. Isolation, not privacy, exactly as for a held draft; and the text is
 // already public in its own merge request. A lazy glob would spare visitors the bytes at the price of an

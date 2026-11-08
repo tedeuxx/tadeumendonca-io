@@ -6,7 +6,7 @@ So this page does the opposite for this site. It carries no figure from GA4 and 
 
 ## Every count is a floor
 
-Nothing reaches Google until you accept analytics. Before a choice, on decline, and on a build with no measurement id, the tag is never loaded, so Google sets no cookie and receives no request. If you accept and later withdraw, this site's code sends nothing more from then on. The tag itself stays loaded, though, and what it collects on its own, such as the automatic measurement GA4 can switch on for a property, depends on a console setting this repository cannot observe. That gate is a decision with its reasons written down in [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
+Nothing reaches Google until you accept analytics. Before a choice, on decline, and on a build with no measurement id, the tag is never loaded, so Google sets no cookie and receives no request. If you accept and later withdraw, this site's code sends nothing more from then on. The tag itself stays loaded, though, and what it collects on its own, such as the automatic measurement GA4 can switch on for a property, depends on a console setting this repository cannot observe. That gate is a decision with its reasons written down in [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md), section *Consent-gated GA4 analytics*.
 
 The consequence is that whoever declines is never counted, and neither is whoever blocks the tag. Every number GA4 holds about the events this site's code sends is therefore a floor, never a total, unless that automatic collection counts the same thing a second time ([ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), section *Observability scoped to a static site*). That is the price of the gate, and I would rather pay it than count people who said no.
 
@@ -18,7 +18,7 @@ One cookie is set on every page, whatever you choose about analytics, and it is 
 
 This page describes what the site **emits**. That part is known to this repository, because it is the code. What can be **queried** in GA4 is a different fact: a parameter only becomes something you can segment by once it is registered as a custom dimension in the GA4 console, and registration does not backfill. A parameter emitted before its registration cannot be queried in GA4 for that period, permanently.
 
-That console step sits outside every check this repository runs, and nothing here can observe whether it was done. So this page makes no claim about what is queryable. The reasoning, and the obligation, are in [ADR-0051](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0051-ga4-event-schema-is-immutable-once-shipped.md).
+That console step sits outside every check this repository runs, and nothing here can observe whether it was done. So this page makes no claim about what is queryable. The reasoning, and the obligation, are in [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md), section *The GA4 event schema is immutable once it collects*.
 
 GA4 also attaches fields of its own to every hit that this site does not set, such as the browser's language and the screen size. Those are not listed here: this page covers what this site's code sends, not everything the tool records.
 

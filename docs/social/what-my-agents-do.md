@@ -16,7 +16,7 @@ the post's current text, which may differ from what was first published.
 ## Links, as shipped
 
 Both links are recorded as rendered, not normalised. These posts predate the share-link convention as it
-was recorded: `published-voice` rule 21 dates the ruling 2026-09-19, and the ADR-0038 amendment that
+was recorded: `published-voice` rule 21 dates the ruling 2026-09-19, and the record 0038 amendment (since #456 in ADR-0005's *Distribution to LinkedIn and X*) that
 records it merged on 2026-09-20 (#666). Both posts show the date 2026-09-19 too, so whether they went out
 before or after the ruling that same day is not established here — see *Gaps*.
 
