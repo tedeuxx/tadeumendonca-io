@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change)
+- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change) · **amended 2026-11-01** (a sixth `utm_source`, `instagram`, and a fourth `utm_campaign`, `story-card`, printed in the QR on the vertical Instagram Story card; the medium stays `social`; #662)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
@@ -408,3 +408,75 @@ value the record does not define.
   two networks.
 
 **Refs** Issue [#749](https://github.com/tedeuxx/tadeumendonca-io/issues/749).
+
+## Amendment (2026-11-01) — `utm_source=instagram` and `utm_campaign=story-card`, printed in a QR
+
+**Decided by the owner** on Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662),
+2026-10-31: *«Valor novo»* (a new campaign value, working name `story-card`, with `utm_source=instagram`
+and `utm_medium=social`). Written in the merge request that builds the card. This amendment **does**
+decide something: it adds a member to each of two sets this record closed.
+
+### Context
+
+Instagram Stories became a distribution channel ([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s
+2026-11-01 amendment). Its link is a QR code on a generated vertical card
+([ADR-0041](./0041-per-article-og-cards.md)'s 2026-11-01 amendment), encoding the neutral article URL
+([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)). The closed `utm_source` set had no
+member for the network, and no campaign fit the artifact: one committed card per locale serves both the
+author's own Story and, from slice B ([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), a
+reader's Story, and a static PNG cannot know who posted it.
+
+### Considered options for `utm_campaign`
+
+1. **A new value naming the artifact, `story-card`** (chosen by the owner). *Trade-off:* it measures the
+   Story channel apart from the posts and does **not** separate the author's Stories from readers'.
+2. **`author-post`.** *Why not:* every reader's Story would count as the author's.
+3. **`reader-share`.** *Why not:* the reverse, and it would also enter the `reader-share` success
+   criterion with sessions the author caused.
+
+**The medium stays `social`.** A `story` medium was proposed at intake and withdrawn the same day: GA4's
+default channel grouping matches `social`, which this record makes load-bearing, and a new medium buys
+nothing the source does not already carry.
+
+### Decision
+
+| parameter | value |
+|---|---|
+| `utm_source` | `instagram` |
+| `utm_medium` | `social` |
+| `utm_campaign` | `story-card` |
+
+**Meaning:** *"the visitor scanned the QR on a Story card."* It names a mechanism and an artifact, like
+`reader-share` and `author-profile`, and the network sits in the source rather than the campaign, the
+split this record's 2026-10-16 amendment already applies.
+
+**Where the strings live:** `apps/fed/src/lib/utm.ts` — `instagram` joins the `ShareSource` union (which
+also widens `ShareCompleteTarget` in `analytics.ts`, by type only), and `STORY_SOURCE` and
+`STORY_CAMPAIGN` are exported constants. Unlike `author-profile`, these **are** in the module, because
+site code emits them: the build-time generator reads them to compose the QR payload through
+`withShareUtm`, and its gate decodes each committed PNG and compares the result with that derivation.
+`utm.test.ts` pins both literals, so a rename is red rather than silently regenerated.
+
+**It joins the immutable set now**, by the clause this record carries: the first committed card is the
+first use. A printed QR cannot be re-tagged: a photographed or re-shared frame keeps the string after
+every post that carried it expired.
+
+### What this does not touch
+
+- **`share_complete` and the GA `target` dimension.** This slice prints `instagram` into a QR and emits
+  no event carrying it. The first emitter, the dimension's documented values and
+  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)'s registration obligation are slice
+  B's.
+- **[ADR-0033](./0033-ga4-consent-gated-analytics.md)'s consent gate.** An unconsented scan stays
+  invisible; every `story-card` number is a floor.
+- **`reader-share`, `author-post`, `author-profile`** and the `reader-share` success criterion.
+- **No shortener and no third-party redirect.** The QR encodes the site's own URL directly.
+
+### Consequences
+
+**Bad / accepted costs**
+- The author's Stories and readers' Stories are one series. Separating them would need a second card per
+  article and locale, and the owner chose not to.
+- No success criterion is set. Read the series as existence-class.
+
+**Refs** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662).

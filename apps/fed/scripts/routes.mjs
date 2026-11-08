@@ -67,6 +67,7 @@ const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/
 // which is why the cache lives here rather than in `src/lib/content.ts` (that one is a Vite glob, already
 // resolved once at module load).
 let editionsCache;
+let editionsByKeyCache;
 
 // Private (#222). The memo is asserted by COUNTING PARSE CALLS from a fresh module instance
 // (`vi.resetModules()` + dynamic import), not by reference identity — identity needed an export, and it
@@ -77,8 +78,17 @@ function blogEditions() {
   // Assignment as a statement, not inside the `return` expression (S1121): the compact
   // `return (cache ??= f())` hides that the line has a side effect, which is the one thing a reader
   // needs to notice about a memo.
-  editionsCache ??= readBlogEditions();
+  editionsCache ??= [...blogEditionsByKey().values()];
   return editionsCache;
+}
+
+// The same parse, kept addressable by article KEY (#662): the Story card is named after the key and its
+// QR must encode that article's neutral URL, so the generator asks "which neutral route does THIS key
+// have" — a question the slug-pair list above cannot answer, because it dropped the keys. One memo
+// feeds both, so the directory is still read and parsed once per process.
+function blogEditionsByKey() {
+  editionsByKeyCache ??= readBlogEditions();
+  return editionsByKeyCache;
 }
 
 /**
@@ -129,8 +139,7 @@ export function buildBlogEditions(files, readFile) {
 }
 
 function readBlogEditions() {
-  const byKey = buildBlogEditions(readdirSync(contentDir), (file) => readFileSync(join(contentDir, file), 'utf8'));
-  return [...byKey.values()];
+  return buildBlogEditions(readdirSync(contentDir), (file) => readFileSync(join(contentDir, file), 'utf8'));
 }
 
 /**
@@ -236,9 +245,29 @@ function slugPairIndex() {
  */
 export function neutralArticleRoutes() {
   return blogEditions().map((pair) => {
-    const route = `/blog/${pair.en}`;
+    const route = neutralRouteOf(pair);
     return { route, url: route };
   });
+}
+
+const neutralRouteOf = (pair) => `/blog/${pair.en}`;
+
+/**
+ * The neutral route of ONE article, addressed by its KEY (#662) — what the Instagram Story card's QR
+ * encodes. The card is named after the key (ADR-0041's orphaning argument) while the URL it prints is
+ * keyed on the current English slug (ADR-0052), and this is the one place the two meet, so the QR can
+ * never be typed by hand.
+ *
+ * Throws on an unknown or HELD key rather than returning undefined: a QR is printed once and read from
+ * someone's screen long after, so a payload built from `/blog/undefined` must stop the generator, not
+ * ship.
+ */
+export function neutralArticleRouteFor(key) {
+  const pair = blogEditionsByKey().get(key);
+  if (!pair) {
+    throw new Error(`routes: no published article has the key "${key}" — it is unknown or held, so it has no neutral URL.`);
+  }
+  return neutralRouteOf(pair);
 }
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The

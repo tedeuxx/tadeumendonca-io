@@ -9,7 +9,8 @@ import { markdownFilesIn } from './video-thumbs.mjs';
 // A revision lives in `src/content/revisions/`, a SIBLING of `blog/`. The design rests on two properties,
 // and this file pins both:
 //
-//  1. THE FOUR ENUMERATING READERS READ `blog/` AND ONLY `blog/`. Routes and the sitemap (`routes.mjs`),
+//  1. THE ENUMERATING READERS READ `blog/` AND ONLY `blog/` (four until #662 added the Story card
+//     generator, `gen-story-cards.mjs`, a fifth). Routes and the sitemap (`routes.mjs`),
 //     the OG cards (`gen-og-articles.mjs` via `og-cards.mjs`), and the social kit (`gen-distribution.mjs`)
 //     must never enumerate a revision as an article. Their content directory is a module-private constant
 //     (none is exported, and #741 changes none of these files), so the pin is on that constant's source.
@@ -29,6 +30,8 @@ describe('the enumerating readers read src/content/blog, flat', () => {
     ['scripts/routes.mjs', "const contentDir = join(root, 'src', 'content', 'blog');"],
     ['scripts/gen-distribution.mjs', "const contentDir = join(fedRoot, 'src', 'content', 'blog');"],
     ['scripts/gen-og-articles.mjs', "const blogDir = join(root, 'src', 'content', 'blog');"],
+    // #662 — the fifth enumerating reader: the Story card generator, through the same og-cards.mjs keys.
+    ['scripts/gen-story-cards.mjs', "const blogDir = join(root, 'src', 'content', 'blog');"],
   ];
 
   it.each(readers)('%s enumerates blog/', (file, declaration) => {
