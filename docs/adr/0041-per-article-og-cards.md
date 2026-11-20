@@ -4,7 +4,7 @@
   [ADR-0003](./0003-trunk-based-single-environment.md)'s 2026-07-30 amendment, which is also what makes
   `proposed` the wrong status here: the amendment that made reader-facing `product` work safe to decide
   without the owner is the same one that removed it from their queue, so leaving it `proposed` would
-  assign the flip to nobody. Same call, same reasoning, as ADR-0039 and ADR-0040.)
+  assign the flip to nobody. Same call, same reasoning, as ADR-0039 and ADR-0008 (*Diagrams compiled from Mermaid at build time*).)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
@@ -14,7 +14,7 @@
   distribution surface) · constrained-by [ADR-0037](./0037-localized-article-slugs.md) (slugs are
   per-locale and editable) and [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (OG per locale) ·
   extends [ADR-0005](./0005-og-coverage-every-public-url.md) · same architectural shape as
-  [ADR-0040](./0040-build-time-mermaid-diagrams.md), deliberately
+  [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time), deliberately
 
 ## Context & problem
 Every route on the site advertises the same `og:image` — `public/og-default.png`
@@ -37,7 +37,7 @@ are simply this property applied; they are recorded together for that reason.
 ## Decision drivers
 - **Two shared articles must not look like the same link** — the whole point.
 - **A wrong or missing card cannot be taken back**, so the failure has to be a *red build*, never a
-  degradation on a served page (the ADR-0040 rule, for a stricter reason: a diagram is wrong on a page a
+  degradation on a served page (the diagram rule of ADR-0008 (*Diagrams compiled from Mermaid at build time*), for a stricter reason: a diagram is wrong on a page a
   reader can revisit; a card is wrong in someone else's timeline forever).
 - **Identity is the article KEY, not a URL** ([ADR-0037](./0037-localized-article-slugs.md)) — slugs are
   per-locale and expected to be corrected after publication.
@@ -137,7 +137,7 @@ article per locale into `apps/fed/public/og/`, committed**; `lib/content.ts` der
 from the key and locale; two mechanical gates assert the set is right.
 
 **This is deliberately the same architectural shape as
-[ADR-0040](./0040-build-time-mermaid-diagrams.md)** — a build-time artifact rendered in the Playwright
+[ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time)** — a build-time artifact rendered in the Playwright
 Chromium the prerender already installs, committed to the repo, guarded by a **bidirectional set-equality
 test** in Node. It is not re-derived here. The precedent is followed on purpose: the alternatives (a
 runtime renderer, an uncommitted artifact regenerated in CI, a new browser toolchain) were argued and
@@ -293,7 +293,7 @@ names the URL.
   because the head is per locale and the title is per locale.
 - **Extends [ADR-0005](./0005-og-coverage-every-public-url.md)** — OG completeness now means *distinct*,
   not merely *present*, on the article route.
-- **Same architectural shape as [ADR-0040](./0040-build-time-mermaid-diagrams.md)** — build-time generated
+- **Same architectural shape as [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time)** — build-time generated
   artifact, committed, guarded by a bidirectional set-equality test with a false-green guard. Followed as
   precedent rather than re-derived; its "the artifact is not proven to come from the source" cost applies
   here too, and is restated above.

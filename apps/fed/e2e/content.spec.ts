@@ -239,7 +239,7 @@ test.describe('content detail', () => {
   }
 
   // The article's video is a MOVE, not an insertion, and the defect it guards against is a SECOND
-  // player: the lone-URL paragraph is what the renderer turns into a `<VideoEmbed>` (ADR-0035), so
+  // player: the lone-URL paragraph is what the renderer turns into a `<VideoEmbed>` (ADR-0008 (*Curated repositories as static cards in long-form*)), so
   // leaving a copy of the URL where it used to live republishes the same video twice on one page —
   // near-missed once already on this article. A count of one is therefore the assertion, not a
   // presence check, and it is taken on the SERVED build because the source is where the mistake is

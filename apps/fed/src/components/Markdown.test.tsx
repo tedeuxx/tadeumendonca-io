@@ -5,7 +5,7 @@ import { diagramSources } from '../content/diagrams';
 import { renderWithLocale } from '../test-utils';
 import { SITE_URL } from '../lib/site';
 
-describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0035)', () => {
+describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0008 (*Curated repositories as static cards in long-form*))', () => {
   it('turns a paragraph that is only a curated repo URL into a RepoCard', () => {
     const { container } = renderWithLocale(<Markdown>{'https://github.com/karpathy/nanoGPT'}</Markdown>, {
       locale: 'en',

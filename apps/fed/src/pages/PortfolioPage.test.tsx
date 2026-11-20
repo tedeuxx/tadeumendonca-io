@@ -12,7 +12,7 @@ describe('PortfolioPage', () => {
     expect(screen.getByRole('link', { name: new RegExp(catalog[0].name) })).toHaveAttribute('href', catalog[0].repoUrl);
   });
 
-  // ADR-0045's reference page. The composed title, in both locales — the string a tab shows, not the key.
+  // The reference page of ADR-0008 (*A document title leads with the section label*). The composed title, in both locales — the string a tab shows, not the key.
   it.each([
     ['pt', 'Portfólio · tadeumendonca.io'],
     ['en', 'Portfolio · tadeumendonca.io'],

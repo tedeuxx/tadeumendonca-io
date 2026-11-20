@@ -71,7 +71,7 @@ describe('the collector reaches every content body, at any depth', () => {
   // THE GAP THE WIDENING OPENS, closed here rather than named and left.
   //
   // `architecture-diagrams.test.mjs` asserts fence-count parity across the two editions of /architecture,
-  // for a reason ADR-0040 records as a COST of this pipeline — a diagram is duplicated per locale, so the
+  // for a reason ADR-0008 (*Diagrams compiled from Mermaid at build time*) records as a COST of this pipeline — a diagram is duplicated per locale, so the
   // editions can drift, and a drifting diagram is worse than drifting prose because nobody re-reads a
   // picture to check it. That assertion reads its two files BY NAME, so it has never covered anything
   // else, and before this change nothing else could carry a fence at all.

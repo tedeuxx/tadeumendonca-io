@@ -1,9 +1,9 @@
-// Static GitHub repo card (/frontend/markdown, issue #122 / ADR-0035). Rendered by the shared <Markdown>
+// Static GitHub repo card (/frontend/markdown, issue #122 / ADR-0008 (*Curated repositories as static cards in long-form*)). Rendered by the shared <Markdown>
 // when a long-form paragraph is nothing but a curated repo URL (see Markdown.tsx + data/repoCards.ts) —
 // the same lone-URL→component facade as VideoEmbed, but for a repo instead of a video.
 //
 // It is PURE static text plus ONE outbound anchor: no <img> from a GitHub/OG CDN, no iframe, no third-
-// party script, no network. That is the whole point over GitHub's OG-card image (ADR-0035) — a card that
+// party script, no network. That is the whole point over GitHub's OG-card image (ADR-0008 (*Curated repositories as static cards in long-form*)) — a card that
 // costs the reader nothing. The whole surface is a single <a> (one destination, unlike the catalog's
 // ProjectCard which carries repo + live), so it satisfies "exactly one anchor per card" and stays
 // keyboard-reachable as one control. Brand: obeys ADR-0008 (radius 0, no shadow/gradient, mono + accent).

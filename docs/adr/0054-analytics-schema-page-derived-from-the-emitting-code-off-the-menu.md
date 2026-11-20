@@ -12,7 +12,7 @@
 - **Driven by:** [#640](https://github.com/tedeuxx/tadeumendonca-io/issues/640) · **amends**
   [ADR-0003, *Observability scoped to a static site*](./0003-trunk-based-single-environment.md#observability-scoped-to-a-static-site) (see its 2026-11-01 amendment) · **reads, never
   changes** [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) · **qualifies**
-  [ADR-0045](./0045-document-title-leads-with-section-label.md) for an off-menu section (see its
+  [ADR-0008, *A document title leads with the section label*](./0008-brutalist-mono-identity.md#a-document-title-leads-with-the-section-label) for an off-menu section (see its
   2026-11-01 amendment)
 
 ## Context & problem
@@ -155,7 +155,7 @@ says whether this file should exist.
 - [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md) — the schema the page renders; not
   amended.
 - [ADR-0033](./0033-ga4-consent-gated-analytics.md) — the consent gate the page states; not amended.
-- [ADR-0045](./0045-document-title-leads-with-section-label.md) — the title convention, qualified for an
+- [ADR-0008, *A document title leads with the section label*](./0008-brutalist-mono-identity.md#a-document-title-leads-with-the-section-label) — the title convention, qualified for an
   off-menu section in its 2026-11-01 amendment.
 - [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) and
   [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) — the route follows the existing
