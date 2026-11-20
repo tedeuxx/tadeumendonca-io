@@ -1,4 +1,4 @@
-// Lookup for the build-time compiled diagrams (#170, ADR-0040).
+// Lookup for the build-time compiled diagrams (#170, ADR-0008 (*Diagrams compiled from Mermaid at build time*)).
 //
 // Keyed by the diagram's own normalised source, and a PLAIN string lookup. The obvious design was to key
 // by a content hash and recompute it here — the shape lib/content.ts uses to refuse a missing locale

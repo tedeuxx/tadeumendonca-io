@@ -12,7 +12,7 @@
 // everything the reader reads is authored in both languages. Every other reader-facing module already
 // made a missing translation a COMPILE error (`profile.ts` via `ProfileSource`, the message catalog,
 // `repoCards.ts`'s leaf-bilingual `description`); this file was the one that did not, so nothing
-// objected. Same leaf-bilingual shape as ADR-0035's `repoCards.ts`: prose per locale, FACTS once.
+// objected. Same leaf-bilingual shape as the `repoCards.ts` of ADR-0008 (*Curated repositories as static cards in long-form*): prose per locale, FACTS once.
 //
 // READER-FACING BY PATH: these are published positioning words, so a change here is copy, not app data.
 // It is NOT an owner gate — ADR-0003's 2026-07-30 amendment made reader-facing content safe class. What

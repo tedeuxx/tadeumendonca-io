@@ -1,4 +1,4 @@
-// Renders a build-time compiled mermaid diagram as inline SVG (#170, ADR-0040).
+// Renders a build-time compiled mermaid diagram as inline SVG (#170, ADR-0008 (*Diagrams compiled from Mermaid at build time*)).
 //
 // dangerouslySetInnerHTML is used, and the justification is the trust boundary rather than the API: the
 // string comes from src/content/generated/diagrams.json, which is produced by scripts/gen-diagrams.mjs

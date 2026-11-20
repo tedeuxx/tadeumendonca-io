@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // #716 — what the agent-tier diagram on /architecture tells a reader about who applies `ready` on a
 // `loop` Issue, what holds the orchestrator's merge, and what `content-reviewer` does. The unit block in
 // `scripts/architecture-diagrams.test.mjs` pins the SOURCE; this pins the SERVED bytes, because the
-// diagram is compiled to inline SVG at build time (ADR-0040) and the generated artifact is a second
+// diagram is compiled to inline SVG at build time (ADR-0008 (*Diagrams compiled from Mermaid at build time*)) and the generated artifact is a second
 // copy that can lag the source. A raw request, not `page.goto`: the claim is about what a crawler and a
 // JS-less reader receive, and the running app would render the same SVG whether or not it was
 // prerendered.

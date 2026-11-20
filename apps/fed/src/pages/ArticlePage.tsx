@@ -108,7 +108,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
     body: article?.body ?? '',
   });
 
-  // DELIBERATE EXCEPTION to ADR-0045. An article is a document, not a section: its own name IS the
+  // DELIBERATE EXCEPTION to ADR-0008 (*A document title leads with the section label*). An article is a document, not a section: its own name IS the
   // address a reader bookmarks, searches for and shares, and prefixing it with a section label would
   // spend the front of the tab — and the front of a SERP line — on the word every article would repeat.
   // The not-found arm is the same reasoning: "Artigo não encontrado" is the state, and it is what the
