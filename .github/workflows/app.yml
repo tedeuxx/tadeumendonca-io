@@ -8,15 +8,19 @@ name: app
 # regression (Playwright E2E against a preview of the built app) runs HERE, before the merge deploys.
 #
 # The former 13-step monolith is split into one job per command. What that buys is parallelism and a
-# readable graph; what it costs is a fresh runner (and a fresh `npm ci`) per job. That trade is an OPEN
-# question in .github/workflows/README.md pending a wall-clock measurement — if the measurement says the
-# monolith was faster, this file is the thing to revert, not the naming.
+# readable graph; what it costs is a fresh runner (and a fresh `npm ci`) per job. ~~That trade is an OPEN
+# question in .github/workflows/README.md pending a wall-clock measurement~~ — struck (#822): measured,
+# and the split stays. The critical path is one chain (build-static, then playwright), and #822 shortens
+# it by sharding playwright three ways and by starting build-static without waiting for npm-ci. The
+# figures and the commands that produced them are in .github/workflows/README.md, open decision 1.
 #
 # `npm-ci` is a real job with a real purpose, but NOT the one the graph suggests: node_modules cannot
 # cross runners. It fails fast on a broken lockfile and it POPULATES the actions/setup-node npm cache
-# (~/.npm) that every job below restores from, so the parallel installs are warm rather than cold. Each
+# (~/.npm) that the jobs below it restore from, so their parallel installs are warm rather than cold. Each
 # job still runs its own `npm ci --ignore-scripts`. Persisting node_modules as an artifact was considered
 # and rejected: this tree (playwright, vite, mermaid) is larger than the download it would save.
+# `build-static` no longer waits for it (#822): it heads the critical path, and the cache a PR restores is
+# normally the one `main`'s own runs saved for the same lockfile. See build-static for the cost.
 on:
   pull_request:
     branches: [main]
@@ -424,8 +428,20 @@ jobs:
   # the OG tags in the served HTML and prints /cv.pdf.
   #
   # Runs on a VERSION-only change too: the version is compiled into the bundle.
+  #
+  # `needs: changes` only, NOT `npm-ci` (#822). This job heads the one chain that sets the PR's wall-clock
+  # (build-static, then playwright), so waiting about 0.8 min for npm-ci put that wait on every PR. What
+  # npm-ci guarded is unchanged: it still runs, still fails fast on a broken lockfile, and build-test still
+  # needs it, so a red there still turns the required check red. Its condition (test || version ||
+  # citations) is a superset of this job's (code || version), so this job never runs on a shape where the
+  # lockfile check does not; app-workflow.test.mjs derives that rather than trusting this comment.
+  #
+  # THE COST, stated: this job can no longer rely on npm-ci having warmed ~/.npm in this run. On a PR that
+  # does not change the lockfile, setup-node restores the cache `main`'s runs saved under the same key, so
+  # nothing is lost. On a PR that changes the lockfile (a Dependabot bump, typically) this install is cold,
+  # exactly as npm-ci's own install is on that PR.
   build-static:
-    needs: [changes, npm-ci]
+    needs: changes
     if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     defaults:
@@ -471,10 +487,26 @@ jobs:
   #
   # NOTE what this artifact is NOT: it cannot be promoted to production. The deploy rebuilds after the
   # version bump, so the shipped bundle differs from this one by the VERSION string. See deploy.yml.
+  #
+  # SHARDED THREE WAYS (#822), and the whole suite still runs on every PR: each leg runs
+  # `--shard=i/3`, and the three legs together run every test exactly once (`fullyParallel: true` in
+  # playwright.config.ts makes Playwright split by test, not by file). The E2E step was the single
+  # largest step on the PR's critical path. The job id stays `playwright`, and `needs.playwright.result`
+  # for a matrix is one aggregated result, `failure` if any leg failed, so `build-test` needed no edit.
+  #
+  # `fail-fast: false`: a red leg does not cancel the other two, so one run names every failing spec
+  # instead of the first leg's. The result is still `failure` either way.
+  #
+  # The shard list is a closed set that must cover 1..N with N equal to its own length. A list that
+  # dropped a leg would run fewer tests and still go green, so app-workflow.test.mjs asserts it.
   playwright:
     needs: [changes, build-static]
     if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/3", "2/3", "3/3"]
     defaults:
       run:
         working-directory: apps/fed
@@ -491,7 +523,8 @@ jobs:
         run: npm ci --ignore-scripts
 
       # A SECOND browser download, on a second runner. This is the clearest cost of splitting the gate
-      # into jobs: build-static already paid for one and cannot hand it over.
+      # into jobs: build-static already paid for one and cannot hand it over. Since #822 it is paid once
+      # per shard, so three times here: about 20 s of runner time each, in parallel, not on wall-clock.
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
@@ -504,8 +537,10 @@ jobs:
       # `:built` skips the rebuild `e2e:local` does — the artifact above IS the build, and a fresh
       # checkout cannot have a stale dist/. Locally the default script rebuilds first, because there
       # dist/ CAN be stale and a suite run against old output passes for the wrong reason.
-      - name: E2E (Playwright against a preview of the build)
-        run: npm run e2e:local:built
+      - name: E2E (Playwright against a preview of the build, one shard)
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: npm run e2e:local:built -- --shard="$SHARD"
 
   # The one job that reads another repository WITHOUT A CREDENTIAL (#318, ADR-0043; narrowed by #345).
   #
