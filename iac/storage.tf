@@ -77,7 +77,7 @@ module "frontend_bucket" {
 # it since that retirement; #302 then removed the CloudFront origin and /og/* behavior that were its
 # only reader, because they were misrouting every per-article og:image. That left a bucket with zero
 # objects and zero readers, and its 90-day lifecycle rule had been expiring nothing for just as long.
-# The per-article cards of ADR-0041 are committed static objects served from the fed bucket.
+# The per-article cards of ADR-0005 (*Per-article OG cards*) are committed static objects served from the fed bucket.
 # Deleting it is irreversible, so it was taken as its own decision rather than folded into #302.
 # The numbering is left ALONE as buckets are retired — only 1 is still a resource, 2 and 4 are these
 # comments, and 3 never existed here. Renumbering would silently rewrite what every older commit

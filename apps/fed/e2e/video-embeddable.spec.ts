@@ -65,7 +65,7 @@ test.describe('a video whose owner disabled embedding is served as a link previe
 
   for (const { id, path, play } of ROUTES) {
     // `?preview` so the journey works whether the article is held or published — a held draft resolves
-    // at its final URL only behind that parameter (ADR-0049), and a published one ignores it.
+    // at its final URL only behind that parameter (ADR-0005, *A held article is isolated, not private*), and a published one ignores it.
     test(`${path}: the flagged video offers a link out, never a player`, async ({ page }) => {
       await page.goto(`${path}?preview`);
       await page.waitForLoadState('networkidle');

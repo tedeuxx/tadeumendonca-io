@@ -10,6 +10,7 @@ import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import * as routes from './routes.mjs';
+import * as funnelPosts from './funnel-posts.mjs';
 
 const app = resolve(import.meta.dirname, '..');
 const repo = resolve(app, '..', '..');
@@ -18,10 +19,12 @@ const analyticsSource = readFileSync(join(app, 'src', 'lib', 'analytics.ts'), 'u
 
 const CODE_KEYS = ['piece-parameter', 'piece-parameter-absent', 'language-parameter', 'piece-key', 'neutral-share'];
 const GA_KEYS = ['ga4-dimension', 'internal-traffic-filter', 'saved-exploration'];
+// #819. The per-post record and the baseline rule the rite reads beside the analytics declarations.
+const POST_KEYS = ['post-record', 'post-set', 'baseline-pieces'];
 
 /** Column-0 `<key>: <value>` lines for the known keys, in file order. Anything else is prose. */
 function parseDeclarations(text) {
-  const known = new Set([...CODE_KEYS, ...GA_KEYS]);
+  const known = new Set([...CODE_KEYS, ...GA_KEYS, ...POST_KEYS]);
   const out = [];
   for (const line of text.split(/\r?\n/)) {
     const m = /^([a-z0-9-]+): (.+)$/.exec(line);
@@ -64,7 +67,7 @@ const emitters = emitterParams(analyticsSource);
 describe('funnel-review declarations — the file carries every declaration', () => {
   it('has a line for each key the rite needs', () => {
     const keys = new Set(declarations.map((d) => d.key));
-    for (const key of [...CODE_KEYS, ...GA_KEYS]) expect(keys.has(key), `${key}:`).toBe(true);
+    for (const key of [...CODE_KEYS, ...GA_KEYS, ...POST_KEYS]) expect(keys.has(key), `${key}:`).toBe(true);
   });
 
   it('parses the emitters it checks against (a guard against a parser that matches nothing)', () => {
@@ -158,5 +161,42 @@ describe('funnel-review declarations — GA-side values are verified or say they
   it('declares a display name for the piece and the language parameters', () => {
     const named = declarations.filter((d) => d.key === 'ga4-dimension').map((d) => d.fields[0]);
     expect(named.sort()).toEqual([one('language-parameter')[0], one('piece-parameter')[0]].sort());
+  });
+});
+
+describe('funnel-review declarations — the per-post record and the baseline rule (#819)', () => {
+  it('names a record file and the module that reads it, and both exist', () => {
+    const [record, module, ...rest] = one('post-record');
+    expect(rest).toEqual([]);
+    expect(existsSync(join(repo, record)), record).toBe(true);
+    expect(existsSync(join(repo, module)), module).toBe(true);
+    expect(module).toBe('apps/fed/scripts/funnel-posts.mjs');
+  });
+
+  it('declares a post set of slots the record can fill: a text platform alone, a video platform per language', () => {
+    const set = one('post-set');
+    expect(new Set(set).size).toBe(set.length);
+    for (const slot of set) {
+      const [platform, language] = slot.split(':');
+      expect(funnelPosts.PLATFORMS, slot).toContain(platform);
+      const post = { platform, language: language ?? funnelPosts.TEXT_LANGUAGES[0] };
+      expect(funnelPosts.slotOf(post), slot).toBe(slot);
+    }
+    // The strategy's four authored posts per piece (requirements document, sections 3 and 4).
+    expect([...set].sort()).toEqual(['linkedin', 'x', 'youtube:en', 'youtube:pt']);
+  });
+
+  it("states the owner's baseline: three fully posted pieces before any numeric target", () => {
+    expect(one('baseline-pieces')).toEqual(['3']);
+    expect(declarationsText).toMatch(/no numeric target is set until three\s+pieces have shipped/);
+  });
+
+  it('the committed record is valid against the site and the campaign vocabulary', () => {
+    const [record] = one('post-record');
+    const dir = join(app, 'src', 'content', 'blog');
+    const editions = routes.buildBlogEditions(readdirSync(dir), (file) => readFileSync(join(dir, file), 'utf8'));
+    const utm = funnelPosts.readUtmVocabulary(readFileSync(join(app, 'src', 'lib', 'utm.ts'), 'utf8'));
+    const parsed = funnelPosts.parsePostRecord(readFileSync(join(repo, record), 'utf8'));
+    expect(funnelPosts.validatePostRecord(parsed, editions, { siteUrl: routes.SITE_URL, ...utm })).toEqual([]);
   });
 });

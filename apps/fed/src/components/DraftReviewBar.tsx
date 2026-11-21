@@ -21,7 +21,7 @@
 // asked for is that promotion leaves this bar UNCHANGED: the date moves, the article enters the index,
 // and nothing in this component is touched, because the mode was never in the build. Promotion is not
 // otherwise self-contained: the page gets its first prerendered snapshot, and the OG cards and the
-// distribution kit follow from separate scripts (#635, ADR-0049's 2026-11-01 amendment). Narrowing the gate to `draft && preview`
+// distribution kit follow from separate scripts (#635, ADR-0005's *A held article is isolated, not private*, 2026-11-01 amendment). Narrowing the gate to `draft && preview`
 // would be a second condition nobody asked for and would take the affordance away from the case where an
 // already-published piece needs another round.
 //

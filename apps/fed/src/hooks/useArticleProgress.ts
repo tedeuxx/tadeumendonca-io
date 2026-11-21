@@ -51,7 +51,7 @@
 // would simply have hidden under a second slug — a worse failure than the visible one, because the two
 // rows no longer look like duplicates in any report. The identity is the article's KEY, which is stable
 // across editions. It is used for the marker ONLY and is never emitted; `slug` remains what GA4
-// receives, unchanged and immutable per ADR-0051.
+// receives, unchanged and immutable per ADR-0005 (*The GA4 event schema is immutable once it collects*).
 //
 // WHAT IT COSTS: a reader who genuinely re-reads the same piece — or reads both editions — in one
 // session is counted once. That is the owner's own trade for `contact_reach` («Uma vez por sessão»)
@@ -105,7 +105,7 @@ export function useArticleProgress({
   /** The element whose CHILDREN are the rendered markdown blocks — `ArticlePage`'s existing prose
    *  wrapper. Its last child is the article's last block; the document continues past it. */
   container: RefObject<HTMLElement>;
-  /** The LOCALIZED slug. This is the value GA4 receives and it is immutable (ADR-0051). */
+  /** The LOCALIZED slug. This is the value GA4 receives and it is immutable (ADR-0005, *The GA4 event schema is immutable once it collects*). */
   slug: string;
   /**
    * The article's LOCALE-INDEPENDENT identity, used only to key the once-per-session markers and

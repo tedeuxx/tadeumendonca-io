@@ -1,7 +1,7 @@
 // Generates the vertical Story card, per article and per locale, at build time (#662).
 // Run: `npm run gen-story-cards`. Output: public/story/<key>.<locale>.png, 1080×1920, committed.
 //
-// The second card class beside gen-og-articles.mjs (ADR-0041, amended in #662), in the same shape:
+// The second card class beside gen-og-articles.mjs (ADR-0005, *Per-article OG cards*, amended in #662), in the same shape:
 // rendered in the Playwright Chromium the build already installs, committed, never rendered at runtime
 // or in CI. Every decision — the set, the path, the QR payload, its geometry, the title fit, and the
 // frame template itself — lives in story-cards.mjs and is unit-tested there; this file only drives the

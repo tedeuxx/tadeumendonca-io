@@ -241,7 +241,7 @@ function slugPairIndex() {
  *
  * A HELD article is absent for free rather than by a second rule: `blogEditions()` has already dropped
  * it, so the neutral set shrinks with the localized one instead of gaining a public address the hold
- * exists to withhold (ADR-0049 isolation).
+ * exists to withhold (ADR-0005's *A held article is isolated, not private*).
  */
 export function neutralArticleRoutes() {
   return blogEditions().map((pair) => {
@@ -254,7 +254,7 @@ const neutralRouteOf = (pair) => `/blog/${pair.en}`;
 
 /**
  * The neutral route of ONE article, addressed by its KEY (#662) — what the Instagram Story card's QR
- * encodes. The card is named after the key (ADR-0041's orphaning argument) while the URL it prints is
+ * encodes. The card is named after the key (the orphaning argument in ADR-0005's *Per-article OG cards*) while the URL it prints is
  * keyed on the current English slug (ADR-0052), and this is the one place the two meet, so the QR can
  * never be typed by hand.
  *

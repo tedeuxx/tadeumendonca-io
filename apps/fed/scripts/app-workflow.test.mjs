@@ -274,6 +274,78 @@ describe('app.yml — the report never claims npm-audit ran where it did not, or
   });
 });
 
+// ─── the critical path (#822): playwright is sharded, build-static no longer waits for npm-ci ─────────
+// Two edits shortened the one chain that sets the PR's wall-clock. Each removes a wait, and each has a
+// way to remove a CHECK instead while staying green, which is what these cases pin:
+//
+//  - a shard list that drops a leg (`[1/3, 2/3]`) runs a third fewer tests and reports success;
+//  - an E2E step that stops passing the shard runs the whole suite on every leg (slower, not wrong), and
+//    one that passes a constant runs one shard three times and two not at all (wrong, and green);
+//  - build-static outrunning npm-ci is only safe while npm-ci still runs wherever build-static does and
+//    still feeds the required check.
+const playwright = jobs.playwright;
+const SHARD = /^([1-9]\d*)\/([1-9]\d*)$/;
+
+describe('app.yml — playwright shards cover the whole suite (#822)', () => {
+  const shards = playwright.strategy?.matrix?.shard ?? [];
+
+  it('declares a shard matrix of at least two legs', () => {
+    expect(Array.isArray(shards)).toBe(true);
+    expect(shards.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('lists exactly 1/N … N/N, with N equal to the number of legs', () => {
+    const parsed = shards.map((s) => SHARD.exec(String(s)));
+    expect(parsed.every(Boolean), `malformed shard in ${JSON.stringify(shards)}`).toBe(true);
+    const totals = new Set(parsed.map((m) => Number(m[2])));
+    expect([...totals]).toEqual([shards.length]);
+    const indices = parsed.map((m) => Number(m[1])).sort((a, b) => a - b);
+    expect(indices).toEqual(Array.from({ length: shards.length }, (_, i) => i + 1));
+  });
+
+  it('does not cancel the other legs when one fails', () => {
+    expect(playwright.strategy['fail-fast']).toBe(false);
+  });
+
+  it('passes each leg its own matrix value to the E2E command', () => {
+    const e2e = playwright.steps.filter((s) => s.run?.includes('e2e:local:built'));
+    expect(e2e).toHaveLength(1);
+    expect(e2e[0].env?.SHARD).toBe('${{ matrix.shard }}');
+    expect(e2e[0].run).toContain('--shard="$SHARD"');
+  });
+
+  it('is still a dependency of the required check under the same job id', () => {
+    expect(needsOf(jobs['build-test'])).toContain('playwright');
+    expect(jobs['build-test'].if).toBe('always()');
+  });
+});
+
+describe('app.yml — build-static starts without npm-ci, and loses no check by it (#822)', () => {
+  it('needs only `changes`', () => {
+    expect(needsOf(jobs['build-static'])).toEqual(['changes']);
+  });
+
+  it('npm-ci still runs on every shape where build-static runs', () => {
+    // The count of shapes where build-static runs is asserted too: an implication checked over shapes
+    // on which its premise is never true passes while checking nothing.
+    let exercised = 0;
+    for (const { marker, files } of [
+      ...SHAPES,
+      { marker: 'full app change', files: ['apps/fed/src/main.tsx'] },
+    ]) {
+      const categories = categoriesFor(files);
+      if (!runs('build-static', categories)) continue;
+      exercised += 1;
+      expect(runs('npm-ci', categories), marker).toBe(true);
+    }
+    expect(exercised).toBeGreaterThanOrEqual(2);
+  });
+
+  it('npm-ci still feeds the required check', () => {
+    expect(needsOf(jobs['build-test'])).toContain('npm-ci');
+  });
+});
+
 // ─── the published claim about this workflow's TRIGGERS ───────────────────────────────────────────────
 // /architecture publishes, in both editions, that the manifest-to-plugin leg of `harness-drift` has NO
 // TRIGGER OF ITS OWN. That sentence is not a description of intent — it is true only while this file

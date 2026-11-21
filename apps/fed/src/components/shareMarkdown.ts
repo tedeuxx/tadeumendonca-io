@@ -20,7 +20,7 @@
 //      that only exists if you read the import instead.
 //
 // THE URL CARRIES NO UTM, and this is a decision rather than an omission. Everywhere else on this site a
-// share URL is tagged (#272, ADR-0039), because it is a click target. This one is a CITATION: it travels
+// share URL is tagged (#272, ADR-0005 (*Campaign tagging of shared links*)), because it is a click target. This one is a CITATION: it travels
 // into a model's context, someone's notes, a document footer, and if it resurfaces it resurfaces as the
 // source. A tagged URL pasted into a document is the ordinary way the tagged variant becomes the one
 // someone else links to, which splits the article's own traffic. Counting copies is a client-side event on

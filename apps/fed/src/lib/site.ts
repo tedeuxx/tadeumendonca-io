@@ -6,7 +6,7 @@ export const SITE_NAME = 'tadeumendonca.io';
 // The card's intrinsic size, declared so an unfurler knows the aspect ratio BEFORE it fetches the
 // image. Without these, WhatsApp and LinkedIn have to guess, and they guess small — the wide banner
 // renders as a cropped thumbnail. True of EVERY card this build generates: the two default cards and
-// every per-article card (ADR-0041) are screenshotted at exactly 1200×630 by the same Playwright
+// every per-article card (ADR-0005, *Per-article OG cards*) are screenshotted at exactly 1200×630 by the same Playwright
 // viewport, which is why `isGeneratedCard` below can claim the size for all of them.
 export const OG_IMAGE_WIDTH = '1200';
 export const OG_IMAGE_HEIGHT = '630';
@@ -40,7 +40,7 @@ export const DEFAULT_DESCRIPTION = DEFAULT_DESCRIPTION_EN;
  *
  * English keeps the unsuffixed name: the suffix is ADDITIVE, not a rename. `/og-default.png` is pinned
  * by every link shared since launch, and renaming it would 404 the image on posts already out — the
- * failure ADR-0041 is organised around avoiding. Mirrors `defaultCardFile` in scripts/og-copy.mjs; a
+ * failure ADR-0005 (*Per-article OG cards*) is organised around avoiding. Mirrors `defaultCardFile` in scripts/og-copy.mjs; a
  * mismatch is caught by the E2E, which reads the SERVED HTML rather than this constant.
  */
 export const defaultOgImage = (locale: Locale): string => {

@@ -32,7 +32,7 @@ describe('withShareUtm', () => {
     expect(url.pathname).toBe('/pt/blog/meu-compromisso');
   });
 
-  // The owner's own distribution (ADR-0038) must stay separable from a link a READER sent — that
+  // The owner's own distribution (ADR-0005, *Distribution to LinkedIn and X*) must stay separable from a link a READER sent — that
   // separation IS the measurement. Today the owner's drafts emit a clean URL so it holds by accident;
   // this proves the reserved value works the day that changes.
   it('accepts the reserved owner campaign, so owner posts stay separable from reader shares', () => {
@@ -43,7 +43,7 @@ describe('withShareUtm', () => {
   // #662. The Story card's QR is printed into a PNG that outlives every post and cannot be re-tagged, so
   // both strings are pinned as literals here — the generator and its decode-back gate read them from the
   // module, which means a rename would regenerate cards silently "consistent" with the new spelling and
-  // split the series. Only this assertion objects. `social` is NOT varied for the Story: ADR-0039 fixes
+  // split the series. Only this assertion objects. `social` is NOT varied for the Story: ADR-0005's *Campaign tagging of shared links* fixes
   // the medium, and a `story` medium would drop the session out of GA4's Organic Social grouping.
   it('pins the Story card source and campaign, on the unchanged medium', () => {
     expect(STORY_SOURCE).toBe('instagram');

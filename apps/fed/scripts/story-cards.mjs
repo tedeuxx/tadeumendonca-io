@@ -4,7 +4,7 @@
 // short-video generator (#820).
 //
 // Split from `gen-story-cards.mjs` on the same terms as `og-cards.mjs` is split from `gen-og-articles.mjs`
-// (ADR-0041): the generator drives a browser and has no unit-testable surface, while every DECISION
+// (ADR-0005, *Per-article OG cards*): the generator drives a browser and has no unit-testable surface, while every DECISION
 // about the card — the set, the path, the payload, the QR geometry, the title fit — is here, where a
 // test reaches it without one.
 //
@@ -53,7 +53,7 @@ export const QR_QUIET_MODULES = 4;
  * 12–16 px and decoding each downscaled to 50% and 33% (the issue's distance proxy) with the gate's own
  * decoder, 12 px decoded every payload at every scale under both M and Q; 13, 14 and 16 px each failed at
  * least one payload at 33% or 50%. 12 divides by both 2 and 3, so a downscaled module stays whole pixels
- * instead of blending its edge into a grey the binariser misreads. The ADR-0041 amendment records it.
+ * instead of blending its edge into a grey the binariser misreads. ADR-0005's *The vertical Story card* records it.
  */
 export const QR_MODULE_PX = 12;
 /** The widest the QR panel (modules plus quiet zone) may be, so the title above it keeps a usable box. */
@@ -68,7 +68,7 @@ export const STORY_DIR = 'story';
  * The public path of an article's Story card — THE helper the reader's share-to-Story (#789) fetches, so it is the only
  * place the shape exists.
  *
- * Keyed by the article KEY and the locale, never the slug, for ADR-0041's orphaning reason: a slug is
+ * Keyed by the article KEY and the locale, never the slug, for the orphaning reason in ADR-0005's *Per-article OG cards*: a slug is
  * per-locale and editable, a key is not, and a card named after a slug is a dead file the day the slug
  * is corrected. A separate directory from `/og/`, so neither card class's set-equality gate can mistake
  * the other's files for orphans.
@@ -99,7 +99,7 @@ export function generatedStoryCardsIn(storyDir) {
  *
  * The NEUTRAL address (ADR-0052), from `routes.mjs`, the route source of truth: both locale cards of one
  * article therefore encode the same URL, and the visitor's own edition is chosen on arrival. Tagged
- * through `utm.ts`'s own function and literals (ADR-0039), so the QR carries exactly the three parameters
+ * through `utm.ts`'s own function and literals (ADR-0005, *Campaign tagging of shared links*), so the QR carries exactly the three parameters
  * every other tagged link carries. Locale-free on purpose: the card's locale changes its title, never
  * where it points.
  */
@@ -112,7 +112,7 @@ export const storyPayload = (key) =>
  * A pure function of (payload, error-correction level, mask). The library picks the smallest version that
  * holds the payload and the lowest-penalty mask, both deterministically, so two calls on one payload
  * return equal matrices — the determinism the issue's criterion 4 asserts. The PNG bytes are NOT claimed
- * stable across machines: they depend on the font environment (ADR-0041).
+ * stable across machines: they depend on the font environment (ADR-0005, *Per-article OG cards*).
  */
 export function qrMatrix(payload) {
   const qr = qrcode(0, QR_ECL);
@@ -190,7 +190,7 @@ export const TITLE_MAX_LINES = 6;
  * the decision is testable without a page. A size fits when nothing overflows the title box in either
  * direction and the title takes no more than `TITLE_MAX_LINES` lines. Horizontal overflow matters as
  * much as vertical: a single long pt-BR word cut by the box edge still leaves the height in bounds,
- * which is the defect ADR-0041 records shipping once on the landscape cards.
+ * which is the defect ADR-0005's *Per-article OG cards* records shipping once on the landscape cards.
  */
 export function fitTitle(measure, sizes = TITLE_SIZES, maxLines = TITLE_MAX_LINES) {
   for (const size of sizes) {

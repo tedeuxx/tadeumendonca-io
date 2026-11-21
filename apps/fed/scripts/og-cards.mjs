@@ -113,7 +113,7 @@ export function diffCards(required, generated) {
 }
 
 // ---------------------------------------------------------------------------------------------------
-// The COVER-DERIVED card (#710, ADR-0041's 2026-11-01 amendment).
+// The COVER-DERIVED card (#710, ADR-0005's *Per-article OG cards*, 2026-11-01 amendment).
 //
 // An article whose frontmatter sets `cover` gets a card built from that image, carrying the title, the
 // published signature and an AI-generated mark; every other article keeps the title-only card. The
@@ -123,7 +123,7 @@ export function diffCards(required, generated) {
 // What it adds that the title-only card never needed: PROVENANCE. A title-only card is drawn from words
 // the article carries, so a stale one is at least a stale rendering of the article's own text. A cover
 // card is drawn from a binary that can be replaced under the same name, and CI never runs the generator
-// (ADR-0041: the cards are committed). So the generator writes, next to each cover card, a sidecar
+// (ADR-0005 (*Per-article OG cards*): the cards are committed). So the generator writes, next to each cover card, a sidecar
 // holding the hash of the cover it was built from, and a unit test recomputes it. It closes the "nothing
 // verifies the card's content" gap for THIS field only — the title can still go stale, as before.
 // ---------------------------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ export function coverCardsIn(blogDir) {
  * - `hashCover(cover)` returns the current hash of the cover file;
  * - `sidecarNames` lists the sidecars present, so one left behind by an article that no longer has a
  *   cover — or no longer exists — is reported too. It would break nothing, which is exactly why it would
- *   accumulate unseen (ADR-0041's `orphaned` argument, applied to the sidecars).
+ *   accumulate unseen (the `orphaned` argument in ADR-0005's *Per-article OG cards*, applied to the sidecars).
  *
  * Returns human-readable problems; empty means every cover card was built from the cover it now names.
  */
