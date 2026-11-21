@@ -23,6 +23,7 @@ import { RepoCard } from './RepoCard';
 import { Diagram } from './Diagram';
 import { VennFence } from './VennDiagram';
 import { AdrTable } from './AdrTable';
+import { DeliveryEconomics } from './DeliveryEconomics';
 import { PhotoFigure } from './PhotoFigure';
 import { repoCardFor } from '../data/repoCards';
 import { photoFor } from '../data/photos';
@@ -106,6 +107,19 @@ function isAdrIndex(children: ReactNode): boolean {
   const only = Children.toArray(children)[0];
   if (!isValidElement<{ className?: string }>(only)) return false;
   return only.props.className?.split(/\s+/).includes('language-adr-index') ?? false;
+}
+
+/**
+ * Whether this <pre> is the ```delivery-economics marker (#691, ADR-0055).
+ *
+ * The same contract as ```adr-index above, for the same reason: the fence carries NO content, because what the
+ * section shows is decided by the committed snapshot, and anything typed between the backticks would be a
+ * second source of truth. The marker only says WHERE the section goes.
+ */
+function isEconomics(children: ReactNode): boolean {
+  const only = Children.toArray(children)[0];
+  if (!isValidElement<{ className?: string }>(only)) return false;
+  return only.props.className?.split(/\s+/).includes('language-delivery-economics') ?? false;
 }
 
 /**
@@ -214,6 +228,7 @@ const components: Components = {
     const { node, ...props } = rest;
     void node;
     if (isAdrIndex(children)) return <AdrTable />;
+    if (isEconomics(children)) return <DeliveryEconomics />;
     const diagram = mermaidBlock(children);
     if (diagram) return <Diagram source={diagram.source} caption={diagram.caption} />;
     const venn = vennBlock(children);

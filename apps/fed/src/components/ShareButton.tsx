@@ -49,6 +49,7 @@ import { ShareModal } from './ShareModal';
 import { copyLinkUrl } from './shareTargets';
 import { markdownPayload } from './shareMarkdown';
 import { ADR_INDEX_URL } from '../content/adrs';
+import { ECONOMICS_SNAPSHOTS_URL } from '../data/economics';
 import { useLocale } from '../i18n';
 import { trackShareOpen } from '../lib/analytics';
 
@@ -138,6 +139,8 @@ export function ShareButton({
             sourceLabel: t('share.source'),
             adrIndexLabel: t('share.adrIndexLink'),
             adrIndexUrl: ADR_INDEX_URL,
+            economicsLabel: t('economics.snapshotLink'),
+            economicsUrl: ECONOMICS_SNAPSHOTS_URL,
           }),
         )
     : undefined;

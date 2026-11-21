@@ -36,6 +36,7 @@ import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 import { markdownPayload } from './shareMarkdown';
 import { PREVIEW_PARAM } from '../lib/preview';
 import { ADR_INDEX_URL } from '../content/adrs';
+import { ECONOMICS_SNAPSHOTS_URL } from '../data/economics';
 
 /**
  * Where a `content`-typed Issue lives.
@@ -112,6 +113,8 @@ export function DraftReviewBar({
         sourceLabel: t('share.source'),
         adrIndexLabel: t('share.adrIndexLink'),
         adrIndexUrl: ADR_INDEX_URL,
+        economicsLabel: t('economics.snapshotLink'),
+        economicsUrl: ECONOMICS_SNAPSHOTS_URL,
       }),
     );
 

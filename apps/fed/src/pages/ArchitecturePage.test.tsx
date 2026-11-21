@@ -222,6 +222,30 @@ describe('ArchitecturePage', () => {
     expect(body.querySelectorAll('a[href^="mailto:"]')).toHaveLength(0);
   });
 
+  // #691 — the delivery-economics section sits INSIDE the body of both editions, rendered from the fence.
+  it.each(['pt', 'en'] as const)('renders the delivery-economics section inside the body (%s edition)', (locale) => {
+    const { container } = renderPage(locale);
+    const body = container.querySelector('[data-testid="markdown-body"]')!;
+    expect(body.querySelector('[data-economics]')).not.toBeNull();
+    expect(body.querySelector('pre code.language-delivery-economics')).toBeNull();
+  });
+
+  it.each(['pt', 'en'] as const)('copies the economics fence as a link to the snapshots (%s edition)', async (locale) => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    renderPage(locale);
+    fireEvent.click(screen.getByRole('button', { name: locale === 'pt' ? 'Compartilhar' : 'Share' }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: locale === 'pt' ? 'Copiar markdown para a área de transferência' : 'Copy markdown to clipboard',
+      }),
+    );
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    const payload = writeText.mock.calls[0][0] as string;
+    expect(payload).not.toContain('```delivery-economics');
+    expect(payload).toContain('https://github.com/tedeuxx/tadeumendonca-io/tree/main/apps/fed/src/content/generated/economics');
+  });
+
   // COPY-AS-MARKDOWN AGAINST THE SHIPPED BODY (#387). The payload builder has its own unit tests against
   // synthetic input; this is the one that reads the file that actually ships.
   //
