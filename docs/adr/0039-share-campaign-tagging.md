@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change)
+- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change) · **amended 2026-11-21** (a sixth `utm_source` value, `youtube`, author-side only, for the link in a YouTube Short's description; medium and campaign unchanged)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
@@ -408,3 +408,57 @@ value the record does not define.
   two networks.
 
 **Refs** Issue [#749](https://github.com/tedeuxx/tadeumendonca-io/issues/749).
+
+## Amendment (2026-11-21) — a source value for YouTube, author-side only
+
+**Decided by** the intake of Issue [#817](https://github.com/tedeuxx/tadeumendonca-io/issues/817)
+(product-lead and tech-lead, 2026-11-20) and the owner's ruling there, *"Enters as written"*. It adds a
+member to the `utm_source` set this record closed, and nothing else.
+
+### Context
+
+The communication and channel strategy adds YouTube as a channel the author publishes to: a Short whose
+description carries the article's per-language link. Untagged, a visit from that link lands as
+`youtube.com / referral` or `(direct)`, apart from the author's LinkedIn and X posts, which carry
+`author-post` since the 2026-08-16 amendment.
+
+### Decision
+
+| | YouTube Short description link |
+|---|---|
+| `utm_source` | `youtube` |
+| `utm_medium` | `social` (unchanged) |
+| `utm_campaign` | `author-post` (existing) |
+
+- **The medium does not change.** A video medium would amend this record's medium decision, which the
+  Issue does not ask for. The source already carries the platform, and `social` keeps the session in the
+  *Organic Social* grouping, the reason this record gives for that string.
+- **No new campaign.** A Short's link is the author's post, the meaning `author-post` already has.
+- **`youtube` is not a reader-share source.** Readers cannot share an article to YouTube, so the value
+  is not a member of `ShareSource`, and so not a value of `ShareCompleteTarget`, the `target` of the
+  reader's `share_complete` event. It is exported apart, as `YOUTUBE_SOURCE` (type `AuthorSource`), in
+  `apps/fed/src/lib/utm.ts`, and `withShareUtm` accepts it only together with `AUTHOR_CAMPAIGN`, by
+  type. A `youtube` + `reader-share` link would name a mechanism that cannot happen.
+- **The language is in the path**, as for every other link here: `page_path` carries the locale prefix,
+  so no parameter is added for it.
+- **It joins the immutable set on its first use**, by the clause this record already carries.
+
+### What this does not touch
+
+- The `whatsapp`, `x`, `linkedin`, `share-sheet` and `copy-link` sources, the `social` medium and the
+  three campaign values. The LinkedIn and X links are unchanged.
+- [ADR-0033](./0033-ga4-consent-gated-analytics.md)'s consent gate, `iac/`, and the cache. `utm_*` are
+  GA standard fields, so no custom dimension is registered and nothing GA-side is declared in
+  `docs/funnel-review/declarations.md`.
+- **Who emits the link.** This amendment fixes the spelling; the link is composed by the distribution
+  kit, a separate item, and read by the measurement baseline, another.
+
+### Consequences
+
+- **Good:** a visit from a Short is separable from a referral and counted with the author's other posts,
+  per source.
+- **Accepted:** query-string survival through a YouTube description link is not measured. The first
+  reading in GA4 is the first evidence either way. A YouTube description link may also be copied by a
+  viewer and passed on; it still reads `author-post`, the mechanism that put it into circulation.
+
+**Refs** Issue [#817](https://github.com/tedeuxx/tadeumendonca-io/issues/817).
