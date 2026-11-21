@@ -47,9 +47,10 @@ describe('renderAdrTitle', () => {
   // Seven is a real number about the library, so it goes where it can fail. When an ADR heading gains or
   // loses markup this turns red, someone looks, and the number moves deliberately.
   //
-  // It moved from six to seven on 2026-08-08: ADR-0045's heading carries `nav.*` as a code span. That is
-  // the guard working exactly as written — the number was not bumped to clear a red gate, it was bumped
-  // because a seventh title really does carry markup, and it is rendered as an element like the other six.
+  // It moved from six to seven on 2026-08-08: the document-title record's heading carried `nav.*` as a
+  // code span. That is the guard working exactly as written — the number was not bumped to clear a red
+  // gate, it was bumped because a seventh title really does carry markup, and it is rendered as an
+  // element like the other six.
   //
   // Seven to EIGHT on 2026-08-25, same shape and worth stating again: record 0050's heading carries
   // `{ company, start_date }` as a code span, because the record is about that pair specifically and a
@@ -67,13 +68,17 @@ describe('renderAdrTitle', () => {
   // was absorbed into ADR-0024 and left the library. Seen red at 7 with this filter over the regenerated
   // `adrs.json` before the number moved.
   //
-  // SIX to FOUR on 2026-11-08 (#456, the ninth slice): records 0038 (bold in its heading) and 0039
+  // SIX to FIVE on 2026-11-02 (#456, the eighth slice): the document-title record, the seventh title
+  // counted above, was absorbed into ADR-0008 as its section *A document title leads with the section
+  // label* and left the library. Measured with this filter over the regenerated `adrs.json`.
+  //
+  // FIVE to THREE on 2026-11-21 (#456, the ninth slice): records 0038 (bold in its heading) and 0039
   // (`utm_content` as a code span) were absorbed into ADR-0005 and left the library. Measured with this
-  // test's own filter over `adrs.json` before and after regeneration: 0024 0030 0032 0038 0039 0045, then
-  // 0024 0030 0032 0045.
+  // test's own filter over `adrs.json` before and after regeneration: 0024 0030 0032 0038 0039, then
+  // 0024 0030 0032.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(4);
+    expect(withMarkup).toHaveLength(3);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

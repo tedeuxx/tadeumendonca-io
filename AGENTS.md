@@ -147,7 +147,7 @@ one surface of several. Positioning, each surface's canonical copy and the sync 
 ## Fixed decisions — do not reverse without discussion
 
 - **Static site, no backend**; content in the repository, prerendered.
-- **The application owns its styling** (ADR-0007): no component library, one theme, no PWA shell.
+- **The application owns its styling** (ADR-0008, *Own components, no component kit*): no component library, one theme, no PWA shell.
 - **The visual identity is deliberate — confirm before changing any of it** (ADR-0008): **no
   light/dark toggle**; near-black `#0A0A0A`, off-white `#F5F4EF` and **one** accent, safety orange
   `#FF5A00`; a self-hosted display face and monospace face; **zero radius, no shadow, no gradient**,

@@ -14,7 +14,8 @@
 // is not deliverable: it cannot make the words INSIDE the photograph assertable. A text node has a
 // bounding rect; type in a JPEG is pixels, and no test can measure its rendered glyph height. That is why
 // the Knuth quotation is authored as a real markdown blockquote ABOVE its photograph rather than left for
-// the reader to decode out of the raster — see ADR-0040's line, restated in 0047: "an <img> makes every
+// the reader to decode out of the raster — see the line in ADR-0008 (*Diagrams compiled from Mermaid at build time*), restated in its
+// *Figures mermaid cannot draw* section: "an <img> makes every
 // label a picture of a word."
 import { FIGCAPTION_CLASS } from './DiagramFigure';
 import type { PhotoAsset } from '../data/photos';

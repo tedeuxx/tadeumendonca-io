@@ -90,7 +90,7 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
 
 - **`npm run gen-og-articles` (`apps/fed/scripts/gen-og-articles.mjs`) renders one 1200×630 PNG per
   article per locale into `apps/fed/public/og/`, committed.** It is the same shape as
-  [ADR-0040](./0040-build-time-mermaid-diagrams.md): a build-time artifact rendered in the Playwright
+  [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time): a build-time artifact rendered in the Playwright
   Chromium the prerender already installs, committed, and guarded by a bidirectional set-equality test
   in Node. `scripts/og-cards.mjs` is the pure half, which decides *which* cards must exist where a test
   reaches it without a browser.
@@ -178,7 +178,7 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
   hides exactly what was built to be visible.
 - **An incremental write.** It leaves a retired article's card behind.
 - **A runtime renderer, an uncommitted artifact regenerated in CI, or a new browser toolchain**, argued and
-  rejected in ADR-0040 against ADR-0002 and the `--ignore-scripts` floor, none of whose constraints
+  rejected in ADR-0008 (*Diagrams compiled from Mermaid at build time*) against ADR-0002 and the `--ignore-scripts` floor, none of whose constraints
   changed.
 
 ### Consequences still being paid
@@ -430,6 +430,12 @@ unchanged and still binds, and so are its amendments (2026-07-27, the draft gene
 cadence; 2026-08-16, twice, the per-medium conventions; 2026-09-04, the digest; 2026-09-20, the
 locale-neutral link; 2026-09-21, the bilingual order), written below as the decision as it binds. The
 full record is in git history: `git log --diff-filter=D -- 'docs/adr/0038-*'`.
+
+**A revision is proposed, not decided.** The
+[communication and channel strategy requirements document](../tadeumendonca-io-product-requirements-document-communication-channel-strategy.md)
+proposes a different channel set and post format and lists its open decisions; it is not a record. This
+fold moves the decision and changes none of it, so the section below binds as written until #816
+records the new channel set; that record is #816's, not this fold's.
 
 ### Context
 
@@ -979,5 +985,5 @@ is **not** in the menu).
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (cross-surface coherence; private working
   material) · [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (OG and locale per URL) ·
   [ADR-0037](./0037-localized-article-slugs.md) (per-locale, editable slugs) ·
-  [ADR-0040](./0040-build-time-mermaid-diagrams.md) (the committed-artifact shape the cards follow) ·
+  [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time) (the committed-artifact shape the cards follow) ·
   [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (the neutral share route).
