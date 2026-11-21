@@ -179,7 +179,7 @@
     "kind": "skill-library",
     "id": "skills",
     "file": "skills",
-    "skills": 19,
+    "skills": 24,
     "enforcement": "documents"
   },
   {
@@ -196,26 +196,14 @@
   },
   {
     "kind": "command",
-    "id": "funnel-review",
-    "file": "commands/funnel-review.md",
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command",
     "id": "handoff",
     "file": "commands/handoff.md",
     "enforcement": "documents"
   },
   {
     "kind": "command",
-    "id": "idea-to-issues",
-    "file": "commands/idea-to-issues.md",
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command",
-    "id": "new-idea",
-    "file": "commands/new-idea.md",
+    "id": "need-me",
+    "file": "commands/need-me.md",
     "enforcement": "documents"
   },
   {
@@ -226,20 +214,14 @@
   },
   {
     "kind": "command",
-    "id": "sprint-planning",
-    "file": "commands/sprint-planning.md",
+    "id": "new-prd",
+    "file": "commands/new-prd.md",
     "enforcement": "documents"
   },
   {
     "kind": "command",
-    "id": "sprint-retrospective",
-    "file": "commands/sprint-retrospective.md",
-    "enforcement": "documents"
-  },
-  {
-    "kind": "command",
-    "id": "sprint-review",
-    "file": "commands/sprint-review.md",
+    "id": "prd-to-issues",
+    "file": "commands/prd-to-issues.md",
     "enforcement": "documents"
   },
   {
