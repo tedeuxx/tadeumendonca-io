@@ -134,7 +134,7 @@ export const LANGUAGE_SEPARATOR = '— — —';
  * The LinkedIn post body: signpost, English block, separator, Portuguese block (#562, ADR-0005 (*Distribution to LinkedIn and X*)).
  *
  * WHY THIS EXISTS AT ALL. Until this function the LinkedIn skeleton was MONOLINGUAL — one excerpt, one
- * takeaway, one link, hashtags — while ADR-0005 (*Distribution to LinkedIn and X*) has required a bilingual post since 2026-08-16. The
+ * takeaway, one link, hashtags — while record 0038 (ADR-0005's *Distribution to LinkedIn and X* since #456) has required a bilingual post since 2026-08-16. The
  * generator was not disagreeing with the ruler; it was SILENT where the ruler speaks, which is worse in
  * one specific way: every bilingual post was assembled by hand from a monolingual scaffold, so the
  * language ORDER was re-decided from memory each time, and it was decided wrongly at least twice.

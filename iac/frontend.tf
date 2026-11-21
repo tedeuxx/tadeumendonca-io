@@ -5,7 +5,7 @@
 #
 # /og/* USED to have its own behavior pointing at the og-images bucket, a leftover of the retired
 # Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0002) that generated cards at request time into
-# that bucket. Nothing has written to it since. ADR-0005 (*Per-article OG cards*) then shipped per-article cards as COMMITTED
+# that bucket. Nothing has written to it since. Record 0041 (now ADR-0005's *Per-article OG cards*) then shipped per-article cards as COMMITTED
 # static objects in apps/fed/public/og/, which deploy.yml syncs to the FED bucket only — so every
 # article's advertised og:image resolved to the og-images bucket, 403'd, hit the SPA custom_error_response
 # below and returned `200 text/html`: an og:image URL serving the SPA's HTML to every scraper. The

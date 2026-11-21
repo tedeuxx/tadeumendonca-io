@@ -137,7 +137,7 @@ function mayEmit(): boolean {
  * `path` IS DELIBERATELY ABSENT AND MUST NOT BE ADDED. GA4 attaches `page_location` to every hit and
  * derives `page_path` from it for free; a custom `path` would duplicate a dimension the property
  * already has AND spend one of its registration slots on the duplicate. That is the exact trade
- * ADR-0005 (*Campaign tagging of shared links*) refused when it dropped `utm_content`.
+ * record 0039 (now ADR-0005's *Campaign tagging of shared links*) refused when it dropped `utm_content`.
  *
  * `locale` is typed `string` and not the i18n `Locale` union on purpose: this module has no imports
  * from the application layer, and the consent gate above is the last thing that should acquire a
@@ -243,7 +243,7 @@ export type ContactTarget = 'github' | 'linkedin' | 'x' | 'whatsapp' | 'email';
  *
  * NO SLUG, DELIBERATELY. `article` collapses every piece into one value; which article the reader left is
  * already in that page's own `page_view`, and spending a registered dimension's cardinality on a value
- * GA4 can already join is the trade ADR-0005 (*The GA4 event schema is immutable once it collects*) refused for `path`.
+ * GA4 can already join is the trade record 0051 (now ADR-0005's *The GA4 event schema is immutable once it collects*) refused for `path`.
  */
 export type NavArea =
   | 'home'

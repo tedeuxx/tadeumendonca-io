@@ -166,7 +166,7 @@ the quantifier *each*, nothing else.
 
 ### Where it came from
 
-Decided 2026-07-22; amended 2026-08-15 (#452) and 2026-08-25 (with ADR-0005 (*A held article is isolated, not private*)). Code:
+Decided 2026-07-22; amended 2026-08-15 (#452) and 2026-08-25 (with record 0049, now ADR-0005's *A held article is isolated, not private*). Code:
 `apps/fed/scripts/` (the prerender), `iac/cloudfront-functions/spa-rewrite.js`. Absorbed here by #456.
 
 ## The frontend toolchain

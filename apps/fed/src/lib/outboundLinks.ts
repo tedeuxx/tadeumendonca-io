@@ -9,7 +9,7 @@
 // THE BOUND IS `hostname + pathname`, BUILT BY RECONSTRUCTION RATHER THAN BY STRIPPING. The value is
 // assembled from two fields of a parsed `URL`; nothing is removed from the original string. A stripping
 // rule is a blocklist — `?`, `#`, `user:pass@`, `:port`, and whatever the next URL feature is — and a
-// blocklist has to be kept complete by someone. Reading two fields cannot be incomplete. ADR-0005 (*The GA4 event schema is immutable once it collects*) set
+// blocklist has to be kept complete by someone. Reading two fields cannot be incomplete. record 0051 (now ADR-0005's *The GA4 event schema is immutable once it collects*) set
 // this rule for slice B by name, because `contact_click` discharged it with a closed union and this
 // event has no closed union available: an article links wherever its author linked.
 //
