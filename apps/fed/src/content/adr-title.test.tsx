@@ -47,9 +47,10 @@ describe('renderAdrTitle', () => {
   // Seven is a real number about the library, so it goes where it can fail. When an ADR heading gains or
   // loses markup this turns red, someone looks, and the number moves deliberately.
   //
-  // It moved from six to seven on 2026-08-08: ADR-0045's heading carries `nav.*` as a code span. That is
-  // the guard working exactly as written — the number was not bumped to clear a red gate, it was bumped
-  // because a seventh title really does carry markup, and it is rendered as an element like the other six.
+  // It moved from six to seven on 2026-08-08: the document-title record's heading carried `nav.*` as a
+  // code span. That is the guard working exactly as written — the number was not bumped to clear a red
+  // gate, it was bumped because a seventh title really does carry markup, and it is rendered as an
+  // element like the other six.
   //
   // Seven to EIGHT on 2026-08-25, same shape and worth stating again: record 0050's heading carries
   // `{ company, start_date }` as a code span, because the record is about that pair specifically and a
@@ -66,9 +67,13 @@ describe('renderAdrTitle', () => {
   // SEVEN to SIX on 2026-11-01 (#456, the fourth slice): record 0050, the eighth title counted above,
   // was absorbed into ADR-0024 and left the library. Seen red at 7 with this filter over the regenerated
   // `adrs.json` before the number moved.
+  //
+  // SIX to FIVE on 2026-11-02 (#456, the eighth slice): the document-title record, the seventh title
+  // counted above, was absorbed into ADR-0008 as its section *A document title leads with the section
+  // label* and left the library. Measured with this filter over the regenerated `adrs.json`.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(6);
+    expect(withMarkup).toHaveLength(5);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

@@ -26,7 +26,7 @@ export function ProfilePage() {
   const { data: profile } = useProfile();
 
   useDocumentHead({
-    // ADR-0045: leads with the `nav.profile` label — the word the reader clicked — and appends the name,
+    // ADR-0008 (*A document title leads with the section label*): leads with the `nav.profile` label — the word the reader clicked — and appends the name,
     // which is the secondary half the convention allows. It reads the nav key DIRECTLY rather than
     // through a `profile.title`, because the personal name is data (src/data/profile.ts), not chrome, so
     // the composition cannot live in the catalog. That is why `profile` is the one section without a

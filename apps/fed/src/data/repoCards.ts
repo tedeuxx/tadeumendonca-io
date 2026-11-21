@@ -1,4 +1,4 @@
-// Static, owner-curated repo cards for long-form pages (issue #122, ADR-0035).
+// Static, owner-curated repo cards for long-form pages (issue #122, ADR-0008 (*Curated repositories as static cards in long-form*)).
 //
 // A small allowlist of GitHub repos the ramp-up page cites, rendered as brutalist cards INSTEAD of plain
 // links — with no GitHub API call, no runtime XHR and no third-party JS. A repo only becomes a card when
@@ -24,7 +24,7 @@ export interface RepoCardData {
   /** GitHub account/org that owns the repo — a fact. */
   owner: string;
   /** Primary language, shown as a static chip. A stable at-a-glance signal that never goes stale —
-   *  deliberately NOT a star count, which would freeze and mislead on a static card (ADR-0035). A fact. */
+   *  deliberately NOT a star count, which would freeze and mislead on a static card (ADR-0008 (*Curated repositories as static cards in long-form*)). A fact. */
   language: string;
   /** Canonical GitHub URL — a fact, and the registry key (matched case-insensitively, trailing slash
    *  ignored — see `repoCardFor`). */
