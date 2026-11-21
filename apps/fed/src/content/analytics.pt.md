@@ -98,6 +98,20 @@ Todo evento personalizado carrega `locale`, a edição em que o leitor está. Ca
 
 **O que não estabelece:** o que aconteceu depois, nem se o leitor voltou. Canais de contato e destinos de compartilhamento ficam de fora de propósito, para não serem contados duas vezes sob dois nomes.
 
+## As marcações de campanha num link para este site
+
+Um link para este site pode carregar três marcações de campanha, que o GA4 lê do endereço do primeiro hit de uma visita: `utm_source`, `utm_medium` e `utm_campaign`. Elas são o motivo de o `page_view` definir o `page_location` por conta própria. Cada valor fica fixo assim que um link com ele sai, porque o link continua vivo na conversa ou na timeline de outra pessoa, e um valor renomeado partiria uma série em duas. O raciocínio está no [ADR-0039](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0039-share-campaign-tagging.md). Esta lista é conferida contra o [`utm.ts`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/utm.ts), onde os valores são definidos.
+
+**Origens:** `copy-link` · `linkedin` · `share-sheet` · `whatsapp` · `x` · `youtube`
+
+**Mídia:** `social`
+
+**Campanhas:** `author-post` · `author-profile` · `reader-share`
+
+**O que estabelecem:** qual mecanismo pôs o link em circulação. `reader-share` é um link que um leitor enviou por um dos controles de compartilhamento deste site, `author-post` um link que eu mesmo publiquei, e `author-profile` o link no meu próprio perfil do LinkedIn ou do X. `youtube` é sempre meu, na descrição de um vídeo que eu publico no YouTube, então vem sempre com `author-post`: nenhum controle de compartilhamento daqui envia um link para o YouTube. `share-sheet` não é mais produzido por nenhum controle deste site e continua definido para os links já compartilhados.
+
+**O que não estabelecem:** quem enviou um link, nem até onde ele viajou. Uma marcação sobrevive só enquanto o endereço sobrevive: um link copiado sem a query string, ou limpo pela rede por onde passa, chega sem marcação e é contado como referência ou como direto. E uma visita só é contada depois do consentimento, então toda contagem marcada também é um piso.
+
 ## O que esta página não é
 
 Ela não é uma página de números. Uma página publicando números do GA4 precisaria de uma credencial que este site estático não tem, e cada número nela seria impossível de o leitor verificar. Esta aqui pode ser conferida contra [o código](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/analytics.ts), linha por linha.

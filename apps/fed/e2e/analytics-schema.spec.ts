@@ -18,6 +18,8 @@ const EDITIONS = {
     heading: 'O que cada evento consegue provar, e o que não consegue',
     section: 'Toda contagem é um piso',
     otherSection: 'Every count is a floor',
+    tagSection: 'As marcações de campanha num link para este site',
+    sourcesLabel: 'Origens',
     card: `${SITE}/og-default.pt.png`,
   },
   en: {
@@ -25,6 +27,8 @@ const EDITIONS = {
     heading: 'What each event can prove, and what it cannot',
     section: 'Every count is a floor',
     otherSection: 'Toda contagem é um piso',
+    tagSection: 'The campaign tags on a link into this site',
+    sourcesLabel: 'Sources',
     card: `${SITE}/og-default.png`,
   },
 } as const;
@@ -64,6 +68,13 @@ test.describe('/analytics — the served head, per edition', () => {
       expect(html).toContain(e.section);
       expect(html).not.toContain(e.otherSection);
       expect(html).toContain('article_end_reached');
+      // The campaign-tag section is served too, with the author-side YouTube source ON THE SOURCES LINE
+      // (#817). Read the line itself: the word also appears in the prose below it, so a page-wide
+      // `toContain` stayed green with the source dropped from the list (mutation-checked).
+      expect(html).toContain(e.tagSection);
+      const sourcesLine = new RegExp(`<strong>${e.sourcesLabel}:</strong>([^\\n]*?)</p>`).exec(html)?.[1] ?? '';
+      expect(sourcesLine).toContain('<code>youtube</code>');
+      expect(sourcesLine).toContain('<code>linkedin</code>');
     });
   }
 
