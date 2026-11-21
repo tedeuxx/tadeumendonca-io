@@ -26,8 +26,8 @@ flowchart TD
         NC --> ES["eslint"]
         NC --> TS["tsc"]
         NC --> VI["vitest"]
-        NC --> BS["build-static<br/><i>tsc · vite · sitemap · prerender</i>"]
-        BS --> PW["playwright<br/><i>vs a preview, on the runner</i>"]
+        BS["build-static<br/><i>tsc · vite · sitemap · prerender</i>"]
+        BS --> PW["playwright × 3 shards<br/><i>vs a preview, on the runner</i>"]
         VI --> SQ["sonarqube-scan"]
         BS --> SQ
         HD["harness-drift<br/><i>2nd checkout: the plugin repo · tokenless</i>"]
@@ -52,6 +52,7 @@ flowchart TD
     end
 
     CH -->|"apps/**"| NC
+    CH -->|"apps/** · VERSION — does not wait for npm-ci"| BS
     CH -->|"apps/** — but its real trigger is a merge in the plugin repo"| HD
     CH -->|"iac/**"| CK
     CH -->|"iac/**"| TF
@@ -421,12 +422,40 @@ verified* · *a step failed, so the rest never ran* · *the gate ran, here is th
 
 ## Open decisions — resolved
 
-1. **Split the app gate into jobs — yes or no?** Built as drawn, **still unmeasured**. Runner-minutes
-   definitely go up: eight jobs, eight `npm ci`, and **two** Chromium downloads (`build-static` needs
-   one to prerender, `playwright` needs one to drive the suite, and a runner cannot hand a browser to
-   another runner). `npm-ci` also sits on the critical path of every job that follows it. If the
-   wall-clock measurement does not justify this, the revert is mechanical — merge the jobs back, keep
-   the names.
+1. **Split the app gate into jobs — yes or no?** ~~Built as drawn, **still unmeasured**.~~ **Struck
+   (#822): measured, and the split stays.** Runner-minutes go up: one job per command, one `npm ci`
+   each, and a Chromium download in `build-static` (to prerender) plus one per `playwright` shard (a
+   runner cannot hand a browser to another runner). ~~`npm-ci` also sits on the critical path of every
+   job that follows it.~~ Since #822 it no longer sits on the critical path: `build-static` needs only
+   `changes`. The wall-clock is set by one chain, `build-static` then `playwright`, and everything else
+   runs beside it. #822 shortened that chain in two places, with no check removed and no required name
+   changed:
+
+   - **`playwright` runs as three shards** (`--shard=i/3`, `fail-fast: false`) under the same job id.
+     The three legs run every test once: `fullyParallel: true` splits by test, and locally the legs
+     listed 137 + 137 + 137 tests against 411 unsharded, and ran 131 + 133 + 126 passed and
+     6 + 4 + 11 skipped against 390 passed and 21 skipped unsharded
+     (`npm --prefix apps/fed run e2e:local:built -- --list --shard=<i>/3`, then without `--list`;
+     2026-11-21, Playwright 1.64.1). `app-workflow.test.mjs` asserts the shard list covers
+     `1/N … N/N`.
+   - **`build-static` starts without waiting for `npm-ci`.** `npm-ci` still runs, fails fast and feeds
+     `build-test`; its condition is a superset of `build-static`'s, which the same test derives.
+
+   **Before**, the last 16 successful `app` pull-request runs that ran Playwright: run median
+   **7.7 min**, `playwright` job median **4.8 min** (2026-11-21, with the script below). **After**: not
+   measured at the time of writing; it needs runs of this file on pull requests, and the expected figure
+   (about 2.5 min for the `playwright` span) is a premise until the same command is re-run over them.
+
+   ```
+   # per run: wall-clock = updatedAt - createdAt; playwright span = earliest startedAt to latest
+   # completedAt over every job whose name starts with "playwright" (a matrix counts once)
+   gh run list -R tedeuxx/tadeumendonca-io --workflow app.yml --event pull_request --limit 20 \
+     --json databaseId,createdAt,updatedAt,conclusion
+   gh run view <databaseId> -R tedeuxx/tadeumendonca-io --json jobs
+   ```
+
+   If a later measurement does not justify the split, the revert is mechanical: merge the jobs back,
+   keep the names.
 2. **`tsc --noEmit` runs twice** — once as `tsc`, once inside `build-static`. **Accepted**, as drawn.
 3. **Does `sonarqube-scan` need `build-static`?** **No — resolved by reading
    `apps/fed/sonar-project.properties`**, which sets `sonar.sources=src,scripts` and
@@ -471,7 +500,8 @@ stamp?"*. Verified in both directions after the fix: v0.1.154..v0.1.155 → `app
 below it still runs its own `npm ci --ignore-scripts`. What the job really does is fail fast on a
 broken lockfile and populate the `actions/setup-node` npm cache the others restore from. Persisting
 `node_modules` as an artifact was considered and rejected — this tree is larger than the install it
-would save.
+would save. Since #822 `build-static` no longer waits for it: it restores the cache `main`'s runs saved
+for the same lockfile, and is cold only on a PR that changes the lockfile, as `npm-ci` is there too.
 
 **4. Splitting the post-deploy smoke into its own job breaks #195's letter.** That rule put Playwright
 setup *before* the deploy, because `--with-deps` shells out to apt and a transient mirror failure once
