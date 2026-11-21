@@ -53,6 +53,19 @@ export const AUTHOR_CAMPAIGN = 'author-post';
 export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-link';
 
 /**
+ * Sources only the AUTHOR posts to (#817; ADR-0005, *Campaign tagging of shared links*, amended 2026-11-21).
+ *
+ * `youtube` is a distribution channel, not a reader-share destination: a YouTube Short's description
+ * carries the author's per-language link, and no reader can share an article TO YouTube. So it lives
+ * outside `ShareSource` on purpose. `ShareSource` also types `ShareCompleteTarget`, the GA `target` of
+ * the reader's `share_complete` event, and adding `youtube` there would admit a value that can never be
+ * emitted. The medium stays `social` (the whole point of `SHARE_MEDIUM`) and the campaign is the
+ * existing `author-post`; no new medium and no new campaign.
+ */
+export const YOUTUBE_SOURCE = 'youtube';
+export type AuthorSource = typeof YOUTUBE_SOURCE;
+
+/**
  * Append the campaign parameters to an absolute article URL.
  *
  * Returns the RAW url — callers that embed it in another URL's query string must encode it themselves,
@@ -60,8 +73,17 @@ export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-
  * WhatsApp's single `text=` field, which WhatsApp reads as its own parameter and silently truncates the
  * message at that point. The link still opens, still looks right in a test that greps for a substring,
  * and delivers half a message.
+ *
+ * An author-side source REQUIRES `AUTHOR_CAMPAIGN`, by type. The default campaign is `reader-share`,
+ * and `youtube` + `reader-share` would claim a reader shared to a place readers cannot share to.
  */
-export function withShareUtm(url: string, source: ShareSource, campaign: string = SHARE_CAMPAIGN): string {
+export function withShareUtm(url: string, source: ShareSource, campaign?: string): string;
+export function withShareUtm(url: string, source: AuthorSource, campaign: typeof AUTHOR_CAMPAIGN): string;
+export function withShareUtm(
+  url: string,
+  source: ShareSource | AuthorSource,
+  campaign: string = SHARE_CAMPAIGN,
+): string {
   const u = new URL(url);
   u.searchParams.set('utm_source', source);
   u.searchParams.set('utm_medium', SHARE_MEDIUM);
