@@ -28,11 +28,12 @@ export const SHARE_CAMPAIGN = 'reader-share';
 export const AUTHOR_CAMPAIGN = 'author-post';
 
 /** The campaign on the QR printed on the vertical Story card (#662; the 2026-11-21 amendment to
- *  ADR-0005's *Campaign tagging of shared links*). It names the ARTIFACT: the card a reader sends to their own Instagram Story (#789), the only way the
- *  site reaches Instagram — the author posts no Stories. So it measures arrivals from that card apart
- *  from the link shares (`reader-share`), whose lifetime and mechanism differ. A printed QR outlives
- *  every Story and cannot be re-tagged, so this string is immutable from the first card generated with
- *  it. A frame reusing the card's layout elsewhere (#820) passes its own QR payload, never this one. */
+ *  ADR-0005's *Campaign tagging of shared links*). It names the ARTIFACT: the card a reader sends to
+ *  their own Instagram Story (#789), the only way the site reaches Instagram — the author posts no
+ *  Stories. So it measures arrivals from that card apart from the link shares (`reader-share`), whose
+ *  lifetime and mechanism differ. A printed QR outlives every Story and cannot be re-tagged, so this
+ *  string is immutable from the first card generated with it. A frame reusing the card's layout
+ *  elsewhere (#820) passes its own QR payload, never this one. */
 export const STORY_CAMPAIGN = 'story-card';
 
 /**
@@ -74,6 +75,19 @@ export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-
 export const STORY_SOURCE: ShareSource = 'instagram';
 
 /**
+ * Sources only the AUTHOR posts to (#817; ADR-0005, *Campaign tagging of shared links*, amended 2026-11-21).
+ *
+ * `youtube` is a distribution channel, not a reader-share destination: a YouTube Short's description
+ * carries the author's per-language link, and no reader can share an article TO YouTube. So it lives
+ * outside `ShareSource` on purpose. `ShareSource` also types `ShareCompleteTarget`, the GA `target` of
+ * the reader's `share_complete` event, and adding `youtube` there would admit a value that can never be
+ * emitted. The medium stays `social` (the whole point of `SHARE_MEDIUM`) and the campaign is the
+ * existing `author-post`; no new medium and no new campaign.
+ */
+export const YOUTUBE_SOURCE = 'youtube';
+export type AuthorSource = typeof YOUTUBE_SOURCE;
+
+/**
  * Append the campaign parameters to an absolute article URL.
  *
  * Returns the RAW url — callers that embed it in another URL's query string must encode it themselves,
@@ -81,8 +95,17 @@ export const STORY_SOURCE: ShareSource = 'instagram';
  * WhatsApp's single `text=` field, which WhatsApp reads as its own parameter and silently truncates the
  * message at that point. The link still opens, still looks right in a test that greps for a substring,
  * and delivers half a message.
+ *
+ * An author-side source REQUIRES `AUTHOR_CAMPAIGN`, by type. The default campaign is `reader-share`,
+ * and `youtube` + `reader-share` would claim a reader shared to a place readers cannot share to.
  */
-export function withShareUtm(url: string, source: ShareSource, campaign: string = SHARE_CAMPAIGN): string {
+export function withShareUtm(url: string, source: ShareSource, campaign?: string): string;
+export function withShareUtm(url: string, source: AuthorSource, campaign: typeof AUTHOR_CAMPAIGN): string;
+export function withShareUtm(
+  url: string,
+  source: ShareSource | AuthorSource,
+  campaign: string = SHARE_CAMPAIGN,
+): string {
   const u = new URL(url);
   u.searchParams.set('utm_source', source);
   u.searchParams.set('utm_medium', SHARE_MEDIUM);

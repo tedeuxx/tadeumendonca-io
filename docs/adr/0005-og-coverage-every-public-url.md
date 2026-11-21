@@ -5,9 +5,11 @@
   *Per-article OG cards*, *A held article is isolated, not private*, *Distribution to LinkedIn and X*,
   *Which video-derived articles are published*, *Campaign tagging of shared links*, *Consent-gated GA4
   analytics*, *The GA4 event schema is immutable once it collects* and *The analytics schema page*;
-  every decision is unchanged, #456) · **amended 2026-11-21** (*Per-article OG cards* gains a second
-  card class, the vertical Story card with a QR, and *Campaign tagging of shared links* gains
-  `utm_source=instagram` and `utm_campaign=story-card` for it, #662)
+  every decision is unchanged, #456) · **amended 2026-11-21** (*Campaign tagging of shared links* gains
+  `youtube`, an author-side `utm_source` value; medium and campaigns unchanged, #817) · **amended
+  2026-11-21** (*Per-article OG cards* gains a second card class, the vertical Story card with a QR, and
+  *Campaign tagging of shared links* gains `utm_source=instagram` and `utm_campaign=story-card` for it,
+  #662)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
@@ -704,9 +706,18 @@ the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, an
 step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the
 links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code
 change). The full record is in git history: `git log --diff-filter=D -- 'docs/adr/0039-*'`.
-**Amended 2026-11-21 (#662):** a sixth `utm_source`, `instagram`, and a fourth `utm_campaign`,
-`story-card`, printed in the QR on the vertical Story card a reader shares to Instagram; the medium stays
-`social`.
+
+**Amended 2026-11-21, after absorption** (Issue [#817](https://github.com/tedeuxx/tadeumendonca-io/issues/817),
+the product-lead and tech-lead intake of 2026-11-20 and the owner's ruling there, *"Enters as written"*):
+a sixth `utm_source` value, **`youtube`**, author-side only, for the link in the description of a YouTube
+Short; `utm_medium` stays `social` and the campaign is the existing `author-post`. It adds a member to the
+`utm_source` set and changes nothing else; it is written below as the decision as it binds.
+
+**Amended 2026-11-21, after absorption** (Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662),
+the owner's ruling *«Valor novo»* of 2026-10-31 and the re-scoped intake of 2026-11-20): a seventh
+`utm_source` value, **`instagram`**, and a fourth `utm_campaign` value, **`story-card`**, printed in the QR
+on the vertical Story card a reader shares to Instagram; `utm_medium` stays `social`. It is written below
+as the decision as it binds.
 
 ### Context
 
@@ -720,13 +731,22 @@ two.
 
 - **Three parameters, `utm_source` / `utm_medium` / `utm_campaign`, defined in one module**:
   `apps/fed/src/lib/utm.ts` (`SHARE_MEDIUM`, `SHARE_CAMPAIGN`, `AUTHOR_CAMPAIGN`, `ShareSource`,
-  `withShareUtm`). **`utm_content` is not emitted.**
+  `YOUTUBE_SOURCE` and `AuthorSource` since 2026-11-21, `withShareUtm`). **`utm_content` is not emitted.**
 - **`utm_source` ∈ `whatsapp` | `x` | `linkedin` | `share-sheet` | `copy-link`.** The OS share sheet was its
   own value because the sheet does not tell the page where the link went, so naming a platform would be a
   fabricated dimension; `copy-link` exists because the first draft stamped `share-sheet` on a desktop
   clipboard copy. **`share-sheet` has had no emitter since 2026-08-01** (#314 unified the share
   affordances behind one modal) **and stays defined**: links already shared still carry it and still
-  arrive. **Since 2026-11-21 the set has a sixth member, `instagram`** (the dated bullet below).
+  arrive. **Since 2026-11-21 `ShareSource` also has `instagram`** (the #662 bullet below).
+- **`utm_source` also takes `youtube`, an author-side value (2026-11-21, #817).** It is the link the author
+  places in the description of a YouTube Short, in the article's language (the locale is in the path, so
+  no parameter is added for it). Readers cannot share an article to YouTube, so `youtube` is **not** a
+  member of `ShareSource`, and so not a value of `ShareCompleteTarget`, the `target` of the reader's
+  `share_complete` event (*The GA4 event schema is immutable once it collects* below). It is exported apart,
+  as `YOUTUBE_SOURCE` (type `AuthorSource`), and `withShareUtm` accepts it only together with
+  `AUTHOR_CAMPAIGN`, by type: `youtube` with `reader-share` would name a mechanism that cannot happen. It
+  is listed with the other values on the analytics schema page (*The analytics schema page* below), which
+  a test holds equal to `utm.ts`. The site emits no `youtube` link itself; the distribution kit composes it.
 - **`utm_medium` = `social`**, never `social-share` or `share`: GA4's default channel grouping places a
   session in *Organic Social* by matching the medium, and the other two fall to *Unassigned*. On X, which
   GA4's built-in source list does not know, the medium is the only thing keeping it in the social bucket.
@@ -766,7 +786,9 @@ two.
   channel grouping matches `social`. **The strings live in `apps/fed/src/lib/utm.ts`**: `instagram` joins
   the `ShareSource` union, and `STORY_SOURCE` and `STORY_CAMPAIGN` are exported constants, because site
   code emits them (the build-time generator composes the QR payload through `withShareUtm`, and its gate
-  decodes each committed PNG and compares it with that derivation); `utm.test.ts` pins both literals.
+  decodes each committed PNG and compares it with that derivation); `utm.test.ts` pins both literals. Both
+  values are listed on the analytics schema page beside the others, and the same test holds them equal
+  to `utm.ts`.
   **They join the immutable set now**: the first committed card is the first use, and a printed QR cannot
   be re-tagged. **Not touched:** `share_complete` and the GA `target` dimension (this slice emits no
   event carrying `instagram`; the first emitter, the dimension's documented values and the registration
@@ -796,6 +818,10 @@ two.
 - **For profile links:** reusing `author-post` (it merges the populations and changes the value's meaning
   after two months of use); leaving them untagged; per-network values such as `linkedin-profile` (the
   network is already `utm_source`).
+- **For YouTube (2026-11-21):** a video medium such as `video` (it would amend the medium decision above,
+  and the source already carries the platform, while `social` keeps the session in *Organic Social*); a new
+  campaign value (a Short's link is the author's post, the meaning `author-post` already has); and adding
+  `youtube` to `ShareSource` (it would let `share_complete` admit a `target` that can never be emitted).
 
 ### Consequences still being paid
 
@@ -812,6 +838,10 @@ two.
 - **An untagged author post or profile link, or a mistyped value such as `author_profile`, is a real
   state nothing detects.** Whether each network's profile field preserves the query string is a premise
   until the first reading.
+- **Query-string survival through a YouTube description link is not measured** (2026-11-21): the first
+  reading in GA4 is the first evidence either way. A viewer who copies that link and passes it on still
+  arrives as `author-post`, the mechanism that put it into circulation. `youtube` joins the immutable set
+  on its first use.
 - **No success criterion is set for `story-card`** (2026-11-21, #662); read the series as
   existence-class. A frame reusing the card's layout elsewhere (#820) must not print this tag: the
   template takes its QR payload as a parameter for that reason, and nothing but review stops a caller

@@ -23,6 +23,8 @@ import { describe, it, expect } from 'vitest';
 import analyticsSource from '../lib/analytics.ts?raw';
 import analyticsEn from './analytics.en.md?raw';
 import analyticsPt from './analytics.pt.md?raw';
+import utmSource from '../lib/utm.ts?raw';
+import { YOUTUBE_SOURCE, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, STORY_CAMPAIGN } from '../lib/utm';
 
 type Schema = Map<string, string[]>;
 
@@ -177,5 +179,49 @@ describe('the parsers themselves', () => {
 
   it('rejects a page entry with no parameters line', () => {
     expect(() => presentedSchema('### `x_event`\n\nprose only\n', 'Parameters')).toThrow(/x_event/);
+  });
+});
+
+// The campaign-tag section (#817): the values the page lists are read off `utm.ts`, both directions, so a
+// source added to the code without the page, or listed on the page with no definition, fails here. The
+// one exception is named: `author-profile` is hand-placed on the author's profiles and fixed only in
+// ADR-0005, *Campaign tagging of shared links* (amended 2026-10-16 when it was record 0039), deliberately with no constant in the module.
+const HAND_PLACED_CAMPAIGNS = ['author-profile'];
+
+/** The members of `export type ShareSource = 'a' | 'b'`, read from the module's source text. */
+function shareSourcesOf(source: string): string[] {
+  const body = /export type ShareSource = ([^;]+);/.exec(source)?.[1];
+  if (body === undefined) throw new Error('utm.ts: `export type ShareSource` not found — the parser is stale');
+  return [...body.matchAll(/'([a-z-]+)'/g)].map((m) => m[1]);
+}
+
+/** The backticked values on one bold line of the campaign-tag section. */
+function tagLine(body: string, label: string): string[] {
+  const section = body.split(/^## /m).find((s) => s.includes('`utm_source`') && s.includes(`**${label}:**`));
+  if (section === undefined) throw new Error(`page: no campaign-tag section with a "${label}:" line`);
+  const line = new RegExp(`^\\*\\*${label}:\\*\\* (.+)$`, 'm').exec(section)?.[1] ?? '';
+  return sorted([...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]));
+}
+
+const TAG_EDITIONS = [
+  { locale: 'en', body: analyticsEn, sources: 'Sources', medium: 'Medium', campaigns: 'Campaigns' },
+  { locale: 'pt', body: analyticsPt, sources: 'Origens', medium: 'Mídia', campaigns: 'Campanhas' },
+] as const;
+
+describe('the /analytics page lists exactly the campaign tags utm.ts defines (#817)', () => {
+  it('reads the module, not an empty set', () => {
+    const sources = shareSourcesOf(utmSource);
+    expect(sources).toContain('linkedin');
+    expect(sources).not.toContain(YOUTUBE_SOURCE);
+  });
+
+  it.each(TAG_EDITIONS)('$locale edition: sources, medium and campaigns', ({ body, sources, medium, campaigns }) => {
+    expect(tagLine(body, sources)).toEqual(sorted([...shareSourcesOf(utmSource), YOUTUBE_SOURCE]));
+    expect(tagLine(body, medium)).toEqual([SHARE_MEDIUM]);
+    expect(tagLine(body, campaigns)).toEqual(sorted([SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, STORY_CAMPAIGN, ...HAND_PLACED_CAMPAIGNS]));
+  });
+
+  it('refuses a page with no campaign-tag section', () => {
+    expect(() => tagLine('## Other\n\n**Sources:** `x`\n', 'Sources')).toThrow(/Sources/);
   });
 });
