@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { HELD_KEY } from '../src/content/heldFixture';
 
-// #662 — the vertical Instagram Story card, against the SERVED artifact.
+// #662 — the vertical Story card, against the SERVED artifact.
 //
 // The unit suite (scripts/story-cards.test.mjs) proves the committed PNGs are the right set, decode to
-// the derived URL and honour the QR's physical floor. This proves the build ships them where slice B
-// (#789) will fetch them, `/story/<key>.<locale>.png`, as images: a card committed under `public/` and
+// the derived URL and honour the QR's physical floor. This proves the build ships them where the
+// reader's share-to-Story (#789) will fetch them, `/story/<key>.<locale>.png`, as images: a card committed under `public/` and
 // lost by the build would leave every unit test green.
 //
 // The assertion is on the CONTENT TYPE, not on a 404, for the reason held-draft.spec.ts gives: neither

@@ -1,5 +1,7 @@
-// The pure half of the vertical Instagram Story card (#662): which cards must exist, where they live,
-// what their QR encodes, and where everything sits on the 1080×1920 canvas.
+// The pure half of the vertical Story card (#662): which cards must exist, where they live, what their
+// QR encodes, and where everything sits on the 1080×1920 canvas. Its consumers are the reader's
+// share-to-Story (#789), the only way Instagram is reached, and, through `storyFrameHtml`, the
+// short-video generator (#820).
 //
 // Split from `gen-story-cards.mjs` on the same terms as `og-cards.mjs` is split from `gen-og-articles.mjs`
 // (ADR-0041): the generator drives a browser and has no unit-testable surface, while every DECISION
@@ -63,7 +65,7 @@ export const QR_BOTTOM_GAP = 30;
 export const STORY_DIR = 'story';
 
 /**
- * The public path of an article's Story card — THE helper slice B (#789) fetches, so it is the only
+ * The public path of an article's Story card — THE helper the reader's share-to-Story (#789) fetches, so it is the only
  * place the shape exists.
  *
  * Keyed by the article KEY and the locale, never the slug, for ADR-0041's orphaning reason: a slug is
@@ -210,4 +212,114 @@ export function titleFrom(raw, label) {
     throw new Error(`${label} has no \`title:\` in its frontmatter — cannot build a Story card`);
   }
   return title.trim();
+}
+
+// ---------------------------------------------------------------------------------------------------
+// THE VISUAL BASE — one template, two consumers (#662 re-scoped, 2026-11-20 intake).
+//
+// The Story card generator (this item) and the short-video generator (#820) both draw a 1080×1920
+// frame in this layout. The template lives HERE, not in either generator, so neither copies CSS or
+// constants: `gen-story-cards.mjs` draws every committed card through `storyFrameHtml`, and #820
+// imports the same function. The QR is a PARAMETER, never hard-wired to the Instagram tag: a caller
+// that publishes the frame somewhere other than a reader's Story passes its own payload, or none, so
+// its scans are not counted as Instagram's.
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * The band of the canvas a consumer may draw readable content in, as `{ top, bottom }` in pixels:
+ * everything between the top and bottom overlay insets. Shared by the Story card and #820's frames,
+ * which carry the platforms' own overlays. Still a PREMISE until the scan protocol checks it on a device.
+ */
+export const SAFE_ZONE = Object.freeze({ top: OVERLAY_INSET, bottom: STORY_HEIGHT - OVERLAY_INSET });
+
+/** The fixed boxes of the layout, in whole pixels. */
+export const LAYOUT = Object.freeze({
+  side: 76,
+  wordmarkTop: SAFE_ZONE.top + 30,
+  wordmarkHeight: 48,
+  ruleHeight: 6,
+  ruleWidth: 96,
+  /** Rule bottom to QR panel top. */
+  ruleGap: 40,
+  /** Title box bottom to rule top. */
+  titleGap: 40,
+});
+const TITLE_TOP = LAYOUT.wordmarkTop + LAYOUT.wordmarkHeight + 48;
+
+/** The accent, ADR-0008's single one. */
+export const ACCENT = '#FF5A00';
+
+/** The brand mark, inline — the same 512-space geometry as favicon.svg and the OG generators. */
+export const BRAND_MARK_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" fill="${ACCENT}"/><g fill="${QR_DARK}"><rect x="112" y="140" width="288" height="72"/><rect x="220" y="140" width="72" height="232"/></g></svg>`;
+
+/**
+ * Where every element of a frame sits, as `{ left, top, width, height }` boxes: `title`, `rule`, and
+ * `qr` (`null` when the frame carries none). With a QR the rule sits `ruleGap` above its panel; without
+ * one it sits where the panel's bottom would, `QR_BOTTOM_GAP` above the lower safe edge, so the title
+ * box grows into the space instead of leaving a hole.
+ */
+export function storyLayout(geometry) {
+  const ruleBottom = geometry ? geometry.top - LAYOUT.ruleGap : SAFE_ZONE.bottom - QR_BOTTOM_GAP;
+  const ruleTop = ruleBottom - LAYOUT.ruleHeight;
+  const width = STORY_WIDTH - 2 * LAYOUT.side;
+  return {
+    title: { left: LAYOUT.side, top: TITLE_TOP, width, height: ruleTop - LAYOUT.titleGap - TITLE_TOP },
+    rule: { left: LAYOUT.side, top: ruleTop, width: LAYOUT.ruleWidth, height: LAYOUT.ruleHeight },
+    qr: geometry ? { left: geometry.left, top: geometry.top, width: geometry.size, height: geometry.size } : null,
+  };
+}
+
+const escapeHtml = (s) => s.replaceAll(/[&<>"']/g, (c) => `&#${c.codePointAt(0)};`);
+
+/**
+ * The frame, as a self-contained HTML document a headless browser screenshots at 1080×1920.
+ *
+ * - `title` — the text to set, in `locale`; the caller reads it (the Story card from the article's
+ *   frontmatter). The element carrying it is `#t`, which the caller measures to pick a size.
+ * - `qrPayload` — the URL the QR encodes, or `null`/omitted for a frame with no QR layer at all.
+ * - `background` — an optional image URL drawn under everything, covering the canvas; the QR keeps its
+ *   own light panel, so a background never touches its contrast.
+ * - `fonts` — `{ display, mono }` font URLs (the generator passes the self-hosted faces as data URLs).
+ */
+export function storyFrameHtml({ title, locale, qrPayload = null, background = null, fonts }) {
+  if (!LOCALES.includes(locale)) throw new Error(`story frame: unknown locale "${locale}"`);
+  let geometry = null;
+  let svg = '';
+  if (qrPayload) {
+    const matrix = qrMatrix(qrPayload);
+    geometry = qrGeometry(matrix.length);
+    svg = qrSvg(matrix, geometry.moduleSize);
+  }
+  const box = storyLayout(geometry);
+  const bg = background ? ` background-image:url('${background}'); background-size:cover; background-position:center;` : '';
+  const qrCss = geometry
+    ? `\n  .qr { position:absolute; left:${geometry.left}px; top:${geometry.top}px; width:${geometry.size}px;
+    height:${geometry.size}px; }
+  .qr svg { display:block; }`
+    : '';
+  const qrDiv = geometry ? `\n  <div class="qr">${svg}</div>` : '';
+  return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><style>
+  @font-face { font-family:'Space Grotesk'; font-weight:700; src:url('${fonts.display}') format('woff2'); }
+  @font-face { font-family:'JetBrains Mono'; font-weight:500; src:url('${fonts.mono}') format('woff2'); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:${STORY_WIDTH}px; height:${STORY_HEIGHT}px; }
+  body { background:${QR_DARK}; color:${QR_LIGHT}; overflow:hidden; position:relative;${bg} }
+  .wm { position:absolute; left:${LAYOUT.side}px; top:${LAYOUT.wordmarkTop}px; height:${LAYOUT.wordmarkHeight}px;
+    font-family:'JetBrains Mono',monospace; font-weight:500; font-size:30px; letter-spacing:0.04em;
+    display:flex; align-items:center; gap:14px; }
+  .wm .badge { width:${LAYOUT.wordmarkHeight}px; height:${LAYOUT.wordmarkHeight}px; flex:none; display:block; }
+  .wm .io { color:${ACCENT}; }
+  /* The title box is FIXED; the title sits at its bottom, on the rule, and the caller picks the
+     largest size that fits it. line-height 1.06 for the same reason as the OG card: uppercase pt-BR
+     keeps its diacritics, and below 1.0 a cedilla descends into the next line. */
+  .tbox { position:absolute; left:${box.title.left}px; top:${box.title.top}px; width:${box.title.width}px;
+    height:${box.title.height}px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; }
+  .title { font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:1.06;
+    letter-spacing:-0.035em; text-transform:uppercase; overflow:hidden; }
+  .rule { position:absolute; left:${box.rule.left}px; top:${box.rule.top}px; width:${box.rule.width}px; height:${box.rule.height}px; background:${ACCENT}; }${qrCss}
+</style></head><body>
+  <div class="wm"><span class="badge">${BRAND_MARK_SVG}</span>tadeumendonca<span class="io">.io</span></div>
+  <div class="tbox"><div class="title" id="t">${escapeHtml(title)}</div></div>
+  <div class="rule"></div>${qrDiv}
+</body></html>`;
 }

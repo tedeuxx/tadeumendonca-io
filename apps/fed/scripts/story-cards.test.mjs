@@ -8,8 +8,10 @@ import { BinaryBitmap, DecodeHintType, HybridBinarizer, QRCodeReader, RGBLuminan
 import { articleKeysIn, diffCards } from './og-cards.mjs';
 import { SITE_URL, neutralArticleRoutes, neutralArticleRouteFor } from './routes.mjs';
 import {
+  LAYOUT,
   LOCALES,
   OVERLAY_INSET,
+  SAFE_ZONE,
   QR_ECL,
   QR_MAX_PX,
   QR_MODULE_PX,
@@ -25,6 +27,8 @@ import {
   qrSvg,
   requiredStoryCards,
   storyCardPath,
+  storyFrameHtml,
+  storyLayout,
   storyPayload,
   titleFrom,
 } from './story-cards.mjs';
@@ -112,7 +116,7 @@ describe('the Story card set matches the article set (criterion 1)', () => {
   });
 });
 
-describe('card naming — the path helper slice B consumes', () => {
+describe('card naming — the path helper #789 consumes', () => {
   it('is keyed by the article key and the locale, in its own directory', () => {
     expect(storyCardPath('my-commitment', 'pt')).toBe('/story/my-commitment.pt.png');
     expect(storyCardPath('my-commitment', 'en')).toBe('/story/my-commitment.en.png');
@@ -304,5 +308,105 @@ describe('titleFrom', () => {
         expect(titleFrom(readFileSync(join(blogDir, `${key}.${locale}.md`), 'utf8'), key).length).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------
+// The visual base #820 consumes: one template, the QR optional, the safe zones shared.
+// ---------------------------------------------------------------------------------------------------
+const FONTS = { display: 'data:font/woff2;base64,AAAA', mono: 'data:font/woff2;base64,BBBB' };
+
+/** Rasterise the QR panel a frame's HTML carries (its light field and dark rects) and decode it. */
+function decodeFrameQr(html) {
+  const panel = /<div class="qr"><svg[^>]* width="(\d+)"[^>]*>([^]*?)<\/svg><\/div>/.exec(html);
+  if (!panel) return null;
+  const size = Number(panel[1]);
+  const lum = new Uint8ClampedArray(size * size).fill(245);
+  for (const [, x, y, w, h] of panel[2].matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)"\/>/g)) {
+    for (let yy = Number(y); yy < Number(y) + Number(h); yy += 1) lum.fill(10, yy * size + Number(x), yy * size + Number(x) + Number(w));
+  }
+  const bitmap = new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(lum, size, size)));
+  return new QRCodeReader().decode(bitmap, new Map([[DecodeHintType.TRY_HARDER, true]])).getText();
+}
+
+describe('storyFrameHtml — the one frame template, QR optional', () => {
+  it('draws no QR layer at all when no payload is given', () => {
+    const html = storyFrameHtml({ title: 'A title', locale: 'en', fonts: FONTS });
+    expect(html).not.toContain('class="qr"');
+    expect(html).not.toContain('.qr {');
+    expect(decodeFrameQr(html)).toBeNull();
+    // The control: the wordmark and the title are still drawn, so "no QR" is not "nothing at all".
+    expect(html).toContain('tadeumendonca<span class="io">.io</span>');
+    expect(html).toContain('id="t">A title</div>');
+  });
+
+  it('draws a QR that decodes to exactly the payload it was given, not a hard-wired Instagram tag', () => {
+    const payload = 'https://tadeumendonca.io/blog/my-commitment?utm_source=youtube&utm_medium=video&utm_campaign=short';
+    const html = storyFrameHtml({ title: 'A title', locale: 'pt', qrPayload: payload, fonts: FONTS });
+    expect(decodeFrameQr(html)).toBe(payload);
+    const story = storyPayload('my-commitment');
+    expect(decodeFrameQr(storyFrameHtml({ title: 'A title', locale: 'pt', qrPayload: story, fonts: FONTS }))).toBe(story);
+  });
+
+  it('sets the document language to the frame locale, and refuses one it does not know', () => {
+    expect(storyFrameHtml({ title: 'x', locale: 'pt', fonts: FONTS })).toContain('<html lang="pt">');
+    expect(storyFrameHtml({ title: 'x', locale: 'en', fonts: FONTS })).toContain('<html lang="en">');
+    expect(() => storyFrameHtml({ title: 'x', locale: 'fr', fonts: FONTS })).toThrow(/unknown locale "fr"/);
+  });
+
+  it('draws a background image only when one is given', () => {
+    const bg = 'data:image/png;base64,CCCC';
+    expect(storyFrameHtml({ title: 'x', locale: 'en', background: bg, fonts: FONTS })).toContain(`background-image:url('${bg}')`);
+    expect(storyFrameHtml({ title: 'x', locale: 'en', fonts: FONTS })).not.toContain('background-image');
+  });
+
+  it('uses the fonts it is given and escapes the title', () => {
+    const html = storyFrameHtml({ title: 'Tom & "Jerry" <b>', locale: 'en', fonts: FONTS });
+    expect(html).toContain(`src:url('${FONTS.display}')`);
+    expect(html).toContain(`src:url('${FONTS.mono}')`);
+    expect(html).toContain('Tom &#38; &#34;Jerry&#34; &#60;b&#62;');
+  });
+
+  it('is the template the Story card generator draws through — no second copy of the layout', () => {
+    const gen = readFileSync(join(root, 'scripts', 'gen-story-cards.mjs'), 'utf8');
+    expect(gen).toMatch(/storyFrameHtml\(\{ title, locale, qrPayload, fonts \}\)/);
+    expect(gen).not.toMatch(/<html|<style|position:absolute/);
+  });
+});
+
+describe('the safe zones are shared constants, and every box sits inside them', () => {
+  it('is the band between the two overlay insets', () => {
+    expect(SAFE_ZONE).toEqual({ top: OVERLAY_INSET, bottom: STORY_HEIGHT - OVERLAY_INSET });
+    expect(Object.isFrozen(SAFE_ZONE)).toBe(true);
+  });
+
+  const inside = (box, label) => {
+    expect(box.top, `${label} top`).toBeGreaterThanOrEqual(SAFE_ZONE.top);
+    expect(box.top + box.height, `${label} bottom`).toBeLessThanOrEqual(SAFE_ZONE.bottom);
+    expect(box.height, `${label} height`).toBeGreaterThan(0);
+    expect(box.left, `${label} left`).toBeGreaterThanOrEqual(0);
+    expect(box.left + box.width, `${label} right`).toBeLessThanOrEqual(STORY_WIDTH);
+  };
+
+  for (const key of keys) {
+    it(`${key}: the wordmark, title, rule and QR boxes sit inside the safe zone`, () => {
+      const layout = storyLayout(qrGeometry(qrMatrix(storyPayload(key)).length));
+      expect(LAYOUT.wordmarkTop).toBeGreaterThanOrEqual(SAFE_ZONE.top);
+      inside(layout.title, 'title');
+      inside(layout.rule, 'rule');
+      inside(layout.qr, 'qr');
+      // The title box ends above the rule, and the rule above the QR: nothing overlaps.
+      expect(layout.title.top + layout.title.height).toBeLessThan(layout.rule.top);
+      expect(layout.rule.top + layout.rule.height).toBeLessThan(layout.qr.top);
+    });
+  }
+
+  it('without a QR, the title box grows into the space and still sits inside the safe zone', () => {
+    const none = storyLayout(null);
+    const withQr = storyLayout(qrGeometry(53));
+    expect(none.qr).toBeNull();
+    inside(none.title, 'title');
+    inside(none.rule, 'rule');
+    expect(none.title.height).toBeGreaterThan(withQr.title.height);
   });
 });

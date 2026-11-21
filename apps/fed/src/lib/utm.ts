@@ -27,13 +27,12 @@ export const SHARE_MEDIUM = 'social';
 export const SHARE_CAMPAIGN = 'reader-share';
 export const AUTHOR_CAMPAIGN = 'author-post';
 
-/** The campaign on the QR printed on the vertical Instagram Story card (#662, ADR-0039's 2026-11-01
- *  amendment). It names the ARTIFACT, not who posted it: one committed card per locale serves both the
- *  author's own Story and (slice B, #789) a reader's Story, and a static PNG cannot know which of them
- *  put it on screen. So it measures the Story channel apart from the posts, and deliberately does NOT
- *  separate the author's Stories from readers' — `author-post` would count every reader as the author,
- *  `reader-share` the reverse. A printed QR outlives every post and cannot be re-tagged, so this string
- *  is immutable from the first card generated with it. */
+/** The campaign on the QR printed on the vertical Story card (#662, ADR-0039's 2026-11-01 amendment).
+ *  It names the ARTIFACT: the card a reader sends to their own Instagram Story (#789), the only way the
+ *  site reaches Instagram — the author posts no Stories. So it measures arrivals from that card apart
+ *  from the link shares (`reader-share`), whose lifetime and mechanism differ. A printed QR outlives
+ *  every Story and cannot be re-tagged, so this string is immutable from the first card generated with
+ *  it. A frame reusing the card's layout elsewhere (#820) passes its own QR payload, never this one. */
 export const STORY_CAMPAIGN = 'story-card';
 
 /**
@@ -67,8 +66,9 @@ export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-
  * 2026-10-16 amendment applies to profiles. Exported as a constant so the build-time generator, which
  * cannot type-check its own literal, takes the spelling from here rather than retyping it.
  *
- * Slice B (#789) is the first EMITTER of this value as a `share_complete` target; this slice only prints
- * it into the QR, so the GA dimension's documented values and ADR-0051's registration are slice B's.
+ * #789 (the reader's share-to-Story) is the first EMITTER of this value as a `share_complete` target;
+ * #662 only prints it into the QR, so the GA dimension's documented values and ADR-0051's registration
+ * are #789's.
  */
 export const STORY_SOURCE: ShareSource = 'instagram';
 

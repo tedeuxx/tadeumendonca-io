@@ -1,10 +1,12 @@
-// Generates the vertical Instagram Story card, per article and per locale, at build time (#662).
+// Generates the vertical Story card, per article and per locale, at build time (#662).
 // Run: `npm run gen-story-cards`. Output: public/story/<key>.<locale>.png, 1080×1920, committed.
 //
 // The second card class beside gen-og-articles.mjs (ADR-0041, amended in #662), in the same shape:
 // rendered in the Playwright Chromium the build already installs, committed, never rendered at runtime
-// or in CI. Every decision — the set, the path, the QR payload, its geometry, the title fit — lives in
-// story-cards.mjs and is unit-tested there; this file only draws.
+// or in CI. Every decision — the set, the path, the QR payload, its geometry, the title fit, and the
+// frame template itself — lives in story-cards.mjs and is unit-tested there; this file only drives the
+// browser. The cards are consumed by the reader's share-to-Story (#789); the template is also the
+// visual base of the short-video generator (#820).
 //
 // What the card carries, and nothing else (the owner's rulings on #662): the `tadeumendonca.io`
 // wordmark in the display face with the accent, as on the OG cards (`«Domínio»`); the article title in
@@ -17,18 +19,14 @@ import { resolve, join, relative } from 'node:path';
 import { articleKeysIn } from './og-cards.mjs';
 import {
   LOCALES,
-  OVERLAY_INSET,
-  QR_DARK,
-  QR_LIGHT,
   STORY_DIR,
   STORY_HEIGHT,
   STORY_WIDTH,
   TITLE_MAX_LINES,
   TITLE_SIZES,
   fitTitle,
-  qrGeometry,
   qrMatrix,
-  qrSvg,
+  storyFrameHtml,
   storyPayload,
   titleFrom,
 } from './story-cards.mjs';
@@ -43,52 +41,9 @@ const font = (pkg, file) =>
 const grotesk = font('space-grotesk', 'space-grotesk-latin-700-normal.woff2');
 const mono = font('jetbrains-mono', 'jetbrains-mono-latin-500-normal.woff2');
 
-// The brand mark, inline — the same 512-space geometry as favicon.svg and the OG generators.
-const mark = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" fill="#FF5A00"/><g fill="#0A0A0A"><rect x="112" y="140" width="288" height="72"/><rect x="220" y="140" width="72" height="232"/></g></svg>`;
-
-const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.codePointAt(0)};`);
-
-// The fixed boxes, in whole pixels. Everything readable sits between the two overlay insets.
-const SIDE = 76;
-const WORDMARK_TOP = OVERLAY_INSET + 30;
-const WORDMARK_HEIGHT = 48;
-const TITLE_TOP = WORDMARK_TOP + WORDMARK_HEIGHT + 48;
-const RULE_GAP = 40; // rule bottom → QR panel top
-const RULE_HEIGHT = 6;
-const TITLE_GAP = 40; // title box bottom → rule top
-
-function cardHtml(title, geometry, svg) {
-  const ruleTop = geometry.top - RULE_GAP - RULE_HEIGHT;
-  const titleHeight = ruleTop - TITLE_GAP - TITLE_TOP;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
-  @font-face { font-family:'Space Grotesk'; font-weight:700; src:url('${grotesk}') format('woff2'); }
-  @font-face { font-family:'JetBrains Mono'; font-weight:500; src:url('${mono}') format('woff2'); }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:${STORY_WIDTH}px; height:${STORY_HEIGHT}px; }
-  body { background:${QR_DARK}; color:${QR_LIGHT}; overflow:hidden; position:relative; }
-  .wm { position:absolute; left:${SIDE}px; top:${WORDMARK_TOP}px; height:${WORDMARK_HEIGHT}px;
-    font-family:'JetBrains Mono',monospace; font-weight:500; font-size:30px; letter-spacing:0.04em;
-    display:flex; align-items:center; gap:14px; }
-  .wm .badge { width:${WORDMARK_HEIGHT}px; height:${WORDMARK_HEIGHT}px; flex:none; display:block; }
-  .wm .io { color:#FF5A00; }
-  /* The title box is FIXED; the title sits at its bottom, on the rule, and the generator picks the
-     largest size that fits it. line-height 1.06 for the same reason as the OG card: uppercase pt-BR
-     keeps its diacritics, and below 1.0 a cedilla descends into the next line. */
-  .tbox { position:absolute; left:${SIDE}px; top:${TITLE_TOP}px; width:${STORY_WIDTH - 2 * SIDE}px;
-    height:${titleHeight}px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; }
-  .title { font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:1.06;
-    letter-spacing:-0.035em; text-transform:uppercase; overflow:hidden; }
-  .rule { position:absolute; left:${SIDE}px; top:${ruleTop}px; width:96px; height:${RULE_HEIGHT}px; background:#FF5A00; }
-  .qr { position:absolute; left:${geometry.left}px; top:${geometry.top}px; width:${geometry.size}px;
-    height:${geometry.size}px; }
-  .qr svg { display:block; }
-</style></head><body>
-  <div class="wm"><span class="badge">${mark}</span>tadeumendonca<span class="io">.io</span></div>
-  <div class="tbox"><div class="title" id="t">${escapeHtml(title)}</div></div>
-  <div class="rule"></div>
-  <div class="qr">${svg}</div>
-</body></html>`;
-}
+// The layout, the brand mark and the CSS are NOT here: they are `storyFrameHtml` in story-cards.mjs,
+// the one template this generator and the short-video generator (#820) both draw through.
+const fonts = { display: grotesk, mono };
 
 const keys = articleKeysIn(blogDir);
 if (keys.length === 0) {
@@ -122,13 +77,12 @@ const measureIn = (size) =>
 
 let written = 0;
 for (const key of keys) {
-  const matrix = qrMatrix(storyPayload(key));
-  const geometry = qrGeometry(matrix.length);
-  const svg = qrSvg(matrix, geometry.moduleSize);
+  const qrPayload = storyPayload(key);
+  const modules = qrMatrix(qrPayload).length;
   for (const locale of LOCALES) {
     const label = `${key}.${locale}`;
     const title = titleFrom(readFileSync(join(blogDir, `${label}.md`), 'utf8'), `${label}.md`);
-    await page.setContent(cardHtml(title, geometry, svg), { waitUntil: 'networkidle' });
+    await page.setContent(storyFrameHtml({ title, locale, qrPayload, fonts }), { waitUntil: 'networkidle' });
     // eslint-disable-next-line no-undef -- serialized and evaluated in the browser page, not in Node
     await page.evaluate(() => document.fonts.ready);
 
@@ -151,7 +105,7 @@ for (const key of keys) {
       path: join(outDir, `${label}.png`),
       clip: { x: 0, y: 0, width: STORY_WIDTH, height: STORY_HEIGHT },
     });
-    console.log(`${label}: ${size}px title, ${measured.get(size).lines} line(s); QR ${matrix.length} modules × ${geometry.moduleSize}px`);
+    console.log(`${label}: ${size}px title, ${measured.get(size).lines} line(s); QR ${modules} modules`);
     written += 1;
   }
 }
