@@ -45,6 +45,9 @@ export default defineConfig({
         // #456 S2. The capability half: the README's capability table against each record's
         // `Capability:` line. On the allowlist for the same reason as the two entries above.
         'scripts/adr-capabilities.mjs',
+        // #819. The funnel review's per-post record: its validation, the post-to-session match and the
+        // baseline count. On the allowlist for the same reason as the entries above.
+        'scripts/funnel-posts.mjs',
         // #269. Same split as diagram-source: this is the half that decides WHICH cards must exist and
         // whether the committed set still matches the articles. gen-og-articles.mjs is excluded from the
         // metric in sonar-project.properties for the same reason gen-diagrams.mjs is — it drives a

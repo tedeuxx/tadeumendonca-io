@@ -185,7 +185,7 @@ describe('the parsers themselves', () => {
 // The campaign-tag section (#817): the values the page lists are read off `utm.ts`, both directions, so a
 // source added to the code without the page, or listed on the page with no definition, fails here. The
 // one exception is named: `author-profile` is hand-placed on the author's profiles and fixed only in
-// ADR-0039 (amendment 2026-10-16), deliberately with no constant in the module.
+// ADR-0005, *Campaign tagging of shared links* (amended 2026-10-16 when it was record 0039), deliberately with no constant in the module.
 const HAND_PLACED_CAMPAIGNS = ['author-profile'];
 
 /** The members of `export type ShareSource = 'a' | 'b'`, read from the module's source text. */

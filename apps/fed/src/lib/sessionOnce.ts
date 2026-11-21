@@ -16,7 +16,7 @@
 // A funnel's numerator must have the same denominator its stages are counted against: the question
 // `contact_reach` answers is *how many sessions reached contact*, so a per-mount or per-page-view
 // guard would answer a different question under a name that cannot be changed once it collects
-// (ADR-0051).
+// (ADR-0005, *The GA4 event schema is immutable once it collects*).
 //
 // WHAT IT COSTS, stated because it is real: a reader who returns to the same page later in the SAME
 // session does not re-count. That is the correct trade for a funnel stage and the wrong one for a

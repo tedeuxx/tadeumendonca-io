@@ -7,7 +7,7 @@
 // and a dated addendum, not a rewrite. This pins the SOURCE and the generated artifact; the served bytes
 // are pinned by `e2e/what-my-agents-do-addendum.spec.ts`.
 //
-// TWO STATES, ONE FILE (#732 AC 17). The correction ships as a PENDING REVISION (#741, ADR-0049 as amended
+// TWO STATES, ONE FILE (#732 AC 17). The correction ships as a PENDING REVISION (#741, ADR-0005's *A held article is isolated, not private*, as amended
 // 2026-10-16): merge 1 adds `revisions/what-my-agents-do.{en,pt}.md`, merge 2 moves them onto `blog/` with
 // `git mv -f` and nothing else. So the text under test is the revision while one exists for this key, and
 // the published edition otherwise; each state adds the arms only it can hold. Neither needs an edit at

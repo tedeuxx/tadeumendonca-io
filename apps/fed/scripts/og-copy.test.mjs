@@ -89,7 +89,7 @@ describe('the meta line', () => {
 
   // What this DOES prove: both generators still interpolate the shared constant. What it does NOT
   // prove: that the committed PNGs were re-rendered from it — CI never runs the generators, and
-  // ADR-0041 records that as an accepted cost. The PNGs are evidence in the PR, not a gate here.
+  // ADR-0005 (*Per-article OG cards*) records that as an accepted cost. The PNGs are evidence in the PR, not a gate here.
   it.each(['gen-og-default.mjs', 'gen-og-articles.mjs'])('%s prints it rather than its own literal', (file) => {
     const src = sourceOf(file);
     expect(src).toContain('${META_LINE}');
@@ -100,7 +100,7 @@ describe('the meta line', () => {
 describe('default card naming', () => {
   // English keeps the unsuffixed name because it is already pinned by every link shared since launch.
   // Renaming it to og-default.en.png would 404 the image on posts already out — the exact failure
-  // ADR-0041's naming argument exists to avoid, arriving from the other direction.
+  // the naming argument in ADR-0005's *Per-article OG cards* exists to avoid, arriving from the other direction.
   it('is additive: en keeps the pinned path, pt gets a suffix', () => {
     expect(defaultCardFile('en')).toBe('og-default.png');
     expect(defaultCardFile('pt')).toBe('og-default.pt.png');

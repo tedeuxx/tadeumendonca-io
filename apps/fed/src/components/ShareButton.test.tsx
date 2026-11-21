@@ -123,7 +123,7 @@ describe('ShareButton', () => {
     await waitFor(() => expect(writeText).toHaveBeenCalled());
     expect(writeText.mock.calls[0][0]).toContain('/pt/blog/meu-compromisso');
     // #272: the source names what actually happened. `copy-link`, never `share-sheet` — nothing emits
-    // that value any more, and a copy tagged as a sheet share is the fabricated dimension ADR-0039
+    // that value any more, and a copy tagged as a sheet share is the fabricated dimension ADR-0005 (*Campaign tagging of shared links*)
     // refuses.
     expect(new URL(writeText.mock.calls[0][0]).searchParams.get('utm_source')).toBe('copy-link');
     expect(await screen.findByText('Copiado')).toBeInTheDocument();

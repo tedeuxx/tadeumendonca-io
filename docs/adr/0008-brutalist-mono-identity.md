@@ -484,7 +484,7 @@ so they are carried below. The full record is in git history:
 The owner clicked *Arquitetura* and the tab read *"Como este site é construído"*: the word he clicked was
 nowhere in it. The site had four title shapes and no recorded reason for any. The title is an **address**
 (tab, bookmark, search result, unfurl), not the page's H1, which is its **argument**. The `og:title` half
-is pinned by scrapers on first fetch (ADR-0041), on every route: `useDocumentHead` emits it
+is pinned by scrapers on first fetch (ADR-0005, *Per-article OG cards*), on every route: `useDocumentHead` emits it
 unconditionally. On the two `MarkdownPage` routes (`/architecture`, `/ramp-up`) one `title` prop also feeds
 the share title and the JSON-LD headline.
 
@@ -494,7 +494,7 @@ the share title and the JSON-LD headline.
 anything after it is optional and secondary.** It is sourced from the section's own `title` leaf in the
 catalog, never from a heading. The visible H1 stays editorial.
 
-- **An off-menu section** (since 2026-11-01, `/analytics`, ADR-0054) carries its lead word as its own
+- **An off-menu section** (since 2026-11-01, `/analytics`, ADR-0005, *The analytics schema page*) carries its lead word as its own
   `<group>.label` leaf; the check reads `nav.<group>` first and `<group>.label` second.
 - **Enforced by derivation**: `messages.test.ts` takes every group owning a `title` leaf and asserts the
   lead in both locales, guarded against an empty set by asserting the derived set exactly
@@ -548,5 +548,5 @@ catalog, never from a heading. The visible H1 stays editorial.
   · [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture)
   decided the diagram toolchain · per locale under [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
   and [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) · titles constrained by
-  [ADR-0041](./0041-per-article-og-cards.md) · facts once per [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
-  · the off-menu title source serves [ADR-0054](./0054-analytics-schema-page-derived-from-the-emitting-code-off-the-menu.md).
+  [ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards) · facts once per [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
+  · the off-menu title source serves [ADR-0005, *The analytics schema page*](./0005-og-coverage-every-public-url.md#the-analytics-schema-page).

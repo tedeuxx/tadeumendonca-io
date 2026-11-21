@@ -7,7 +7,7 @@
 // the fix is a dated addendum and the sign-off moved to its end, not a rewrite. This pins the SOURCE; the
 // served bytes are pinned by `e2e/blast-radius-supernova-addendum.spec.ts`.
 //
-// TWO STATES, ONE FILE (#737 AC 16). The addendum ships as a PENDING REVISION (#741, ADR-0049 as amended
+// TWO STATES, ONE FILE (#737 AC 16). The addendum ships as a PENDING REVISION (#741, ADR-0005's *A held article is isolated, not private*, as amended
 // 2026-10-16): merge 1 adds `revisions/blast-radius-supernova.{en,pt}.md`, merge 2 moves them onto `blog/`
 // with `git mv -f` and nothing else. So the text under test is the revision while one exists for this key,
 // and the published edition otherwise; each state adds the arms only it can hold. Neither needs an edit at

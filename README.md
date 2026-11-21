@@ -304,8 +304,8 @@ the default — the MIT side wins only where `NOTICE` names something.
 **Four workflows, named after the top-level directory each one gates** — full map, with diagrams, in
 [`.github/workflows/README.md`](./.github/workflows/README.md).
 
-- **`app`** (`apps/**`) — `npm-ci` → `npm-audit` · `eslint` · `tsc` · `vitest` · `build-static` →
-  `playwright` · `sonarqube-scan`, behind a terminal **`build-test`** aggregator. Its filter also carries
+- **`app`** (`apps/**`) — `npm-ci` → `npm-audit` · `eslint` · `tsc` · `vitest` → `sonarqube-scan`,
+  beside `build-static` → `playwright` (three shards), behind a terminal **`build-test`** aggregator. Its filter also carries
   **`iac/cloudfront-functions/**`**, which is load-bearing rather than a stray: the CloudFront rewrite
   function is JS with behaviour, so it is unit-gated here. It stays in `iac`'s filter too — that file is
   also a Terraform diff, and the two gates prove different things.

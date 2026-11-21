@@ -105,7 +105,7 @@ in `iac/`.
   because it is a split by **JavaScript execution**, not by request-time inspection, which is why an edge
   redirect was rejected: it would have followed the unfurler too. `App.tsx`'s `NeutralArticleRoute`
   renders only for the snapshot browser (`window.__PRERENDER__`) and redirects everyone else.
-  **An article can be HELD** (#510, ADR-0049): `draft: true` in frontmatter — a **shared fact**, so both
+  **An article can be HELD** (#510, ADR-0005 (*A held article is isolated, not private*)): `draft: true` in frontmatter — a **shared fact**, so both
   editions must agree — takes it out of **four** public enumerations and no more. `lib/content.ts` drops
   it from `byLocale` (the index, the feed, the track filters) while `getPostBySlug`/`getEditions` still
   resolve it; `scripts/routes.mjs` drops it from `localizedRoutes()`, so it leaves the sitemap **and** the
@@ -118,7 +118,7 @@ in `iac/`.
   redirects to the locale home; with it, the article renders in the real chrome and declares
   `robots: noindex, nofollow`. **Promotion is one source edit, made in both editions** — `draft: false`
   plus the real date in the `.pt.md` and the `.en.md` front matter — **but it is not self-contained**
-  (#635, ADR-0049's 2026-11-01 amendment). `npm run build:static` derives the index, the landing list,
+  (#635, ADR-0005's *A held article is isolated, not private*, 2026-11-01 amendment). `npm run build:static` derives the index, the landing list,
   the sitemap and the prerendered locale and neutral addresses on its own. Two artifacts come from
   scripts the build does not run: **the OG cards** — run `npm --prefix apps/fed run gen-og-articles` and
   commit `public/og/<key>.{pt,en}.png` in the same merge request, because without them the build still
@@ -132,7 +132,7 @@ in `iac/`.
   commit build differently tomorrow, breaking *rebuild the tag to reproduce production*.
   **It buys isolation, not privacy, and the difference is not cosmetic:** while a held draft is deployed
   its full body — both editions — ships inside `dist/assets/index-*.js` and is fetchable by anyone with no
-  parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0049 records that
+  parameter at all. Nobody stumbles into it; anybody who knows to look will find it. ADR-0005 (*A held article is isolated, not private*) records that
   consequence with the command that measures it, and the upgrade path to a genuinely private draft.
   **So what may be held follows from what the hold does:** hold a piece that is merely UNFINISHED, and
   never one whose *existence* is the sensitive part — a draft that names something confidential is fully
@@ -159,8 +159,8 @@ in `iac/`.
   The committed fixture pair (`src/content/blog/held-draft-fixture.{pt,en}.md`, identified once in
   `src/content/heldFixture.ts`) is what every gate asserts against — **do not publish it**; flipping its
   flag is the mutation that proves those gates can go red.
-  **A PUBLISHED article is corrected through a PENDING REVISION, never through the hold** (#741, ADR-0049's
-  amendment). `draft: true` on a live article unpublishes it: it leaves the index and the route set, its
+  **A PUBLISHED article is corrected through a PENDING REVISION, never through the hold** (#741,
+  ADR-0005's *A held article is isolated, not private*, as amended). `draft: true` on a live article unpublishes it: it leaves the index and the route set, its
   URLs redirect, and its committed OG cards become orphans that redden the build. Instead, write the
   correction to `src/content/revisions/<key>.<locale>.md`, **both locales**, keyed by the article KEY (the
   `blog/` filename stem), each a full copy of the published edition with **frontmatter byte-identical**

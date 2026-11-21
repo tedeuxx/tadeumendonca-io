@@ -14,7 +14,7 @@ not necessarily the text it was published with.
 ## Links, as shipped
 
 Both posts are recorded with their links exactly as rendered. They predate the share-link convention of
-2026-09-19 (`published-voice` rule 21, recorded in ADR-0038 by the amendment merged in #666), which makes
+2026-09-19 (`published-voice` rule 21, recorded in record 0038 by the amendment merged in #666, since #456 in ADR-0005's *Distribution to LinkedIn and X*), which makes
 the shared link the locale-neutral URL. Nothing here normalises them to it.
 
 - LinkedIn renders each link as a LinkedIn-shortened `lnkd.in` URL, one in each language block. Their
