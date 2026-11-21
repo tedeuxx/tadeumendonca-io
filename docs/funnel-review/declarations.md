@@ -98,3 +98,49 @@ saved-exploration: verified 2026-10-24 owner-ga-ui none
 
 Replacing a GA-side line after the owner's read is a normal merge request. #765 stays open until no
 GA-side line carries the outstanding status.
+
+## The per-post record and the baseline (#819)
+
+The shapes: `post-record` takes the record file, then the module that reads it; `post-set` takes each
+post a piece must have, as `<platform>` for a text post and `<platform>:<language>` for a video;
+`baseline-pieces` takes the number of fully posted pieces the baseline needs.
+
+post-record: docs/funnel-review/posts.md apps/fed/scripts/funnel-posts.mjs
+
+post-set: linkedin x youtube:pt youtube:en
+
+baseline-pieces: 3
+
+**The baseline rule (owner, requirements document section 8): no numeric target is set until three
+pieces have shipped under the channel strategy.** The funnel review reports each period's figures and
+compares them with the prior period, and sets no target, until the count reaches the number above. The
+target is then set from that baseline. Until then a finding may say what the numbers show; it may not
+say they missed or met a target.
+
+- **A piece counts only when every post in the post set is recorded for it** in
+  `docs/funnel-review/posts.md`. A half-distributed piece does not start the baseline clock.
+- **Every post in that record is under the strategy**, so the count reads the record and nothing else.
+- `node apps/fed/scripts/funnel-posts.mjs` prints the count, and which posts each uncounted piece still
+  lacks.
+
+**Matching a post to its sessions.** The rite reads, for the period, the sessions by session source,
+session medium, session campaign, landing page and `locale`, and writes each row into the period's
+collection file at column 0:
+
+    session-row: <source> <medium> <campaign> <landing-page> <locale> <sessions>
+
+The method's parser reads only `figure:`, `collected:` and `internal-traffic:` lines, so these rows are
+inert to it and stay as the committed evidence. A value with a space, such as `(not set)`, is written
+with hyphens. `node apps/fed/scripts/funnel-posts.mjs docs/funnel-review/collected/<period>.tsv` prints
+one `figure:` line per post and per reader language, named
+`sessions_post_<platform>[-<language>]:<piece-key>:<locale>`, which the driver adds to the same file.
+A row matches a post when its source, medium and campaign equal the tags of the address the post
+carried and its landing page is one of that piece's addresses. Two limits follow from that:
+
+1. **The match sees only the tagged landing.** A reader who opens the link in an in-app browser that
+   drops the query, or who arrives later by another route, is not matched to the post.
+2. **Two posts with the same tags for the same piece cannot be told apart.** The record keeps one post
+   per platform and language for a piece, so this does not arise within the post set.
+
+The GA-side channel grouping for these tags is the owner's to set in his GA session. It is unverified,
+and nothing in this repository can observe it.
