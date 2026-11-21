@@ -232,7 +232,7 @@ function slugPairIndex() {
  *
  * A HELD article is absent for free rather than by a second rule: `blogEditions()` has already dropped
  * it, so the neutral set shrinks with the localized one instead of gaining a public address the hold
- * exists to withhold (ADR-0049 isolation).
+ * exists to withhold (ADR-0005's *A held article is isolated, not private*).
  */
 export function neutralArticleRoutes() {
   return blogEditions().map((pair) => {

@@ -129,7 +129,7 @@ test.describe('SEO discovery', () => {
       // assertion MORE precise rather than weaker. What it exists to catch is the en diagram being
       // served on /pt, so the diagram is where it should look. Over the whole page it also fired on any
       // English word appearing anywhere for a legitimate reason: #318 added the generated ADR index,
-      // whose titles are canonical English document names, and ADR-0039's title contains "Reader". That
+      // whose titles are canonical English document names, and record 0039's title contained "Reader" (it left the library with #456). That
       // is a citation, not a mistranslation — a decision record has one name and it is the name it is
       // filed under, the same way a paper title is not translated when cited.
       const svgs = html.match(/<svg[\s\S]*?<\/svg>/g)?.join('') ?? '';
@@ -165,7 +165,7 @@ test.describe('SEO discovery', () => {
   // a bookmark or a SERP line actually shows.
   //
   // `<title>` and `og:title` are checked TOGETHER because they are one value with two blast radii. The
-  // tab is free to fix; the OG title is pinned by every scraper that fetched the URL first (ADR-0041),
+  // tab is free to fix; the OG title is pinned by every scraper that fetched the URL first (ADR-0005, *Per-article OG cards*),
   // so a route where the two disagree means the head is being assembled twice and the irreversible copy
   // is the half nobody looked at.
   //

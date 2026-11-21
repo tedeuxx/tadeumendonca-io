@@ -1,6 +1,6 @@
 // `nav_click`'s `from` dimension (#597) — a path classified into the closed `NavArea` vocabulary.
 //
-// WHY A CLASSIFIER AND NOT THE PATH ITSELF. ADR-0051 keeps `path` off the spine because GA4 derives
+// WHY A CLASSIFIER AND NOT THE PATH ITSELF. ADR-0005 (*The GA4 event schema is immutable once it collects*) keeps `path` off the spine because GA4 derives
 // `page_path` from `page_location` for free, and a custom copy spends a registration slot on a
 // duplicate. `from` is not that duplicate: it is the path of the page the reader is LEAVING, which no
 // hit carries, and the only reason it may be emitted at all is that this function collapses it to a

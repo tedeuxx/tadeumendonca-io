@@ -8,7 +8,7 @@ import { readRevisions } from '../scripts/revision-lines.mjs';
 // and a social unfurl receive. A raw request, not `page.goto`, for the same reason as
 // `architecture-tier-claims.spec.ts`.
 //
-// TWO STATES, ONE FILE (#732 AC 17). The correction ships as a PENDING REVISION (#741, ADR-0049 as amended
+// TWO STATES, ONE FILE (#732 AC 17). The correction ships as a PENDING REVISION (#741, ADR-0005's *A held article is isolated, not private*, as amended
 // 2026-10-16). While `src/content/revisions/` holds a revision for this key (merge 1 landed, merge 2 not),
 // the served bytes are the PUBLISHED text, so they must NOT carry the addendum (AC 15), and `?preview`
 // must render the correction (AC 16). Once no revision is pending (merge 2 moved it onto `blog/`), the
@@ -87,7 +87,7 @@ for (const [path, t] of ADDRESSES) {
   }
 }
 
-// AC 16: on the RENDERED page, never on the prerender over HTTP (ADR-0049 rule 1).
+// AC 16: on the RENDERED page, never on the prerender over HTTP (ADR-0005's *A held article is isolated, not private*, rule 1).
 for (const [path, t] of ADDRESSES.slice(0, 2)) {
   test(`${path}?preview renders the pending correction`, async ({ page }) => {
     test.skip(!PENDING, 'no pending revision for this key — the correction is released; AC 8 covers it');

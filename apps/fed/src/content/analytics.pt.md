@@ -6,7 +6,7 @@ Então esta página faz o contrário, para este site. Ela não traz nenhum núme
 
 ## Toda contagem é um piso
 
-Nada chega ao Google antes de você aceitar a analytics. Antes de escolher, se você recusar, e num build sem identificador de medição, a tag nunca é carregada, então o Google não grava cookie nem recebe requisição. Se você aceitar e depois retirar o consentimento, o código deste site não envia mais nada a partir dali. A tag, porém, continua carregada, e o que ela coleta por conta própria, como a medição automática que o GA4 pode ligar numa propriedade, depende de uma configuração do console que este repositório não consegue observar. Essa trava é uma decisão com os motivos registrados na [ADR-0033](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0033-ga4-consent-gated-analytics.md).
+Nada chega ao Google antes de você aceitar a analytics. Antes de escolher, se você recusar, e num build sem identificador de medição, a tag nunca é carregada, então o Google não grava cookie nem recebe requisição. Se você aceitar e depois retirar o consentimento, o código deste site não envia mais nada a partir dali. A tag, porém, continua carregada, e o que ela coleta por conta própria, como a medição automática que o GA4 pode ligar numa propriedade, depende de uma configuração do console que este repositório não consegue observar. Essa trava é uma decisão com os motivos registrados na [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md), seção *Consent-gated GA4 analytics*.
 
 A consequência é que quem recusa nunca é contado, e quem bloqueia a tag também não. Todo número que o GA4 guarda sobre os eventos que o código deste site envia é, portanto, um piso, nunca um total, a menos que essa coleta automática conte a mesma coisa uma segunda vez ([ADR-0003](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0003-trunk-based-single-environment.md), seção *Observability scoped to a static site*). Esse é o preço da trava, e eu prefiro pagá-lo a contar quem disse não.
 
@@ -18,7 +18,7 @@ Um cookie é gravado em toda página, seja qual for a sua escolha sobre a analyt
 
 Esta página descreve o que o site **emite**. Essa parte este repositório conhece, porque é o código. O que dá para **consultar** no GA4 é outro fato: só dá para segmentar por um parâmetro depois que ele é registrado como dimensão personalizada no console do GA4, e o registro não é retroativo. Um parâmetro emitido antes do registro não dá para consultar no GA4 naquele período, para sempre.
 
-Esse passo no console fica fora de todas as verificações que este repositório roda, e nada aqui consegue observar se ele foi feito. Por isso esta página não afirma nada sobre o que é consultável. O raciocínio, e a obrigação, estão na [ADR-0051](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0051-ga4-event-schema-is-immutable-once-shipped.md).
+Esse passo no console fica fora de todas as verificações que este repositório roda, e nada aqui consegue observar se ele foi feito. Por isso esta página não afirma nada sobre o que é consultável. O raciocínio, e a obrigação, estão na [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md), seção *The GA4 event schema is immutable once it collects*.
 
 O GA4 também anexa a cada hit campos próprios que este site não define, como o idioma do navegador e o tamanho da tela. Esses não estão listados aqui: esta página cobre o que o código deste site envia, não tudo o que a ferramenta registra.
 

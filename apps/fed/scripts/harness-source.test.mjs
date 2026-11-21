@@ -113,18 +113,18 @@ describe('the committed manifest is a manifest at all', () => {
   // error message prescribes.
   // `handoff`, `idea-to-issues`, `new-idea` and `what-else` joined from the plugin at 2.0.110, absorbed by
   // #797 under the owner's 2026-09-07 ruling, with the page's nodes and accDescr in the same commit.
+  // At plugin 4.0.1 (absorbed by #456's ninth slice under the same ruling): the mirror regenerated from
+  // mhw v10.1.0 carries `funnel-review` and the three sprint rites as skills, not commands; `new-idea`
+  // and `idea-to-issues` left; `need-me`, `new-prd` and `prd-to-issues` arrived.
   it('carries the un-namespaced commands instead of silently dropping them', () => {
     expect(manifest.filter((c) => c.kind === 'command').map((c) => c.id)).toEqual([
       'autonomy',
       'blueprint',
-      'funnel-review',
       'handoff',
-      'idea-to-issues',
-      'new-idea',
+      'need-me',
       'new-issue',
-      'sprint-planning',
-      'sprint-retrospective',
-      'sprint-review',
+      'new-prd',
+      'prd-to-issues',
       'what-else',
     ]);
   });

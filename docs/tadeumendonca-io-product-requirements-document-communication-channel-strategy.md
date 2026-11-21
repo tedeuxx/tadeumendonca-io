@@ -2,20 +2,20 @@
 
 - **Status:** agreed in interview, 2026-11-20; open decisions listed at the end
 - **Subject:** `communication-channel-strategy`
-- **Revises:** [ADR-0038](./adr/0038-content-distribution-linkedin-and-x.md) (which channels, and the post
-  format); keeps [ADR-0052](./adr/0052-neutral-self-canonical-share-url-per-article.md) for text posts
+- **Revises:** [ADR-0005, *Distribution to LinkedIn and X*](./adr/0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) (which channels, and the post
+  format; formerly record 0038); keeps [ADR-0052](./adr/0052-neutral-self-canonical-share-url-per-article.md) for text posts
 - **Next step:** `prd-to-issues`, when the owner asks for it
 
 ## Why
 
 The site publishes one bilingual piece at a time and distributes it by hand to LinkedIn and X
-(ADR-0038). The first measured period shows where that breaks. The figures come from
+(ADR-0005, *Distribution to LinkedIn and X*). The first measured period shows where that breaks. The figures come from
 [`docs/funnel-review/sprint-07.md`](./funnel-review/sprint-07.md), consenting sessions only, about one
 day of exposure:
 
 - The LinkedIn post reached 126 members (200 impressions) and produced **1** link visit.
 - The English edition got **0** measured readers. All 12 reading-progress events were Portuguese.
-- Instagram and WhatsApp each brought 3 of 18 sessions, as many as LinkedIn. Neither is in ADR-0038.
+- Instagram and WhatsApp each brought 3 of 18 sessions, as many as LinkedIn. Neither is in ADR-0005, *Distribution to LinkedIn and X*.
   X brought 1.
 
 The owner chose to rebuild the strategy from zero rather than tune the post format alone.
@@ -52,7 +52,7 @@ the read.
 | Instagram, WhatsApp | reached only through the reader's own share from the site | no |
 | LinkedIn newsletter | not in the portfolio (rejected with the "every channel" option) | no |
 
-ADR-0038's obligation that a publication is incomplete until it exists on every authored channel
+The obligation in ADR-0005, *Distribution to LinkedIn and X*, that a publication is incomplete until it exists on every authored channel
 carries over to the new set: LinkedIn, X and YouTube, in the same batch.
 
 ### 4. Language
@@ -97,7 +97,7 @@ digest format (argument summarised, only the turn held back) for these two platf
   cards are generated today. No camera, no manual edit.
 - Narration is synthetic speech in **a clone of the owner's voice**, one track per language.
 - What leaves the repository is the rendered output, not the copy drafts, which stay private as
-  ADR-0038's amendment requires.
+  ADR-0005, *Distribution to LinkedIn and X* requires.
 
 ```mermaid
 flowchart LR
@@ -151,8 +151,8 @@ Each is written as open, not guessed.
 2. **Where the generator runs**: on the workstation or in the pipeline. This decides where the voice
    credential lives (the secrets standard applies).
 3. **Video length and visual template**, within the fixed visual identity (ADR-0008).
-4. **Posting stays manual and ask-first** (ADR-0038, option 4), or is automated. Not discussed.
+4. **Posting stays manual and ask-first** (ADR-0005, *Distribution to LinkedIn and X*, the rejected option *Automating the fan-out*), or is automated. Not discussed.
 5. **The owner-authored Instagram Stories work (#662)** no longer matches the channel set. The reader's
    share-to-Story (#789) still does. What happens to #662 is the owner's call; no agent closes it.
-6. **The record.** ADR-0038 needs an amendment or a successor for the new channel set and the new
+6. **The record.** ADR-0005, *Distribution to LinkedIn and X*, needs an amendment or a successor for the new channel set and the new
    format; that is the tech lead's to author once the owner confirms this document.

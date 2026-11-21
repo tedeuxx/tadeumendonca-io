@@ -269,7 +269,7 @@ carries six entries, so a seventh is a real information-architecture cost on mob
 with nothing on it. The nav entry and the `/ramp-up` cross-link land with the first books. The alternative — a placeholder book — is reader-facing prose in the owner's voice that
 ships and is then removed, and it is exactly what an OG scraper pins permanently
 ([ADR-0005](./0005-og-coverage-every-public-url.md),
-[ADR-0041](./0041-per-article-og-cards.md)). Chrome can say "not yet"; a fake book cannot.
+[ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)). Chrome can say "not yet"; a fake book cannot.
 
 Consistent with this ADR's accepted cost above: the route was added to `scripts/routes.mjs`, the single
 enumeration both the prerender and the sitemap read, so it is snapshotted and advertised together or not

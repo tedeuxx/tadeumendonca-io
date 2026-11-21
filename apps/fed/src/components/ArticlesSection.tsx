@@ -58,16 +58,16 @@ function TrackChip({ track }: { track: Track }) {
  * card's rendered date and its position in the list start disagreeing.
  *
  * IT IS 2026-08-16, AND IT IS A LOOKUP RATHER THAN A DECISION. The section was ANNOUNCED that day, on
- * both distribution surfaces, and two records in this repo say so independently:
- *   · `docs/adr/0038-content-distribution-linkedin-and-x.md` — *"The `/architecture` launch pair went
+ * both distribution surfaces, and two sections of `docs/adr/0005-og-coverage-every-public-url.md`, written separately, say so:
+ *   · its section *Distribution to LinkedIn and X* — *"The `/architecture` launch pair went
  *     out on both surfaces on 2026-08-16 in exactly this shape; this is a record of a practice, not a
  *     plan."* The clause after the semicolon is what makes it usable here: it is describing something
  *     that happened, not scheduling something that would.
- *   · `docs/adr/0039-share-campaign-tagging.md`'s status line — *"**amended 2026-08-16**
+ *   · its section *Campaign tagging of shared links*, the status that record carried when it was absorbed — *"**amended 2026-08-16**
  *     (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X …)"*. A
  *     campaign tag is applied to a post at the moment it is posted, so this dates the same event from
  *     the other side.
- * `ArchitectureCard.test.tsx` reads both dates back OUT of those files and compares them to this
+ * `ArchitectureCard.test.tsx` reads both dates back OUT of that file and compares them to this
  * constant, so the citation above is checked rather than trusted.
  *
  * THE ROUTE'S BIRTHDAY IS A DIFFERENT DATE AND IS NOT THIS ONE. `/architecture` existed from
@@ -81,8 +81,8 @@ function TrackChip({ track }: { track: Track }) {
  * BEFORE the site was public, so it has no publication event of its own — it entered the world when
  * the site did.~~ **Struck: the premise was false, not merely the value.** The reasoning was sound
  * against what the repo recorded at the time — nothing then dated the section's own publication, so a
- * reasoned decision was the honest form. ADR-0038's second 2026-08-16 amendment and ADR-0039's
- * amendment of the same day both landed afterwards, and between them they record exactly the event
+ * reasoned decision was the honest form. Record 0038's second 2026-08-16 amendment and record 0039's
+ * amendment of the same day (both in ADR-0005 since #456) landed afterwards, and between them they record exactly the event
  * the old comment said did not exist. Kept struck rather than deleted because the argument is
  * re-derivable from the same evidence a reader still finds (the route does predate launch), and
  * without this note they would re-derive it and re-apply it.
