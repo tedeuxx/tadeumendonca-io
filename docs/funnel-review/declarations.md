@@ -131,7 +131,7 @@ collection file at column 0:
 
 The method's parser reads only `figure:`, `collected:` and `internal-traffic:` lines, so these rows are
 inert to it and stay as the committed evidence. A value with a space, such as `(not set)`, is written
-with hyphens. `node apps/fed/scripts/funnel-posts.mjs docs/funnel-review/collected/<period>.tsv` prints
+with hyphens. `node apps/fed/scripts/funnel-posts.mjs <period>` reads `collected/<period>.tsv` and prints
 one `figure:` line per post and per reader language, named
 `sessions_post_<platform>[-<language>]:<piece-key>:<locale>`, which the driver adds to the same file.
 A row matches a post when its source, medium and campaign equal the tags of the address the post

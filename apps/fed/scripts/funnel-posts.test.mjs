@@ -15,6 +15,7 @@ import {
   slotOf,
   readBaselineDeclarations,
   readUtmVocabulary,
+  collectionPath,
   main,
 } from './funnel-posts.mjs';
 import { AUTHOR_CAMPAIGN, SHARE_MEDIUM } from '../src/lib/utm.ts';
@@ -330,9 +331,9 @@ describe('the CLI', () => {
       `post: my-commitment x en-pt 2026-12-01 ${SITE}${blog} https://x.com/u/status/2`,
       'reach: https://x.com/u/status/2 unread',
     ].join('\n');
-    const collection = 'period.tsv';
+    const collection = join(store, 'collected', '2000-01.tsv');
     const { code, out, err } = await run(
-      { collection },
+      { period: '2000-01' },
       {
         [join(store, 'posts.md')]: posts,
         [collection]: `session-row: linkedin social author-post ${blog} en 3\nsession-row: bad\n`,
@@ -357,5 +358,26 @@ describe('the CLI', () => {
     );
     expect(code).toBe(0);
     expect(out).toEqual(['baseline: 1 of 1 pieces fully posted; a numeric target may now be set']);
+  });
+});
+
+describe('collectionPath', () => {
+  const store = join(repo, 'docs', 'funnel-review');
+
+  it('resolves a period name inside the store collected directory', () => {
+    expect(collectionPath(store, 'sprint-07')).toBe(join(store, 'collected', 'sprint-07.tsv'));
+    expect(collectionPath(store, '2026-12')).toBe(join(store, 'collected', '2026-12.tsv'));
+  });
+
+  it('refuses anything that is not a bare period name', () => {
+    for (const period of ['../declarations', '../../../etc/passwd', '/etc/passwd', 'a/b', '.hidden', 'a..b', '', 'sp ace']) {
+      expect(() => collectionPath(store, period), period).toThrow(/not a period name/);
+    }
+  });
+
+  it('the CLI refuses a path where a period name belongs', async () => {
+    await expect(
+      main({ period: 'docs/funnel-review/collected/sprint-07.tsv' }, { repo, out: () => {}, err: () => {} }),
+    ).rejects.toThrow(/not a period name/);
   });
 });

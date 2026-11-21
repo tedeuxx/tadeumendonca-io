@@ -36,7 +36,7 @@ The template is indented by four spaces so that it records nothing; a real line 
   `reach:` line, so a reach nobody has read says so instead of being absent.
 
 `node apps/fed/scripts/funnel-posts.mjs` checks every line against the site and prints the baseline
-count. With a collection file as its argument, it also prints the `figure:` lines that match each post
+count. With a period name as its argument, it also prints the `figure:` lines that match each post
 to its sessions; `declarations.md` states the `session-row:` lines it reads.
 
 ## Posts

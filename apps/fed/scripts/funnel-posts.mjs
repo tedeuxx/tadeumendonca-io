@@ -17,7 +17,7 @@
 // It reads no network and decides no target. The record is an assertion by whoever wrote it, exactly as
 // a collection file is; nothing here can tell a true post URL from a plausible one.
 import { readFileSync, readdirSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { resolve, join, sep } from 'node:path';
 import { URL, pathToFileURL } from 'node:url';
 
 export const PLATFORMS = ['linkedin', 'x', 'youtube'];
@@ -278,8 +278,23 @@ export function readUtmVocabulary(source) {
 
 const readText = (path) => readFileSync(path, 'utf8');
 
+/** A period name: what `funnel-review.sh` takes, and nothing that can leave the directory. */
+const PERIOD = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
 /**
- * The CLI: validate the record, print the baseline, and with a collection file print the post figures.
+ * The collection file of a period, `<store>/collected/<period>.tsv`. The CLI takes a period name, never a
+ * path, so its one command-line argument cannot point the script at a file outside the store.
+ */
+export function collectionPath(store, period) {
+  const dir = resolve(store, 'collected');
+  if (!PERIOD.test(period) || period.includes('..')) throw new Error(`not a period name: ${period}`);
+  const path = resolve(dir, `${period}.tsv`);
+  if (!path.startsWith(dir + sep)) throw new Error(`not a period name: ${period}`);
+  return path;
+}
+
+/**
+ * The CLI: validate the record, print the baseline, and with a period name print that period's post figures.
  * `read` maps a path to its text; the suite passes one that answers some paths from memory.
  */
 export async function main(argv, { repo, read = readText, out = console.log, err = console.error }) {
@@ -303,8 +318,8 @@ export async function main(argv, { repo, read = readText, out = console.log, err
   );
   for (const { piece, missing } of status.incomplete) out(`baseline: ${piece} does not count yet, missing ${missing.join(' ')}`);
 
-  if (argv.collection) {
-    const { rows, malformed } = parseSessionRows(read(argv.collection));
+  if (argv.period) {
+    const { rows, malformed } = parseSessionRows(read(collectionPath(store, argv.period)));
     for (const line of malformed) err(`malformed session-row line: ${line}`);
     for (const line of postFigures(record.posts, rows, editions)) out(line);
     if (malformed.length) return 1;
@@ -315,6 +330,6 @@ export async function main(argv, { repo, read = readText, out = console.log, err
 /* c8 ignore start -- the entry guard; main() is what the suite exercises */
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const repo = resolve(import.meta.dirname, '..', '..', '..');
-  process.exitCode = await main({ collection: process.argv[2] }, { repo });
+  process.exitCode = await main({ period: process.argv[2] }, { repo });
 }
 /* c8 ignore stop */
