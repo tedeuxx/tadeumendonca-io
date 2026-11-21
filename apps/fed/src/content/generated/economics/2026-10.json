@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "method_version": "1.0.0",
+  "period": {
+    "id": "2026-10",
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+  },
+  "as_of": "2026-11-21",
+  "coverage_source": {
+    "instrument": "worklog-export-v1",
+    "command": "npm --prefix apps/fed run gen-economics -- --period 2026-10 --export <worklog-export.json> --attestation <issue-691-capture.json> --refused <Issues the worklog export refused>",
+    "export_sha256": "90f4d7076d357ad5626f6768602dda64aee13ecad1d019a9d62dd3d6f87afefd",
+    "cutoff": "2026-11-21T00:00:00Z",
+    "repositories": [
+      {
+        "repository": "tedeuxx/mhw",
+        "pagination_complete": false
+      },
+      {
+        "repository": "tedeuxx/tadeumendonca-io",
+        "pagination_complete": false
+      }
+    ],
+    "issues_in_export": 308,
+    "issues_refused": [
+      "tedeuxx/mhw#128",
+      "tedeuxx/mhw#257",
+      "tedeuxx/mhw#258",
+      "tedeuxx/mhw#259",
+      "tedeuxx/mhw#375",
+      "tedeuxx/mhw#377",
+      "tedeuxx/mhw#378",
+      "tedeuxx/mhw#379",
+      "tedeuxx/mhw#380",
+      "tedeuxx/mhw#381",
+      "tedeuxx/mhw#382",
+      "tedeuxx/mhw#383",
+      "tedeuxx/mhw#384",
+      "tedeuxx/mhw#385",
+      "tedeuxx/mhw#386",
+      "tedeuxx/mhw#387",
+      "tedeuxx/mhw#388",
+      "tedeuxx/mhw#389",
+      "tedeuxx/mhw#390",
+      "tedeuxx/mhw#392",
+      "tedeuxx/mhw#393",
+      "tedeuxx/mhw#394"
+    ],
+    "unattributed_runs": 0
+  },
+  "providers": [
+    {
+      "provider": "anthropic",
+      "spend": {
+        "state": "pending-attestation",
+        "plan": null,
+        "basis": null,
+        "billing_period": null,
+        "amount_minor": null,
+        "currency": null,
+        "evidence_ref": null
+      },
+      "consumption": {
+        "coverage": "none",
+        "runs": 4,
+        "native_runs": 0,
+        "unavailable_runs": 0,
+        "unrecorded_runs": 4,
+        "issues": 3,
+        "metrics": {
+          "tokens_input": {
+            "sum": null,
+            "runs": 0
+          },
+          "tokens_output": {
+            "sum": null,
+            "runs": 0
+          },
+          "credits": {
+            "sum": null,
+            "runs": 0
+          }
+        }
+      },
+      "regime": [],
+      "allocation": {
+        "state": "not-estimable",
+        "allocated_minor": null,
+        "shared_unallocated_minor": null,
+        "rounding_minor": null
+      }
+    },
+    {
+      "provider": "openai",
+      "spend": {
+        "state": "pending-attestation",
+        "plan": null,
+        "basis": null,
+        "billing_period": null,
+        "amount_minor": null,
+        "currency": null,
+        "evidence_ref": null
+      },
+      "consumption": {
+        "coverage": "none",
+        "runs": 0,
+        "native_runs": 0,
+        "unavailable_runs": 0,
+        "unrecorded_runs": 0,
+        "issues": 0,
+        "metrics": {
+          "tokens_input": {
+            "sum": null,
+            "runs": 0
+          },
+          "tokens_output": {
+            "sum": null,
+            "runs": 0
+          },
+          "credits": {
+            "sum": null,
+            "runs": 0
+          }
+        }
+      },
+      "regime": [],
+      "allocation": {
+        "state": "not-estimable",
+        "allocated_minor": null,
+        "shared_unallocated_minor": null,
+        "rounding_minor": null
+      }
+    },
+    {
+      "provider": "kiro",
+      "spend": {
+        "state": "pending-attestation",
+        "plan": null,
+        "basis": null,
+        "billing_period": null,
+        "amount_minor": null,
+        "currency": null,
+        "evidence_ref": null
+      },
+      "consumption": {
+        "coverage": "none",
+        "runs": 0,
+        "native_runs": 0,
+        "unavailable_runs": 0,
+        "unrecorded_runs": 0,
+        "issues": 0,
+        "metrics": {
+          "tokens_input": {
+            "sum": null,
+            "runs": 0
+          },
+          "tokens_output": {
+            "sum": null,
+            "runs": 0
+          },
+          "credits": {
+            "sum": null,
+            "runs": 0
+          }
+        }
+      },
+      "regime": [],
+      "allocation": {
+        "state": "not-estimable",
+        "allocated_minor": null,
+        "shared_unallocated_minor": null,
+        "rounding_minor": null
+      }
+    }
+  ]
+}

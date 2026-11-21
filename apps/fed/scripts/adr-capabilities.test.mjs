@@ -36,7 +36,7 @@ describe('the live library', () => {
 
   // Guards the gate against passing vacuously. If the table parse returned nothing, every record would
   // be reported as sitting in no cell, so the list above would already be red. This pins the shape too.
-  it('reads every record file and nine capability rows', () => {
+  it('reads every record file and ten capability rows', () => {
     expect(audit.records).toHaveLength(recordFiles(adrDir).length);
     expect(audit.table.rows.map((r) => r.capability)).toEqual([
       'site-platform',
@@ -47,6 +47,8 @@ describe('the live library', () => {
       'publication-and-distribution',
       'presence-and-cv',
       'harness-self-description',
+      // #691 S1 — ADR-0055 anchors it.
+      'delivery-economics',
       'decision-library',
     ]);
     const placed = audit.table.rows.flatMap((r) => [...r.anchor, ...r.folds, ...r.notAdr, ...r.deactivation]);

@@ -420,6 +420,86 @@ const strings = {
       en: 'The GA4 events this site sends, read off its own code: parameters, what each can prove and what it cannot. Sent only after consent, so every count is a floor.',
     },
   },
+  // The delivery-economics section on /architecture (#691, ADR-0055) — the ```delivery-economics fence. Every
+  // word the component shows is here; the numbers and identifiers come from the committed snapshot.
+  //
+  // THE VOCABULARY IS PART OF THE METHOD, not a style choice. These labels separate what was PAID, what was
+  // OBSERVED and what was ALLOCATED, and the readings the record rejects are kept out of both editions — no
+  // price per unit of consumption, no single score, nothing that ranks a person, a model or a harness. A test
+  // in `DeliveryEconomics.test.tsx` greps this group for the rejected words in both locales.
+  //
+  // COUNTS ARE LABELLED, NOT PLURALISED ("runs: 4"), so a count of one never reads "1 runs" and no plural rule
+  // is needed per locale.
+  economics: {
+    periodLine: { pt: 'Período: {period} · dados de {asOf}', en: 'Period: {period} · data as of {asOf}' },
+    coverageHeading: { pt: 'Cobertura da medição', en: 'Measurement coverage' },
+    coverageRuns: {
+      pt: 'Consumo nativo informado: {native} de {runs} execuções registradas · issues: {issues}',
+      en: 'Native usage reported: {native} of {runs} recorded runs · Issues: {issues}',
+    },
+    coverageNoRuns: {
+      pt: 'Nenhuma execução registrada no worklog neste período',
+      en: 'No worklog run recorded in this period',
+    },
+    sourceLabel: { pt: 'Medido com', en: 'Measured with' },
+    sourceScope: {
+      pt: 'Export do worklog de {repositories} · issues com comentários: {issues} · recusadas pelo export: {refused}',
+      en: 'Worklog export of {repositories} · Issues with comments: {issues} · refused by the export: {refused}',
+    },
+    refusedLabel: {
+      pt: 'Recusadas, porque o histórico traz eventos de uma issue transferida entre repositórios:',
+      en: 'Refused, because their history carries events of an Issue transferred between repositories:',
+    },
+    providerAnthropic: { pt: 'Anthropic · Claude Code', en: 'Anthropic · Claude Code' },
+    providerOpenai: { pt: 'OpenAI · Codex', en: 'OpenAI · Codex' },
+    providerKiro: { pt: 'Kiro', en: 'Kiro' },
+    spendLabel: { pt: 'Gasto real com assinatura', en: 'Actual subscription spend' },
+    spendPending: { pt: 'Atestação pendente', en: 'Pending attestation' },
+    spendNone: { pt: 'Sem assinatura neste período', en: 'No subscription in this period' },
+    spendEvidence: { pt: 'Atestação', en: 'Attestation' },
+    billingPeriod: { pt: 'Período de cobrança: {start} a {end}', en: 'Billing period: {start} to {end}' },
+    consumptionLabel: { pt: 'Consumo observado do harness', en: 'Observed harness consumption' },
+    metricTokensInput: { pt: 'tokens de entrada: {value} (execuções: {runs})', en: 'input tokens: {value} (runs: {runs})' },
+    metricTokensOutput: { pt: 'tokens de saída: {value} (execuções: {runs})', en: 'output tokens: {value} (runs: {runs})' },
+    metricCredits: { pt: 'créditos: {value} (execuções: {runs})', en: 'credits: {value} (runs: {runs})' },
+    regimeLabel: { pt: 'Regime de modelo / esforço', en: 'Model / effort regime' },
+    effortUndeclared: { pt: 'esforço não declarado', en: 'effort not declared' },
+    regimeRuns: { pt: 'execuções: {runs}', en: 'runs: {runs}' },
+    allocatedLabel: { pt: 'Custo de assinatura alocado', en: 'Allocated subscription cost' },
+    sharedLabel: { pt: 'Compartilhado / não alocado', en: 'Shared / unallocated' },
+    utilizationLabel: { pt: 'Utilização da franquia', en: 'Entitlement utilization' },
+    utilizationUnavailable: { pt: 'Indisponível', en: 'Unavailable' },
+    scorecardHeading: { pt: 'Os eixos, cada um no seu estado', en: 'The axes, each in its state' },
+    axisThroughput: { pt: 'Vazão de entrega Humano+IA', en: 'Human+AI delivery throughput' },
+    axisLaborIntensity: { pt: 'Intensidade observada de trabalho humano', en: 'Observed human labor intensity' },
+    axisAiConsumption: { pt: 'Consumo observado de IA', en: 'Observed AI consumption' },
+    axisAllocatedCost: { pt: 'Custo de assinatura alocado', en: 'Allocated subscription cost' },
+    axisAiConsumptionIntensity: { pt: 'Intensidade de consumo de IA', en: 'AI consumption intensity' },
+    axisCostIntensity: { pt: 'Intensidade de custo de assinatura', en: 'Subscription cost intensity' },
+    axisFlowTime: { pt: 'Tempo de fluxo', en: 'Flow time' },
+    axisQualityYield: { pt: 'Rendimento de qualidade e retrabalho', en: 'Quality yield and rework' },
+    axisBaselineChange: {
+      pt: 'Variação sobre a linha de base comparável do sistema',
+      en: 'Change from comparable system baseline',
+    },
+    axisDeliveryMix: { pt: 'Composição da entrega', en: 'Delivery mix' },
+    axisRegime: { pt: 'Regime comparável de modelo / esforço', en: 'Comparable model / effort regime' },
+    axisCoverage: { pt: 'Cobertura da medição', en: 'Measurement coverage' },
+    axisSharedUnallocated: { pt: 'Compartilhado / não alocado', en: 'Shared / unallocated' },
+    axisMovement: { pt: 'Movimento do sistema', en: 'System movement' },
+    stateMeasured: { pt: 'Medido', en: 'Measured' },
+    statePartial: { pt: 'Parcial', en: 'Partial' },
+    stateNotMeasured: { pt: 'Não medido', en: 'Not measured' },
+    statePending: { pt: 'Atestação pendente', en: 'Pending attestation' },
+    stateNotEstimable: { pt: 'Não estimável', en: 'Not estimable' },
+    stateNotYetInstrumented: { pt: 'Ainda sem instrumento', en: 'Not yet instrumented' },
+    // Stands in for the ```delivery-economics fence in the copy-as-markdown payload, where the fence is empty
+    // in source and would paste as three backticks. Same shape as `share.adrIndexLink`.
+    snapshotLink: {
+      pt: 'Retrato da economia da entrega (JSON), no repositório',
+      en: 'Delivery economics snapshot (JSON), in the repository',
+    },
+  },
   // The Biblioteca / Library surface (#166) — a curated reading shelf. Unlike /ramp-up and /architecture
   // there is no markdown body: the page is chrome around typed data (src/data/library.ts), so ALL of its
   // words live here, including the empty state.

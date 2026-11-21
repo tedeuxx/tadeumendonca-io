@@ -100,6 +100,11 @@ export default defineConfig({
         // revision from the published text. On this list for the reason every entry above gives: it is
         // an ALLOWLIST, and a tested file left off it reads as 0% on new code to SonarCloud.
         'scripts/revision-lines.mjs',
+        // #691. The decision half of the delivery-economics producer: which runs count in a period, what a
+        // spend attestation may say, and what reaches the public snapshot. On this list for the reason every
+        // entry above gives — it is an ALLOWLIST. gen-economics.mjs is deliberately NOT here, on the same rule
+        // as gen-harness.mjs: a shell that reads two files and writes one, with nothing left to decide.
+        'scripts/economics-source.mjs',
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',

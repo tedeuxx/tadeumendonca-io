@@ -26,6 +26,7 @@
     "check-video-embeddable": "node scripts/check-video-embeddable.mjs",
     "gen-adrs": "node scripts/gen-adrs.mjs",
     "gen-harness": "node scripts/gen-harness.mjs",
+    "gen-economics": "node scripts/gen-economics.mjs",
     "check-harness-drift": "node scripts/check-harness-drift.mjs",
     "gen-diagrams": "node scripts/gen-diagrams.mjs",
     "gen-icons": "node scripts/gen-icons.mjs",

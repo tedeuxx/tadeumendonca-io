@@ -16,6 +16,8 @@ const build = (body: string, overrides: Partial<Parameters<typeof markdownPayloa
     sourceLabel: 'Fonte',
     adrIndexLabel: 'Índice de decisões (ADRs), no repositório',
     adrIndexUrl: 'https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr',
+    economicsLabel: 'Retrato da economia da entrega (JSON), no repositório',
+    economicsUrl: 'https://github.com/tedeuxx/tadeumendonca-io/tree/main/apps/fed/src/content/generated/economics',
     ...overrides,
   });
 
@@ -115,6 +117,19 @@ describe('the copied markdown payload', () => {
       '[Índice de decisões (ADRs), no repositório](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr)',
     );
     // The prose either side survives — this is a substitution, not a truncation at the marker.
+    expect(out).toContain('Antes.');
+    expect(out).toContain('Depois.');
+  });
+
+  // #691. The second empty marker fence, under the same contract: gone from the paste, and a link to what it
+  // would have rendered in its place. Its own case rather than a loop over both, so a regression names which.
+  it('replaces the empty delivery-economics fence with a link to the committed snapshots', () => {
+    const out = build('Antes.\n\n```delivery-economics\n```\n\nDepois.');
+    expect(out).not.toContain('delivery-economics\n');
+    expect(out).not.toContain('```');
+    expect(out).toContain(
+      '[Retrato da economia da entrega (JSON), no repositório](https://github.com/tedeuxx/tadeumendonca-io/tree/main/apps/fed/src/content/generated/economics)',
+    );
     expect(out).toContain('Antes.');
     expect(out).toContain('Depois.');
   });

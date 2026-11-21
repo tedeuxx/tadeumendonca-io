@@ -50,6 +50,9 @@ const LINK_TARGET = /(!?)\[([^\]]*)\]\(\s*([^()\s]+)((?:\s+"[^"]*")?)\s*\)/g;
  */
 const ADR_INDEX_FENCE = /^[ \t]*```[ \t]*adr-index[^\n]*\n([\s\S]*?)^[ \t]*```[ \t]*$/gm;
 
+/** The empty ```delivery-economics marker (#691) — the same contract and the same shape as the ADR index. */
+const ECONOMICS_FENCE = /^[ \t]*```[ \t]*delivery-economics[^\n]*\n([\s\S]*?)^[ \t]*```[ \t]*$/gm;
+
 export interface MarkdownPayloadInput {
   /** The page title — becomes the generated H1. No body on this site authors one. */
   title: string;
@@ -65,6 +68,10 @@ export interface MarkdownPayloadInput {
   adrIndexLabel: string;
   /** Where that link points — the ADR library. */
   adrIndexUrl: string;
+  /** Localized link text standing in for the expanded delivery-economics section. */
+  economicsLabel: string;
+  /** Where that link points — the committed snapshots. */
+  economicsUrl: string;
 }
 
 /**
@@ -114,8 +121,13 @@ export function markdownPayload({
   sourceLabel,
   adrIndexLabel,
   adrIndexUrl,
+  economicsLabel,
+  economicsUrl,
 }: MarkdownPayloadInput): string {
   const canonical = `${SITE_URL}${path}`;
-  const resolved = resolveAdrIndex(absolutizeTargets(body, localizePath), adrIndexLabel, adrIndexUrl);
+  const resolved = resolveAdrIndex(absolutizeTargets(body, localizePath), adrIndexLabel, adrIndexUrl).replace(
+    ECONOMICS_FENCE,
+    `[${economicsLabel}](${economicsUrl})`,
+  );
   return `# ${title}\n\n> ${sourceLabel}: ${canonical}\n\n${resolved.trim()}\n`;
 }
