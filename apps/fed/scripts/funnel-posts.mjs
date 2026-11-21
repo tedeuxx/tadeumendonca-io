@@ -263,7 +263,7 @@ export function readBaselineDeclarations(text) {
 
 /**
  * The campaign vocabulary, read out of `apps/fed/src/lib/utm.ts` rather than retyped: that module is the
- * single place the strings exist (ADR-0039), and this script runs in plain Node, which cannot import it.
+ * single place the strings exist (ADR-0005, *Campaign tagging of shared links*), and this script runs in plain Node, which cannot import it.
  */
 export function readUtmVocabulary(source) {
   const value = (name) => new RegExp(`export const ${name} = '([^']+)'`).exec(source)?.[1];
