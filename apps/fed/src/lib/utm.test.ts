@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { withShareUtm, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN } from './utm';
+import {
+  withShareUtm,
+  SHARE_MEDIUM,
+  SHARE_CAMPAIGN,
+  AUTHOR_CAMPAIGN,
+  YOUTUBE_SOURCE,
+  type ShareSource,
+} from './utm';
+import type { ShareCompleteTarget } from './analytics';
 
 const ARTICLE = 'https://tadeumendonca.io/pt/blog/meu-compromisso';
 
@@ -44,5 +52,54 @@ describe('withShareUtm', () => {
     const once = withShareUtm(ARTICLE, 'x');
     const twice = withShareUtm(once, 'x');
     expect(twice).toBe(once);
+  });
+});
+
+// YouTube is an AUTHOR-side source (#817, ADR-0039 amendment 2026-11-21): a Short's description carries
+// the author's per-language link. Same medium, existing author campaign, new source only.
+describe('the YouTube author source', () => {
+  it('pins the source literal, since it joins the immutable set on first use', () => {
+    expect(YOUTUBE_SOURCE).toBe('youtube');
+  });
+
+  it('tags a per-language article link as youtube / social / author-post, exactly three parameters', () => {
+    for (const article of [ARTICLE, 'https://tadeumendonca.io/en/blog/my-commitment']) {
+      const url = new URL(withShareUtm(article, YOUTUBE_SOURCE, AUTHOR_CAMPAIGN));
+      expect(url.searchParams.get('utm_source')).toBe('youtube');
+      expect(url.searchParams.get('utm_medium')).toBe('social');
+      expect(url.searchParams.get('utm_campaign')).toBe('author-post');
+      expect([...url.searchParams.keys()]).toHaveLength(3);
+      // The locale stays in the path, so the language is read from page_path, not from a parameter.
+      expect(url.pathname).toBe(new URL(article).pathname);
+    }
+  });
+
+  // These four are checked by `tsc --noEmit` (the typecheck gate), not by vitest: each directive fails
+  // the typecheck the day the line below it starts to compile.
+  it('stays out of the reader-share types and cannot carry the reader campaign', () => {
+    // @ts-expect-error -- readers cannot share TO YouTube, so it is not a ShareSource.
+    const asShare: ShareSource = YOUTUBE_SOURCE;
+    // @ts-expect-error -- nor a share_complete target GA could ever receive.
+    const asTarget: ShareCompleteTarget = YOUTUBE_SOURCE;
+    // @ts-expect-error -- the default campaign is reader-share; an author source must name author-post.
+    const defaulted = withShareUtm(ARTICLE, YOUTUBE_SOURCE);
+    // @ts-expect-error -- and it may not name the reader campaign explicitly either.
+    const asReader = withShareUtm(ARTICLE, YOUTUBE_SOURCE, SHARE_CAMPAIGN);
+    expect([asShare, asTarget, defaulted, asReader]).toHaveLength(4);
+  });
+});
+
+// The LinkedIn and X links are unchanged by #817: same source, medium and campaign as before.
+describe('the LinkedIn and X values', () => {
+  it.each([
+    ['linkedin', 'reader-share'],
+    ['x', 'reader-share'],
+    ['linkedin', 'author-post'],
+    ['x', 'author-post'],
+  ] as const)('%s with %s keeps its three values', (source, campaign) => {
+    const url = new URL(withShareUtm(ARTICLE, source, campaign));
+    expect(url.searchParams.get('utm_source')).toBe(source);
+    expect(url.searchParams.get('utm_medium')).toBe('social');
+    expect(url.searchParams.get('utm_campaign')).toBe(campaign);
   });
 });
