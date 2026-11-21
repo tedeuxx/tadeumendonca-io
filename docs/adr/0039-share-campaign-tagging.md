@@ -1,6 +1,6 @@
 # 0039. Reader shares are campaign-tagged — three immutable UTM parameters, no `utm_content`
 
-- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change) · **amended 2026-11-01** (a sixth `utm_source`, `instagram`, and a fourth `utm_campaign`, `story-card`, printed in the QR on the vertical Instagram Story card; the medium stays `social`; #662)
+- **Status:** accepted · **amended 2026-08-01** (`share-sheet` loses its only emitter when #314 unifies the two share affordances; the value stays defined, and the 90-day success-criterion window is affected two days in) · **amended 2026-08-16** (`author-post` is exercised — the `/architecture` launch is tagged on LinkedIn and X; no parameter changes, and the tagging is a manual step with no gate) · **amended 2026-10-16** (a third `utm_campaign` value, `author-profile`, for the links on the author's own LinkedIn and X profiles, measured apart from his posts; hand-placed, no code change) · **amended 2026-11-01** (a sixth `utm_source`, `instagram`, and a fourth `utm_campaign`, `story-card`, printed in the QR on the vertical Story card a reader shares to Instagram; the medium stays `social`; #662)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-30
 - **Deciders:** the owner
@@ -418,21 +418,27 @@ decide something: it adds a member to each of two sets this record closed.
 
 ### Context
 
-Instagram Stories became a distribution channel ([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s
-2026-11-01 amendment). Its link is a QR code on a generated vertical card
-([ADR-0041](./0041-per-article-og-cards.md)'s 2026-11-01 amendment), encoding the neutral article URL
-([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)). The closed `utm_source` set had no
-member for the network, and no campaign fit the artifact: one committed card per locale serves both the
-author's own Story and, from slice B ([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), a
-reader's Story, and a static PNG cannot know who posted it.
+A reader can send an article to their own Instagram Story
+([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)). That share carries a generated vertical
+card ([ADR-0041](./0041-per-article-og-cards.md)'s 2026-11-01 amendment) whose QR encodes the neutral
+article URL ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)). The closed `utm_source`
+set had no member for the network, and no campaign fit the artifact.
+
+**The ruling was taken when the owner also meant to post Stories himself; on 2026-11-20 he stopped.**
+The communication and channel strategy requirements document
+(`docs/tadeumendonca-io-product-requirements-document-communication-channel-strategy.md`) reaches
+Instagram only through the reader's share, and [ADR-0038](./0038-content-distribution-linkedin-and-x.md)
+is not amended: Instagram is not an owner-authored channel. The values below are unchanged by that; what
+changes is what they measure, stated under *Decision*.
 
 ### Considered options for `utm_campaign`
 
 1. **A new value naming the artifact, `story-card`** (chosen by the owner). *Trade-off:* it measures the
-   Story channel apart from the posts and does **not** separate the author's Stories from readers'.
-2. **`author-post`.** *Why not:* every reader's Story would count as the author's.
-3. **`reader-share`.** *Why not:* the reverse, and it would also enter the `reader-share` success
-   criterion with sessions the author caused.
+   Story card apart from the link shares. At the ruling it could not separate the author's Stories from
+   readers'; since 2026-11-20 there are no author Stories, so the trade-off has no subject.
+2. **`author-post`.** *Why not:* the author does not post this card.
+3. **`reader-share`.** *Why not:* it would merge a printed, screenshot-surviving QR into the link-share
+   series and its success criterion, and the two are different mechanisms with different lifetimes.
 
 **The medium stays `social`.** A `story` medium was proposed at intake and withdrawn the same day: GA4's
 default channel grouping matches `social`, which this record makes load-bearing, and a new medium buys
@@ -446,7 +452,7 @@ nothing the source does not already carry.
 | `utm_medium` | `social` |
 | `utm_campaign` | `story-card` |
 
-**Meaning:** *"the visitor scanned the QR on a Story card."* It names a mechanism and an artifact, like
+**Meaning:** *"the visitor scanned the QR on a Story card a reader shared."* It names a mechanism and an artifact, like
 `reader-share` and `author-profile`, and the network sits in the source rather than the campaign, the
 split this record's 2026-10-16 amendment already applies.
 
@@ -465,8 +471,8 @@ every post that carried it expired.
 
 - **`share_complete` and the GA `target` dimension.** This slice prints `instagram` into a QR and emits
   no event carrying it. The first emitter, the dimension's documented values and
-  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)'s registration obligation are slice
-  B's.
+  [ADR-0051](./0051-ga4-event-schema-is-immutable-once-shipped.md)'s registration obligation are
+  [#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)'s.
 - **[ADR-0033](./0033-ga4-consent-gated-analytics.md)'s consent gate.** An unconsented scan stays
   invisible; every `story-card` number is a floor.
 - **`reader-share`, `author-post`, `author-profile`** and the `reader-share` success criterion.
@@ -475,8 +481,9 @@ every post that carried it expired.
 ### Consequences
 
 **Bad / accepted costs**
-- The author's Stories and readers' Stories are one series. Separating them would need a second card per
-  article and locale, and the owner chose not to.
+- A frame reusing the card's layout elsewhere (the short video, [#820](https://github.com/tedeuxx/tadeumendonca-io/issues/820))
+  must not print this tag: the template takes its QR payload as a parameter for that reason. Nothing
+  but review stops a caller passing the Instagram payload anyway.
 - No success criterion is set. Read the series as existence-class.
 
 **Refs** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662).

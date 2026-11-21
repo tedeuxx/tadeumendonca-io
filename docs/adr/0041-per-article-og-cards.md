@@ -85,9 +85,11 @@ would double the committed binary per article to serve a surface nobody publishe
 is a second thing that can overflow, silently, on a card nobody looks at.
 
 **Amended 2026-11-01 (#662): two card classes.** The premise above — *"Instagram is not a distribution
-surface"* — became false when the owner adopted Stories as a channel
-([ADR-0038](./0038-content-distribution-linkedin-and-x.md)'s 2026-11-01 amendment). The 1200×630 class is
-unchanged; the 1080×1920 Story class is recorded in the amendment at the end of this record. The
+surface"* — is false on one ground: a reader can send an article to their own Instagram Story
+([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), and that share carries a card. The
+owner does not post Stories himself (the communication and channel strategy requirements document,
+`docs/tadeumendonca-io-product-requirements-document-communication-channel-strategy.md`); the reader's
+share is the only way this site reaches Instagram. The 1200×630 class is unchanged; the 1080×1920 Story class is recorded in the amendment at the end of this record. The
 rejection's second argument (*"a second layout is a second thing that can overflow, silently"*) is kept
 and answered there: the Story layout refuses an overflowing title like this one does.
 
@@ -382,14 +384,18 @@ the sidecars before writing); the overflow refusal (it now also measures the cov
 because a long word there would run under the image without widening the body); the bidirectional card-set
 test; `META_LINE`.
 
-## Amendment (2026-11-01) — a second card class: the vertical Instagram Story card, with a QR that is decoded back from the committed PNG
+## Amendment (2026-11-01) — a second card class: the vertical Story card, with a QR that is decoded back from the committed PNG
 
-**Driven by** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662) (slice A). The owner
-adopted Instagram Stories as a channel (*«Adotar»*), ruled the brand mark is the domain wordmark as on
-these cards (*«Domínio»*), and ruled the card carries the title in the shared link's locale with no new
-copy (*«Título no idioma»*), all on 2026-10-31. Slice B,
-[#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789), lets a reader send the same card to
-their own Story and consumes this class without a second design.
+**Driven by** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662). The owner ruled the
+brand mark is the domain wordmark as on these cards (*«Domínio»*) and that the card carries the title in
+the shared link's locale with no new copy (*«Título no idioma»*), both on 2026-10-31. On 2026-11-20 he
+re-scoped the item (*"Reuse in #820"*, *"Enters after #662"*): Instagram is reached only through the
+reader's share, so the card is not an owner-posted Story, and **the class has two consumers**:
+
+1. **The reader's share-to-Story**, [#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789), which
+   fetches the committed card through `storyCardPath`.
+2. **The short-video generator**, [#820](https://github.com/tedeuxx/tadeumendonca-io/issues/820), which
+   renders its frames from the same layout through `storyFrameHtml` (below) and never copies it.
 
 **Read with the #710 amendment above, which landed first the same day.** Its *"Unchanged. One aspect
 ratio"* is true of the landscape OG class and stays true: this amendment adds a second class beside it
@@ -403,9 +409,17 @@ published article per locale** into `apps/fed/public/story/<key>.<locale>.png`, 
 Playwright Chromium as the landscape cards; never rendered at runtime or in CI. The decisions sit in the
 pure half, `apps/fed/scripts/story-cards.mjs`, and are unit-tested there.
 
+- **One template, exported.** The frame itself is `storyFrameHtml({ title, locale, qrPayload, background,
+  fonts })` in the pure half. The generator draws every card through it, and #820 imports it. **The QR is
+  a parameter**: `qrPayload` is the URL to encode, or none for a frame with no QR layer. It is not
+  hard-wired to the Instagram tag, because a frame published elsewhere must not count its scans as
+  Instagram's. `background` is an optional image under everything; the QR keeps its own light panel.
+  `SAFE_ZONE`, `LAYOUT`, the palette constants and the title ladder are exported with it, and
+  `storyLayout` returns where each box sits, with or without a QR.
+
 - **Same naming argument, separate directory.** Keyed by the article KEY and locale, never the slug,
   for this record's orphaning reason. `/story/` rather than `/og/` so neither class's set-equality gate
-  reads the other's files as orphans. `storyCardPath(key, locale)` is the one helper slice B fetches.
+  reads the other's files as orphans. `storyCardPath(key, locale)` is the one helper #789 fetches.
 - **Content, and nothing else:** the `tadeumendonca.io` wordmark with the mark and the accent, exactly as
   on the landscape card; the article title in the card's locale, read from its frontmatter; and a QR.
   No meta line, no call to action. The palette is [ADR-0008](./0008-brutalist-mono-identity.md)'s
@@ -422,7 +436,8 @@ pure half, `apps/fed/scripts/story-cards.mjs`, and are unit-tested there.
   never inverted, nothing overlaid. The panel is at most 800 px wide and sits 30 px above the bottom
   overlay inset; a payload that would need more refuses rather than shrinking its modules.
 - **The overlay insets:** nothing is drawn in the top or bottom 270 px, where Instagram draws its own
-  interface. **That figure is a premise, not a measurement**; the owner's device scan is what checks it.
+  interface; the band between them is `SAFE_ZONE`, shared with #820, whose platforms carry overlays of
+  their own. **That figure is a premise, not a measurement**; the device scan is what checks it.
 - **Title fit:** a fixed title box; the generator measures the title in the browser at each size of a
   ladder (112 to 56 px) and takes the largest with no overflow on either axis and at most six lines. If
   none fits, the generator throws, naming the article and locale.
@@ -439,8 +454,9 @@ layout cannot afford (57 modules, 780 px, for the longest current payload) and l
 for the camera and Instagram's recompression.
 
 **What the probe does not show:** that a real phone reads the card. A box-filtered downscale is a proxy
-for distance and recompression; it is not a camera looking at a screen. The issue's real-phone protocol
+for distance and recompression; it is not a camera looking at a screen. The issue's phone-to-phone scan
 (criteria 10 and 11) is the evidence for that, performed by the owner, and the merge waits on it.
+Instagram's own recompression is checked where a reader-shared Story is the real path, in #789.
 
 ### The gates — stronger than this record's, in one direction
 
@@ -458,6 +474,10 @@ In `apps/fed/scripts/story-cards.test.mjs`, against the **committed** PNGs:
 5. **The physical floor, read off the PNG:** the panel contains exactly two colours, every module and
    the quiet-zone ring match the matrix at their corners, and the two overlay bands are untouched
    background.
+
+6. **The template:** a frame drawn with no payload carries no QR layer; a frame drawn with a payload
+   carries a QR that decodes to that payload, whatever it is; and every box sits inside `SAFE_ZONE`.
+   The generator is asserted to draw through `storyFrameHtml`, so the layout has one copy.
 
 `apps/fed/e2e/story-card.spec.ts` checks the build serves a published card as a 1080×1920 PNG and serves
 no card for the held article.
@@ -477,7 +497,7 @@ formerly 0021) skips development dependencies by design; it
 passes. *Rejected:* a hand-rolled encoder (unreviewed code on a permanent artifact); `qrcode`, the more
 common encoder (it pulls a command-line parser, `yargs`, into the tree for a feature the generator does
 not use); `jsqr` as the decoder (no release since 2021); generating the QR at runtime in the page (a
-runtime dependency on a site where nothing third-party loads, and nothing for the owner's own Story); an
+runtime dependency on a site where nothing third-party loads, and nothing for a video frame); an
 external QR or shortener service (a third-party redirect breaks "ours end to end", ADR-0039).
 
 ### Accepted costs
@@ -486,3 +506,5 @@ external QR or shortener service (a third-party redirect breaks "ours end to end
 - **The title can still be stale:** as on the landscape card, a title edit without a regeneration is not
   caught. The QR, which is the part that cannot be taken back, is.
 - **The overlay inset and the scan distance are unmeasured here.** Both rest on the owner's device scan.
+- **A second consumer couples two features to one layout.** A change to the template changes the Story
+  card and #820's frames together. That is the point of having one, and the card's gates are what notice.
