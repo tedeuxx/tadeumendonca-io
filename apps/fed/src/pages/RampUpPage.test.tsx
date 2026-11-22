@@ -72,7 +72,7 @@ describe('RampUpPage', () => {
   // The two editions are separate files, so they can drift. This pins the SOURCES — every outbound
   // link and every embedded video, in order — plus the section count. It does NOT check that the
   // prose means the same thing; a structurally identical bad translation passes, and that limit is
-  // recorded in ADR-0032 rather than implied away.
+  // recorded in ADR-0036, *The locale layer* rather than implied away.
   //
   // Videos need their own extraction: a facade renders a <button>, not an <a>, so a link-only
   // comparison is blind to exactly the sources that were hand-verified against their channels.
@@ -111,8 +111,8 @@ describe('RampUpPage', () => {
 
   // The GitHub sources render as static repo cards (#122 / #157, ADR-0008 (*Curated repositories as static cards in long-form*)) — Pocock, then Tan's two, then
   // Karpathy's four — in both editions, each card showing ITS locale's description, not the other's. The
-  // cards embed per-locale prose inside a per-locale page, so ADR-0032's "each edition renders without the
-  // other's text" invariant must reach the descriptions, not just the section headings.
+  // cards embed per-locale prose inside a per-locale page, so the "each edition renders without the
+  // other's text" invariant of ADR-0036's *The locale layer* must reach the descriptions, not just the section headings.
   const CARD_URLS = [
     'https://github.com/mattpocock/skills',
     'https://github.com/garrytan/gstack',

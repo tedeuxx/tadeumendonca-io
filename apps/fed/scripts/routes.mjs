@@ -37,8 +37,8 @@ export const LOCALES = ['pt', 'en'];
 // locale prefix already delivers exactly that — each edition is prerendered with its own head and its
 // own OG card. A localized slug WORD adds Portuguese readability of the word, not language pinning,
 // and it would have cost a second permanent URL contract plus a per-locale addressing mechanism this
-// route table does not have. ADR-0010's 2026-07-25 amendment therefore still stands: dual localized
-// slugs remain deferred for non-article routes, and ADR-0037's per-locale slugs remain blog-only.
+// route table does not have. The 2026-07-25 amendment in ADR-0036's *Client-side routing and the public surfaces* therefore still stands: dual localized
+// slugs remain deferred for non-article routes, and the per-locale slugs of ADR-0036's *Localized article slugs* remain blog-only.
 //
 // (Until #262 this comment named /articles, /cv and /profile instead. Those were dropped pre-launch in
 // #234 and the comment outlived them, which made archaeology read as load-bearing exclusion — someone
@@ -52,7 +52,7 @@ export const LOCALES = ['pt', 'en'];
 const STATIC_ROUTES = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library', '/analytics'];
 
 // Read every blog article's PER-LOCALE frontmatter slug, grouped by filename KEY — must match
-// src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0037).
+// src/lib/content.ts (the filename base is the grouping key, slug is per-locale frontmatter, ADR-0036, *Localized article slugs*).
 // Files are `<key>.<locale>.md`; a missing frontmatter slug falls back to the key. Returns one
 // `{ pt, en }` slug pair per article.
 // Memoised (#184). BEFORE the memo, `blogEditions` was called from `localizedRoutes`, from
@@ -213,11 +213,11 @@ function slugPairIndex() {
 
 /**
  * The UNPREFIXED article routes — one per published article, keyed on that article's CURRENT ENGLISH
- * SLUG (#660, ADR-0052). `{ route, url }` with `route === url`, because a neutral address belongs to no
+ * SLUG (#660, ADR-0036, *A neutral, self-canonical share URL per article*). `{ route, url }` with `route === url`, because a neutral address belongs to no
  * locale and therefore has no prefix to add: `/blog/<en-slug>`.
  *
  * WHY THE ENGLISH SLUG AND NOT THE ARTICLE KEY. `scripts/og-cards.mjs` keys card FILENAMES on the key
- * precisely because a slug is per-locale and editable after publication (ADR-0037) — a card named after
+ * precisely because a slug is per-locale and editable after publication (ADR-0036, *Localized article slugs*) — a card named after
  * a slug is orphaned the day that slug is corrected. That property is right for a private, regenerable
  * artifact and WRONG for a URL, which is a permanent public contract (ADR-0036). On this repository's
  * own content it is worse than unrecognisable, and that is measured rather than argued:
@@ -243,7 +243,7 @@ export function neutralArticleRoutes() {
 
 // Every real route under both locales: `{ locale, route (logical), url (path to navigate/write) }`. The
 // static routes share a path across locales; each ARTICLE carries its locale's OWN slug (per-locale slugs,
-// ADR-0037), so `/blog/<slug>` differs by locale. The prerender walks this and the sitemap advertises it,
+// ADR-0036, *Localized article slugs*), so `/blog/<slug>` differs by locale. The prerender walks this and the sitemap advertises it,
 // so snapshot and sitemap can NEVER drift.
 export function localizedRoutes() {
   const editions = blogEditions();
@@ -265,7 +265,7 @@ export const localePath = (locale, route) => (route === '/' ? `/${locale}` : `/$
 export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, route)}`;
 
 // The hreflang alternates a logical route exposes: pt + en editions, plus x-default. Article routes carry
-// a per-locale slug (ADR-0037), so a `/blog/<slug>` route (in EITHER locale) is resolved through the
+// a per-locale slug (ADR-0036, *Localized article slugs*), so a `/blog/<slug>` route (in EITHER locale) is resolved through the
 // slug→pair index to the reciprocal localized pair — both editions therefore advertise the SAME set.
 //
 // INVARIANT (#200): x-default must point at a URL the prerender actually SNAPSHOTS. It previously pointed
@@ -281,7 +281,7 @@ export const canonicalFor = (locale, route) => `${SITE_URL}${localePath(locale, 
 // entry point); every other STATIC route advertises the ENGLISH CANONICAL, which is prerendered and
 // self-consistent.
 //
-// ARTICLES MOVED (#660, ADR-0052). An article's x-default is now the bare `/blog/<en-slug>` again — but
+// ARTICLES MOVED (#660, ADR-0036, *A neutral, self-canonical share URL per article*). An article's x-default is now the bare `/blog/<en-slug>` again — but
 // the two sentences above are the reason that is a different decision rather than a reversal. Both
 // halves of what made it wrong are gone: the URL IS snapshotted now (`neutralArticleRoutes()`), and the
 // pt-BR dead end it produced was fixed at its own source by #204's `articlePathForLocale`, which maps an
@@ -303,7 +303,7 @@ export const alternatesFor = (route) => {
       return {
         pt: `${SITE_URL}${localePath('pt', ptRoute)}`,
         en,
-        // ARTICLES ONLY (#660, ADR-0052): x-default is the NEUTRAL, unprefixed English-slug URL — the
+        // ARTICLES ONLY (#660, ADR-0036, *A neutral, self-canonical share URL per article*): x-default is the NEUTRAL, unprefixed English-slug URL — the
         // address that belongs to no edition and performs the selection, which is what x-default means.
         // #200's invariant is HONOURED rather than traded away: `neutralArticleRoutes()` prerenders this
         // exact URL, so the advertised x-default is still a URL the build snapshots. Non-article routes

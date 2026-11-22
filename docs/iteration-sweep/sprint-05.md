@@ -41,7 +41,7 @@ The count grew from 22 to 24 since `sprint-04`. The new pair is #687's article:
 `/pt/blog/a-ia-responde-em-segundos-voce-nao-precisa` and `/en/blog/ai-answers-in-seconds-you-dont-have-to`.
 
 **`localizedRoutes()` is not the whole published route set.** The same generator also exports
-`neutralArticleRoutes()`, which returns 6 bare `/blog/<en-slug>` share URLs (ADR-0052). Those, plus the
+`neutralArticleRoutes()`, which returns 6 bare `/blog/<en-slug>` share URLs (ADR-0036, *A neutral, self-canonical share URL per article*). Those, plus the
 bare `/`, are prerendered and listed in the sitemap:
 
 ```sh

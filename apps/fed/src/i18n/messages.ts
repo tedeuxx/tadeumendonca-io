@@ -425,7 +425,7 @@ const strings = {
   // words live here, including the empty state.
   //
   // The LABEL is bilingual ("Biblioteca" / "Library"); the ROUTE it is reached at is decided in
-  // ADR-0010, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
+  // ADR-0036, *Client-side routing and the public surfaces*, not here. Nothing in this group encodes a path, so the routing decision cannot reach it.
   library: {
     heading: { pt: 'Biblioteca — o que eu leio, e o que ficou', en: 'Library — what I read, and what stuck' },
     // Document title (ADR-0008 (*A document title leads with the section label*); the site name is appended by useDocumentHead). The bare noun, not the

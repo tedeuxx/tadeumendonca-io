@@ -10,8 +10,8 @@ describe('renderAdrTitle', () => {
     expect(html('Fully static SPA, no backend')).toBe('<span>Fully static SPA, no backend</span>');
   });
 
-  // The one that is not cosmetic. ADR-0032 marks half of its own decision retired with a strikethrough;
-  // flattened, the row publishes "English-pinned crawlable baseline" as a live claim — untrue, and
+  // The one that is not cosmetic. Record 0032 marked half of its own title retired with a strikethrough
+  // until #456 folded it into ADR-0036; flattened, the row publishes "English-pinned crawlable baseline" as a live claim — untrue, and
   // contradicted by the same page. Asserted as `<del>` rather than as styling, because the retirement is
   // semantic and a screen reader announcing "deleted" is the whole point.
   it('renders a retired clause as <del>, which is where the meaning lives', () => {
@@ -80,9 +80,13 @@ describe('renderAdrTitle', () => {
   // THREE to TWO on 2026-11-22 (#456, the tenth slice): record 0030, whose heading carried
   // `tadeumendonca-pwa` as a code span, left the library with a row only. Measured with this filter over
   // `adrs.json` before and after regeneration: 0024 0030 0032, then 0024 0032.
+  //
+  // TWO to ONE on 2026-11-22 (#456, the eleventh slice): record 0032, whose heading struck its retired
+  // half with `~~`, was absorbed into ADR-0036 and left the library. Measured with this filter over
+  // `adrs.json` before and after regeneration: 0024 0032, then 0024.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(2);
+    expect(withMarkup).toHaveLength(1);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);

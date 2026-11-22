@@ -4,7 +4,7 @@ import { readRevisions } from '../scripts/revision-lines.mjs';
 // #737 — `blast-radius-supernova` stays a record of when it was published (2026-08-28) and closes on a
 // dated addendum, with the sign-off moved to its end. The unit block in
 // `src/content/blast-radius-supernova-addendum.test.ts` pins the SOURCE; this pins the SERVED bytes, in
-// both locales and at the neutral share address (ADR-0052), because that is what a crawler, a JS-less
+// both locales and at the neutral share address (ADR-0036, *A neutral, self-canonical share URL per article*), because that is what a crawler, a JS-less
 // reader and a social unfurl receive. A raw request, not `page.goto`, for that reason.
 //
 // TWO STATES, ONE FILE (#737 AC 16). The addendum ships as a PENDING REVISION (#741, ADR-0005's *A held article is isolated, not private*, as amended
@@ -47,7 +47,7 @@ for (const [path, t] of ADDRESSES) {
     const response = await request.get(path);
     expect(response.status()).toBe(200);
     const html = await response.text();
-    // The control: this is the article's own snapshot (self-canonical, ADR-0052), not the SPA fallback,
+    // The control: this is the article's own snapshot (self-canonical, ADR-0036, *A neutral, self-canonical share URL per article*), not the SPA fallback,
     // whose canonical is `/en` — an absence asserted on the fallback would pass by construction.
     expect(html, `${path}: must be the article's own snapshot`).toContain(
       `rel="canonical" href="${SITE}${path.replace(/\/$/, '')}"`,

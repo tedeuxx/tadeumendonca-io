@@ -28,20 +28,6 @@
     "amended": true
   },
   {
-    "id": "0010",
-    "title": "Client-side routing, landing/CV split, back-compat redirects",
-    "file": "0010-routing-landing-cv-split-redirects.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0011",
-    "title": "UI in pt-BR; bilingual i18n deferred",
-    "file": "0011-ui-ptbr-i18n-deferred.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
     "id": "0013",
     "title": "S3 + CloudFront hosting with a URL-rewrite function",
     "file": "0013-s3-cloudfront-hosting.md",
@@ -56,13 +42,6 @@
     "amended": true
   },
   {
-    "id": "0032",
-    "title": "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~",
-    "file": "0032-i18n-locale-layer-english-baseline.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0036",
     "title": "Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale",
     "file": "0036-per-locale-urls-prerender-hreflang.md",
@@ -70,25 +49,11 @@
     "amended": true
   },
   {
-    "id": "0037",
-    "title": "Article slugs are localized — a locale-matched slug per edition",
-    "file": "0037-localized-article-slugs.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0043",
     "title": "The dev-loop inventory is derived from the plugin repo — a committed manifest plus a cross-repo drift check, and the manifest may not say \"denies\" about a thing that only advises",
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
     "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0052",
-    "title": "A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution",
-    "file": "0052-neutral-self-canonical-share-url-per-article.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0053",

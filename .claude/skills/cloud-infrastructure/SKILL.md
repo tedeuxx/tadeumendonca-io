@@ -30,7 +30,7 @@ Reliability, Performance Efficiency, Operational Excellence, Sustainability) —
 the trade-off genuinely spans two. The tag is a lens for the reader, borrowed to place the owner's
 already-made decisions against a shared vocabulary; it is not a pillar-by-pillar audit, and the sections
 are not reorganized around the six pillars — that would re-introduce the generic survey this
-consolidation was curated to avoid (ADR-0011's 2026-08-13 amendment).
+consolidation was curated to avoid (the methodology ADR-0011's 2026-08-13 amendment).
 
 Sections are ordered by architectural layer: Terraform practice (foundation) → network (VPC) → identity,
 encryption and the config/secrets bus (IAM, KMS, Secrets Manager, SSM) → Cognito → WAF → data stores

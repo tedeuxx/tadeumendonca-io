@@ -147,7 +147,7 @@ function byTitle(fences, title) {
 }
 
 describe('the two editions describe the same system', () => {
-  // Long-form is one file per locale (ADR-0032), so the two CAN drift — and a diagram drifting is worse
+  // Long-form is one file per locale (ADR-0036, *The locale layer*), so the two CAN drift — and a diagram drifting is worse
   // than prose drifting, because nobody re-reads a picture to check it. Counting first: a missing fence
   // in one edition is the failure a structural comparison would otherwise skip over silently.
   it('carries the same number of diagrams in both editions', () => {

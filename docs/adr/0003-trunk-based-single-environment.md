@@ -107,7 +107,7 @@ contributor, this is the paragraph to re-read.
 ### 2. Record correction is SAFE class — the owner should not ratify the same thing twice
 
 The 2026-07-23 amendment made "anything creating or changing an ADR decision" boundary. Operated, that swept
-in changes creating **no decision at all**: ADR-0032 still saying "Slice 2 is deferred" after the owner
+in changes creating **no decision at all**: the locale-layer record (now ADR-0036's *The locale layer*) still saying "Slice 2 is deferred" after the owner
 accepted ADR-0036 is not a new decision — it is the record lagging one he already took. On 2026-07-29, six
 of seven merged slices were boundary and three of those decided nothing. In a repo whose product is
 substantially ADRs, guides and positioning, boundary had become the **norm**, which inverts the point of the

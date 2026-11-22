@@ -250,7 +250,7 @@ Its drivers, as they stand since the 2026-10-16 re-reading:
   shift. The 2026-10-16 amendment was such a revisit — the mission changed, and the architecture came
   out of it unchanged.
 - **Left as history, deliberately.** Records dated before 2026-10-16 that describe the site as a
-  proof-of-engineering site ([ADR-0010](./0010-routing-landing-cv-split-redirects.md),
+  proof-of-engineering site ([ADR-0036, *Client-side routing and the public surfaces*](./0036-per-locale-urls-prerender-hreflang.md#client-side-routing-and-the-public-surfaces),
   [ADR-0003, *The SonarCloud quality gate*](./0003-trunk-based-single-environment.md#the-sonarcloud-quality-gate) and [ADR-0005, *Consent-gated GA4 analytics*](./0005-og-coverage-every-public-url.md#consent-gated-ga4-analytics)) keep that
   wording: it records why each decision was taken when it was. Read *proof-of-engineering* in any record
   dated before 2026-10-16 as the mission of that time. No record exists for the mission itself: a mission

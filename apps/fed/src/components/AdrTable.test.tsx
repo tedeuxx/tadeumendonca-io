@@ -1,7 +1,31 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { AdrTable } from './AdrTable';
-import { adrRecords } from '../content/adrs';
+import { adrRecords, type AdrRecord } from '../content/adrs';
+import type * as AdrsModule from '../content/adrs';
 import { renderWithLocale } from '../test-utils';
+
+// The table reads the real library, and so do most of these tests. Two of them assert behaviour for a
+// record SHAPE the library no longer holds: since #456's eleventh slice folded the last superseded record
+// (0011, whose successor 0032 was also the one title carrying a strikethrough) into ADR-0036, no record
+// on disk is `superseded` and no title carries `~~`. The renderer still has to handle both, because the
+// library's own rules let either come back, so those two tests add ONE fixture record to the real list
+// rather than asserting against a population that is now, correctly, empty.
+const extra: AdrRecord[] = [];
+vi.mock('../content/adrs', async (importOriginal) => {
+  const real = await importOriginal<typeof AdrsModule>();
+  return { ...real, adrRecords: () => [...real.adrRecords(), ...extra] };
+});
+afterEach(() => {
+  extra.length = 0;
+});
+
+const FIXTURE: AdrRecord = {
+  id: '9999',
+  title: 'A fixture decision, ~~a retired clause~~',
+  file: '9999-fixture-decision.md',
+  status: 'superseded',
+  amended: false,
+};
 
 const records = adrRecords();
 
@@ -41,14 +65,15 @@ describe('AdrTable', () => {
     expect(anchor).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
 
-  // A title's inline markup is rendered, not published as syntax — and for ADR-0032 the strikethrough IS
-  // the meaning, so flattening it puts a retired claim on the page as a live one. Asserted HERE and not
+  // A title's inline markup is rendered, not published as syntax — and for a retired clause (record 0032's
+  // title carried one until #456 folded it into ADR-0036) the strikethrough IS the meaning, so flattening it puts a retired claim on the page as a live one. Asserted HERE and not
   // only in adr-title.test.tsx, because that suite proves the renderer works while this one proves the
   // table actually calls it: the existing title assertion reads the RAW record title and is structurally
   // blind to whether any rendering happened at all.
   it('renders a title that carries markup, rather than publishing its syntax', () => {
-    const marked = records.find((r) => r.title.includes('~~'));
-    expect(marked, 'the library should contain a title with a retired clause').toBeDefined();
+    extra.push(FIXTURE);
+    const marked = adrRecords().find((r) => r.title.includes('~~'));
+    expect(marked, 'the fixture should put a title with a retired clause in the list').toBeDefined();
 
     const { container } = renderWithLocale(<AdrTable />, { locale: 'en' });
     const row = container.querySelector(`tbody tr:has(a[href$="${marked!.file}"])`);
@@ -73,6 +98,7 @@ describe('AdrTable', () => {
   // asserted, because a status rendered in English inside the Portuguese edition is exactly the drift
   // this repo compiles as an error everywhere else.
   it('localises the status class in both editions', () => {
+    extra.push(FIXTURE);
     const en = renderWithLocale(<AdrTable />, { locale: 'en' }).container;
     expect(en).toHaveTextContent('accepted');
     expect(en).toHaveTextContent('superseded');

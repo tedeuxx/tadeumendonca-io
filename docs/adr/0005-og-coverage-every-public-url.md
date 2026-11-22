@@ -51,7 +51,7 @@ URLs.
 Chosen: **full OG/crawler coverage on every public route**. This is the *policy* that ADR-0002's
 build-time prerender exists to satisfy — the prerender must snapshot **every** public route ~~(`/`, `/cv`,
 `/portfolio`, each `/blog/:slug`)~~ with complete meta in the served HTML. *(The enumeration is struck
-because it drifted, #234: the CV route was renamed `/cv` → `/me` and the `/cv` REDIRECT dropped, in two separate 2026-07-24 amendments to ADR-0010; and every public URL is now
+because it drifted, #234: the CV route was renamed `/cv` → `/me` and the `/cv` REDIRECT dropped, in two separate 2026-07-24 amendments to the routing decision (now ADR-0036's *Client-side routing and the public surfaces*); and every public URL is now
 locale-prefixed (ADR-0036). **`STATIC_ROUTES` / `localizedRoutes()` in `apps/fed/scripts/routes.mjs` is the
 source of truth** — cite the module, do not re-list here, or this line drifts again.)* It is the inverse of the
 external-link unfurl we gave up (ADR-0002): we cannot unfurl *other* people's URLs, but we make *ours*
@@ -101,7 +101,7 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
 - **One aspect ratio, 1200×630.** Instagram is not a distribution surface (#270), so the 1080×1920 Story
   output #183 bundled with this work has no consumer.
 - **The card file is named after the article KEY plus the locale, `/og/<key>.<locale>.png`**, never the
-  per-locale slug: slugs are per-locale and editable ([ADR-0037](./0037-localized-article-slugs.md)), and
+  per-locale slug: slugs are per-locale and editable ([ADR-0036, *Localized article slugs*](./0036-per-locale-urls-prerender-hreflang.md#localized-article-slugs)), and
   a slug-named card is orphaned the moment one is corrected, as an `og:image` URL that every scraper has
   already pinned. **The site-wide default card is named the other way, on purpose:** `og-default.png`
   for English and `og-default.<locale>.png` for every other locale. `/og-default.png` has served since
@@ -500,9 +500,9 @@ mirrors.
   rede social tem que ser feito com a url nao regionalizada»*. ~~The shared link is always the `/en/`
   URL, on both surfaces~~ — reversed; the owner called that behaviour *«erro»*. **The precondition binds
   with it: the neutral URL is the share target only once it resolves to the ARTICLE.** Neutral routes are
-  prerendered per article by [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md); a
+  prerendered per article by [ADR-0036, *A neutral, self-canonical share URL per article*](./0036-per-locale-urls-prerender-hreflang.md#a-neutral-self-canonical-share-url-per-article); a
   non-article page has none, so a share of `/architecture` keeps its locale-pinned URL, because the
-  neutral form answers `200` with the SPA fallback. The route's own decisions are ADR-0052's.
+  neutral form answers `200` with the SPA fallback. The route's own decisions are that section's.
 - **The bilingual post's order and signpost (2026-09-20 and 2026-09-21).** (1) Line one is exactly
   `🇧🇷 Versão em português abaixo.` — the soft pointer, never a mechanical position (*«o padrao deveria
   ser algo mais soft e elegante do que metade»*), and «Versão» was put to him and kept; (2) the English
@@ -1008,6 +1008,6 @@ is **not** in the menu).
   [ADR-0013](./0013-s3-cloudfront-hosting.md) (the cache behaviour tagged URLs and cards share) ·
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (cross-surface coherence; private working
   material) · [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) (OG and locale per URL) ·
-  [ADR-0037](./0037-localized-article-slugs.md) (per-locale, editable slugs) ·
+  [ADR-0036, *Localized article slugs*](./0036-per-locale-urls-prerender-hreflang.md#localized-article-slugs) (per-locale, editable slugs) ·
   [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time) (the committed-artifact shape the cards follow) ·
-  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (the neutral share route).
+  [ADR-0036, *A neutral, self-canonical share URL per article*](./0036-per-locale-urls-prerender-hreflang.md#a-neutral-self-canonical-share-url-per-article) (the neutral share route).

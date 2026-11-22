@@ -35,7 +35,7 @@ const FLAGGED = Object.entries(videos)
 /**
  * The article that carries today's only flagged video, in both editions, and the id each visit expects.
  *
- * THE TWO PATHS ARE NOT THE SAME STRING WITH A DIFFERENT PREFIX — slugs are per-locale (ADR-0037), so
+ * THE TWO PATHS ARE NOT THE SAME STRING WITH A DIFFERENT PREFIX — slugs are per-locale (ADR-0036, *Localized article slugs*), so
  * the Portuguese edition answers at its own. Writing `/pt/blog/<english-slug>` renders the SPA's
  * not-found shell, which carries no article and no video of any kind, so every count below would have
  * been trivially satisfied. That is why the render assertion comes first, and it is written from the

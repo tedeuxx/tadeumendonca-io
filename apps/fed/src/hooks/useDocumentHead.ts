@@ -62,8 +62,8 @@ export interface DocumentHead {
   jsonLd?: Record<string, unknown>;
   /**
    * Per-locale LOGICAL paths for hreflang, when a route's path DIFFERS across locales (article slugs are
-   * per-locale, ADR-0037 — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
-   * alternates prefix these localized paths and x-default is the NEUTRAL, UNPREFIXED English URL (#660, ADR-0052).
+   * per-locale, ADR-0036, *Localized article slugs* — EN `/blog/my-commitment`, PT `/blog/meu-compromisso`). When given, the pt/en
+   * alternates prefix these localized paths and x-default is the NEUTRAL, UNPREFIXED English URL (#660, ADR-0036, *A neutral, self-canonical share URL per article*).
    * When absent (the shared-slug routes), the alternates re-prefix `canonicalPath` for both locales and
    * x-default stays the PREFIXED English URL (#200), which is what those routes still snapshot.
    *
@@ -186,7 +186,7 @@ export function useDocumentHead({ title, description, canonicalPath, image, imag
 
     // hreflang alternates (pt · en · x-default). Emitted for every real route so both editions point at
     // the same set — the reciprocity a crawler needs to pair them. When the route's path is per-locale
-    // (article slugs, ADR-0037), `alternates` carries the two localized logical paths; otherwise the
+    // (article slugs, ADR-0036, *Localized article slugs*), `alternates` carries the two localized logical paths; otherwise the
     // shared `canonicalPath` re-prefixes for both.
     //
     // x-default DIFFERS between the two branches since #660, and the asymmetry is the decision rather

@@ -44,7 +44,7 @@ in `iac/`.
 
 ## Language
 - **The site UI is bilingual (pt-BR + en)** via a **light in-repo locale layer** (`src/i18n/`: a typed
-  pt/en catalog, `LocaleProvider`, `useT()`/`useLocale()`; **ADR-0032**, supersedes ADR-0011). It
+  pt/en catalog, `LocaleProvider`, `useT()`/`useLocale()`; **ADR-0036, *The locale layer***, which superseded the pt-BR-only UI). It
   **auto-detects the visitor's native language** and offers a **PT/EN toggle** (persisted, overrides
   detection). **Add every new UI-chrome string to the `src/i18n/` catalog in both locales — never hardcode
   a UI string.** Dates use the active locale. **Both locales are prerendered** — ADR-0036 **retired**
@@ -59,7 +59,7 @@ in `iac/`.
   authored **once** and shared, so the two editions cannot disagree.
 - **EVERYTHING the reader reads is authored in both languages** — chrome, CV, catalog copy, and
   **long-form prose**. There is no category where chrome and body may disagree (owner rule, 2026-07-23;
-  supersedes ADR-0032's long-form deferral). **In every reader-facing module a missing translation is a
+  supersedes the locale layer's long-form deferral, ADR-0036's *The locale layer*). **In every reader-facing module a missing translation is a
   COMPILE error, not a runtime surprise** — `profile.ts` via `ProfileSource`, `src/i18n/messages.ts` via
   its `satisfies`, `data/repoCards.ts` and `data/catalog.ts` via a leaf `Record<Locale, string>`, and the
   blog loader by throwing at module load. `catalog.ts` was the one module typed as a plain string, and it
@@ -75,13 +75,13 @@ in `iac/`.
   pair and **throws at module load if either is missing** — the single-language case fails the build, the
   prerender and the tests, so it cannot ship. The **filename base is the article's stable KEY** (the
   grouping identity, by convention the canonical English slug) — it is never a URL. **`slug` is per-locale
-  frontmatter** (#182, ADR-0037), so the two editions carry different URLs — EN `/en/blog/my-commitment`,
+  frontmatter** (#182, ADR-0036, *Localized article slugs*), so the two editions carry different URLs — EN `/en/blog/my-commitment`,
   PT `/pt/blog/meu-compromisso` — while the remaining facts (date, tag, track, links, media) are still
   authored once and shared. `getPostBySlug` matches on the active locale's own slug, and the toggle maps
   `/blog/<thisSlug>` → `/blog/<otherSlug>` across locales (`localizeArticlePath`); hreflang advertises the
   reciprocal localized pair, and **x-default → the NEUTRAL, unprefixed English-slug URL**
   (`/blog/<en-slug>`, #660,
-  [ADR-0052](../../docs/adr/0052-neutral-self-canonical-share-url-per-article.md)) — the share address
+  [ADR-0036, *A neutral, self-canonical share URL per article*](../../docs/adr/0036-per-locale-urls-prerender-hreflang.md#a-neutral-self-canonical-share-url-per-article)) — the share address
   every social post carries, prerendered by `neutralArticleRoutes()` and SELF-canonical. The rule is
   unchanged and is what permits it: **advertise only what the build prerenders** (ADR-0036 amendment).
 
@@ -96,7 +96,7 @@ in `iac/`.
   clause applies **to articles only** — `/me`, `/portfolio`, `/library` and the other static routes keep
   the prefixed x-default and are still never advertised bare. The decision, its rejected options (an edge
   302 is obeyed by the scraper too) and its accepted costs are
-  [ADR-0052](../../docs/adr/0052-neutral-self-canonical-share-url-per-article.md), which also strikes
+  [ADR-0036, *A neutral, self-canonical share URL per article*](../../docs/adr/0036-per-locale-urls-prerender-hreflang.md#a-neutral-self-canonical-share-url-per-article), which also strikes
   ADR-0036's own copies of that clause in place.
 
   **The neutral URL is ONE URL serving TWO consumers differently, on purpose.** A scraper reads the
@@ -110,7 +110,7 @@ in `iac/`.
   it from `byLocale` (the index, the feed, the track filters) while `getPostBySlug`/`getEditions` still
   resolve it; `scripts/routes.mjs` drops it from `localizedRoutes()`, so it leaves the sitemap **and** the
   prerender together (the never-drift invariant holds — both sets shrink) — **and from
-  `neutralArticleRoutes()` with it (#660, ADR-0052), for free rather than by a second rule, since both derive from
+  `neutralArticleRoutes()` with it (#660, ADR-0036, *A neutral, self-canonical share URL per article*), for free rather than by a second rule, since both derive from
   the same `blogEditions()` that dropped the key**; `scripts/og-cards.mjs` requires
   no card for it; `scripts/gen-distribution.mjs` writes no draft kit for it. The URL still answers, because
   `custom_error_response` maps 404 → `/index.html` with a 200 and the SPA routes client-side. **`?preview`
@@ -186,7 +186,7 @@ in `iac/`.
 
 ## Conventions
 - Explicit UI states (loading/empty/error) via the primitives in `src/components/Column.tsx`.
-- "Blog" is the articles feature. The only article route is `/blog/:slug`, per-locale (ADR-0037);
+- "Blog" is the articles feature. The only article route is `/blog/:slug`, per-locale (ADR-0036, *Localized article slugs*);
   `/blog` itself redirects to the landing's `#artigos`. There is no `/articles` compat route — it was
   dropped pre-launch (#234) and `e2e/seo.spec.ts` asserts the site never advertises one.
 - Reader-first copy: the product is the reader learning something; self-promotion is a by-product.

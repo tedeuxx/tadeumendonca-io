@@ -122,7 +122,7 @@ CSS puro (sem framer-motion): `.invert-hover` (swap fg/bg mecânico), labels de 
 
 ## Fase i18n — Bilíngue EN/PT (fase própria, DEPOIS do redesign)
 
-> **Atualização (ADR-0032, 2026-07): Slice 1 shippou** — a camada i18n leve in-repo (`src/i18n/`, `LocaleProvider`,
+> **Atualização (ADR-0036, *The locale layer*, 2026-07): Slice 1 shippou** — a camada i18n leve in-repo (`src/i18n/`, `LocaleProvider`,
 > `useT()`), **auto-detect da língua nativa + toggle PT/EN persistido**, e o **baseline de prerender/OG fixado em
 > inglês**. Duas decisões desta seção **mudaram** vs. o esboço abaixo: (a) a detecção é **client-side**, não via
 > CloudFront Function `Accept-Language` (sem mudança de infra na Slice 1); (b) não há "pt padrão" — carrega a nativa,

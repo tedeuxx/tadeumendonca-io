@@ -24,7 +24,7 @@ import { trackShareComplete } from '../lib/analytics';
 
 /**
  * `path` is the LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`). The slug is per-locale
- * (ADR-0037), so a share link built from the wrong edition's slug sends a pt reader an English article —
+ * (ADR-0036, *Localized article slugs*), so a share link built from the wrong edition's slug sends a pt reader an English article —
  * the caller resolves it, this component never guesses.
  *
  * `labelKey` is the CATALOG KEY for this group's accessible name, and it defaults to the article one

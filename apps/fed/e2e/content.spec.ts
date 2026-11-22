@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Pinned to pt-BR chrome: the detail header ("Blog") and share control are chrome that localizes under
-// the i18n layer (ADR-0032). The article title/body come from markdown-in-repo (pt-BR content) and are
+// the i18n layer (ADR-0036, *The locale layer*). The article title/body come from markdown-in-repo (pt-BR content) and are
 // locale-independent; pinning the context keeps the chrome assertion deterministic under the new default.
 test.use({ locale: 'pt-BR' });
 
@@ -69,7 +69,7 @@ test.describe('content detail', () => {
   //
   // Two things it pins that a component test cannot: the URL is absolute against the CANONICAL origin
   // (these anchors are prerendered, so `window.location.origin` would have baked in the preview host),
-  // and the pt article carries the pt slug — the editions have different ones (ADR-0037), and a link
+  // and the pt article carries the pt slug — the editions have different ones (ADR-0036, *Localized article slugs*), and a link
   // built from the wrong edition sends a Portuguese reader an English article.
   test('the share deeplinks carry the canonical URL of THIS edition', async ({ request }) => {
     const body = await (await request.get('/pt/blog/meu-compromisso/')).text();

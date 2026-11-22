@@ -102,7 +102,7 @@ for (const rev of cases) {
           // The control: this is a real snapshot of THIS address, not the SPA fallback. It is the CANONICAL,
           // never a bare `/blog/<slug>"`: the fallback is the English landing, which LISTS the articles, so
           // it carries that string for the en and neutral addresses and the control passed on the very
-          // response it exists to reject. Each snapshot is self-canonical (the neutral one too, ADR-0052);
+          // response it exists to reject. Each snapshot is self-canonical (the neutral one too, ADR-0036, *A neutral, self-canonical share URL per article*);
           // the fallback's canonical is `/en`.
           // (The published text's PRESENCE is not asserted on raw HTML: entity escaping would make a true
           // presence read as absent. It is the build-output grep reported on the PR, AC 15.)

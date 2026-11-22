@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// i18n journeys (ADR-0032). The site is bilingual via a light in-repo locale layer: it auto-detects the
+// i18n journeys (ADR-0036, *The locale layer*). The site is bilingual via a light in-repo locale layer: it auto-detects the
 // visitor's native browser language from the FULL declared list (navigator.languages, pt* anywhere in
 // the list → pt, fallback en — #661), a persisted PT/EN nav
 // toggle overrides detection, <html lang> tracks the locale (pt-BR | en), and dates follow the locale.
@@ -162,7 +162,7 @@ test.describe('i18n — the PT/EN toggle', () => {
 });
 
 // Criterion: the CV CONTENT localizes with the chrome — a pt visitor gets a Portuguese CV, an English
-// visitor an English one (ADR-0024 amendment; closes ADR-0032's Slice 3). What does NOT flip are the
+// visitor an English one (ADR-0024 amendment; closes Slice 3 of ADR-0036's *The locale layer*). What does NOT flip are the
 // facts: the name, the official job titles, the employers and the dates are authored once and shared, so
 // each journey asserts both halves — the prose changed AND the facts did not.
 test.describe('i18n — the CV content follows the locale', () => {
@@ -315,7 +315,7 @@ test.describe('i18n — dates follow the locale', () => {
 //   (2) no prose leak — a distinctive body phrase of the hidden edition is absent (a fallback that
 //       rendered both files, or the wrong one, would pass a one-sided "target present" check);
 //   (3) the shared FACTS (the tag, the article's ISO date) are authored once and MUST NOT change across
-//       the toggle; the SLUG, by contrast, is now per-locale (ADR-0037) and MUST MAP — EN
+//       the toggle; the SLUG, by contrast, is now per-locale (ADR-0036, *Localized article slugs*) and MUST MAP — EN
 //       `/en/blog/my-commitment` ↔ PT `/pt/blog/meu-compromisso` — never land on the current locale's
 //       slug under the other prefix (a not-found). Note the date's *rendered* text localizes its format
 //       (asserted in the dates block above), so the stable fact is the machine-readable `<time datetime>`

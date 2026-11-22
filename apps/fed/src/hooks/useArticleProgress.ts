@@ -46,7 +46,7 @@
 // so it is slower and no less real, and the E2E waits it out rather than passing early against it.
 //
 // THE GUARD IS KEYED ON THE ARTICLE'S IDENTITY, NOT ON ITS SLUG, and this is the one place the repair
-// is not a copy of `useContactReach`'s. Slugs are PER-LOCALE (ADR-0037): the toggle above moved
+// is not a copy of `useContactReach`'s. Slugs are PER-LOCALE (ADR-0036, *Localized article slugs*): the toggle above moved
 // `my-commitment` to `meu-compromisso`, so a slug-keyed guard would not have matched and the duplicate
 // would simply have hidden under a second slug — a worse failure than the visible one, because the two
 // rows no longer look like duplicates in any report. The identity is the article's KEY, which is stable
@@ -109,7 +109,7 @@ export function useArticleProgress({
   slug: string;
   /**
    * The article's LOCALE-INDEPENDENT identity, used only to key the once-per-session markers and
-   * never emitted. Pass the EN edition's slug — by ADR-0037's convention that is the article's KEY.
+   * never emitted. Pass the EN edition's slug — by the convention of ADR-0036's *Localized article slugs* that is the article's KEY.
    * Falling back to `slug` is safe but weaker: the guard then stops matching across a locale toggle.
    */
   articleKey: string;

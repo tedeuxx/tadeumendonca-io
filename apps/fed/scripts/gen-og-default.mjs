@@ -7,7 +7,7 @@
 // an unfurl is actually seen (~320px wide, a 1:4 downscale): one dominant line, everything else subordinate.
 //
 // PER LOCALE SINCE #167. This file used to say "copy is English because the crawlable/OG baseline is
-// pinned to English (ADR-0032)" — and ADR-0036 retired that clause of 0032, which is why the comment is
+// pinned to English", citing the locale-layer record (now ADR-0036's *The locale layer*) — and ADR-0036 retired that clause, which is why the comment is
 // quoted here instead of deleted: it was the stale justification for the exact defect #167 fixes. #162
 // gave a shared /pt/* link Portuguese og:title and og:description; the IMAGE stayed English, so a pt
 // reader got a card whose text disagreed with its own picture.

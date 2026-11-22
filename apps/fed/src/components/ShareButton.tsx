@@ -68,7 +68,7 @@ export function ShareButton({
    * the markdown surfaces (`ramp-up`, `architecture`, and `analytics` since #640).
    *
    * REQUIRED, AND RESOLVED BY THE CALLER rather than sliced off `url` here. `url` is a locale-prefixed
-   * path and the article slug is per-locale (ADR-0037), so deriving one from the other is a guess this
+   * path and the article slug is per-locale (ADR-0036, *Localized article slugs*), so deriving one from the other is a guess this
    * component is in the worst position to make — the same rule `ShareLinks.path` states about the
    * article path, applied to the same class of value. A required prop also means a future surface that
    * adds this affordance cannot emit an unlabelled `share_open` by forgetting a prop; it fails to

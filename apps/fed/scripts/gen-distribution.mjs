@@ -6,7 +6,7 @@
 // per publication… real per-article work in a weekends-only cadence" — by scaffolding both drafts from
 // the article's own frontmatter.
 //
-// The load-bearing part is the URL, not the prose. ADR-0037 gave articles PER-LOCALE slugs
+// The load-bearing part is the URL, not the prose. ADR-0036's *Localized article slugs* gave articles PER-LOCALE slugs
 // (/en/blog/my-commitment vs /pt/blog/meu-compromisso), and `alternatesFor()` additionally advertises a
 // per-locale slug. `alternatesFor()` USED TO advertise a bare x-default article URL (/blog/<en-slug>)
 // that the prerender never snapshots; #200 fixed that at the source, so hreflang now advertises only
@@ -52,7 +52,7 @@ export function sectionHeadings(body) {
  * The URL to share for an article, resolved by LOOKUP rather than construction.
  *
  * `routes` is the output of `neutralArticleRoutes()` — the NEUTRAL, unprefixed share addresses
- * (#660, ADR-0052). It was `localizedRoutes()` until then, and the change of ARGUMENT is the whole
+ * (#660, ADR-0036, *A neutral, self-canonical share URL per article*). It was `localizedRoutes()` until then, and the change of ARGUMENT is the whole
  * change: the refusal semantics are untouched, because they never depended on which set was passed.
  *
  * WHY THE SET MOVED. `published-voice` rule 21 tells the drafter to post the neutral URL, and this
@@ -197,10 +197,10 @@ export function linkedInPost({ frontmatter, url }) {
 
 /**
  * The draft pair for one article. LinkedIn and X BOTH carry the NEUTRAL share URL — `/blog/<en-slug>`,
- * with no locale prefix (#660, ADR-0052, `published-voice` rule 21).
+ * with no locale prefix (#660, ADR-0036, *A neutral, self-canonical share URL per article*, `published-voice` rule 21).
  *
  * ~~LinkedIn and X BOTH carry the English canonical: ADR-0024 makes English the canonical edition and
- * ADR-0037's drivers state the owner posts in English on LinkedIn.~~ Struck rather than deleted, because
+ * the context of ADR-0036's *Localized article slugs* states the owner posts in English on LinkedIn.~~ Struck rather than deleted, because
  * it is the sentence a reader would take the old behaviour from, and its PREMISE is still true while its
  * CONCLUSION is not. The surfaces do still carry English: the neutral URL serves the English preview to
  * an unfurler, so the card is unchanged. What changed is who decides the LANGUAGE OF THE PAGE — the

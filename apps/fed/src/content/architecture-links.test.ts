@@ -128,7 +128,7 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
   });
 
   // Cross-locale parity, the rule `content.test.ts` already applies to an article body and this page has
-  // never had. Long-form is one file per locale (ADR-0032), so the two CAN drift — and they drift most
+  // never had. Long-form is one file per locale (ADR-0036, *The locale layer*), so the two CAN drift — and they drift most
   // easily when a slice adds a section to one edition and translates it into the other by hand, which is
   // every slice this page has ever had. Same targets, same order: a link added to `en` and forgotten in
   // `pt` is a pt reader who cannot reach the evidence the en reader is offered.

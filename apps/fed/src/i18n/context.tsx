@@ -39,7 +39,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   // The manual toggle: persist the override (drives the bare-root default next visit) and navigate to the
   // SAME sub-path under the other locale's prefix, preserving any query + hash. Article routes are the one
-  // path whose slug is per-locale (ADR-0037), so we map `/blog/<thisSlug>` → `/blog/<otherSlug>` before
+  // path whose slug is per-locale (ADR-0036, *Localized article slugs*), so we map `/blog/<thisSlug>` → `/blog/<otherSlug>` before
   // re-prefixing — otherwise the toggle would land on the current locale's slug under the other prefix
   // (e.g. `/pt/blog/my-commitment`), a soft not-found. Every non-article path passes through unchanged.
   const setLocale = useCallback(

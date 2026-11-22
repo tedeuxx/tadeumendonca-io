@@ -65,7 +65,7 @@ export function piecePaths(pair) {
   return new Set([`/blog/${pair.en}`, ...VIDEO_LANGUAGES.map((l) => `/${l}/blog/${pair[l]}`)]);
 }
 
-/** The route the strategy says a post on this platform carries (ADR-0052 neutral for text, per language for video). */
+/** The route the strategy says a post on this platform carries (neutral for text, per ADR-0036's *A neutral, self-canonical share URL per article*; per language for video). */
 function expectedPath(post, pair) {
   return TEXT_PLATFORMS.has(post.platform) ? `/blog/${pair.en}` : `/${post.language}/blog/${pair[post.language]}`;
 }

@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 // other assertion in this file reads an ADR href.
 
 // Pinned to pt-BR chrome: these journeys assert localized strings ("Portfólio", "Ver no GitHub",
-// "Artigos", "Ver catálogo completo"). The i18n auto-detect layer (ADR-0032) makes en-US the default
+// "Artigos", "Ver catálogo completo"). The i18n auto-detect layer (ADR-0036, *The locale layer*) makes en-US the default
 // rendered chrome, so pin the context to pt-BR to keep the routing assertions deterministic. Routing
 // itself is language-neutral; only the visible labels these checks anchor on are localized.
 //
@@ -479,12 +479,12 @@ test.describe('routes', () => {
     await expect(page.getByRole('heading', { name: 'Artigos' })).toBeVisible();
   });
 
-  // A published article URL whose slug was later CORRECTED (ADR-0010's back-compat contract, applied to
+  // A published article URL whose slug was later CORRECTED (the back-compat contract in ADR-0036's *Client-side routing and the public surfaces*, applied to
   // an article slug for the first time). The badge article was retitled twice after publication and both
   // slugs kept spelling the withdrawn first title; correcting them moves an address that has been live and
   // shared, so the old one has to keep resolving — to the article, not to the landing.
   //
-  // Asserted in BOTH locales because the slugs are per-locale (ADR-0037): one entry per edition, and a
+  // Asserted in BOTH locales because the slugs are per-locale (ADR-0036, *Localized article slugs*): one entry per edition, and a
   // sweep that fixes one and forgets the other is the exact failure this pair catches.
   //
   // The assertions are deliberately title-independent — final URL, plus a rendered `<article>` heading.

@@ -26,7 +26,7 @@ The template is indented by four spaces so that it records nothing; a real line 
   session, in the figures the script prints.
 - **`<posted-date>`** is the day the post went out, `YYYY-MM-DD`.
 - **`<address>`** is the link the post carried, **verbatim, with its campaign tags**. A LinkedIn or X
-  post carries the neutral address `/blog/<en-slug>` (ADR-0052); a YouTube Short carries the edition in
+  post carries the neutral address `/blog/<en-slug>` (ADR-0036, *A neutral, self-canonical share URL per article*); a YouTube Short carries the edition in
   its own language. Every address carries `utm_campaign=author-post` (owner ruling on #819, ADR-0005, *Campaign tagging of shared links*);
   a LinkedIn or X address carries `utm_source=<platform>` and `utm_medium=social`.
 - **`<post-url>`** is the post's own address on the platform.

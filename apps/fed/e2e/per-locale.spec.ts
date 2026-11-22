@@ -353,7 +353,7 @@ test.describe('hreflang reciprocity + self-canonical', () => {
   });
 });
 
-// 4b · Per-locale ARTICLE slugs (ADR-0037, this issue): the two editions live at DIFFERENT slugs — EN
+// 4b · Per-locale ARTICLE slugs (ADR-0036, *Localized article slugs*, this issue): the two editions live at DIFFERENT slugs — EN
 // `/en/blog/my-commitment`, PT `/pt/blog/meu-compromisso`. Each prerendered edition self-canonicals to its
 // OWN slug and advertises the reciprocal hreflang pair. The old shared EN URL `/en/blog/meu-compromisso`
 // is a client-side not-found (never prerendered, never in the sitemap).
@@ -454,7 +454,7 @@ test.describe('per-locale article slugs', () => {
   });
 });
 
-// 4c · THE NEUTRAL SHARE ADDRESS (#660, ADR-0052) — one URL, two consumers, served differently on purpose.
+// 4c · THE NEUTRAL SHARE ADDRESS (#660, ADR-0036, *A neutral, self-canonical share URL per article*) — one URL, two consumers, served differently on purpose.
 //
 // THE ACCEPTANCE CHECK IS `canonical == the requested URL`, AND A STATUS CODE CANNOT BE IT. CloudFront
 // maps 404 → /index.html with a 200 and `vite preview` falls a missing path through to the SPA shell, so
@@ -724,7 +724,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
   // one English slug prefixed twice, like the five before it. This arithmetic going red when a route is
   // added is the guard working; it is updated in the same commit as the route.
   const SHARED = ['/', '/me', '/portfolio', '/ramp-up', '/architecture', '/library', '/analytics'];
-  // Article slugs are per-locale (ADR-0037), so an article's two <loc>s USUALLY do not share a path.
+  // Article slugs are per-locale (ADR-0036, *Localized article slugs*), so an article's two <loc>s USUALLY do not share a path.
   // `blast-radius-supernova` is the exception and it is deliberate: the title is a proper name and a
   // play on one, so there is nothing to localise, and the loader permits a shared slug explicitly. The
   // entry is written with the same string twice rather than "corrected", and the arithmetic below is
@@ -744,7 +744,7 @@ test.describe('sitemap advertises every per-locale URL', () => {
     },
     { pt: `${SITE}/pt/blog/crie-seu-primeiro-ai-app`, en: `${SITE}/en/blog/build-your-first-ai-app` },
   ];
-  // Slugs that were published and have been CORRECTED (ADR-0010's back-compat contract). Unlike WITHDRAWN
+  // Slugs that were published and have been CORRECTED (the back-compat contract in ADR-0036's *Client-side routing and the public surfaces*). Unlike WITHDRAWN
   // below, the article is still live — at a different address — so these must stay reachable via redirect
   // and must NOT be advertised: a redirect in the sitemap tells a crawler two URLs are canonical for one
   // page, which is the duplicate-content signal the per-locale canonical exists to avoid. The redirect

@@ -88,7 +88,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   const revision = reviewing && published && !published.draft ? getRevision(published.slug, locale) : undefined;
   const article = revision ?? published;
   // The edition GROUP (both locales) so hreflang can advertise each locale's OWN slug — the canonical /
-  // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0037).
+  // og:url stay this locale's slug (self), the alternates carry the localized pair (ADR-0036, *Localized article slugs*).
   const eds = slug ? getEditions(slug, locale) : undefined;
 
   // #597. The progress observer watches `Markdown`'s own wrapper — an element that was ALREADY HERE.
@@ -96,7 +96,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
   // prerendered page. Called unconditionally (the not-found arm renders no prose, so the ref is null and
   // the hook returns), because a hook may not sit behind `article &&`.
   const prose = useRef<HTMLDivElement>(null);
-  // `articleKey` is the EN edition's slug — the article's locale-independent KEY (ADR-0037) — and it is
+  // `articleKey` is the EN edition's slug — the article's locale-independent KEY (ADR-0036, *Localized article slugs*) — and it is
   // read off `eds`, which this page already resolved for hreflang. It keys the once-per-session guards
   // and is never emitted: without it a PT/EN toggle re-emits every milestone under the OTHER locale's
   // slug, which is the same duplicate the guard exists to stop, hidden across two slug values instead of
@@ -119,7 +119,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
           title: article.title,
           description: article.excerpt,
           canonicalPath: `/blog/${article.slug}`,
-          // The neutral address is SELF-canonical (#660, ADR-0052 — the owner's ruling, recorded there with its cost) — the head names the address
+          // The neutral address is SELF-canonical (#660, ADR-0036, *A neutral, self-canonical share URL per article* — the owner's ruling, recorded there with its cost) — the head names the address
           // that was requested, unprefixed, or the acceptance check for this whole route fails against
           // the artifact the build just produced.
           unprefixedCanonical: neutral,
@@ -193,7 +193,7 @@ export function ArticlePage({ neutral = false }: ArticlePageProps = {}) {
               <ShareButton
                 title={article.title}
                 url={lp(articleShareUrl(article))}
-                // The edition's OWN slug (ADR-0037 makes it per-locale), so `share_open` and the article
+                // The edition's OWN slug (ADR-0036's *Localized article slugs* makes it per-locale), so `share_open` and the article
                 // events name the same piece and can be joined. The page holds it; nothing derives it.
                 slug={article.slug}
                 body={article.body}

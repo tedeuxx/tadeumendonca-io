@@ -110,6 +110,11 @@ describe('adr citations — the gate', () => {
       // resolved here by accident until the sixth fold slice of #456 absorbed this library's 0004 and
       // 0006 into 0002; from then on they fail to resolve locally and are excused as cross-repo, which is
       // what CROSS_REPO_RE exists for. Each names that library in the text before the token.
+      // The two consolidated skills cite the methodology library's curation criterion, ADR-0011, which
+      // resolved to this library's pt-BR-only UI record by accident until the eleventh fold slice of #456
+      // folded that record into 0036. Each now names that library before the token.
+      '.claude/skills/backend/SKILL.md cites ADR-0011',
+      '.claude/skills/cloud-infrastructure/SKILL.md cites ADR-0011',
       'apps/fed/scripts/harness-source.mjs cites ADR-0006',
       'docs/adr/0003-trunk-based-single-environment.md cites ADR-0004',
       'docs/adr/0043-harness-inventory-derived-from-plugin-repo.md cites ADR-0004',

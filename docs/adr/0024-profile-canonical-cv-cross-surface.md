@@ -52,7 +52,7 @@ practice, not an accident of copy-paste.
 
 ## Amendment (2026-07-23) — the CV is bilingual; English stays canonical
 `profile.ts` is now authored **in both locales** (`ProfileSource`; flattened per locale by
-`resolveProfile`), closing the pt-BR CV slice that [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
+`resolveProfile`), closing the pt-BR CV slice that [ADR-0036, *The locale layer*](./0036-per-locale-urls-prerender-hreflang.md#the-locale-layer)
 deferred. This **does not** weaken "canonical": **English remains the canonical edition** — it is what
 LinkedIn carries, what the prerender baseline serves, and what the resolved `profile` constant exports.
 pt-BR is a **translation of** that edition, not an independent CV.
@@ -389,9 +389,9 @@ code: `apps/fed/src/data/journey.ts` (the ATTRIBUTION, JOIN and TWO HAZARDS para
 
 ## Links
 - Driven by ADR-0053 (lean by design), ADR-0002 · the CV lives at **`/me`** — `/pt/me` · `/en/me` under ADR-0036's locale
-  prefixes; the `/cv` this line used to name was renamed to `/me`, and its back-compat redirect separately dropped, in two 2026-07-24 amendments to ADR-0010 (#234) · the sync process itself is private
+  prefixes; the `/cv` this line used to name was renamed to `/me`, and its back-compat redirect separately dropped, in two 2026-07-24 amendments to the routing decision, now ADR-0036's *Client-side routing and the public surfaces* (#234) · the sync process itself is private
   (kept outside this repo) · bilingual authoring per the amendment above, within
-  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) · derived-facts convention per the 2026-07-23
+  [ADR-0036, *The locale layer*](./0036-per-locale-urls-prerender-hreflang.md#the-locale-layer) · derived-facts convention per the 2026-07-23
   amendment.
 - Canva retired by the 2026-07-28 amendment (Issue #225), taking the decision the downloadable-CV record
   deferred; the downloadable CV is `/cv.pdf` per *The downloadable edition* above (formerly record 0034,

@@ -155,7 +155,7 @@ describe('ArticlePage', () => {
     expect(screen.getByText(/não existe ou não está publicado/)).toBeInTheDocument();
   });
 
-  // Per-locale slugs (ADR-0037): the canonical / og:url stay THIS locale's own slug (self), while the
+  // Per-locale slugs (ADR-0036, *Localized article slugs*): the canonical / og:url stay THIS locale's own slug (self), while the
   // hreflang alternates advertise each locale's OWN slug from the edition group — so a crawler pairs
   // `/en/blog/building` with `/pt/blog/construindo`, x-default → the PREFIXED English URL (#200 — the
   // bare slug is not prerendered and dead-ends a pt-BR reader).

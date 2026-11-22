@@ -53,7 +53,7 @@ describe('the card set matches the article set', () => {
 
 describe('card naming', () => {
   // The naming decision, asserted rather than left to the comment that explains it. Keyed by the
-  // article KEY, so correcting a per-locale slug (ADR-0037 makes that legal and expected) cannot orphan
+  // article KEY, so correcting a per-locale slug (ADR-0036's *Localized article slugs* makes that legal and expected) cannot orphan
   // a card that scrapers have already pinned.
   it('is keyed by the article key and the locale, never by the slug', () => {
     expect(cardPath('my-commitment', 'pt')).toBe('/og/my-commitment.pt.png');
