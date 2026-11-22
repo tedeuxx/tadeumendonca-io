@@ -8,7 +8,8 @@
 
 # force_destroy is FALSE on every bucket, hard-coded, not derived. It used to be
 # `local.s3_force_destroy = var.environment != "production"` ("stg can be torn down; prod protected"),
-# written for ADR-0028's two environments. That world is gone (ADR-0003: one environment), and the
+# written for GitFlow's two environments (ADR-0003, *What this replaced*). That world is gone (ADR-0003:
+# one environment), and the
 # survivor is named `staging` while BEING production — it serves the apex. So the predicate was
 # literally correct and semantically backwards: it evaluated to TRUE, arming force_destroy on the
 # bucket that holds the live site. A guard that is inverted on the only environment it runs in is
@@ -73,7 +74,7 @@ module "frontend_bucket" {
 }
 
 # 2. (was the generated OG images cache — DELETED, owner decision, follow-up to #302.)
-# It backed the Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0002) and nothing had written to
+# It backed the Lambda@Edge OG renderer (folded into ADR-0002, *What this replaced*) and nothing had written to
 # it since that retirement; #302 then removed the CloudFront origin and /og/* behavior that were its
 # only reader, because they were misrouting every per-article og:image. That left a bucket with zero
 # objects and zero readers, and its 90-day lifecycle rule had been expiring nothing for just as long.
@@ -86,7 +87,7 @@ module "frontend_bucket" {
 # 4. (was the generic assets store — DELETED, #446.)
 # It was ONE generic object store for any feature that needs one, with per-feature isolation via root
 # subfolders: user profile images under their own prefix and, later, editor uploads. Both were
-# requirements of the BFF era this platform retired (ADR-0025), so the store outlived the only
+# requirements of the BFF era this platform retired (ADR-0002, *What this replaced*), so the store outlived the only
 # features that would ever have written to it. It was reached under a narrow /assets/<prefix>/* path
 # through its own CloudFront behavior and its own SSM parameter (/<env>/storage/assets-bucket-name),
 # and by the time it was removed NOTHING read either: no app code named that prefix, no workflow

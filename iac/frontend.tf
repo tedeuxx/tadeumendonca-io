@@ -4,7 +4,7 @@
 # the default behavior. Every behavior now targets the same single origin: the fed bucket.
 #
 # /og/* USED to have its own behavior pointing at the og-images bucket, a leftover of the retired
-# Lambda@Edge OG renderer (ADR-0026, superseded by ADR-0002) that generated cards at request time into
+# Lambda@Edge OG renderer (folded into ADR-0002, *What this replaced*) that generated cards at request time into
 # that bucket. Nothing has written to it since. Record 0041 (now ADR-0005's *Per-article OG cards*) then shipped per-article cards as COMMITTED
 # static objects in apps/fed/public/og/, which deploy.yml syncs to the FED bucket only — so every
 # article's advertised og:image resolved to the og-images bucket, 403'd, hit the SPA custom_error_response
@@ -127,7 +127,7 @@ module "cloudfront" {
   #
   # ORDERING, and why this note outlives the thing it describes. A NARROWER `/assets/<prefix>/*`
   # behavior USED to be listed FIRST here, routing to a separate `assets` bucket — the generic object
-  # store for the retired BFF era's user profile images and editor uploads (ADR-0025). It was removed
+  # store for the retired BFF era's user profile images and editor uploads (ADR-0002, *What this replaced*). It was removed
   # with that bucket in #446. The single `/assets/*` below is unordered-safe ONLY BECAUSE nothing else
   # claims a `/assets/` prefix any more: it is the broadest pattern in the namespace, so any narrower
   # `/assets/<something>/*` added after it would never be reached. Whoever adds one MUST list it

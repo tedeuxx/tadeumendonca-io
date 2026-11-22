@@ -56,55 +56,6 @@
     "amended": true
   },
   {
-    "id": "0025",
-    "title": "Backend-ful platform (BFF · DynamoDB · Cognito · SES · Lambda@Edge)",
-    "file": "0025-superseded-backend-platform.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0026",
-    "title": "Lambda@Edge OG renderer",
-    "file": "0026-superseded-lambda-edge-og.md",
-    "status": "superseded",
-    "amended": true
-  },
-  {
-    "id": "0027",
-    "title": "Backend link-unfurl / OG preview cards",
-    "file": "0027-superseded-backend-link-unfurl.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0028",
-    "title": "GitFlow, staging + production two-environment",
-    "file": "0028-superseded-gitflow-two-env.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0029",
-    "title": "Offline-first installable PWA",
-    "file": "0029-superseded-offline-first-pwa.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0030",
-    "title": "Monorepo `tadeumendonca-pwa` consolidation",
-    "file": "0030-superseded-monorepo-pwa.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0031",
-    "title": "Shared regional WAF",
-    "file": "0031-superseded-shared-regional-waf.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
     "id": "0032",
     "title": "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~",
     "file": "0032-i18n-locale-layer-english-baseline.md",

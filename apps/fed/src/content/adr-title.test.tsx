@@ -76,9 +76,13 @@ describe('renderAdrTitle', () => {
   // (`utm_content` as a code span) were absorbed into ADR-0005 and left the library. Measured with this
   // test's own filter over `adrs.json` before and after regeneration: 0024 0030 0032 0038 0039, then
   // 0024 0030 0032.
+  //
+  // THREE to TWO on 2026-11-22 (#456, the tenth slice): record 0030, whose heading carried
+  // `tadeumendonca-pwa` as a code span, left the library with a row only. Measured with this filter over
+  // `adrs.json` before and after regeneration: 0024 0030 0032, then 0024 0032.
   it('finds markup in the library and renders every one of it as an element', () => {
     const withMarkup = adrRecords().filter((r) => /`[^`]+`|\*\*[^*]+\*\*|~~[^~]+~~/.test(r.title));
-    expect(withMarkup).toHaveLength(3);
+    expect(withMarkup).toHaveLength(2);
     for (const r of withMarkup) {
       const out = html(r.title);
       expect(out, `${r.file} still publishes its own syntax`).not.toMatch(/~~|\*\*|`/);
