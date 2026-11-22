@@ -37,7 +37,7 @@ const queryClient = new QueryClient({
 // the unprefixed URL out of history.
 //
 // The sub-path is preserved VERBATIM for every route except an article, whose slug is per-locale
-// (ADR-0037). Re-prefixing `/blog/my-commitment` for a pt-BR reader produced `/pt/blog/my-commitment` —
+// (ADR-0036, *Localized article slugs*). Re-prefixing `/blog/my-commitment` for a pt-BR reader produced `/pt/blog/my-commitment` —
 // a route that does not exist — so they landed on the blog listing and never reached the article, while
 // an English reader got it fine (#204). `articlePathForLocale` maps the slug to the target locale's own,
 // from either direction; anything it does not recognise passes through, so an unknown slug still falls
@@ -55,15 +55,15 @@ function RootRedirect() {
   return <Navigate to={`${localePath(locale, target)}${search}${hash}`} replace />;
 }
 
-// A published article URL is a permanent contract (ADR-0010), and ADR-0037 makes an article slug
+// A published article URL is a permanent contract (ADR-0036, *Client-side routing and the public surfaces*), and ADR-0036's *Localized article slugs* makes an article slug
 // per-locale and therefore correctable — a title can be redrafted after publication, and then the address
 // still spells the withdrawn one. This is the join between those two facts: a slug listed in an edition's
 // `previousSlugs` redirects to that edition's CURRENT slug instead of falling through to `ArticlePage`'s
 // not-found.
 //
 // It sits in the router rather than inside `ArticlePage` because that is where every other back-compat
-// path on this site already lives (`/blog` → `/#artigos`, the in-locale `*`, `RootRedirect`) — ADR-0010's
-// mechanism is client-side `<Navigate … replace>`, and a second mechanism inside the page would be a
+// path on this site already lives (`/blog` → `/#artigos`, the in-locale `*`, `RootRedirect`) — the mechanism of ADR-0036's
+// *Client-side routing and the public surfaces* is client-side `<Navigate … replace>`, and a second mechanism inside the page would be a
 // redirect nobody reading the route table could see. `replace` keeps the retired URL out of history, so
 // the back button does not bounce the reader straight back into it.
 //
@@ -91,7 +91,7 @@ function ArticleRoute({ locale }: { locale: Locale }) {
   return <ArticlePage />;
 }
 
-// THE NEUTRAL SHARE ADDRESS — `/blog/<en-slug>`, unprefixed (#660, ADR-0052).
+// THE NEUTRAL SHARE ADDRESS — `/blog/<en-slug>`, unprefixed (#660, ADR-0036, *A neutral, self-canonical share URL per article*).
 //
 // ONE URL, TWO CONSUMERS, SERVED DIFFERENTLY ON PURPOSE. A scraper reads the document and never runs the
 // page, so it gets the English preview — one stable card per article whatever the reader's language. A

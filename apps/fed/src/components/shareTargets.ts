@@ -85,7 +85,7 @@ export const SHARE_TARGETS: readonly ShareTarget[] = [
  * Verified by mutation: the wrong order leaves every other assertion green.
  *
  * `path` is the LOCALE-PREFIXED article path (`/pt/blog/meu-compromisso`). The slug is per-locale
- * (ADR-0037), so a link built from the wrong edition's slug sends a pt reader an English article — the
+ * (ADR-0036, *Localized article slugs*), so a link built from the wrong edition's slug sends a pt reader an English article — the
  * caller resolves it, nothing here guesses.
  */
 export const shareHref = (target: ShareTarget, path: string, title: string): string =>

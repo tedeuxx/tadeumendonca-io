@@ -26,7 +26,7 @@ Six surfaces:
 5. **Architecture** (`/architecture`) — how the site is built, linking the ADRs and both public repos.
 6. **Library** (`/library`) — a short reading shelf: the books the writing learnt from, each rated and only once finished.
 
-Long-form writing lives at `/blog/:slug`, with a **per-locale slug** (ADR-0037). There is no `/blog` list
+Long-form writing lives at `/blog/:slug`, with a **per-locale slug** (ADR-0036, *Localized article slugs*). There is no `/blog` list
 page — it was retired, and `/blog` redirects to the landing's `#artigos`.
 
 ## Where the method comes from
@@ -52,7 +52,7 @@ card, and the `app` workflow's `harness-drift` job compares what `/architecture`
   TypeScript** for structured data (`src/data/profile.ts` is the CV). The build **prerenders each route in
   both locales** (Playwright) so OG/SEO tags land in the served HTML, and prints `/cv.pdf` in the same pass.
   **Everything a reader reads is authored in pt-BR and en** — chrome, CV and prose alike — and a missing
-  translation is a compile error, not a runtime surprise (ADR-0032, ADR-0036).
+  translation is a compile error, not a runtime surprise (ADR-0036 and its section *The locale layer*).
 - **Infra** (`iac`): Terraform for the frontend infra **plus one account-wide guardrail** — S3 + CloudFront
   (with a viewer-request URL-rewrite function and a viewer-response function that sets a locale-hint
   cookie), custom email via iCloud, the GitHub OIDC deploy roles, and

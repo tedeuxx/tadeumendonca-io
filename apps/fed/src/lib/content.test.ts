@@ -13,7 +13,7 @@ import {
 import { LOCALES } from '../i18n/config';
 import { HELD_CONTENT_ISSUE, HELD_NONCES, HELD_SLUGS } from '../content/heldFixture';
 
-// Slugs are per-locale now (ADR-0037): the EN edition and the PT edition of the one live article carry
+// Slugs are per-locale now (ADR-0036, *Localized article slugs*): the EN edition and the PT edition of the one live article carry
 // DIFFERENT slugs. The filename KEY (the canonical English slug) is the grouping identity.
 const EN_SLUG = 'my-commitment';
 const PT_SLUG = 'meu-compromisso';
@@ -40,7 +40,7 @@ describe('content (markdown-in-repo, per-locale)', () => {
   it('carries a per-locale slug (NOT shared) while the remaining facts stay shared', () => {
     const en = getPostBySlug(EN_SLUG, 'en')!;
     const pt = getPostBySlug(PT_SLUG, 'pt')!;
-    // Slug is per-locale (ADR-0037): the two editions legitimately differ on it.
+    // Slug is per-locale (ADR-0036, *Localized article slugs*): the two editions legitimately differ on it.
     expect(en.slug).toBe('my-commitment');
     expect(pt.slug).toBe('meu-compromisso');
     expect(en.slug).not.toBe(pt.slug);
@@ -277,7 +277,7 @@ it('returns a resolved single-language BlogPost', () => {
   expect(typeof post?.body).toBe('string');
 });
 
-// Per-locale slug helpers (ADR-0037): the edition group lookup + the cross-locale slug/path mappers that
+// Per-locale slug helpers (ADR-0036, *Localized article slugs*): the edition group lookup + the cross-locale slug/path mappers that
 // the toggle and hreflang depend on.
 describe('per-locale slug helpers', () => {
   it('getEditions finds the group by a locale’s OWN slug, in either locale', () => {
@@ -359,8 +359,8 @@ describe('per-locale slug helpers', () => {
   });
 });
 
-// A slug that was PUBLISHED and has since been corrected. ADR-0037 made an article slug per-locale and
-// therefore editable; ADR-0010 says a URL already in the world keeps resolving. `previousSlugs` is where
+// A slug that was PUBLISHED and has since been corrected. ADR-0036's *Localized article slugs* made an article slug per-locale and
+// therefore editable; ADR-0036, *Client-side routing and the public surfaces* says a URL already in the world keeps resolving. `previousSlugs` is where
 // those two meet, and these are the unit-level halves of that contract — the browser-level half (the actual
 // redirect) is `routes.spec.ts`, because a `<Navigate>` is only real in a router.
 describe('superseded slugs (the back-compat contract for a corrected URL)', () => {

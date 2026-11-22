@@ -58,6 +58,47 @@ const repoModules = {
   ...import.meta.glob('./generated/*.json', { eager: true, query: '?raw' }),
 };
 const existingDocPaths = new Set(Object.keys(repoModules).map(toRepoPath));
+const contentByPath = new Map(
+  Object.entries(repoModules).map(([key, mod]) => [toRepoPath(key), (mod as { default: string }).default]),
+);
+
+// A link can carry a `#fragment` since the tenth fold slice of #456: the page's reversed-decision links
+// stopped naming a file of their own and point at the `## What this replaced` section of the record that
+// absorbed them. A fragment is a second claim beside the file — "this heading exists there" — and a
+// renamed heading breaks it as silently as a renamed file breaks the path, so it is checked, not stripped.
+const splitTarget = (target: string): { path: string; fragment: string | null } => {
+  const i = target.indexOf('#');
+  return i < 0 ? { path: target, fragment: null } : { path: target.slice(0, i), fragment: target.slice(i + 1) };
+};
+
+// GitHub's heading anchor: lower-cased, every character that is not a letter, digit, mark, space,
+// hyphen or underscore dropped, then each space turned into a hyphen — one for one, which is why an em
+// dash between two spaces becomes `--`. A repeated heading takes `-1`, `-2`, … in document order.
+// Headings inside a fenced block are code, not headings, and are skipped.
+const headingAnchors = (markdown: string): Set<string> => {
+  const anchors = new Set<string>();
+  const seen = new Map<string, number>();
+  let fence: string | null = null;
+  for (const line of markdown.split('\n')) {
+    const open = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (open) {
+      if (fence === null) fence = open[1][0];
+      else if (open[1][0] === fence) fence = null;
+      continue;
+    }
+    if (fence !== null) continue;
+    const heading = /^ {0,3}#{1,6}\s+(.*?)\s*#*\s*$/.exec(line);
+    if (!heading) continue;
+    const base = heading[1]
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '')
+      .replace(/\s/g, '-');
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    anchors.add(n === 0 ? base : `${base}-${n}`);
+  }
+  return anchors;
+};
 
 // Pull every in-repo file link out of a markdown body: a GitHub blob URL for THIS repo, on the main
 // branch, capturing the repo-relative path it points at. `[^)\s]+` stops at the first `)` or whitespace so
@@ -87,7 +128,7 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
   });
 
   // Cross-locale parity, the rule `content.test.ts` already applies to an article body and this page has
-  // never had. Long-form is one file per locale (ADR-0032), so the two CAN drift — and they drift most
+  // never had. Long-form is one file per locale (ADR-0036, *The locale layer*), so the two CAN drift — and they drift most
   // easily when a slice adds a section to one edition and translates it into the other by hand, which is
   // every slice this page has ever had. Same targets, same order: a link added to `en` and forgotten in
   // `pt` is a pt reader who cannot reach the evidence the en reader is offered.
@@ -105,7 +146,48 @@ describe('architecture page — outbound file links resolve in the repo (#153)',
     // Guard against a regex that silently matched nothing (an empty page would otherwise pass vacuously).
     expect(targets.length).toBeGreaterThan(0);
 
-    const missing = targets.filter((path) => !existingDocPaths.has(path));
+    const missing = targets.filter((target) => !existingDocPaths.has(splitTarget(target).path));
     expect(missing).toEqual([]);
+  });
+
+  it.each([
+    ['en', architectureEn],
+    ['pt', architecturePt],
+  ] as const)('every #fragment in the %s edition names a heading in its target', (_locale, body) => {
+    const withFragment = localTargetsIn(body)
+      .map(splitTarget)
+      .filter((t): t is { path: string; fragment: string } => t.fragment !== null);
+
+    // The reversed-decision links are the reason this exists; without at least one fragment on the page
+    // the assertion below would hold vacuously.
+    expect(withFragment.length).toBeGreaterThan(0);
+
+    const unresolved = withFragment
+      .filter(({ path, fragment }) => {
+        const text = contentByPath.get(path);
+        return text === undefined || !path.endsWith('.md') || !headingAnchors(text).has(fragment);
+      })
+      .map(({ path, fragment }) => `${path}#${fragment}`);
+    expect(unresolved).toEqual([]);
+  });
+});
+
+describe('headingAnchors', () => {
+  it('slugs a heading the way GitHub does, including a repeat and an em dash', () => {
+    const md = [
+      '## What this replaced',
+      '### What this replaced: the edge OG renderer and the link unfurl',
+      '## Lean by design — the keystone',
+      '## What this replaced',
+      '```',
+      '## not a heading',
+      '```',
+    ].join('\n');
+    expect([...headingAnchors(md)]).toEqual([
+      'what-this-replaced',
+      'what-this-replaced-the-edge-og-renderer-and-the-link-unfurl',
+      'lean-by-design--the-keystone',
+      'what-this-replaced-1',
+    ]);
   });
 });

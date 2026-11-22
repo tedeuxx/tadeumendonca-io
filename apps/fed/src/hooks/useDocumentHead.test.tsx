@@ -94,7 +94,7 @@ describe('useDocumentHead', () => {
     expect(alternateHref('x-default')).toBe(expected.xDefault);
   });
 
-  // Per-locale slugs (ADR-0037): when `alternates` carries the two localized logical paths, the hreflang
+  // Per-locale slugs (ADR-0036, *Localized article slugs*): when `alternates` carries the two localized logical paths, the hreflang
   // set advertises each locale's OWN slug (not the shared canonicalPath re-prefixed). This is what pairs
   // `/en/blog/my-commitment` with `/pt/blog/meu-compromisso` for a crawler.
   //

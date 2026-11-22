@@ -27,7 +27,7 @@ Context: $ARGUMENTS
 `audit-middleware`, `bff`, `coverage`, `environment-config`, `error-handling`, `framework-hono`,
 `lambda-handler`, `logging`, `metrics`, `notifications`, `og-edge-handler`, `og-image-generator`,
 `openapi`, `postman`, `prerender`, `redis-cache`, `secrets-management`, `tracing`) into the sections
-below, one `##` per original topic. The standing curation criterion (ADR-0011): *"the more a technical
+below, one `##` per original topic. The standing curation criterion (the methodology ADR-0011): *"the more a technical
 skill reads like documentation about the technology, the less of a skill it is."* Applied here with
 **extra weight** versus the `cloud-infrastructure` consolidation, because nothing exercises this content
 live to keep it honest — so each section keeps the owner's **opinionated shape**, the **concrete code

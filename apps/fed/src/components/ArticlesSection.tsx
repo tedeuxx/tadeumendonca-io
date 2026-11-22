@@ -71,8 +71,9 @@ function TrackChip({ track }: { track: Track }) {
  * constant, so the citation above is checked rather than trusted.
  *
  * THE ROUTE'S BIRTHDAY IS A DIFFERENT DATE AND IS NOT THIS ONE. `/architecture` existed from
- * 2026-07-25 — `docs/adr/0010-routing-landing-cv-split-redirects.md`'s `## Amendment (2026-07-25) —
- * `/architecture`, a fifth public surface`. The card's date is when the section was PUBLISHED, i.e.
+ * 2026-07-25 — the `/architecture` amendment of 2026-07-25 to the routing decision, now in
+ * `docs/adr/0036-per-locale-urls-prerender-hreflang.md`'s section *Client-side routing and the public
+ * surfaces*. The card's date is when the section was PUBLISHED, i.e.
  * put in front of readers, not when the route was created; the owner's sort key is the former. That
  * distinction is the whole of this correction, and it is the one a later reader will otherwise
  * collapse again, because both dates are real and both are recorded.
@@ -158,7 +159,7 @@ export const ARCHITECTURE_PUBLISHED = '2026-08-16T12:00:00.000Z';
 //      element and the same format an article row does. The old argument was that both candidate dates
 //      were wrong — "when the page last changed" makes permanent furniture read as dated, and anything
 //      else is invented. The second half no longer holds: the publication date is neither of those, it is
-//      recorded in ADR-0010, and it is the value this row is now SORTED by. A row that takes a
+//      recorded in ADR-0036, *Client-side routing and the public surfaces*, and it is the value this row is now SORTED by. A row that takes a
 //      chronological position and shows no date is worse than a pin — the reader is given an order with
 //      its key hidden.
 //      STILL NO #tag: that is the article taxonomy, and would say "filed among the writing" one slot

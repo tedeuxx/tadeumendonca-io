@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // These journeys assert the pt-BR chrome ("Artigos", "Portfólio", "Onde me encontrar", "Vida pessoal").
-// With the i18n auto-detect layer (ADR-0032) the DEFAULT (en-US) browser context now renders English
+// With the i18n auto-detect layer (ADR-0036, *The locale layer*) the DEFAULT (en-US) browser context now renders English
 // chrome, which would break these string assertions non-deterministically. Pin the browser context to
 // pt-BR so the chrome these tests were written for is explicit and stable. The i18n behaviour itself
 // (detect / toggle / persist) is covered in i18n.spec.ts.

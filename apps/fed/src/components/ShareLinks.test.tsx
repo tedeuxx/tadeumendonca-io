@@ -28,7 +28,7 @@ describe('ShareLinks', () => {
     }
   });
 
-  // ADR-0037: the two editions of one article have DIFFERENT slugs, so a share link built from the wrong
+  // ADR-0036, *Localized article slugs*: the two editions of one article have DIFFERENT slugs, so a share link built from the wrong
   // edition sends a pt reader an English article. The component takes the resolved path rather than a
   // slug precisely so it cannot get this wrong — this asserts the caller's contract is honoured.
   it('carries the locale-prefixed path it was given, not a guessed one', () => {

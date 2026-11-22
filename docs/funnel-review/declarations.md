@@ -49,7 +49,7 @@ neutral-share: /blog/<en-slug> page-path
 
 What each line means:
 
-- **The piece parameter is `slug`**, the localized slug (ADR-0037), sent on the three events named.
+- **The piece parameter is `slug`**, the localized slug (ADR-0036, *Localized article slugs*), sent on the three events named.
   It is the slug of the edition the reader was on, so the same piece arrives under two values, one per
   language.
 - **The language parameter is `locale`**, mandatory on every custom event, with the values `pt` and
@@ -58,7 +58,7 @@ What each line means:
   `buildBlogEditions` in `apps/fed/scripts/routes.mjs` returns one `{ pt, en }` slug pair per key and
   drops held drafts. To group a figure by piece, map its `slug` value to the key whose pair contains
   it.
-- **The neutral share address is the unprefixed `/blog/<en-slug>`** (ADR-0052). It carries no language
+- **The neutral share address is the unprefixed `/blog/<en-slug>`** (ADR-0036, *A neutral, self-canonical share URL per article*). It carries no language
   of its own, so it is reported as a page-path figure and is never given a language.
 
 ## Two limits a reader must not assume away

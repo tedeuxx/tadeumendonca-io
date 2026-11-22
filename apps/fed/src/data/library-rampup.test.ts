@@ -116,7 +116,7 @@ describe('where /ramp-up and /library name the same book, they agree', () => {
   }
 
   // Both editions or neither. A book added to one markdown file and forgotten in the other is the drift
-  // ADR-0032 warns about for two-file long-form, and the intersection tests above would each stay green
+  // ADR-0036, *The locale layer* warns about for two-file long-form, and the intersection tests above would each stay green
   // on their own edition while the pair was broken.
   it('cites the same shared books in both editions', () => {
     const key = (locale: 'pt' | 'en') => sharedIn(locale).map(({ book }) => normalizeBookUrl(book.url)).sort();

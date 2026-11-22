@@ -66,7 +66,7 @@ describe('ArchitecturePage', () => {
 
   // The two editions are separate files, so they can drift. This pins the SOURCES — every outbound link,
   // in order — plus the section count. It does NOT check that the prose means the same thing; a
-  // structurally identical bad translation passes, and that limit is recorded in ADR-0032.
+  // structurally identical bad translation passes, and that limit is recorded in ADR-0036, *The locale layer*.
   //
   // THE PAGE NOW HAS A VIDEO EMBED (pillar 3), which the sentence here used to say it did not. A
   // `<VideoEmbed>` renders no anchor FOR THE VIDEO THIS PAGE EMBEDS, so it is invisible to the `links`

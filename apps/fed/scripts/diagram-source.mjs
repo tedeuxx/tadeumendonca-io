@@ -29,7 +29,7 @@ import { join } from 'node:path';
  * order through `collectFences` — an unsorted walk would churn the committed artifact's diff on a
  * machine that happened to enumerate differently, which reads as a content change and is not one.
  *
- * One file per locale (ADR-0032), so both editions are scanned.
+ * One file per locale (ADR-0036, *The locale layer*), so both editions are scanned.
  */
 export function contentFiles(contentDir) {
   return readdirSync(contentDir, { recursive: true })

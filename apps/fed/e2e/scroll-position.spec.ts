@@ -96,7 +96,7 @@ test.describe('scroll position on route change', () => {
   // THE PT/EN TOGGLE IS A ROUTER PUSH CARRYING THE HASH (i18n/context.tsx:49), so it looks exactly
   // like opening a new page and would be scrolled to the top by a scroll-on-every-PUSH rule. Same
   // page, different language: the reader's position must survive. Two journeys, because the article
-  // case is the one a pathname comparison gets wrong — an article slug is per-locale (ADR-0037).
+  // case is the one a pathname comparison gets wrong — an article slug is per-locale (ADR-0036, *Localized article slugs*).
   test('switching language keeps the reader where they were', async ({ page }) => {
     await page.goto('/pt/architecture'); // the longest read on the site
 

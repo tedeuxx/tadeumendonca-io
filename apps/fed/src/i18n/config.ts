@@ -59,7 +59,7 @@ export function pathWithoutLocale(pathname: string): string {
 
 /**
  * The edition every other language falls back to. English is the professional / prerender / x-default
- * baseline (ADR-0032), which is why it is a FALLBACK below and never a match — see `browserLocale`.
+ * baseline (ADR-0036, *The locale layer*), which is why it is a FALLBACK below and never a match — see `browserLocale`.
  */
 export const BASELINE_LOCALE: Locale = 'en';
 

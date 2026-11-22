@@ -50,7 +50,9 @@ describe('Markdown — the lone-URL repo-card facade (#122 / ADR-0008 (*Curated 
 // a text assertion here passes in both worlds and is exactly the un-failable assertion this repo keeps
 // producing. Mutation-checked by removing the plugin — see the MR.
 describe('Markdown — GFM tables render as tables', () => {
-  const TABLE = ['| removed | replaced by |', '|---|---|', '| ADR-0025 | ADR-0002 |'].join('\n');
+  // The cells name live records on purpose: the citation gate scans this file like any other, and the
+  // record this fixture first named (0025) was folded into ADR-0002 by the tenth slice of #456.
+  const TABLE = ['| record | capability |', '|---|---|', '| ADR-0013 | hosting-and-trust |'].join('\n');
 
   it('renders a pipe table as a real <table>, not literal pipes in a paragraph', () => {
     const { container } = renderWithLocale(<Markdown>{TABLE}</Markdown>, { locale: 'pt' });
@@ -59,8 +61,8 @@ describe('Markdown — GFM tables render as tables', () => {
     expect(table).not.toBeNull();
     expect(container.querySelectorAll('th')).toHaveLength(2);
     expect(container.querySelectorAll('tbody td')).toHaveLength(2);
-    expect(container.querySelector('th')).toHaveTextContent('removed');
-    expect(container.querySelector('tbody td')).toHaveTextContent('ADR-0025');
+    expect(container.querySelector('th')).toHaveTextContent('record');
+    expect(container.querySelector('tbody td')).toHaveTextContent('ADR-0013');
   });
 
   it('leaves no literal pipe characters behind once the table is parsed', () => {

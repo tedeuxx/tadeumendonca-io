@@ -1,14 +1,29 @@
 # 0036. Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale
 
-- **Status:** accepted
+- **Status:** accepted · **amended 2026-11-22** (absorbs the rest of the `locale-and-routing` capability,
+  formerly records 0010, 0032, 0037 and 0052, as the sections *Client-side routing and the public
+  surfaces*, *The locale layer*, *Localized article slugs* and *A neutral, self-canonical share URL per
+  article*, and folds the reversed record 0011 into *The locale layer* as *What this replaced: the
+  pt-BR-only UI*; every decision is unchanged, #456)
 - **Capability:** `locale-and-routing`
 - **Date:** 2026-07-26
 - **Deciders:** the owner
-- **Supersedes / superseded by:** — (completes and retires interim clauses of [ADR-0032](./0032-i18n-locale-layer-english-baseline.md); resolves [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s deferred "localized URL prefixes" question)
-- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md), [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
+- **Supersedes / superseded by:** — (completes the deferred Slice 2 of *The locale layer* below and retires
+  its interim clauses; makes the "localized URL prefixes" decision that *Client-side routing and the public
+  surfaces* below had left unmade)
+- **Driven by:** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162), and consistent-with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time), [ADR-0005](./0005-og-coverage-every-public-url.md), [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) (and the downloadable-CV decision, record 0034 until #456 absorbed it into ADR-0024)
+
+**This document is the whole `locale-and-routing` capability.** The first half is the addressing decision
+itself: a URL is an edition, every route exists under a `/pt` and an `/en` prefix, both are prerendered,
+and the head says so. Its amendments and its section on the edge locale hint follow. The four sections
+after them are the decisions the addressing rests on or refines: how the SPA routes and which public
+surfaces exist, the locale layer that resolves and renders a language, the per-locale slug an article
+carries, and the neutral share address every social post links. Each of those was a record of its own
+until #456 folded it here; each says where it came from. Inside this document, *the anchor* means the
+first half and its amendments.
 
 ## Context & problem
-[ADR-0032](./0032-i18n-locale-layer-english-baseline.md) internationalized the site with a light in-repo
+The locale layer ([*The locale layer*](#the-locale-layer) below) internationalized the site with a light in-repo
 locale layer — native auto-detect + a persisted PT/EN toggle — but pinned the **prerender / crawlable + OG
 baseline to English**, and explicitly named the rest as its deferred **Slice 2**: *"route-prefixed `/en` ·
 `/pt` + per-locale prerender + `hreflang` / per-locale canonical + per-locale OG… the slice that makes pt-BR
@@ -17,13 +32,13 @@ there is exactly one URL per surface, only its English snapshot ships to crawler
 visitor sharing any page produces an **English** unfurl. pt-BR is therefore live-only and **invisible to
 search and social** — the presence is half-served in the language half the audience reads.
 
-Separately, [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s 2026-07-25 `/architecture` amendment
+Separately, the routing decision's 2026-07-25 `/architecture` amendment ([*Client-side routing and the public surfaces*](#client-side-routing-and-the-public-surfaces) below)
 reaffirmed the *body*-level "everything the reader reads is in both languages" policy, but drew a hard line
 around **URLs**: it recorded that a dual-slug scheme "would be a **new routing pattern** — a bigger decision
 than adding a surface" and left **"localized URL prefixes… a separate, unmade decision."** That unmade
 decision is what blocks Slice 2. This ADR makes it.
 
-**This is completing ADR-0032's Slice 2 — not reversing a decision.** The English-pinned prerender was always
+**This is completing the locale layer's Slice 2 — not reversing a decision.** The English-pinned prerender was always
 recorded as an *interim* baseline with a named successor slice; shipping that slice is the plan executing as
 written, not a change of mind.
 
@@ -42,7 +57,7 @@ written, not a change of mind.
   is OG/crawler-complete — and once each surface exists in two locales, that contract now spans **both**,
   plus an x-default.
 - **English stays canonical** ([ADR-0024](./0024-profile-canonical-cv-cross-surface.md),
-  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)): canonicality is a statement about which edition
+  [*The locale layer*](#the-locale-layer) below): canonicality is a statement about which edition
   is *authoritative* (LinkedIn, `/cv.pdf`, the exported `profile` constant), independent of which edition
   a given visitor is served. x-default resolves to English. *(This named the Canva CV until #234 — it was
   retired 2026-07-28, ADR-0024's amendment.)*
@@ -85,24 +100,24 @@ Chosen: **option 1 — symmetric per-locale URL prefixes, per-locale prerender, 
   **and** `/en/<slug>`, e.g. `/pt/me` · `/en/me`, `/pt/portfolio` · `/en/portfolio`, `/pt/architecture` ·
   `/en/architecture`. This is a **prefix on one canonical slug**, **not** a dual localized-slug pair
   (`/pt/perfil ↔ /en/me`). Dual localized slugs are the bigger routing decision
-  [ADR-0010](./0010-routing-landing-cv-split-redirects.md) deferred on 2026-07-25; **this slice does not adopt
+  the routing decision ([*Client-side routing and the public surfaces*](#client-side-routing-and-the-public-surfaces) below) deferred on 2026-07-25; **this slice does not adopt
   it** — one slug per route, prefixed by locale.
 - **Per-locale prerender.** `scripts/prerender.mjs` snapshots each enumerated route (`scripts/routes.mjs`)
   **twice** — once forcing `pt`, once forcing `en` — into `dist/pt/**` and `dist/en/**`, and additionally
   emits a **bare-root x-default snapshot in English**. Each snapshot carries complete, locale-correct meta in
   the served HTML — satisfying [ADR-0005](./0005-og-coverage-every-public-url.md) for **both** editions plus
-  x-default. This **retires ADR-0032's "prerender baseline pinned to English" clause** and its "single-locale
+  x-default. This **retires the locale layer's "prerender baseline pinned to English" clause** and its "single-locale
   prerender" accepted cost: both editions now ship to crawlers/unfurlers.
 - **hreflang + per-locale self-canonical.** Each page declares `<link rel="alternate" hreflang="pt">`,
   `hreflang="en"`, and `hreflang="x-default"` (→ the English root), and a **self-referential canonical** to
   its own locale URL. x-default = English, consistent with
-  [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)/[ADR-0032](./0032-i18n-locale-layer-english-baseline.md).
+  [ADR-0024](./0024-profile-canonical-cv-cross-surface.md) and [*The locale layer*](#the-locale-layer).
 - **OG-per-locale (text/meta now).** Each snapshot sets `og:locale` (`pt_BR` / `en_US`) and a **per-locale
   `og:title` / `og:description`**, so a pt-BR share unfurls in pt-BR and an en share in English — the exact
-  gap ADR-0032 left open. **Localized OG *image art* is deferred** (see scope boundaries); the OG text/meta
+  gap the locale layer's first slice left open. **Localized OG *image art* is deferred** (see scope boundaries); the OG text/meta
   ships now.
 - **Bare `/` (and any unprefixed path) auto-detect and redirect client-side.** React resolves the locale
-  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per ADR-0032; since #661
+  (`navigator.language` → `pt`/`en`, honoring the persisted toggle, fallback `en` per the locale layer; since #661
   the full `navigator.languages` list, and since #788 an edge hint above it — see *The edge exposes a
   locale hint, never a locale decision* below) and
   `<Navigate replace>`s to the matching locale prefix, **preserving the sub-path** (`/portfolio` →
@@ -123,7 +138,7 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
 ## Consequences
 **Good**
 - **pt-BR is now a first-class address** — crawlable, unfurlable, self-canonical, with its own OG — closing
-  the discovery half [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) deferred. A shared pt-BR URL
+  the discovery half the locale layer deferred. A shared pt-BR URL
   unfurls in pt-BR.
 - **The OG/SEO-completeness contract ([ADR-0005](./0005-og-coverage-every-public-url.md)) now holds across
   both locales + x-default**, with correct `hreflang` telling search engines the editions are the same page
@@ -131,7 +146,7 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
 - **The static, no-edge story is intact** ([ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)) — locale
   is resolved at **build** (the two snapshots) and **client-side** (the bare-root redirect), never at the
   edge. `iac/` did not move.
-- **The static-shell flash for pt-BR visitors is removed** — ADR-0032's residual "non-baseline flash until
+- **The static-shell flash for pt-BR visitors is removed** — the locale layer's residual "non-baseline flash until
   the bundle re-detects" is gone: a pt visitor lands on the prerendered `/pt/**` HTML directly.
 - **English stays canonical** with a clean x-default; no contradiction with
   [ADR-0024](./0024-profile-canonical-cv-cross-surface.md).
@@ -143,9 +158,8 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
   smoke + the E2E canonical-route drift guard (`seo.spec.ts`) must now assert **both** locale trees, or a
   missing edition ships blank.
 - **Both prefixes are a permanent public URL contract.** `/pt/…` and `/en/…` are now URLs in the world;
-  changing the scheme later means back-compat redirects (per
-  [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s contract — currently relaxed only for the
-  pre-launch window).
+  changing the scheme later means back-compat redirects (per the back-compat contract in
+  [*Client-side routing and the public surfaces*](#client-side-routing-and-the-public-surfaces); it was relaxed only for the pre-launch window, which has closed).
 - **The sitemap grows** to enumerate both locale trees with `xhtml:link` alternates; generated from the same
   `scripts/routes.mjs` × locales, so it cannot drift from the prerender, but it is larger.
 - **The bare-root redirect is a client-side hop** for human visitors landing on `/` — one `<Navigate replace>`
@@ -158,9 +172,9 @@ so the PDF-source path is not left stale; a matching one-line note was added to 
   locales in the interim.
 - **NOT dual localized slugs.** This adopts locale **prefixes on one English slug** only. The
   `/pt/perfil ↔ /en/me` localized-slug scheme remains the separate, bigger routing decision
-  [ADR-0010](./0010-routing-landing-cv-split-redirects.md) flagged; it is **not** decided here.
+  the routing decision flagged; it is **not** decided here.
   > **Update (2026-07-26):** this clause is **revised for the blog surface only** by
-  > [ADR-0037](./0037-localized-article-slugs.md): article routes (`/blog/:slug`) now carry a
+  > [*Localized article slugs*](#localized-article-slugs) below: article routes (`/blog/:slug`) now carry a
   > **per-locale slug** (`/en/blog/my-commitment` ⇄ `/pt/blog/meu-compromisso`). Everything else in this
   > ADR stands — the symmetric per-locale prefixes, per-locale prerender, hreflang and OG-per-locale all
   > remain, and **non-article routes keep the one-slug-prefixed-twice scheme** decided here.
@@ -180,111 +194,67 @@ The route module already guaranteed that for the `pt` and `en` alternates: they 
 `localizedRoutes()` enumeration the prerender consumes, so they cannot drift. **x-default was the one place
 the invariant did not hold**, and it broke.
 
-**What changed.** ~~`hreflang="x-default"` now points at the **prefixed English canonical** for every route —
-`/en/me`, `/en/portfolio`, `/en/ramp-up`, `/en/architecture`, `/en/blog/<en-slug>` — instead of the bare,
-unprefixed path.~~ **→ the ARTICLE half of that enumeration is struck 2026-09-20 by
-[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660); the four static routes are
-untouched.** Struck rather than rewritten because this is the clause a reader takes the rule from, and it is
-the clause that stopped being true. **The four static routes — `/en/me`, `/en/portfolio`, `/en/ramp-up`,
-`/en/architecture` — still take the prefixed English canonical as x-default**, and this amendment's trade for
-them is unchanged and still paid. **An ARTICLE's x-default is now the neutral, unprefixed `/blog/<en-slug>`.**
-That is not the invariant being traded away, it is the invariant being *satisfied*: ADR-0052 makes the bare
-article URL a snapshotted, self-canonical document, so it may be advertised **because** the build prerenders
-it. **The root keeps its bare x-default** (`https://tadeumendonca.io/`), because the bare origin
-is the one unprefixed URL the prerender genuinely snapshots (`dist/index.html`, the bare-root English snapshot
-this ADR already decided). Changed in **both** implementations, which are duplicated by construction:
+**What changed.** `hreflang="x-default"` points at the **prefixed English canonical** for the four static
+routes — `/en/me`, `/en/portfolio`, `/en/ramp-up`, `/en/architecture` — instead of the bare, unprefixed path.
+**The root keeps its bare x-default** (`https://tadeumendonca.io/`), because the bare origin is the one
+unprefixed URL the prerender genuinely snapshots (`dist/index.html`, the bare-root English snapshot this
+document already decided). **An ARTICLE's x-default is the neutral, unprefixed `/blog/<en-slug>`**: that
+was the prefixed `/en/blog/<en-slug>` from this amendment until 2026-09-20, when
+[*A neutral, self-canonical share URL per article*](#a-neutral-self-canonical-share-url-per-article) below made the bare article URL a snapshotted, self-canonical document. That is not the invariant
+being traded away, it is the invariant being *satisfied*: the address may be advertised **because** the
+build prerenders it. Implemented in **both** places, which are duplicated by construction:
 `apps/fed/scripts/routes.mjs` (feeds sitemap + prerender) and `apps/fed/src/hooks/useDocumentHead.ts`
 (runtime `<link>` tags).
 
-**Why the decision above left room for the bug.** This ADR fixed the **semantics** of x-default (*x-default =
-English*) and, for the root, its target (*→ the English root*). It never stated the **form** x-default takes
-for a non-root route. The implementation chose the bare path, and that looked entirely reasonable given this
-ADR's own client-side redirect clause: an unprefixed path auto-detects and redirects, so a *human* landing on
-`/me` does arrive in their locale. The gap is that a **scraper does not run the redirect** — and only
-`localizedRoutes()` targets plus the bare root are prerendered, while `iac/frontend.tf` maps 403/404 to
-`/index.html` with response code **200**. Measured with JS disabled against a real `build:static` + preview:
-**five of the six advertised x-default URLs answered 200 carrying the HOME page's meta** (`og:title` =
-`tadeumendonca.io`, canonical = `https://tadeumendonca.io/en`). Only `/` was correct — because it genuinely is
-the home page. Per [ADR-0005](./0005-og-coverage-every-public-url.md) a scraper **pins** that card
-permanently, and CLAUDE.md names OG pinning the least reversible thing in this repo. A soft-404 that answers
-200 is worse than a 404: nothing fails, it just publishes the wrong page under five addresses.
+**Why the decision above left room for the bug.** This document fixed the **semantics** of x-default
+(*x-default = English*) and, for the root, its target (*→ the English root*). It never stated the **form**
+x-default takes for a non-root route. The implementation chose the bare path, and that looked entirely
+reasonable given the client-side redirect clause: an unprefixed path auto-detects and redirects, so a
+*human* landing on `/me` does arrive in their locale. The gap is that a **scraper does not run the
+redirect** — and only `localizedRoutes()` targets plus the bare root were prerendered, while
+`iac/frontend.tf` maps 403/404 to `/index.html` with response code **200**. Measured with JS disabled
+against a real `build:static` + preview: **five of the six advertised x-default URLs answered 200 carrying
+the HOME page's meta** (`og:title` = `tadeumendonca.io`, canonical = `https://tadeumendonca.io/en`). Only
+`/` was correct — because it genuinely is the home page. Per [ADR-0005](./0005-og-coverage-every-public-url.md)
+a scraper **pins** that card permanently. A soft-404 that answers 200 is worse than a 404: nothing fails, it
+just publishes the wrong page under five addresses.
 [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-07-27 amendment had already named this
 hazard for the article case, and made the draft generator refuse any URL absent from the prerendered list;
 this amendment fixes the source rather than the one consumer that guarded against it.
 
-**Option considered and rejected: prerender the bare URLs instead.** This is the more interesting half of the
-decision. Emitting a bare snapshot for every route would satisfy the invariant literally and keep the "clean"
-locale-neutral URL advertised. *Why not:* it fixes the scraper and **leaves the Portuguese reader in a dead
-end.** The bare-path redirect preserves the sub-path, and article slugs are **per-locale**
-([ADR-0037](./0037-localized-article-slugs.md)) — so a pt-BR reader following the advertised
-`/blog/my-commitment` is redirected to `/pt/blog/my-commitment`, a route that does not exist, and falls
-through to the blog listing. Measured: headings `["Blog"]` for pt-BR versus `["Blog", "My Commitment", …]`
-for en-US. Prerendering the bare URL would have made that failure *quieter*, not gone. Pointing x-default at
-the prefixed English canonical fixes both readers at once: the scraper reads the real English page, and the
-pt-BR reader is never handed a path that cannot resolve in their locale.
+**Option considered and rejected for the four static routes: prerender the bare URLs instead.** Emitting a
+bare snapshot for every route would satisfy the invariant literally and keep the "clean" locale-neutral URL
+advertised. *Why not, as it was argued on 2026-07-27:* it fixed the scraper and **left the Portuguese reader
+in a dead end.** The bare-path redirect preserved the sub-path, and article slugs are **per-locale**
+([*Localized article slugs*](#localized-article-slugs) below) — so a pt-BR reader following a bare `/blog/my-commitment` was redirected to
+`/pt/blog/my-commitment`, a route that does not exist, and fell through to the blog listing. Measured:
+headings `["Blog"]` for pt-BR versus `["Blog", "My Commitment", …]` for en-US.
 
-> **The rejection above was TAKEN for articles on 2026-09-20 — and its stated reason was discharged first,
-> not overruled** ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md), issue #660). Both halves
-> of *"leaves the Portuguese reader in a dead end"* are gone: issue #204 made the unprefixed redirect
-> slug-aware (`articlePathForLocale`), so the bare path resolves in **both** editions, and ADR-0052 keys the
-> neutral address on the **current English slug** so there is a single string to snapshot. What that record
-> chose is narrower than the option rejected here — **one neutral URL per ARTICLE, not a bare snapshot for
-> every route** — so the four static routes still sit under the rejection as written. Read this paragraph as
-> correct about the world it was written in, and as the reason ADR-0052 had to say what changed about that
-> world before it could take the option.
+**That reason was discharged for articles, and only for articles.** Issue #204 made the unprefixed redirect
+slug-aware (`articlePathForLocale`), so a bare article path resolves in **both** editions, and on 2026-09-20
+[*A neutral, self-canonical share URL per article*](#a-neutral-self-canonical-share-url-per-article) took the option for the article class only — one neutral URL per ARTICLE, keyed on the current English
+slug. **The four static routes still sit under the rejection**: they have no share convention pointing at
+them, no per-locale slug problem, and a working prefixed x-default. Their bare paths resolve for a human,
+are not prerendered, and must never be advertised in `hreflang` or the sitemap.
 
-**Trade-off (accepted).** ~~x-default **no longer advertises a locale-neutral entry point for sub-paths** — it
-names the English edition explicitly. That is standard hreflang practice, and it is what
-[ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s English-canonical decision already implies; but it
-does mean the clean unprefixed URL is no longer surfaced to crawlers for anything but the root.~~
-**→ the accepted cost is DISCHARGED for articles 2026-09-20 by
-[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660)** — an article does advertise
-a locale-neutral entry point again, and it is the address every social post carries. **It is still paid in
-full by the four static routes**, which advertise the prefixed English canonical and nothing bare. The
-English-canonical implication from ADR-0024 is untouched either way: the neutral article snapshot is served
-in English.
+**Trade-off (accepted), paid by the four static routes.** Their x-default names the English edition
+explicitly and advertises no locale-neutral entry point. That is standard hreflang practice and what
+[ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s English-canonical decision implies. An article
+does advertise a locale-neutral entry point, and it is the address every social post carries; the neutral
+article snapshot is served in English, so the English-canonical implication holds there too.
 
 **What this costs a reader, stated rather than glossed.** The redirect clause is untouched, so a bare path
-a reader *types or is sent* still auto-detects. But the **advertised** address changed, and for the four
-static routes the old bare URL auto-detected *correctly* — a pt-BR reader following `/me` was redirected to
-`/pt/me`. Following the new advertised `/en/me` they get English and stay there, because an explicit locale
-prefix wins in `detectLocale`. So for `/me`, `/portfolio`, `/ramp-up`, `/architecture` this is a **downgrade
-for the pt-BR reader**, traded for OG cards that are correct. For **articles** it is strictly better: the old
-bare URL did not merely lose their locale, it dead-ended them on a route that does not exist.
+a reader *types or is sent* still auto-detects. But for `/me`, `/portfolio`, `/ramp-up` and `/architecture`
+the **advertised** address is the prefixed English one, and a pt-BR reader following `/en/me` gets English
+and stays there, because an explicit locale prefix wins in `detectLocale`. That is a **downgrade for the
+pt-BR reader on those four routes**, traded for OG cards that are correct. The trade is defensible — a search
+engine serves the `pt` alternate to a pt reader rather than x-default, and the front door (bare root) still
+auto-detects — but it is a real change in what a reader gets, and the owner ratified it as such.
 
-The trade is defensible — a search engine serves the `pt` alternate to a pt reader rather than x-default, and
-the front door (bare root) still auto-detects — but it is a real change in what a reader gets, not a
-no-op, and the owner ratified it as such.
-
-**Not fixed here, only un-advertised.** The bare-article dead end still exists for any URL already indexed or
-already shared. This amendment stops publishing it; it does not make it resolve. Tracked as issue #204
-(make the locale redirect slug-aware) — independent of this decision, since a bare URL would remain
-un-prerendered and therefore still wrong for a scraper even once it resolves for a human.
-
-> **Addendum (2026-07-27) — the deferral above is discharged.** Issue #204 shipped: the unprefixed redirect
-> now maps the article slug to the reader's locale (`articlePathForLocale`), so a bare `/blog/<slug>` reaches
-> the article in **both** editions instead of dead-ending a pt-BR reader on a route that does not exist.
->
-> ~~**The decision this amendment records is unchanged.** Resolving is not advertising: the bare URL is still
-> **not prerendered**, so it still answers a scraper with the home page's OG card, and it must **not** be
-> re-added to hreflang or the sitemap. The invariant stands as written — *a URL may be advertised only if the
-> build prerenders it*. What changed is that the bare form now works for a **human** who was sent one; it did
-> not become an address the site publishes.~~
->
-> **→ struck 2026-09-20 for ARTICLES by [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)
-> (issue #660), and this is the clause that most needed striking** — it is the one other documents quote as
-> *"must not be re-added to hreflang or the sitemap"*, and it is now false of the article class. The bare
-> article URL **is** prerendered, **is** in the sitemap, and **is** the advertised x-default. **The invariant
-> itself did not move and is not weakened** — *a URL may be advertised only if the build prerenders it* is
-> exactly what ADR-0052 satisfies, by making the address a document rather than by loosening the rule. For
-> the four static routes this paragraph stands verbatim: `/me`, `/portfolio`, `/ramp-up`, `/architecture`
-> resolve for a human, are still un-prerendered, and must still never be advertised.
-
-**Clarification to [ADR-0037](./0037-localized-article-slugs.md).** Its line *"x-default = the English slug"*
-~~is now unambiguous: the **prefixed** English slug, `/en/blog/<en-slug>`~~ **→ struck 2026-09-20 by
-[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660): it is the **unprefixed**
-English slug, `/blog/<en-slug>`.** Nothing about per-locale article slugs changes — the neutral address is
-keyed on the current English slug, which is the same string ADR-0037 already governs.
+**Clarification to [*Localized article slugs*](#localized-article-slugs).** Its *"x-default = the English slug"* means the **unprefixed** English slug,
+`/blog/<en-slug>`, since 2026-09-20 (it meant the prefixed `/en/blog/<en-slug>` between 2026-07-27 and
+then). Nothing about per-locale article slugs changes — the neutral address is keyed on the current
+English slug, which is the same string that section governs.
 
 **How the invariant is now enforced, not just written down.**
 - `apps/fed/scripts/routes.test.mjs` (new) asserts it by **membership**: every advertised alternate — `pt`,
@@ -468,10 +438,10 @@ plus the cost recorded below — on its own merits, not on pinning's.
 
 The dual-slug pair has been set aside four times without that separation being made:
 
-1. [ADR-0010](./0010-routing-landing-cv-split-redirects.md)'s 2026-07-25 `/architecture` amendment —
+1. The routing decision's 2026-07-25 `/architecture` amendment ([*Client-side routing and the public surfaces*](#client-side-routing-and-the-public-surfaces) below) —
    *"a new routing pattern — a bigger decision than adding a surface."*
-2. This ADR's decision outcome — *"**NOT dual localized slugs.** … it is **not** decided here."*
-3. [ADR-0037](./0037-localized-article-slugs.md)'s blog-only carve-out — *"non-article routes keep the
+2. The anchor's decision outcome — *"**NOT dual localized slugs.** … it is **not** decided here."*
+3. The blog-only carve-out of [*Localized article slugs*](#localized-article-slugs) below — *"non-article routes keep the
    one-slug-prefixed-twice scheme."*
 4. Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166), 2026-08-05.
 
@@ -485,7 +455,7 @@ analysis and a built slice — the route enumeration, the locale toggle, the unp
 about was one the site already had. That is the cost of leaving the two benefits fused, paid once, and
 this table is what it bought.
 
-**Note where the record is deliberately not repeating itself.** ADR-0010 already recorded the dual-slug
+**Note where the record is deliberately not repeating itself.** The routing decision already recorded the dual-slug
 rejection *per-surface*, on `/architecture`, and the question was reopened on the very next surface. So
 this is recorded **here**, on the clause that is actually challenged, rather than as another per-surface
 note — a per-surface rejection has now been demonstrated not to hold.
@@ -547,7 +517,7 @@ channel is what this section decides.
 
 **Three constraints are not tradeable.** A non-JavaScript client (a crawler, a social scraper) receives
 exactly what it receives today at every advertised URL —
-[ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) rejected an edge redirect for that
+[*A neutral, self-canonical share URL per article*](#a-neutral-self-canonical-share-url-per-article) rejected an edge redirect for that
 reason and [ADR-0005](./0005-og-coverage-every-public-url.md) pins a card on first fetch. The persisted
 override outranks the IP step. And locale **resolution** stays in the client, where this record put it.
 
@@ -651,7 +621,7 @@ question goes back to the owner, as #669's planning note says. B2 does not start
 - **A value only for CPLP viewers** — a missing cookie would then mean *non-CPLP*, *header absent* and
   *function detached* at once, and the check from a non-CPLP runner could not fail.
 - **An edge redirect to the resolved locale** — it changes what a non-JS client receives at an
-  advertised URL ([ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)'s rejected edge
+  advertised URL ([*A neutral, self-canonical share URL per article*](#a-neutral-self-canonical-share-url-per-article)'s rejected edge
   redirect, #660's constraint; a scraper obeys a redirect too), and it would put resolution at the edge.
 
 ### Consent — the owner's ruling: set before any choice, and disclosed
@@ -728,56 +698,508 @@ Driven by #669 (slice B1), consumed by #788 (slice B2). Runs on
 [*Pipeline-only apply*](./0013-s3-cloudfront-hosting.md#pipeline-only-apply) section. Consistent with
 [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) — nothing here renders.
 
+## Client-side routing and the public surfaces
+
+**Absorbed 2026-11-22 (#456, the eleventh slice) from the record that held it, 0010, decided 2026-07-22
+and amended 2026-07-23, twice on 2026-07-24, 2026-07-25, 2026-07-30, 2026-08-05 and 2026-08-06.** The
+decision is unchanged and still binds. What arrived: the routing model and the information architecture
+as they bind, the decision each amendment added for a surface, the back-compat contract with its
+pre-launch scope correction, the narrowed orientation claim for `/architecture`, and the rule that
+markdown resolves a site path to the active locale. What was left in git history: the narration of each
+amendment, and the forward-pointing updates to its deferred URL questions, which the anchor and
+[*Localized article slugs*](#localized-article-slugs) now answer directly. The full record is in git
+history: `git log --diff-filter=D -- 'docs/adr/0010-*'` names the commit that removed it, and its parent
+holds the file.
+
+### Context
+
+The SPA needs a routing model and an information architecture. Two decisions fall here: what lives at
+`/`, and how a URL that is already in the world keeps working when shared links and `og:image` deep-links
+point at it. [ADR-0002](./0002-fully-static-spa-no-backend.md) leaves no server to route, so routing is
+client-side, and every real route is prerendered
+([ADR-0005](./0005-og-coverage-every-public-url.md)). The strategic priority is presence through content
+and portfolio, so the home has to sell the content rather than the CV.
+
+### The decision, as it binds
+
+**react-router, client-side; `/` is the content landing; each standing surface is its own route; a URL in
+the world keeps resolving.**
+
+- **The landing** is content-first: hero, articles, a portfolio shortlist and contact. The articles list
+  lives there, and `/blog` redirects to `/#artigos` as a live convenience for the blog namespace.
+- **The profile is `/me`, labelled "Perfil" / "Profile"** (renamed from `/cv` on 2026-07-24, the owner's
+  positioning call: "CV" read as too marketing and recruiting for a reader-first proof-of-engineering site). Only the framing and the route
+  changed; the page's content did not. **The internal vocabulary stays**: the page component is
+  `ProfilePage`, but `CVSection` and the `cv.*` catalog keys keep the word that names the machinery that
+  renders a résumé. The decision stops at the reader-facing boundary.
+- **`/portfolio`** and **`/blog/:slug`** are their own routes; the article slug is per locale
+  ([*Localized article slugs*](#localized-article-slugs)).
+- **`/ramp-up`** (2026-07-23) and **`/architecture`** (2026-07-25) are **pages, not articles and not
+  landing sections**: a living document edited as the plan advances, and a blueprint of the site, each a
+  standing part of the argument and each with a nav entry. Their bodies are markdown in the repository,
+  one file per locale, rendered through the shared `<Markdown>`, so they inherit the article pipeline —
+  the YouTube click-to-load facade included, so a page embeds video while shipping no third-party frame
+  until the reader asks.
+- **`/library`** (2026-08-05) is **chrome around typed data** (`src/data/library.ts`), following
+  `/portfolio` rather than the markdown surfaces: a shelf is a list of records with a rating, and markdown
+  would put structured facts where nothing can check them. Facts are authored once and carry no locale;
+  the one prose leaf is `Record<Locale, string>`, so a missing translation is a compile error. It shipped
+  before its books with an authored empty state, which is live copy kept under test; its nav entry and the
+  `/ramp-up` cross-link landed with the first books (2026-08-06).
+- **Every new surface takes one English slug, prefixed per locale, with a bilingual label and body.**
+  `/pt/library` · `/en/library`, like the five surfaces before it. A localized slug pair was declined per
+  surface twice; the reasoning lives on the clause that keeps being challenged, the anchor's 2026-08-05
+  amendment, and is not restated per surface.
+- **The route set has one source of truth, `apps/fed/scripts/routes.mjs`**, the single enumeration both
+  the prerender and the sitemap read, so a route is snapshotted and advertised together or not at all. A
+  surface's slice updates it and the E2E canonical-route drift guard (`seo.spec.ts`) together.
+- **A redirect is not a route.** A back-compat path is a client-side `<Navigate … replace>`, never
+  prerendered and never in the sitemap; `routes.mjs` lists only real routes. An unprefixed sub-path is a
+  redirect to the reader's edition in the same way (the anchor), asserted rather than assumed.
+- **The back-compat contract: a published URL is permanent.** Once a path is in the world it keeps
+  resolving, with its redirect and its E2E guard. The contract was **scoped out for the pre-launch window**
+  on 2026-07-24: nothing external pointed at `/cv`, `/profile`, `/articles` or `/articles/:slug`, so those
+  redirects were dropped, and an unmatched path falls through to the landing via `*`. The window closed at
+  launch; `/pt/library` and `/en/library` were the first surface added under the rule applied forward, so
+  both were permanent from merge. For articles the contract is carried by `previousSlugs` in
+  `src/lib/content.ts`: a corrected slug is recorded beside the slug that retires it, and `App.tsx` turns
+  each entry into a redirect to the current slug.
+- **Markdown resolves a site path to the active locale** (2026-08-06). Long-form is authored per locale
+  but a site path is not, and a bare `[Biblioteca](/library)` in a Portuguese body would render an
+  unprefixed path that resolves through the *browser's* language — the defect #204 fixed for articles,
+  through another door. So authors write the **logical** path and `<Markdown>` resolves it to the active
+  locale through react-router, as `AppShell` already did for chrome through `useLocalePath`. Absolute URLs,
+  `mailto:` and `#anchor` links are untouched, and both editions author the identical link, which is what
+  the source-parity guards compare.
+- **`/architecture` is an orientation layer, narrowed for diagrams** (2026-07-30). It links the ADR
+  library, the public repositories and `docs/catalog-ready.md` rather than restating them, and no ADR's
+  reasoning is restated on it. The one exception is a **diagram**, admitted only where a sentence cannot
+  carry the content — a topology, a path with a branch on it — and each diagram carries a build-time
+  guard for its artifact and an assertion for its shape: `scripts/architecture-diagrams.test.mjs` asserts a
+  directed path from the reader through the rewrite to the origin and back, so a labelled box list fails.
+  The residual drift is owned by
+  [ADR-0008, *Diagrams compiled from Mermaid at build time*](./0008-brutalist-mono-identity.md#diagrams-compiled-from-mermaid-at-build-time).
+- **Where `/library` and `/ramp-up` name the same book, they agree on facts** — title, URL, and finished
+  on `/ramp-up` if rated on `/library` — never on prose. Neither containment direction is an invariant (the
+  shelf is broader than AI engineering, the reading list includes unread books), so the guard is scoped to
+  the intersection and carries its own non-vacuity assertion (`src/data/library-rampup.test.ts`).
+- **Route names in older text.** Text across the library written when the profile route was `/cv` is left
+  as written, with a note where the reference sits, because the rename is invisible from the file that
+  carries it. This is the *leave + flag* shape the library's README describes.
+
+### Rejected options that are still live
+
+No in-repo test refuses these, so the reasoning stays.
+
+- **The CV at `/`** (the previous design) — the strategy leads with content and portfolio; the home is
+  the shop window, with the profile one click away.
+- **No back-compat redirects for URLs in the world** — every shared or indexed deep-link would 404,
+  destroying accumulated presence. It was right only while there was no presence to protect, which is the
+  pre-launch window that has closed.
+- **A localized slug pair per static surface** (`/arquitetura ↔ /architecture`, `/pt/biblioteca ⇄
+  /en/library`) — a new routing pattern for a benefit the prefix does not already deliver; see the
+  anchor's 2026-08-05 amendment, including the booby-trap a pair would walk into.
+- **A placeholder book on an empty `/library`** — reader-facing prose in the owner's voice that ships and
+  is then removed, which is exactly what an OG scraper pins
+  ([ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)).
+  Chrome can say "not yet"; a fake book cannot.
+- **A diagram that restates prose** — still forbidden by the orientation rule; a box list is decoration
+  and is cut.
+
+### Consequences still being paid
+
+- The redirect set is maintenance, covered by E2E journeys, so a routing change cannot silently break a
+  back-compat link.
+- Client-side routing means the prerender must enumerate every real route; a missed route ships blank.
+- Every surface added since launch is a permanent public URL from its merge.
+- `/architecture` can now be wrong about the system in a way a page of pointers could not: a diagram is a
+  third place an infrastructure change must land, and a stale diagram reads as authoritative.
+- Two hand-authored book lists are guarded only where they overlap.
+
+## The locale layer
+
+**Absorbed 2026-11-22 (#456, the eleventh slice) from the record that held it, 0032, decided 2026-07-23
+and amended 2026-07-23 (everything the reader reads in both languages), 2026-07-29 (its English-pinned
+half retired) and 2026-09-20 (#661, the detection signal widens).** The decision is unchanged and still
+binds. What arrived: the locale layer as it binds, its precedence ladder as it stands today, the
+bilingual-content rule and its parity guards, the `LocaleProvider` carve-out, and the rejected options
+still live. What was left in git history: the struck clauses about an English-pinned prerender and the
+deferred slices, all retired or paid off by 2026-07-26; this section states what is current instead.
+The reversed record this layer superseded, 0011, is folded below as *What this replaced*. The full records
+are in git history: `git log --diff-filter=D -- 'docs/adr/0032-*'` and
+`git log --diff-filter=D -- 'docs/adr/0011-*'` name the commit that removed each, and its parent holds the
+file.
+
+### Context
+
+The owner maintains one CV across several surfaces. LinkedIn is English, and the site's canonical
+structured CV (`profile.ts`, [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)) was already
+English, but the site's UI was pt-BR only (*What this replaced* below), so the site presented an English
+CV inside pt-BR chrome — incoherent with the other surfaces and blocking the CV sync. A pt-BR visitor
+still had to be served in their language. Two locales on a static SPA, with no server
+([ADR-0002](./0002-fully-static-spa-no-backend.md)) and build-time OG
+([ADR-0002, *Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)),
+do not justify an i18n framework (lean by design,
+[ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)).
+
+### The decision, as it binds
+
+**A light in-repo locale layer: a typed pt/en message catalog, a `LocaleProvider`, `useT()` and
+`useLocale()`, and no i18n library.**
+
+- **The precedence ladder**, one implementation in `src/i18n/config.ts`, used both by `detectLocale`
+  (what is served) and by the offer of the other edition (the anchor's 2026-07-28 amendment), so the two
+  cannot disagree:
+
+  ```
+  1. the locale in the URL path        (the anchor — the path always wins)
+  2. a persisted override              (`locale` in localStorage: the toggle, or accepting the offer)
+  3. the edge locale hint              (since #788 — The edge exposes a locale hint, above)
+  4. navigator.languages
+  5. English
+  ```
+
+- **Step 4 walks the reader's whole declared list** (2026-09-20, #661), in declared order, comparing on the
+  primary subtag (`pt-BR`, `pt-PT` and `pt` all read as Portuguese). **English is the baseline, not a
+  match**, so an `en*` entry cannot end the walk: Portuguese declared anywhere in the list wins, and
+  everything else is English. An empty or absent `languages` falls back to `navigator.language` and then
+  to the baseline — never `languages[0]` on an empty array. The walk is written in order even though, with
+  two editions and one of them the fallback, order is not observable, so a third edition would behave
+  correctly rather than by accident.
+- **Detect before first render.** The locale is resolved synchronously before `createRoot`, so there is no
+  post-mount language flash, and `<html lang>` tracks the active locale.
+- **Everything the reader reads is authored in both languages** (the owner, 2026-07-23: *"tudo tem que
+  ser dois idiomas"*). Chrome lives in the catalog, key-first `{ pt, en }`. Structured data carries a
+  leaf-bilingual type — the **leaf rule** — so a missing translation is a compile error. Prose is **one
+  markdown file per locale**, selected by a `Record<Locale, string>`, so a missing edition does not build;
+  a paragraph is not a leaf, and interleaving two languages in one document would make both unreadable to
+  edit. The CV localizes too: `profile.ts` is authored bilingually (`ProfileSource` + `resolveProfile`).
+  English stays the **canonical** edition (ADR-0024) — a statement about which edition is authoritative,
+  never about which one a visitor is served.
+- **The parity that matters is asserted mechanically**, because two files can drift where a key-first
+  object cannot: the editions expose the same links in the same order and the same section count, and each
+  edition renders *without* the other's text present. That catches a stale translation and a fallback
+  rendering; it cannot catch a translation that is merely bad.
+- **An article's two editions are a build invariant**: `lib/content.ts` throws at module load if either is
+  missing.
+- **Both editions are prerendered**, each with its own head, canonical and OG (the anchor). The layer's
+  first slice pinned the prerender to English; that clause, and every consequence that hung off it, was
+  retired on 2026-07-26 when the anchor shipped as that slice's successor.
+- **`LocaleProvider` is a LANGUAGE context, explicitly NOT the forbidden visual `ThemeProvider`.** The
+  visual theme is fixed ([ADR-0008](./0008-brutalist-mono-identity.md)) and `apps/fed/CLAUDE.md`'s "no
+  `ThemeProvider`" rule is about it. This context is a deliberate, carved exception, recorded so a later
+  reader does not misread it as drift.
+
+### Rejected options that are still live
+
+No in-repo test refuses these, so the reasoning stays.
+
+- **An i18n library** (react-i18next, react-intl, lingui) — a new dependency class and bundle weight for
+  pluralization and interpolation machinery that is unearned at exactly two locales.
+- **A key-first `{ pt, en }` object for prose** — interleaving two languages in one document makes both
+  unreadable to edit; a file per locale under the same compile-time contract is the different granularity
+  prose needs.
+- **Reading only `navigator.language`**, the first entry of the declared list — it serves English to a
+  reader who declared Portuguese third, which is the ordinary machine of a Brazilian engineer whose OS,
+  IDE and browser are set to English, this site's modal reader.
+- **Letting detection override the path** — three things rest on the path rule (the prerender, the
+  self-canonical and `hreflang` reciprocity, and the sharer's contract), so overriding it would make
+  `canonical`, `og:locale` and `<html lang>` lie about the served content.
+- **A copy of the detection rule per call site** — fixing one alone makes the site contradict itself out
+  loud, serving Portuguese while offering English on top of it. There is one implementation, and
+  divergence is no longer expressible.
+- **Locale negotiation in a CloudFront Function reading `Accept-Language`**, the earlier sketch in
+  `docs/redesign/redesign-plan.md` — it puts request-time locale compute at the edge, which the anchor and
+  ADR-0002 rule out. `docs/redesign/` is the pre-build design record, deliberately not updated; read it as
+  history.
+
+### Consequences still being paid
+
+- Hand-rolled, so no ICU pluralization or interpolation niceties; zero new dependency class and a minimal
+  bundle in exchange.
+- Two files per prose surface can drift; the parity guards catch staleness and fallback rendering, not a
+  bad translation.
+- **The E2E harness could not express a multi-language reader**: `test.use({ locale })` takes a single
+  string, so the configuration #661 fixed (en first, pt third) was unrepresentable in it, and a green suite
+  proved nothing about it. `page.addInitScript` is the seam that can express it.
+- **The defect was invisible to the one person who inspects the site closely**: the owner's own stored
+  `pt` override answers at step 2 before step 4 is consulted. A persisted override on a tester's machine
+  hides every step below it.
+
+### What this replaced: the pt-BR-only UI
+
+**Folded 2026-11-22 (#456, the eleventh slice) from the reversed record this layer superseded**, 0011,
+decided 2026-07-22 and superseded 2026-07-23. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0011-*'`.
+
+**What it was.** A single-language **pt-BR UI** with no i18n framework: inline pt-BR strings, a `pt-BR`
+date locale, and a bilingual phase planned but deliberately not built. Text published on the forge stayed
+English; the site's UI was pt-BR because it is content, not a forge publication.
+
+**Why it was decided then.** The audience and content were pt-BR, and lean by design said not to build an
+i18n framework before it earned its cost. Building both languages from the start was rejected as
+significant cost for a reach goal that was not yet the priority, and an English UI as serving neither the
+content nor the audience.
+
+**Why it was reversed.** The record named its own successor: the deferred phase would resolve the pt-BR UI
+around English profile data. The cross-surface CV sync made that inconsistency the blocking problem, and
+the layer above is that phase, built one day later.
+
+**Still being paid.** The split it made explicit survives in a changed form: everything published on the
+forge is English, and everything the reader reads on the site is in both languages. The migration it
+predicted — string extraction and a locale layer, not a configuration flip — is the layer above.
+
+## Localized article slugs
+
+**Absorbed 2026-11-22 (#456, the eleventh slice) from the record that held it, 0037, decided 2026-07-26
+and clarified 2026-07-27 and 2026-09-20 by the anchor's x-default amendment.** The decision is unchanged
+and still binds. What arrived: the decision as it binds, the rejected options still live, and its
+consequences, with the x-default clarification stated as it is now. What was left in git history: the
+expired pre-launch premise of its migration note, kept here only as the reasoning it protects. The full
+record is in git history: `git log --diff-filter=D -- 'docs/adr/0037-*'` names the commit that removed it,
+and its parent holds the file.
+
+### Context
+
+The anchor made language an address but kept the **slug a shared fact**, authored once and prefixed per
+locale. The launch article's slug was Portuguese (`meu-compromisso`), so its English edition resolved to
+`/en/blog/meu-compromisso` — an English route carrying a Portuguese slug. The owner posts in English on
+LinkedIn and must link a clean English-slug URL; a Portuguese slug on an English post, or a per-URL
+redirect around it, is the inconsistency the presence strategy rejects. The slug has to be in the
+language of its route.
+
+### The decision, as it binds
+
+**An article's `slug` is per locale; the article's identity is its filename key, which never appears in a
+URL.**
+
+- **Identity ≠ address.** The stable identity is the **filename base**, the grouping key for
+  `buildEditions`, by convention the canonical English slug. Each edition carries its own `slug` in
+  frontmatter: the `en` edition defaults from the key, `pt` overrides. `slug` is outside `FACT_KEYS`
+  (date, tag and track stay shared). Both editions are still required.
+- **Lookup** is `getPostBySlug(slug, locale)`, matching that locale's own edition slug, so there is no
+  ambiguity.
+- **The toggle maps the slug**: `setLocale` resolves an article route to the sibling edition's slug
+  (`localizeArticlePath`), so `/en/blog/my-commitment` ⇄ `/pt/blog/meu-compromisso`, not a not-found.
+- **`hreflang`, the sitemap and the prerender emit the per-locale slugs reciprocally.** An article's
+  x-default is the **unprefixed** English slug, `/blog/<en-slug>`, the neutral address of the next section.
+- **Anything keyed to an article that must survive a slug correction is keyed by the article KEY**, never
+  by a slug — the OG card file is
+  ([ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards)).
+- **Blog surface only.** `/me`, `/portfolio`, `/architecture`, `/ramp-up` and `/library` keep one slug
+  prefixed per locale (the anchor). This decision is scoped to `src/content/blog/**`.
+- **The migration** moved the launched article to `my-commitment.{en,pt}.md` (EN slug `my-commitment`, PT
+  slug `meu-compromisso`) with **no redirect** for the retired `/en/blog/meu-compromisso`, because that URL
+  never circulated. The reasoning is kept because the same question about a slug that HAS circulated has
+  the opposite answer, which the back-compat contract and `previousSlugs`
+  ([*Client-side routing and the public surfaces*](#client-side-routing-and-the-public-surfaces)) give it.
+
+### Rejected options that are still live
+
+No in-repo test refuses these, so the reasoning stays.
+
+- **One shared slug plus a per-URL redirect** — a per-article special case in the routing table, and the
+  article's identity on an English route stays a Portuguese slug. Do the routing change once, not a
+  redirect per article per rename.
+- **One shared English slug for both editions** — mirrors the inconsistency onto the pt-BR edition and
+  forfeits pt-BR discovery on the slug itself, the imbalance the anchor exists to close.
+
+### Consequences still being paid
+
+- A slug-to-slug mapping is required in **three** places — the toggle, the `hreflang` alternates, and the
+  prerender and sitemap enumeration — so blog routes lose the anchor's "one logical route prefixed twice"
+  symmetry.
+- Two permanent public URL contracts per article from this decision, and a third from the neutral address.
+- Code-only: `iac/` and the CloudFront Function are untouched, with no `Accept-Language` logic at the edge.
+
+## A neutral, self-canonical share URL per article
+
+**Absorbed 2026-11-22 (#456, the eleventh slice) from the record that held it, 0052, decided 2026-09-20
+on #660 and PR #667.** The decision is unchanged and still binds. What arrived: the owner's
+specification, the decision as it binds with each of its clauses, the rejected options still live, the
+per-clause enforcement table and the consequences. What was left in git history: the account of who
+declined to decide the canonical question before it reached the owner, and the list of the anchor's clauses
+it struck in place, since those clauses now read as amended above. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0052-*'` names the commit that removed it, and its parent holds the
+file. Deciders: the owner — the specification
+([#660 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/660#issuecomment-5743437953)) and the
+canonical ruling
+([#660 comment](https://github.com/tedeuxx/tadeumendonca-io/issues/660#issuecomment-5749824051)).
+
+### Context
+
+**The owner published a LinkedIn post in Portuguese carrying an `/en/` link, opened it, and read the
+article in English.** His words: *«o link que vc tem compartilhado no linkedin nao é o slug nao
+regionalizado idioma. entao quando abro ele carrega em ingles para mim ao inves de portugues.»* ·
+*«isso é um erro»*.
+[ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s
+2026-09-20 amendment reversed the convention — a post carries the locale-neutral URL — and recorded that
+the rule was correct and inert, because the neutral URL was a soft-404 answering `200` with the landing's
+card (`iac/frontend.tf` maps 404 to `/index.html` with 200, and the build snapshotted nothing there). This
+section is what makes that convention usable.
+
+**One address must serve two consumers differently**, the owner's specification and the whole feature:
+
+| who requests the neutral URL | what it gets |
+|---|---|
+| a scraper — LinkedIn, X, a crawler | the **English preview**: `og:` tags and the English OG card. One stable card per article. |
+| a human | the site's **automatic locale resolution**, landing them in their own language. |
+
+His acceptance case: *«eu entraria pelo link nao regionalizado que li o preview em ingles mas clicaria no
+link e espero ler em portugues.»* Nothing in the request distinguishes the two consumers.
+
+### The decision, as it binds
+
+**Every published article has one locale-neutral share URL, `/blog/<en-slug>`. It is prerendered, it is
+SELF-canonical, and it is that article's advertised `x-default`.** `/blog/<en-slug>` is a real entry in the
+route enumeration and a real document in `dist/`; the snapshot browser renders the **article** there, and
+every other visitor's browser executes the page and is redirected into its own edition.
+
+- **The split is by JAVASCRIPT EXECUTION, not by request-time inspection**, and that is the load-bearing
+  property. A scraper fetches and parses; it does not execute the redirect. A human's browser does. The
+  same bytes serve both, and nothing guesses which one is asking — user-agent sniffing at the edge would be
+  a maintained list of strings that is wrong the week after it is written.
+- **Keyed on the CURRENT ENGLISH SLUG, not on the article's identity key** — refuted against live content
+  rather than reasoned. The article whose key is `the-problem-stopped-changing` carries
+  `slug: from-cloud-to-ai-same-badge` in its English frontmatter
+  (`grep -rn 'slug:' apps/fed/src/content/blog/*.en.md`), so a key-keyed scheme would have published, as
+  the permanent share address of a live article, an address the retired-slug intercept exists to retire. An
+  English-slug rename moves the advertised address; the intercept reaches the neutral path and **stays
+  neutral**, redirecting the old neutral URL to the new one.
+- **SELF-canonical, the owner's ruling.** The alternative — canonicalising at the prefixed English URL —
+  advertises a page as `x-default` while telling a search engine the address is not the real one; a crawler
+  resolving that against us drops the neutral URL, the one every future post carries. A recorded duplicate
+  is better than a contradictory signal on the address the convention depends on.
+- **`x-default` moves for ARTICLES ONLY.** The `pt` and `en` alternates and their own canonicals do not
+  move. The four static routes keep the anchor's 2026-07-27 trade unchanged, and their bare paths are still
+  redirect-only and never advertised. The anchor's invariant — *a URL may be advertised only if the build
+  prerenders it* — is **satisfied, not traded away**: the bare article URL may be advertised because the
+  build snapshots it.
+- **The prerender opt-out is the anchor's "the prerender is not a visitor" invariant's SECOND consumer, not
+  a new exception.** At `/blog/<en-slug>` the app renders the locale redirect, a `<Navigate>` that leaves
+  before any head hook runs, so listing the path for the prerender alone would capture the `/en/…` document
+  instead. `NeutralArticleRoute` reads `window.__PRERENDER__` and renders the article in place. **The build
+  FAILS LOUDLY rather than shipping a wrong canonical**: inverting the opt-out kills `build:static` with
+  `page.waitForFunction: Timeout 15000ms exceeded` from the neutral loop (confirmed by mutation at the merge
+  gate), so the failure mode is a red build, not a silently wrong document at the most-shared address.
+- **The draft generator is part of the decision.** `shareUrlFor()` in
+  `apps/fed/scripts/gen-distribution.mjs` resolves against the neutral set; it emitted `/en/blog/<en-slug>`
+  by construction before. Shipping the route without it would have satisfied the precondition in the
+  routing and defeated it in the tooling that scaffolds every post. A held article still has no share URL.
+
+**What enforces this, per clause — and one seam nothing covers:**
+
+| clause | what holds it |
+|---|---|
+| the neutral URL is advertised only if prerendered | **`apps/fed/scripts/routes.test.mjs`** — membership, from the same enumeration both consumers read |
+| the neutral set matches the English article set | **`routes.test.mjs`**, three arms; neutering the enumeration at source turns them red |
+| the generator emits the neutral URL | **`gen-distribution.test.mjs`** — every emitted URL is a member of the real `neutralArticleRoutes()` output |
+| the served document is self-canonical | **`e2e/per-locale.spec.ts`** — `canonical == requested URL` on the served document, with a **nonsense-slug control**, because a nonexistent path also answers 200 |
+| the snapshot is actually WRITTEN | **only the E2E arm.** The unit layer compares two enumerations and never reads the filesystem — deleting the neutral loop from `prerender.mjs` left `routes.test.mjs` green |
+| the opt-out stays correct | **the build itself** — inverting it times out `build:static` |
+| the share CONVENTION is followed in an actual post | **nobody.** No layer observes a draft, a post or a published URL — the same honest limit [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) records |
+
+**One advisory carried rather than fixed:** the prerender summary line counts the enumeration's length
+rather than what it wrote, so under the one mutation the unit layer is blind to it prints *"+ N neutral
+share URLs"* having written none. Named so the next reader of that log knows what it counts.
+
+### What this section does NOT decide
+
+- **The locale resolver.** `#661` owns it (*The locale layer* above). *"A pt-BR reader lands in
+  Portuguese"* is false for a returning reader, correctly — the persisted override and the edge hint sit
+  above the browser's languages — so no assertion may claim it.
+- **The title seam** — an English card headline against a Portuguese headline on arrival is a ruler
+  question, tracked as a `content` item in `tedeuxx/tadeumendonca-skills`.
+- **Whether the pinned link was costing readers** — a hypothesis on `#660`, with what would test it; this
+  decision does not depend on it.
+- **Anything about the four static routes.** Their x-default is the anchor's.
+
+### Rejected options that are still live
+
+No in-repo test refuses these, so the reasoning stays.
+
+- **An edge 302 from the neutral URL to the reader's edition** — a redirect is obeyed by whoever follows
+  it, and an unfurler follows redirects, so LinkedIn would pin whichever edition its own headers chose and
+  the one-stable-card property is gone. A redirect is the one mechanism that cannot tell the two consumers
+  apart, and it puts negotiation at the edge, which the anchor rejected and
+  [ADR-0002, *Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)
+  rules out.
+- **Leaving the convention inert and sharing `/en/` links** — the defect the owner reported, and a rule
+  every post is written against that the site cannot honour.
+- **A neutral snapshot for EVERY route** — the anchor's own rejected option, whose reason was discharged
+  for articles only; the four static routes have no share convention, no per-locale slug problem and a
+  working prefixed x-default, so widening would spend the invariant's budget on routes nobody shares.
+- **Canonicalising the neutral URL at the prefixed English one** — the contradictory signal above.
+
+### Consequences still being paid
+
+**Good:** the convention becomes usable and the reported defect cannot recur from a generated link; the
+invariant gains a second consumer, generated from the same enumeration the prerender walks and the sitemap
+advertises; the most-shared address survives a rename; GA's `locale` dimension on social traffic stops
+being constant, which is worse than noisy because a constant reads as a finding.
+
+**Bad, and stated as bad:**
+
+- **The same English text at two self-canonical addresses** — `/blog/<en-slug>` and `/en/blog/<en-slug>`,
+  duplicate content by construction. How a real crawler resolves two self-canonical addresses that name
+  each other through `x-default` is unmeasurable from here, and the owner accepted that explicitly.
+- **A third permanent public URL contract per article**, pinned by scrapers and indexed by search
+  engines; retiring it later is not a revert.
+- **A retired English slug's neutral address is not prerendered**, so an unfurler fetching it pins the
+  home card while a human is redirected correctly — the pre-existing shape for prefixed retired slugs, now
+  inherited by the advertised address class.
+- **The neutral card is always English**, so a Portuguese reader's preview and arrival differ in language.
+- **The prerendered route count grows by one per published article**, each with an OG lookup — the build
+  cost [ADR-0005](./0005-og-coverage-every-public-url.md) anticipates.
+- **Two live social posts still carry `/en/` links.** Changing a URL inside a published post is the
+  owner's act, per post; none is obliged.
+
 ## Links
 - **Implements** Issue [#162](https://github.com/tedeuxx/tadeumendonca-io/issues/162).
+- **Absorbed by #456 (2026-11-22, the eleventh slice):** the routing and public-surfaces decision (formerly
+  record 0010), the locale layer (0032), localized article slugs (0037) and the neutral share URL (0052);
+  and folded the reversed pt-BR-only UI record (0011) into *The locale layer*. Each section above says
+  where it came from and how to recover the original from git history; the decision index lists each
+  number under *Records that left the library*.
 - **Section added 2026-11-01** (Issue [#669](https://github.com/tedeuxx/tadeumendonca-io/issues/669),
-  ~~`proposed` until the owner ratifies [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803)~~
-  **`accepted` 2026-11-01**, the owner's own merge of PR #803, [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)) —
+  **`accepted` 2026-11-01**, the owner's own merge of
+  [PR #803](https://github.com/tedeuxx/tadeumendonca-io/pull/803),
+  [recorded on #669](https://github.com/tedeuxx/tadeumendonca-io/issues/669#issuecomment-6566368759)) —
   *The edge exposes a locale hint, never a locale decision*: the no-edge driver is narrowed to *the edge
   never resolves a locale*; a viewer-response function exposes a three-valued locale hint, and resolution
   stays client-side. Consumed by [#788](https://github.com/tedeuxx/tadeumendonca-io/issues/788).
 - **Amended 2026-08-05** (Issue [#166](https://github.com/tedeuxx/tadeumendonca-io/issues/166)) — the
   "NOT dual localized slugs" clause is **reaffirmed, not revised**. Separates the two benefits argued
-  under one name (language-pinning, shipped here via the prefix · slug readability, delivered only by a
-  pair), records the four openings that did not make that separation, and names the accepted cost that a
-  static pair is booby-trapped rather than absent. Related:
-  [ADR-0010](./0010-routing-landing-cv-split-redirects.md) (whose per-surface rejection did not hold),
-  [ADR-0037](./0037-localized-article-slugs.md) (the pair, for the blog only, where the readability
-  benefit was weighed and accepted on its own merits).
+  under one name (language-pinning, shipped via the prefix · slug readability, delivered only by a pair),
+  records the four openings that did not make that separation, and names the accepted cost that a static
+  pair is booby-trapped rather than absent.
 - **Amended by** Issue [#200](https://github.com/tedeuxx/tadeumendonca-io/issues/200) — x-default pointed at
   bare, unprefixed URLs the build does not prerender; five of six answered 200 with the home page's OG. The
-  fix pins x-default to the prefixed English canonical (root excepted) and adds the membership + own-canonical
-  gates. Related: [ADR-0005](./0005-og-coverage-every-public-url.md) (OG pinned on first fetch),
-  [ADR-0037](./0037-localized-article-slugs.md) (per-locale article slugs — the pt-BR dead end),
-  [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s 2026-07-27 amendment (the same hazard, guarded
-  at one consumer). **Read *"root excepted"* as *"root and articles excepted"* since 2026-09-20 —
-  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md) (issue #660) moves an article's
-  x-default to the neutral `/blog/<en-slug>` by making that URL a prerendered document, so #200's membership
-  gate is satisfied rather than relaxed.**
-- **Amended by** Issue [#172](https://github.com/tedeuxx/tadeumendonca-io/issues/172) — the authoritative path
-  left a reader no in-page way to their own edition; a dismissible **offer** (never a redirect) now proposes
-  the visitor's locale, persisting through the same `locale` key as the toggle, with a second key
-  (`locale-suggestion-dismissed`) recording only a decline — ~~only~~ *see the 2026-08-02 amendment inline
-  above: dismissing writes `locale` too, because the button states a preference rather than declining one.*
-  Exposed the general rule that **the prerender is
-  not a visitor** — `window.__PRERENDER__`, not a post-mount flag, is what keeps visitor-dependent rendering
-  out of the shipped HTML. Consistent with
-  [ADR-0032](./0032-i18n-locale-layer-english-baseline.md) (the persisted toggle overriding detection) and
-  [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (still no edge negotiation).
-- **Completes [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)'s deferred Slice 2** — retires that
-  ADR's "prerender baseline pinned to English" clause and its "single-locale-prerender accepted cost." Not a
-  reversal: Slice 2 was always the named successor to the interim English-pinned baseline.
-- **Resolves the deferred question in [ADR-0010](./0010-routing-landing-cv-split-redirects.md)** — its
-  2026-07-25 amendment left "localized URL prefixes… a separate, unmade decision"; that decision is made here
-  (prefixes yes, dual-slugs still deferred). ADR-0010 is amended with a forward-link to this ADR.
+  fix pins x-default to the prefixed English canonical for the static routes and adds the membership +
+  own-canonical gates; the root, and since 2026-09-20 each article's neutral address, are the exceptions,
+  each a prerendered document. Related: [ADR-0005](./0005-og-coverage-every-public-url.md) (OG pinned on
+  first fetch), [ADR-0005, *Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)'s
+  2026-07-27 amendment (the same hazard, guarded at one consumer).
+- **Amended by** Issue [#172](https://github.com/tedeuxx/tadeumendonca-io/issues/172) — a dismissible
+  **offer** (never a redirect) proposes the visitor's locale, persisting through the same `locale` key as
+  the toggle, with a second key (`locale-suggestion-dismissed`); see the 2026-08-02 amendments inline above
+  for what dismissing writes. Exposed the general rule that **the prerender is not a visitor**.
 - **Consistent with [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)** — per-locale prerender is more
   build-time render, still no SSR/edge; the client-side bare-root redirect is why no Accept-Language edge
   logic is needed.
 - **Extends [ADR-0005](./0005-og-coverage-every-public-url.md)** — OG/SEO completeness now spans both locales
-  + x-default; the route-count doubling is the accepted build cost ADR-0005 anticipates.
+  + x-default; the route-count doubling is the accepted build cost ADR-0005 anticipates. Its section
+  [*Distribution to LinkedIn and X*](./0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x)
+  states the share convention the neutral address makes usable; its section
+  [*Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards) keys a card by the
+  article key because the slug is per locale.
 - **Consistent with [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)** — English stays the canonical
   edition; x-default = English; the CV PDF still prints from the English edition (route string `/en/me`).
 - **Touches the downloadable-CV decision** (now [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)'s *The downloadable edition*; record 0034 until #456) — the CV-PDF source route string moves
   `/me` → `/en/me`; a matching one-line note was added to that record.
-- **`iac/` untouched** ([ADR-0013](./0013-s3-cloudfront-hosting.md)) — the CloudFront Function is
-  locale-agnostic; the prefixes are static object paths.
+- **`iac/` untouched by the addressing** ([ADR-0013](./0013-s3-cloudfront-hosting.md)) — the URL-rewrite
+  function is locale-agnostic and the prefixes are static object paths; the edge locale hint is the one
+  function this capability added there.
+- Driven through [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through)
+  (lean by design); the redirects and routes are guarded by E2E per
+  [ADR-0003, *Complete functional regression*](./0003-trunk-based-single-environment.md#complete-functional-regression).

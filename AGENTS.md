@@ -62,7 +62,7 @@ work.
     gate*). Remove a slice's worktree after its merge.
 11. **A review finding is named, never filed.** Only the owner opens work.
 12. **Everything published on the forge is in English** — this file, READMEs, commit and merge-request
-    text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0032).
+    text, issues, decision records. **The site's copy is bilingual** (pt-BR and en, ADR-0036).
 13. **Publish a measured number with the command that produced it, or do not publish it.**
 14. **Never hardcode a string the interface displays.** Add it to the locale catalog **in both
     locales**; structured data carries a leaf-bilingual type, so a missing translation fails the build
@@ -83,7 +83,7 @@ work.
 
 Public URLs carry a locale prefix (ADR-0036), and **the path decides the language** regardless of the
 browser, so a shared link keeps its language. Unprefixed sub-paths are client-side redirects only: not
-prerendered, **never** in the sitemap or alternate-language metadata. **Two exceptions** (ADR-0052): the
+prerendered, **never** in the sitemap or alternate-language metadata. **Two exceptions** (ADR-0036): the
 bare root, prerendered in English, in the sitemap, the default for a crawler without scripting; and the
 bare article path with the English slug, the neutral share address every social post carries —
 prerendered in English, self-canonical, in the sitemap, its article's default.
@@ -92,7 +92,7 @@ prerendered in English, self-canonical, in the sitemap, its article's default.
 route exists, and keep no route list anywhere else.** The surfaces:
 
 - **Landing** — the storefront; it hosts the articles list, and the old blog index redirects there.
-  Article slugs are **per locale** (ADR-0037).
+  Article slugs are **per locale** (ADR-0036).
 - **Interactive CV** — the only CV surface; a three-page edition is printed from it at build time
   (ADR-0024). Both derive from `apps/fed/src/data/profile.ts`; nothing is re-typed.
 - **Portfolio** — typed data in `apps/fed/src/data/catalog.ts`; the bar to be listed is

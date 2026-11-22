@@ -28,20 +28,6 @@
     "amended": true
   },
   {
-    "id": "0010",
-    "title": "Client-side routing, landing/CV split, back-compat redirects",
-    "file": "0010-routing-landing-cv-split-redirects.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
-    "id": "0011",
-    "title": "UI in pt-BR; bilingual i18n deferred",
-    "file": "0011-ui-ptbr-i18n-deferred.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
     "id": "0013",
     "title": "S3 + CloudFront hosting with a URL-rewrite function",
     "file": "0013-s3-cloudfront-hosting.md",
@@ -56,62 +42,6 @@
     "amended": true
   },
   {
-    "id": "0025",
-    "title": "Backend-ful platform (BFF · DynamoDB · Cognito · SES · Lambda@Edge)",
-    "file": "0025-superseded-backend-platform.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0026",
-    "title": "Lambda@Edge OG renderer",
-    "file": "0026-superseded-lambda-edge-og.md",
-    "status": "superseded",
-    "amended": true
-  },
-  {
-    "id": "0027",
-    "title": "Backend link-unfurl / OG preview cards",
-    "file": "0027-superseded-backend-link-unfurl.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0028",
-    "title": "GitFlow, staging + production two-environment",
-    "file": "0028-superseded-gitflow-two-env.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0029",
-    "title": "Offline-first installable PWA",
-    "file": "0029-superseded-offline-first-pwa.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0030",
-    "title": "Monorepo `tadeumendonca-pwa` consolidation",
-    "file": "0030-superseded-monorepo-pwa.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0031",
-    "title": "Shared regional WAF",
-    "file": "0031-superseded-shared-regional-waf.md",
-    "status": "superseded",
-    "amended": false
-  },
-  {
-    "id": "0032",
-    "title": "Internationalize the site — light in-repo locale layer, ~~English-pinned crawlable baseline~~",
-    "file": "0032-i18n-locale-layer-english-baseline.md",
-    "status": "accepted",
-    "amended": true
-  },
-  {
     "id": "0036",
     "title": "Language is addressable — symmetric per-locale URL prefixes, per-locale prerender, hreflang + OG-per-locale",
     "file": "0036-per-locale-urls-prerender-hreflang.md",
@@ -119,25 +49,11 @@
     "amended": true
   },
   {
-    "id": "0037",
-    "title": "Article slugs are localized — a locale-matched slug per edition",
-    "file": "0037-localized-article-slugs.md",
-    "status": "accepted",
-    "amended": false
-  },
-  {
     "id": "0043",
     "title": "The dev-loop inventory is derived from the plugin repo — a committed manifest plus a cross-repo drift check, and the manifest may not say \"denies\" about a thing that only advises",
     "file": "0043-harness-inventory-derived-from-plugin-repo.md",
     "status": "accepted",
     "amended": true
-  },
-  {
-    "id": "0052",
-    "title": "A neutral, self-canonical share URL per article — one address, two consumers, split by JavaScript execution",
-    "file": "0052-neutral-self-canonical-share-url-per-article.md",
-    "status": "accepted",
-    "amended": false
   },
   {
     "id": "0053",

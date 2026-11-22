@@ -71,8 +71,8 @@ describe('parseStatus', () => {
       // `./0004-build-time-render.md`, which no file has ever been called — harmless to this
       // assertion (it parses the status class and never opens the target) and exactly the kind of
       // rot the citation gate added in #456 exists to catch. It found this one on its first run. The
-      // sixth fold slice of #456 absorbed record 0004 into 0002, so the fixture now names the section
-      // 0026 and 0027 point at.
+      // sixth fold slice of #456 absorbed record 0004 into 0002, so the fixture now names that section,
+      // the one records 0026 and 0027 pointed at and into which the tenth slice folded them.
       parseStatus(
         '- **Status:** superseded by [ADR-0002](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time) (2026-07)',
       ),

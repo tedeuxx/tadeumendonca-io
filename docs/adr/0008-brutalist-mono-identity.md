@@ -49,8 +49,9 @@ The **portrait** (the `/cv` header image and the small greyscale one in the land
 circle. Nothing else changes: cards, buttons, inputs, badges and rules stay **radius 0**.
 
 *(`/cv` is the route as it was named when this amendment was written; it is `/me` — `/pt/me` · `/en/me` —
-since ADR-0010's 2026-07-24 amendment and ADR-0036. Left as written per supersede-never-rewrite, and
-flagged here because that convention is declared inside ADR-0010 and is invisible from this file. #234.)*
+since the routing decision's 2026-07-24 amendment and ADR-0036's locale prefixes. Left as written per
+supersede-never-rewrite, and flagged here because that convention is declared in ADR-0036's *Client-side
+routing and the public surfaces* and is invisible from this file. #234.)*
 
 The reasoning is that "radius 0" is a rule about **surfaces** — the visible structure this ADR exists to
 expose. A face is not a surface; a circular crop is the convention for a portrait, the way a rule is the
@@ -64,7 +65,7 @@ scale to obtain one circle would have traded a named exception for an open door,
 this identity would erode.
 
 Same shape of decision as the `LocaleProvider` carve-out in
-[ADR-0032](./0032-i18n-locale-layer-english-baseline.md): a deliberate, documented exception, recorded
+[ADR-0036, *The locale layer*](./0036-per-locale-urls-prerender-hreflang.md#the-locale-layer): a deliberate, documented exception, recorded
 so a later reader does not mistake it for drift — or, worse, cite it as precedent for rounding a card.
 
 *Accepted cost:* `object-cover` crops harder inside a circle than a square, so the portrait loses more of
@@ -215,7 +216,7 @@ a silent failure is not a moment but an artifact: the prerender bakes it into th
   from the non-transparent `.diagram-canvas` background. `dangerouslySetInnerHTML` is acceptable because
   the string is build-generated and committed, and those tests make that a checked property.
 - **Two editions of one figure.** A fence in a body exists in both locale editions (the one-file-per-locale
-  rule of ADR-0032, reaching blog bodies), enforced by the pairing arm in `diagram-source.test.mjs`.
+  rule of ADR-0036's *The locale layer*, reaching blog bodies), enforced by the pairing arm in `diagram-source.test.mjs`.
 - **`mermaid` is a devDependency only** and never reaches the browser bundle.
 
 ### Rejected options that are still live
@@ -445,7 +446,7 @@ URL stays a plain link. The match is case-insensitive and tolerates a trailing s
 - **Static text plus one outbound anchor**: no image, no iframe, no third-party request; the whole card is
   one `<a>`. A **primary-language chip, deliberately not a star count**: a frozen star number misleads.
 - **Facts once, prose per locale**: name, owner, language and URL are authored once (the split of
-  ADR-0024); the description is a leaf-level `{pt,en}` field (ADR-0032's leaf rule) composed into a
+  ADR-0024); the description is a leaf-level `{pt,en}` field (the leaf rule of ADR-0036's *The locale layer*) composed into a
   per-locale long-form page.
 - **`data/repoCards.ts` is copy, not app data**: a description change goes through the copy lens.
 - **The mechanism, since 2026-08-08.** With `remark-gfm` on the shared renderer, a lone bare URL arrives as
@@ -546,7 +547,7 @@ catalog, never from a heading. The visible H1 stays editorial.
   each a section above, every decision unchanged. Constrained by [ADR-0002](./0002-fully-static-spa-no-backend.md)
   and its section [*Content and OG resolved at build time*](./0002-fully-static-spa-no-backend.md#content-and-og-resolved-at-build-time)
   · [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture)
-  decided the diagram toolchain · per locale under [ADR-0032](./0032-i18n-locale-layer-english-baseline.md)
-  and [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md) · titles constrained by
+  decided the diagram toolchain · per locale under [ADR-0036](./0036-per-locale-urls-prerender-hreflang.md)
+  and its section [*The locale layer*](./0036-per-locale-urls-prerender-hreflang.md#the-locale-layer) · titles constrained by
   [ADR-0005, *Per-article OG cards*](./0005-og-coverage-every-public-url.md#per-article-og-cards) · facts once per [ADR-0024](./0024-profile-canonical-cv-cross-surface.md)
   · the off-menu title source serves [ADR-0005, *The analytics schema page*](./0005-og-coverage-every-public-url.md#the-analytics-schema-page).

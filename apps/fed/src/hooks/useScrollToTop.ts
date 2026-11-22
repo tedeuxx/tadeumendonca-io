@@ -55,7 +55,7 @@ import { localizeArticlePath } from '../lib/content';
 // reader is already on, re-rendered. So their position must be preserved, and this is the predicate
 // that recognises the case.
 //
-// It is NOT a pathname comparison, because an article's slug is per-locale (ADR-0037):
+// It is NOT a pathname comparison, because an article's slug is per-locale (ADR-0036, *Localized article slugs*):
 // `/pt/blog/meu-compromisso` and `/en/blog/my-commitment` are the same document, and a string compare
 // says they are not. That is the case that matters most — an article is the longest read on the site,
 // and the worst place to lose a reader's position.

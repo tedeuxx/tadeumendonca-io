@@ -49,7 +49,7 @@ function Harness({ onRender }: { onRender?: () => void } = {}) {
       </button>
       {/* The PT/EN toggle's exact shape: `navigate()`, no `replace`, hash preserved
           (i18n/context.tsx:49). Two variants, because the article case is the one a naive pathname
-          comparison gets wrong — the slug is per-locale (ADR-0037). */}
+          comparison gets wrong — the slug is per-locale (ADR-0036, *Localized article slugs*). */}
       <button type="button" onClick={() => navigate('/en/architecture')}>
         toggle-en
       </button>

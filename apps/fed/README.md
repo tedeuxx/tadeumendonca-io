@@ -37,7 +37,7 @@ Routes (`scripts/routes.mjs` is the build-time source of truth):
 - `/portfolio` — the full curated catalog.
 - `/ramp-up` — the depth still being built, planned in the open with its sources.
 - `/architecture` — how the site is built, linking the ADRs and both public repos.
-- `/blog/:slug` — the **canonical article**, with a **per-locale slug** (ADR-0037): the two editions of one
+- `/blog/:slug` — the **canonical article**, with a **per-locale slug** (ADR-0036, *Localized article slugs*): the two editions of one
   article carry different URLs.
 - Redirects: `/blog` → the landing's `#artigos`; unprefixed paths → the reader's edition; `*` → the locale
   landing.
@@ -52,7 +52,7 @@ amendment) — deliberately not reachable through Tailwind, so the guard stays i
 
 ## Language
 
-**The site is bilingual — pt-BR and en** (ADR-0032), and **both locales are prerendered** (ADR-0036). There is
+**The site is bilingual — pt-BR and en** (ADR-0036, *The locale layer*), and **both locales are prerendered** (ADR-0036). There is
 no i18n framework: a typed in-repo catalog (`src/i18n/`) with `LocaleProvider`, `useT()` and `useLocale()`.
 
 **Everything a reader reads is authored in both languages** — chrome, CV, catalog copy and long-form prose

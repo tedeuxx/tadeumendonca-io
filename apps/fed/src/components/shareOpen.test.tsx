@@ -60,7 +60,7 @@ describe('share_open', () => {
   });
 
   // The slug is the CALLER's value, not a slice of `url`. `ArticlePage` passes the edition's own slug
-  // (ADR-0037 makes it per-locale) and `MarkdownPage` passes its canonical path; asserting a slug that
+  // (ADR-0036's *Localized article slugs* makes it per-locale) and `MarkdownPage` passes its canonical path; asserting a slug that
   // does not appear in `url` at all is what pins that.
   it('reports the slug the caller passed, never one derived from the url', () => {
     renderWithLocale(<ShareButton title="Hello" url={PT_PATH} slug="architecture" body="Corpo." />, {

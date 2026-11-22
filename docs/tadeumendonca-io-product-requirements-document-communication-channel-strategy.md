@@ -3,7 +3,7 @@
 - **Status:** agreed in interview, 2026-11-20; open decisions listed at the end
 - **Subject:** `communication-channel-strategy`
 - **Revises:** [ADR-0005, *Distribution to LinkedIn and X*](./adr/0005-og-coverage-every-public-url.md#distribution-to-linkedin-and-x) (which channels, and the post
-  format; formerly record 0038); keeps [ADR-0052](./adr/0052-neutral-self-canonical-share-url-per-article.md) for text posts
+  format; formerly record 0038); keeps [ADR-0036, *A neutral, self-canonical share URL per article*](./adr/0036-per-locale-urls-prerender-hreflang.md#a-neutral-self-canonical-share-url-per-article) for text posts
 - **Next step:** `prd-to-issues`, when the owner asks for it
 
 ## Why
@@ -64,7 +64,7 @@ carries over to the new set: LinkedIn, X and YouTube, in the same batch.
 
 - **Text is one bilingual post per platform.** The opening language varies per platform.
 - **Video is one render per language.**
-- **Text posts carry the neutral share URI** (`/blog/<en-slug>`, ADR-0052). The site resolves the
+- **Text posts carry the neutral share URI** (`/blog/<en-slug>`, ADR-0036, *A neutral, self-canonical share URL per article*). The site resolves the
   language by its rule: path, then stored choice, then the edge hint (#669, #788), then the browser,
   then English.
 - **The per-language URIs** (`/pt/…`, `/en/…`) serve the specialised cases: the per-language YouTube

@@ -3,7 +3,7 @@
 // WHY A SOURCE-LEVEL PROBE WHEN THERE IS ALSO AN E2E ONE. They fail on different things and neither
 // subsumes the other. `e2e/content-photo.spec.ts` measures what a browser lays out — boxes, viewports,
 // whether the quotation is on screen at 320px — and it needs a build and a server to say anything. This
-// one is about the two FILES: long-form is one file per locale (ADR-0032), so the editions can drift, and
+// one is about the two FILES: long-form is one file per locale (ADR-0036, *The locale layer*), so the editions can drift, and
 // they drift most easily when a slice adds something to one and translates it into the other by hand,
 // which is every slice this page has ever had. A photograph added to `en` and forgotten in `pt` is a pt
 // reader who does not get the evidence the en reader is offered — and it costs a browser nothing to catch.

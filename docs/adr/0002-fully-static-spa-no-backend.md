@@ -3,16 +3,21 @@
 - **Status:** accepted · **amended 2026-11-01** (absorbs the rest of the `site-platform` capability,
   formerly records 0004, 0006 and 0012, as the sections *Content and OG resolved at build time*, *The
   frontend toolchain* and *Data keys as authored, no mapping layer*; every decision is unchanged, #456)
+  · **amended 2026-11-22** (folds the reversed records it superseded: 0025 and 0029 into a new
+  `## What this replaced`, 0026 and 0027 into *Content and OG resolved at build time*; no decision
+  changes, #456)
 - **Capability:** `site-platform`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Supersedes / superseded by:** supersedes the backend-era architecture (recorded in the History index)
+- **Supersedes / superseded by:** supersedes the backend-era architecture (recorded in *What this replaced* below)
 - **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 **This document is the whole `site-platform` capability.** The first half is the platform decision
 itself: no backend. The three sections after it are the decisions that make a site with no backend
 work: where content and its OG are resolved, which toolchain builds it, and how its data is keyed. Each
-section was a record of its own until #456 folded it here; each says where it came from.
+section was a record of its own until #456 folded it here; each says where it came from. The last
+section, *What this replaced*, is the architecture this decision retired, kept so that it is read as
+reversed rather than as an instruction to rebuild it.
 
 ## Context & problem
 Applying ADR-0053 (lean by design) to the concrete stack: what does the site actually *need* a server
@@ -55,7 +60,8 @@ backend tier (BFF, DynamoDB, Cognito, SES, Lambda@Edge) was retired.
 **Absorbed 2026-11-01 (#456) from the record that held it, 0004, decided 2026-07-22.** The decision is
 unchanged and still binds, and so are its two amendments (2026-08-15 and 2026-08-25), which follow it as
 subsections. The full record is in git history: `git log --diff-filter=D -- 'docs/adr/0004-*'`. It
-supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature (History index).
+supersedes the Lambda@Edge OG renderer and the backend link-unfurl feature (*What this replaced: the edge
+OG renderer and the link unfurl*, the last subsection here).
 
 ### Context
 
@@ -80,7 +86,7 @@ the documented evolution route if a no-rebuild content cadence ever becomes wort
 
 **The trade-off, made concrete by link unfurl:** unfurling an *arbitrary external* link needs a
 request-time fetch of that link's remote OG — a server the site does not have. So the backend
-link-preview feature was retired (History index); what survives is a **client-side embed for known
+link-preview feature was retired (*What this replaced* below); what survives is a **client-side embed for known
 providers** (a YouTube URL in an article becomes a `VideoEmbed` facade by URL pattern — no server, no
 remote fetch). The site's *own* pages get rich, prerendered OG; *external* links do not, deliberately.
 
@@ -127,8 +133,8 @@ ten-line viewer-request CloudFront Function — `iac/frontend.tf`'s
 by the same file's `default_cache_behavior`, whose `function_association` block carries a
 `viewer-request` key set to `function_arn = aws_cloudfront_function.spa_rewrite.arn`. It rewrites a
 directory-style route to its prerendered `index.html`. Every request for a page passes through it. It is
-not new and was not introduced after this decision — it is ADR-0013's, and ADR-0026 already named it as
-*"the URL-rewrite that remains."* The `/assets/*` behavior carries no function association, which is why
+not new and was not introduced after this decision — it is ADR-0013's, and the Lambda@Edge record
+(formerly 0026, now *What this replaced* below) already named it as *"the URL-rewrite that remains."* The `/assets/*` behavior carries no function association, which is why
 the accurate claim is "every request for a page" rather than "every request."
 
 **The decision is unchanged.** Nothing about the chosen option moves — the near-zero-cost and
@@ -137,13 +143,14 @@ to operate. The **ops-burden** claims elsewhere in this platform (*"nothing to k
 a different claim and remain true.
 
 **Why it was recorded at all.** `product-lead` argued no amendment was owed, because read whole the
-scoped clause and ADR-0026's own wording each scope themselves. That holds for those two and is why this
+scoped clause and the Lambda@Edge record's own wording each scope themselves. That holds for those two and is why this
 amendment does not call them false — but it does not reach the unscoped clause, which no adjacent line
 scoped. The evidence: the clause was lifted onto `/architecture` without its qualifiers, where it read as
 a claim about request-time compute in general. Corrected on that page in
 [#452](https://github.com/tedeuxx/tadeumendonca-io/pull/452); recorded here because the page points a
-reader at ADR-0026, and correcting the page while leaving the record bare re-arms the same quotation.
-ADR-0026's own 2026-08-15 amendment points here rather than repeating this.
+reader at the Lambda@Edge record, and correcting the page while leaving the record bare re-arms the same
+quotation. That record's own 2026-08-15 amendment pointed here rather than repeating this, so when the
+record folded below, this amendment was already the one copy and nothing of it had to move.
 
 ### Amendment, 2026-08-25 — "each route is prerendered" is a claim about PUBLISHED routes
 
@@ -163,6 +170,31 @@ listing and no sitemap entry.
 the site still needs no Lambda@Edge, and the runtime-from-bucket option is still unchosen — a held
 article's text lives in the bundle precisely *because* build time is still in force. What is narrowed is
 the quantifier *each*, nothing else.
+
+### What this replaced: the edge OG renderer and the link unfurl
+
+**Folded 2026-11-22 (#456, the tenth slice) from the two reversed records this section superseded**, 0026
+and 0027, both decided around 2026-06 and superseded 2026-07-22. Each full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0026-*'` and `git log --diff-filter=D -- 'docs/adr/0027-*'`.
+
+**The Lambda@Edge OG renderer (formerly 0026).** A client-rendered SPA serves crawlers an empty shell, so
+the platform ran a Lambda@Edge function that rendered OG per request at the CloudFront edge. It was
+decided because a backend and edge tier were already in place (*What this replaced* below), and edge OG
+could reflect request-time state. It was reversed because going fully static removed the edge tier, and
+the OG requirement is met at build time (the decision above): edge compute is still request-time compute
+to fund and operate, and build-time prerender delivers the same served HTML with no renderer running. The
+URL rewrite that remains is a lightweight CloudFront Function (ADR-0013), not Lambda@Edge; the scope of
+*no renderer running* is the 2026-08-15 amendment above. **Lost, and accepted:** request-time, dynamic OG
+— the site's OG is static content, fine to freeze at build.
+
+**The backend link unfurl (formerly 0027).** Posts could embed curated links that rendered as rich
+preview cards (YouTube, Spotify, generic OG). Producing those for an arbitrary link needs a request-time
+fetch of its remote OG metadata, which the backend did, reusing the OG bucket, with X and Instagram
+degraded pending paid APIs. It was decided because a BFF was available and rich previews improved the
+feed. It was reversed because unfurling an arbitrary external link is inherently a request-time server
+fetch, impossible without a backend; what survives is the known-provider client embed (*The decision, as
+it binds* above). **Still true:** the inverse holds — the site makes its *own* URLs maximally unfurlable
+at build time (ADR-0005).
 
 ### Where it came from
 
@@ -265,11 +297,62 @@ split.
   which had just replaced a stale README claim with one that was true of the code and contradicted the
   record.
 
+## What this replaced
+
+**Folded 2026-11-22 (#456, the tenth slice) from the two reversed records the platform decision above
+superseded**, 0025 and 0029, both decided around 2026-06 and superseded 2026-07-22. Each full record is in
+git history: `git log --diff-filter=D -- 'docs/adr/0025-*'` and
+`git log --diff-filter=D -- 'docs/adr/0029-*'`. A retired architecture is written down here, beside the decision that retired it, so
+that it reads as reversed and never as an instruction to rebuild it.
+
+### The backend-ful platform (formerly 0025)
+
+**What it was.** The platform was built as a dynamic product: a **Hono BFF on Lambda**, **DynamoDB** for a
+feed, posts, articles and users, **Cognito** (social-only Google sign-in, with an admin group) for auth,
+**SES** for a newsletter digest, and **Lambda@Edge** for OG rendering. The site had a unified feed, post
+reactions, moderated comments, short URLs and an admin compose surface.
+
+**Why it was decided then.** The direction was a full product — interactive, authenticated, dynamic — and
+a BFF with DynamoDB and Cognito is a reasonable stack for that, one that exercised real distributed-systems
+engineering.
+
+**Why it was reversed.** The strategy narrowed to presence through content and portfolio (ADR-0053, lean
+by design). Against that, the whole backend was cost, operational surface and attack surface serving
+capabilities with no audience to justify them: nobody to authenticate, nothing to store, no feed to
+serve. The tier was retired and the site became fully static (the decision above; option 2 there is the
+thin-BFF remainder of this one, rejected on the same grounds).
+
+**Still being paid.** Lost: the dynamic and authenticated capabilities — feed, comments, accounts,
+newsletter. They are recorded as history, not as a gap: they can return through the gradual-evolution
+path of lean by design if the strategy ever calls for them, and the repository's `backend` skill still
+describes the pattern for that day.
+
+### The offline-first PWA (formerly 0029)
+
+**What it was.** The frontend was an installable, offline-first PWA: `vite-plugin-pwa` with a service
+worker, a manifest, and an IndexedDB-persisted outbox (React Query) that queued reactions and comments
+made offline.
+
+**Why it was decided then.** For an interactive app with user actions, offline resilience and
+installability were real wins: queue an action offline, sync when back online.
+
+**Why it was reversed.** Going static removed the user actions the outbox existed for, so there was
+nothing to queue, and an offline shell for read-only content is machinery without a matching need (lean
+by design). The PWA was removed: no service worker, no manifest, no offline shell. *No PWA shell* is one
+of the fixed decisions in `AGENTS.md`.
+
+**Still being paid.** Lost: installability and offline reads, accepted, because a read-only content site
+does not need them and the CDN already serves it fast. `apps/fed/src/lib/serviceWorker.ts` remains only to
+unregister a worker a returning visitor's browser may still hold.
+
 ## Links
-- Driven by ADR-0053 (lean by design) · supersedes the backend-era architecture (History index).
+- Driven by ADR-0053 (lean by design) · supersedes the backend-era architecture (*What this replaced* above).
 - Absorbed by #456 (2026-11-01): the build-time render (formerly record 0004), the frontend toolchain
   (0006) and the data-key convention (0012). Each section above says where it came from and how to
   recover the original from git history.
+- Folded by #456 (2026-11-22, the tenth slice): the reversed records 0025 and 0029 into *What this
+  replaced*, and 0026 and 0027 into *Content and OG resolved at build time*. The decision index lists each
+  number under *Records that left the library*.
 - Scoped by [ADR-0005, *A held article is isolated, not private*](./0005-og-coverage-every-public-url.md#a-held-article-is-isolated-not-private) (a held article is compiled in but
   neither listed nor prerendered) · the CloudFront Function that runs per page request is ADR-0013's ·
   own-URL OG coverage is ADR-0005.

@@ -16,7 +16,7 @@
 /** The article KEY — the filename base that pairs the two editions. */
 export const HELD_KEY = 'held-draft-fixture';
 
-/** The per-locale slugs (ADR-0037), i.e. the URLs the two held editions answer at. */
+/** The per-locale slugs (ADR-0036, *Localized article slugs*), i.e. the URLs the two held editions answer at. */
 export const HELD_SLUGS = { en: 'held-draft-fixture', pt: 'rascunho-retido-fixture' } as const;
 
 /**

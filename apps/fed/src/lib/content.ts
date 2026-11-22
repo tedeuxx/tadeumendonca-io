@@ -10,7 +10,7 @@
 // lacks either locale throws at module load, which fails the build, the prerender and the test suite. The
 // loader makes the single-language case impossible, not merely discouraged.
 //
-// Identity is the filename KEY, not the slug. Per-locale slugs (ADR-0037) mean the two editions carry
+// Identity is the filename KEY, not the slug. Per-locale slugs (ADR-0036, *Localized article slugs*) mean the two editions carry
 // DIFFERENT slugs — EN `/en/blog/my-commitment`, PT `/pt/blog/meu-compromisso` — so `slug` is authored
 // once PER LOCALE (frontmatter) and left OUT of the shared-fact set. This mirrors the CV: prose
 // (title/excerpt/takeaway/body) and now the slug are per-locale, while the remaining FACTS (date, tag,
@@ -29,7 +29,7 @@ export interface BlogPost {
   slug: string;
   /**
    * Slugs this edition used to be published under, and the reason this field exists at all:
-   * a published URL is a permanent contract (ADR-0010), and ADR-0037 makes a slug per-locale and therefore
+   * a published URL is a permanent contract (ADR-0036, *Client-side routing and the public surfaces*), and ADR-0036's *Localized article slugs* makes a slug per-locale and therefore
    * CORRECTABLE. Correcting one without recording what it replaced silently 404s every link already in the
    * world — the one failure this repo cannot fix after the fact, because a scraper pins what it first read.
    *
@@ -37,7 +37,7 @@ export interface BlogPost {
    * the same reason `slug` is (it IS a slug), hence deliberately outside FACT_KEYS. `App.tsx` turns each
    * entry into a client-side redirect to the current slug — the same `<Navigate … replace>` mechanism every
    * other back-compat path on this site uses. Never prerendered and never in the sitemap: a redirect is not
-   * a route (ADR-0010's 2026-07-24 amendment states the rule; `routes.mjs` reads `slug` only, so it is the
+   * a route (the 2026-07-24 amendment in ADR-0036's *Client-side routing and the public surfaces* states the rule; `routes.mjs` reads `slug` only, so it is the
    * shape of that module rather than a filter that keeps these out).
    */
   previousSlugs: string[];
@@ -127,7 +127,7 @@ const FILENAME = /\/([^/]+)\.([^./]+)\.md$/;
 // cannot disagree about them. Prose (title, excerpt, takeaway, body) is deliberately NOT here — and
 // neither is `slug` — nor `previousSlugs`, which is a list OF slugs and per-locale for the same reason.
 // (It would also throw on every article regardless: FACT_KEYS compares with `!==`, and two arrays are
-// never `===`.) Identity is the filename KEY, not the slug (ADR-0037).
+// never `===`.) Identity is the filename KEY, not the slug (ADR-0036, *Localized article slugs*).
 const FACT_KEYS = [
   'date',
   'tag',
@@ -415,7 +415,7 @@ export function buildEditions(raws: Record<string, string>): Record<string, Edit
     // writes in frontmatter and adds the generated path afterwards.
     //
     // Keyed by `fileSlug` — the article's KEY — never by `slug`. The slug is per-locale and editable
-    // after publication (ADR-0037); the key is the identity this module already treats as stable. A card
+    // after publication (ADR-0036, *Localized article slugs*); the key is the identity this module already treats as stable. A card
     // named after a slug orphans the day the slug is corrected, and an orphaned card is not a broken
     // image on a page: it is an `og:image` URL that 404s, which every scraper that fetched it has pinned.
     //
@@ -452,7 +452,7 @@ const rawFrontmatterOf = (raw: string): string | undefined => FRONTMATTER.exec(r
  * PENDING REVISIONS of published articles (#741, ADR-0005's *A held article is isolated, not private*, as amended) — `src/content/revisions/`.
  *
  * A revision is a full copy of each edition of a PUBLISHED article, keyed by the article KEY (the `blog/`
- * filename stem, never a slug — ADR-0037), with frontmatter byte-identical to the published edition and a
+ * filename stem, never a slug — ADR-0036, *Localized article slugs*), with frontmatter byte-identical to the published edition and a
  * corrected body. `ArticlePage` renders it under `?preview` at the article's real URL; every other visitor,
  * and every prerendered snapshot, gets the published text.
  *
@@ -650,7 +650,7 @@ export function getPostBySlug(slug: string, locale: Locale): BlogPost | undefine
 
 /**
  * The two editions of the article whose `locale` edition carries `slug`. Since slugs are per-locale
- * (ADR-0037), the lookup is unambiguous: it matches on the given locale's OWN slug, then returns the
+ * (ADR-0036, *Localized article slugs*), the lookup is unambiguous: it matches on the given locale's OWN slug, then returns the
  * whole group so callers can read the sibling locale's slug (for hreflang, the toggle, the sitemap).
  */
 export function getEditions(slug: string, locale: Locale): Editions | undefined {

@@ -15,7 +15,7 @@ export const LOCALES = ['pt', 'en'];
  * The public path of an article's card.
  *
  * Keyed by the article's KEY (the filename base) and the locale — NEVER by the slug. The slug is
- * per-locale and editable after publication (ADR-0037); the key is the identity `lib/content.ts` already
+ * per-locale and editable after publication (ADR-0036, *Localized article slugs*); the key is the identity `lib/content.ts` already
  * treats as stable. Naming the file after the slug would orphan a card the day a slug is corrected, and
  * an orphaned card is not a broken image: the page keeps serving a 404 URL in `og:image`, which scrapers
  * pin. That is the least reversible failure this feature can have, so the naming avoids it by

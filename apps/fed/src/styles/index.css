@@ -93,7 +93,7 @@ body {
      worth keeping, so this exception is carved by hand rather than by opening the scale back up.
      Scope is the portrait only: a face reads as a portrait, not as a UI box, and every actual
      surface (cards, buttons, inputs, rules) stays radius 0. Same shape of decision as the
-     LocaleProvider carve-out in ADR-0032 — a named exception, not drift. */
+     LocaleProvider carve-out in ADR-0036, *The locale layer* — a named exception, not drift. */
   .avatar-round {
     border-radius: 50%;
   }

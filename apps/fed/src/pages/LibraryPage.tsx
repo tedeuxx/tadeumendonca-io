@@ -15,7 +15,7 @@
 // That is why `useDocumentHead` needs no `alternates` here: with a shared slug the hook re-prefixes
 // `canonicalPath` for both locales, which is correct — `/pt/library` and `/en/library` are both real,
 // prerendered URLs. `alternates` exists for the route class whose path DIFFERS per locale (articles,
-// ADR-0037), and passing it here would be machinery with nothing to do.
+// ADR-0036, *Localized article slugs*), and passing it here would be machinery with nothing to do.
 //
 // The prerender waits for the canonical to match `canonicalFor(locale, '/library')` before snapshotting,
 // so a wrong `canonicalPath` does not merely mislabel the page — it hangs the build on this route.
