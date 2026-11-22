@@ -3,7 +3,9 @@
 - **Status:** accepted · **amended 2026-11-01** (absorbs the rest of the `hosting-and-trust` capability,
   formerly records 0014, 0015, 0042, 0016 and 0017, as the sections *Pipeline-only apply*, *Pipeline
   credentials by OIDC*, *The trust root outside Terraform*, *Custom-domain email* and *The minimal
-  infrastructure security posture*; every decision is unchanged, #456)
+  infrastructure security posture*; every decision is unchanged, #456) · **amended 2026-11-22** (folds the
+  reversed shared-regional-WAF record, 0031, into *The minimal infrastructure security posture*; no
+  decision changes, #456)
 - **Capability:** `hosting-and-trust`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
@@ -43,7 +45,7 @@ which is ADR-0036's own point. #234.)*
 ## Decision outcome
 Chosen: **S3 + CloudFront (`PriceClass_100`) + a viewer-request CloudFront Function** for clean URLs. A
 CloudFront Function (not Lambda@Edge) does the rewrite — it is cheaper, runs at every edge, and is
-sufficient for a pure string rewrite; the retired Lambda@Edge OG renderer (History) was the heavier tool
+sufficient for a pure string rewrite; the retired Lambda@Edge OG renderer ([ADR-0002, *What this replaced: the edge OG renderer and the link unfurl*](./0002-fully-static-spa-no-backend.md#what-this-replaced-the-edge-og-renderer-and-the-link-unfurl)) was the heavier tool
 this replaces.
 
 ## Consequences
@@ -456,12 +458,12 @@ Email is fully decoupled from the site's deploy and from the CloudFront distribu
 - Zero mail infrastructure and no new subscription; the inbox survives any site change.
 - Tied to Apple's ecosystem and its enrollment flow; the records are provided by Apple, not derived.
 - Sending automated mail, were it ever needed, is out of scope — this is a human inbox, not a
-  transactional mail path (that was SES, retired with the backend — History).
+  transactional mail path (that was SES, retired with the backend — [ADR-0002, *What this replaced*](./0002-fully-static-spa-no-backend.md#what-this-replaced)).
 
 ## The minimal infrastructure security posture
 
 **Absorbed 2026-11-01 (#456) from the record that held it, 0017, decided 2026-07-22.** The decision is
-unchanged and still binds; everything arrived. It supersedes the shared regional WAF (History index).
+unchanged and still binds; everything arrived. It supersedes the shared regional WAF (*What this replaced: the shared regional WAF*, the last subsection here).
 `git log --diff-filter=D -- 'docs/adr/0017-*'` names the commit that removed it.
 
 ### Context
@@ -503,12 +505,34 @@ policy scan green on this choice. It does not refuse a `SecureString` — nothin
 - It relies on the discipline that SSM holds only non-sensitive config — a secret placed there by mistake
   would be unencrypted (mitigated: nothing sensitive belongs on the bus by policy).
 
+### What this replaced: the shared regional WAF
+
+**Folded 2026-11-22 (#456, the tenth slice) from the reversed record this section superseded**, 0031,
+decided around 2026-06 and superseded 2026-07-22. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0031-*'`.
+
+**What it was.** A shared **regional WAF** protected the dynamic tier — the API Gateway and the Cognito
+endpoints — as a security baseline for the backend-ful platform. It was decided because a public,
+authenticated API and its auth endpoints are a real attack surface, and a WAF in front of them is a
+sensible baseline control.
+
+**Why it was reversed.** Retiring the backend ([ADR-0002, *What this replaced*](./0002-fully-static-spa-no-backend.md#what-this-replaced))
+removed the dynamic endpoints the WAF protected. A static bucket behind CloudFront with no dynamic
+endpoint gives a WAF nothing to defend, so it became recurring cost for zero protection, and the decision
+above took its place. Keeping it is the first rejected option above, still live.
+
+**Still being paid.** Lost: a WAF, accepted — it defended a surface that no longer exists, and it returns
+if a dynamic surface does (the posture is calibrated, not permanent, above).
+
 ## Links
 - Driven by ADR-0053 (lean by design), ADR-0002, ADR-0003 · the deploy publishes to S3 + invalidates
   CloudFront (see the SDLC ADRs) · the CloudFront Function replaces the retired Lambda@Edge OG renderer
-  (History index).
+  (ADR-0002, *What this replaced: the edge OG renderer and the link unfurl*).
 - Absorbed by #456 (2026-11-01): the pipeline-only apply (formerly record 0014), the OIDC credentials
   (0015), the trust root (0042), the custom-domain email (0016) and the minimal security posture (0017).
   Each section above says where it came from and how to recover the original from git history.
+- Folded by #456 (2026-11-22, the tenth slice): the reversed shared-regional-WAF record (0031), into *The
+  minimal infrastructure security posture*. The decision index lists the number under *Records that left
+  the library*.
 - The application security posture is [ADR-0003, *The application security posture*](./0003-trunk-based-single-environment.md#the-application-security-posture) · the cost of
   this infrastructure is argued on `/architecture` · runbook: `docs/iac-deploy-policy.md`.

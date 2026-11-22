@@ -7,11 +7,12 @@
   0022, 0023 and 0044, as the sections *CI gates on the pull request*, *Complete functional regression*,
   *The SonarCloud quality gate*, *The application security posture*, *Numeric SemVer, released on every
   merge*, *Version parts: major and minor are deliberate* and *Observability scoped to a static site*;
-  every decision is unchanged, #456)
+  every decision is unchanged, #456) · **amended 2026-11-22** (folds the reversed GitFlow record it
+  superseded, 0028, into a new `## What this replaced`; no decision changes, #456)
 - **Capability:** `delivery-and-gates`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
-- **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in the History index)
+- **Supersedes / superseded by:** supersedes the GitFlow two-environment model (recorded in *What this replaced* below)
 - **Driven by:** [ADR-0053](./0053-this-library-records-presence-and-site-architecture-one-document-per-capability.md#lean-by-design--the-keystone-every-record-is-read-through) (lean by design)
 
 **This document is the whole `delivery-and-gates` capability.** The first half is the delivery model
@@ -1066,9 +1067,37 @@ a backend playbook.
 - **The fidelity test between the event schema and `/analytics` covers event and parameter names only**;
   the page's prose is held by review.
 
+## What this replaced
+
+**Folded 2026-11-22 (#456, the tenth slice) from the reversed record this decision superseded**, 0028,
+decided around 2026-06 and superseded 2026-07-22. The full record is in git history:
+`git log --diff-filter=D -- 'docs/adr/0028-*'`. The retired model is written down here, beside the
+decision that retired it, so that it reads as reversed and never as an instruction to rebuild it.
+
+### GitFlow with staging and production (formerly 0028)
+
+**What it was.** Delivery ran GitFlow: a `develop` integration branch auto-deploying to a **staging**
+environment, and a `main` release branch deploying to **production** behind a manual approval, with gates
+per environment.
+
+**Why it was decided then.** A backend-ful product with real users would want a staging tier to validate
+auth, email and the edge before production, and a promotion gate to control production releases.
+
+**Why it was reversed.** For a static personal site with one maintainer and no blast radius beyond a CDN
+(ADR-0053, lean by design, and ADR-0002), a second environment and a promotion pipeline are ceremony
+without payoff: a `develop` branch nothing needs, and a promotion with no independent approver. The
+rejected option is still live as option 2 in *Considered options* above, and the reasoning there is this
+record's.
+
+**Still being paid.** No staging tier to fund or keep in sync; the full regression moved onto the pull
+request (*CI gates on the pull request* above). Lost: a pre-production environment, accepted — the
+comprehensive gate on the pull request and the forward-fix discipline replace it.
+
 ## Links
 - Driven by ADR-0053 (lean by design) · model defined in the dev-loop plugin (`/principles/dev-loop`, `trunk-single-env`)
-  · relies on *CI gates on the pull request* above (full gate on the PR) · supersedes the GitFlow two-environment model (History index).
+  · relies on *CI gates on the pull request* above (full gate on the PR) · supersedes the GitFlow two-environment model (*What this replaced* above).
+- **Folded 2026-11-22 (#456, the tenth slice):** the reversed record 0028, as *What this replaced* above.
+  The decision index lists the number under *Records that left the library*.
 - **Absorbed 2026-11-02 (#456, the seventh slice):** records 0018, 0019, 0020, 0021, 0022, 0023 and 0044,
   as the seven sections above this list. Each names the `git log --diff-filter=D` command that finds its
   full record. The decision index lists each number under *Records that left the library*.
