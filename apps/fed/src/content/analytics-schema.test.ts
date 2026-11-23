@@ -24,7 +24,7 @@ import analyticsSource from '../lib/analytics.ts?raw';
 import analyticsEn from './analytics.en.md?raw';
 import analyticsPt from './analytics.pt.md?raw';
 import utmSource from '../lib/utm.ts?raw';
-import { YOUTUBE_SOURCE, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN } from '../lib/utm';
+import { YOUTUBE_SOURCE, SHARE_MEDIUM, SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, STORY_CAMPAIGN } from '../lib/utm';
 
 type Schema = Map<string, string[]>;
 
@@ -218,7 +218,7 @@ describe('the /analytics page lists exactly the campaign tags utm.ts defines (#8
   it.each(TAG_EDITIONS)('$locale edition: sources, medium and campaigns', ({ body, sources, medium, campaigns }) => {
     expect(tagLine(body, sources)).toEqual(sorted([...shareSourcesOf(utmSource), YOUTUBE_SOURCE]));
     expect(tagLine(body, medium)).toEqual([SHARE_MEDIUM]);
-    expect(tagLine(body, campaigns)).toEqual(sorted([SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, ...HAND_PLACED_CAMPAIGNS]));
+    expect(tagLine(body, campaigns)).toEqual(sorted([SHARE_CAMPAIGN, AUTHOR_CAMPAIGN, STORY_CAMPAIGN, ...HAND_PLACED_CAMPAIGNS]));
   });
 
   it('refuses a page with no campaign-tag section', () => {

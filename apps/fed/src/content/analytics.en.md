@@ -102,13 +102,13 @@ Every custom event carries `locale`, the edition the reader is on. Each name is 
 
 A link to this site can carry three campaign tags, which GA4 reads from the address of the first hit of a visit: `utm_source`, `utm_medium` and `utm_campaign`. They are why `page_view` sets `page_location` itself. Each value is fixed once a link carrying it is out, because the link lives on in someone else's chat or timeline, and a renamed value would split one series in two. The reasoning is in [ADR-0005](https://github.com/tedeuxx/tadeumendonca-io/blob/main/docs/adr/0005-og-coverage-every-public-url.md), section *Campaign tagging of shared links*. This list is checked against [`utm.ts`](https://github.com/tedeuxx/tadeumendonca-io/blob/main/apps/fed/src/lib/utm.ts), where the values are defined.
 
-**Sources:** `copy-link` · `linkedin` · `share-sheet` · `whatsapp` · `x` · `youtube`
+**Sources:** `copy-link` · `instagram` · `linkedin` · `share-sheet` · `whatsapp` · `x` · `youtube`
 
 **Medium:** `social`
 
-**Campaigns:** `author-post` · `author-profile` · `reader-share`
+**Campaigns:** `author-post` · `author-profile` · `reader-share` · `story-card`
 
-**What they establish:** which mechanism put the link into circulation. `reader-share` is a link a reader sent from one of this site's share controls, `author-post` a link I posted myself, and `author-profile` the link on my own LinkedIn or X profile. `youtube` is only ever mine, in the description of a video I publish on YouTube, so it always comes with `author-post`: no share control here sends a link to YouTube. `share-sheet` is no longer produced by any control on this site and stays defined for links already shared.
+**What they establish:** which mechanism put the link into circulation. `reader-share` is a link a reader sent from one of this site's share controls, `author-post` a link I posted myself, and `author-profile` the link on my own LinkedIn or X profile. `youtube` is only ever mine, in the description of a video I publish on YouTube, so it always comes with `author-post`: no share control here sends a link to YouTube. `story-card` is printed, with `instagram`, in the QR on each article's vertical Story card, made for sharing to an Instagram Story. `share-sheet` is no longer produced by any control on this site and stays defined for links already shared.
 
 **What they cannot establish:** who sent a link, or how far it travelled. A tag survives only as long as the address does: a link copied without its query string, or stripped by the network it passes through, arrives untagged and is counted as a referral or as direct. And a visit is counted only after consent, so every tagged count is a floor too.
 

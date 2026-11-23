@@ -27,6 +27,15 @@ export const SHARE_MEDIUM = 'social';
 export const SHARE_CAMPAIGN = 'reader-share';
 export const AUTHOR_CAMPAIGN = 'author-post';
 
+/** The campaign on the QR printed on the vertical Story card (#662; the 2026-11-21 amendment to
+ *  ADR-0005's *Campaign tagging of shared links*). It names the ARTIFACT: the card a reader sends to
+ *  their own Instagram Story (#789), the only way the site reaches Instagram — the author posts no
+ *  Stories. So it measures arrivals from that card apart from the link shares (`reader-share`), whose
+ *  lifetime and mechanism differ. A printed QR outlives every Story and cannot be re-tagged, so this
+ *  string is immutable from the first card generated with it. A frame reusing the card's layout
+ *  elsewhere (#820) passes its own QR payload, never this one. */
+export const STORY_CAMPAIGN = 'story-card';
+
 /**
  * Where a share came FROM, as GA4 will read it.
  *
@@ -50,7 +59,20 @@ export const AUTHOR_CAMPAIGN = 'author-post';
  * the code had just established did not happen. The branch is gone; `copy-link` is now the modal's
  * copy option and the footer's, and it is still the truthful name for what happened.
  */
-export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-link';
+export type ShareSource = 'whatsapp' | 'x' | 'linkedin' | 'share-sheet' | 'copy-link' | 'instagram';
+
+/**
+ * The source stamped on the Story card's QR (#662). `instagram`, not `instagram-story`: the network is
+ * the source and the artifact is already the campaign (`STORY_CAMPAIGN`), the split the 2026-10-16
+ * amendment in ADR-0005's *Campaign tagging of shared links* applies to profiles. Exported as a
+ * constant so the build-time generator, which cannot type-check its own literal, takes the spelling
+ * from here rather than retyping it.
+ *
+ * #789 (the reader's share-to-Story) is the first EMITTER of this value as a `share_complete` target;
+ * #662 only prints it into the QR, so the GA dimension's documented values and the registration in
+ * ADR-0005's *The GA4 event schema is immutable once it collects* are #789's.
+ */
+export const STORY_SOURCE: ShareSource = 'instagram';
 
 /**
  * Sources only the AUTHOR posts to (#817; ADR-0005, *Campaign tagging of shared links*, amended 2026-11-21).
