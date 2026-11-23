@@ -34,12 +34,12 @@ const options = {
 const tag = (source, medium = 'social') => `utm_source=${source}&utm_medium=${medium}&utm_campaign=author-post`;
 
 const alphaPosts = [
-  `post: alpha linkedin pt-en 2026-12-01 ${SITE}/blog/alpha-en?${tag('linkedin')} https://www.linkedin.com/posts/a1`,
-  `post: alpha x en-pt 2026-12-01 ${SITE}/blog/alpha-en?${tag('x')} https://x.com/u/status/1`,
-  `post: alpha youtube pt 2026-12-02 ${SITE}/pt/blog/alfa-pt?${tag('youtube', 'video')} https://www.youtube.com/shorts/p1`,
-  `post: alpha youtube en 2026-12-02 ${SITE}/en/blog/alpha-en?${tag('youtube', 'video')} https://www.youtube.com/shorts/e1`,
+  `post: alpha linkedin pt-en 2026-12-01 ${SITE}/blog/alpha-en?${tag('linkedin')} https://www.linkedin.com/posts/a1 F1`,
+  `post: alpha x en-pt 2026-12-01 ${SITE}/blog/alpha-en?${tag('x')} https://x.com/u/status/1 F1`,
+  `post: alpha youtube pt 2026-12-02 ${SITE}/pt/blog/alfa-pt?${tag('youtube', 'video')} https://www.youtube.com/shorts/p1 unlabelled`,
+  `post: alpha youtube en 2026-12-02 ${SITE}/en/blog/alpha-en?${tag('youtube', 'video')} https://www.youtube.com/shorts/e1 unlabelled`,
 ];
-const reachFor = (line) => `reach: ${line.split(' ').at(-1)} unread`;
+const reachFor = (line) => `reach: ${line.split(' ').at(-2)} unread`;
 const recordOf = (lines) => parsePostRecord([...lines, ...lines.map(reachFor)].join('\n'));
 const problemsOf = (lines) => validatePostRecord(recordOf(lines), editions, options);
 const POST_SET = ['linkedin', 'x', 'youtube:pt', 'youtube:en'];
@@ -55,6 +55,7 @@ describe('parsePostRecord', () => {
         posted: '2026-12-01',
         address: `${SITE}/blog/alpha-en?${tag('linkedin')}`,
         url: 'https://www.linkedin.com/posts/a1',
+        format: 'F1',
       },
     ]);
     expect(r.reach).toEqual([{ url: 'https://x', status: ['read'] }]);
@@ -65,6 +66,94 @@ describe('parsePostRecord', () => {
     const r = parsePostRecord('post: alpha linkedin pt-en 2026-12-01');
     expect(r.posts).toEqual([]);
     expect(validatePostRecord(r, editions, options)).toEqual(['malformed post line: post: alpha linkedin pt-en 2026-12-01']);
+  });
+});
+
+// Rotation posts (#831): no piece and no link, so both fields are `-`.
+const rotation = (format, platform = 'linkedin', url = 'https://www.linkedin.com/posts/r1') =>
+  `post: - ${platform} pt-en 2026-12-05 - ${url} ${format}`;
+
+describe('the format code (#831)', () => {
+  it('reads the format field, and a - piece and address as absent', () => {
+    const r = parsePostRecord(rotation('F2'));
+    expect(r.malformed).toEqual([]);
+    expect(r.posts).toEqual([
+      {
+        piece: null,
+        platform: 'linkedin',
+        language: 'pt-en',
+        posted: '2026-12-05',
+        address: null,
+        url: 'https://www.linkedin.com/posts/r1',
+        format: 'F2',
+      },
+    ]);
+  });
+
+  it('keeps a post line without its format field as malformed', () => {
+    const withoutFormat = alphaPosts[0].replace(/ F1$/, '');
+    expect(parsePostRecord(withoutFormat).malformed).toEqual([withoutFormat]);
+  });
+
+  it('accepts every rotation code on a post with no piece and no link, on LinkedIn and on X', () => {
+    for (const format of ['F2', 'F3a', 'F3b', 'F3c', 'unlabelled']) {
+      expect(problemsOf([rotation(format)]), format).toEqual([]);
+      expect(problemsOf([rotation(format, 'x', 'https://x.com/u/status/7')]), format).toEqual([]);
+    }
+  });
+
+  it('accepts F1 and unlabelled on a linked text post', () => {
+    expect(problemsOf([alphaPosts[0].replace(/ F1$/, ' unlabelled')])).toEqual([]);
+  });
+
+  it('refuses a code outside the catalog, and a guessed lower-case code', () => {
+    for (const format of ['F4', 'f2', 'F3', 'digest']) {
+      expect(problemsOf([rotation(format)]), format).toEqual([
+        `https://www.linkedin.com/posts/r1: format ${format} is not one of F1 F2 F3a F3b F3c unlabelled`,
+      ]);
+    }
+  });
+
+  it('refuses a code that contradicts the post shape', () => {
+    expect(problemsOf([rotation('F1')])).toEqual(['https://www.linkedin.com/posts/r1: format F1 carries a piece and an address']);
+    expect(problemsOf([alphaPosts[0].replace(/ F1$/, ' F2')])).toEqual([
+      'https://www.linkedin.com/posts/a1: format F2 carries no piece and no address; write -',
+    ]);
+    expect(problemsOf([rotation('F2').replace('post: -', 'post: alpha')])).toEqual([
+      'https://www.linkedin.com/posts/r1: piece and address must both be present or both be -',
+    ]);
+  });
+
+  it('holds a YouTube post to unlabelled and to its piece', () => {
+    expect(problemsOf([alphaPosts[2].replace(/ unlabelled$/, ' F1')])).toEqual([
+      'https://www.youtube.com/shorts/p1: format F1 is a LinkedIn or X format; a youtube post is unlabelled',
+    ]);
+    expect(problemsOf([rotation('unlabelled', 'youtube', 'https://www.youtube.com/shorts/r1').replace('pt-en', 'pt')])).toEqual([
+      'https://www.youtube.com/shorts/r1: a youtube post carries its piece and address',
+    ]);
+  });
+
+  it('still checks a rotation post language, date, post URL and reach line', () => {
+    expect(problemsOf([rotation('F2').replace('pt-en', 'pt').replace('2026-12-05', 'soon')])).toEqual([
+      'https://www.linkedin.com/posts/r1: language pt is not one of pt-en en-pt',
+      'https://www.linkedin.com/posts/r1: posted date soon is not YYYY-MM-DD',
+    ]);
+    expect(problemsOf([rotation('F2', 'x')])).toEqual([
+      'https://www.linkedin.com/posts/r1: post URL https://www.linkedin.com/posts/r1 is not an https x address',
+    ]);
+    expect(validatePostRecord(parsePostRecord(rotation('F2')), editions, options)).toEqual([
+      'https://www.linkedin.com/posts/r1: has no reach: line',
+    ]);
+  });
+
+  it('lets two rotation posts share a platform, and keeps them out of the baseline and the session figures', () => {
+    const second = rotation('F3a', 'linkedin', 'https://www.linkedin.com/posts/r2');
+    expect(problemsOf([rotation('F2'), second, ...alphaPosts])).toEqual([]);
+    const posts = parsePostRecord([rotation('F2'), ...alphaPosts].join('\n')).posts;
+    expect(baselineStatus(posts, POST_SET, 3).complete).toEqual(['alpha']);
+    expect(baselineStatus(posts.slice(0, 1), POST_SET, 3).incomplete).toEqual([]);
+    const rows = parseSessionRows('session-row: linkedin social author-post /blog/alpha-en pt 4').rows;
+    expect(postFigures(posts.slice(0, 1), rows, editions)).toEqual([]);
   });
 });
 
@@ -326,9 +415,9 @@ describe('the CLI', () => {
   it('fails on a record with a problem, prints what is missing, and prints figures for a collection', async () => {
     const blog = '/blog/my-commitment';
     const posts = [
-      `post: my-commitment linkedin pt-en 2026-12-01 ${SITE}${blog}?${tag('linkedin')} https://www.linkedin.com/posts/m1`,
+      `post: my-commitment linkedin pt-en 2026-12-01 ${SITE}${blog}?${tag('linkedin')} https://www.linkedin.com/posts/m1 F1`,
       'reach: https://www.linkedin.com/posts/m1 unread',
-      `post: my-commitment x en-pt 2026-12-01 ${SITE}${blog} https://x.com/u/status/2`,
+      `post: my-commitment x en-pt 2026-12-01 ${SITE}${blog} https://x.com/u/status/2 F1`,
       'reach: https://x.com/u/status/2 unread',
     ].join('\n');
     const collection = join(store, 'collected', '2000-01.tsv');
@@ -353,7 +442,7 @@ describe('the CLI', () => {
       {
         [join(store, 'declarations.md')]: 'post-set: linkedin\nbaseline-pieces: 1\n',
         [join(store, 'posts.md')]:
-          `post: my-commitment linkedin pt-en 2026-12-01 ${SITE}/blog/my-commitment?${tag('linkedin')} https://www.linkedin.com/posts/m1\nreach: https://www.linkedin.com/posts/m1 unread\n`,
+          `post: my-commitment linkedin pt-en 2026-12-01 ${SITE}/blog/my-commitment?${tag('linkedin')} https://www.linkedin.com/posts/m1 F1\nreach: https://www.linkedin.com/posts/m1 unread\n`,
       },
     );
     expect(code).toBe(0);

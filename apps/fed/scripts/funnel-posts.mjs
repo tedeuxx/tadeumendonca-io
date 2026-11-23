@@ -6,6 +6,13 @@
 // its campaign tags, and the post's own URL. Each post also carries its native reach as the owner read
 // it, with a status, because native reach exists only inside each platform.
 //
+// Each post also carries its social-post format code (#831), from the catalog that tedeuxx/mhw#573 adds to
+// the method's `published-voice` skill (not merged yet):
+// `F1` is the article digest, which carries a piece and a link; `F2`, `F3a`, `F3b` and `F3c` are rotation
+// posts, which carry neither, so their piece and address fields are `-`. A post published with no code is
+// `unlabelled`, never a guessed code. Once that change merges, the funnel review is to write the code as
+// the `<format>` segment of its post spelling `<metric>.<format>.<post>`, and compare posts by it.
+//
 // What this module does with that record:
 //   1. validates it against the site (the piece exists, the address is the route the strategy says that
 //      platform carries, the address is tagged);
@@ -30,6 +37,12 @@ const POST_HOSTS = {
   x: ['x.com', 'twitter.com'],
   youtube: ['youtube.com', 'www.youtube.com', 'youtu.be'],
 };
+/** The closed catalog tedeuxx/mhw#573 adds to `published-voice` (not merged yet), plus `unlabelled` for a post recorded with no code. */
+export const LINKED_FORMATS = ['F1'];
+export const ROTATION_FORMATS = ['F2', 'F3a', 'F3b', 'F3c'];
+export const FORMATS = [...LINKED_FORMATS, ...ROTATION_FORMATS, 'unlabelled'];
+/** The field value a post with no piece and no link carries in place of each. */
+export const ABSENT = '-';
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TOKEN = /^[^\s:]+$/;
 
@@ -43,12 +56,20 @@ export function parsePostRecord(text) {
     if (!m) continue;
     const fields = m[2].trim().split(/\s+/);
     if (m[1] === 'post') {
-      if (fields.length !== 6) {
+      if (fields.length !== 7) {
         malformed.push(line);
         continue;
       }
-      const [piece, platform, language, posted, address, url] = fields;
-      posts.push({ piece, platform, language, posted, address, url });
+      const [piece, platform, language, posted, address, url, format] = fields;
+      posts.push({
+        piece: piece === ABSENT ? null : piece,
+        platform,
+        language,
+        posted,
+        address: address === ABSENT ? null : address,
+        url,
+        format,
+      });
     } else {
       const [url, ...status] = fields;
       reach.push({ url, status });
@@ -127,15 +148,43 @@ function checkReachStatus(status) {
  * Every problem in the record, as `<what>: <problem>` strings. Empty means valid.
  * `editions` is buildBlogEditions' Map of piece key → { pt, en }.
  */
-/** One post's own problems: what it is, and the address it carried. */
+/** True for a post that carries a piece and a link; a rotation post does not. */
+export const isLinked = (post) => post.piece !== null;
+
+/**
+ * The format code against the post's shape: `F1` carries a piece and a link, a rotation code carries
+ * neither, `unlabelled` may be either. The catalog covers LinkedIn and X posts only, so a YouTube post
+ * is `unlabelled`. Piece and address are present together or absent together.
+ */
+function checkFormat(post) {
+  if (!FORMATS.includes(post.format)) return [`format ${post.format} is not one of ${FORMATS.join(' ')}`];
+  const linked = isLinked(post);
+  if (linked !== (post.address !== null)) return ['piece and address must both be present or both be -'];
+  if (!TEXT_PLATFORMS.has(post.platform)) {
+    if (post.format !== 'unlabelled') return [`format ${post.format} is a LinkedIn or X format; a ${post.platform} post is unlabelled`];
+    if (!linked) return [`a ${post.platform} post carries its piece and address`];
+    return [];
+  }
+  if (LINKED_FORMATS.includes(post.format) && !linked) return [`format ${post.format} carries a piece and an address`];
+  if (ROTATION_FORMATS.includes(post.format) && linked) return [`format ${post.format} carries no piece and no address; write -`];
+  return [];
+}
+
+/** One post's own problems: what it is, its format, and the address it carried. */
 function checkPost(post, pair, options) {
   if (!PLATFORMS.includes(post.platform)) return [`platform ${post.platform} is not one of ${PLATFORMS.join(' ')}`];
-  if (!pair) return [`piece ${post.piece} is not a published piece`];
+  const formatProblems = checkFormat(post);
+  if (formatProblems.length) return formatProblems;
   const languageProblems = checkLanguage(post);
-  return [
+  const common = [
     ...languageProblems,
     ...(DATE.test(post.posted) ? [] : [`posted date ${post.posted} is not YYYY-MM-DD`]),
     ...checkPostUrl(post),
+  ];
+  if (!isLinked(post)) return common;
+  if (!pair) return [`piece ${post.piece} is not a published piece`];
+  return [
+    ...common,
     // An address can only be held to its expected route once the language names one.
     ...(languageProblems.length === 0 ? checkAddress(post, pair, options) : []),
   ];
@@ -147,9 +196,14 @@ export function validatePostRecord(record, editions, options) {
   const slots = new Set();
   for (const post of record.posts) {
     const at = (p) => `${post.url}: ${p}`;
-    problems.push(...checkPost(post, editions.get(post.piece), options).map(at));
+    problems.push(...checkPost(post, isLinked(post) ? editions.get(post.piece) : undefined, options).map(at));
     if (seen.has(post.url)) problems.push(at('recorded twice'));
     seen.add(post.url);
+    // A rotation post has no piece and no sessions to match, so it fills no slot.
+    if (!isLinked(post)) {
+      if (!record.reach.some((r) => r.url === post.url)) problems.push(at('has no reach: line'));
+      continue;
+    }
     const slot = `${post.piece} ${slotOf(post)}`;
     if (slots.has(slot)) problems.push(at(`a second post for ${slot}, which the session match cannot tell apart`));
     slots.add(slot);
@@ -168,7 +222,7 @@ export function validatePostRecord(record, editions, options) {
  */
 export function baselineStatus(posts, postSet, threshold) {
   const byPiece = new Map();
-  for (const post of posts) {
+  for (const post of posts.filter(isLinked)) {
     const slots = byPiece.get(post.piece) ?? new Set();
     slots.add(slotOf(post));
     byPiece.set(post.piece, slots);
@@ -238,7 +292,7 @@ export function matchSessions(post, rows, pair) {
 export function postFigures(posts, rows, editions) {
   const total = rows.reduce((n, r) => n + r.sessions, 0);
   const lines = [];
-  for (const post of posts) {
+  for (const post of posts.filter(isLinked)) {
     const pair = editions.get(post.piece);
     if (!pair) continue;
     const byLocale = new Map();
