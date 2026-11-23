@@ -6,11 +6,12 @@
 // its campaign tags, and the post's own URL. Each post also carries its native reach as the owner read
 // it, with a status, because native reach exists only inside each platform.
 //
-// Each post also carries its social-post format code (#831), from the method's `published-voice` catalog:
+// Each post also carries its social-post format code (#831), from the catalog that tedeuxx/mhw#573 adds to
+// the method's `published-voice` skill (not merged yet):
 // `F1` is the article digest, which carries a piece and a link; `F2`, `F3a`, `F3b` and `F3c` are rotation
 // posts, which carry neither, so their piece and address fields are `-`. A post published with no code is
-// `unlabelled`, never a guessed code. The funnel review writes the code as the `<format>` segment of its
-// post spelling `<metric>.<format>.<post>`, and compares posts by it.
+// `unlabelled`, never a guessed code. Once that change merges, the funnel review is to write the code as
+// the `<format>` segment of its post spelling `<metric>.<format>.<post>`, and compare posts by it.
 //
 // What this module does with that record:
 //   1. validates it against the site (the piece exists, the address is the route the strategy says that
@@ -36,7 +37,7 @@ const POST_HOSTS = {
   x: ['x.com', 'twitter.com'],
   youtube: ['youtube.com', 'www.youtube.com', 'youtu.be'],
 };
-/** The closed catalog of `published-voice` rule 26, plus `unlabelled` for a post recorded with no code. */
+/** The closed catalog tedeuxx/mhw#573 adds to `published-voice` (not merged yet), plus `unlabelled` for a post recorded with no code. */
 export const LINKED_FORMATS = ['F1'];
 export const ROTATION_FORMATS = ['F2', 'F3a', 'F3b', 'F3c'];
 export const FORMATS = [...LINKED_FORMATS, ...ROTATION_FORMATS, 'unlabelled'];

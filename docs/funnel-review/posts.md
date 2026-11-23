@@ -34,14 +34,14 @@ fields are each `-`.
   its own language. Every address carries `utm_campaign=author-post` (owner ruling on #819, ADR-0005, *Campaign tagging of shared links*);
   a LinkedIn or X address carries `utm_source=<platform>` and `utm_medium=social`.
 - **`<post-url>`** is the post's own address on the platform.
-- **`<format>`** is the post's social-post format code from the method's `published-voice` catalog
-  (rule 26, tedeuxx/mhw#564): `F1`, the article digest, which carries a piece and the link; or `F2`,
+- **`<format>`** is the post's social-post format code from the catalog that tedeuxx/mhw#573 adds to
+  the method's `published-voice` skill (not merged yet; tedeuxx/mhw#564): `F1`, the article digest, which carries a piece and the link; or `F2`,
   `F3a`, `F3b` or `F3c`, a rotation post, which carries neither and is written in the second form. A
   post recorded with no code is `unlabelled`, **never a guessed code**, and may take either form. The
   catalog covers LinkedIn and X posts only, so a YouTube Short is `unlabelled` and keeps its piece and
-  address. The funnel review writes this code as the `<format>` segment of its post figure spelling,
-  `<metric>.<format>.<post>`, compares posts by it, and leaves `unlabelled` posts out of every
-  per-format comparison.
+  address. Once that change merges, the funnel review is to write this code as the `<format>` segment of
+  its post figure spelling, `<metric>.<format>.<post>`, compare posts by it, and leave `unlabelled`
+  posts out of every per-format comparison.
 - **`reach:`** is the post's native reach (impressions, members reached, views), which exists only
   inside each platform. It is the owner's reading, never a measurement here: `unread` until he reads it,
   then `read <date> owner-native-ui <metric> <value>`, one line per reading. Every post has at least one
