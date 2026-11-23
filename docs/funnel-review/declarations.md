@@ -118,7 +118,8 @@ target is then set from that baseline. Until then a finding may say what the num
 say they missed or met a target.
 
 - **A piece counts only when every post in the post set is recorded for it** in
-  `docs/funnel-review/posts.md`. A half-distributed piece does not start the baseline clock.
+  `docs/funnel-review/posts.md`. A half-distributed piece does not start the baseline clock. A rotation
+  post, recorded with no piece (#831), fills no slot and counts toward no piece.
 - **Every post in that record is under the strategy**, so the count reads the record and nothing else.
 - `node apps/fed/scripts/funnel-posts.mjs` prints the count, and which posts each uncounted piece still
   lacks.
