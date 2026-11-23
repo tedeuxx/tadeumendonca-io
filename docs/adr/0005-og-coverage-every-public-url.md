@@ -6,7 +6,10 @@
   *Which video-derived articles are published*, *Campaign tagging of shared links*, *Consent-gated GA4
   analytics*, *The GA4 event schema is immutable once it collects* and *The analytics schema page*;
   every decision is unchanged, #456) · **amended 2026-11-21** (*Campaign tagging of shared links* gains
-  `youtube`, an author-side `utm_source` value; medium and campaigns unchanged, #817)
+  `youtube`, an author-side `utm_source` value; medium and campaigns unchanged, #817) · **amended
+  2026-11-21** (*Per-article OG cards* gains a second card class, the vertical Story card with a QR, and
+  *Campaign tagging of shared links* gains `utm_source=instagram` and `utm_campaign=story-card` for it,
+  #662)
 - **Capability:** `publication-and-distribution`
 - **Date:** 2026-07-22
 - **Deciders:** the owner
@@ -77,7 +80,8 @@ maximally unfurlable.
 **Absorbed 2026-11-08 (#456) from the record that held it, 0041, decided 2026-07-30.** The decision is
 unchanged and still binds, and so is its 2026-11-01 amendment (#710, the cover-derived card), written
 below as the decision as it binds. The full record is in git history:
-`git log --diff-filter=D -- 'docs/adr/0041-*'`.
+`git log --diff-filter=D -- 'docs/adr/0041-*'`. **Amended 2026-11-21 (#662): a second card class**, the
+vertical Story card, recorded in *The vertical Story card* below; the 1200×630 class is unchanged.
 
 ### Context
 
@@ -98,8 +102,13 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
 - **What goes on the card:** the existing card art with the article's TITLE over it, so every card
   reads as one family with `og-default.png`. The card's text is the article's own frontmatter title, so
   it cannot be re-typed wrongly. No date and no tag.
-- **One aspect ratio, 1200×630.** Instagram is not a distribution surface (#270), so the 1080×1920 Story
-  output #183 bundled with this work has no consumer.
+- ~~**One aspect ratio, 1200×630.** Instagram is not a distribution surface (#270), so the 1080×1920 Story
+  output #183 bundled with this work has no consumer.~~ **Struck 2026-11-21 (#662): the premise is false
+  on one ground.** A reader can send an article to their own Instagram Story
+  ([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), and that share carries a card. The
+  owner posts no Stories himself (the communication and channel strategy requirements document,
+  `docs/tadeumendonca-io-product-requirements-document-communication-channel-strategy.md`). The OG class
+  keeps one aspect ratio; the Story class is separate (below).
 - **The card file is named after the article KEY plus the locale, `/og/<key>.<locale>.png`**, never the
   per-locale slug: slugs are per-locale and editable ([ADR-0037](./0037-localized-article-slugs.md)), and
   a slug-named card is orphaned the moment one is corrected, as an `og:image` URL that every scraper has
@@ -158,6 +167,70 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
   the SPA's HTML for four hours. The behaviour and its origin were removed, which repaired the URLs
   already advertised rather than moving the cards, and the bucket itself was retired the same day.
 
+### The vertical Story card — a second card class (2026-11-21, #662)
+
+**Driven by** Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662). The owner ruled the
+brand mark is the domain wordmark as on the OG cards (*«Domínio»*) and that the card carries the title in
+the shared link's locale with no new copy (*«Título no idioma»*), both on 2026-10-31. On 2026-11-20 he
+re-scoped the item (*"Reuse in #820"*, *"Enters after #662"*): Instagram is reached only through the
+reader's share, so the card is not an owner-posted Story, and **the class has two consumers**: the
+reader's share-to-Story ([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), which fetches
+the committed card through `storyCardPath`, and the short-video generator
+([#820](https://github.com/tedeuxx/tadeumendonca-io/issues/820)), which renders its frames from the same
+layout through `storyFrameHtml` and never copies it. The cover-derived card above is unchanged; the Story
+card is title-only and does not carry its signature.
+
+- **`npm run gen-story-cards` (`apps/fed/scripts/gen-story-cards.mjs`) renders one 1080×1920 PNG per
+  published article per locale into `apps/fed/public/story/<key>.<locale>.png`, committed**, in the same
+  Playwright Chromium as the OG cards; never rendered at runtime or in CI. The decisions sit in the pure
+  half, `apps/fed/scripts/story-cards.mjs`, and are unit-tested there.
+- **One template, exported.** The frame is `storyFrameHtml({ title, locale, qrPayload, background,
+  fonts })`. The generator draws every card through it, and #820 imports it. **The QR is a parameter**:
+  `qrPayload` is the URL to encode, or none for a frame with no QR layer, so a frame published elsewhere
+  does not count its scans as Instagram's. `background` is an optional image under everything; the QR
+  keeps its own light panel. `SAFE_ZONE`, `LAYOUT`, the palette constants and the title ladder are
+  exported with it, and `storyLayout` returns where each box sits, with or without a QR.
+- **Same naming argument, separate directory.** Keyed by the article key and locale, never the slug.
+  `/story/` rather than `/og/`, so neither class's set-equality gate reads the other's files as orphans.
+  `storyCardPath(key, locale)` is the one helper #789 fetches.
+- **Content, and nothing else:** the `tadeumendonca.io` wordmark with the mark and the accent, as on the
+  OG card; the article title in the card's locale, read from its frontmatter; and a QR. No meta line, no
+  call to action. The palette is [ADR-0008](./0008-brutalist-mono-identity.md)'s; zero radius, no shadow,
+  no gradient. ADR-0008 is not amended.
+- **The QR payload is derived:** the neutral article URL from `routes.mjs` (`neutralArticleRouteFor(key)`,
+  [ADR-0052](./0052-neutral-self-canonical-share-url-per-article.md)), tagged through `utm.ts`'s
+  `withShareUtm` with `STORY_SOURCE` and `STORY_CAMPAIGN` (*Campaign tagging of shared links* below). Both
+  locale cards of one article encode the same URL.
+- **The QR's physical targets:** error correction **Q**; **12 px modules**, whole pixels, `crispEdges`, at
+  integer offsets; a **4-module** quiet zone in the light field; dark `#0A0A0A` modules on `#F5F4EF`, never
+  inverted, nothing overlaid. The panel is at most 800 px wide and sits 30 px above the lower safe edge; a
+  payload that would need more refuses rather than shrinking its modules.
+- **Q and a fixed 12 px module, on a measurement.** The first build used M and the largest whole module
+  that fit (13–15 px), and failed one payload at 33%. A probe rendered every current payload at 12–16 px
+  under M and Q, with 4- and 6-module quiet zones, and decoded each at 100%, 50% and 33% with the gate's
+  decoder: 12 px was the only size that decoded every payload at every scale in all four combinations.
+  12 divides by 2 and by 3, so a downscaled module stays whole pixels.
+- **The safe zone:** nothing is drawn in the top or bottom 270 px, where the platforms draw their own
+  interface; the band between them is `SAFE_ZONE`, shared with #820. **That figure is a premise, not a
+  measurement**; the issue's phone-to-phone scan checks it, and Instagram's own recompression is checked
+  in #789, where a reader-shared Story is the real path.
+- **Title fit:** a fixed title box; the generator measures the title at each size of a ladder (112 to
+  56 px) and takes the largest with no overflow on either axis and at most six lines, or throws, naming
+  the article and locale.
+- **The gates, stronger than the OG class's in one direction** (`apps/fed/scripts/story-cards.test.mjs`,
+  against the committed PNGs): set equality both ways with the false-green guard and no card for a held
+  article; **decode-back**, every card decoded with an independent decoder and compared with the derived
+  payload, so a card left stale by a slug rename or a campaign change is red; the same decode at 50% and
+  33%; matrix determinism (PNG bytes are not asserted identical across machines, for the font-environment
+  reason above); the physical floor read off the PNG; and the template: a frame with no payload carries
+  no QR layer, a frame with a payload carries a QR that decodes to it, every box sits inside `SAFE_ZONE`,
+  and the generator draws through `storyFrameHtml`. `apps/fed/e2e/story-card.spec.ts` checks the build
+  serves a published card as a 1080×1920 PNG and no card for the held article.
+- **Three development dependencies, nothing in the browser:** `qrcode-generator` 2.0.4 (MIT, the encoder),
+  `pngjs` 7.0.0 (MIT, reads the committed PNG in the gate) and `@zxing/library` 0.21.3 (Apache-2.0, the
+  decoder, a different codebase from the encoder; held below 0.22 because later versions declare
+  `engines.node >= 24` and CI runs Node 22). All pinned exactly, none with an install script.
+
 ### Rejected options that are still live
 
 - **Title + date + tag on the card.** The information is free, which is why it was rejected on purpose:
@@ -166,8 +239,16 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
 - **The campaign signature on a title-only card.** It was rejected while the signature was undecided
   `content` work; the 2026-11-01 reversal covers cover-derived cards only, and the rejection stands for
   every title-only card.
-- **A second aspect ratio "since the layout is already there".** It doubles the committed binary to serve
-  a surface nobody publishes to, and a second layout is a second thing that can overflow unseen.
+- ~~**A second aspect ratio "since the layout is already there".** It doubles the committed binary to serve
+  a surface nobody publishes to, and a second layout is a second thing that can overflow unseen.~~
+  **Struck 2026-11-21 (#662): the surface exists** (a reader's Story). The second argument is kept and
+  answered: the Story layout refuses an overflowing title as the OG layout does.
+- **For the Story card's QR (2026-11-21, #662):** a hand-rolled encoder (unreviewed code on a permanent
+  artifact); `qrcode`, the more common encoder (it pulls a command-line parser into the tree); `jsqr` as
+  the decoder (no release since 2021); generating the QR at runtime in the page (a runtime dependency on a
+  site where nothing third-party loads); an external QR or shortener service (a third-party redirect
+  breaks "ours end to end"); and a QR hard-wired to the Instagram tag in the shared template (a video
+  frame would count its scans as Instagram's).
 - **The per-locale slug as the card name**, for the reason above.
 - **Renaming the default card to `og-default.en.png`, or doing so and leaving a byte-identical copy at the
   old path.** The first 404s every pinned link; the second keeps two identical files that no gate holds
@@ -209,6 +290,11 @@ wrong card **outlives the merge that fixed it**, permanently, on every post that
   `visualMode` contract and the `cover`/`ogImage` schema cleanup are deferred until a second cover
   article exists. That the cover does not read as a real photograph is held by the AI-generated mark and
   a reviewer's look, not by any gate.
+- **The Story card (2026-11-21, #662):** fourteen more committed binaries today (seven articles × two
+  locales), regenerated with every new article; its title can be stale like the OG card's, while its QR,
+  the part that cannot be taken back, is gated; the safe zone and the scan distance are unmeasured here;
+  and one template couples the Story card and #820's frames, so a change to it changes both, which is the
+  point of having one and is what the card's gates notice.
 
 ## A held article is isolated, not private
 
@@ -627,6 +713,12 @@ a sixth `utm_source` value, **`youtube`**, author-side only, for the link in the
 Short; `utm_medium` stays `social` and the campaign is the existing `author-post`. It adds a member to the
 `utm_source` set and changes nothing else; it is written below as the decision as it binds.
 
+**Amended 2026-11-21, after absorption** (Issue [#662](https://github.com/tedeuxx/tadeumendonca-io/issues/662),
+the owner's ruling *«Valor novo»* of 2026-10-31 and the re-scoped intake of 2026-11-20): a seventh
+`utm_source` value, **`instagram`**, and a fourth `utm_campaign` value, **`story-card`**, printed in the QR
+on the vertical Story card a reader shares to Instagram; `utm_medium` stays `social`. It is written below
+as the decision as it binds.
+
 ### Context
 
 Before this decision every session arriving from a reader's share landed in GA4 as `linkedin.com /
@@ -645,7 +737,7 @@ two.
   fabricated dimension; `copy-link` exists because the first draft stamped `share-sheet` on a desktop
   clipboard copy. **`share-sheet` has had no emitter since 2026-08-01** (#314 unified the share
   affordances behind one modal) **and stays defined**: links already shared still carry it and still
-  arrive.
+  arrive. **Since 2026-11-21 `ShareSource` also has `instagram`** (the #662 bullet below).
 - **`utm_source` also takes `youtube`, an author-side value (2026-11-21, #817).** It is the link the author
   places in the description of a YouTube Short, in the article's language (the locale is in the path, so
   no parameter is added for it). Readers cannot share an article to YouTube, so `youtube` is **not** a
@@ -659,7 +751,8 @@ two.
   session in *Organic Social* by matching the medium, and the other two fall to *Unassigned*. On X, which
   GA4's built-in source list does not know, the medium is the only thing keeping it in the social bucket.
   This string is load-bearing.
-- **`utm_campaign` names a mechanism, never a moment or an article**, and has three values:
+- **`utm_campaign` names a mechanism, never a moment or an article**, and has ~~three~~ four values
+  since 2026-11-21 (`story-card`, the dated bullet below):
   `reader-share` (a reader sent the link); `author-post` (the author posted the link, first exercised on
   the `/architecture` launch on 2026-08-16); and `author-profile` (the link sits on the author's own
   LinkedIn or X profile, 2026-10-16, #749). `author-`, not `owner-`: `reader` is a role toward the content
@@ -679,6 +772,29 @@ two.
   carrying `utm_campaign=reader-share`, across at least **2 distinct `utm_source` values**. Below that, the
   affordance is decoration. The window was not restarted by #314, and neither `author-post` nor
   `author-profile` sessions count toward it.
+- **`utm_source=instagram` and `utm_campaign=story-card`, printed in a QR (2026-11-21, #662).** The owner
+  ruled *«Valor novo»* on 2026-10-31: a new campaign value, with `utm_source=instagram` and
+  `utm_medium=social`. The QR on the vertical Story card (*Per-article OG cards*, *The vertical Story
+  card*) encodes the neutral article URL with these three parameters. **The ruling was taken when the
+  owner also meant to post Stories himself; on 2026-11-20 he stopped**: the communication and channel
+  strategy requirements document reaches Instagram only through the reader's share
+  ([#789](https://github.com/tedeuxx/tadeumendonca-io/issues/789)), and *Distribution to LinkedIn and X*
+  is not amended. The values are unchanged by that; their meaning is *"the visitor scanned the QR on a
+  Story card a reader shared."* `story-card` names a mechanism and an artifact, like `reader-share` and
+  `author-profile`, and the network sits in the source rather than the campaign. **The medium stays
+  `social`**: a `story` medium was proposed at intake and withdrawn the same day, because GA4's default
+  channel grouping matches `social`. **The strings live in `apps/fed/src/lib/utm.ts`**: `instagram` joins
+  the `ShareSource` union, and `STORY_SOURCE` and `STORY_CAMPAIGN` are exported constants, because site
+  code emits them (the build-time generator composes the QR payload through `withShareUtm`, and its gate
+  decodes each committed PNG and compares it with that derivation); `utm.test.ts` pins both literals. Both
+  values are listed on the analytics schema page beside the others, and the same test holds them equal
+  to `utm.ts`.
+  **They join the immutable set now**: the first committed card is the first use, and a printed QR cannot
+  be re-tagged. **Not touched:** `share_complete` and the GA `target` dimension (this slice emits no
+  event carrying `instagram`; the first emitter, the dimension's documented values and the registration
+  in *The GA4 event schema is immutable once it collects* are #789's), the consent gate, the other
+  campaign values and the `reader-share` success criterion, which `story-card` sessions do not count
+  toward. No shortener and no third-party redirect: the QR encodes the site's own URL directly.
 - **Canonical, `og:url` and hreflang stay query-free**, built from the route constant (asserted by an E2E
   that requests a tagged URL), and **`iac/` is untouched**: CloudFront's `CachingOptimized` policy ignores
   query strings, so a tagged URL is the same cache object as the clean one
@@ -696,6 +812,9 @@ two.
 - **A per-article or per-launch campaign**, which reads better in one report and destroys the series in
   every later one.
 - **Leaving the share sheet untagged**, which biased the count against WhatsApp on phones.
+- **For the Story card's campaign (2026-11-21, #662):** `author-post` (the author does not post this
+  card) and `reader-share` (it would merge a printed, screenshot-surviving QR into the link-share series
+  and its success criterion, and the two are different mechanisms with different lifetimes).
 - **For profile links:** reusing `author-post` (it merges the populations and changes the value's meaning
   after two months of use); leaving them untagged; per-network values such as `linkedin-profile` (the
   network is already `utm_source`).
@@ -723,6 +842,10 @@ two.
   reading in GA4 is the first evidence either way. A viewer who copies that link and passes it on still
   arrives as `author-post`, the mechanism that put it into circulation. `youtube` joins the immutable set
   on its first use.
+- **No success criterion is set for `story-card`** (2026-11-21, #662); read the series as
+  existence-class. A frame reusing the card's layout elsewhere (#820) must not print this tag: the
+  template takes its QR payload as a parameter for that reason, and nothing but review stops a caller
+  passing the Instagram payload anyway.
 
 ## Consent-gated GA4 analytics
 
